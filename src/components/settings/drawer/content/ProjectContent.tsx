@@ -186,6 +186,12 @@ const ProjectContent = forwardRef<
             setProjectValueError(
               ResponseData.List.length === 1 ? false : false
             );
+          onEdit > 0 &&
+            setProjectName(
+              ResponseData.List.map((i: any) =>
+                i.value === projectValue ? i.label : false
+              ).filter((j: any) => j !== false)
+            );
         }
       };
       callAPI(url, params, successCallback, "POST");
@@ -277,8 +283,8 @@ const ProjectContent = forwardRef<
     const handleAddProject = async () => {
       client <= 0 && setClientError(true);
       typeOfWorks.length <= 0 && setTypeOfWorkNameError(true);
-      projectName.trim().length <= 0 && setProjectNameError(true);
-
+      projectName.toString().trim().length <= 0 && setProjectNameError(true);
+      
       if (
         !clientError &&
         client !== 0 &&
@@ -291,7 +297,7 @@ const ProjectContent = forwardRef<
           ClientId: client,
           WorkTypeIds: typeOfWorkName,
           ProjectId: projectValue !== 0 ? projectValue : null,
-          ProjectName: projectName.trim(),
+          ProjectName: projectName.toString().trim(),
         };
         const url = `${process.env.pms_api_url}/project/saveproject`;
         const successCallback = async (
@@ -534,7 +540,7 @@ const ProjectContent = forwardRef<
               </span>
             )}
 
-            {!textFieldOpen && (
+            {/* {!textFieldOpen && (
               <TextField
                 value={subProject}
                 id="standard-basic"
@@ -543,7 +549,7 @@ const ProjectContent = forwardRef<
                 variant="standard"
                 onChange={(e) => setSubProject(e.target.value)}
               />
-            )}
+            )} */}
           </div>
 
           <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">

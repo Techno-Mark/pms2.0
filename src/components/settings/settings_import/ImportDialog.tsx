@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@mui/material";
 import axios from "axios";
+import { Spinner } from "next-ts-lib";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -30,7 +31,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
   const [fileInputKey, setFileInputKey] = useState(0);
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [isUploading, setIsUplaoding] = useState<boolean>(false);
-  const [Loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleFileChange = (event: any) => {
     setSelectedFile(event.target.files[0]);
@@ -221,8 +222,10 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
           </div>
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] mx-[15px] gap-[10px] h-[64px] flex items-center justify-between">
-          {Loading ? (
-            <ReportLoader />
+          {loading ? (
+            <span className="flex items-center justify-center w-40">
+              <Spinner size="20px" />
+            </span>
           ) : (
             <Button
               variant="contained"

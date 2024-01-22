@@ -7,6 +7,7 @@ import {
   Button,
   FormControl,
   IconButton,
+  InputBase,
   InputLabel,
   MenuItem,
   Tooltip,
@@ -15,6 +16,7 @@ import { toast } from "react-toastify";
 import OverLay from "@/components/common/OverLay";
 import { callAPI } from "@/utils/API/callAPI";
 import { Close, Save } from "@mui/icons-material";
+import SearchIcon from "@/assets/icons/SearchIcon";
 
 const ClientProcessDrawer = ({
   onOpen,
@@ -22,6 +24,7 @@ const ClientProcessDrawer = ({
   selectedRowId,
   onDataFetch,
 }: any) => {
+  const [searchValue, setSearchValue] = useState("");
   const [isLoadingClientProcess, setIsLoadingClientProcess] = useState(false);
   const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState([]);
   const [typeOfWork, setTypeOfWork] = useState(0);
@@ -169,6 +172,7 @@ const ClientProcessDrawer = ({
   ];
 
   const handleClose = () => {
+    setSearchValue("");
     setSelectedRowsData([]);
     onClose();
     setEditingRows({});
@@ -286,6 +290,7 @@ const ClientProcessDrawer = ({
         {
           clientId: selectedRowId || 0,
           WorkTypeId: typeOfWork,
+          globalSearch: searchValue,
         },
         {
           headers: {
@@ -343,7 +348,7 @@ const ClientProcessDrawer = ({
     if (typeOfWork > 0) {
       getProcessByClient();
     }
-  }, [typeOfWork, onOpen]);
+  }, [typeOfWork, onOpen, searchValue]);
 
   const handleActionValue = (id: any) => {
     setEditingRows((prevEditingRows) => ({
@@ -519,7 +524,18 @@ const ClientProcessDrawer = ({
           <span className="text-pureBlack text-lg font-medium">
             Edit Process
           </span>
-          <div>
+          <div className="flex items-center">
+            <div className="relative mt-[18px] mr-4">
+              <InputBase
+                className="pl-1 pr-7 border-b border-b-lightSilver w-56"
+                placeholder="Search"
+                value={searchValue}
+                onChange={(e: any) => setSearchValue(e.target.value)}
+              />
+              <span className="absolute top-2 right-2 text-slatyGrey">
+                <SearchIcon />
+              </span>
+            </div>
             <FormControl
               variant="standard"
               sx={{ width: 300, mt: -0.3, my: -1, mx: 0.75, mr: 4 }}
@@ -532,7 +548,10 @@ const ClientProcessDrawer = ({
                 labelId="demo-simple-select-standard-label"
                 id="demo-simple-select-standard"
                 value={typeOfWork === 0 ? "" : typeOfWork}
-                onChange={(e: any) => setTypeOfWork(parseInt(e.target.value))}
+                onChange={(e: any) => {
+                  setTypeOfWork(parseInt(e.target.value));
+                  setSearchValue("");
+                }}
               >
                 {typeOfWorkDropdown.map((i: any, index: number) => (
                   <MenuItem value={i.value} key={index}>

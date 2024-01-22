@@ -18,6 +18,7 @@ import {
 } from "@/utils/worklog/importTableOprions";
 import { TransitionDown } from "@/utils/style/DialogTransition";
 import { callAPI } from "@/utils/API/callAPI";
+import { Spinner } from "next-ts-lib";
 
 interface ImportDialogProp {
   onOpen: boolean;
@@ -39,6 +40,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [isUploading, setIsUplaoding] = useState<boolean>(false);
   const [fileInputKey, setFileInputKey] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const handleClose = () => {
     handleReset();
@@ -207,6 +209,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
   }, [selectedFile]);
 
   const handleDownloadSampleFile = async () => {
+    setLoading(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
 
@@ -225,6 +228,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Failure") {
           toast.error("Please try again later.");
+          setLoading(false);
         } else {
           const blob = new Blob([response.data], {
             type: response.headers["content-type"],
@@ -238,12 +242,15 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
           document.body.removeChild(a);
           window.URL.revokeObjectURL(url);
           toast.success("File has been downloaded successfully.");
+          setLoading(false);
         }
       } else {
         toast.error("Please try again later.");
+        setLoading(false);
       }
     } catch (error) {
       toast.error("Error downloading data.");
+      setLoading(false);
     }
   };
 
@@ -397,17 +404,23 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
             </Button>
           ) : (
             <>
-              <Button
-                variant="contained"
-                color="success"
-                className="rounded-[4px] !h-[36px] !bg-[#388e3c] hover:!bg-darkSuccess"
-                onClick={handleDownloadSampleFile}
-              >
-                Sample File&nbsp;
-                <span className="text-xl">
-                  <Download />
+              {loading ? (
+                <span className="flex items-center justify-center w-40">
+                  <Spinner size="20px" />
                 </span>
-              </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  color="success"
+                  className="rounded-[4px] !h-[36px] !bg-[#388e3c] hover:!bg-darkSuccess"
+                  onClick={handleDownloadSampleFile}
+                >
+                  Sample File&nbsp;
+                  <span className="text-xl">
+                    <Download />
+                  </span>
+                </Button>
+              )}
 
               <Button
                 variant="outlined"
