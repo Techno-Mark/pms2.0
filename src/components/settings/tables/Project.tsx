@@ -218,7 +218,7 @@ const Project = ({
         </span>
         {open && (
           <React.Fragment>
-            <div className="absolute top-30 right-20 z-10 flex justify-center items-center">
+            <div className="absolute top-30 right-36 z-10 flex justify-center items-center">
               <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-28">
                   {actionPermissions.map((action: any, index: any) => (
@@ -320,11 +320,11 @@ const Project = ({
       label: "Project Name",
       bodyRenderer: generateCommonBodyRender,
     },
-    {
-      name: "SubProjectName",
-      label: "Sub-Project Name",
-      bodyRenderer: generateCommonBodyRender,
-    },
+    // {
+    //   name: "SubProjectName",
+    //   label: "Sub-Project Name",
+    //   bodyRenderer: generateCommonBodyRender,
+    // },
     {
       name: "IsActive",
       label: "Status",
@@ -356,65 +356,65 @@ const Project = ({
       enabled: true,
       transitionTime: 300,
     },
-    expandableRows: true,
-    renderExpandableRow: (rowData: any, rowMeta: any) => {
-      const activeUser = async (e: any, id: any, active: any) => {
-        await setIsOpenSwitchModal(true);
-        await setSwitchId(id);
-        await setSwitchActive(!active);
-      };
-      return (
-        <React.Fragment>
-          <tr>
-            <td colSpan={12}>
-              <TableContainer component={Paper}>
-                <Table style={{ minWidth: "650" }} aria-label="simple table">
-                  <TableBody>
-                    {data[rowMeta.rowIndex].SubProject.length > 0 ? (
-                      data[rowMeta.rowIndex].SubProject.map((i: any) => (
-                        <TableRow key={i.SubProjectId}>
-                          <TableCell className="!pl-[4.5rem] w-[15rem]">
-                            {i.ClientName}
-                          </TableCell>
-                          <TableCell className="w-[17.5rem]">
-                            {i.ProjectName}
-                          </TableCell>
-                          <TableCell className="w-[18.5rem]">
-                            {i.SubProjectName}
-                          </TableCell>
-                          <TableCell className="w-[10rem]">
-                            <Switch
-                              checked={i.IsActive}
-                              onChange={(e) =>
-                                activeUser(
-                                  e.target.value,
-                                  i.SubProjectId,
-                                  i.IsActive
-                                )
-                              }
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Actions
-                              actions={["Edit", "Delete"]}
-                              id={i.SubProjectId}
-                            />
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow className="h-16">
-                        <span className="flex items-center justify-start ml-16 pt-5">No data found.</span>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </td>
-          </tr>
-        </React.Fragment>
-      );
-    },
+    expandableRows: false,
+    // renderExpandableRow: (rowData: any, rowMeta: any) => {
+    //   const activeUser = async (e: any, id: any, active: any) => {
+    //     await setIsOpenSwitchModal(true);
+    //     await setSwitchId(id);
+    //     await setSwitchActive(!active);
+    //   };
+    //   return (
+    //     <React.Fragment>
+    //       <tr>
+    //         <td colSpan={12}>
+    //           <TableContainer component={Paper}>
+    //             <Table style={{ minWidth: "650" }} aria-label="simple table">
+    //               <TableBody>
+    //                 {data[rowMeta.rowIndex].SubProject.length > 0 ? (
+    //                   data[rowMeta.rowIndex].SubProject.map((i: any) => (
+    //                     <TableRow key={i.SubProjectId}>
+    //                       <TableCell className="!pl-[4.5rem] w-[22rem]">
+    //                         {i.ClientName}
+    //                       </TableCell>
+    //                       <TableCell className="w-[19rem]">
+    //                         {i.ProjectName}
+    //                       </TableCell>
+    //                       <TableCell className="w-[19rem]">
+    //                         {i.SubProjectName}
+    //                       </TableCell>
+    //                       <TableCell className="w-[15.6rem]">
+    //                         <Switch
+    //                           checked={i.IsActive}
+    //                           onChange={(e) =>
+    //                             activeUser(
+    //                               e.target.value,
+    //                               i.SubProjectId,
+    //                               i.IsActive
+    //                             )
+    //                           }
+    //                         />
+    //                       </TableCell>
+    //                       <TableCell>
+    //                         <Actions
+    //                           actions={["Edit", "Delete"]}
+    //                           id={i.SubProjectId}
+    //                         />
+    //                       </TableCell>
+    //                     </TableRow>
+    //                   ))
+    //                 ) : (
+    //                   <TableRow className="h-16">
+    //                     <span className="flex items-center justify-start ml-16 pt-5">No data found.</span>
+    //                   </TableRow>
+    //                 )}
+    //               </TableBody>
+    //             </Table>
+    //           </TableContainer>
+    //         </td>
+    //       </tr>
+    //     </React.Fragment>
+    //   );
+    // },
     elevation: 0,
     selectableRows: "none",
   };
