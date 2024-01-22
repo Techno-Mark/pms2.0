@@ -1,0 +1,887 @@
+/* eslint-disable react/display-name */
+/* eslint-disable react-hooks/exhaustive-deps */
+import { Text } from "next-ts-lib";
+import React, {
+  useState,
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+} from "react";
+
+import PlusIcon from "@/assets/icons/PlusIcon";
+import MinusIcon from "@/assets/icons/MinusIcon";
+import { toast } from "react-toastify";
+import { callAPI } from "@/utils/API/callAPI";
+import {
+  Autocomplete,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  createFilterOptions,
+} from "@mui/material";
+import { Delete, Edit } from "@mui/icons-material";
+import { getTypeOfWorkDropdownData } from "@/utils/commonDropdownApiCall";
+
+export interface ProcessContentRef {
+  ProcessDataValue: () => void;
+}
+
+type Options = {
+  label: string;
+  value: string;
+};
+
+const filter = createFilterOptions<Options>();
+
+const ProcessContent = forwardRef<
+  ProcessContentRef,
+  {
+    tab: any;
+    onEdit: boolean;
+    onOpen: any;
+    onClose: any;
+    processData: any;
+    onDataFetch(): any;
+    onChangeLoader: any;
+    onValuesChange: any;
+  }
+>(
+  (
+    { onEdit, onOpen, onClose, onDataFetch, onChangeLoader, onValuesChange },
+    ref
+  ) => {
+    const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState([]);
+    const [typeOfWork, setTypeOfWork] = useState(0);
+    const [typeOfWorkError, setTypeOfWorkError] = useState(false);
+    const [data, setData] = useState([]);
+    const [hoveredItem, setHoveredItem] = useState(null);
+    const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [open, toggleOpen] = useState(false);
+    const [addMoreClicked, setAddMoreClicked] = useState(false);
+    const [processValue, setProcessValue] = useState<any>(0);
+    const [processName, setProcessName] = useState("");
+    const [processNameError, setProcessNameError] = useState(false);
+    const [processNameErrText, setProcessNameErrText] = useState<string>(
+      "This is a required field!."
+    );
+    const [processValueError, setProcessValueError] = useState(false);
+
+    const [subProcessName, setSubProcessName] = useState("");
+    const [subProcessNameError, setSubProcessNameError] = useState(false);
+    const [returnType, setReturnType] = useState<any>(0);
+    const [returnTypeError, setReturnTypeError] = useState(false);
+    const returnTypeDrpdown = [
+      {
+        label: "None",
+        value: 3,
+      },
+      {
+        label: "Individual Return",
+        value: 1,
+      },
+      {
+        label: "Business Return",
+        value: 2,
+      },
+    ];
+    const [estTime, setEstTime] = useState<any>("");
+    const [estTimeError, setEstTimeError] = useState(false);
+    const [productive, setProductive] = useState<boolean>(true);
+    const [billable, setBillable] = useState<boolean>(true);
+    const [activity, setActivity] = useState<string[]>([]);
+
+    const handleEstTimeChange = (
+      event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+      let newValue = event.target.value;
+      newValue.length > 0 && setEstTimeError(false);
+      newValue = newValue.replace(/\D/g, "");
+      if (newValue.length > 8) {
+        return;
+      }
+
+      let formattedValue = "";
+      if (newValue.length >= 1) {
+        const hours = parseInt(newValue.slice(0, 2));
+        if (hours >= 0 && hours <= 23) {
+          formattedValue = newValue.slice(0, 2);
+        } else {
+          formattedValue = "23";
+        }
+      }
+
+      if (newValue.length >= 3) {
+        const minutes = parseInt(newValue.slice(2, 4));
+        if (minutes >= 0 && minutes <= 59) {
+          formattedValue += ":" + newValue.slice(2, 4);
+        } else {
+          formattedValue += ":59";
+        }
+      }
+
+      if (newValue.length >= 5) {
+        const seconds = parseInt(newValue.slice(4, 6));
+        if (seconds >= 0 && seconds <= 59) {
+          formattedValue += ":" + newValue.slice(4, 6);
+        } else {
+          formattedValue += ":59";
+        }
+      }
+      setEstTime(formattedValue);
+    };
+
+    const initialInputList = activity.map((activityName) => ({
+      activityName: activityName,
+    }));
+
+    const [inputList, setInputList] =
+      useState<{ activityName: string }[]>(initialInputList);
+
+    const handleInputChange = (
+      e: React.ChangeEvent<HTMLInputElement>,
+      index: number
+    ) => {
+      if (e.target) {
+        const { value } = e.target;
+        const isValidInput = /^[a-zA-Z0-9\s,]*$/.test(value);
+
+        if (isValidInput && value.trim().length <= 50) {
+          const updatedInputList = [...inputList];
+          updatedInputList[index].activityName = value.trim();
+          setInputList(updatedInputList);
+
+          const updatedActivity = [...activity];
+          updatedActivity[index] = value;
+          setActivity(updatedActivity);
+        }
+      }
+    };
+
+    const handleAddClick = () => {
+      const newInputList = [...inputList, { activityName: "" }];
+      setInputList(newInputList);
+    };
+
+    const handleRemoveClick = (index: number) => {
+      const updatedInputList = [...inputList];
+      updatedInputList.splice(index, 1);
+      setInputList(updatedInputList);
+
+      const updatedActivity = [...activity];
+      updatedActivity.splice(index, 1);
+      setActivity(updatedActivity);
+    };
+
+    useEffect(() => {
+      const initialInputList = activity.map((activityName) => ({
+        activityName: activityName,
+      }));
+      setInputList(initialInputList);
+    }, [activity]);
+
+    function secondsToHHMMSS(seconds: any) {
+      const hours = Math.floor(seconds / 3600);
+      const remainingSeconds = seconds % 3600;
+      const minutes = Math.floor(remainingSeconds / 60);
+      const remainingSecondsFinal = remainingSeconds % 60;
+
+      const hoursStr = hours.toString().padStart(2, "0");
+      const minsStr = minutes.toString().padStart(2, "0");
+      const secsStr = remainingSecondsFinal.toString().padStart(2, "0");
+
+      return `${hoursStr}:${minsStr}:${secsStr}`;
+    }
+
+    const fetchEditData = async () => {
+      if (onEdit) {
+        const params = { ProcessId: onEdit };
+        const url = `${process.env.pms_api_url}/process/GetById`;
+        const successCallback = async (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            setTypeOfWork(ResponseData.WorkTypeId);
+            setProcessValue(ResponseData.ParentId);
+            setSubProcessName(ResponseData.Name);
+            setReturnType(
+              ResponseData.ReturnType === null
+                ? 0
+                : ResponseData.ReturnType === 0
+                ? 3
+                : ResponseData.ReturnType
+            );
+            const estTimeConverted = secondsToHHMMSS(
+              ResponseData.EstimatedHour
+            );
+            setEstTime(estTimeConverted);
+            setActivity(ResponseData.ActivityList);
+            setProductive(ResponseData.IsProductive);
+            setBillable(ResponseData.IsBillable);
+          }
+        };
+        callAPI(url, params, successCallback, "POST");
+      }
+    };
+
+    const getDropdownData = async () => {
+      const params = { WorkTypeId: typeOfWork };
+      const url = `${process.env.pms_api_url}/Process/GetDropdown`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          setData(ResponseData);
+        }
+      };
+      callAPI(url, params, successCallback, "POST");
+    };
+
+    const handleFormButtonClick = async () => {
+      typeOfWork <= 0 && setTypeOfWorkError(true);
+      processName.trim().length <= 0 && setProcessNameError(true);
+      if (
+        typeOfWork > 0 &&
+        !typeOfWorkError &&
+        !processNameError &&
+        processName !== ""
+      ) {
+        const params = {
+          name: processName,
+          WorkTypeId: typeOfWork,
+          ProcessId: processValue !== 0 ? processValue : 0,
+        };
+        const url = `${process.env.pms_api_url}/process/SaveParentProcess`;
+        const successCallback = async (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            toast.success(
+              `${processValue !== 0 ? "" : "New"} Process ${
+                processValue !== 0 ? "Updated" : "added"
+              }  successfully.`
+            );
+            handleClose();
+            await onDataFetch();
+            getDropdownData();
+            onEdit && fetchEditData();
+          }
+        };
+        callAPI(url, params, successCallback, "POST");
+      }
+    };
+
+    const clearData = () => {
+      setTypeOfWork(0);
+      setTypeOfWorkDropdown([]);
+      setSubProcessName("");
+      setReturnType(0);
+      setEstTime("");
+      setInputList([]);
+      setProcessValue(0);
+      setActivity([]);
+      setEstTime("");
+      clearError();
+    };
+
+    const clearError = () => {
+      setTypeOfWorkError(false);
+      setProcessValueError(false);
+      setSubProcessNameError(false);
+      setReturnTypeError(false);
+      setEstTimeError(false);
+      setProductive(true);
+      setBillable(true);
+    };
+
+    const ProcessDataValue = async () => {
+      await clearData();
+    };
+
+    useImperativeHandle(ref, () => ({
+      ProcessDataValue,
+    }));
+
+    const handleSubmit = async (e: { preventDefault: () => void }) => {
+      e.preventDefault();
+      typeOfWork <= 0 && setTypeOfWorkError(true);
+      processValue <= 0 && setProcessValueError(true);
+
+      const [hours, minutes, seconds] = estTime.split(":");
+      const estTimeTotalSeconds =
+        parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
+      subProcessName.trim().length <= 0 && setSubProcessNameError(true);
+      parseInt(returnType) <= 0 && setReturnTypeError(true);
+      estTime.length < 8 && setEstTimeError(true);
+      if (
+        typeOfWork > 0 &&
+        !typeOfWorkError &&
+        processValue > 0 &&
+        subProcessName.trim().length > 0 &&
+        returnType > 0 &&
+        estTime !== "00:00:00" &&
+        estTime !== "" &&
+        estTime.length >= 8 &&
+        estTimeTotalSeconds > 0 &&
+        !processValueError &&
+        !subProcessNameError &&
+        !returnTypeError &&
+        !estTimeError
+      ) {
+        onChangeLoader(true);
+        const params = {
+          ProcessId: onEdit || 0,
+          Name: subProcessName.trim(),
+          ReturnTypeId: parseInt(returnType) === 3 ? 0 : parseInt(returnType),
+          ActivityList: activity
+            .map((i: any) =>
+              i !== undefined && i.trim().length > 0 ? i.trim() : false
+            )
+            .filter((j: any) => j !== false),
+          EstimatedHour: estTimeTotalSeconds,
+          IsProductive: productive,
+          IsBillable: billable,
+          ParentId: processValue,
+          WorkTypeId: typeOfWork,
+        };
+        const url = `${process.env.pms_api_url}/process/Save`;
+        const successCallback = async (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            ProcessDataValue();
+            onDataFetch();
+            onChangeLoader(false);
+            toast.success(
+              `${onEdit ? "" : "New"} Process ${
+                onEdit ? "Updated" : "added"
+              }  successfully.`
+            );
+            {
+              !addMoreClicked && onClose();
+            }
+            clearData();
+          } else {
+            onChangeLoader(false);
+          }
+        };
+        callAPI(url, params, successCallback, "POST");
+      }
+    };
+
+    if (inputList.length === 0) {
+      setInputList([{ activityName: "" }]);
+    }
+
+    const getWorkTypeData = async () => {
+      const params = {
+        ClientId: null,
+        OrganizationId: await localStorage.getItem("Org_Id"),
+      };
+      const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
+      const successCallback = async (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          setTypeOfWorkDropdown(ResponseData);
+        } else {
+          onChangeLoader(false);
+        }
+      };
+      callAPI(url, params, successCallback, "POST");
+    };
+
+    useEffect(() => {
+      clearError();
+      onOpen && typeOfWorkDropdown.length <= 0 && getWorkTypeData();
+      onOpen && typeOfWork > 0 && getDropdownData();
+    }, [onEdit, onOpen, typeOfWork]);
+
+    useEffect(() => {
+      clearError();
+      if (!onEdit) {
+        onOpen && setActivity([]);
+      } else {
+        onOpen && fetchEditData();
+      }
+    }, [onEdit, onOpen]);
+
+    const handleBillableChange = (value: any) => {
+      const isBillable = value === "billable";
+      setBillable(isBillable);
+    };
+
+    const handleProductiveChange = (id: any) => {
+      if (id === "p1") {
+        setProductive(true);
+      } else {
+        setProductive(false);
+        setBillable(false);
+      }
+    };
+
+    const handleClose = () => {
+      toggleOpen(false);
+      setEditDialogOpen(false);
+    };
+
+    const handleProcess = (e: React.SyntheticEvent, value: any) => {
+      if (value !== null) {
+        if (isNaN(parseInt(value.value))) {
+          toggleOpen(true);
+          setProcessName(value.value);
+          setProcessValue(null);
+        }
+        if (value !== null && !isNaN(parseInt(value.value))) {
+          const selectedValue = value.value;
+          setProcessValue(selectedValue);
+          setProcessValueError(false);
+        } else {
+          setProcessValue(0);
+        }
+      }
+    };
+
+    const handleProcessName = (e: any) => {
+      if (e.target.value === "" || e.target.value.trim().length <= 0) {
+        setProcessName(e.target.value);
+        setProcessNameError(true);
+        setProcessNameErrText("This is required field.");
+      } else {
+        setProcessName(e.target.value);
+        setProcessNameError(false);
+        setProcessNameErrText("");
+      }
+    };
+
+    const handleValueChange = (isDeleteOpen: any, selectedRowId: any) => {
+      onValuesChange(selectedRowId, isDeleteOpen);
+    };
+
+    return (
+      <>
+        <form className="max-h-[78vh] overflow-y-auto" onSubmit={handleSubmit}>
+          <div className="flex flex-col my-5 px-[20px]">
+            <FormControl variant="standard" error={typeOfWorkError}>
+              <InputLabel id="demo-simple-select-standard-label">
+                Type of Work
+                <span className="text-defaultRed">&nbsp;*</span>
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                value={typeOfWork === 0 ? "" : typeOfWork}
+                onChange={(e: any) => {
+                  setTypeOfWork(e.target.value);
+                  setProcessValue(0);
+                  e.target.value > 0 && setTypeOfWorkError(false);
+                }}
+                onBlur={(e: any) => {
+                  if (e.target.value > 0) {
+                    setTypeOfWorkError(false);
+                  }
+                }}
+              >
+                {typeOfWorkDropdown.map((i: any, index: number) => (
+                  <MenuItem value={i.value} key={index}>
+                    {i.label}
+                  </MenuItem>
+                ))}
+              </Select>
+              {typeOfWorkError && (
+                <FormHelperText>This is a required field.</FormHelperText>
+              )}
+            </FormControl>
+          </div>
+
+          <div className="flex flex-col px-[20px]">
+            <Autocomplete
+              className={`${processValueError ? "errorAutocomplete" : ""}`}
+              limitTags={2}
+              id="checkboxes-tags-demo"
+              options={data}
+              value={
+                processValue !== 0
+                  ? data.find((option: any) => option.value === processValue) ||
+                    null
+                  : null
+              }
+              getOptionLabel={(option: any) => option.label}
+              onChange={handleProcess}
+              filterOptions={(options, params) => {
+                const filtered = filter(options, params);
+                if (params.inputValue !== "") {
+                  const isExistingProject = options.some(
+                    (option) =>
+                      option.label.toLowerCase() ===
+                      params.inputValue.toLowerCase()
+                  );
+
+                  if (!isExistingProject && !onEdit) {
+                    filtered.push({
+                      label: `Add "${params.inputValue}"`,
+                      value: params.inputValue,
+                    });
+                  }
+                }
+
+                return filtered;
+              }}
+              renderOption={(props, option) => {
+                const isItemHovered = option === hoveredItem;
+
+                const handleEditClick = () => {
+                  setProcessName(option.label);
+                  setEditDialogOpen(true);
+                };
+
+                const handleDeleteClick = () => {
+                  handleValueChange(true, option.value);
+                };
+
+                return (
+                  <li
+                    {...props}
+                    onMouseEnter={() => setHoveredItem(option)}
+                    onMouseLeave={() => setHoveredItem(null)}
+                  >
+                    {option.label}
+                    {isItemHovered && (
+                      <div className="flex justify-center items-center">
+                        <span
+                          className="absolute right-3"
+                          onClick={handleDeleteClick}
+                        >
+                          <Delete />
+                        </span>
+                        <span
+                          className="absolute right-10 pt-1"
+                          onClick={handleEditClick}
+                        >
+                          <Edit />
+                        </span>
+                      </div>
+                    )}
+                  </li>
+                );
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={
+                    <span>
+                      Process
+                      <span className="text-defaultRed">&nbsp;*</span>
+                    </span>
+                  }
+                  placeholder="Please Select..."
+                  variant="standard"
+                />
+              )}
+            />
+            {processValueError && (
+              <span className="text-[#D32F2F] text-[14px] mt-1">
+                {processNameErrText}
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-col px-[20px]">
+            <TextField
+              label={
+                <span>
+                  Sub-Process Name
+                  <span className="!text-defaultRed">&nbsp;*</span>
+                </span>
+              }
+              fullWidth
+              className="pt-1"
+              value={subProcessName?.trim().length <= 0 ? "" : subProcessName}
+              onChange={(e) => {
+                setSubProcessName(e.target.value);
+                setSubProcessNameError(false);
+              }}
+              onBlur={(e: any) => {
+                if (
+                  e.target.value.trim().length <= 0 ||
+                  e.target.value.trim().length > 50
+                ) {
+                  setSubProcessNameError(false);
+                }
+              }}
+              error={subProcessNameError}
+              helperText={
+                subProcessNameError && subProcessName?.trim().length > 50
+                  ? "Maximum 50 characters allowed."
+                  : subProcessNameError
+                  ? "This is a required field."
+                  : ""
+              }
+              margin="normal"
+              variant="standard"
+            />
+          </div>
+          <div className="flex flex-col px-[20px] mt-2">
+            <FormControl
+              variant="standard"
+              // sx={{ width: 300, mt: -0.3, mx: 0.75 }}
+              error={returnTypeError}
+            >
+              <InputLabel id="demo-simple-select-standard-label">
+                Return Type
+                <span className="text-defaultRed">&nbsp;*</span>
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                value={returnType === 0 ? "" : returnType}
+                onChange={(e) => setReturnType(parseInt(e.target.value))}
+                onBlur={(e: any) => {
+                  if (e.target.value > 0) {
+                    setReturnTypeError(false);
+                  }
+                }}
+              >
+                {returnTypeDrpdown.map((i: any, index: number) => (
+                  <MenuItem value={i.value} key={index}>
+                    {i.label}
+                  </MenuItem>
+                ))}
+              </Select>
+              {returnTypeError && (
+                <FormHelperText>This is a required field.</FormHelperText>
+              )}
+            </FormControl>
+          </div>
+          <div className="flex flex-col px-[20px]">
+            <TextField
+              label={
+                <span>
+                  Estimated Time (HH:MM:SS)
+                  <span className="!text-defaultRed">&nbsp;*</span>
+                </span>
+              }
+              placeholder="00:00:00"
+              fullWidth
+              value={estTime}
+              onChange={handleEstTimeChange}
+              onBlur={(e: any) => {
+                if (e.target.value.trim().length < 7) {
+                  setEstTimeError(true);
+                }
+              }}
+              error={estTimeError}
+              helperText={
+                estTime.trim().length > 0 &&
+                estTime.trim().length < 8 &&
+                estTimeError
+                  ? "Start time must be in HH:MM:SS"
+                  : estTime.trim().length <= 0 && estTimeError
+                  ? "This is a required field"
+                  : ""
+              }
+              margin="normal"
+              variant="standard"
+            />
+          </div>
+
+          <div className="flex flex-col px-[20px] mb-4">
+            {inputList.map((inputItem, i) => (
+              <>
+                <span
+                  key={`input-${i}`}
+                  className={`flex items-center ${i > 0 && "!mt-[-15px]"}`}
+                >
+                  <TextField
+                    label="Activities"
+                    fullWidth
+                    value={
+                      inputItem?.activityName?.trim().length <= 0
+                        ? ""
+                        : inputItem?.activityName
+                    }
+                    onChange={(e: any) => handleInputChange(e, i)}
+                    margin="normal"
+                    variant="standard"
+                  />
+                  {/* <Text
+                      type="text"
+                      label="Activities"
+                      placeholder={"Enter Activities"}
+                      value={inputItem.activityName}
+                      getValue={(e: any) => handleInputChange(e, i)}
+                      onChange={(e: any) => handleInputChange(e, i)}
+                      getError={(e: any) => setActivityHasError(e)}
+                      hasError={activityError}
+                    /> */}
+                  <div className="btn-box">
+                    {i === 0 ? (
+                      <span className="cursor-pointer" onClick={handleAddClick}>
+                        <PlusIcon />
+                      </span>
+                    ) : (
+                      <span
+                        className="cursor-pointer"
+                        onClick={() => handleRemoveClick(i)}
+                      >
+                        <MinusIcon />
+                      </span>
+                    )}
+                  </div>
+                </span>
+              </>
+            ))}
+          </div>
+          <span className="flex items-center pr-[20px] pl-[20px] pb-[20px]">
+            <div className="mr-[100px] checkboxRadio">
+              <input
+                type="checkbox"
+                id="p1"
+                name="group1"
+                checked={productive}
+                onChange={() => handleProductiveChange("p1")}
+                value="productive"
+              />
+              <span>Productive</span>
+            </div>
+            <div className="checkboxRadio">
+              <input
+                type="checkbox"
+                id="non_p1"
+                name="group1"
+                checked={!productive}
+                onChange={() => handleProductiveChange("non_p1")}
+                value="non_productive"
+              />
+              <span>Non-Productive</span>
+            </div>
+          </span>
+          <span className="flex items-center pr-[20px] pl-[20px] pb-[20px]">
+            <div className="mr-[128px] checkboxRadio">
+              <input
+                type="checkbox"
+                id="billable"
+                name="group2"
+                onChange={() => handleBillableChange("billable")}
+                disabled={!productive}
+                checked={billable}
+                value="billable"
+              />
+              <span>Billable</span>
+            </div>
+            <div className="checkboxRadio">
+              <input
+                type="checkbox"
+                onChange={() => handleBillableChange("non_billable")}
+                disabled={!productive}
+                checked={!billable}
+                value="non_billable"
+                name="group2"
+                id="non_billable"
+              />
+              <span>Non-Billable</span>
+            </div>
+          </span>
+
+          {/* Footer */}
+          <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
+            <>
+              {onEdit ? (
+                <Button
+                  variant="outlined"
+                  className="rounded-[4px] !h-[36px] !text-secondary"
+                  onClick={() => {
+                    clearData();
+                    onClose();
+                  }}
+                >
+                  Close
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  variant="outlined"
+                  className="rounded-[4px] !h-[36px] !text-secondary cursor-pointer"
+                  onClick={() => setAddMoreClicked(true)}
+                >
+                  Add More
+                </Button>
+              )}
+              <Button
+                variant="contained"
+                className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary cursor-pointer"
+                type="submit"
+                onClick={() => setAddMoreClicked(false)}
+              >
+                {onEdit ? "Save" : `Create Process`}
+              </Button>
+            </>
+          </div>
+        </form>
+
+        <Dialog open={editDialogOpen || open} onClose={handleClose}>
+          <DialogTitle>
+            {editDialogOpen ? "Edit Process" : "Add a new Process"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              {editDialogOpen
+                ? "Did you change any process in list? Please, edit it!"
+                : "Did you miss any process in list? Please, add it!"}
+            </DialogContentText>
+            <TextField
+              className="w-full"
+              value={processName}
+              error={processNameError}
+              helperText={processNameError && processNameErrText}
+              id="standard-basic"
+              label="Process"
+              placeholder={
+                editDialogOpen ? "Edit a process" : "Add new process"
+              }
+              variant="standard"
+              onChange={handleProcessName}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={handleClose}
+              variant="outlined"
+              className="rounded-[4px] !h-[36px]"
+            >
+              Close
+            </Button>
+            <Button
+              variant="contained"
+              className="rounded-[4px] !h-[36px] !bg-[#0592c6]"
+              type="button"
+              onClick={handleFormButtonClick}
+            >
+              {editDialogOpen ? "Save" : "Add"}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </>
+    );
+  }
+);
+
+export default ProcessContent;
