@@ -218,7 +218,7 @@ const Project = ({
         </span>
         {open && (
           <React.Fragment>
-            <div className="absolute top-30 right-36 z-10 flex justify-center items-center">
+            <div className="absolute top-30 right-3 z-10 flex justify-center items-center">
               <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-28">
                   {actionPermissions.map((action: any, index: any) => (
@@ -425,66 +425,68 @@ const Project = ({
         loader ? (
           <ReportLoader />
         ) : (
-          <div>
-            <ThemeProvider theme={getMuiTheme()}>
-              <MUIDataTable
-                data={data}
-                columns={projectColumns}
-                title={undefined}
-                options={{
-                  ...options,
-                  textLabels: {
-                    body: {
-                      noMatch: (
-                        <div className="flex items-start">
-                          <span>
-                            Currently there is no record, you may{" "}
-                            <a
-                              className="text-secondary underline cursor-pointer"
-                              onClick={onOpen}
-                            >
-                              create project
-                            </a>{" "}
-                            to continue.
-                          </span>
-                        </div>
-                      ),
-                      toolTip: "",
+          <>
+            <div className="muiTableAction">
+              <ThemeProvider theme={getMuiTheme()}>
+                <MUIDataTable
+                  data={data}
+                  columns={projectColumns}
+                  title={undefined}
+                  options={{
+                    ...options,
+                    textLabels: {
+                      body: {
+                        noMatch: (
+                          <div className="flex items-start">
+                            <span>
+                              Currently there is no record, you may{" "}
+                              <a
+                                className="text-secondary underline cursor-pointer"
+                                onClick={onOpen}
+                              >
+                                create project
+                              </a>{" "}
+                              to continue.
+                            </span>
+                          </div>
+                        ),
+                        toolTip: "",
+                      },
                     },
-                  },
-                }}
-                data-tableid="Datatable"
-              />
-              <TablePagination
-                className="mt-[10px]"
-                component="div"
-                count={totalCount}
-                page={page}
-                onPageChange={(
-                  event: React.MouseEvent<HTMLButtonElement> | null,
-                  newPage: number
-                ) => {
-                  handlePageChangeWithFilter(
-                    newPage,
-                    setPage,
-                    setFilteredOject
-                  );
-                }}
-                rowsPerPage={rowsPerPage}
-                onRowsPerPageChange={(
-                  event: React.ChangeEvent<
-                    HTMLInputElement | HTMLTextAreaElement
-                  >
-                ) => {
-                  handleChangeRowsPerPageWithFilter(
-                    event,
-                    setRowsPerPage,
-                    setPage,
-                    setFilteredOject
-                  );
-                }}
-              />
-            </ThemeProvider>
+                  }}
+                  data-tableid="Datatable"
+                />
+                <TablePagination
+                  className="mt-[10px]"
+                  component="div"
+                  count={totalCount}
+                  page={page}
+                  onPageChange={(
+                    event: React.MouseEvent<HTMLButtonElement> | null,
+                    newPage: number
+                  ) => {
+                    handlePageChangeWithFilter(
+                      newPage,
+                      setPage,
+                      setFilteredOject
+                    );
+                  }}
+                  rowsPerPage={rowsPerPage}
+                  onRowsPerPageChange={(
+                    event: React.ChangeEvent<
+                      HTMLInputElement | HTMLTextAreaElement
+                    >
+                  ) => {
+                    handleChangeRowsPerPageWithFilter(
+                      event,
+                      setRowsPerPage,
+                      setPage,
+                      setFilteredOject
+                    );
+                  }}
+                />
+              </ThemeProvider>
+            </div>
 
             {/* Delete Modal */}
             {isDeleteOpen && (
@@ -514,7 +516,7 @@ const Project = ({
                 } Project?`}
               />
             )}
-          </div>
+          </>
         )
       ) : (
         <div className="flex justify-center items-center py-[17px] text-[14px] text-red-500">

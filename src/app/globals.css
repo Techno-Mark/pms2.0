@@ -169,7 +169,7 @@ input[type="time"]::-moz-time-text {
   content: "";
   width: 8px;
   height: 8px;
-  background: #0281B9;
+  background: #0281b9;
   border-radius: 100px;
   position: absolute;
   left: 4.2px;
@@ -178,7 +178,7 @@ input[type="time"]::-moz-time-text {
   transition: all 0.2s;
 }
 .checkboxRadio input:checked ~ span::before {
-  border-color: #0281B9;
+  border-color: #0281b9;
 }
 .checkboxRadio input:checked ~ span::after {
   transform: scale(1);
@@ -210,6 +210,51 @@ input[type="time"]::-moz-time-text {
   border-color: #d32f2f !important;
 }
 
-.muiTableAction tbody tr {
+.muiTableAction tbody tr,
+.muiTableActionHeight tbody tr,
+.muiTableActionHeightStatus tbody tr {
   position: relative;
+}
+
+.muiTableAction thead tr th:last-child,
+.muiTableActionHeight thead tr th:last-child,
+.muiTableActionHeightStatus thead tr th:last-child {
+  width: 0px;
+}
+
+.muiTableAction thead tr th:last-child span,
+.muiTableActionHeight thead tr th:last-child span,
+.muiTableActionHeightStatus thead tr th:last-child span {
+  display: flex;
+  justify-content: end;
+}
+
+.muiTableAction tbody tr td:last-child {
+  /* width: 2px !important; */
+  display: flex;
+  justify-content: end;
+  height: auto;
+  margin-top: 16px;
+  padding-bottom: 16px;
+  padding-right: 3rem;
+}
+
+.muiTableActionHeight tbody tr td:last-child {
+  /* width: 2px !important; */
+  display: flex;
+  justify-content: end;
+  height: auto;
+  margin-top: 15px;
+  padding-bottom: 22px;
+  padding-right: 3rem;
+}
+
+.muiTableActionHeightStatus tbody tr td:last-child {
+  /* width: 2px !important; */
+  display: flex;
+  justify-content: end;
+  height: auto;
+  margin-top: 18px;
+  padding-bottom: 25px;
+  padding-right: 3rem;
 }

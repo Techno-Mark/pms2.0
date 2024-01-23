@@ -40,7 +40,7 @@ const Drawer = ({
   const childRef = useRef<UserContentRef>(null);
   const childRefOrg = useRef<OrganizationContentRef>(null);
   const childRefGroup = useRef<GroupContentRef>(null);
-  const projectRef = useRef<ProjectContentRef>(null);
+  const projectRef = useRef<ProjectContentRef | any>(null);
   const clientRef = useRef<ClientContentRef>(null);
   const childRefStatus = useRef<StatusContenRef>(null);
   const permissionRef = useRef<PermissionContentRef>(null);
@@ -48,7 +48,7 @@ const Drawer = ({
 
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
-  const childRefProcess = useRef<ProcessContentRef>(null);
+  const childRefProcess = useRef<ProcessContentRef | any>(null);
 
   const [isDeleteOpenProject, setIsDeleteOpenProject] = useState(false);
   const [isDeleteOpenProcess, setIsDeleteOpenProcess] = useState(false);
@@ -109,8 +109,9 @@ const Drawer = ({
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            toast("Project has been deleted successfully!");
+            toast.success("Project has been deleted successfully!");
             onClose();
+            projectRef.current.clearAllData();
             onDataFetch();
           } else {
             const data = response.data.Message;
@@ -155,11 +156,12 @@ const Drawer = ({
         );
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            toast("Process has been deleted successfully!");
+            toast.success("Process has been deleted successfully!");
             if (childRefProcess.current) {
               childRefProcess.current.ProcessDataValue();
             }
             onClose();
+            childRefProcess.current.ProcessDataValue();
             onDataFetch();
           } else {
             const data = response.data.Message;
