@@ -284,7 +284,7 @@ const ProjectContent = forwardRef<
       client <= 0 && setClientError(true);
       typeOfWorks.length <= 0 && setTypeOfWorkNameError(true);
       projectName.toString().trim().length <= 0 && setProjectNameError(true);
-      
+
       if (
         !clientError &&
         client !== 0 &&
@@ -362,7 +362,7 @@ const ProjectContent = forwardRef<
     };
 
     const handleValueChange = (isDeleteOpen: any, selectedRowId: boolean) => {
-      onValuesChange(isDeleteOpen, selectedRowId);
+      onValuesChange(selectedRowId, isDeleteOpen);
     };
 
     return (
@@ -586,8 +586,8 @@ const ProjectContent = forwardRef<
           <DialogContent>
             <DialogContentText>
               {editDialogOpen
-                ? "Did you change any project in list? Please, edit it!"
-                : "Did you miss any project in list? Please, add it!"}
+                ? "Are you sure you want to update this Project?."
+                : "Are you sure you want to add this Project?."}
             </DialogContentText>
             <TextField
               className="w-full mt-2"

@@ -1,21 +1,26 @@
 /* eslint-disable react/display-name */
-import axios from "axios";
 import {
+  Autocomplete,
   Button,
-  MultiSelectChip,
+  Checkbox,
   Radio,
-  Select,
-  Tel,
-  Text,
-  Email,
-} from "next-ts-lib";
+  TextField,
+} from "@mui/material";
+import axios from "axios";
+import { MultiSelectChip, Select, Tel, Text, Email } from "next-ts-lib";
 import React, {
   forwardRef,
   useEffect,
   useImperativeHandle,
   useState,
 } from "react";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import { toast } from "react-toastify";
+import { callAPI } from "@/utils/API/callAPI";
+
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 export interface UserContentRef {
   clearAllData: () => void;
@@ -45,30 +50,27 @@ const UserContent = forwardRef<
     // for Employee
     const [userId, setUserId] = useState(0);
     const [firstName, setFirstName] = useState("");
-    const [firstNameHasError, setFirstNameHasError] = useState(false);
     const [firstNameError, setFirstNameError] = useState(false);
     const [lastName, setLastName] = useState("");
-    const [lastNameHasError, setLastNameHasError] = useState(false);
     const [lastNameError, setLastNameError] = useState(false);
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     const [email, setEmail] = useState("");
-    const [emailHasError, setEmailHasError] = useState(false);
     const [emailError, setEmailError] = useState(false);
     const [tel, setTel] = useState("");
+    const [typeOfWork, setTypeOfWork] = useState(0);
+    const [typeOfWorkError, setTypeOfWorkError] = useState(false);
     const [role, setRole] = useState(0);
-    const [roleHasError, setRoleHasError] = useState(false);
     const [roleError, setRoleError] = useState(false);
     const [department, setDepartment] = useState(0);
-    const [departmentHasError, setDepartmentHasError] = useState(false);
     const [departmentError, setDepartmentError] = useState(false);
     const [report, setReport] = useState(0);
-    const [reportHasError, setReportHasError] = useState(false);
     const [reportError, setReportError] = useState(false);
-    const [group, setGroup] = useState([]);
-    const [groupHasError, setGroupHasError] = useState(false);
+    const [selectGroupValue, setSelectGroupValue] = useState<any>([]);
+    const [selectedGroupOptions, setSelectGroupOptions] = useState<any>([]);
     const [groupError, setGroupError] = useState(false);
-
-    const [departmentDropdownData, setDepartmentDropdownData] = useState([]);
+    const [typeOfWorkDropdownData, setTypeOfWorkDropdownData] = useState([]);
     const [roleDropdownData, setRoleDropdownData] = useState([]);
+    const [departmentDropdownData, setDepartmentDropdownData] = useState([]);
     const [groupDropdownData, setGroupDropdownData] = useState([]);
     const [reportManagerDropdownData, setReportManagerDropdownData] = useState(
       []
@@ -76,28 +78,18 @@ const UserContent = forwardRef<
 
     // For client
     const [clientName, setClientName] = useState(0);
-    const [clientNameHasError, setClientNameHasError] = useState(false);
     const [clientNameError, setClientNameError] = useState(false);
     const [clientFirstName, setClientFirstName] = useState("");
-    const [clientFirstNameHasError, setClientFirstNameHasError] =
-      useState(false);
     const [clientFirstNameError, setClientFirstNameError] = useState(false);
     const [clientLastName, setClientLastName] = useState("");
-    const [clientLastNameHasError, setClientLastNameHasError] = useState(false);
     const [clientLastNameError, setClientLastNameError] = useState(false);
     const [clientEmail, setClientEmail] = useState("");
-    const [clientEmailHasError, setClientEmailHasError] = useState(false);
     const [clientEmailError, setClientEmailError] = useState(false);
     const [clientRole, setClientRole] = useState(0);
-    const [clientRoleHasError, setClientRoleHasError] = useState(false);
     const [clientRoleError, setClientRoleError] = useState(false);
     const [clientTel, setClientTel] = useState("");
 
     const [clientDropdownData, setClientDropdownData] = useState([]);
-
-    useEffect(() => {
-      setEmailConfirmed(false);
-    }, []);
 
     useEffect(() => {
       if (userData && onEdit) {
@@ -126,39 +118,28 @@ const UserContent = forwardRef<
                   setEmailConfirmed(data.EmailConfirmed);
                   setUserId(data.UserId);
                   setFirstName(data.FirstName);
-                  setFirstNameError(true);
                   setLastName(data.LastName);
-                  setLastNameError(true);
                   setEmail(data.Email);
-                  setEmailError(true);
                   setTel(data.ContactNo);
+                  setTypeOfWork(data.WorkTypeId);
                   setRole(data.RoleId);
-                  setRoleError(true);
                   setDepartment(data.DepartmentId);
-                  setDepartmentError(true);
                   setReport(
                     data.ReportingManagerId === null
                       ? 0
                       : data.ReportingManagerId
                   );
-                  setReportError(true);
-                  setGroup(data.GroupIds);
-                  setGroupError(true);
+                  setSelectGroupValue(data.GroupIds);
                 } else {
                   setValue("Client");
                   setEmailConfirmed(data.EmailConfirmed);
                   setUserId(data.UserId);
                   setClientName(data.ClientId);
-                  setClientNameError(true);
                   setClientFirstName(data.FirstName);
-                  setClientFirstNameError(true);
                   setClientLastName(data.LastName);
-                  setClientLastNameError(true);
                   setClientEmail(data.Email);
-                  setClientEmailError(true);
                   setClientTel(data.ContactNo);
                   setClientRole(data.RoleId);
-                  setClientRoleError(true);
                 }
               } else {
                 const data = response.data.Message;
@@ -187,12 +168,11 @@ const UserContent = forwardRef<
         setLastName("");
         setEmail("");
         setTel("");
+        setTypeOfWork(0);
         setRole(0);
         setDepartment(0);
         setReport(0);
       }
-      setEmployeeDataTrue();
-      setClientDataTrue();
       clearDataClient();
       clearDataEmployee();
     }, [onEdit, userData, onClose]);
@@ -228,6 +208,7 @@ const UserContent = forwardRef<
 
           if (response.status === 200) {
             if (response.data.ResponseStatus === "Success") {
+              setTypeOfWorkDropdownData;
               if (api === "/client/getdropdown") {
                 setClientDropdownData(response.data.ResponseData);
               }
@@ -239,6 +220,14 @@ const UserContent = forwardRef<
               }
               if (api === "/group/getdropdown") {
                 setGroupDropdownData(response.data.ResponseData);
+                const filteredOptionsData = response.data.ResponseData.filter(
+                  (d: any) => {
+                    return selectGroupValue.some((id: number) => {
+                      return id === parseInt(d.value);
+                    });
+                  }
+                );
+                setSelectGroupOptions(filteredOptionsData);
               }
               if (api === "/user/GetRMUserDropdown") {
                 setReportManagerDropdownData(response.data.ResponseData);
@@ -263,48 +252,55 @@ const UserContent = forwardRef<
           console.error(error);
         }
       };
+      const getWorkTypeData = async () => {
+        const params = {
+          ClientId: null,
+          OrganizationId: await localStorage.getItem("Org_Id"),
+        };
+        const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
+        const successCallback = async (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            setTypeOfWorkDropdownData(ResponseData);
+          } else {
+            onChangeLoader(false);
+          }
+        };
+        callAPI(url, params, successCallback, "POST");
+      };
 
-      onOpen && getData("/client/getdropdown");
+      onOpen && getWorkTypeData();
+      onOpen && onOpen && getData("/client/getdropdown");
       onOpen && getData("/department/getdropdown");
       onOpen && getData("/Role/GetDropdown");
       onOpen && getData("/group/getdropdown");
       onOpen && department > 0 && getData("/user/GetRMUserDropdown");
     }, [department, userId, onOpen]);
 
-    const setEmployeeDataTrue = () => {
-      setFirstNameHasError(true);
-      setLastNameHasError(true);
-      setEmailHasError(true);
-      setRoleHasError(true);
-      setDepartmentHasError(true);
-      setReportHasError(true);
-      setGroupHasError(true);
-    };
-
     const clearDataEmployee = () => {
       setUserId(0);
       setFirstName("");
       setFirstNameError(false);
-      setFirstNameHasError(false);
       setLastName("");
       setLastNameError(false);
-      setLastNameHasError(false);
       setEmail("");
       setEmailError(false);
-      setEmailHasError(false);
       setTel("");
+      setTypeOfWork(0);
+      setTypeOfWorkError(false);
       setRole(0);
       setRoleError(false);
-      setRoleHasError(false);
       setDepartment(0);
       setDepartmentError(false);
-      setDepartmentHasError(false);
       setReport(0);
       setReportError(false);
-      setReportHasError(false);
-      setGroup([]);
+      setSelectGroupOptions([]);
+      setSelectGroupValue([]);
       setGroupError(false);
-      setGroupHasError(false);
+      setEmailConfirmed(false);
     };
 
     const saveUser = async () => {
@@ -321,10 +317,11 @@ const UserContent = forwardRef<
             LastName: lastName.trim(),
             Email: email.trim(),
             ContactNo: tel,
+            WorkTypeId: typeOfWork === 0 ? null : typeOfWork,
             RoleId: role === 0 ? null : role,
             DepartmentId: department === 0 ? null : department,
             ReportingManagerId: report === 0 ? null : report,
-            GroupIds: group,
+            GroupIds: selectGroupValue,
             IsClientUser: false,
           },
           {
@@ -341,7 +338,6 @@ const UserContent = forwardRef<
               `User ${onEdit ? "Updated" : "created"} successfully.`
             );
             await onUserDataFetch();
-            await setEmployeeDataTrue();
             await clearDataEmployee();
             onChangeLoader(false);
             {
@@ -371,36 +367,23 @@ const UserContent = forwardRef<
       }
     };
 
-    const setClientDataTrue = () => {
-      setClientNameHasError(true);
-      setClientFirstNameHasError(true);
-      setClientLastNameHasError(true);
-      setClientEmailHasError(true);
-      setClientRoleHasError(true);
-    };
-
     const clearDataClient = () => {
       setUserId(0);
       setClientNameError(false);
-      setClientNameHasError(false);
       setClientName(0);
       setClientFirstName("");
       setClientFirstNameError(false);
-      setClientFirstNameHasError(false);
       setClientLastName("");
       setClientLastNameError(false);
-      setClientLastNameHasError(false);
       setClientEmail("");
       setClientEmailError(false);
-      setClientEmailHasError(false);
       setClientRole(0);
       setClientRoleError(false);
-      setClientRoleHasError(false);
       setClientTel("");
       setRole(0);
       setDepartment(0);
       setReport(0);
-      setGroup([]);
+      setEmailConfirmed(false);
     };
 
     const saveClient = async () => {
@@ -435,7 +418,6 @@ const UserContent = forwardRef<
           if (response.data.ResponseStatus === "Success") {
             onChangeLoader(false);
             onUserDataFetch();
-            setClientDataTrue();
             clearDataClient();
             {
               !addMoreClicked && onClose();
@@ -468,10 +450,9 @@ const UserContent = forwardRef<
     };
 
     const clearAllData = async () => {
-      await setEmployeeDataTrue();
       await clearDataEmployee();
-      await setClientDataTrue();
       await clearDataClient();
+      setValue("Employee");
       onClose();
     };
 
@@ -483,23 +464,36 @@ const UserContent = forwardRef<
       e.preventDefault();
 
       if (value === "Employee") {
-        firstName.trim().length <= 0 && setFirstNameHasError(true);
-        lastName.trim().length <= 0 && setLastNameHasError(true);
-        email.trim().length <= 0 && setEmailHasError(true);
-        role <= 0 && setRoleHasError(true);
-        department <= 0 && setDepartmentHasError(true);
-        report <= 0 && setReportHasError(true);
-        group.length <= 0 && setGroupHasError(true);
+        firstName.trim().length <= 0 && setFirstNameError(true);
+        lastName.trim().length <= 0 && setLastNameError(true);
+        email.trim().length <= 0 && setEmailError(true);
+        email.trim().length > 100 && setEmailError(true);
+        typeOfWork <= 0 && setTypeOfWorkError(true);
+        role <= 0 && setRoleError(true);
+        department <= 0 && setDepartmentError(true);
+        report <= 0 && parseInt(roleIdAdmin) > 1 && setReportError(true);
+        selectGroupValue.length <= 0 && setGroupError(true);
+        setEmailError(!regex.test(email));
         if (
-          firstNameError &&
-          firstName.trim().length !== 0 &&
-          lastNameError &&
-          lastName.trim().length !== 0 &&
-          emailError &&
-          email.trim().length !== 0 &&
+          !firstNameError &&
+          firstName.trim().length > 2 &&
+          firstName.trim().length < 50 &&
+          !lastNameError &&
+          lastName.trim().length > 2 &&
+          lastName.trim().length < 50 &&
+          !emailError &&
+          email.trim().length > 0 &&
+          email.trim().length < 100 &&
+          typeOfWork > 0 &&
+          !typeOfWorkError &&
           role !== 0 &&
+          !roleError &&
           department !== 0 &&
-          group.length !== 0
+          !departmentError &&
+          report !== 0 &&
+          !reportError &&
+          selectGroupValue.length > 0 &&
+          !groupError
         ) {
           if (parseInt(roleIdAdmin) > 1) {
             report !== 0 && saveUser();
@@ -508,21 +502,25 @@ const UserContent = forwardRef<
           }
         }
       } else if (value === "Client") {
-        clientName <= 0 && setClientNameHasError(true);
-        clientFirstName.trim().length <= 0 && setClientFirstNameHasError(true);
-        clientLastName.trim().length <= 0 && setClientLastNameHasError(true);
-        clientEmail.trim().length <= 0 && setClientEmailHasError(true);
-        clientRole <= 0 && setClientRoleHasError(true);
+        clientName <= 0 && setClientNameError(true);
+        clientFirstName.trim().length <= 0 && setClientFirstNameError(true);
+        clientLastName.trim().length <= 0 && setClientLastNameError(true);
+        clientEmail.trim().length <= 0 && setClientEmailError(true);
+        clientRole <= 0 && setClientRoleError(true);
+
         if (
-          clientNameError &&
+          !clientNameError &&
           clientName > 0 &&
-          clientFirstNameError &&
-          clientFirstName.trim().length !== 0 &&
-          clientLastNameError &&
-          clientLastName.trim().length !== 0 &&
-          clientEmailError &&
-          clientEmail.trim().length !== 0 &&
-          clientRoleError &&
+          !clientFirstNameError &&
+          clientFirstName.trim().length > 2 &&
+          clientFirstName.trim().length < 50 &&
+          !clientLastNameError &&
+          clientLastName.trim().length > 2 &&
+          clientLastName.trim().length < 50 &&
+          !clientEmailError &&
+          clientEmail.trim().length > 0 &&
+          clientEmail.trim().length < 100 &&
+          !clientRoleError &&
           clientRole > 0
         ) {
           saveClient();
@@ -530,154 +528,361 @@ const UserContent = forwardRef<
       }
     };
 
+    const handleMultiSelect = (e: React.SyntheticEvent, value: any) => {
+      if (value !== undefined) {
+        const selectedValue = value.map((v: any) => v.value);
+        setSelectGroupOptions(value);
+        setSelectGroupValue(selectedValue);
+        setGroupError(false);
+      } else {
+        setSelectGroupValue([]);
+      }
+    };
+
     return (
       <form onSubmit={handleSubmit}>
         <span className="flex flex-row items-center pr-[20px] pt-[20px] pl-[10px]">
-          {onEdit ? (
-            <>
-              {value === "Employee" ? (
-                <>
-                  <Radio
-                    label="Employee"
-                    checked
-                    id="Employee"
-                    name="user"
-                    onChange={(e) => {}}
-                  />
-                  <span className="mr-32">
-                    <Radio
-                      label="Client"
-                      id="Client"
-                      disabled
-                      name="user"
-                      onChange={(e) => {}}
-                    />
-                  </span>
-                </>
-              ) : (
-                <>
-                  <Radio
-                    label="Employee"
-                    disabled
-                    id="Employee"
-                    name="user"
-                    onChange={(e) => {}}
-                  />
-                  <span className="mr-32">
-                    <Radio
-                      label="Client"
-                      id="Client"
-                      checked
-                      name="user"
-                      onChange={(e) => {}}
-                    />
-                  </span>
-                </>
-              )}
-            </>
-          ) : (
-            <>
-              <Radio
-                label="Employee"
-                checked={value === "Employee" ? true : false}
-                id="Employee"
-                name="user"
-                onChange={(e) => setValue(e.target.id)}
-              />
-              <span className="mr-32">
+          <div className="flex items-center ml-0">
+            {onEdit ? (
+              <>
                 <Radio
-                  label="Client"
-                  checked={value === "Client" ? true : false}
-                  id="Client"
-                  name="user"
-                  onChange={(e) => setValue(e.target.id)}
+                  checked={value === "Employee" ? true : false}
+                  onChange={(e) => setValue(e.target.value)}
+                  value="1"
+                  name="radio-buttons"
+                  disabled={value === "Employee" ? false : true}
                 />
-              </span>
-            </>
-          )}
+                <span
+                  className={`${
+                    value !== "Employee" && "text-gray-500"
+                  } cursor-pointer mr-5`}
+                  onClick={(e) =>
+                    value === "Employee" ? setValue("Employee") : undefined
+                  }
+                >
+                  Employee
+                </span>
+                <Radio
+                  checked={value === "Client" ? true : false}
+                  onChange={(e) => setValue(e.target.value)}
+                  value="2"
+                  name="radio-buttons"
+                  disabled={value === "Client" ? false : true}
+                />
+                <span
+                  className={`${
+                    value !== "Client" && "text-gray-500"
+                  } cursor-pointer`}
+                  onClick={(e) =>
+                    value === "Client" ? setValue("Client") : undefined
+                  }
+                >
+                  Client
+                </span>
+              </>
+            ) : (
+              <>
+                <Radio
+                  checked={value === "Employee" ? true : false}
+                  onChange={(e) => setValue(e.target.value)}
+                  value="1"
+                  name="radio-buttons"
+                />
+                <span
+                  className="mr-5 cursor-pointer"
+                  onClick={(e) => setValue("Employee")}
+                >
+                  Employee
+                </span>
+                <Radio
+                  checked={value === "Client" ? true : false}
+                  onChange={(e) => setValue(e.target.value)}
+                  value="2"
+                  name="radio-buttons"
+                />
+                <span
+                  className="cursor-pointer"
+                  onClick={(e) => setValue("Client")}
+                >
+                  Client
+                </span>
+              </>
+            )}
+          </div>
         </span>
 
-        <div className="flex gap-[15px] flex-col p-[20px] max-h-[70vh] overflow-y-auto">
+        <div className="flex flex-col px-[20px] max-h-[70vh] overflow-y-auto">
           {value === "Employee" && (
             <>
-              <Text
-                label="First Name"
-                placeholder="Enter First Name"
-                noNumeric
-                validate
-                value={firstName}
-                minChar={3}
-                maxChar={50}
-                hasError={firstNameHasError}
-                getValue={(e) => setFirstName(e)}
-                getError={(e) => setFirstNameError(e)}
-              />
-              <Text
-                label="Last Name"
-                placeholder="Enter Last Name"
-                noNumeric
-                validate
-                value={lastName}
-                maxChar={50}
-                hasError={lastNameHasError}
-                getValue={(e) => setLastName(e)}
-                getError={(e) => setLastNameError(e)}
-              />
-              <Email
-                type="email"
-                label="Email"
-                placeholder="Enter Email ID"
-                disabled={emailConfirmed}
-                validate
-                value={email}
-                maxChar={100}
-                hasError={emailHasError}
-                getValue={(e) => setEmail(e)}
-                getError={(e) => setEmailError(e)}
-              />
-              <Tel
-                className="telPadding"
-                label="Mobile Number"
-                placeholder="Enter Mobile Number"
-                value={tel}
-                maxLength={14}
-                getValue={(e) => setTel(e)}
-                getError={(e) => {}}
-              />
-              <Select
-                label="Role"
-                id="role"
-                placeholder="Select Role"
-                validate
-                defaultValue={role === 0 ? "" : role}
-                errorClass="!-mt-[15px]"
-                hasError={roleHasError}
-                getValue={(value) => {
-                  setRole(value);
-                  value > 0 && setRoleHasError(false);
+              <TextField
+                label={
+                  <span>
+                    First Name
+                    <span className="!text-defaultRed">&nbsp;*</span>
+                  </span>
+                }
+                fullWidth
+                value={firstName?.trim().length <= 0 ? "" : firstName}
+                onChange={(e) => {
+                  setFirstName(e.target.value);
+                  setFirstNameError(false);
                 }}
-                search
-                getError={(e) => setRoleError(e)}
+                onBlur={(e: any) => {
+                  if (
+                    e.target.value.trim().length < 3 ||
+                    e.target.value.trim().length > 20
+                  ) {
+                    setFirstNameError(true);
+                  }
+                }}
+                error={firstNameError}
+                helperText={
+                  firstNameError && firstName?.trim().length > 50
+                    ? "Maximum 20 characters allowed."
+                    : firstNameError &&
+                      firstName?.trim().length > 0 &&
+                      firstName?.trim().length < 3
+                    ? "Minimum 3 characters allowed."
+                    : firstNameError
+                    ? "This is a required field."
+                    : ""
+                }
+                margin="normal"
+                variant="standard"
+              />
+              <TextField
+                label={
+                  <span>
+                    Last Name
+                    <span className="!text-defaultRed">&nbsp;*</span>
+                  </span>
+                }
+                sx={{ mt: 0.5 }}
+                fullWidth
+                value={lastName?.trim().length <= 0 ? "" : lastName}
+                onChange={(e) => {
+                  setLastName(e.target.value);
+                  setLastNameError(false);
+                }}
+                onBlur={(e: any) => {
+                  if (
+                    e.target.value.trim().length < 3 ||
+                    e.target.value.trim().length > 20
+                  ) {
+                    setLastNameError(true);
+                  }
+                }}
+                error={lastNameError}
+                helperText={
+                  lastNameError && lastName?.trim().length > 50
+                    ? "Maximum 20 characters allowed."
+                    : lastNameError &&
+                      lastName?.trim().length > 0 &&
+                      lastName?.trim().length < 3
+                    ? "Minimum 3 characters allowed."
+                    : lastNameError
+                    ? "This is a required field."
+                    : ""
+                }
+                margin="normal"
+                variant="standard"
+              />
+              <TextField
+                type="email"
+                sx={{ mt: 0.5 }}
+                disabled={emailConfirmed}
+                label={
+                  <span>
+                    Email
+                    <span className="!text-defaultRed">&nbsp;*</span>
+                  </span>
+                }
+                fullWidth
+                value={email?.trim().length <= 0 ? "" : email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEmailError(false);
+                }}
+                onBlur={(e: any) => {
+                  if (
+                    e.target.value.trim().length < 1 ||
+                    e.target.value.trim().length > 100 ||
+                    !regex.test(e.target.value)
+                  ) {
+                    setEmailError(true);
+                  }
+                }}
+                error={emailError}
+                helperText={
+                  emailError && email?.trim().length > 100
+                    ? "Maximum 100 characters allowed."
+                    : emailError && !regex.test(email)
+                    ? "Please enter valid email."
+                    : emailError
+                    ? "This is a required field."
+                    : ""
+                }
+                margin="normal"
+                variant="standard"
+              />
+              <TextField
+                label="Mobile Number"
+                sx={{ mt: 0.5 }}
+                fullWidth
+                type="number"
+                value={tel?.trim().length <= 0 ? "" : tel}
+                onChange={(e) => setTel(e.target.value)}
+                margin="normal"
+                variant="standard"
+              />
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                sx={{ mt: 0.7 }}
+                options={typeOfWorkDropdownData}
+                value={
+                  typeOfWorkDropdownData.find(
+                    (i: any) => i.value === typeOfWork
+                  ) || null
+                }
+                onChange={(e, value: any) => {
+                  value && setTypeOfWork(value.value);
+                  value && setTypeOfWorkError(false);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    label={
+                      <span>
+                        Type Of Work
+                        <span className="text-defaultRed">&nbsp;*</span>
+                      </span>
+                    }
+                    error={typeOfWorkError}
+                    onBlur={(e) => {
+                      if (typeOfWork > 0) {
+                        setTypeOfWorkError(false);
+                      }
+                    }}
+                    helperText={
+                      typeOfWorkError ? "This is a required field." : ""
+                    }
+                  />
+                )}
+              />
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                sx={{ mt: 0.7 }}
                 options={roleDropdownData
                   .map((i: any) => (i.Type === 1 ? i : undefined))
                   .filter((i: any) => i !== undefined)}
-              />
-              <Select
-                label="Department"
-                id="department"
-                placeholder="Select Department"
-                validate
-                defaultValue={department === 0 ? "" : department}
-                errorClass="!-mt-[15px]"
-                hasError={departmentHasError}
-                getValue={(value) => {
-                  setDepartment(value);
-                  value > 0 && setDepartmentHasError(false);
+                value={
+                  roleDropdownData
+                    .map((i: any) => (i.Type === 1 ? i : undefined))
+                    .filter((i: any) => i !== undefined)
+                    .find((i: any) => i.value === role) || null
+                }
+                onChange={(e, value: any) => {
+                  value && setRole(value.value);
+                  value && setRoleError(false);
                 }}
-                getError={(e) => setDepartmentError(e)}
-                options={departmentDropdownData}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    label={
+                      <span>
+                        Role
+                        <span className="text-defaultRed">&nbsp;*</span>
+                      </span>
+                    }
+                    error={roleError}
+                    onBlur={(e) => {
+                      if (role > 0) {
+                        setRoleError(false);
+                      }
+                    }}
+                    helperText={roleError ? "This is a required field." : ""}
+                  />
+                )}
               />
-              <Select
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                sx={{ mt: 1.5 }}
+                options={departmentDropdownData}
+                value={
+                  departmentDropdownData.find(
+                    (i: any) => i.value === department
+                  ) || null
+                }
+                onChange={(e, value: any) => {
+                  value && setDepartment(value.value);
+                  value && setDepartmentError(false);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    label={
+                      <span>
+                        Department
+                        <span className="text-defaultRed">&nbsp;*</span>
+                      </span>
+                    }
+                    error={departmentError}
+                    onBlur={(e) => {
+                      if (role > 0) {
+                        setDepartmentError(false);
+                      }
+                    }}
+                    helperText={
+                      departmentError ? "This is a required field." : ""
+                    }
+                  />
+                )}
+              />
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                sx={{ mt: 1.5 }}
+                options={reportManagerDropdownData}
+                value={
+                  reportManagerDropdownData.find(
+                    (i: any) => i.value === report
+                  ) || null
+                }
+                onChange={(e, value: any) => {
+                  value && setReport(value.value);
+                  value && setReportError(false);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    label={
+                      <span>
+                        Report Manager
+                        <span className="text-defaultRed">&nbsp;*</span>
+                      </span>
+                    }
+                    error={reportError}
+                    onBlur={(e) => {
+                      if (parseInt(roleIdAdmin) > 1) {
+                        if (role > 0) {
+                          setReportError(false);
+                        }
+                      } else {
+                        setReportError(false);
+                      }
+                    }}
+                    helperText={reportError ? "This is a required field." : ""}
+                  />
+                )}
+              />
+              {/* <Select
                 label="Report Manager"
                 id="reporting_manager"
                 placeholder="Add Reporting Manager"
@@ -692,8 +897,48 @@ const UserContent = forwardRef<
                 search
                 getError={(e) => setReportError(e)}
                 options={reportManagerDropdownData}
+              /> */}
+              <Autocomplete
+                multiple
+                limitTags={2}
+                sx={{ mt: 1.5 }}
+                id="checkboxes-tags-demo"
+                options={groupDropdownData}
+                value={selectedGroupOptions}
+                getOptionLabel={(option: any) => option.label}
+                getOptionDisabled={(option: any) =>
+                  selectGroupValue.includes(option.value)
+                }
+                disableCloseOnSelect
+                onChange={handleMultiSelect}
+                renderOption={(props, option, { selected }) => (
+                  <li {...props}>
+                    <Checkbox
+                      icon={icon}
+                      checkedIcon={checkedIcon}
+                      style={{ marginRight: 8 }}
+                      checked={selectGroupValue.includes(option.value)}
+                    />
+                    {option.label}
+                  </li>
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Group"
+                    placeholder="Please Select..."
+                    variant="standard"
+                    error={groupError}
+                    onBlur={(e) => {
+                      if (selectGroupValue.length > 0) {
+                        setReportError(false);
+                      }
+                    }}
+                    helperText={groupError ? "This is a required field." : ""}
+                  />
+                )}
               />
-              <MultiSelectChip
+              {/* <MultiSelectChip
                 type="checkbox"
                 options={groupDropdownData}
                 defaultValue={group}
@@ -706,104 +951,226 @@ const UserContent = forwardRef<
                 getError={(e) => {
                   setGroupError(e);
                 }}
-              />
+              /> */}
             </>
           )}
           {value === "Client" && (
             <>
-              <Select
-                label="Client Name"
-                id="clientName"
-                placeholder="Select Client Name"
-                validate
-                defaultValue={clientName === 0 ? "" : clientName}
-                errorClass="!-mt-[15px]"
-                hasError={clientNameHasError}
-                getValue={(value) => {
-                  setClientName(value);
-                  value > 0 && setClientNameHasError(false);
-                }}
-                getError={(e) => setClientNameError(e)}
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                sx={{ mt: 2 }}
                 options={clientDropdownData}
-              />
-              <Text
-                label="First Name"
-                placeholder="Enter First Name"
-                noNumeric
-                value={clientFirstName}
-                validate
-                maxChar={50}
-                hasError={clientFirstNameHasError}
-                getValue={(e) => setClientFirstName(e)}
-                getError={(e) => setClientFirstNameError(e)}
-              />
-              <Text
-                label="Last Name"
-                placeholder="Enter Last Name"
-                noNumeric
-                value={clientLastName}
-                validate
-                maxChar={50}
-                hasError={clientLastNameHasError}
-                getValue={(e) => setClientLastName(e)}
-                getError={(e) => setClientLastNameError(e)}
-              />
-              <Email
-                type="email"
-                label="Email"
-                placeholder="Enter Email ID"
-                disabled={emailConfirmed}
-                value={clientEmail}
-                validate
-                maxChar={100}
-                hasError={clientEmailHasError}
-                getValue={(e) => setClientEmail(e)}
-                getError={(e) => setClientEmailError(e)}
-              />
-              <Select
-                label="Role"
-                id="role"
-                placeholder="Select Role"
-                validate
-                defaultValue={clientRole === 0 ? "" : clientRole}
-                errorClass="!-mt-[15px]"
-                hasError={clientRoleHasError}
-                getValue={(value) => {
-                  setClientRole(value);
-                  value > 0 && setClientRoleHasError(false);
+                value={
+                  clientDropdownData.find((i: any) => i.value === clientName) ||
+                  null
+                }
+                onChange={(e, value: any) => {
+                  value && setClientName(value.value);
+                  value && setClientNameError(false);
                 }}
-                search
-                getError={(e) => setClientRoleError(e)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    label={
+                      <span>
+                        Client Name
+                        <span className="text-defaultRed">&nbsp;*</span>
+                      </span>
+                    }
+                    error={clientNameError}
+                    onBlur={(e) => {
+                      if (clientName > 0) {
+                        setClientNameError(false);
+                      }
+                    }}
+                    helperText={
+                      clientNameError ? "This is a required field." : ""
+                    }
+                  />
+                )}
+              />
+              <TextField
+                label={
+                  <span>
+                    First Name
+                    <span className="!text-defaultRed">&nbsp;*</span>
+                  </span>
+                }
+                fullWidth
+                value={
+                  clientFirstName?.trim().length <= 0 ? "" : clientFirstName
+                }
+                onChange={(e) => {
+                  setClientFirstName(e.target.value);
+                  setClientFirstNameError(false);
+                }}
+                onBlur={(e: any) => {
+                  if (
+                    e.target.value.trim().length < 3 ||
+                    e.target.value.trim().length > 20
+                  ) {
+                    setClientFirstNameError(true);
+                  }
+                }}
+                error={clientFirstNameError}
+                helperText={
+                  clientFirstNameError && clientFirstName?.trim().length > 50
+                    ? "Maximum 20 characters allowed."
+                    : clientFirstNameError &&
+                      clientFirstName?.trim().length > 0 &&
+                      clientFirstName?.trim().length < 3
+                    ? "Minimum 3 characters allowed."
+                    : clientFirstNameError
+                    ? "This is a required field."
+                    : ""
+                }
+                margin="normal"
+                variant="standard"
+              />
+              <TextField
+                label={
+                  <span>
+                    Last Name
+                    <span className="!text-defaultRed">&nbsp;*</span>
+                  </span>
+                }
+                sx={{ mt: 0.5 }}
+                fullWidth
+                value={clientLastName?.trim().length <= 0 ? "" : clientLastName}
+                onChange={(e) => {
+                  setClientLastName(e.target.value);
+                  setClientLastNameError(false);
+                }}
+                onBlur={(e: any) => {
+                  if (
+                    e.target.value.trim().length < 3 ||
+                    e.target.value.trim().length > 20
+                  ) {
+                    setClientLastNameError(true);
+                  }
+                }}
+                error={clientLastNameError}
+                helperText={
+                  clientLastNameError && clientLastName?.trim().length > 50
+                    ? "Maximum 20 characters allowed."
+                    : clientLastNameError &&
+                      clientLastName?.trim().length > 0 &&
+                      clientLastName?.trim().length < 3
+                    ? "Minimum 3 characters allowed."
+                    : clientLastNameError
+                    ? "This is a required field."
+                    : ""
+                }
+                margin="normal"
+                variant="standard"
+              />
+              <TextField
+                type="email"
+                sx={{ mt: 0.5 }}
+                disabled={emailConfirmed}
+                label={
+                  <span>
+                    Email
+                    <span className="!text-defaultRed">&nbsp;*</span>
+                  </span>
+                }
+                fullWidth
+                value={clientEmail?.trim().length <= 0 ? "" : clientEmail}
+                onChange={(e) => {
+                  setClientEmail(e.target.value);
+                  setClientEmailError(false);
+                }}
+                onBlur={(e: any) => {
+                  if (
+                    e.target.value.trim().length < 1 ||
+                    e.target.value.trim().length > 100 ||
+                    !regex.test(e.target.value)
+                  ) {
+                    setClientEmailError(true);
+                  }
+                }}
+                error={clientEmailError}
+                helperText={
+                  clientEmailError && clientEmail?.trim().length > 100
+                    ? "Maximum 100 characters allowed."
+                    : clientEmailError && !regex.test(clientEmail)
+                    ? "Please enter valid email."
+                    : clientEmailError
+                    ? "This is a required field."
+                    : ""
+                }
+                margin="normal"
+                variant="standard"
+              />
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                sx={{ mt: 0.7 }}
                 options={roleDropdownData
                   .map((i: any) => (i.Type === 2 ? i : undefined))
                   .filter((i: any) => i !== undefined)}
+                value={
+                  roleDropdownData
+                    .map((i: any) => (i.Type === 2 ? i : undefined))
+                    .filter((i: any) => i !== undefined)
+                    .find((i: any) => i.value === clientRole) || null
+                }
+                onChange={(e, value: any) => {
+                  value && setClientRole(value.value);
+                  value && setClientRoleError(false);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    label={
+                      <span>
+                        Role
+                        <span className="text-defaultRed">&nbsp;*</span>
+                      </span>
+                    }
+                    error={clientRoleError}
+                    onBlur={(e) => {
+                      if (clientRole > 0) {
+                        setClientRoleError(false);
+                      }
+                    }}
+                    helperText={
+                      clientRoleError ? "This is a required field." : ""
+                    }
+                  />
+                )}
               />
-              <Tel
+              <TextField
                 label="Mobile Number"
-                placeholder="Enter Mobile Number"
-                value={clientTel}
-                maxLength={14}
-                getValue={(e) => setClientTel(e)}
-                getError={(e) => {}}
+                sx={{ mt: 1.5 }}
+                fullWidth
+                type="number"
+                value={clientTel?.trim().length <= 0 ? "" : clientTel}
+                onChange={(e) => setClientTel(e.target.value)}
+                margin="normal"
+                variant="standard"
               />
             </>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end fixed w-full bottom-0 bg-pureWhite gap-[20px] px-[20px] py-[15px] border-t border-lightSilver">
+        <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
           {onEdit ? (
             <Button
-              variant="btn-outline-secondary"
-              className="rounded-[4px] !h-[36px] !uppercase"
+              variant="outlined"
+              className="rounded-[4px] !h-[36px] !text-secondary"
               onClick={clearAllData}
             >
-              Cancel
+              Close
             </Button>
           ) : (
             <Button
-              variant="btn-outline-secondary"
-              className="rounded-[4px] !h-[36px] !uppercase"
+              variant="outlined"
+              className="rounded-[4px] !h-[36px] !text-secondary cursor-pointer"
               type="submit"
               onClick={() => setAddMoreClicked(true)}
             >
@@ -811,8 +1178,8 @@ const UserContent = forwardRef<
             </Button>
           )}
           <Button
-            variant="btn-secondary"
-            className="rounded-[4px] !h-[36px] !uppercase"
+            variant="contained"
+            className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary cursor-pointer"
             type="submit"
           >
             {onEdit ? "Save" : `Create ${tab === "Permissions" ? "Role" : tab}`}

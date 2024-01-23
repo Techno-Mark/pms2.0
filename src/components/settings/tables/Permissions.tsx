@@ -1,25 +1,12 @@
-import ReportLoader from "@/components/common/ReportLoader";
-import { callAPI } from "@/utils/API/callAPI";
-import {
-  generateCommonBodyRender,
-  generateCustomHeaderName,
-} from "@/utils/datatable/CommonFunction";
-import { getMuiTheme } from "@/utils/datatable/CommonStyle";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
-import { ThemeProvider } from "@emotion/react";
-import { CheckBox } from "@mui/icons-material";
-import {
-  Checkbox,
-  FormControlLabel,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
-} from "@mui/material";
-import MUIDataTable from "mui-datatables";
+/* eslint-disable react/jsx-key */
+"use client";
+
 import React, { useEffect, useState } from "react";
+import { CheckBox, DataTable } from "next-ts-lib";
+import "next-ts-lib/dist/index.css";
+import axios from "axios";
+import ReportLoader from "@/components/common/ReportLoader";
+import { toast } from "react-toastify";
 
 const Permissions = ({
   onOpen,
@@ -38,29 +25,22 @@ const Permissions = ({
   useEffect(() => {
     if (permissionValue > 0) {
       const timer = setTimeout(() => {
-        getAll();
+        getData();
       }, 500);
       return () => clearTimeout(timer);
     }
   }, [permissionValue]);
 
-  const getAll = async () => {
-    const params = {
-      roleId: permissionValue !== 0 && permissionValue,
-    };
-    const url = `${process.env.pms_api_url}/Role/GetPermission`;
-    const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
-    ) => {
-      if (ResponseStatus === "Success" && error === false) {
-        setData(ResponseData);
-        getOrgDetailsFunction();
-        sendDataToParent(ResponseData);
+  const getLargestArray = (arr: any) => {
+    let index = 0;
+    let arrLength = arr && arr[index]?.ActionList.length;
+    arr?.forEach((a: any, i: number) => {
+      if (a.ActionList.length > arrLength) {
+        arrLength = a?.ActionList.length;
+        index = i;
       }
-    };
-    callAPI(url, params, successCallback, "POST");
+    });
+    return arr && arr[index]?.ActionList;
   };
 
   const handleCheckboxChange = (
@@ -70,7 +50,6 @@ const Permissions = ({
   ) => {
     const updatedData = data.map((parent: any, parentIdx: number) => {
       if (parentIdx === parentId) {
-        console.log(parent);
         if (childIndex !== undefined) {
           return {
             ...parent,
@@ -118,237 +97,170 @@ const Permissions = ({
     sendDataToParent(updatedData);
   };
 
-  const generateConditionalColumn = (
-    column: {
-      name: string;
-      label: string;
-      bodyRenderer: (arg0: any) => any;
-    },
-    rowDataIndex: number
+  const getCheckbox = (
+    actionList: any,
+    parentId: number,
+    childIndex?: number | 0
   ) => {
-    if (column.name === "ActionList") {
-      return {
-        name: "ActionList",
-        options: {
-          filter: true,
-          viewColumns: false,
-          sort: true,
-          customHeadLabelRender: () => generateCustomHeaderName(""),
-          customBodyRender: (value: any, tableMeta: any) => {
-            return (
-              <div className="flex items-center justify-start gap-20">
-                {value.map((i: any, index: any) => (
-                  <FormControlLabel
-                    className="w-40"
-                    key={i.ActionId}
-                    control={
-                      <Checkbox
-                        checked={i.IsChecked}
-                        onChange={() =>
-                          tableMeta.rowData[3] - 1 === 3 && data.length === 3
-                            ? handleCheckboxChange(2, undefined, index)
-                            : handleCheckboxChange(
-                                tableMeta.rowData[3] - 1,
-                                undefined,
-                                index
-                              )
-                        }
-                        inputProps={{ "aria-label": "controlled" }}
-                      />
-                    }
-                    label={i.ActionName}
-                  />
-                ))}
-              </div>
-            );
-          },
-        },
-      };
-    } else if (column.name === "ParentId") {
-      return {
-        name: "ParentId",
-        options: {
-          display: false,
-          viewColumns: false,
-        },
-      };
-    } else if (column.name === "Sequence") {
-      return {
-        name: "Sequence",
-        options: {
-          display: false,
-          viewColumns: false,
-        },
-      };
-    } else {
-      return generateCustomColumn(
-        column.name,
-        column.label,
-        column.bodyRenderer
-      );
-    }
+    return actionList
+      ?.sort((a: any, b: any) => b.ActionName.localeCompare(a.ActionName))
+      .map((action: any, index: number) => {
+        const uniqueId =
+          childIndex === undefined
+            ? parentId.toString() +
+              action.ActionName +
+              action.ActionId.toString()
+            : parentId.toString() +
+              action.ActionName +
+              childIndex +
+              action.ActionId.toString();
+
+        return (
+          <CheckBox
+            key={uniqueId}
+            label={action.ActionName}
+            type="checkbox"
+            id={uniqueId}
+            checked={action.IsChecked}
+            onChange={() =>
+              parentId === 3 && data.length === 3
+                ? handleCheckboxChange(2, childIndex, index)
+                : handleCheckboxChange(parentId, childIndex, index)
+            }
+          />
+        );
+      });
   };
 
-  const column = [
-    {
-      name: "Name",
-      label: "",
-      bodyRenderer: generateCommonBodyRender,
-    },
-    {
-      name: "ActionList",
-      label: "",
-      bodyRenderer: generateCommonBodyRender,
-    },
-    {
-      name: "ParentId",
-      options: {
-        display: false,
-        viewColumns: false,
-      },
-    },
-    {
-      name: "Sequence",
-      options: {
-        display: false,
-        viewColumns: false,
-      },
-    },
-  ];
+  function generateColumns(data: any) {
+    const largestChildArray = getLargestArray(data);
+    const columns = [
+      { header: "", accessor: "Name", sortable: false },
+      ...(largestChildArray
+        ? largestChildArray.map((child: any, index: number) => ({
+            header: "",
+            accessor: index,
+            sortable: false,
+          }))
+        : []),
+    ];
 
-  const permissionColumns: any = column.map((col: any) => {
-    return generateConditionalColumn(col, 10);
+    return columns;
+  }
+
+  let tableData: any[] = data.map((i: any) => {
+    const isViewChecked = i.ActionList;
+    const Id = i.Sequence - 1;
+
+    return {
+      ...i,
+      Name: <div className="text-sm">{i.Name}</div>,
+      ...getCheckbox(isViewChecked, Id),
+
+      details:
+        i.Children.length > 0 ? (
+          <div className="ml-12">
+            <DataTable
+              columns={[
+                { header: "", accessor: "name", sortable: false },
+                ...getLargestArray(i?.Children).map(
+                  (child: any, index: number) =>
+                    new Object({ header: "", accessor: index, sortable: false })
+                ),
+              ]}
+              noHeader
+              data={i.Children.map(
+                ({ Name, ActionList, ...more }: any, index: number) =>
+                  new Object({
+                    name: <div className="text-sm">{Name}</div>,
+                    ...getCheckbox(ActionList, Id, index),
+                  })
+              )}
+            />
+          </div>
+        ) : (
+          ""
+        ),
+    };
   });
 
-  const options: any = {
-    filterType: "checkbox",
-    responsive: "standard",
-    tableBodyHeight: "73vh",
-    viewColumns: false,
-    filter: false,
-    print: false,
-    download: false,
-    search: false,
-    pagination: false,
-    selectToolbarPlacement: "none",
-    draggableColumns: {
-      enabled: true,
-      transitionTime: 300,
-    },
-    expandableRows: true,
-    renderExpandableRow: (rowData: any, rowMeta: any) => {
-      return (
-        <React.Fragment>
-          <tr>
-            <td colSpan={12}>
-              <TableContainer component={Paper}>
-                <Table aria-label="simple table">
-                  <TableBody>
-                    {/* <span className="ml-16"> */}
-                    {data[rowMeta.rowIndex].Children.length > 0 ? (
-                      data[rowMeta.rowIndex].Children.map(
-                        (i: any, index: any) => {
-                          return (
-                            <div key={i.Id}>
-                              <TableCell className="!pl-20 w-[19.4rem]">
-                                {i.Name}
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center justify-start gap-20 -ml-10">
-                                  {i.ActionList.map((j: any, indexj: any) => {
-                                    return (
-                                      <FormControlLabel
-                                        className="w-36"
-                                        key={j.ActionId}
-                                        control={
-                                          <Checkbox
-                                            checked={j.IsChecked}
-                                            onChange={() =>
-                                              i.Sequence - 1 === 3 &&
-                                              data.length === 3
-                                                ? handleCheckboxChange(
-                                                    2,
-                                                    indexj,
-                                                    index
-                                                  )
-                                                : handleCheckboxChange(
-                                                    i.Sequence - 1,
-                                                    indexj,
-                                                    index
-                                                  )
-                                            }
-                                            inputProps={{
-                                              "aria-label": "controlled",
-                                            }}
-                                          />
-                                        }
-                                        label={j.ActionName}
-                                      />
-                                    );
-                                  })}
-                                </div>
-                              </TableCell>
-                            </div>
-                          );
-                        }
-                      )
-                    ) : (
-                      <TableRow className="h-16">
-                        <span className="flex items-center justify-start pt-5 ml-16">
-                          No data found.
-                        </span>
-                      </TableRow>
-                    )}
-                    {/* </span> */}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </td>
-          </tr>
-        </React.Fragment>
+  const getData = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.pms_api_url}/Role/GetPermission`,
+        {
+          roleId: permissionValue !== 0 && permissionValue,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
       );
-    },
-    elevation: 0,
-    selectableRows: "none",
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          const responseData = response.data.ResponseData;
+          setData(responseData);
+          getOrgDetailsFunction();
+
+          sendDataToParent(response.data.ResponseData);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
     <>
+      {canView && loading && <ReportLoader />}
+
       {canView ? (
-        loading ? (
-          <ReportLoader />
+        data.length <= 0 ? (
+          <p className="flex justify-center items-center py-[17px] text-[14px]">
+            Currently there is no record, you may
+            <a
+              onClick={onOpen}
+              className={`text-primary underline ml-1 mr-1 ${
+                onOpen !== undefined ? "cursor-pointer" : "cursor-not-allowed"
+              }`}
+            >
+              Create Role
+            </a>
+            to continue
+          </p>
         ) : (
-          <div>
-            <ThemeProvider theme={getMuiTheme()}>
-              <MUIDataTable
-                data={data}
-                columns={permissionColumns}
-                title={undefined}
-                options={{
-                  ...options,
-                  textLabels: {
-                    body: {
-                      noMatch: (
-                        <div className="flex items-start">
-                          <span>
-                            Currently there is no record, you may{" "}
-                            <a
-                              className="text-secondary underline cursor-pointer"
-                              onClick={onOpen}
-                            >
-                              create role
-                            </a>{" "}
-                            to continue.
-                          </span>
-                        </div>
-                      ),
-                      toolTip: "",
-                    },
-                  },
-                }}
-                data-tableid="Datatable"
+          <div
+            className={`${
+              tableData.length === 0 ? "!h-full" : "!h-[80vh] !w-full"
+            }`}
+          >
+            {data.length > 0 && (
+              <DataTable
+                expandable
+                columns={generateColumns(data)}
+                data={tableData}
+                isExpanded={expanded}
               />
-            </ThemeProvider>
+            )}
           </div>
         )
       ) : (
