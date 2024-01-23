@@ -497,6 +497,11 @@ const User = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "WorkTypeName",
+      label: "Type Of Work",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "Email",
       label: "Email",
       bodyRenderer: generateCommonBodyRender,
@@ -575,7 +580,7 @@ const User = ({
   const options: any = {
     filterType: "checkbox",
     responsive: "standard",
-    tableBodyHeight: "73vh",
+    tableBodyHeight: "71vh",
     viewColumns: true,
     filter: false,
     print: false,

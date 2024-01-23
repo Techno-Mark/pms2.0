@@ -48,8 +48,10 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     const Org_Token = await localStorage.getItem("Org_Token");
     const apiEndPoint =
       tab === "Client"
-        ? "client/import"
-        : tab === "Project" && "project/import";
+        ? `${process.env.pms_api_url}/client/import`
+        : tab === "Project"
+        ? `${process.env.pms_api_url}/project/import`
+        : tab === "User" && `${process.env.api_url}/user/import`;
 
     if (selectedFile) {
       try {
@@ -57,17 +59,13 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
         const formData = new FormData();
         formData.append("file", selectedFile);
 
-        const response = await axios.post(
-          `${process.env.pms_api_url}/${apiEndPoint}`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+        const response = await axios.post(`${apiEndPoint}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        });
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
@@ -137,20 +135,19 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     const Org_Token = await localStorage.getItem("Org_Token");
     const apiEndPoint =
       tab === "Client"
-        ? "client/exportexcelfordemo"
-        : tab === "Project" && "project/exportexcelfordemo";
+        ? `${process.env.pms_api_url}/client/exportexcelfordemo`
+        : tab === "Project"
+        ? `${process.env.pms_api_url}/project/exportexcelfordemo`
+        : tab === "User" && `${process.env.api_url}/user/exportexcelfordemo`;
 
     try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/${apiEndPoint}`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-          responseType: "blob",
-        }
-      );
+      const response = await axios.get(`${apiEndPoint}`, {
+        headers: {
+          Authorization: `bearer ${token}`,
+          org_token: `${Org_Token}`,
+        },
+        responseType: "blob",
+      });
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Failure") {

@@ -187,6 +187,13 @@ const Page = () => {
       if (visibleTabs.some((tab) => tab.id === tabId)) {
         setTab(tabId);
         setSelectedTabIndex(index);
+        setClientSearchValue("");
+        setProjectSearchValue("");
+        setUserSearchValue("");
+        setProcessSearchValue("");
+        setGroupSearchValue("");
+        setStatusSearchValue("");
+        setOrgSearchValue("");
         return;
       }
 
@@ -614,7 +621,9 @@ const Page = () => {
                     </div>
                   )}
 
-                  {(tab === "Client" || tab === "Project") && (
+                  {(tab === "Client" ||
+                    tab === "Project" ||
+                    tab === "User") && (
                     <ColorToolTip title="Import" placement="top" arrow>
                       <div
                         className={`${
