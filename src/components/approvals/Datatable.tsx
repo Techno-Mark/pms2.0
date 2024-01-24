@@ -579,9 +579,6 @@ const Datatable = ({
                 {reviewList[tableMeta.rowIndex].ReviewerId ==
                   localStorage.getItem("UserId") &&
                   reviewList.length > 0 &&
-                  (reviewList[tableMeta.rowIndex].ReviewerIsManual === null ||
-                    reviewList[tableMeta.rowIndex].ReviewerIsManual ===
-                      false) &&
                   (reviewList[tableMeta.rowIndex].StatusId === 56 ||
                     reviewList[tableMeta.rowIndex].StatusId === 58 ||
                     reviewList[tableMeta.rowIndex].StatusId === 59 ||

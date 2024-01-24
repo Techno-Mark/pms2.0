@@ -68,6 +68,7 @@ const Navbar = (props: NavbarPropsType) => {
 
         localStorage.setItem("permission", JSON.stringify(ResponseData.Menu));
         localStorage.setItem("roleId", ResponseData.RoleId);
+        localStorage.setItem("roleName", ResponseData.RoleName);
         localStorage.setItem("isClient", ResponseData.IsClientUser);
         localStorage.setItem("clientId", ResponseData.ClientId);
         if (localStorage.getItem("Org_Token") === null) {

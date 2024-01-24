@@ -35,7 +35,8 @@ const initialFilter = {
   IsDesc: true,
   PageNo: pageNo,
   PageSize: pageSize,
-  Status: true,
+  Status: null,
+  WorkTypeId: null,
 };
 
 const User = ({
@@ -580,7 +581,7 @@ const User = ({
   const options: any = {
     filterType: "checkbox",
     responsive: "standard",
-    tableBodyHeight: "71vh",
+    tableBodyHeight: "65vh",
     viewColumns: true,
     filter: false,
     print: false,

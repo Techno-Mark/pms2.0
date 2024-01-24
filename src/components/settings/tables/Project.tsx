@@ -344,7 +344,7 @@ const Project = ({
   const options: any = {
     filterType: "checkbox",
     responsive: "standard",
-    tableBodyHeight: "73vh",
+    tableBodyHeight: "70vh",
     viewColumns: false,
     filter: false,
     print: false,

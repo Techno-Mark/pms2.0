@@ -148,7 +148,7 @@ const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
               {totalCount}
             </span>
             <span className="text-lg text-slatyGrey">
-              {totalCount > 1 ? "Tasks" : "Task"}
+              {totalCount > 1 ? "Clients" : "Client"}
             </span>
           </span>
         )}

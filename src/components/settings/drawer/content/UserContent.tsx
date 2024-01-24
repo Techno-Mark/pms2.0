@@ -7,7 +7,6 @@ import {
   TextField,
 } from "@mui/material";
 import axios from "axios";
-import { MultiSelectChip, Select, Tel, Text, Email } from "next-ts-lib";
 import React, {
   forwardRef,
   useEffect,
@@ -630,7 +629,7 @@ const UserContent = forwardRef<
                 onBlur={(e: any) => {
                   if (
                     e.target.value.trim().length < 3 ||
-                    e.target.value.trim().length > 20
+                    e.target.value.trim().length > 50
                   ) {
                     setFirstNameError(true);
                   }
@@ -638,7 +637,7 @@ const UserContent = forwardRef<
                 error={firstNameError}
                 helperText={
                   firstNameError && firstName?.trim().length > 50
-                    ? "Maximum 20 characters allowed."
+                    ? "Maximum 50 characters allowed."
                     : firstNameError &&
                       firstName?.trim().length > 0 &&
                       firstName?.trim().length < 3
@@ -657,7 +656,7 @@ const UserContent = forwardRef<
                     <span className="!text-defaultRed">&nbsp;*</span>
                   </span>
                 }
-                sx={{ mt: 0.5 }}
+                sx={{ mt: "12px" }}
                 fullWidth
                 value={lastName?.trim().length <= 0 ? "" : lastName}
                 onChange={(e) => {
@@ -667,7 +666,7 @@ const UserContent = forwardRef<
                 onBlur={(e: any) => {
                   if (
                     e.target.value.trim().length < 3 ||
-                    e.target.value.trim().length > 20
+                    e.target.value.trim().length > 50
                   ) {
                     setLastNameError(true);
                   }
@@ -675,7 +674,7 @@ const UserContent = forwardRef<
                 error={lastNameError}
                 helperText={
                   lastNameError && lastName?.trim().length > 50
-                    ? "Maximum 20 characters allowed."
+                    ? "Maximum 50 characters allowed."
                     : lastNameError &&
                       lastName?.trim().length > 0 &&
                       lastName?.trim().length < 3
@@ -689,7 +688,7 @@ const UserContent = forwardRef<
               />
               <TextField
                 type="email"
-                sx={{ mt: 0.5 }}
+                sx={{ mt: "12px" }}
                 disabled={emailConfirmed}
                 label={
                   <span>
@@ -727,7 +726,7 @@ const UserContent = forwardRef<
               />
               <TextField
                 label="Mobile Number"
-                sx={{ mt: 0.5 }}
+                sx={{ mt: "12px" }}
                 fullWidth
                 type="number"
                 value={tel?.trim().length <= 0 ? "" : tel}
@@ -738,7 +737,7 @@ const UserContent = forwardRef<
               <Autocomplete
                 disablePortal
                 id="combo-box-demo"
-                sx={{ mt: 0.7 }}
+                sx={{ mt: "10px" }}
                 options={typeOfWorkDropdownData}
                 value={
                   typeOfWorkDropdownData.find(
@@ -774,7 +773,7 @@ const UserContent = forwardRef<
               <Autocomplete
                 disablePortal
                 id="combo-box-demo"
-                sx={{ mt: 0.7 }}
+                sx={{ mt: "18px" }}
                 options={roleDropdownData
                   .map((i: any) => (i.Type === 1 ? i : undefined))
                   .filter((i: any) => i !== undefined)}
@@ -811,7 +810,7 @@ const UserContent = forwardRef<
               <Autocomplete
                 disablePortal
                 id="combo-box-demo"
-                sx={{ mt: 1.5 }}
+                sx={{ mt: "18px" }}
                 options={departmentDropdownData}
                 value={
                   departmentDropdownData.find(
@@ -847,7 +846,7 @@ const UserContent = forwardRef<
               <Autocomplete
                 disablePortal
                 id="combo-box-demo"
-                sx={{ mt: 1.5 }}
+                sx={{ mt: "18px" }}
                 options={reportManagerDropdownData}
                 value={
                   reportManagerDropdownData.find(
@@ -865,7 +864,9 @@ const UserContent = forwardRef<
                     label={
                       <span>
                         Report Manager
-                        <span className="text-defaultRed">&nbsp;*</span>
+                        {parseInt(roleIdAdmin) > 1 && (
+                          <span className="text-defaultRed">&nbsp;*</span>
+                        )}
                       </span>
                     }
                     error={reportError}
@@ -901,7 +902,7 @@ const UserContent = forwardRef<
               <Autocomplete
                 multiple
                 limitTags={2}
-                sx={{ mt: 1.5 }}
+                sx={{ mt: "18px" }}
                 id="checkboxes-tags-demo"
                 options={groupDropdownData}
                 value={selectedGroupOptions}
@@ -925,7 +926,12 @@ const UserContent = forwardRef<
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Group"
+                    label={
+                      <span>
+                        Group
+                        <span className="text-defaultRed">&nbsp;*</span>
+                      </span>
+                    }
                     placeholder="Please Select..."
                     variant="standard"
                     error={groupError}
@@ -1009,7 +1015,7 @@ const UserContent = forwardRef<
                 onBlur={(e: any) => {
                   if (
                     e.target.value.trim().length < 3 ||
-                    e.target.value.trim().length > 20
+                    e.target.value.trim().length > 50
                   ) {
                     setClientFirstNameError(true);
                   }
@@ -1017,7 +1023,7 @@ const UserContent = forwardRef<
                 error={clientFirstNameError}
                 helperText={
                   clientFirstNameError && clientFirstName?.trim().length > 50
-                    ? "Maximum 20 characters allowed."
+                    ? "Maximum 50 characters allowed."
                     : clientFirstNameError &&
                       clientFirstName?.trim().length > 0 &&
                       clientFirstName?.trim().length < 3
@@ -1028,6 +1034,7 @@ const UserContent = forwardRef<
                 }
                 margin="normal"
                 variant="standard"
+                sx={{ mt: "18px" }}
               />
               <TextField
                 label={
@@ -1036,7 +1043,7 @@ const UserContent = forwardRef<
                     <span className="!text-defaultRed">&nbsp;*</span>
                   </span>
                 }
-                sx={{ mt: 0.5 }}
+                sx={{ mt: "12px" }}
                 fullWidth
                 value={clientLastName?.trim().length <= 0 ? "" : clientLastName}
                 onChange={(e) => {
@@ -1046,7 +1053,7 @@ const UserContent = forwardRef<
                 onBlur={(e: any) => {
                   if (
                     e.target.value.trim().length < 3 ||
-                    e.target.value.trim().length > 20
+                    e.target.value.trim().length > 50
                   ) {
                     setClientLastNameError(true);
                   }
@@ -1054,7 +1061,7 @@ const UserContent = forwardRef<
                 error={clientLastNameError}
                 helperText={
                   clientLastNameError && clientLastName?.trim().length > 50
-                    ? "Maximum 20 characters allowed."
+                    ? "Maximum 50 characters allowed."
                     : clientLastNameError &&
                       clientLastName?.trim().length > 0 &&
                       clientLastName?.trim().length < 3
@@ -1068,7 +1075,7 @@ const UserContent = forwardRef<
               />
               <TextField
                 type="email"
-                sx={{ mt: 0.5 }}
+                sx={{ mt: "12px" }}
                 disabled={emailConfirmed}
                 label={
                   <span>
@@ -1107,7 +1114,7 @@ const UserContent = forwardRef<
               <Autocomplete
                 disablePortal
                 id="combo-box-demo"
-                sx={{ mt: 0.7 }}
+                sx={{ mt: "15px" }}
                 options={roleDropdownData
                   .map((i: any) => (i.Type === 2 ? i : undefined))
                   .filter((i: any) => i !== undefined)}
@@ -1145,7 +1152,7 @@ const UserContent = forwardRef<
               />
               <TextField
                 label="Mobile Number"
-                sx={{ mt: 1.5 }}
+                sx={{ mt: "20px" }}
                 fullWidth
                 type="number"
                 value={clientTel?.trim().length <= 0 ? "" : clientTel}

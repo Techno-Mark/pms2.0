@@ -63,6 +63,7 @@ const Datatable = ({
   onSetBreak,
   onEdit,
   onRecurring,
+  onIsEdit,
   onDrawerOpen,
   onDrawerClose,
   onDataFetch,
@@ -178,12 +179,21 @@ const Datatable = ({
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      const pathnameEdit = window.location.href.includes("isEdit=");
       const pathname = window.location.href.includes("id=");
-      if (pathname) {
+      if (pathnameEdit) {
         const idMatch = window.location.href.match(/id=([^?&]+)/);
         const id = idMatch ? idMatch[1] : null;
         onEdit(id);
         onDrawerOpen();
+        onIsEdit(true);
+        return;
+      } else if (pathname) {
+        const idMatch = window.location.href.match(/id=([^?&]+)/);
+        const id = idMatch ? idMatch[1] : null;
+        onEdit(id);
+        onDrawerOpen();
+        onIsEdit(false);
       }
     }
   }, []);
@@ -657,9 +667,6 @@ const Datatable = ({
                 {tableMeta.rowData[tableMeta.rowData.length - 4].toString() ===
                   localStorage.getItem("UserId") &&
                   tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
-                  (workItemData[tableMeta.rowIndex].IsManual === false ||
-                    !workItemData[tableMeta.rowIndex].IsManual ||
-                    workItemData[tableMeta.rowIndex].IsManual === null) &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 7 &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 9 &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 6 &&

@@ -6,6 +6,7 @@ const nextConfig = {
     worklog_api_url: process.env.worklog_api_url,
     report_api_url: process.env.report_api_url,
     redirectURL: process.env.redirectURL,
+    redirectEditURL: process.env.redirectEditURL,
     storageName: process.env.storageName,
     attachment: process.env.attachment,
     sasToken: process.env.sasToken,

@@ -27,6 +27,7 @@ import IdleTimer from "@/components/common/IdleTimer";
 import Loading from "@/assets/icons/reports/Loading";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { callAPI } from "@/utils/API/callAPI";
+import TaskEditDrawer from "@/components/worklogs/TaskEditDrawer";
 
 const exportBody = {
   PageNo: 1,
@@ -49,6 +50,7 @@ const exportBody = {
 const Page = () => {
   const router = useRouter();
   const [timeValue, setTimeValue] = useState(null);
+  const [isEdit, setIsEdit] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEdit, setHasEdit] = useState(0);
   const [hasRecurring, setHasRecurring] = useState(false);
@@ -116,11 +118,16 @@ const Page = () => {
     setLoaded(true);
   };
 
+  const handleIsEdit = (value: any) => {
+    setIsEdit(value);
+  };
+
   const handleDrawerOpen = () => {
     setOpenDrawer(true);
   };
 
   const handleDrawerClose = () => {
+    setIsEdit(false);
     setOpenDrawer(false);
     setHasEdit(0);
     setHasRecurring(false);
@@ -558,6 +565,7 @@ const Page = () => {
             onDataFetch={handleDataFetch}
             onEdit={handleEdit}
             onRecurring={handleSetRecurring}
+            onIsEdit={handleIsEdit}
             onDrawerOpen={handleDrawerOpen}
             onDrawerClose={handleDrawerClose}
             onComment={handleSetComments}
@@ -581,16 +589,25 @@ const Page = () => {
             isUnassigneeClicked={isUnassigneeClicked}
           />
         )}
-        <Drawer
-          onDataFetch={dataFunction}
-          onOpen={openDrawer}
-          onClose={handleDrawerClose}
-          onEdit={hasEdit}
-          onRecurring={hasRecurring}
-          onComment={hasComment}
-          onHasId={hasId}
-          isUnassigneeClicked={isUnassigneeClicked}
-        />
+        {isEdit ? (
+          <TaskEditDrawer
+            onDataFetch={dataFunction}
+            onOpen={openDrawer}
+            onClose={handleDrawerClose}
+            onEdit={hasEdit}
+          />
+        ) : (
+          <Drawer
+            onDataFetch={dataFunction}
+            onOpen={openDrawer}
+            onClose={handleDrawerClose}
+            onEdit={hasEdit}
+            onRecurring={hasRecurring}
+            onComment={hasComment}
+            onHasId={hasId}
+            isUnassigneeClicked={isUnassigneeClicked}
+          />
+        )}
         <DrawerOverlay isOpen={openDrawer} onClose={handleDrawerClose} />
 
         {/* Filter Dialog Box */}
