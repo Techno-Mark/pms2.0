@@ -189,7 +189,9 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
                 </Select>
               </FormControl>
 
-              <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
+              <div
+                className="inline-flex mt-[0px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]"
+              >
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     label="From"

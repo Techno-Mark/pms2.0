@@ -376,6 +376,8 @@ const ProjectContent = forwardRef<
               value={clientDrpdown.find((i: any) => i.value === client) || null}
               onChange={(e, value: any) => {
                 value && setClient(value.value);
+                value && setTypeOfWorks([]);
+                value && setTypeOfWorkName([]);
               }}
               renderInput={(params) => (
                 <TextField

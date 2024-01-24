@@ -4217,12 +4217,9 @@ const EditDrawer = ({
               </div>
             )}
 
-            {(isManual === true || isManual === null) && (
               <div
                 className="mt-14"
-                id={`${
-                  isManual === true || isManual === null ? "tabpanel-5" : ""
-                }`}
+                id="tabpanel-5"
               >
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
@@ -4352,7 +4349,6 @@ const EditDrawer = ({
                   </>
                 )}
               </div>
-            )}
 
             <div className="mt-14" id="tabpanel-6">
               <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">

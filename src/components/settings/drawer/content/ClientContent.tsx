@@ -1,16 +1,5 @@
 /* eslint-disable react/jsx-key */
 /* eslint-disable react/display-name */
-import {
-  Button,
-  CheckBox,
-  MultiSelectChip,
-  Select,
-  Tel,
-  Text,
-  Email,
-  Textarea,
-  Datepicker,
-} from "next-ts-lib";
 import React, {
   useImperativeHandle,
   forwardRef,
@@ -21,6 +10,25 @@ import axios from "axios";
 import ChevronDownIcon from "@/assets/icons/ChevronDownIcon";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
+import {
+  Autocomplete,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  InputLabel,
+  TextField,
+  Select,
+  MenuItem,
+  Button,
+} from "@mui/material";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 export interface ClientContentRef {
   clearAllData: () => void;
@@ -62,18 +70,14 @@ const ClientContent = forwardRef<
               isOpen: false,
               billingType: 0,
               billingErr: false,
-              billingHasErr: true,
               group: [],
               groupErr: false,
-              groupHasErr: true,
+              selectGroupValue: [],
               contHrs: 0,
               contHrsErr: false,
-              contHrsHasErr: true,
-              contHrsErrMsg: "",
               actHrs: 0,
               actHrsErr: false,
-              actHrsHasErr: true,
-              actHrsErrMsg: "",
+              allFields: false,
             })
         ),
       ]);
@@ -96,18 +100,14 @@ const ClientContent = forwardRef<
                 isOpen: false,
                 billingType: 0,
                 billingErr: false,
-                billingHasErr: true,
                 group: [],
                 groupErr: false,
-                groupHasErr: true,
+                selectGroupValue: [],
                 contHrs: 0,
                 contHrsErr: false,
-                contHrsHasErr: true,
-                contHrsErrMsg: "",
                 actHrs: 0,
                 actHrsErr: false,
-                actHrsHasErr: true,
-                actHrsErrMsg: "",
+                allFields: false,
               })
           ),
         ]);
@@ -118,16 +118,13 @@ const ClientContent = forwardRef<
 
     const [Id, setId] = useState(0);
     const [clientName, setClientName] = useState("");
-    const [clientError, setClientError] = useState(false);
-    const [clientNameHasError, setClientNameHasError] = useState(false);
+    const [clientNameError, setClientNameError] = useState(false);
     const [address, setAddress] = useState("");
     const [addressError, setAddressError] = useState(false);
-    const [addressHasError, setAddressHasError] = useState(false);
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     const [email, setEmail] = useState("");
     const [emailError, setEmailError] = useState(false);
-    const [emailHasError, setEmailHasError] = useState(false);
     const [tel, setTel] = useState("");
-    const [telError, settelError] = useState(false);
 
     const [addMoreClicked, setAddMoreClicked] = useState(false);
     const [isAddClientClicked, setIsAddClientClicked] = useState(true);
@@ -206,25 +203,38 @@ const ClientContent = forwardRef<
       index: any
     ) => {
       const checked = e.target.checked;
-      setDepartmentDataObj([
-        ...departmentDataObj.map((i: any) =>
-          i.index === index
-            ? new Object({
-                ...i,
-                checkbox: checked,
-                isOpen: checked,
-                billingHasErr: !checked,
-                groupHasErr: !checked,
-                contHrsHasErr: !checked,
-                actHrsHasErr: !checked,
-              })
-            : i
-        ),
-      ]);
+      checked
+        ? setDepartmentDataObj([
+            ...departmentDataObj.map((i: any) =>
+              i.index === index
+                ? new Object({
+                    ...i,
+                    checkbox: checked,
+                    isOpen: checked,
+                    allFields: true,
+                  })
+                : i
+            ),
+          ])
+        : setDepartmentDataObj([
+            ...departmentDataObj.map((i: any) =>
+              i.index === index
+                ? new Object({
+                    ...i,
+                    checkbox: checked,
+                    isOpen: checked,
+                    billingErr: checked,
+                    groupErr: checked,
+                    contHrsErr: checked,
+                    actHrsErr: checked,
+                    allFields: false,
+                  })
+                : i
+            ),
+          ]);
     };
 
     useEffect(() => {
-      setErrorTrue();
       clearClientData();
       if (clientData && onEdit) {
         const getClientById = async () => {
@@ -247,11 +257,8 @@ const ClientContent = forwardRef<
             if (response.status === 200) {
               if (response.data.ResponseStatus === "Success") {
                 setClientName(response.data.ResponseData.Name);
-                setClientNameHasError(true);
                 setAddress(response.data.ResponseData.Address);
-                setAddressHasError(true);
                 setEmail(response.data.ResponseData.Email);
-                setEmailHasError(true);
                 setTel(response.data.ResponseData.ContactNo);
                 setId(response.data.ResponseData.Id);
                 const updatedFirstArray = departmentDataObj.map((item: any) => {
@@ -262,6 +269,13 @@ const ClientContent = forwardRef<
                     );
 
                   if (matchingItem) {
+                    const filteredOptionsData = groupTypeData.filter(
+                      (d: any) => {
+                        return matchingItem.GroupIds.some((id: number) => {
+                          return id === parseInt(d.value);
+                        });
+                      }
+                    );
                     return {
                       ...item,
                       apiId: matchingItem.WorkTypeId,
@@ -269,13 +283,11 @@ const ClientContent = forwardRef<
                       checkbox: true,
                       isOpen: true,
                       billingType: matchingItem.BillingTypeId,
-                      billingHasErr: true,
-                      group: matchingItem.GroupIds,
-                      groupHasErr: true,
+                      group: filteredOptionsData,
+                      selectGroupValue: matchingItem.GroupIds,
                       contHrs: matchingItem.ContractHrs,
-                      contHrsHasErr: true,
                       actHrs: matchingItem.InternalHrs,
-                      actHrsHasErr: true,
+                      allFields: false,
                     };
                   }
 
@@ -463,6 +475,15 @@ const ClientContent = forwardRef<
               ? new Object({
                   ...i,
                   contHrs: e,
+                  contHrsErr: e.length > 0 ? false : true,
+                  allFields:
+                    i.billingType > 0 &&
+                    i.selectGroupValue.length > 0 &&
+                    i.actHrs > 0 &&
+                    e.length > 0 &&
+                    e.length <= 5
+                      ? false
+                      : true,
                 })
               : i
           ),
@@ -478,6 +499,15 @@ const ClientContent = forwardRef<
               ? new Object({
                   ...i,
                   actHrs: e,
+                  actHrsErr: e.length > 0 ? false : true,
+                  allFields:
+                    i.billingType > 0 &&
+                    i.selectGroupValue.length > 0 &&
+                    i.contHrs > 0 &&
+                    e.length > 0 &&
+                    e.length <= 5
+                      ? false
+                      : true,
                 })
               : i
           ),
@@ -488,9 +518,13 @@ const ClientContent = forwardRef<
     const handleSubmit = (e: { preventDefault: () => void }) => {
       e.preventDefault();
 
-      clientName.trim().length <= 0 && setClientError(true);
+      clientName.trim().length < 2 && setClientNameError(true);
+      clientName.trim().length > 50 && setClientNameError(true);
       address.trim().length <= 0 && setAddressError(true);
+      address.trim().length > 300 && setAddressError(true);
       email.trim().length <= 0 && setEmailError(true);
+      email.trim().length > 100 && setEmailError(true);
+      setEmailError(!regex.test(email));
 
       setDepartmentDataObj([
         ...departmentDataObj.map((i: any) =>
@@ -498,7 +532,7 @@ const ClientContent = forwardRef<
             ? new Object({
                 ...i,
                 billingErr: i.billingType <= 0 ? true : false,
-                groupErr: i.group.length === 0 ? true : false,
+                groupErr: i.selectGroupValue.length <= 0 ? true : false,
                 contHrsErr:
                   i.contHrs <= 0
                     ? true
@@ -517,24 +551,6 @@ const ClientContent = forwardRef<
                       i.contHrs.toString().includes(",")
                     ? true
                     : false,
-                contHrsErrMsg:
-                  i.contHrs <= 0
-                    ? "Contracted Hours must be greater than 0."
-                    : i.contHrs === "0" ||
-                      i.contHrs === "00" ||
-                      i.contHrs === "000" ||
-                      i.contHrs === "0000" ||
-                      i.contHrs === "00000" ||
-                      i.contHrs === "-0" ||
-                      i.contHrs === "-00" ||
-                      i.contHrs === "-000" ||
-                      i.contHrs === "-0000" ||
-                      i.contHrs === "-00000"
-                    ? `Contracted Hours should not be ${i.contHrs}.`
-                    : i.contHrs.toString().includes(".") ||
-                      i.contHrs.toString().includes(",")
-                    ? "Contracted Hours must be a valid value."
-                    : "",
                 actHrsErr:
                   i.actHrs <= 0
                     ? true
@@ -555,30 +571,21 @@ const ClientContent = forwardRef<
                       i.actHrs.toString().includes(",")
                     ? true
                     : false,
-                actHrsErrMsg:
-                  i.actHrs <= 0
-                    ? "Internal Hours must be greater than 0."
-                    : Number(i.actHrs) > Number(i.contHrs)
-                    ? "Internal Hours should be less than or equal to contracted hours."
-                    : i.actHrs === "0" ||
-                      i.actHrs === "00" ||
-                      i.actHrs === "000" ||
-                      i.actHrs === "0000" ||
-                      i.actHrs === "00000" ||
-                      i.actHrs === "-0" ||
-                      i.actHrs === "-00" ||
-                      i.actHrs === "-000" ||
-                      i.actHrs === "-0000" ||
-                      i.actHrs === "-00000"
-                    ? `Internal Hours should not be ${i.actHrs}.`
-                    : i.actHrs.toString().includes(".") ||
-                      i.actHrs.toString().includes(",")
-                    ? "Internal Hours must be a valid value."
-                    : "",
+                allFields:
+                  i.billingType > 0 &&
+                  i.selectGroupValue.length > 0 &&
+                  Number(i.contHrs) > 0 &&
+                  Number(i.actHrs) > 0
+                    ? false
+                    : true,
               })
             : i
         ),
       ]);
+
+      const allFieldsCheck = departmentDataObj
+        .map((i: any) => i.allFields)
+        .includes(true);
 
       const timeGrater = departmentDataObj
         .map((i: any) => Number(i.actHrs) > Number(i.contHrs))
@@ -589,49 +596,43 @@ const ClientContent = forwardRef<
         .filter((j: any) => j !== false);
 
       const hasError = departmentDataObj.map((i: any) =>
-        i.billingHasErr && i.groupHasErr && i.contHrsHasErr && i.actHrsHasErr
+        !i.billingErr && !i.groupErr && !i.contHrsErr && !i.actHrsErr
           ? i.index
           : false
       );
 
       if (
-        emailHasError &&
-        clientNameHasError &&
-        addressHasError &&
+        !emailError &&
+        email.trim().length > 0 &&
+        email.trim().length < 100 &&
+        !clientNameError &&
+        !addressError &&
         isChecked.length > 0 &&
         !hasError.includes(false) &&
-        !timeGrater
+        !timeGrater &&
+        !allFieldsCheck
       ) {
         saveClient();
       } else if (
-        emailHasError &&
-        clientNameHasError &&
-        addressHasError &&
+        !emailError &&
+        email.trim().length > 0 &&
+        email.trim().length < 100 &&
+        !clientNameError &&
+        !addressError &&
         isChecked.length <= 0
       ) {
         toast.error("Please Select at least one work type.");
       }
     };
 
-    const setErrorTrue = () => {
-      setClientError(true);
-      setAddressError(true);
-      setEmailError(true);
-      settelError(true);
-    };
-
     const clearClientData = () => {
       setId(0);
       setClientName("");
-      setClientError(false);
-      setClientNameHasError(false);
+      setClientNameError(false);
       setAddress("");
       setAddressError(false);
-      setAddressHasError(false);
       setEmail("");
       setEmailError(false);
-      settelError(false);
-      setEmailHasError(false);
       setTel("");
       departmentDataObj.length < 3 &&
         setDepartmentDataObj([
@@ -648,18 +649,13 @@ const ClientContent = forwardRef<
                 isOpen: false,
                 billingType: 0,
                 billingErr: false,
-                billingHasErr: true,
                 group: [],
                 groupErr: false,
-                groupHasErr: true,
+                selectGroupValue: [],
                 contHrs: 0,
                 contHrsErr: false,
-                contHrsHasErr: true,
-                contHrsErrMsg: "",
                 actHrs: 0,
                 actHrsErr: false,
-                actHrsHasErr: true,
-                actHrsErrMsg: "",
               })
           ),
         ]);
@@ -717,7 +713,7 @@ const ClientContent = forwardRef<
                   ClientWorkTypeId: i.id,
                   workTypeId: i.apiId,
                   billingTypeId: i.billingType,
-                  groupIds: i.group,
+                  groupIds: i.selectGroupValue,
                   layoutId: 1,
                   internalHrs: i.actHrs,
                   contractHrs: i.contHrs,
@@ -782,11 +778,24 @@ const ClientContent = forwardRef<
 
             DateOfImplementation: getFieldValue(
               isAdditionalFieldsClicked,
-              dateOfImplementation
+              dateOfImplementation !== null
+                ? new Date(
+                    new Date(dateOfImplementation).getTime() +
+                      24 * 60 * 60 * 1000
+                  )
+                    .toISOString()
+                    .split("T")[0]
+                : null
             ),
             AgreementStartDate: getFieldValue(
               isAdditionalFieldsClicked,
-              agreementStartDate
+              agreementStartDate !== null
+                ? new Date(
+                    new Date(agreementStartDate).getTime() + 24 * 60 * 60 * 1000
+                  )
+                    .toISOString()
+                    .split("T")[0]
+                : null
             ),
             FteAgreementTax: getFieldValue(
               isAdditionalFieldsClicked,
@@ -852,7 +861,6 @@ const ClientContent = forwardRef<
             toast.success(
               `Client ${onEdit ? "Updated" : "created"} successfully.`
             );
-            setErrorTrue();
             clearClientData();
             handleClose();
             onDataFetch();
@@ -889,21 +897,6 @@ const ClientContent = forwardRef<
     };
 
     const clearAllData = async () => {
-      setDepartmentDataObj([
-        ...departmentDataObj.map(
-          (i: any) =>
-            new Object({
-              ...i,
-              billingErr: true,
-              groupErr: true,
-              contHrsErr: true,
-              actHrsErr: true,
-              contHrsErrMsg: "",
-              actHrsErrMsg: "",
-            })
-        ),
-      ]);
-      await setErrorTrue();
       await clearClientData();
       handleClose();
       onClose();
@@ -914,11 +907,9 @@ const ClientContent = forwardRef<
     }));
 
     useEffect(() => {
-      if (onOpen) {
-        getBillingTypes();
-        getGroupTypes();
-        getStates();
-      }
+      billingTypeData.length <= 0 && getBillingTypes();
+      groupTypeData.length <= 0 && getGroupTypes();
+      stateList.length <= 0 && getStates();
     }, [onOpen]);
 
     const getBillingTypes = async () => {
@@ -1014,6 +1005,37 @@ const ClientContent = forwardRef<
       }
     };
 
+    const handleMultiSelect = (
+      e: React.SyntheticEvent,
+      value: any,
+      index: any
+    ) => {
+      if (value !== undefined) {
+        const selectedValue = value.map((v: any) => v.value);
+        setDepartmentDataObj([
+          ...departmentDataObj.map((i: any) =>
+            i.index === index
+              ? new Object({
+                  ...i,
+                  group: value,
+                  groupErr: value.length > 0 ? false : true,
+                  selectGroupValue: selectedValue,
+                  allFields:
+                    i.billingType > 0 &&
+                    selectedValue.length > 0 &&
+                    i.actHrs > 0 &&
+                    i.actHrs <= 5 &&
+                    i.contHrs > 0 &&
+                    i.contHrs <= 5
+                      ? false
+                      : true,
+                })
+              : i
+          ),
+        ]);
+      }
+    };
+
     return (
       <>
         <form onSubmit={handleSubmit}>
@@ -1049,51 +1071,121 @@ const ClientContent = forwardRef<
           <div className="flex gap-[20px] flex-col px-[20px] pb-[50px] max-h-[73.5vh] overflow-y-auto">
             {isAddClientClicked && (
               <>
-                <Text
-                  label="Client Name"
-                  placeholder="Enter Client Name"
-                  validate
-                  value={clientName}
-                  getValue={(e) => setClientName(e)}
-                  getError={(e) => setClientNameHasError(e)}
-                  hasError={clientError}
-                  autoComplete="off"
-                  minChar={2}
-                  maxChar={50}
+                <TextField
+                  label={
+                    <span>
+                      Client Name
+                      <span className="!text-defaultRed">&nbsp;*</span>
+                    </span>
+                  }
+                  fullWidth
+                  value={clientName?.trim().length <= 0 ? "" : clientName}
+                  onChange={(e) => {
+                    setClientName(e.target.value);
+                    setClientNameError(false);
+                  }}
+                  onBlur={(e: any) => {
+                    if (
+                      e.target.value.trim().length < 2 ||
+                      e.target.value.trim().length > 20
+                    ) {
+                      setClientNameError(true);
+                    }
+                  }}
+                  error={clientNameError}
+                  helperText={
+                    clientNameError && clientName?.trim().length > 50
+                      ? "Maximum 50 characters allowed."
+                      : clientNameError &&
+                        clientName?.trim().length > 0 &&
+                        clientName?.trim().length < 2
+                      ? "Minimum 2 characters allowed."
+                      : clientNameError
+                      ? "This is a required field."
+                      : ""
+                  }
+                  margin="normal"
+                  variant="standard"
                 />
-                <Textarea
-                  label="Address"
-                  placeholder="Enter Address"
-                  validate
-                  value={address}
-                  getValue={(e) => setAddress(e)}
-                  getError={(e) => setAddressHasError(e)}
-                  hasError={addressError}
-                  autoComplete="off"
-                  maxChar={300}
-                  rows={1}
+                <TextField
+                  label={
+                    <span>
+                      Address
+                      <span className="!text-defaultRed">&nbsp;*</span>
+                    </span>
+                  }
+                  sx={{ mt: "-10px" }}
+                  fullWidth
+                  value={address?.trim().length <= 0 ? "" : address}
+                  onChange={(e) => {
+                    setAddress(e.target.value);
+                    setAddressError(false);
+                  }}
+                  onBlur={(e: any) => {
+                    if (
+                      e.target.value.trim().length < 1 ||
+                      e.target.value.trim().length > 300
+                    ) {
+                      setAddressError(true);
+                    }
+                  }}
+                  error={addressError}
+                  helperText={
+                    addressError && address?.trim().length > 300
+                      ? "Maximum 300 characters allowed."
+                      : addressError
+                      ? "This is a required field."
+                      : ""
+                  }
+                  margin="normal"
+                  variant="standard"
                 />
-                <Email
-                  label="Email"
+                <TextField
                   type="email"
-                  placeholder="Enter Email ID"
-                  validate
-                  value={email}
-                  getValue={(e) => setEmail(e)}
-                  getError={(e) => setEmailHasError(e)}
-                  hasError={emailError}
-                  autoComplete="off"
-                  minChar={5}
-                  maxChar={100}
+                  sx={{ mt: "-10px" }}
+                  label={
+                    <span>
+                      Email
+                      <span className="!text-defaultRed">&nbsp;*</span>
+                    </span>
+                  }
+                  fullWidth
+                  value={email?.trim().length <= 0 ? "" : email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailError(false);
+                  }}
+                  onBlur={(e: any) => {
+                    if (
+                      e.target.value.trim().length < 1 ||
+                      e.target.value.trim().length > 100 ||
+                      !regex.test(e.target.value)
+                    ) {
+                      setEmailError(true);
+                    }
+                  }}
+                  error={emailError}
+                  helperText={
+                    emailError && email?.trim().length > 100
+                      ? "Maximum 100 characters allowed."
+                      : emailError && !regex.test(email)
+                      ? "Please enter valid email."
+                      : emailError
+                      ? "This is a required field."
+                      : ""
+                  }
+                  margin="normal"
+                  variant="standard"
                 />
-                <Text
-                  className="telPadding"
-                  value={tel}
-                  getValue={(e) => setTel(e)}
-                  hasError={telError}
-                  placeholder="Enter Mobile No."
+                <TextField
                   label="Mobile Number"
-                  getError={() => {}}
+                  sx={{ mt: "-10px" }}
+                  fullWidth
+                  type="number"
+                  value={tel?.trim().length <= 0 ? "" : tel}
+                  onChange={(e) => setTel(e.target.value)}
+                  margin="normal"
+                  variant="standard"
                 />
 
                 {/* Checkbox selection */}
@@ -1104,11 +1196,15 @@ const ClientContent = forwardRef<
                       htmlFor={i.label}
                     >
                       <span className="flex items-center">
-                        <CheckBox
-                          checked={i.checkbox}
-                          id={i.index}
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={i.checkbox}
+                              onChange={(e: any) => toggleAccordion(e, index)}
+                            />
+                          }
                           label={i.label}
-                          onChange={(e: any) => toggleAccordion(e, index)}
+                          id={i.index}
                         />
                       </span>
                       {i.isOpen ? (
@@ -1133,101 +1229,254 @@ const ClientContent = forwardRef<
                       } overflow-hidden`}
                     >
                       <div className="flex flex-col gap-[17px] pl-[34px]">
-                        <Select
-                          id="billing_type"
-                          label="Billing Type"
-                          defaultValue={i.billingType}
-                          options={billingTypeData}
-                          onSelect={() => {}}
-                          getValue={(e) => {
-                            const updatedDepartmentDataObj = [
-                              ...departmentDataObj,
-                            ];
-                            updatedDepartmentDataObj[index].billingType = e;
-                            updatedDepartmentDataObj[index].billingErr = e <= 0;
-                            setDepartmentDataObj(updatedDepartmentDataObj);
-                          }}
-                          getError={(e) => {
-                            const updatedDepartmentDataObj = [
-                              ...departmentDataObj,
-                            ];
-                            updatedDepartmentDataObj[index].billingHasErr = e;
-                            setDepartmentDataObj(updatedDepartmentDataObj);
-                          }}
-                          hasError={i.billingErr}
-                          validate
-                          errorClass="!-mt-[15px]"
-                          search
-                        />
-                        <MultiSelectChip
-                          type="checkbox"
-                          id="group"
-                          label="Group"
-                          defaultValue={i.group}
+                        <FormControl variant="standard" error={i.billingErr}>
+                          <InputLabel id="demo-simple-select-standard-label">
+                            Type of Work
+                            <span className="text-defaultRed">&nbsp;*</span>
+                          </InputLabel>
+                          <Select
+                            labelId="demo-simple-select-standard-label"
+                            id="demo-simple-select-standard"
+                            value={i.billingType === 0 ? "" : i.billingType}
+                            onChange={(e) => {
+                              const updatedDepartmentDataObj = [
+                                ...departmentDataObj,
+                              ];
+                              updatedDepartmentDataObj[index].billingType =
+                                e.target.value;
+                              updatedDepartmentDataObj[index].billingErr =
+                                e.target.value <= 0;
+                              e.target.value > 0 &&
+                                setDepartmentDataObj(updatedDepartmentDataObj);
+                            }}
+                            onBlur={(e: any) => {
+                              if (e.target.value > 0) {
+                                const updatedDepartmentDataObj = [
+                                  ...departmentDataObj,
+                                ];
+                                updatedDepartmentDataObj[index].billingErr =
+                                  false;
+                                setDepartmentDataObj(updatedDepartmentDataObj);
+                              } else {
+                                const updatedDepartmentDataObj = [
+                                  ...departmentDataObj,
+                                ];
+                                updatedDepartmentDataObj[index].billingErr =
+                                  true;
+                                setDepartmentDataObj(updatedDepartmentDataObj);
+                              }
+                            }}
+                          >
+                            {billingTypeData.map((i: any, index: number) => (
+                              <MenuItem value={i.value} key={index}>
+                                {i.label}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                          {i.billingErr && (
+                            <FormHelperText>
+                              This is a required field.
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                        <Autocomplete
+                          multiple
+                          limitTags={2}
+                          id="checkboxes-tags-demo"
                           options={groupTypeData}
-                          onSelect={() => {}}
-                          getValue={(e) => {
-                            const updatedDepartmentDataObj = [
-                              ...departmentDataObj,
-                            ];
-                            updatedDepartmentDataObj[index].group = e;
-                            updatedDepartmentDataObj[index].groupErr =
-                              e.length <= 0;
-                            setDepartmentDataObj(updatedDepartmentDataObj);
-                          }}
-                          getError={(e) => {
-                            const updatedDepartmentDataObj = [
-                              ...departmentDataObj,
-                            ];
-                            updatedDepartmentDataObj[index].groupHasErr = e;
-                            setDepartmentDataObj(updatedDepartmentDataObj);
-                          }}
-                          hasError={i.groupErr}
-                          validate
-                          errorClass="!-mt-[15px]"
+                          value={i.group}
+                          getOptionLabel={(option: any) => option.label}
+                          getOptionDisabled={(option: any) =>
+                            i.selectGroupValue.includes(option.value)
+                          }
+                          disableCloseOnSelect
+                          onChange={(e, value: any) =>
+                            handleMultiSelect(e, value, index)
+                          }
+                          renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                              <Checkbox
+                                icon={icon}
+                                checkedIcon={checkedIcon}
+                                style={{ marginRight: 8 }}
+                                checked={i.selectGroupValue.includes(
+                                  option.value
+                                )}
+                              />
+                              {option.label}
+                            </li>
+                          )}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label={
+                                <span>
+                                  Group
+                                  <span className="text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              placeholder="Please Select..."
+                              variant="standard"
+                              error={i.groupErr}
+                              onBlur={(e) => {
+                                if (i.selectGroupValue.length > 0) {
+                                  const updatedDepartmentDataObj = [
+                                    ...departmentDataObj,
+                                  ];
+                                  updatedDepartmentDataObj[index].groupErr =
+                                    false;
+                                  setDepartmentDataObj(
+                                    updatedDepartmentDataObj
+                                  );
+                                } else {
+                                  const updatedDepartmentDataObj = [
+                                    ...departmentDataObj,
+                                  ];
+                                  updatedDepartmentDataObj[index].groupErr =
+                                    true;
+                                  setDepartmentDataObj(
+                                    updatedDepartmentDataObj
+                                  );
+                                }
+                              }}
+                              helperText={
+                                i.groupErr ? "This is a required field." : ""
+                              }
+                            />
+                          )}
                         />
-                        <Text
-                          className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        <TextField
+                          label={
+                            <span>
+                              Contracted Hours
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          onFocus={(e) =>
+                            e.target.addEventListener(
+                              "wheel",
+                              function (e) {
+                                e.preventDefault();
+                              },
+                              { passive: false }
+                            )
+                          }
+                          sx={{ mt: "0px" }}
                           type="number"
-                          label="Contracted Hours"
-                          placeholder="Enter Total Contracted Hours"
-                          validate
-                          maxLength={5}
-                          maxChar={5}
-                          value={i.contHrs === 0 ? "" : i.contHrs}
-                          getValue={(e) => handleContHrs(e, index)}
-                          getError={(e) => {
-                            const updatedDepartmentDataObj = [
-                              ...departmentDataObj,
-                            ];
-                            updatedDepartmentDataObj[index].contHrsHasErr = e;
-                            setDepartmentDataObj(updatedDepartmentDataObj);
+                          fullWidth
+                          value={i.contHrs}
+                          onChange={(e) => handleContHrs(e.target.value, index)}
+                          onBlur={(e: any) => {
+                            if (
+                              e.target.value.trim().length < 0 ||
+                              e.target.value.trim().length > 5 ||
+                              e.target.value.trim().includes(".")
+                            ) {
+                              const updatedDepartmentDataObj = [
+                                ...departmentDataObj,
+                              ];
+                              updatedDepartmentDataObj[index].contHrsErr = true;
+                              setDepartmentDataObj(updatedDepartmentDataObj);
+                            } else {
+                              const updatedDepartmentDataObj = [
+                                ...departmentDataObj,
+                              ];
+                              updatedDepartmentDataObj[index].contHrsErr =
+                                false;
+                              setDepartmentDataObj(updatedDepartmentDataObj);
+                            }
                           }}
-                          hasError={i.contHrsErr}
-                          errorMessage={i.contHrsErrMsg}
-                          noText
-                          onWheel={(e) => e.currentTarget.blur()}
+                          error={i.contHrsErr}
+                          helperText={
+                            i.contHrs === "0" ||
+                            i.contHrs === "00" ||
+                            i.contHrs === "000" ||
+                            i.contHrs === "0000" ||
+                            i.contHrs === "00000" ||
+                            i.contHrs === "-0" ||
+                            i.contHrs === "-00" ||
+                            i.contHrs === "-000" ||
+                            i.contHrs === "-0000" ||
+                            i.contHrs === "-00000"
+                              ? `Contracted Hours should not be ${i.contHrs}.`
+                              : i.contHrs <= 0
+                              ? "Contracted Hours must be greater than 0."
+                              : i.contHrs.toString().includes(".") ||
+                                i.contHrs.toString().includes(",")
+                              ? "Contracted Hours must be a valid value."
+                              : ""
+                          }
+                          margin="normal"
+                          variant="standard"
                         />
-                        <Text
-                          className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        <TextField
+                          label={
+                            <span>
+                              Internal Hours
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          onFocus={(e) =>
+                            e.target.addEventListener(
+                              "wheel",
+                              function (e) {
+                                e.preventDefault();
+                              },
+                              { passive: false }
+                            )
+                          }
+                          sx={{ mt: "0px" }}
                           type="number"
-                          label="Internal Hours"
-                          placeholder="Enter Total Internal Hours"
-                          validate
-                          maxLength={5}
-                          value={i.actHrs === 0 ? "" : i.actHrs}
-                          getValue={(e) => handleActualHrs(e, index)}
-                          getError={(e) => {
-                            const updatedDepartmentDataObj = [
-                              ...departmentDataObj,
-                            ];
-                            updatedDepartmentDataObj[index].actHrsHasErr = e;
-                            setDepartmentDataObj(updatedDepartmentDataObj);
+                          fullWidth
+                          value={i.actHrs}
+                          onChange={(e) =>
+                            handleActualHrs(e.target.value, index)
+                          }
+                          onBlur={(e: any) => {
+                            if (
+                              e.target.value.trim().length < 0 ||
+                              e.target.value.trim().length > 5 ||
+                              e.target.value.trim().includes(".")
+                            ) {
+                              const updatedDepartmentDataObj = [
+                                ...departmentDataObj,
+                              ];
+                              updatedDepartmentDataObj[index].actHrsErr = true;
+                              setDepartmentDataObj(updatedDepartmentDataObj);
+                            } else {
+                              const updatedDepartmentDataObj = [
+                                ...departmentDataObj,
+                              ];
+                              updatedDepartmentDataObj[index].actHrsErr = false;
+                              setDepartmentDataObj(updatedDepartmentDataObj);
+                            }
                           }}
-                          hasError={i.actHrsErr}
-                          errorMessage={i.actHrsErrMsg}
-                          noText
-                          onWheel={(e) => e.currentTarget.blur()}
+                          error={i.actHrsErr}
+                          helperText={
+                            Number(i.actHrs) > Number(i.contHrs)
+                              ? "Internal Hours should be less than or equal to contracted hours."
+                              : i.actHrs === "0" ||
+                                i.actHrs === "00" ||
+                                i.actHrs === "000" ||
+                                i.actHrs === "0000" ||
+                                i.actHrs === "00000" ||
+                                i.actHrs === "-0" ||
+                                i.actHrs === "-00" ||
+                                i.actHrs === "-000" ||
+                                i.actHrs === "-0000" ||
+                                i.actHrs === "-00000"
+                              ? `Internal Hours should not be ${i.actHrs}.`
+                              : i.actHrs <= 0
+                              ? "Internal Hours must be greater than 0."
+                              : i.actHrs.toString().includes(".") ||
+                                i.actHrs.toString().includes(",")
+                              ? "Internal Hours must be a valid value."
+                              : ""
+                          }
+                          margin="normal"
+                          variant="standard"
                         />
                       </div>
                     </div>
@@ -1239,95 +1488,103 @@ const ClientContent = forwardRef<
             {isAdditionalFieldsClicked && (
               <>
                 <div className="flex flex-row gap-5">
-                  <Text
+                  <TextField
                     label="Owner/CPA Name"
-                    placeholder="Enter Owner/CPA Name"
-                    value={cpaName}
-                    getValue={(e) => setCpaName(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={cpaName?.trim().length <= 0 ? "" : cpaName}
+                    onChange={(e) => setCpaName(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
 
-                  <Email
-                    label="CPA Email"
+                  <TextField
                     type="email"
-                    placeholder="Enter CPA Email"
-                    value={cpaEmail}
-                    getValue={(e) => setCpaEmail(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    label="CPA Email"
+                    fullWidth
+                    value={cpaEmail?.trim().length <= 0 ? "" : cpaEmail}
+                    onChange={(e) => setCpaEmail(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
                 </div>
 
-                <div className="flex flex-row gap-5">
-                  <Tel
+                <div className="flex flex-row gap-5 mt-[-2rem]">
+                  <TextField
                     label="CPA Mobile Number"
-                    placeholder="Enter CPA Mobile No."
-                    value={cpaMobileNo}
-                    getValue={(e) => setCpaMobileNo(e)}
-                    getError={() => {}}
-                    autoComplete="off"
-                    maxLength={14}
+                    fullWidth
+                    type="number"
+                    value={cpaMobileNo?.trim().length <= 0 ? "" : cpaMobileNo}
+                    onChange={(e) => setCpaMobileNo(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
 
-                  <Text
+                  <TextField
                     label="City"
-                    placeholder="Enter City"
-                    value={city}
-                    getValue={(e) => setCity(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={city?.trim().length <= 0 ? "" : city}
+                    onChange={(e) => setCity(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
                 </div>
 
-                <div className="flex flex-row gap-5">
-                  <Select
+                <div className="flex flex-row gap-5 mt-[-2rem]">
+                  {/* <Select
                     id="State"
                     label="State"
                     defaultValue={state}
                     options={stateList}
                     getValue={(e) => setState(e)}
                     getError={(e) => {}}
-                  />
+                  /> */}
 
-                  <Text
+                  <TextField
                     label="ZIP Code"
-                    placeholder="Enter ZIP Code"
                     type="number"
-                    value={zip}
-                    getValue={(e) => setZip(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    className="w-[19.2rem]"
+                    value={zip?.trim().length <= 0 ? "" : zip}
+                    onChange={(e) => setZip(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
                 </div>
 
                 {pocFields.map(
                   (
                     field: {
-                      Name: string | undefined;
-                      Email: string | undefined;
+                      Name: any;
+                      Email: any;
                     },
                     index: any
                   ) => (
-                    <div className="flex flex-row" key={index}>
+                    <div className="flex flex-row mt-[-2rem]" key={index}>
                       <div className="flex gap-5 w-full">
-                        <Text
+                        <TextField
                           label="Client POC Name"
-                          placeholder="Enter Client POC Name"
-                          value={field.Name}
-                          getValue={(e) => handleClientPOCNameChange(e, index)}
-                          getError={() => {}}
-                          autoComplete="off"
+                          fullWidth
+                          value={
+                            field.Name?.trim().length <= 0 ? "" : field.Name
+                          }
+                          onChange={(e) =>
+                            handleClientPOCNameChange(e.target.value, index)
+                          }
+                          margin="normal"
+                          variant="standard"
                         />
 
-                        <Email
+                        <TextField
                           label="CPA Email"
-                          type="Email"
-                          placeholder="Enter CPA Email"
-                          value={field.Email}
-                          getValue={(e) => handleClientPOCEmailChange(e, index)}
-                          getError={() => {}}
-                          autoComplete="off"
+                          type="email"
+                          fullWidth
+                          value={
+                            field.Email?.trim().length <= 0 ? "" : field.Email
+                          }
+                          onChange={(e) =>
+                            handleClientPOCEmailChange(e.target.value, index)
+                          }
+                          margin="normal"
+                          variant="standard"
                         />
                       </div>
 
@@ -1363,244 +1620,300 @@ const ClientContent = forwardRef<
                   )
                 )}
 
-                <div className="flex flex-row gap-5">
-                  <Text
+                <div className="flex flex-row gap-5 mt-[-2rem]">
+                  <TextField
                     label="Client IT POC Name"
-                    placeholder="Enter Client IT POC Name"
-                    value={clientItPOCName}
-                    getValue={(e) => setClientItPOCName(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={
+                      clientItPOCName?.trim().length <= 0 ? "" : clientItPOCName
+                    }
+                    onChange={(e) => setClientItPOCName(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
 
-                  <Email
+                  <TextField
                     label="Client IT POC Email"
                     type="email"
-                    placeholder="Enter Client IT POC Email"
-                    value={clientItPOCEmail}
-                    getValue={(e) => setClientItPOCEmail(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={
+                      clientItPOCEmail?.trim().length <= 0
+                        ? ""
+                        : clientItPOCEmail
+                    }
+                    onChange={(e) => setClientItPOCEmail(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
                 </div>
 
-                <div className="flex flex-row gap-5">
-                  <Text
+                <div className="flex flex-row gap-5 mt-[-2rem]">
+                  <TextField
                     label="PABS POC Name"
-                    placeholder="Enter PABS POC Name"
-                    value={pabsPOCName}
-                    getValue={(e) => setPabsPOCName(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={pabsPOCName?.trim().length <= 0 ? "" : pabsPOCName}
+                    onChange={(e) => setPabsPOCName(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
 
-                  <Text
+                  <TextField
                     label="PABS BDM"
-                    placeholder="Enter PABS BDM"
-                    value={pabsBDM}
-                    getValue={(e) => setPabsBDM(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={pabsBDM?.trim().length <= 0 ? "" : pabsBDM}
+                    onChange={(e) => setPabsBDM(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
                 </div>
 
-                <div className="flex flex-row gap-5">
-                  <Text
+                <div className="flex flex-row gap-5 mt-[-2rem]">
+                  <TextField
                     label="PABS MANAGER Assigned"
-                    placeholder="Enter PABS MANAGER Assigned"
-                    value={pabsManagerAssigned}
-                    getValue={(e) => setPabsManagerAssigned(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={
+                      pabsManagerAssigned?.trim().length <= 0
+                        ? ""
+                        : pabsManagerAssigned
+                    }
+                    onChange={(e) => setPabsManagerAssigned(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
 
-                  <Email
+                  <TextField
                     label="Group Email"
                     type="email"
-                    placeholder="Enter Group Email"
-                    value={groupEmail}
-                    getValue={(e) => setGroupEmail(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={groupEmail?.trim().length <= 0 ? "" : groupEmail}
+                    onChange={(e) => setGroupEmail(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
                 </div>
 
-                <div className="flex gap-5">
-                  <Text
+                <div className="flex gap-5 mt-[-2rem]">
+                  <TextField
                     label="SOP Status"
-                    placeholder="Enter SOP Status"
-                    value={sopStatus}
-                    getValue={(e) => setSOPStatus(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={sopStatus?.trim().length <= 0 ? "" : sopStatus}
+                    onChange={(e) => setSOPStatus(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
 
-                  <span className="w-full">
-                    <Datepicker
-                      label="Date Of Implementation"
-                      startYear={1990}
-                      endYear={2080}
-                      value={dateOfImplementation}
-                      getValue={(e) => setDateofImplementation(e)}
-                      id="Date Of Implementation"
-                      getError={() => {}}
-                      format="mm/dd/yyyy"
-                    />
-                  </span>
+                  <div className="inline-flex mt-[13px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]">
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        label="Date Of Implementation"
+                        value={
+                          dateOfImplementation === ""
+                            ? null
+                            : dayjs(dateOfImplementation)
+                        }
+                        onChange={(newDate: any) =>
+                          setDateofImplementation(newDate.$d)
+                        }
+                        slotProps={{
+                          textField: {
+                            readOnly: true,
+                          } as Record<string, any>,
+                        }}
+                      />
+                    </LocalizationProvider>
+                  </div>
                 </div>
 
-                <div className="flex gap-5">
-                  <span className="w-full">
-                    <Datepicker
-                      label="Agreement Start Date"
-                      startYear={1990}
-                      endYear={2080}
-                      value={agreementStartDate}
-                      getValue={(e) => setAgreementStartDate(e)}
-                      id="Agreement Start Date"
-                      getError={() => {}}
-                      format="mm/dd/yyyy"
-                    />
-                  </span>
+                <div className="flex gap-5 mt-[-2rem]">
+                  <div className="inline-flex mt-[13px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]">
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        label="Agreement Start Date"
+                        value={
+                          agreementStartDate === ""
+                            ? null
+                            : dayjs(agreementStartDate)
+                        }
+                        onChange={(newDate: any) =>
+                          setAgreementStartDate(newDate.$d)
+                        }
+                        slotProps={{
+                          textField: {
+                            readOnly: true,
+                          } as Record<string, any>,
+                        }}
+                      />
+                    </LocalizationProvider>
+                  </div>
 
-                  <Text
+                  <TextField
                     label="FTE Agreement (Tax)"
-                    placeholder="Enter FTE Agreement (Tax)"
-                    value={fteAgreement}
-                    getValue={(e) => setFteAgreement(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={fteAgreement?.trim().length <= 0 ? "" : fteAgreement}
+                    onChange={(e) => setFteAgreement(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
                 </div>
 
-                <div className="flex flex-row gap-5">
-                  <Text
+                <div className="flex flex-row gap-5 mt-[-2rem]">
+                  <TextField
                     label="Estimation Workflow"
-                    placeholder="Enter Estimation Workflow"
-                    value={estimationWorkflow}
-                    getValue={(e) => setEstimationWorkFlow(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={
+                      estimationWorkflow?.trim().length <= 0
+                        ? ""
+                        : estimationWorkflow
+                    }
+                    onChange={(e) => setEstimationWorkFlow(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
 
-                  <Text
+                  <TextField
                     label="VPN Requirement"
-                    placeholder="Enter VPN Requirement"
-                    value={vpnRequirement}
-                    getValue={(e) => setVpnRequirement(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={
+                      vpnRequirement?.trim().length <= 0 ? "" : vpnRequirement
+                    }
+                    onChange={(e) => setVpnRequirement(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
                 </div>
 
-                <div className="flex flex-row gap-5">
-                  <Text
+                <div className="flex flex-row gap-5 mt-[-2rem]">
+                  <TextField
                     label="Remote System Access"
-                    placeholder="Enter Remote System Access"
-                    value={remoteSystemAccess}
-                    getValue={(e) => setRemoteSystemAccess(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={
+                      remoteSystemAccess?.trim().length <= 0
+                        ? ""
+                        : remoteSystemAccess
+                    }
+                    onChange={(e) => setRemoteSystemAccess(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
 
-                  <Text
+                  <TextField
                     label="Tax Preparation Software"
-                    placeholder="Enter Tax Preparation Software"
-                    value={taxPreparationSoftware}
-                    getValue={(e) => setTaxPreparationSoftware(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={
+                      taxPreparationSoftware?.trim().length <= 0
+                        ? ""
+                        : taxPreparationSoftware
+                    }
+                    onChange={(e) => setTaxPreparationSoftware(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
                 </div>
 
-                <div className="flex flex-row gap-5">
-                  <Text
+                <div className="flex flex-row gap-5 mt-[-2rem]">
+                  <TextField
                     label="Document Portal"
-                    placeholder="Enter Document Portal"
-                    value={documentPortal}
-                    getValue={(e) => setDocumentPortal(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={
+                      documentPortal?.trim().length <= 0 ? "" : documentPortal
+                    }
+                    onChange={(e) => setDocumentPortal(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
 
-                  <Text
+                  <TextField
                     label="Workflow Tracker"
-                    placeholder="Enter Workflow Tracker"
-                    value={workflowTracker}
-                    getValue={(e) => setWorkflowTracker(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={
+                      workflowTracker?.trim().length <= 0 ? "" : workflowTracker
+                    }
+                    onChange={(e) => setWorkflowTracker(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
                 </div>
 
-                <div className="flex flex-row gap-5">
-                  <Text
+                <div className="flex flex-row gap-5 mt-[-2rem]">
+                  <TextField
                     label="Communication Channel"
-                    placeholder="Enter Communication Channel"
-                    value={communicationChannel}
-                    getValue={(e) => setCommunicationChannel(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={
+                      communicationChannel?.trim().length <= 0
+                        ? ""
+                        : communicationChannel
+                    }
+                    onChange={(e) => setCommunicationChannel(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
 
-                  <Text
+                  <TextField
                     label="Recurring Call"
-                    placeholder="Enter Recurring Call"
-                    value={recurringCall}
-                    getValue={(e) => setRecurringCall(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={
+                      recurringCall?.trim().length <= 0 ? "" : recurringCall
+                    }
+                    onChange={(e) => setRecurringCall(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
                 </div>
 
-                <div className="flex flex-row gap-5">
-                  <Text
+                <div className="flex flex-row gap-5 mt-[-2rem]">
+                  <TextField
                     label="Specific Additional Process Step"
-                    placeholder="Enter Specific Additional Process Step"
-                    value={specificProcessStep}
-                    getValue={(e) => setSpecificProcessStep(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={
+                      specificProcessStep?.trim().length <= 0
+                        ? ""
+                        : specificProcessStep
+                    }
+                    onChange={(e) => setSpecificProcessStep(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
 
-                  <Text
+                  <TextField
                     label="Client Timezone"
-                    placeholder="Enter Client Timezone"
-                    value={clientTimeZone}
-                    getValue={(e) => setClientTimeZone(e)}
-                    getError={() => {}}
-                    autoComplete="off"
+                    fullWidth
+                    value={
+                      clientTimeZone?.trim().length <= 0 ? "" : clientTimeZone
+                    }
+                    onChange={(e) => setClientTimeZone(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
                 </div>
 
-                <div className="flex flex-row gap-5">
-                  <Text
-                    className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    type="number"
+                <div className="flex flex-row gap-5 mt-[-2rem]">
+                  <TextField
                     label="No. Of Login"
-                    placeholder="Enter No. Of Login"
+                    onFocus={(e) =>
+                      e.target.addEventListener(
+                        "wheel",
+                        function (e) {
+                          e.preventDefault();
+                        },
+                        { passive: false }
+                      )
+                    }
+                    type="number"
+                    className="w-[19.2rem]"
                     value={noOfLogin}
-                    getValue={(e) => setNoOfLogin(e)}
-                    getError={() => {}}
-                    autoComplete="off"
-                    noText
-                    onWheel={(e) => e.currentTarget.blur()}
-                    onKeyDown={(e) => {
-                      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-                        e.preventDefault();
-                        e.currentTarget.blur();
-                      }
-                    }}
+                    onChange={(e) => setNoOfLogin(e.target.value)}
+                    margin="normal"
+                    variant="standard"
                   />
 
-                  <Text
+                  {/* <Text
                     className="hidden"
                     placeholder="Enter Client Timezone"
                     value={clientTimeZone}
                     getValue={(e) => setClientTimeZone(e)}
                     getError={() => {}}
                     autoComplete="off"
-                  />
+                  /> */}
                 </div>
               </>
             )}
@@ -1609,8 +1922,8 @@ const ClientContent = forwardRef<
           <div className="flex justify-end fixed w-full bottom-0 gap-[20px] px-[20px] py-[15px] bg-pureWhite border-t border-lightSilver">
             {onEdit ? (
               <Button
-                variant="btn-outline-primary"
-                className="rounded-[4px] !h-[36px]"
+                variant="outlined"
+                className="rounded-[4px] !h-[36px] !text-secondary"
                 onClick={() => {
                   clearAllData();
                 }}
@@ -1619,8 +1932,8 @@ const ClientContent = forwardRef<
               </Button>
             ) : (
               <Button
-                variant="btn-outline-primary"
-                className="rounded-[4px] !h-[36px]"
+                variant="outlined"
+                className="rounded-[4px] !h-[36px] !text-secondary cursor-pointer"
                 type="submit"
                 onClick={() => setAddMoreClicked(true)}
               >
@@ -1628,8 +1941,8 @@ const ClientContent = forwardRef<
               </Button>
             )}
             <Button
-              variant="btn-primary"
-              className="rounded-[4px] !h-[36px]"
+              variant="contained"
+              className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary cursor-pointer"
               type="submit"
             >
               {onEdit

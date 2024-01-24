@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-undef */
 import {
   generateCustomHeaderName,
   generateCommonBodyRender,
@@ -6,7 +7,7 @@ import {
   generateStatusWithColor,
 } from "@/utils/datatable/CommonFunction";
 import MUIDataTable from "mui-datatables";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { callAPI } from "@/utils/API/callAPI";
 import { options } from "@/utils/datatable/TableOptions";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
@@ -14,6 +15,10 @@ import { TablePagination, ThemeProvider } from "@mui/material";
 import { haveSameData } from "@/utils/reports/commonFunctions";
 import { customreport_InitialFilter } from "@/utils/reports/getFilters";
 import ReportLoader from "@/components/common/ReportLoader";
+import TableActionIcon from "@/assets/icons/TableActionIcon";
+import React from "react";
+import { toast } from "react-toastify";
+import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 
 const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [customReportFields, setCustomReportFields] = useState({
@@ -25,6 +30,8 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     useState<number>(0);
   const [customReportRowsPerPage, setCustomReportRowsPerPage] =
     useState<number>(10);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
 
   const getData = async (arg1: any) => {
     setCustomReportFields({
@@ -81,6 +88,33 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     }
   };
 
+  const handleDeleteRow = async () => {
+    if (selectedRowId) {
+      const params = {
+        workitemIds: [selectedRowId],
+      };
+      const url = `${process.env.worklog_api_url}/workitem/deleteworkitem`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success("Task has been deleted successfully!");
+        }
+      };
+      callAPI(url, params, successCallback, "POST");
+      setSelectedRowId(null);
+      setIsDeleteOpen(false);
+      getData({ ...filteredData, globalSearch: searchValue });
+    }
+  };
+
+  const closeModal = () => {
+    setSelectedRowId(null);
+    setIsDeleteOpen(false);
+  };
+
   useEffect(() => {
     if (filteredData !== null) {
       if (haveSameData(customreport_InitialFilter, filteredData)) {
@@ -96,6 +130,81 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       }
     }
   }, [filteredData, searchValue]);
+
+  const handleActionValue = async (actionId: string, id: any) => {
+    if (actionId.toLowerCase() === "edit") {
+      window.open(`${process.env.redirectEditURL}${id}`, "_blank");
+    }
+    if (actionId.toLowerCase() === "delete") {
+      setSelectedRowId(id);
+      setIsDeleteOpen(true);
+    }
+  };
+
+  const Actions = ({ actions, id }: any) => {
+    const actionsRef = useRef<HTMLDivElement>(null);
+    const [open, setOpen] = useState(false);
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        actionsRef.current &&
+        !actionsRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    useEffect(() => {
+      window.addEventListener("click", handleOutsideClick);
+      return () => {
+        window.removeEventListener("click", handleOutsideClick);
+      };
+    }, []);
+
+    const actionPermissions = actions.filter(
+      (action: any) =>
+        action.toLowerCase() === "edit" || action.toLowerCase() === "delete"
+    );
+
+    return actionPermissions.length > 0 ? (
+      <div>
+        <span
+          ref={actionsRef}
+          className="w-5 h-5 cursor-pointer"
+          onClick={() => setOpen(!open)}
+        >
+          <TableActionIcon />
+        </span>
+        {open && (
+          <React.Fragment>
+            <div className="absolute top-30 right-3 z-10 flex justify-center items-center">
+              <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
+                <ul className="w-28">
+                  {actionPermissions.map((action: any, index: any) => (
+                    <li
+                      key={index}
+                      onClick={() => handleActionValue(action, id)}
+                      className="flex w-full h-9 px-3 hover:bg-lightGray !cursor-pointer"
+                    >
+                      <div className="flex justify-center items-center ml-2 cursor-pointer">
+                        <label className="inline-block text-xs cursor-pointer">
+                          {action}
+                        </label>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </React.Fragment>
+        )}
+      </div>
+    ) : (
+      <div className="w-5 h-5 relative opacity-50 pointer-events-none">
+        <TableActionIcon />
+      </div>
+    );
+  };
 
   const columns: any[] = [
     {
@@ -460,6 +569,26 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       },
     },
     {
+      name: "WorkItemId",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Change Request"),
+        customBodyRender: (value: any) => {
+          const admin = localStorage.getItem("roleName");
+          return (
+            <div>
+              {!value || value === "0" || admin !== "Admin" ? (
+                <span className="ml-[-30px]">-</span>
+              ) : (
+                <Actions actions={["Edit", "Delete"]} id={value} />
+              )}
+            </div>
+          );
+        },
+      },
+    },
+    {
       name: "StatusColorCode",
       options: {
         display: false,
@@ -468,38 +597,58 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   ];
 
   return customReportFields.loaded ? (
-    <ThemeProvider theme={getMuiTheme()}>
-      <MUIDataTable
-        columns={columns}
-        data={customReportFields.data}
-        title={undefined}
-        options={{
-          ...options,
-          textLabels: {
-            body: {
-              noMatch: (
-                <div className="flex items-start">
-                  <span>
-                    {filteredData === null
-                      ? "Please apply filter to view data."
-                      : "Currently there is no record available."}
-                  </span>
-                </div>
-              ),
-              toolTip: "",
-            },
-          },
-        }}
-      />
-      <TablePagination
-        component="div"
-        count={customReportFields.dataCount}
-        page={customReportCurrentPage}
-        onPageChange={handleChangePage}
-        rowsPerPage={customReportRowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-    </ThemeProvider>
+    <>
+      <div
+        className={`${customReportFields.data.length > 0 && "muiTableAction"}`}
+      >
+        <ThemeProvider theme={getMuiTheme()}>
+          <MUIDataTable
+            columns={columns}
+            data={customReportFields.data}
+            title={undefined}
+            options={{
+              ...options,
+              textLabels: {
+                body: {
+                  noMatch: (
+                    <div className="flex items-start">
+                      <span>
+                        {filteredData === null
+                          ? "Please apply filter to view data."
+                          : "Currently there is no record available."}
+                      </span>
+                    </div>
+                  ),
+                  toolTip: "",
+                },
+              },
+            }}
+          />
+          <TablePagination
+            component="div"
+            count={customReportFields.dataCount}
+            page={customReportCurrentPage}
+            onPageChange={handleChangePage}
+            rowsPerPage={customReportRowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </ThemeProvider>
+      </div>
+
+      {/* Delete Modal */}
+      {isDeleteOpen && (
+        <DeleteDialog
+          isOpen={isDeleteOpen}
+          onClose={closeModal}
+          onActionClick={handleDeleteRow}
+          Title={"Delete Task"}
+          firstContent={"Are you sure you want to delete Task?"}
+          secondContent={
+            "If you delete task, you will permanently loose task and task related data."
+          }
+        />
+      )}
+    </>
   ) : (
     <ReportLoader />
   );

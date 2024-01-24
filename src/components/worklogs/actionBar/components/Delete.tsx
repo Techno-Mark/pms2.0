@@ -83,7 +83,7 @@ const Delete = ({
         isOpen={isDeleteOpen}
         onClose={closeDeleteModal}
         onActionClick={deleteWorkItem}
-        Title={"Delete Process"}
+        Title={"Delete Task"}
         firstContent={"Are you sure you want to delete Task?"}
         secondContent={
           "If you delete task, you will permanently loose task and task related data."

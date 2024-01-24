@@ -331,7 +331,7 @@ const Drawer = ({
         />
       )}
 
-      {isDeleteOpenProcess && tab === "Project" && (
+      {isDeleteOpenProcess && tab === "Process" && (
         <DeleteDialog
           isOpen={isDeleteOpenProcess}
           onClose={closeModalProcess}

@@ -141,7 +141,7 @@ const Chart_ProjectStatus: React.FC<ChartProjectStatusProps> = ({
   return (
     <div className="flex flex-col px-[20px]">
       <span className="flex items-start pt-[30px] px-[10px] text-lg font-medium">
-        Project Status
+        Task Status
       </span>
       <div className="flex justify-between relative">
         <div className="mt-5">
