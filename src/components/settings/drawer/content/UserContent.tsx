@@ -1,11 +1,5 @@
 /* eslint-disable react/display-name */
-import {
-  Autocomplete,
-  Button,
-  Checkbox,
-  Radio,
-  TextField,
-} from "@mui/material";
+import { Autocomplete, Button, Checkbox, TextField } from "@mui/material";
 import axios from "axios";
 import React, {
   forwardRef,
@@ -17,6 +11,7 @@ import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
+import { Radio } from "next-ts-lib";
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -540,74 +535,69 @@ const UserContent = forwardRef<
 
     return (
       <form onSubmit={handleSubmit}>
-        <span className="flex flex-row items-center pr-[20px] pt-[20px] pl-[10px]">
-          <div className="flex items-center ml-0">
-            {onEdit ? (
-              <>
+        <span className="flex flex-row items-center my-[20px] w-28 gap-5 pl-2">
+          {onEdit ? (
+            <>
+              {value === "Employee" ? (
+                <>
+                  <Radio
+                    label="Employee"
+                    checked
+                    id="Employee"
+                    name="user"
+                    onChange={(e) => {}}
+                  />
+                  <span className="mr-32">
+                    <Radio
+                      label="Client"
+                      id="Client"
+                      disabled
+                      name="user"
+                      onChange={(e) => {}}
+                    />
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Radio
+                    label="Employee"
+                    disabled
+                    id="Employee"
+                    name="user"
+                    onChange={(e) => {}}
+                  />
+                  <span className="mr-32">
+                    <Radio
+                      label="Client"
+                      id="Client"
+                      checked
+                      name="user"
+                      onChange={(e) => {}}
+                    />
+                  </span>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <Radio
+                label="Employee"
+                checked={value === "Employee" ? true : false}
+                id="Employee"
+                name="user"
+                onChange={(e) => setValue(e.target.id)}
+              />
+              <span className="mr-32">
                 <Radio
-                  checked={value === "Employee" ? true : false}
-                  onChange={(e) => setValue(e.target.value)}
-                  value="1"
-                  name="radio-buttons"
-                  disabled={value === "Employee" ? false : true}
-                />
-                <span
-                  className={`${
-                    value !== "Employee" && "text-gray-500"
-                  } cursor-pointer mr-5`}
-                  onClick={(e) =>
-                    value === "Employee" ? setValue("Employee") : undefined
-                  }
-                >
-                  Employee
-                </span>
-                <Radio
+                  label="Client"
                   checked={value === "Client" ? true : false}
-                  onChange={(e) => setValue(e.target.value)}
-                  value="2"
-                  name="radio-buttons"
-                  disabled={value === "Client" ? false : true}
+                  id="Client"
+                  name="user"
+                  onChange={(e) => setValue(e.target.id)}
                 />
-                <span
-                  className={`${
-                    value !== "Client" && "text-gray-500"
-                  } cursor-pointer`}
-                  onClick={(e) =>
-                    value === "Client" ? setValue("Client") : undefined
-                  }
-                >
-                  Client
-                </span>
-              </>
-            ) : (
-              <>
-                <Radio
-                  checked={value === "Employee" ? true : false}
-                  onChange={(e) => setValue(e.target.value)}
-                  value="1"
-                  name="radio-buttons"
-                />
-                <span
-                  className="mr-5 cursor-pointer"
-                  onClick={(e) => setValue("Employee")}
-                >
-                  Employee
-                </span>
-                <Radio
-                  checked={value === "Client" ? true : false}
-                  onChange={(e) => setValue(e.target.value)}
-                  value="2"
-                  name="radio-buttons"
-                />
-                <span
-                  className="cursor-pointer"
-                  onClick={(e) => setValue("Client")}
-                >
-                  Client
-                </span>
-              </>
-            )}
-          </div>
+              </span>
+            </>
+          )}
         </span>
 
         <div className="flex flex-col px-[20px] max-h-[70vh] overflow-y-auto">
@@ -733,6 +723,15 @@ const UserContent = forwardRef<
                 onChange={(e) => setTel(e.target.value)}
                 margin="normal"
                 variant="standard"
+                onFocus={(e) =>
+                  e.target.addEventListener(
+                    "wheel",
+                    function (e) {
+                      e.preventDefault();
+                    },
+                    { passive: false }
+                  )
+                }
               />
               <Autocomplete
                 disablePortal
@@ -1159,6 +1158,15 @@ const UserContent = forwardRef<
                 onChange={(e) => setClientTel(e.target.value)}
                 margin="normal"
                 variant="standard"
+                onFocus={(e) =>
+                  e.target.addEventListener(
+                    "wheel",
+                    function (e) {
+                      e.preventDefault();
+                    },
+                    { passive: false }
+                  )
+                }
               />
             </>
           )}

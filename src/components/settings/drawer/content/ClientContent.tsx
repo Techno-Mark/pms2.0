@@ -1186,6 +1186,15 @@ const ClientContent = forwardRef<
                   onChange={(e) => setTel(e.target.value)}
                   margin="normal"
                   variant="standard"
+                  onFocus={(e) =>
+                    e.target.addEventListener(
+                      "wheel",
+                      function (e) {
+                        e.preventDefault();
+                      },
+                      { passive: false }
+                    )
+                  }
                 />
 
                 {/* Checkbox selection */}
@@ -1517,6 +1526,15 @@ const ClientContent = forwardRef<
                     onChange={(e) => setCpaMobileNo(e.target.value)}
                     margin="normal"
                     variant="standard"
+                    onFocus={(e) =>
+                      e.target.addEventListener(
+                        "wheel",
+                        function (e) {
+                          e.preventDefault();
+                        },
+                        { passive: false }
+                      )
+                    }
                   />
 
                   <TextField
@@ -1547,6 +1565,15 @@ const ClientContent = forwardRef<
                     onChange={(e) => setZip(e.target.value)}
                     margin="normal"
                     variant="standard"
+                    onFocus={(e) =>
+                      e.target.addEventListener(
+                        "wheel",
+                        function (e) {
+                          e.preventDefault();
+                        },
+                        { passive: false }
+                      )
+                    }
                   />
                 </div>
 
