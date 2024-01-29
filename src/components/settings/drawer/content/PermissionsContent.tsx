@@ -66,8 +66,8 @@ const PermissionsContent = forwardRef<
 
     role.trim().length < 3 && setRoleErr(true);
     role.trim().length > 50 && setRoleErr(true);
-
-    if (!roleErr && role.trim().length < 3 && role.trim().length > 50) {
+    
+    if (!roleErr && role.trim().length > 2 && role.trim().length < 50) {
       saveRole();
     }
   };

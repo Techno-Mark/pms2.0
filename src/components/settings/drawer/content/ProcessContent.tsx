@@ -844,8 +844,8 @@ const ProcessContent = forwardRef<
           <DialogContent>
             <DialogContentText>
               {editDialogOpen
-                ? "Are you sure you want to update this Process?."
-                : "Are you sure you want to add this Process?."}
+                ? "Are you sure you want to update this Process?"
+                : "Are you sure you want to add this Process?"}
             </DialogContentText>
             <TextField
               className="w-full"

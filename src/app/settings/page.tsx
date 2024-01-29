@@ -2,7 +2,6 @@
 "use client";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Select } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
@@ -36,12 +35,32 @@ import ReportLoader from "@/components/common/ReportLoader";
 import { callAPI } from "@/utils/API/callAPI";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import ImportIcon from "@/assets/icons/ImportIcon";
-import { Button, InputBase } from "@mui/material";
+import {
+  Autocomplete,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  InputBase,
+  TextField,
+  createFilterOptions,
+} from "@mui/material";
 import ImportDialog from "@/components/settings/settings_import/ImportDialog";
 import FilterIcon from "@/assets/icons/FilterIcon";
 import FilterDialog_Status from "@/components/settings/FilterDialog_Status";
+import { Delete, Edit } from "@mui/icons-material";
+import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 
 type Tabs = { id: string; label: string; canView: boolean };
+
+type Options = {
+  label: string;
+  value: string;
+};
+
+const filter = createFilterOptions<Options>();
 
 const initialTabs = [
   { id: "Client", label: "Client", canView: false },
@@ -117,13 +136,29 @@ const Page = () => {
   const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
     (() => void) | null
   >(null);
-  const [permissionValue, setPermissionValue] = useState(0);
   const [permissionDropdownData, setPermissionDropdownData] = useState([]);
   const [isPermissionExpanded, setPermissionExpanded] =
     useState<boolean>(false);
   const [updatedPermissionsData, setUpdatedPermissionsData] = useState([]);
-  const [textName, setTextName] = useState("");
-  const [textValue, setTextValue] = useState(null);
+
+  const [projectValueError, setProjectValueError] = useState(false);
+  const [projectValueErrText, setProjectValueErrText] = useState<string>(
+    "This field is required."
+  );
+  const [projectValue, setProjectValue] = useState<any>(0);
+  const [projectName, setProjectName] = useState("");
+  const [projectNameError, setProjectNameError] = useState(false);
+  const [projectNameErrText, setProjectNameErrText] = useState<string>(
+    "This field is required."
+  );
+  const [hoveredItem, setHoveredItem] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [open, toggleOpen] = useState(false);
+
+  const [isDeleteOpenProject, setIsDeleteOpenProject] = useState(false);
+  const [selectedRowIdProject, setSelectedRowIdProject] = useState<
+    number | null
+  >(null);
 
   const [clientSearchValue, setClientSearchValue] = useState("");
   const [projectSearchValue, setProjectSearchValue] = useState("");
@@ -269,7 +304,7 @@ const Page = () => {
 
   const saveData = async () => {
     const params = {
-      RoleId: permissionValue !== 0 && permissionValue,
+      RoleId: projectValue !== 0 && projectValue,
       Permissions: updatedPermissionsData,
     };
     const url = `${process.env.pms_api_url}/Role/SavePermission`;
@@ -283,58 +318,6 @@ const Page = () => {
       }
     };
     callAPI(url, params, successCallback, "POST");
-  };
-
-  const handleFormButtonClick = (editing: boolean) => {
-    const saveRole = async () => {
-      const params = {
-        RoleId: textValue,
-        Name: textName,
-        Type: permissionDropdownData
-          .map((i: any) => (i.value === textValue ? i.Type : undefined))
-          .filter((i: any) => i !== undefined)[0],
-      };
-      const url = `${process.env.pms_api_url}/Role/Save`;
-      const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
-      ) => {
-        if (ResponseStatus === "Success" && error === false) {
-          getPermissionDropdown();
-          toast.success(`Role saved successfully.`);
-        }
-      };
-      callAPI(url, params, successCallback, "POST");
-    };
-
-    if (editing && textName.trim().length > 0 && textValue !== null) {
-      saveRole();
-    }
-  };
-
-  const deleteRole = async (e: any) => {
-    const params = {
-      RoleId: e,
-    };
-    const url = `${process.env.pms_api_url}/Role/Delete`;
-    const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
-    ) => {
-      if (ResponseStatus === "Success" && error === false) {
-        getPermissionDropdown();
-        toast.success(`Role has been deleted successfully!`);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
-  };
-
-  const handleProjectDelete = (e: any) => {
-    if (e > 0) {
-      deleteRole(e);
-    }
   };
 
   const handleUserDetailsFetch = (getData: () => void) => {
@@ -551,6 +534,103 @@ const Page = () => {
     }
   };
 
+  const handleProjectName = (e: any) => {
+    if (e.target.value === "" || e.target.value.trim().length <= 0) {
+      setProjectName(e.target.value);
+      setProjectNameError(true);
+      setProjectNameErrText("This is required field.");
+    } else {
+      setProjectName(e.target.value);
+      setProjectNameError(false);
+      setProjectNameErrText("This field is required.");
+    }
+  };
+
+  const handleProject = (e: React.SyntheticEvent, value: any) => {
+    if (value !== null) {
+      if (isNaN(parseInt(value.value))) {
+        toggleOpen(true);
+        setProjectName(value.value);
+        setProjectValue(null);
+      }
+      if (value !== null && !isNaN(parseInt(value.value))) {
+        const selectedValue = value.value;
+        setProjectValue(selectedValue);
+        setProjectValueError(false);
+        setProjectValueErrText("");
+      } else {
+        setProjectValue(0);
+      }
+    }
+  };
+
+  const handleClose = () => {
+    toggleOpen(false);
+    setEditDialogOpen(false);
+  };
+
+  const handleAddProject = async () => {
+    const saveRole = async () => {
+      const params = {
+        RoleId: projectValue,
+        Name: projectName,
+        Type: permissionDropdownData
+          .map((i: any) => (i.value === projectValue ? i.Type : undefined))
+          .filter((i: any) => i !== undefined)[0],
+      };
+
+      const url = `${process.env.pms_api_url}/Role/Save`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          getPermissionDropdown();
+          toast.success(`Role saved successfully.`);
+          handleClose();
+        }
+      };
+      callAPI(url, params, successCallback, "POST");
+    };
+
+    if (projectName.trim().length > 0 && projectValue !== null) {
+      saveRole();
+    }
+  };
+
+  const closeModalProject = () => {
+    setIsDeleteOpenProject(false);
+  };
+
+  const handleValueChange = (
+    childValue1: React.SetStateAction<number | null>,
+    childValue2: boolean | ((prevState: boolean) => boolean)
+  ) => {
+    setSelectedRowIdProject(childValue1);
+    setIsDeleteOpenProject(childValue2);
+  };
+
+  const handleDeleteRowProject = async () => {
+    const params = {
+      RoleId: selectedRowIdProject,
+    };
+    const url = `${process.env.pms_api_url}/Role/Delete`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        getPermissionDropdown();
+        toast.success(`Role has been deleted successfully!`);
+        setProjectValue(0);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+    setIsDeleteOpenProject(false);
+  };
+
   return (
     <Wrapper className="min-h-screen overflow-y-auto">
       <Navbar
@@ -729,48 +809,94 @@ const Page = () => {
                 </>
               ) : (
                 <div className="flex items-center justify-center gap-3 mr-4">
-                  <Select
-                    id="permissionName"
-                    placeholder="Select Permission"
-                    className="!w-[200px]"
-                    defaultValue={permissionValue === 0 ? "" : permissionValue}
-                    getValue={(value) => {
-                      setPermissionValue(value);
-                    }}
-                    getError={(e) => {
-                      console.error(e);
-                    }}
+                  <Autocomplete
+                    className={`${
+                      projectValueError ? "errorAutocomplete" : ""
+                    }`}
+                    limitTags={2}
+                    id="checkboxes-tags-demo"
                     options={permissionDropdownData}
-                    addDynamicForm_Icons_Edit={
-                      hasPermissionWorklog("permission", "save", "settings")
-                        ? true
-                        : false
+                    value={
+                      projectValue !== 0
+                        ? permissionDropdownData.find(
+                            (option: any) => option.value === projectValue
+                          ) || null
+                        : null
                     }
-                    addDynamicForm_Icons_Delete={
-                      hasPermissionWorklog("permission", "delete", "settings")
-                        ? true
-                        : false
-                    }
-                    addDynamicForm_Label="Role"
-                    addDynamicForm_Placeholder="Select Role"
-                    onChangeText={(value, label) => {
-                      setTextValue(value);
-                      setTextName(label);
+                    sx={{ width: "250px" }}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={handleProject}
+                    filterOptions={(options: any, params: any) => {
+                      const filtered = filter(options, params);
+                      return filtered;
                     }}
-                    onClickButton={handleFormButtonClick}
-                    onDeleteButton={(e) => handleProjectDelete(e)}
+                    renderOption={(props: any, option: any) => {
+                      const isItemHovered = option === hoveredItem;
+
+                      const handleEditClick = () => {
+                        setProjectName(option.label);
+                        setEditDialogOpen(true);
+                      };
+
+                      const handleDeleteClick = () => {
+                        handleValueChange(option.value, true);
+                      };
+                      return (
+                        <li
+                          {...props}
+                          onMouseEnter={() => setHoveredItem(option)}
+                          onMouseLeave={() => setHoveredItem(null)}
+                        >
+                          {option.label}
+                          {isItemHovered && (
+                            <div className="flex justify-center items-center">
+                              <span
+                                className="absolute right-3"
+                                onClick={handleDeleteClick}
+                              >
+                                <Delete />
+                              </span>
+                              <span
+                                className="absolute right-10 pt-1"
+                                onClick={handleEditClick}
+                              >
+                                <Edit />
+                              </span>
+                            </div>
+                          )}
+                        </li>
+                      );
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label={
+                          <span>
+                            Role
+                            <span className="text-defaultRed">&nbsp;*</span>
+                          </span>
+                        }
+                        placeholder="Please Select..."
+                        variant="standard"
+                      />
+                    )}
                   />
+                  {projectValueError && (
+                    <span className="text-[#D32F2F] text-[12px] -mt-3">
+                      {projectValueErrText}
+                    </span>
+                  )}
                   <div className="w-[60px]">
                     <Button
                       variant="contained"
                       color="info"
                       className={`rounded-md !bg-secondary ${
-                        permissionValue === 0 ||
+                        projectValue === 0 ||
                         !hasPermissionWorklog(tab, "save", "settings")
                           ? "opacity-50 pointer-events-none uppercase"
                           : ""
                       } ${
-                        permissionValue === 0 ||
+                        projectValue === 0 ||
                         !hasPermissionWorklog(tab, "save", "settings")
                           ? "cursor-not-allowed"
                           : ""
@@ -978,7 +1104,7 @@ const Page = () => {
             }
             onEdit={handleEdit}
             expanded={isPermissionExpanded}
-            permissionValue={permissionValue}
+            permissionValue={projectValue}
             sendDataToParent={(data: any) => setUpdatedPermissionsData(data)}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("permission", "view", "settings")}
@@ -1021,6 +1147,58 @@ const Page = () => {
           currentFilterData={getIdFromFilterDialog}
         />
       )}
+
+      <DeleteDialog
+        isOpen={isDeleteOpenProject}
+        onClose={closeModalProject}
+        onActionClick={handleDeleteRowProject}
+        Title={"Delete Role"}
+        firstContent={"Are you sure you want to delete Role?"}
+        secondContent={
+          "If you delete the Role, you will permanently lose Role and Role related data."
+        }
+      />
+
+      <Dialog open={editDialogOpen || open} onClose={handleClose}>
+        <DialogTitle>
+          {editDialogOpen ? "Edit Role" : "Add a new Role"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {editDialogOpen
+              ? "Are you sure you want to update this Role?."
+              : "Are you sure you want to add this Role?."}
+          </DialogContentText>
+          <TextField
+            className="w-full mt-2"
+            value={projectName}
+            error={projectNameError}
+            helperText={projectNameError && projectNameErrText}
+            id="standard-basic"
+            label="Role"
+            placeholder={editDialogOpen ? "Edit a Role" : "Add new Role"}
+            variant="standard"
+            onChange={handleProjectName}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleClose}
+            variant="outlined"
+            className="rounded-[4px] !h-[36px]"
+          >
+            Close
+          </Button>
+          <Button
+            variant="contained"
+            className="rounded-[4px] !h-[36px] !bg-[#0592c6]"
+            type="button"
+            onClick={handleAddProject}
+          >
+            {editDialogOpen ? "Save" : "Add"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Wrapper>
   );
 };

@@ -93,7 +93,7 @@ const FilterDialog_Status = ({ onOpen, onClose, currentFilterData }: any) => {
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
           <span className="text-lg font-medium">Filter</span>
           <Button color="error" onClick={handleResetAll}>
-            Reset all
+            Reset
           </Button>
         </DialogTitle>
 
