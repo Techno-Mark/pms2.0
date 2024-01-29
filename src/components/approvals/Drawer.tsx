@@ -3250,6 +3250,15 @@ const EditDrawer = ({
                             onChange={(e) =>
                               setNoOfPagesApprovals(e.target.value)
                             }
+                            onFocus={(e) =>
+                              e.target.addEventListener(
+                                "wheel",
+                                function (e) {
+                                  e.preventDefault();
+                                },
+                                { passive: false }
+                              )
+                            }
                             margin="normal"
                             variant="standard"
                             sx={{ width: 300, mt: 0, mx: 0.75 }}
@@ -5274,6 +5283,15 @@ const EditDrawer = ({
                                 setErrorCountErrApprovals(newErrorCountErrors);
                               }
                             }}
+                            onFocus={(e) =>
+                              e.target.addEventListener(
+                                "wheel",
+                                function (e) {
+                                  e.preventDefault();
+                                },
+                                { passive: false }
+                              )
+                            }
                             error={errorCountErrApprovals[index]}
                             helperText={
                               errorCountErrApprovals[index] &&

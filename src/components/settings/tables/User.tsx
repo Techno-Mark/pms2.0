@@ -142,6 +142,8 @@ const User = ({
     setIsDeleteOpen(false);
     onSearchClear(USER);
     setSelectedRowId(null);
+    setPage(0);
+    setRowsPerPage(10);
   };
 
   const closeSwitchModal = async () => {
@@ -431,7 +433,7 @@ const User = ({
                 roleId={tableMeta.rowData[tableMeta.rowData.length - 2]}
                 firstName={tableMeta.rowData[tableMeta.rowData.length - 4]}
                 lastName={tableMeta.rowData[tableMeta.rowData.length - 3]}
-                email={tableMeta.rowData[2]}
+                email={tableMeta.rowData[3]}
               />
             );
           },

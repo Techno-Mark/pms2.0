@@ -698,6 +698,7 @@ const ClientContent = forwardRef<
     };
 
     const saveClient = async () => {
+      // onChangeLoader(true);
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
 
@@ -722,7 +723,15 @@ const ClientContent = forwardRef<
           )
           .filter((j: any) => j !== false);
 
-        onChangeLoader(true);
+        // const response = await axios.get(
+        //   `${process.env.pms_api_url}/client/getdropdownforgroup`,
+        //   {
+        //     headers: {
+        //       Authorization: `bearer ${token}`,
+        //       org_token: `${Org_Token}`,
+        //     },
+        //   }
+        // );
 
         const response = await axios.post(
           `${process.env.pms_api_url}/client/save`,
@@ -778,7 +787,8 @@ const ClientContent = forwardRef<
 
             DateOfImplementation: getFieldValue(
               isAdditionalFieldsClicked,
-              dateOfImplementation !== null
+              dateOfImplementation !== null &&
+                dateOfImplementation.toString().trim().length > 0
                 ? new Date(
                     new Date(dateOfImplementation).getTime() +
                       24 * 60 * 60 * 1000
@@ -789,7 +799,8 @@ const ClientContent = forwardRef<
             ),
             AgreementStartDate: getFieldValue(
               isAdditionalFieldsClicked,
-              agreementStartDate !== null
+              agreementStartDate !== null &&
+                agreementStartDate.toString().trim().length > 0
                 ? new Date(
                     new Date(agreementStartDate).getTime() + 24 * 60 * 60 * 1000
                   )
@@ -855,6 +866,7 @@ const ClientContent = forwardRef<
             },
           }
         );
+        console.log("HI");
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
@@ -1186,6 +1198,15 @@ const ClientContent = forwardRef<
                   onChange={(e) => setTel(e.target.value)}
                   margin="normal"
                   variant="standard"
+                  onFocus={(e) =>
+                    e.target.addEventListener(
+                      "wheel",
+                      function (e) {
+                        e.preventDefault();
+                      },
+                      { passive: false }
+                    )
+                  }
                 />
 
                 {/* Checkbox selection */}
@@ -1517,6 +1538,15 @@ const ClientContent = forwardRef<
                     onChange={(e) => setCpaMobileNo(e.target.value)}
                     margin="normal"
                     variant="standard"
+                    onFocus={(e) =>
+                      e.target.addEventListener(
+                        "wheel",
+                        function (e) {
+                          e.preventDefault();
+                        },
+                        { passive: false }
+                      )
+                    }
                   />
 
                   <TextField
@@ -1547,6 +1577,15 @@ const ClientContent = forwardRef<
                     onChange={(e) => setZip(e.target.value)}
                     margin="normal"
                     variant="standard"
+                    onFocus={(e) =>
+                      e.target.addEventListener(
+                        "wheel",
+                        function (e) {
+                          e.preventDefault();
+                        },
+                        { passive: false }
+                      )
+                    }
                   />
                 </div>
 

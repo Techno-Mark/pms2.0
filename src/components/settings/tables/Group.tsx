@@ -131,6 +131,8 @@ const Group = ({
     setIsDeleteOpen(false);
     onSearchClear(GROUP);
     setSelectedRowId(null);
+    setPage(0);
+    setRowsPerPage(10);
   };
 
   const handleActionValue = async (actionId: string, id: any) => {

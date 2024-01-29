@@ -1317,6 +1317,15 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                           margin="normal"
                           variant="standard"
                           sx={{ width: 300, mt: 0, mx: 0.75 }}
+                          onFocus={(e) =>
+                            e.target.addEventListener(
+                              "wheel",
+                              function (e) {
+                                e.preventDefault();
+                              },
+                              { passive: false }
+                            )
+                          }
                         />
                       </Grid>
                       <Grid item xs={3} className="pt-4">
@@ -2233,6 +2242,15 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                             margin="normal"
                             variant="standard"
                             sx={{ width: 300, mt: 0, mx: 0.75 }}
+                            onFocus={(e) =>
+                              e.target.addEventListener(
+                                "wheel",
+                                function (e) {
+                                  e.preventDefault();
+                                },
+                                { passive: false }
+                              )
+                            }
                           />
                         </Grid>
                         <Grid item xs={3} className="pt-4">

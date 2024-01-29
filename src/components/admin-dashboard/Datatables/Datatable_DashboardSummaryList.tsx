@@ -45,7 +45,7 @@ const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
       ResponseStatus: any
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setDashboardSummaryData(ResponseData.List);
+        setDashboardSummaryData(ResponseData.ProjectStatusList);
         setTableDataCount(ResponseData.TotalCount);
       }
     };

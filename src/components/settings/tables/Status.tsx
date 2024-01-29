@@ -1,10 +1,19 @@
-import DeleteModal from "@/components/common/DeleteModal";
 import ReportLoader from "@/components/common/ReportLoader";
 import { callAPI } from "@/utils/API/callAPI";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { STATUS } from "./Constants/Tabname";
-import { TablePagination, ThemeProvider } from "@mui/material";
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  ThemeProvider,
+} from "@mui/material";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import MUIDataTable from "mui-datatables";
 import {
@@ -29,6 +38,8 @@ const initialFilter = {
   IsDefault: null,
   Type: "",
   Export: false,
+  GlobalSearch: null,
+  WorkTypeId: null,
 };
 
 const Status = ({
@@ -43,9 +54,11 @@ const Status = ({
   onSearchStatusData,
   onSearchClear,
   onHandleExport,
+  currentFilterData,
+  onFilterOpen,
 }: any) => {
   const [loader, setLoader] = useState(true);
-  const [statusList, setStatusList] = useState([]);
+  const [statusList, setStatusList] = useState<any>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [page, setPage] = useState(0);
@@ -54,15 +67,19 @@ const Status = ({
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
 
   useEffect(() => {
-    if (onSearchStatusData.trim().length >= 0) {
+    if (
+      onSearchStatusData.trim().length >= 0 ||
+      currentFilterData.WorkTypeId > 0
+    ) {
       setFilteredOject({
         ...filteredObject,
+        WorkTypeId: currentFilterData.WorkTypeId,
         GlobalSearch: onSearchStatusData.trim(),
         PageNo: 1,
       });
       setPage(0);
     }
-  }, [onSearchStatusData]);
+  }, [onSearchStatusData, currentFilterData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -128,6 +145,8 @@ const Status = ({
     setIsDeleteOpen(false);
     onSearchClear(STATUS);
     setSelectedRowId(null);
+    setPage(0)
+    setRowsPerPage(10)
   };
 
   const handleActionValue = async (actionId: string, id: any) => {
@@ -177,7 +196,7 @@ const Status = ({
         </span>
         {open && (
           <React.Fragment>
-            <div className="absolute top-30 right-[19.5rem] z-10 flex justify-center items-center">
+            <div className="absolute top-30 right-[22.5rem] z-10 flex justify-center items-center">
               <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-28">
                   {actionPermissions.map((action: any, index: any) => (
@@ -297,6 +316,51 @@ const Status = ({
       enabled: true,
       transitionTime: 300,
     },
+    expandableRows: true,
+    renderExpandableRow: (rowData: any, rowMeta: any) => {
+      return (
+        <React.Fragment>
+          <tr>
+            <td colSpan={12}>
+              <TableContainer component={Paper}>
+                <Table style={{ minWidth: "650" }} aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell className="!pl-[4.5rem] font-semibold">
+                        Type Of Work
+                      </TableCell>
+                      <TableCell className="font-semibold">
+                        Display Name
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {statusList[rowMeta.rowIndex].WorkTypeDetails.length > 0 ? (
+                      statusList[rowMeta.rowIndex].WorkTypeDetails.map(
+                        (i: any, index: any) => (
+                          <TableRow key={index}>
+                            <TableCell className="!pl-[4.5rem]">
+                              {i.WorkTypeName}
+                            </TableCell>
+                            <TableCell>{i.DisplayName}</TableCell>
+                          </TableRow>
+                        )
+                      )
+                    ) : (
+                      <TableRow className="h-16">
+                        <span className="flex items-center justify-start ml-16 pt-5">
+                          No data found.
+                        </span>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </td>
+          </tr>
+        </React.Fragment>
+      );
+    },
     elevation: 0,
     selectableRows: "none",
   };
@@ -307,7 +371,7 @@ const Status = ({
           <ReportLoader />
         ) : (
           <>
-            <div className="muiTableActionHeightStatus">
+            <div className="">
               <ThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable
                   data={statusList}

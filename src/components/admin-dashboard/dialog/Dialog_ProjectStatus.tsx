@@ -12,6 +12,11 @@ import { Close } from "@mui/icons-material";
 import Datatable_ProjectStatus from "../Datatables/Datatable_ProjectStatus";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { callAPI } from "@/utils/API/callAPI";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import Loading from "@/assets/icons/reports/Loading";
+import ExportIcon from "@/assets/icons/ExportIcon";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 interface Status {
   Type: string;
@@ -36,6 +41,7 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
 }) => {
   const [allProjectStatus, setAllProjectStatus] = useState<Status[]>([]);
   const [projectStatus, setProjectStatus] = useState<string>("");
+  const [isExporting, setIsExporting] = useState<boolean>(false);
 
   const handleClose = () => {
     onClose();
@@ -70,6 +76,63 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
       getProjectStatusList();
     }
   }, [onSelectedWorkType, onSelectedProjectIds, onOpen]);
+
+  const exportTaskStatusListReport = async () => {
+    try {
+      setIsExporting(true);
+
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+
+      const response = await axios.post(
+        `${process.env.report_api_url}/dashboard/projectstatuslist/export`,
+        {
+          PageNo: 1,
+          PageSize: 50000,
+          SortColumn: null,
+          IsDesc: true,
+          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+          ProjectId: null,
+          Key: projectStatus ? projectStatus : onSelectedProjectStatus,
+          IsDownload: true,
+        },
+        {
+          headers: { Authorization: `bearer ${token}`, org_token: Org_Token },
+          responseType: "arraybuffer",
+        }
+      );
+
+      handleExportResponse(response);
+    } catch (error: any) {
+      setIsExporting(false);
+      toast.error(error);
+    }
+  };
+
+  const handleExportResponse = (response: any) => {
+    if (response.status === 200) {
+      if (response.data.ResponseStatus === "Failure") {
+        setIsExporting(false);
+        toast.error("Please try again later.");
+      } else {
+        const blob = new Blob([response.data], {
+          type: response.headers["content-type"],
+        });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Task_Status_report.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        setIsExporting(false);
+      }
+    } else {
+      setIsExporting(false);
+      toast.error("Please try again.");
+    }
+  };
 
   return (
     <div>
@@ -123,6 +186,16 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
                 ))}
               </Select>
             </FormControl>
+            <ColorToolTip title="Export" placement="top" arrow>
+              <span
+                className={`${
+                  isExporting ? "cursor-default" : "cursor-pointer"
+                } ml-5 mt-5`}
+                onClick={exportTaskStatusListReport}
+              >
+                {isExporting ? <Loading /> : <ExportIcon />}
+              </span>
+            </ColorToolTip>
           </div>
           <Datatable_ProjectStatus
             onSelectedWorkType={onSelectedWorkType}
