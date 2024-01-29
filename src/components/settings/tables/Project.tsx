@@ -140,6 +140,8 @@ const Project = ({
     setIsDeleteOpen(false);
     onSearchClear(PROJECT);
     setSelectedRowId(null);
+    setPage(0);
+    setRowsPerPage(10);
   };
 
   const closeSwitchModal = async () => {

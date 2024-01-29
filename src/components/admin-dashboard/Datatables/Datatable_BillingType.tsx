@@ -49,7 +49,7 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
       ResponseStatus: any
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setData(ResponseData.List);
+        setData(ResponseData.BillingStatusList);
         setTableDataCount(ResponseData.TotalCount);
       }
     };

@@ -140,6 +140,8 @@ const Client = ({
       setSelectedRowId(null);
       setIsDeleteOpen(false);
       onSearchClear(CLIENT);
+      setPage(0);
+      setRowsPerPage(10);
     }
   };
 

@@ -38,6 +38,8 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import ImportIcon from "@/assets/icons/ImportIcon";
 import { Button, InputBase } from "@mui/material";
 import ImportDialog from "@/components/settings/settings_import/ImportDialog";
+import FilterIcon from "@/assets/icons/FilterIcon";
+import FilterDialog_Status from "@/components/settings/FilterDialog_Status";
 
 type Tabs = { id: string; label: string; canView: boolean };
 
@@ -74,6 +76,16 @@ const Page = () => {
   const [statusData, setStatusData] = useState("");
   const [processData, setProcessData] = useState("");
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [currentFilterData, setCurrentFilterData] = useState<any>([]);
+  const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
+
+  const getIdFromFilterDialog = (data: any) => {
+    setCurrentFilterData(data);
+  };
+
+  const handleCloseFilter = () => {
+    setisFilterOpen(false);
+  };
 
   const handleGroupData = (data: any) => {
     setGroupData(data);
@@ -449,20 +461,32 @@ const Page = () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
 
+    const data = {
+      GlobalSearch: searchValue,
+      SortColumn: null,
+      IsDesc: false,
+      IsDownload: true,
+      PageNo: 1,
+      PageSize: 50000,
+    };
+
+    const statusData = {
+      ...currentFilterData,
+      GlobalSearch: searchValue,
+      SortColumn: null,
+      IsDesc: false,
+      IsDownload: true,
+      PageNo: 1,
+      PageSize: 50000,
+    };
+
     try {
       setIsExporting(true);
       const response = await axios.post(
         `${
           endpoint === "user" ? process.env.api_url : process.env.pms_api_url
         }/${endpoint}/export`,
-        {
-          GlobalSearch: searchValue,
-          SortColumn: null,
-          IsDesc: false,
-          IsDownload: true,
-          PageNo: 1,
-          PageSize: 50000,
-        },
+        tab === "Status" ? statusData : data,
         {
           headers: {
             Authorization: `bearer ${token}`,
@@ -619,6 +643,17 @@ const Page = () => {
                         <SearchIcon />
                       </span>
                     </div>
+                  )}
+
+                  {tab === "Status" && (
+                    <ColorToolTip title="Filter" placement="top" arrow>
+                      <span
+                        className="cursor-pointer"
+                        onClick={() => setisFilterOpen(true)}
+                      >
+                        <FilterIcon />
+                      </span>
+                    </ColorToolTip>
                   )}
 
                   {(tab === "Client" ||
@@ -930,6 +965,8 @@ const Page = () => {
             onSearchStatusData={statusSearchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
+            currentFilterData={currentFilterData}
+            onFilterOpen={isFilterOpen}
           />
         )}
         {tab === "Permission" && (
@@ -975,6 +1012,15 @@ const Page = () => {
         onDataFetch={getDataFunction}
         tab={tab}
       />
+
+      {tab === "Status" && (
+        <FilterDialog_Status
+          onOpen={isFilterOpen}
+          onClose={handleCloseFilter}
+          onDataFetch={() => {}}
+          currentFilterData={getIdFromFilterDialog}
+        />
+      )}
     </Wrapper>
   );
 };

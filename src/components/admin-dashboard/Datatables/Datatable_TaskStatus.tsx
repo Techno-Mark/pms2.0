@@ -46,7 +46,7 @@ const Datatable_TaskStatus: React.FC<TaskStatusProps> = ({
       ResponseStatus: any
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setData(ResponseData.List);
+        setData(ResponseData.TaskStatusList);
         setTableDataCount(ResponseData.TotalCount);
       }
     };

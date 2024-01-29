@@ -38,6 +38,8 @@ const initialFilter = {
   IsDefault: null,
   Type: "",
   Export: false,
+  GlobalSearch: null,
+  WorkTypeId: null,
 };
 
 const Status = ({
@@ -52,6 +54,8 @@ const Status = ({
   onSearchStatusData,
   onSearchClear,
   onHandleExport,
+  currentFilterData,
+  onFilterOpen,
 }: any) => {
   const [loader, setLoader] = useState(true);
   const [statusList, setStatusList] = useState<any>([]);
@@ -63,15 +67,19 @@ const Status = ({
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
 
   useEffect(() => {
-    if (onSearchStatusData.trim().length >= 0) {
+    if (
+      onSearchStatusData.trim().length >= 0 ||
+      currentFilterData.WorkTypeId > 0
+    ) {
       setFilteredOject({
         ...filteredObject,
+        WorkTypeId: currentFilterData.WorkTypeId,
         GlobalSearch: onSearchStatusData.trim(),
         PageNo: 1,
       });
       setPage(0);
     }
-  }, [onSearchStatusData]);
+  }, [onSearchStatusData, currentFilterData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -137,6 +145,8 @@ const Status = ({
     setIsDeleteOpen(false);
     onSearchClear(STATUS);
     setSelectedRowId(null);
+    setPage(0)
+    setRowsPerPage(10)
   };
 
   const handleActionValue = async (actionId: string, id: any) => {

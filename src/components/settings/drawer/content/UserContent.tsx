@@ -295,6 +295,7 @@ const UserContent = forwardRef<
       setSelectGroupValue([]);
       setGroupError(false);
       setEmailConfirmed(false);
+      setReportManagerDropdownData([]);
     };
 
     const saveUser = async () => {
@@ -600,7 +601,7 @@ const UserContent = forwardRef<
           )}
         </span>
 
-        <div className="flex flex-col px-[20px] max-h-[70vh] overflow-y-auto">
+        <div className="flex flex-col px-[20px] max-h-[64vh] overflow-y-auto">
           {value === "Employee" && (
             <>
               <TextField

@@ -47,7 +47,7 @@ const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
       ResponseStatus: any
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setData(ResponseData.List);
+        setData(ResponseData.ProjectStatusList);
         setTableDataCount(ResponseData.TotalCount);
       }
     };
