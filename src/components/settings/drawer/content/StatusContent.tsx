@@ -193,6 +193,7 @@ const StatusContent = forwardRef<
     typeOfWorks.length <= 0 && setTypeOfWorkNameError(true);
     type.trim().length <= 0 && setTypeErr(true);
     type.trim().length > 50 && setTypeErr(true);
+    setTypeErr(!/[^a-zA-Z0-9\s]/.test(type));
     statusName.trim().length <= 0 && setStatusNameErr(true);
     statusName.trim().length > 50 && setStatusNameErr(true);
 
@@ -203,6 +204,7 @@ const StatusContent = forwardRef<
       !typeErr &&
       type.trim().length > 0 &&
       type.trim().length < 50 &&
+      /^[a-zA-Z0-9]+$/.test(type) &&
       !typeOfWorkNameError &&
       typeOfWorkName.length > 0
     ) {
@@ -289,20 +291,25 @@ const StatusContent = forwardRef<
           fullWidth
           className="pt-1"
           value={type?.trim().length <= 0 ? "" : type}
-          onChange={(e) => setType(e.target.value)}
+          onChange={(e) => setType(e.target.value.trim())}
           onBlur={(e: any) => {
             if (
               !isDefualt &&
               (e.target.value.trim().length < 1 ||
-                e.target.value.trim().length > 50)
+                e.target.value.trim().length > 50 ||
+                !/^[a-zA-Z0-9]+$/.test(e.target.value))
             ) {
               setTypeErr(true);
+            } else {
+              setTypeErr(false);
             }
           }}
           error={!isDefualt && typeErr}
           helperText={
             !isDefualt && typeErr && type?.trim().length > 50
               ? "Maximum 50 characters allowed."
+              : !/^[a-zA-Z0-9]+$/.test(type) && typeErr
+              ? "Special characters are not allowed.."
               : !isDefualt && typeErr
               ? "This is a required field."
               : ""

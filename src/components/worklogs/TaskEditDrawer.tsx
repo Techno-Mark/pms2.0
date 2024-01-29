@@ -1461,6 +1461,7 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                         }
                         onChange={(e, value: any) => {
                           value && setClientNameWorklogsEdit(value.value);
+                          setTypeOfWorkWorklogsEdit(0);
                           setTypeOfWorkWorklogsEditErr(false);
                           setProjectNameWorklogsEdit(0);
                           setProjectNameWorklogsEditErr(false);

@@ -16,9 +16,6 @@ const Permissions = ({
   loading,
   getOrgDetailsFunction,
   canView,
-  canEdit,
-  canDelete,
-  onHandleExport,
 }: any) => {
   const [data, setData] = useState<any>([]);
 
@@ -234,7 +231,7 @@ const Permissions = ({
       {canView && loading && <ReportLoader />}
 
       {canView ? (
-        data.length <= 0 ? (
+        data.length <= 0 || permissionValue === 0 ? (
           <p className="flex justify-center items-center py-[17px] text-[14px]">
             Currently there is no record, you may
             <a

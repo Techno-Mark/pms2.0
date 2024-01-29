@@ -588,8 +588,8 @@ const ProjectContent = forwardRef<
           <DialogContent>
             <DialogContentText>
               {editDialogOpen
-                ? "Are you sure you want to update this Project?."
-                : "Are you sure you want to add this Project?."}
+                ? "Are you sure you want to update this Project?"
+                : "Are you sure you want to add this Project?"}
             </DialogContentText>
             <TextField
               className="w-full mt-2"
