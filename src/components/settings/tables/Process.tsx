@@ -474,10 +474,7 @@ function Process({
                             return (
                               <TableRow className="h-12" key={index}>
                                 <span className="flex items-center justify-start pt-3">
-                                  {index ===
-                                  data[rowMeta.rowIndex].ActivityList.length - 1
-                                    ? i
-                                    : i + ", "}
+                                  {index === data[rowMeta.rowIndex].ActivityList.length - 1 ? i : i + ", "}
                                 </span>
                               </TableRow>
                             );
