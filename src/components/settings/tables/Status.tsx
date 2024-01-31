@@ -145,8 +145,8 @@ const Status = ({
     setIsDeleteOpen(false);
     onSearchClear(STATUS);
     setSelectedRowId(null);
-    setPage(0)
-    setRowsPerPage(10)
+    setPage(0);
+    setRowsPerPage(10);
   };
 
   const handleActionValue = async (actionId: string, id: any) => {
@@ -239,7 +239,7 @@ const Status = ({
         options: {
           filter: true,
           viewColumns: false,
-          sort: true,
+          sort: false,
           customHeadLabelRender: () => generateCustomHeaderName("Actions"),
           customBodyRender: (value: any) => {
             return <Actions actions={["Edit", "Delete"]} id={value} />;
@@ -252,7 +252,7 @@ const Status = ({
         options: {
           filter: true,
           viewColumns: false,
-          sort: true,
+          sort: false,
           customHeadLabelRender: () => generateCustomHeaderName("Color"),
           customBodyRender: (value: any) => {
             return (
@@ -267,6 +267,19 @@ const Status = ({
                 }}
               ></div>
             );
+          },
+        },
+      };
+    } else if (column.name === "Name") {
+      return {
+        name: "Name",
+        options: {
+          filter: true,
+          viewColumns: false,
+          sort: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Name"),
+          customBodyRender: (value: any) => {
+            return <div>{value}</div>;
           },
         },
       };
