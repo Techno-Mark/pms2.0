@@ -13,7 +13,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import OverLay from "../common/OverLay";
+import OverLay from "../../common/OverLay";
 import { callAPI } from "@/utils/API/callAPI";
 import {
   getAssigneeDropdownData,
@@ -375,21 +375,39 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
       if (ResponseStatus === "Success" && error === false) {
         setEditDataWorklogs(ResponseData);
         setClientNameWorklogs(ResponseData.ClientId);
+        setClientNameWorklogsEdit(ResponseData.ClientId);
         setTypeOfWorkWorklogs(ResponseData.WorkTypeId);
+        setTypeOfWorkWorklogsEdit(ResponseData.WorkTypeId);
         setProjectNameWorklogs(
+          ResponseData.ProjectId === null ? "" : ResponseData.ProjectId
+        );
+        setProjectNameWorklogsEdit(
           ResponseData.ProjectId === null ? "" : ResponseData.ProjectId
         );
         setProcessNameWorklogs(
           ResponseData.ProcessId === null ? "" : ResponseData.ProcessId
         );
+        setProcessNameWorklogsEdit(
+          ResponseData.ProcessId === null ? "" : ResponseData.ProcessId
+        );
         setSubProcessWorklogs(
+          ResponseData.SubProcessId === null ? "" : ResponseData.SubProcessId
+        );
+        setSubProcessWorklogsEdit(
           ResponseData.SubProcessId === null ? "" : ResponseData.SubProcessId
         );
         setClientTaskNameWorklogs(
           ResponseData.TaskName === null ? "" : ResponseData.TaskName
         );
+        setClientTaskNameWorklogsEdit(
+          ResponseData.TaskName === null ? "" : ResponseData.TaskName
+        );
         setStatusWorklogs(ResponseData.StatusId);
+        setStatusWorklogsEdit(ResponseData.StatusId);
         setAllInfoDateWorklogs(
+          ResponseData.AllInfoDate === null ? "" : ResponseData.AllInfoDate
+        );
+        setAllInfoDateWorklogsEdit(
           ResponseData.AllInfoDate === null ? "" : ResponseData.AllInfoDate
         );
         !ResponseData.ErrorlogSignedOffPending
@@ -425,20 +443,39 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
         setPriorityWorklogs(
           ResponseData.Priority === null ? 0 : ResponseData.Priority
         );
+        setPriorityWorklogsEdit(
+          ResponseData.Priority === null ? 0 : ResponseData.Priority
+        );
         setQuantityWorklogs(ResponseData.Quantity);
+        setQuantityWorklogsEdit(ResponseData.Quantity);
         setDescriptionWorklogs(
           ResponseData.Description === null ? "" : ResponseData.Description
         );
+        setDescriptionWorklogsEdit(
+          ResponseData.Description === null ? "" : ResponseData.Description
+        );
         setReceiverDateWorklogs(ResponseData.ReceiverDate);
+        setReceiverDateWorklogsEdit(ResponseData.ReceiverDate);
         setDueDateWorklogs(ResponseData.DueDate);
+        setDueDateWorklogsEdit(ResponseData.DueDate);
         setDateOfReviewWorklogs(ResponseData.ReviewerDate);
         setDateOfPreperationWorklogs(ResponseData.PreparationDate);
         setAssigneeWorklogs(ResponseData.AssignedId);
+        setAssigneeWorklogsEdit(ResponseData.AssignedId);
         setReviewerWorklogs(ResponseData.ReviewerId);
+        setReviewerWorklogsEdit(ResponseData.ReviewerId);
         setManagerWorklogs(
           ResponseData.ManagerId === null ? 0 : ResponseData.ManagerId
         );
+        setManagerWorklogsEdit(
+          ResponseData.ManagerId === null ? 0 : ResponseData.ManagerId
+        );
         setReturnYearWorklogs(
+          ResponseData.TypeOfReturnId === 0
+            ? null
+            : ResponseData.TaxCustomFields.ReturnYear
+        );
+        setReturnYearWorklogsEdit(
           ResponseData.TypeOfReturnId === 0
             ? null
             : ResponseData.TaxCustomFields.ReturnYear
@@ -448,7 +485,19 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
             ? null
             : ResponseData.TaxCustomFields.NoOfPages
         );
+        setNoOfPagesWorklogsEdit(
+          ResponseData.TypeOfReturnId === 0
+            ? null
+            : ResponseData.TaxCustomFields.NoOfPages
+        );
         setChecklistWorkpaperWorklogs(
+          ResponseData.ChecklistWorkpaper === true
+            ? 1
+            : ResponseData.ChecklistWorkpaper === false
+            ? 2
+            : 0
+        );
+        setChecklistWorkpaperWorklogsEdit(
           ResponseData.ChecklistWorkpaper === true
             ? 1
             : ResponseData.ChecklistWorkpaper === false
@@ -1317,15 +1366,6 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                           margin="normal"
                           variant="standard"
                           sx={{ width: 300, mt: 0, mx: 0.75 }}
-                          onFocus={(e) =>
-                            e.target.addEventListener(
-                              "wheel",
-                              function (e) {
-                                e.preventDefault();
-                              },
-                              { passive: false }
-                            )
-                          }
                         />
                       </Grid>
                       <Grid item xs={3} className="pt-4">
@@ -1483,6 +1523,7 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                             setAssigneeWorklogsEditErr(false);
                           setReviewerWorklogsEdit(0);
                           setReviewerWorklogsEditErr(false);
+                          setAllInfoDateWorklogsEdit("");
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -2243,15 +2284,6 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                             margin="normal"
                             variant="standard"
                             sx={{ width: 300, mt: 0, mx: 0.75 }}
-                            onFocus={(e) =>
-                              e.target.addEventListener(
-                                "wheel",
-                                function (e) {
-                                  e.preventDefault();
-                                },
-                                { passive: false }
-                              )
-                            }
                           />
                         </Grid>
                         <Grid item xs={3} className="pt-4">

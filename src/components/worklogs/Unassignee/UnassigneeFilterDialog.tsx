@@ -4,7 +4,14 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import {
+  Autocomplete,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import {
   getClientDropdownData,
@@ -30,8 +37,8 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [typeOfWorkDropdownData, setTypeOfWorkDropdownData] = useState([]);
 
-  const [clientName, setClientName] = useState<any>(0);
-  const [typeOfWork, setTypeOfWork] = useState<any>(0);
+  const [clientName, setClientName] = useState<any>(null);
+  const [typeOfWork, setTypeOfWork] = useState<any>(null);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
 
@@ -41,21 +48,21 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
   };
 
   const handleResetAll = () => {
-    setClientName(0);
-    setTypeOfWork(0);
+    setClientName(null);
+    setTypeOfWork(null);
     currentFilterData(initialFilter);
   };
 
   useEffect(() => {
-    const isAnyFieldSelected = clientName !== 0 || typeOfWork !== 0;
+    const isAnyFieldSelected = clientName !== null || typeOfWork !== null;
 
     setAnyFieldSelected(isAnyFieldSelected);
   }, [clientName, typeOfWork]);
 
   useEffect(() => {
     const selectedFields = {
-      ClientId: clientName || null,
-      TypeOfWork: typeOfWork || null,
+      ClientId: clientName !== null ? clientName : null,
+      TypeOfWork: typeOfWork !== null ? typeOfWork : null,
     };
     setCurrSelectedFileds(selectedFields);
   }, [clientName, typeOfWork]);
@@ -80,7 +87,7 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
   }, [onOpen]);
 
   useEffect(() => {
-    clientName > 0 && getWorkTypeData(clientName);
+    clientName !== null && getWorkTypeData(clientName?.value);
   }, [clientName]);
 
   return (
@@ -101,39 +108,43 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
         <DialogContent>
           <div className="flex flex-col gap-[20px] pt-[15px]">
             <div className="flex gap-[20px]">
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="client_Name">Client Name</InputLabel>
-                <Select
-                  labelId="client_Name"
-                  id="client_Name"
-                  value={clientName === 0 ? "" : clientName}
-                  onChange={(e) => {
-                    setClientName(e.target.value);
-                    setTypeOfWork(0);
+              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
+                <Autocomplete
+                  id="tags-standard"
+                  options={clientDropdownData}
+                  getOptionLabel={(option: any) => option.label}
+                  onChange={(e: any, data: any) => {
+                    setClientName(data);
+                    setTypeOfWork(null);
                   }}
-                >
-                  {clientDropdownData.map((i: any) => (
-                    <MenuItem value={i.value} key={i.value}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+                  value={clientName}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Client Name"
+                    />
+                  )}
+                />
               </FormControl>
 
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="workType">Type Of Work</InputLabel>
-                <Select
-                  labelId="workType"
-                  id="workType"
-                  value={typeOfWork === 0 ? "" : typeOfWork}
-                  onChange={(e) => setTypeOfWork(e.target.value)}
-                >
-                  {typeOfWorkDropdownData.map((i: any) => (
-                    <MenuItem value={i.value} key={i.value}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
+                <Autocomplete
+                  id="tags-standard"
+                  options={typeOfWorkDropdownData}
+                  getOptionLabel={(option: any) => option.label}
+                  onChange={(e: any, data: any) => {
+                    setTypeOfWork(data);
+                  }}
+                  value={typeOfWork}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Type Of Work"
+                    />
+                  )}
+                />
               </FormControl>
             </div>
           </div>

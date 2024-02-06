@@ -2,60 +2,64 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { InputBase, List, Popover } from "@mui/material";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
-import ProjectIcon from "@/assets/icons/worklogs/ProjectIcon";
+import TypeOfWorkIcon from "@/assets/icons/worklogs/TypeOfWork";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { callAPI } from "@/utils/API/callAPI";
 
-const Project = ({
+const TypeOfWork = ({
   selectedRowIds,
   getWorkItemList,
-  projectDropdownData,
+  typeOfWorkDropdownData,
+  handleClearSelection,
   getOverLay,
 }: any) => {
-  const [projectSearchQuery, setprojectSearchQuery] = useState("");
+  const [typeOfWorkSearchQuery, setTypeOfWorkSearchQuery] = useState("");
 
-  const [anchorElProject, setAnchorElProject] =
+  const [anchorElTypeOfWork, setAnchorElTypeOfWork] =
     React.useState<HTMLButtonElement | null>(null);
 
-  const handleClickProject = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorElProject(event.currentTarget);
+  const handleClickTypeOfWork = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    setAnchorElTypeOfWork(event.currentTarget);
   };
 
-  const handleCloseProject = () => {
-    setAnchorElProject(null);
+  const handleCloseTypeOfWork = () => {
+    setAnchorElTypeOfWork(null);
   };
 
-  const openProject = Boolean(anchorElProject);
-  const idProject = openProject ? "simple-popover" : undefined;
+  const openTypeOfWork = Boolean(anchorElTypeOfWork);
+  const idTypeOfWork = openTypeOfWork ? "simple-popover" : undefined;
 
-  const handleProjectSearchChange = (event: any) => {
-    setprojectSearchQuery(event.target.value);
+  const handleTypeOfWorkSearchChange = (event: any) => {
+    setTypeOfWorkSearchQuery(event.target.value);
   };
 
-  const filteredProject = projectDropdownData?.filter((project: any) =>
-    project.label.toLowerCase().includes(projectSearchQuery.toLowerCase())
+  const filteredTypeOfWork = typeOfWorkDropdownData?.filter((TypeOfWork: any) =>
+    TypeOfWork.label.toLowerCase().includes(typeOfWorkSearchQuery.toLowerCase())
   );
 
-  const handleOptionProject = (id: any) => {
-    updateProject(selectedRowIds, id);
-    handleCloseProject();
+  const handleOptionTypeOfWork = (id: any) => {
+    updateTypeOfWork(selectedRowIds, id);
+    handleCloseTypeOfWork();
   };
 
-  const updateProject = async (id: number[], projectId: number) => {
+  const updateTypeOfWork = async (id: number[], TypeOfWorkId: number) => {
     getOverLay(true);
     const params = {
-      workitemIds: id,
-      ProjectId: projectId,
+      WorkitemIds: id,
+      WorkTypeId: TypeOfWorkId,
     };
-    const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemproject`;
+    const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemtypeofwork`;
     const successCallback = (
       ResponseData: any,
       error: any,
       ResponseStatus: any
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        toast.success("Project has been updated successfully.");
+        toast.success("Type Of Work has been updated successfully.");
         getWorkItemList();
+        handleClearSelection();
         getOverLay(false);
       } else {
         getOverLay(false);
@@ -66,18 +70,18 @@ const Project = ({
 
   return (
     <div>
-      <ColorToolTip title="Project" arrow>
-        <span aria-describedby={idProject} onClick={handleClickProject}>
-          <ProjectIcon />
+      <ColorToolTip title="Type Of Work" arrow>
+        <span aria-describedby={idTypeOfWork} onClick={handleClickTypeOfWork}>
+          <TypeOfWorkIcon />
         </span>
       </ColorToolTip>
 
-      {/* Process Project */}
+      {/* Process TypeOfWork */}
       <Popover
-        id={idProject}
-        open={openProject}
-        anchorEl={anchorElProject}
-        onClose={handleCloseProject}
+        id={idTypeOfWork}
+        open={openTypeOfWork}
+        anchorEl={anchorElTypeOfWork}
+        onClose={handleCloseTypeOfWork}
         anchorOrigin={{
           vertical: "top",
           horizontal: "center",
@@ -102,30 +106,30 @@ const Project = ({
                 <InputBase
                   placeholder="Search"
                   inputProps={{ "aria-label": "search" }}
-                  value={projectSearchQuery}
-                  onChange={handleProjectSearchChange}
+                  value={typeOfWorkSearchQuery}
+                  onChange={handleTypeOfWorkSearchChange}
                   style={{ fontSize: "13px" }}
                 />
               </span>
             </div>
           </div>
           <List>
-            {projectDropdownData.length === 0 ? (
+            {typeOfWorkDropdownData.length === 0 ? (
               <span className="flex flex-col py-2 px-4  text-sm">
                 No Data Available
               </span>
             ) : (
-              filteredProject.map((project: any) => {
+              filteredTypeOfWork.map((TypeOfWork: any) => {
                 return (
                   <span
-                    key={project.value}
+                    key={TypeOfWork.value}
                     className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                   >
                     <span
                       className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
-                      onClick={() => handleOptionProject(project.value)}
+                      onClick={() => handleOptionTypeOfWork(TypeOfWork.value)}
                     >
-                      <span className="pt-[0.8px]">{project.label}</span>
+                      <span className="pt-[0.8px]">{TypeOfWork.label}</span>
                     </span>
                   </span>
                 );
@@ -138,4 +142,4 @@ const Project = ({
   );
 };
 
-export default Project;
+export default TypeOfWork;

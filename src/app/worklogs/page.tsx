@@ -20,16 +20,19 @@ import Wrapper from "@/components/common/Wrapper";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import SearchIcon from "@/assets/icons/SearchIcon";
-import UnassigneeDatatable from "@/components/worklogs/UnassigneeDatatable";
-import UnassigneeFilterDialog from "@/components/worklogs/UnassigneeFilterDialog";
+import UnassigneeDatatable from "@/components/worklogs/Unassignee/UnassigneeDatatable";
 import ImportDialog from "@/components/worklogs/worklogs_Import/ImportDialog";
 import IdleTimer from "@/components/common/IdleTimer";
 import Loading from "@/assets/icons/reports/Loading";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { callAPI } from "@/utils/API/callAPI";
-import TaskEditDrawer from "@/components/worklogs/TaskEditDrawer";
+import TaskEditDrawer from "@/components/worklogs/HalfDay/TaskEditDrawer";
+import TimelineFilterDialog from "@/components/worklogs/HalfDay/TimelineFilterDialog";
+import TimelineHalfDay from "@/components/worklogs/HalfDay/TimelineHalfDay";
+import UnassigneeFilterDialog from "@/components/worklogs/Unassignee/UnassigneeFilterDialog";
+import TimelineDatatable from "@/components/worklogs/HalfDay/TimelineDatatable";
 
-const exportBody = {
+const exportBodyTask = {
   PageNo: 1,
   PageSize: 50000,
   SortColumn: "",
@@ -45,6 +48,19 @@ const exportBody = {
   StartDate: null,
   EndDate: null,
   ReviewStatus: null,
+};
+
+const exportBodyTimeline = {
+  PageNo: 1,
+  PageSize: 50000,
+  SortColumn: "",
+  IsDesc: true,
+  GlobalSearch: "",
+  ClientId: null,
+  ProjectId: null,
+  StartDate: null,
+  EndDate: null,
+  IsDownload: true,
 };
 
 const Page = () => {
@@ -67,12 +83,14 @@ const Page = () => {
   const [breakId, setBreakID] = useState<number>(0);
   const [timer, setTimer] = useState<string>("00:00:00");
   const [loaded, setLoaded] = useState(false);
+  const [isTimelineClicked, setIsTimelineClicked] = useState(false);
   const [isTaskClicked, setIsTaskClicked] = useState(true);
   const [isUnassigneeClicked, setIsUnassigneeClicked] = useState(false);
   const [hasId, setHasId] = useState("");
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [canExport, setCanExport] = useState<boolean>(false);
+  const [isHalfDay, setIsHalfDay] = useState<boolean>(false);
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
@@ -156,6 +174,10 @@ const Page = () => {
 
   const closeFilterModal = () => {
     setIsFilterOpen(false);
+  };
+
+  const closeHalfDayModal = () => {
+    setIsHalfDay(false);
   };
 
   const getFilterList = async () => {
@@ -255,9 +277,14 @@ const Page = () => {
     setIsExporting(true);
     const token = localStorage.getItem("token");
     const Org_Token = localStorage.getItem("Org_Token");
+    const api = isTaskClicked
+      ? "workitem/getexportexcellist"
+      : "workitem/timeline/export";
+
+    const exportBody = isTaskClicked ? exportBodyTask : exportBodyTimeline;
 
     const response = await axios.post(
-      `${process.env.worklog_api_url}/workitem/getexportexcellist`,
+      `${process.env.worklog_api_url}/${api}`,
       {
         ...exportBody,
         ...currentFilterData,
@@ -282,7 +309,9 @@ const Page = () => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "worklog_report.xlsx";
+        a.download = `${
+          isTaskClicked ? "Worklog_report.xlsx" : "Timeline_report.xlsx"
+        }`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -307,6 +336,25 @@ const Page = () => {
             <label
               onClick={() => {
                 setGlobalSearchValue("");
+                setIsTimelineClicked(true);
+                setIsTaskClicked(false);
+                setIsUnassigneeClicked(false);
+                setCurrentFilterId(0);
+                setCurrentFilterData([]);
+              }}
+              className={`py-[10px] text-[16px] cursor-pointer select-none ${
+                isTimelineClicked
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
+              }`}
+            >
+              Timeline
+            </label>
+            <span className="text-lightSilver">|</span>
+            <label
+              onClick={() => {
+                setGlobalSearchValue("");
+                setIsTimelineClicked(false);
                 setIsTaskClicked(true);
                 setIsUnassigneeClicked(false);
                 setCurrentFilterId(0);
@@ -330,8 +378,9 @@ const Page = () => {
                 <label
                   onClick={() => {
                     setGlobalSearchValue("");
-                    setIsUnassigneeClicked(true);
+                    setIsTimelineClicked(false);
                     setIsTaskClicked(false);
+                    setIsUnassigneeClicked(true);
                     setCurrentFilterId(0);
                     setCurrentFilterData([]);
                   }}
@@ -346,7 +395,7 @@ const Page = () => {
               )}
           </div>
           <div className="flex items-center justify-center gap-[10px]">
-            {isTaskClicked && (
+            {(isTaskClicked || isTimelineClicked) && (
               <span className="text-secondary font-light text-[14px]">
                 Total time: {timeValue}
               </span>
@@ -483,30 +532,32 @@ const Page = () => {
               </ColorToolTip>
             )}
             {isTaskClicked ? (
-              <>
-                <ColorToolTip title="Import" placement="top" arrow>
-                  <span
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setIsImportOpen(true);
-                    }}
-                  >
-                    <ImportIcon />
-                  </span>
-                </ColorToolTip>
-                <ColorToolTip title="Export" placement="top" arrow>
-                  <span
-                    className={
-                      canExport
-                        ? "cursor-pointer"
-                        : "pointer-events-none opacity-50"
-                    }
-                    onClick={canExport ? handleExport : undefined}
-                  >
-                    {isExporting ? <Loading /> : <ExportIcon />}
-                  </span>
-                </ColorToolTip>
-              </>
+              <ColorToolTip title="Import" placement="top" arrow>
+                <span
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setIsImportOpen(true);
+                  }}
+                >
+                  <ImportIcon />
+                </span>
+              </ColorToolTip>
+            ) : (
+              <></>
+            )}
+            {isTaskClicked || isTimelineClicked ? (
+              <ColorToolTip title="Export" placement="top" arrow>
+                <span
+                  className={
+                    canExport
+                      ? "cursor-pointer"
+                      : "pointer-events-none opacity-50"
+                  }
+                  onClick={canExport ? handleExport : undefined}
+                >
+                  {isExporting ? <Loading /> : <ExportIcon />}
+                </span>
+              </ColorToolTip>
             ) : (
               <></>
             )}
@@ -552,6 +603,17 @@ const Page = () => {
                 </Button>
               </>
             )}
+            {isTimelineClicked && (
+              <Button
+                type="button"
+                variant="contained"
+                color="info"
+                className="rounded-[4px] !h-[36px] !bg-[#ff9f43]"
+                onClick={() => setIsHalfDay(true)}
+              >
+                Half Day
+              </Button>
+            )}
           </div>
         </div>
         {isTaskClicked && (
@@ -575,6 +637,7 @@ const Page = () => {
             onChangeLoader={(e: any) => setTimeValue(e)}
           />
         )}
+
         {isUnassigneeClicked && (
           <UnassigneeDatatable
             searchValue={globalSearchValue}
@@ -589,6 +652,17 @@ const Page = () => {
             isUnassigneeClicked={isUnassigneeClicked}
           />
         )}
+
+        {isTimelineClicked && (
+          <TimelineDatatable
+            currentFilterData={currentFilterData}
+            onDataFetch={handleDataFetch}
+            searchValue={globalSearchValue}
+            onHandleExport={handleCanExport}
+            onChangeLoader={(e: any) => setTimeValue(e)}
+          />
+        )}
+
         {isEdit ? (
           <TaskEditDrawer
             onDataFetch={dataFunction}
@@ -627,6 +701,16 @@ const Page = () => {
             onClose={closeFilterModal}
             currentFilterData={getIdFromFilterDialog}
           />
+        )}
+        {isTimelineClicked && (
+          <TimelineFilterDialog
+            onOpen={isFilterOpen}
+            onClose={closeFilterModal}
+            currentFilterData={getIdFromFilterDialog}
+          />
+        )}
+        {isTimelineClicked && (
+          <TimelineHalfDay onOpen={isHalfDay} onClose={closeHalfDayModal} />
         )}
       </div>
 

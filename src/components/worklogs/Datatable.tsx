@@ -163,7 +163,11 @@ const Datatable = ({
     // adding all selected row's WorkType Ids in an array
     const selectedWorkItemWorkTypeIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow?.WorkTypeId)
+        ? selectedData
+            .map((selectedRow: any) =>
+              selectedRow?.WorkTypeId !== 0 ? selectedRow?.WorkTypeId : false
+            )
+            .filter((j: any) => j !== false)
         : [];
 
     setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);

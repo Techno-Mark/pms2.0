@@ -15,9 +15,9 @@ import {
 import { getMuiTheme, ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
-import WorklogsActionBar from "./actionBar/WorklogsActionBar";
-import ReportLoader from "../common/ReportLoader";
-import OverLay from "../common/OverLay";
+import WorklogsActionBar from "../actionBar/WorklogsActionBar";
+import ReportLoader from "../../common/ReportLoader";
+import OverLay from "../../common/OverLay";
 import { callAPI } from "@/utils/API/callAPI";
 
 const pageNo = 1;

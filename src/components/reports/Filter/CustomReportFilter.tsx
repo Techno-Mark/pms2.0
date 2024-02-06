@@ -186,7 +186,7 @@ const CustomReportFilter = ({
       numberOfPages: noofPages.toString().trim().length <= 0 ? null : noofPages,
       returnYear: returnYear === null ? null : returnYear.value,
       subProcessId: subProcessName === null ? null : subProcessName.value,
-      StatusId: status === null ? null : status.value,
+      StatusId: !!status && !!status.value ? status.value : null,
       priority: priority === null ? null : priority.value,
       startDate:
         startDate.toString().trim().length <= 0
@@ -259,7 +259,7 @@ const CustomReportFilter = ({
             noofPages.toString().trim().length <= 0 ? null : noofPages,
           returnYear: returnYear === null ? null : returnYear.value,
           subProcessId: subProcessName === null ? null : subProcessName.value,
-          StatusId: status === null ? null : status.value,
+          StatusId: !!status && !!status.value ? status.value : null,
           priority: priority === null ? null : priority.value,
           startDate:
             startDate.toString().trim().length <= 0

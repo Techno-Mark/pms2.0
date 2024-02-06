@@ -8,6 +8,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Popover,
 } from "@mui/material";
 import TablePagination from "@mui/material/TablePagination";
 import PlayButton from "@/assets/icons/worklogs/PlayButton";
@@ -34,6 +35,10 @@ import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunc
 import ReportLoader from "../common/ReportLoader";
 import OverLay from "../common/OverLay";
 import { callAPI } from "@/utils/API/callAPI";
+import { ArrowDropDownIcon } from "@mui/x-date-pickers";
+import CloseIcon from "@/assets/icons/reports/CloseIcon";
+import { DialogTransition } from "@/utils/style/DialogTransition";
+import { options } from "@/utils/datatable/TableOptions";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -68,6 +73,9 @@ const Datatable = ({
   searchValue,
   onChangeLoader,
 }: any) => {
+  const workloadAnchorElFilter: HTMLButtonElement | null = null;
+  const openWorkloadFilter = Boolean(workloadAnchorElFilter);
+  const workloadIdFilter = openWorkloadFilter ? "simple-popover" : undefined;
   const [isLoadingApprovalsDatatable, setIsLoadingApprovalsDatatable] =
     useState(false);
   const [loaded, setLoaded] = useState<boolean>(false);
@@ -98,6 +106,8 @@ const Datatable = ({
   const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<
     any | number[]
   >([]);
+  const [isWorkloadExpanded, setIsWorkloadExpanded] = useState<boolean>(false);
+  const [clickedWorkloadRowId, setClickedWorkloadRowId] = useState<number>(-1);
 
   const getInitialPagePerRows = () => {
     setRowsPerPage(10);
@@ -381,6 +391,11 @@ const Datatable = ({
   const columnConfig = [
     {
       name: "WorkitemId",
+      label: "",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "WorkitemId",
       label: "Task ID",
       bodyRenderer: generateCommonBodyRender,
     },
@@ -420,6 +435,11 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "ReviewerName",
+      label: "Reviewer Name",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "PriorityName",
       label: "Priority",
       bodyRenderer: generatePriorityWithColor,
@@ -437,7 +457,7 @@ const Datatable = ({
       name: "StatusName",
       label: "Status",
       bodyRenderer: (value: any, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[9]),
+        generateStatusWithColor(value, tableMeta.rowData[11]),
     },
     {
       name: "EstimateTime",
@@ -561,7 +581,7 @@ const Datatable = ({
               <div className="w-44 h-7 flex items-center">
                 <ColorToolTip
                   title={`Estimated Time: ${toHoursAndMinutes(
-                    tableMeta.rowData[11] * tableMeta.rowData[12]
+                    tableMeta.rowData[13] * tableMeta.rowData[14]
                   )}`}
                   placement="top"
                   arrow
@@ -700,6 +720,29 @@ const Datatable = ({
           },
         },
       };
+    } else if (column.label === "") {
+      return {
+        name: "WorkitemId",
+        options: {
+          filter: true,
+          viewColumns: false,
+          sort: true,
+          customHeadLabelRender: () => generateCustomHeaderName(""),
+          customBodyRender: (value: any) => {
+            return (
+              <span
+                className="flex flex-col cursor-pointer"
+                onClick={() => {
+                  setIsWorkloadExpanded(true);
+                  setClickedWorkloadRowId(value);
+                }}
+              >
+                <ArrowDropDownIcon />
+              </span>
+            );
+          },
+        },
+      };
     } else if (column.label === "Task ID") {
       return {
         name: "WorkitemId",
@@ -732,7 +775,7 @@ const Datatable = ({
           viewColumns: false,
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
           customBodyRender: (value: any, tableMeta: any) => {
-            const statusColorCode = tableMeta.rowData[9];
+            const statusColorCode = tableMeta.rowData[11];
 
             return (
               <div>
@@ -767,7 +810,7 @@ const Datatable = ({
             return (
               <span>
                 {toHoursAndMinutes(
-                  tableMeta.rowData[11] * tableMeta.rowData[12]
+                  tableMeta.rowData[13] * tableMeta.rowData[14]
                 )}
               </span>
             );
@@ -821,6 +864,77 @@ const Datatable = ({
   const approvalColumns: any = columnConfig.map((col: any) => {
     return generateConditionalColumn(col, 9);
   });
+
+  const expandableColumns: any[] = [
+    {
+      name: "Start Date & Time",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Start Date & Time"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "End Date & Time",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("End Date & Time"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "Client",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Client"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "Project",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Project"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "Process",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Process"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "Total Hours",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Total Hours"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+  ];
 
   const propsForActionBar = {
     selectedRowsCount,
@@ -891,6 +1005,56 @@ const Datatable = ({
               handleClearSelection();
             }}
           />
+
+          <Popover
+            id={workloadIdFilter}
+            open={isWorkloadExpanded}
+            anchorEl={workloadAnchorElFilter}
+            TransitionComponent={DialogTransition}
+            onClose={() => setIsWorkloadExpanded(false)}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "center",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "center",
+            }}
+          >
+            <div className="px-5 w-full flex items-center justify-between">
+              <div className="my-5 flex items-center">
+                <div className="mr-[10px]">
+                  <label className="text-sm font-normal font-proxima text-slatyGrey capitalize mr-[5px]">
+                    Task Name:
+                  </label>
+                  <label className="text-sm font-bold font-proxima capitalize">
+                    {reviewList
+                      .map((i: any) =>
+                        i.WorkitemId === clickedWorkloadRowId
+                          ? i.TaskName
+                          : false
+                      )
+                      .filter((j: any) => j !== false)}
+                  </label>
+                </div>
+              </div>
+              <div
+                className="cursor-pointer"
+                onClick={() => {
+                  setIsWorkloadExpanded(false);
+                  setClickedWorkloadRowId(-1);
+                }}
+              >
+                <CloseIcon />
+              </div>
+            </div>
+            <MUIDataTable
+              title={undefined}
+              columns={expandableColumns}
+              data={[]}
+              options={{ ...options, tableBodyHeight: "276px" }}
+            />
+          </Popover>
         </ThemeProvider>
       ) : (
         <ReportLoader />
@@ -939,7 +1103,7 @@ const Datatable = ({
         {...propsForActionBar}
         getOverLay={(e: any) => setIsLoadingApprovalsDatatable(e)}
       />
-      {isLoadingApprovalsDatatable ? <OverLay /> : ""}
+      {isLoadingApprovalsDatatable || isWorkloadExpanded ? <OverLay /> : ""}
     </div>
   );
 };

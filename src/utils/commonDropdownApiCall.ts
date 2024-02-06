@@ -134,6 +134,12 @@ export const getClientDropdownData = async () => {
   );
 };
 
+export const getRMWiseUserDropdownData = async () => {
+  return await getApiFunction(
+    `${process.env.api_url}/user/getrmwiseuserdropdown`
+  );
+};
+
 export const getAllProcessDropdownData = async () => {
   return await getApiFunction(
     `${process.env.pms_api_url}/process/getdropdownforgroup`

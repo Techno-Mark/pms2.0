@@ -5,7 +5,9 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import {
+  Checkbox,
   FormControl,
+  FormControlLabel,
   IconButton,
   TextField,
   Tooltip,
@@ -17,6 +19,7 @@ import { toast } from "react-toastify";
 import { Close } from "@mui/icons-material";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { callAPI } from "@/utils/API/callAPI";
+import { toHoursAndMinutes, toSeconds } from "@/utils/timerFunctions";
 
 interface EditModalProps {
   onOpen: boolean;
@@ -55,12 +58,16 @@ const EditDialog: React.FC<EditModalProps> = ({
   const [actualTime, setActualTime] = useState<any>(0);
   const [quantity, setQuantity] = useState<any>(0);
   const [editTime, setEditTime] = useState<any>("00:00:00");
+  const [percentage, setPercentage] = useState(0);
+  const [checkboxClicked, setCheckboxClicked] = useState(false);
   const [initialEditTime, setInitialEditTime] = useState<string>("00:00:00");
 
   const handleClose = () => {
     setEditTime("00:00:00");
     onClose();
     onReviewerDataFetch();
+    setCheckboxClicked(false);
+    setPercentage(0);
   };
 
   const handleEditTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -184,6 +191,24 @@ const EditDialog: React.FC<EditModalProps> = ({
     return editTime !== initialEditTime;
   };
 
+  const handleCheckboxChange = (e: any) => {
+    setCheckboxClicked(e);
+
+    if (e === false) {
+      setEditTime("00:00:00");
+      setPercentage(0);
+    }
+  };
+
+  const handleInputChange = (inputValue: any) => {
+    const digitRegex = /^\d*$/;
+    if (digitRegex.test(inputValue) && inputValue.length <= 2) {
+      setPercentage(inputValue);
+      const total: any = toSeconds(totalTime);
+      setEditTime(toHoursAndMinutes(Math.round((inputValue * total) / 100)));
+    }
+  };
+
   return (
     <div>
       <Dialog
@@ -203,64 +228,95 @@ const EditDialog: React.FC<EditModalProps> = ({
           </ColorToolTip>
         </DialogTitle>
         <DialogContent className="!pt-[20px]">
-          <div className="flex flex-col gap-[20px]">
-            <div className="flex gap-[20px]">
+          <div className="flex gap-[20px]">
+            <FormControl variant="standard">
+              <TextField
+                label="Est. Time"
+                type="text"
+                fullWidth
+                value={estTime}
+                variant="standard"
+                sx={{ mx: 0.75, maxWidth: 100 }}
+                InputProps={{ readOnly: true }}
+              />
+            </FormControl>
+            <FormControl variant="standard">
+              <TextField
+                label="Qty"
+                type="text"
+                fullWidth
+                value={quantity}
+                variant="standard"
+                sx={{ mx: 0.75, maxWidth: 100 }}
+                InputProps={{ readOnly: true }}
+              />
+            </FormControl>
+            <FormControl variant="standard">
+              <TextField
+                label="Actual Time"
+                type="text"
+                fullWidth
+                value={actualTime}
+                variant="standard"
+                sx={{ mx: 0.75, maxWidth: 100 }}
+                InputProps={{ readOnly: true }}
+              />
+            </FormControl>
+            <FormControl variant="standard">
+              <TextField
+                label="Total Time"
+                type="text"
+                fullWidth
+                value={totalTime}
+                variant="standard"
+                sx={{ mx: 0.75, maxWidth: 100 }}
+                InputProps={{ readOnly: true }}
+              />
+            </FormControl>
+            <FormControl variant="standard">
+              <TextField
+                label="Edited Time"
+                placeholder="00:00:00"
+                variant="standard"
+                fullWidth
+                disabled={checkboxClicked}
+                value={editTime}
+                onChange={handleEditTimeChange}
+                sx={{ mx: 0.75, maxWidth: 100 }}
+              />
+            </FormControl>
+            <span>
               <FormControl variant="standard">
                 <TextField
-                  label="Est. Time"
-                  type="text"
-                  fullWidth
-                  value={estTime}
-                  variant="standard"
-                  sx={{ mx: 0.75, maxWidth: 100 }}
-                  InputProps={{ readOnly: true }}
-                />
-              </FormControl>
-              <FormControl variant="standard">
-                <TextField
-                  label="Qty"
-                  type="text"
-                  fullWidth
-                  value={quantity}
-                  variant="standard"
-                  sx={{ mx: 0.75, maxWidth: 100 }}
-                  InputProps={{ readOnly: true }}
-                />
-              </FormControl>
-              <FormControl variant="standard">
-                <TextField
-                  label="Actual Time"
-                  type="text"
-                  fullWidth
-                  value={actualTime}
-                  variant="standard"
-                  sx={{ mx: 0.75, maxWidth: 100 }}
-                  InputProps={{ readOnly: true }}
-                />
-              </FormControl>
-              <FormControl variant="standard">
-                <TextField
-                  label="Total Time"
-                  type="text"
-                  fullWidth
-                  value={totalTime}
-                  variant="standard"
-                  sx={{ mx: 0.75, maxWidth: 100 }}
-                  InputProps={{ readOnly: true }}
-                />
-              </FormControl>
-              <FormControl variant="standard">
-                <TextField
-                  label="Edited Time"
-                  placeholder="00:00:00"
+                  type="number"
+                  label="Percentage"
                   variant="standard"
                   fullWidth
-                  value={editTime}
-                  onChange={handleEditTimeChange}
+                  disabled={!checkboxClicked}
+                  value={percentage <= 0 ? "-" : percentage}
+                  onChange={(e: any) => handleInputChange(e.target.value)}
+                  onFocus={(e) =>
+                    e.target.addEventListener(
+                      "wheel",
+                      function (e) {
+                        e.preventDefault();
+                      },
+                      { passive: false }
+                    )
+                  }
                   sx={{ mx: 0.75, maxWidth: 100 }}
                 />
               </FormControl>
-            </div>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={checkboxClicked}
+                    onChange={(e) => handleCheckboxChange(e.target.checked)}
+                  />
+                }
+                label="Add In %"
+              />
+            </span>
           </div>
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">
