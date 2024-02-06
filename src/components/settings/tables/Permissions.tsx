@@ -236,7 +236,7 @@ const Permissions = ({
             Currently there is no record, you may
             <a
               onClick={onOpen}
-              className={`text-primary underline ml-1 mr-1 ${
+              className={`text-[#0281B9] underline ml-1 mr-1 ${
                 onOpen !== undefined ? "cursor-pointer" : "cursor-not-allowed"
               }`}
             >

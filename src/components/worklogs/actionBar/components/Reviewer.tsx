@@ -2,59 +2,59 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { InputBase, List, Popover } from "@mui/material";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
-import ProjectIcon from "@/assets/icons/worklogs/ProjectIcon";
+import ReviewerIcon from "@/assets/icons/worklogs/Reviewer";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { callAPI } from "@/utils/API/callAPI";
 
-const Project = ({
+const Reviewer = ({
   selectedRowIds,
   getWorkItemList,
-  projectDropdownData,
+  reviewerDropdownData,
   getOverLay,
 }: any) => {
-  const [projectSearchQuery, setprojectSearchQuery] = useState("");
+  const [reviewerSearchQuery, setReviewerSearchQuery] = useState("");
 
-  const [anchorElProject, setAnchorElProject] =
+  const [anchorElReviewer, setAnchorElReviewer] =
     React.useState<HTMLButtonElement | null>(null);
 
-  const handleClickProject = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorElProject(event.currentTarget);
+  const handleClickReviewer = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorElReviewer(event.currentTarget);
   };
 
-  const handleCloseProject = () => {
-    setAnchorElProject(null);
+  const handleCloseReviewer = () => {
+    setAnchorElReviewer(null);
   };
 
-  const openProject = Boolean(anchorElProject);
-  const idProject = openProject ? "simple-popover" : undefined;
+  const openReviewer = Boolean(anchorElReviewer);
+  const idReviewer = openReviewer ? "simple-popover" : undefined;
 
-  const handleProjectSearchChange = (event: any) => {
-    setprojectSearchQuery(event.target.value);
+  const handleReviewerSearchChange = (event: any) => {
+    setReviewerSearchQuery(event.target.value);
   };
 
-  const filteredProject = projectDropdownData?.filter((project: any) =>
-    project.label.toLowerCase().includes(projectSearchQuery.toLowerCase())
+  const filteredReviewer = reviewerDropdownData?.filter((Reviewer: any) =>
+    Reviewer.label.toLowerCase().includes(reviewerSearchQuery.toLowerCase())
   );
 
-  const handleOptionProject = (id: any) => {
-    updateProject(selectedRowIds, id);
-    handleCloseProject();
+  const handleOptionReviewer = (id: any) => {
+    updateReviewer(selectedRowIds, id);
+    handleCloseReviewer();
   };
 
-  const updateProject = async (id: number[], projectId: number) => {
+  const updateReviewer = async (id: number[], ReviewerId: number) => {
     getOverLay(true);
     const params = {
-      workitemIds: id,
-      ProjectId: projectId,
+      WorkitemIds: id,
+      ReviewerId: ReviewerId,
     };
-    const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemproject`;
+    const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemreviewer`;
     const successCallback = (
       ResponseData: any,
       error: any,
       ResponseStatus: any
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        toast.success("Project has been updated successfully.");
+        toast.success("Reviewer has been updated successfully.");
         getWorkItemList();
         getOverLay(false);
       } else {
@@ -66,18 +66,18 @@ const Project = ({
 
   return (
     <div>
-      <ColorToolTip title="Project" arrow>
-        <span aria-describedby={idProject} onClick={handleClickProject}>
-          <ProjectIcon />
+      <ColorToolTip title="Reviewer" arrow>
+        <span aria-describedby={idReviewer} onClick={handleClickReviewer}>
+          <ReviewerIcon />
         </span>
       </ColorToolTip>
 
-      {/* Process Project */}
+      {/* Process Reviewer */}
       <Popover
-        id={idProject}
-        open={openProject}
-        anchorEl={anchorElProject}
-        onClose={handleCloseProject}
+        id={idReviewer}
+        open={openReviewer}
+        anchorEl={anchorElReviewer}
+        onClose={handleCloseReviewer}
         anchorOrigin={{
           vertical: "top",
           horizontal: "center",
@@ -102,30 +102,30 @@ const Project = ({
                 <InputBase
                   placeholder="Search"
                   inputProps={{ "aria-label": "search" }}
-                  value={projectSearchQuery}
-                  onChange={handleProjectSearchChange}
+                  value={reviewerSearchQuery}
+                  onChange={handleReviewerSearchChange}
                   style={{ fontSize: "13px" }}
                 />
               </span>
             </div>
           </div>
           <List>
-            {projectDropdownData.length === 0 ? (
+            {reviewerDropdownData?.length === 0 ? (
               <span className="flex flex-col py-2 px-4  text-sm">
                 No Data Available
               </span>
             ) : (
-              filteredProject.map((project: any) => {
+              filteredReviewer?.map((Reviewer: any) => {
                 return (
                   <span
-                    key={project.value}
+                    key={Reviewer.value}
                     className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                   >
                     <span
                       className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
-                      onClick={() => handleOptionProject(project.value)}
+                      onClick={() => handleOptionReviewer(Reviewer.value)}
                     >
-                      <span className="pt-[0.8px]">{project.label}</span>
+                      <span className="pt-[0.8px]">{Reviewer.label}</span>
                     </span>
                   </span>
                 );
@@ -138,4 +138,4 @@ const Project = ({
   );
 };
 
-export default Project;
+export default Reviewer;

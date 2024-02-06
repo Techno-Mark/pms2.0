@@ -4,7 +4,13 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { FormControl, InputLabel, MenuItem, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  TextField,
+} from "@mui/material";
 import Select from "@mui/material/Select";
 import { toast } from "react-toastify";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -51,12 +57,12 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   currentFilterData,
 }) => {
   const [saveFilter, setSaveFilter] = useState(false);
-  const [clientName, setClientName] = useState<any>(0);
-  const [workType, setWorkType] = useState<number | string>(0);
-  const [projectName, setProjectName] = useState<number | string>(0);
-  const [status, setStatus] = useState<number | string>(0);
+  const [clientName, setClientName] = useState<any>(null);
+  const [workType, setWorkType] = useState<any>(null);
+  const [projectName, setProjectName] = useState<any>(null);
+  const [status, setStatus] = useState<any>(null);
   const [assignedTo, setAssignedTo] = useState<number | string>(0);
-  const [assignedBy, setAssignedBy] = useState<number | string>(0);
+  const [assignedBy, setAssignedBy] = useState<any>(null);
   const [dueDate, setDueDate] = useState<null | string>(null);
   const [startDate, setStartDate] = useState<null | string>(null);
   const [endDate, setEndDate] = useState<null | string>(null);
@@ -84,12 +90,12 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   };
 
   const handleResetAll = () => {
-    setClientName(0);
-    setWorkType(0);
-    setProjectName(0);
-    setStatus(0);
+    setClientName(null);
+    setWorkType(null);
+    setProjectName(null);
+    setStatus(null);
     setAssignedTo(0);
-    setAssignedBy(0);
+    setAssignedBy(null);
     setDueDate(null);
     setStartDate(null);
     setEndDate(null);
@@ -101,12 +107,12 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   };
 
   const handleResetAllOnEdit = () => {
-    setClientName(0);
-    setWorkType(0);
-    setProjectName(0);
-    setStatus(0);
+    setClientName(null);
+    setWorkType(null);
+    setProjectName(null);
+    setStatus(null);
     setAssignedTo(0);
-    setAssignedBy(0);
+    setAssignedBy(null);
     setDueDate(null);
     setStartDate(null);
     setEndDate(null);
@@ -164,8 +170,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   }, [onOpen]);
 
   useEffect(() => {
-    clientName > 0 && getWorkTypeData(clientName);
-    clientName > 0 && getProjectData(clientName);
+    clientName !== null && getWorkTypeData(clientName?.value);
+    clientName !== null && getProjectData(clientName?.value);
   }, [clientName]);
 
   const saveCurrentFilter = async () => {
@@ -179,12 +185,12 @@ const FilterDialog: React.FC<FilterModalProps> = ({
         filterId: onCurrentFilterId !== 0 ? onCurrentFilterId : null,
         name: filterName,
         AppliedFilter: {
-          ClientId: clientName || 0,
-          TypeOfWork: workType || 0,
-          ProjectId: projectName || 0,
-          Status: status || 0,
+          ClientId: clientName !== null ? clientName.value : null,
+          TypeOfWork: workType !== null ? workType.value : null,
+          ProjectId: projectName !== null ? projectName.value : null,
+          Status: status !== null ? status.value : null,
           AssignedTo: assignedTo || 0,
-          AssignedBy: assignedBy || 0,
+          AssignedBy: assignedBy !== null ? assignedBy.value : null,
           DueDate: dueDate || null,
           StartDate: startDate || null,
           EndDate: endDate || null,
@@ -239,12 +245,12 @@ const FilterDialog: React.FC<FilterModalProps> = ({
 
   useEffect(() => {
     const isAnyFieldSelected =
-      clientName !== 0 ||
-      workType !== 0 ||
-      projectName !== 0 ||
-      status !== 0 ||
+      clientName !== null ||
+      workType !== null ||
+      projectName !== null ||
+      status !== null ||
       assignedTo !== 0 ||
-      assignedBy !== 0 ||
+      assignedBy !== null ||
       dueDate !== null ||
       startDate !== null ||
       endDate !== null ||
@@ -265,8 +271,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   ]);
 
   useEffect(() => {
-    getFilterList(onCurrentFilterId);
-  }, [onCurrentFilterId]);
+    onOpen && getFilterList(onCurrentFilterId);
+  }, [onCurrentFilterId, onOpen]);
 
   useEffect(() => {
     if (appliedFilterData.length > 0) {
@@ -286,12 +292,40 @@ const FilterDialog: React.FC<FilterModalProps> = ({
           ReviewStatus,
         } = appliedFilter;
 
-        setClientName(ClientId > 0 ? ClientId : "");
-        setWorkType(TypeOfWork > 0 ? TypeOfWork : "");
-        setProjectName(ProjectId > 0 ? ProjectId : "");
-        setStatus(Status > 0 ? Status : "");
+        setClientName(
+          ClientId !== null && ClientId > 0
+            ? clientDropdownData.filter(
+                (item: any) => item.value === ClientId
+              )[0]
+            : null
+        );
+        setWorkType(
+          TypeOfWork !== null && TypeOfWork > 0
+            ? worktypeDropdownData.filter(
+                (item: any) => item.value === TypeOfWork
+              )[0]
+            : null
+        );
+        setProjectName(
+          ProjectId !== null && ProjectId > 0
+            ? projectDropdownData.filter(
+                (item: any) => item.value === ProjectId
+              )[0]
+            : null
+        );
+        setStatus(
+          Status !== null && Status > 0
+            ? statusDropdownData.filter((item: any) => item.value === Status)[0]
+            : null
+        );
         setAssignedTo(AssignedTo > 0 ? AssignedTo : "");
-        setAssignedBy(AssignedBy > 0 ? AssignedBy : "");
+        setAssignedBy(
+          AssignedBy !== null && AssignedBy > 0
+            ? assignedByDropdownData.filter(
+                (item: any) => item.value === AssignedBy
+              )[0]
+            : null
+        );
         setDueDate(DueDate ?? null);
         setStartDate(StartDate ?? null);
         setEndDate(EndDate ?? null);
@@ -306,12 +340,12 @@ const FilterDialog: React.FC<FilterModalProps> = ({
 
   useEffect(() => {
     const selectedFields = {
-      ClientId: clientName || null,
-      TypeOfWork: workType || null,
-      ProjectId: projectName || null,
-      StatusId: status || null,
+      ClientId: clientName !== null ? clientName.value : null,
+      TypeOfWork: workType !== null ? workType.value : null,
+      ProjectId: projectName !== null ? projectName.value : null,
+      StatusId: status !== null ? status.value : null,
       AssignedTo: assignedTo || null,
-      AssignedBy: assignedBy || null,
+      AssignedBy: assignedBy !== null ? assignedBy.value : null,
       DueDate:
         dueDate !== null
           ? new Date(
@@ -369,73 +403,92 @@ const FilterDialog: React.FC<FilterModalProps> = ({
         <DialogContent>
           <div className="flex flex-col gap-[20px] pt-[15px]">
             <div className="flex gap-[20px]">
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="client_Name">Client Name</InputLabel>
-                <Select
-                  labelId="client_Name"
-                  id="client_Name"
-                  value={clientName === 0 ? "" : clientName}
-                  onChange={(e) => {
-                    setClientName(e.target.value);
-                    setWorkType(0);
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+              >
+                <Autocomplete
+                  id="tags-standard"
+                  options={clientDropdownData}
+                  getOptionLabel={(option: any) => option.label}
+                  onChange={(e: any, data: any) => {
+                    setClientName(data);
+                    setWorkType(null);
+                    setProjectName(null);
                   }}
-                >
-                  {clientDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+                  value={clientName}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Client Name"
+                    />
+                  )}
+                />
               </FormControl>
 
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="workType">Type Of Work</InputLabel>
-                <Select
-                  labelId="workType"
-                  id="workType"
-                  value={workType === 0 ? "" : workType}
-                  onChange={(e) => setWorkType(e.target.value)}
-                >
-                  {worktypeDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+              >
+                <Autocomplete
+                  id="tags-standard"
+                  options={worktypeDropdownData}
+                  getOptionLabel={(option: any) => option.label}
+                  onChange={(e: any, data: any) => {
+                    setWorkType(data);
+                  }}
+                  value={workType}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Type Of Work"
+                    />
+                  )}
+                />
               </FormControl>
 
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="project_Name">Project Name</InputLabel>
-                <Select
-                  labelId="project_Name"
-                  id="project_Name"
-                  value={projectName === 0 ? "" : projectName}
-                  onChange={(e) => setProjectName(e.target.value)}
-                >
-                  {projectDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+              >
+                <Autocomplete
+                  id="tags-standard"
+                  options={projectDropdownData}
+                  getOptionLabel={(option: any) => option.label}
+                  onChange={(e: any, data: any) => {
+                    setProjectName(data);
+                  }}
+                  value={projectName}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Project Name"
+                    />
+                  )}
+                />
               </FormControl>
             </div>
 
             <div className="flex gap-[20px]">
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="status">Status</InputLabel>
-                <Select
-                  labelId="status"
-                  id="status"
-                  value={status === 0 ? "" : status}
-                  onChange={(e) => setStatus(e.target.value)}
-                >
-                  {statusDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+              >
+                <Autocomplete
+                  id="tags-standard"
+                  options={statusDropdownData}
+                  getOptionLabel={(option: any) => option.label}
+                  onChange={(e: any, data: any) => {
+                    setStatus(data);
+                  }}
+                  value={status}
+                  renderInput={(params: any) => (
+                    <TextField {...params} variant="standard" label="Status" />
+                  )}
+                />
               </FormControl>
 
               {/* <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
@@ -455,21 +508,27 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                 </Select>
               </FormControl> */}
 
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="assignedBy">Assigned By</InputLabel>
-                <Select
-                  labelId="assignedBy"
-                  id="assignedBy"
-                  value={assignedBy === 0 ? "" : assignedBy}
-                  onChange={(e) => setAssignedBy(e.target.value)}
-                  disabled={!isHaveManageAssignee}
-                >
-                  {assignedByDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+                disabled={!isHaveManageAssignee}
+              >
+                <Autocomplete
+                  id="tags-standard"
+                  options={assignedByDropdownData}
+                  getOptionLabel={(option: any) => option.label}
+                  onChange={(e: any, data: any) => {
+                    setAssignedBy(data);
+                  }}
+                  value={assignedBy}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Assigned By"
+                    />
+                  )}
+                />
               </FormControl>
 
               <div

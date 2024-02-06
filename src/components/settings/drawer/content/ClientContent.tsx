@@ -866,7 +866,6 @@ const ClientContent = forwardRef<
             },
           }
         );
-        console.log("HI");
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {

@@ -164,11 +164,17 @@ const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
                       field.Type === "ProcessName" &&
                       field.IsChecked === true &&
                       isSubProcess.length > 0;
-                    isProcess && SaveFieldByClient(isSubProcess[0], false);
-                    SaveFieldByClient(field.FieldId, toggledChecked);
+                    field.Type !== "TypeOfWork" &&
+                      isProcess &&
+                      SaveFieldByClient(isSubProcess[0], false);
+                    field.Type !== "TypeOfWork" &&
+                      SaveFieldByClient(field.FieldId, toggledChecked);
                   }}
                 >
-                  <Switch checked={field.IsChecked} />
+                  <Switch
+                    checked={field.IsChecked}
+                    disabled={field.Type === "TypeOfWork"}
+                  />
                 </span>
               </div>
             ))}
