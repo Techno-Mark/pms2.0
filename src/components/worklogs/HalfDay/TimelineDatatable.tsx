@@ -47,11 +47,25 @@ const TimelineDatatable = ({
     setFilteredOject({
       ...filteredObject,
       ...currentFilterData,
-      GlobalSearch: searchValue,
     });
-  }, [currentFilterData, searchValue]);
+  }, [currentFilterData]);
+
+  useEffect(() => {
+    if (searchValue) {
+      setFilteredOject({
+        ...filteredObject,
+        ...currentFilterData,
+        GlobalSearch: searchValue,
+        PageNo: pageNo,
+        PageSize: pageSize,
+      });
+      setPage(0);
+      setRowsPerPage(10);
+    }
+  }, [searchValue]);
 
   const getTimelineList = async () => {
+    setLoaded(false);
     const params = filteredObject;
     const url = `${process.env.worklog_api_url}/workitem/timeline/getall`;
     const successCallback = (

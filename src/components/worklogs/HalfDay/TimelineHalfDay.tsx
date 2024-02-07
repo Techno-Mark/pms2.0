@@ -143,6 +143,7 @@ const TimelineHalfDay: React.FC<HalfDayModalProps> = ({ onOpen, onClose }) => {
   };
 
   const getHalfDayList = async () => {
+    setLoaded(false);
     const params = filteredObject;
     const url = `${process.env.worklog_api_url}/workitem/timeline/getuserleavelist`;
     const successCallback = (

@@ -65,6 +65,8 @@ const exportBodyTimeline = {
 
 const Page = () => {
   const router = useRouter();
+  const [isLoadingWorklogsDatatable, setIsLoadingWorklogsDatatable] =
+    useState(false);
   const [timeValue, setTimeValue] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -248,6 +250,7 @@ const Page = () => {
   };
 
   const setBreak = async () => {
+    setIsLoadingWorklogsDatatable(true);
     const params = {
       breakId: breakId,
     };
@@ -260,6 +263,9 @@ const Page = () => {
       if (ResponseStatus === "Success" && error === false) {
         getBreakData();
         setBreakID((prev) => (ResponseData === prev ? 0 : ResponseData));
+        setIsLoadingWorklogsDatatable(false);
+      } else {
+        setIsLoadingWorklogsDatatable(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -635,6 +641,7 @@ const Page = () => {
             isTaskClicked={isTaskClicked}
             isUnassigneeClicked={isUnassigneeClicked}
             onChangeLoader={(e: any) => setTimeValue(e)}
+            setLoading={isLoadingWorklogsDatatable}
           />
         )}
 
