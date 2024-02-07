@@ -74,6 +74,7 @@ const Datatable = ({
   searchValue,
   isUnassigneeClicked,
   onChangeLoader,
+  setLoading,
 }: any) => {
   const [isLoadingWorklogsDatatable, setIsLoadingWorklogsDatatable] =
     useState(false);
@@ -108,6 +109,13 @@ const Datatable = ({
   const [comment, setComment] = useState<string>("");
   const [commentErrText, setCommentErrText] = useState<string>("");
   const [isTimeExceed, setIsTimeExceed] = useState<boolean>(false);
+
+  useEffect(() => {
+    setIsLoadingWorklogsDatatable(setLoading);
+  }, [setLoading]);
+  useEffect(() => {
+    setIsLoadingWorklogsDatatable(setLoading);
+  }, [setLoading]);
 
   const handleRowSelect = (
     currentRowsSelected: any,
