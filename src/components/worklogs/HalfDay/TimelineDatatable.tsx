@@ -47,9 +47,22 @@ const TimelineDatatable = ({
     setFilteredOject({
       ...filteredObject,
       ...currentFilterData,
-      GlobalSearch: searchValue,
     });
-  }, [currentFilterData, searchValue]);
+  }, [currentFilterData]);
+
+  useEffect(() => {
+    if (searchValue) {
+      setFilteredOject({
+        ...filteredObject,
+        ...currentFilterData,
+        GlobalSearch: searchValue,
+        PageNo: pageNo,
+        PageSize: pageSize,
+      });
+      setPage(0);
+      setRowsPerPage(10);
+    }
+  }, [searchValue]);
 
   const getTimelineList = async () => {
     const params = filteredObject;
