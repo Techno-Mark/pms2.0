@@ -51,7 +51,7 @@ const TimelineDatatable = ({
   }, [currentFilterData]);
 
   useEffect(() => {
-    if (searchValue) {
+    if (searchValue.length >= 0) {
       setFilteredOject({
         ...filteredObject,
         ...currentFilterData,
