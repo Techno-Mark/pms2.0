@@ -183,6 +183,7 @@ const Page = () => {
               onClick={() => {
                 setActiveTab(1);
                 setCurrentFilterData({ PageNo: 1, PageSize: 10 });
+                setGlobalSearchValue("");
               }}
             >
               Review
@@ -197,6 +198,7 @@ const Page = () => {
               onClick={() => {
                 setActiveTab(2);
                 setCurrentFilterData({ PageNo: 1, PageSize: 10 });
+                setGlobalSearchValue("");
               }}
             >
               All Task

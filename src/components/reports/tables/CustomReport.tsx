@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-no-undef */
 import {
   generateCustomHeaderName,
   generateCommonBodyRender,
@@ -165,8 +164,9 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       (action: any) =>
         action.toLowerCase() === "edit" || action.toLowerCase() === "delete"
     );
+    const admin: any = localStorage.getItem("IsAdmin");
 
-    return actionPermissions.length > 0 ? (
+    return actionPermissions.length > 0 && admin === true ? (
       <div>
         <span
           ref={actionsRef}
@@ -199,10 +199,12 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
           </React.Fragment>
         )}
       </div>
-    ) : (
+    ) : admin === true ? (
       <div className="w-5 h-5 relative opacity-50 pointer-events-none">
         <TableActionIcon />
       </div>
+    ) : (
+      <div className="w-5 h-5 relative opacity-50 pointer-events-none">-</div>
     );
   };
 
@@ -575,10 +577,9 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Change Request"),
         customBodyRender: (value: any) => {
-          const admin = localStorage.getItem("roleName");
           return (
             <div>
-              {!value || value === "0" || admin !== "Admin" ? (
+              {!value || value === "0" ? (
                 <span className="ml-[-30px]">-</span>
               ) : (
                 <Actions actions={["Edit", "Delete"]} id={value} />

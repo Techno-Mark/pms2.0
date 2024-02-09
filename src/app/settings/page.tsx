@@ -447,7 +447,7 @@ const Page = () => {
     const data = {
       GlobalSearch: searchValue,
       SortColumn: null,
-      IsDesc: false,
+      IsDesc: true,
       IsDownload: true,
       PageNo: 1,
       PageSize: 50000,
@@ -457,7 +457,7 @@ const Page = () => {
       ...currentFilterData,
       GlobalSearch: searchValue,
       SortColumn: null,
-      IsDesc: false,
+      IsDesc: true,
       IsDownload: true,
       PageNo: 1,
       PageSize: 50000,

@@ -20,7 +20,7 @@ const initialFilter = {
   PageNo: pageNo,
   PageSize: pageSize,
   GlobalSearch: "",
-  IsDesc: false,
+  IsDesc: true,
   SortColumn: "",
   ClientId: null,
   ProjectId: null,
@@ -51,7 +51,7 @@ const TimelineDatatable = ({
   }, [currentFilterData]);
 
   useEffect(() => {
-    if (searchValue) {
+    if (searchValue.trim().length >= 0) {
       setFilteredOject({
         ...filteredObject,
         ...currentFilterData,

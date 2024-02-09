@@ -73,7 +73,8 @@ const Datatable = ({
   onComment,
   searchValue,
   isUnassigneeClicked,
-  onChangeLoader,
+  onChangeTimeLoader,
+  onChangeTodayTimeLoader,
   setLoading,
 }: any) => {
   const [isLoadingWorklogsDatatable, setIsLoadingWorklogsDatatable] =
@@ -266,6 +267,7 @@ const Datatable = ({
   };
 
   const handleSync = async (selectedRowId: number) => {
+    setIsLoadingWorklogsDatatable(true);
     const params = {
       workitemId: selectedRowId,
     };
@@ -390,7 +392,8 @@ const Datatable = ({
       ResponseStatus: any
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        onChangeLoader(ResponseData.TotalTime);
+        onChangeTimeLoader(ResponseData.TotalTime);
+        onChangeTodayTimeLoader(ResponseData.TodaysTime);
         onHandleExport(ResponseData.List.length > 0 ? true : false);
         setLoaded(true);
         setWorkItemData(ResponseData.List);

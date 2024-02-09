@@ -18,7 +18,7 @@ const initialReportRatingFilter = {
   PageSize: pageSizeReportRating,
   GlobalSearch: "",
   SortColumn: "",
-  IsDesc: false,
+  IsDesc: true,
   Projects: [],
   ReturnTypeId: null,
   TypeofReturnId: null,

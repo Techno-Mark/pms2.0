@@ -124,7 +124,7 @@ const Datatable = ({
   }, [onCloseDrawer]);
 
   const getReviewList = () => {
-    setLoaded(true);
+    setLoaded(false);
     const params = {
       ...filteredObject,
       dueDate: activeTab === 1 ? null : filteredObject.dueDate,
@@ -365,9 +365,20 @@ const Datatable = ({
     setFilteredOject({
       ...filteredObject,
       ...currentFilterData,
-      globalSearch: searchValue,
     });
-  }, [currentFilterData, searchValue, activeTab]);
+  }, [currentFilterData, activeTab]);
+
+  useEffect(() => {
+    setFilteredOject({
+      ...filteredObject,
+      ...currentFilterData,
+      globalSearch: searchValue,
+      PageNo: pageNo,
+      PageSize: pageSize,
+    });
+    setPage(0);
+    setRowsPerPage(10);
+  }, [searchValue]);
 
   useEffect(() => {
     const fetchData = async () => {

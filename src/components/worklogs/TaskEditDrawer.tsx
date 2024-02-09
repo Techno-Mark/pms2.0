@@ -13,7 +13,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import OverLay from "../../common/OverLay";
+import OverLay from "../common/OverLay";
 import { callAPI } from "@/utils/API/callAPI";
 import {
   getAssigneeDropdownData,
@@ -1638,9 +1638,9 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                     <Grid item xs={3} className="pt-4">
                       <Autocomplete
                         id="combo-box-demo"
-                        options={statusWorklogsDropdownDataUse}
+                        options={statusWorklogsDropdownData}
                         value={
-                          statusWorklogsDropdownDataUse.find(
+                          statusWorklogsDropdownData.find(
                             (i: any) => i.value === statusWorklogsEdit
                           ) || null
                         }

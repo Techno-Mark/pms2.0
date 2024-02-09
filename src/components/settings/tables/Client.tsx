@@ -37,7 +37,7 @@ const pageSize = 10;
 const initialFilter = {
   GlobalSearch: null,
   SortColumn: null,
-  IsDesc: false,
+  IsDesc: true,
   PageNo: pageNo,
   PageSize: pageSize,
 };
