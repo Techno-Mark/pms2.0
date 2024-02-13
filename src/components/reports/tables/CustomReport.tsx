@@ -48,6 +48,11 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
           data: data.List,
           dataCount: data.TotalCount,
         });
+      } else {
+        setCustomReportFields({
+          ...customReportFields,
+          loaded: true,
+        });
       }
     };
     callAPI(url, arg1, successCallback, "post");
@@ -164,9 +169,9 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       (action: any) =>
         action.toLowerCase() === "edit" || action.toLowerCase() === "delete"
     );
-    const admin: any = localStorage.getItem("IsAdmin");
 
-    return actionPermissions.length > 0 && admin === true ? (
+    return actionPermissions.length > 0 &&
+      localStorage.getItem("IsAdmin") == "true" ? (
       <div>
         <span
           ref={actionsRef}
@@ -199,12 +204,14 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
           </React.Fragment>
         )}
       </div>
-    ) : admin === true ? (
+    ) : localStorage.getItem("IsAdmin") == "true" ? (
       <div className="w-5 h-5 relative opacity-50 pointer-events-none">
         <TableActionIcon />
       </div>
     ) : (
-      <div className="w-5 h-5 relative opacity-50 pointer-events-none">-</div>
+      localStorage.getItem("IsAdmin") == "false" && (
+        <div className="w-5 h-5 relative opacity-50 pointer-events-none">-</div>
+      )
     );
   };
 

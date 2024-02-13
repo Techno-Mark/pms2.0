@@ -395,11 +395,7 @@ const Datatable = ({
     return <div>{bodyValue ? formatTime(bodyValue) : "00:00:00"}</div>;
   };
 
-  const generateIsManualBodyRender = (bodyValue: any) => {
-    return <div>{bodyValue === true ? "Yes" : "No"}</div>;
-  };
-
-  const columnConfig = [
+  const columnConfigReview = [
     {
       name: "WorkitemId",
       label: "",
@@ -569,6 +565,171 @@ const Datatable = ({
     },
   ];
 
+  const columnConfigAllTask = [
+    {
+      name: "WorkitemId",
+      label: "Task ID",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ClientName",
+      label: "Client",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ProjectName",
+      label: "Project",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "TaskName",
+      label: "Task",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ParentProcess",
+      label: "Process",
+      bodyRenderer: generateParentProcessBodyRender,
+    },
+    {
+      name: "SubProcess",
+      label: "Sub-Process",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "Timer",
+      label: "Review Timer",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "AssignedName",
+      label: "Assigned To",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ReviewerName",
+      label: "Reviewer Name",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "PriorityName",
+      label: "Priority",
+      bodyRenderer: generatePriorityWithColor,
+    },
+    {
+      name: "ColorCode",
+      options: {
+        filter: false,
+        sort: false,
+        display: false,
+        viewColumns: false,
+      },
+    },
+    {
+      name: "StatusName",
+      label: "Status",
+      bodyRenderer: (value: any, tableMeta: any) =>
+        generateStatusWithColor(value, tableMeta.rowData[10]),
+    },
+    {
+      name: "EstimateTime",
+      label: "Est. Hours",
+      bodyRenderer: generateManualTimeBodyRender,
+    },
+    {
+      name: "Quantity",
+      label: "Qty.",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "Est*Qty",
+      label: "Std. Time",
+      bodyRenderer: (value: any, tableMeta: any) => {
+        return <span>{tableMeta.rowData.toString()}</span>;
+      },
+    },
+    {
+      name: "PreparorTime",
+      label: "Preparation Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ReviewerTime",
+      label: "Reviewer Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ActualTime",
+      label: "Actual Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "StartDate",
+      label: "Start Date",
+      bodyRenderer: generateCustomFormatDate,
+    },
+    {
+      name: "EndDate",
+      label: "End Date",
+      bodyRenderer: generateCustomFormatDate,
+    },
+    {
+      name: "EmpolyeeName",
+      label: "Employee",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "Role",
+      label: "Designation",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "EmployeeManualTime",
+      label: "Edited Time",
+      bodyRenderer: generateManualTimeBodyRender,
+    },
+    // {
+    //   name: "EmployeeIsManual",
+    //   label: "Is Manual",
+    //   bodyRenderer: generateIsManualBodyRender,
+    // },
+    {
+      name: "ManagerName",
+      label: "Manager",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ReviewerId",
+      options: {
+        display: false,
+      },
+    },
+    {
+      name: "ReviewerIsManual",
+      options: {
+        display: false,
+      },
+    },
+    {
+      name: "SubmissionId",
+      options: {
+        display: false,
+      },
+    },
+    {
+      name: "State",
+      options: {
+        display: false,
+      },
+    },
+    {
+      name: "WorkitemId",
+      options: {
+        display: false,
+      },
+    },
+  ];
+
   const generateConditionalColumn = (
     column: {
       name: string;
@@ -592,7 +753,8 @@ const Datatable = ({
               <div className="w-44 h-7 flex items-center">
                 <ColorToolTip
                   title={`Estimated Time: ${toHoursAndMinutes(
-                    tableMeta.rowData[13] * tableMeta.rowData[14]
+                    tableMeta.rowData[activeTab === 1 ? 13 : 12] *
+                      tableMeta.rowData[activeTab === 1 ? 14 : 13]
                   )}`}
                   placement="top"
                   arrow
@@ -786,7 +948,8 @@ const Datatable = ({
           viewColumns: false,
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
           customBodyRender: (value: any, tableMeta: any) => {
-            const statusColorCode = tableMeta.rowData[11];
+            const statusColorCode =
+              tableMeta.rowData[activeTab === 1 ? 11 : 10];
 
             return (
               <div>
@@ -821,7 +984,8 @@ const Datatable = ({
             return (
               <span>
                 {toHoursAndMinutes(
-                  tableMeta.rowData[13] * tableMeta.rowData[14]
+                  tableMeta.rowData[activeTab === 1 ? 13 : 12] *
+                    tableMeta.rowData[activeTab === 1 ? 14 : 13]
                 )}
               </span>
             );
@@ -872,7 +1036,9 @@ const Datatable = ({
     }
   };
 
-  const approvalColumns: any = columnConfig.map((col: any) => {
+  const approvalColumns: any = (
+    activeTab === 1 ? columnConfigReview : columnConfigAllTask
+  ).map((col: any) => {
     return generateConditionalColumn(col, 9);
   });
 

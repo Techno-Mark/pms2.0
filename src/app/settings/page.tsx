@@ -141,14 +141,15 @@ const Page = () => {
     useState<boolean>(false);
   const [updatedPermissionsData, setUpdatedPermissionsData] = useState([]);
 
-  const [projectValueError, setProjectValueError] = useState(false);
-  const [projectValueErrText, setProjectValueErrText] = useState<string>(
+  const [permissionValueError, setPermissionValueError] = useState(false);
+  const [permissionValueErrText, setPermissionValueErrText] = useState<string>(
     "This field is required."
   );
-  const [projectValue, setProjectValue] = useState<any>(0);
-  const [projectName, setProjectName] = useState("");
-  const [projectNameError, setProjectNameError] = useState(false);
-  const [projectNameErrText, setProjectNameErrText] = useState<string>(
+  const [permissionValueType, setPermissionValueType] = useState<any>(0);
+  const [permissionValue, setPermissionValue] = useState<any>(0);
+  const [permissionName, setPermissionName] = useState("");
+  const [permissionNameError, setPermissionNameError] = useState(false);
+  const [permissionNameErrText, setPermissionNameErrText] = useState<string>(
     "This field is required."
   );
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -304,7 +305,7 @@ const Page = () => {
 
   const saveData = async () => {
     const params = {
-      RoleId: projectValue !== 0 && projectValue,
+      RoleId: permissionValue !== 0 && permissionValue,
       Permissions: updatedPermissionsData,
     };
     const url = `${process.env.pms_api_url}/Role/SavePermission`;
@@ -534,32 +535,35 @@ const Page = () => {
     }
   };
 
-  const handleProjectName = (e: any) => {
+  const handlePermissionName = (e: any) => {
     if (e.target.value === "" || e.target.value.trim().length <= 0) {
-      setProjectName(e.target.value);
-      setProjectNameError(true);
-      setProjectNameErrText("This is required field.");
+      setPermissionName(e.target.value);
+      setPermissionNameError(true);
+      setPermissionNameErrText("This is required field.");
     } else {
-      setProjectName(e.target.value);
-      setProjectNameError(false);
-      setProjectNameErrText("This field is required.");
+      setPermissionName(e.target.value);
+      setPermissionNameError(false);
+      setPermissionNameErrText("This field is required.");
     }
   };
 
-  const handleProject = (e: React.SyntheticEvent, value: any) => {
+  const handlePermission = (e: React.SyntheticEvent, value: any) => {
     if (value !== null) {
       if (isNaN(parseInt(value.value))) {
         toggleOpen(true);
-        setProjectName(value.value);
-        setProjectValue(null);
+        setPermissionName(value.value);
+        setPermissionValue(null);
+        setPermissionValueType(0);
       }
       if (value !== null && !isNaN(parseInt(value.value))) {
         const selectedValue = value.value;
-        setProjectValue(selectedValue);
-        setProjectValueError(false);
-        setProjectValueErrText("");
+        setPermissionValue(selectedValue);
+        setPermissionValueType(value.Type);
+        setPermissionValueError(false);
+        setPermissionValueErrText("");
       } else {
-        setProjectValue(0);
+        setPermissionValue(0);
+        setPermissionValueType(0);
       }
     }
   };
@@ -572,10 +576,10 @@ const Page = () => {
   const handleAddProject = async () => {
     const saveRole = async () => {
       const params = {
-        RoleId: projectValue,
-        Name: projectName,
+        RoleId: permissionValue,
+        Name: permissionName,
         Type: permissionDropdownData
-          .map((i: any) => (i.value === projectValue ? i.Type : undefined))
+          .map((i: any) => (i.value === permissionValue ? i.Type : undefined))
           .filter((i: any) => i !== undefined)[0],
       };
 
@@ -594,7 +598,7 @@ const Page = () => {
       callAPI(url, params, successCallback, "POST");
     };
 
-    if (projectName.trim().length > 0 && projectValue !== null) {
+    if (permissionName.trim().length > 0 && permissionValue !== null) {
       saveRole();
     }
   };
@@ -624,7 +628,8 @@ const Page = () => {
       if (ResponseStatus === "Success" && error === false) {
         getPermissionDropdown();
         toast.success(`Role has been deleted successfully!`);
-        setProjectValue(0);
+        setPermissionValue(0);
+        setPermissionValueType(0);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -811,21 +816,21 @@ const Page = () => {
                 <div className="flex items-center justify-center gap-3 mr-4">
                   <Autocomplete
                     className={`${
-                      projectValueError ? "errorAutocomplete" : ""
+                      permissionValueError ? "errorAutocomplete" : ""
                     }`}
                     limitTags={2}
                     id="checkboxes-tags-demo"
                     options={permissionDropdownData}
                     value={
-                      projectValue !== 0
+                      permissionValue !== 0
                         ? permissionDropdownData.find(
-                            (option: any) => option.value === projectValue
+                            (option: any) => option.value === permissionValue
                           ) || null
                         : null
                     }
                     sx={{ width: "250px" }}
                     getOptionLabel={(option: any) => option.label}
-                    onChange={handleProject}
+                    onChange={handlePermission}
                     filterOptions={(options: any, params: any) => {
                       const filtered = filter(options, params);
                       return filtered;
@@ -834,7 +839,7 @@ const Page = () => {
                       const isItemHovered = option === hoveredItem;
 
                       const handleEditClick = () => {
-                        setProjectName(option.label);
+                        setPermissionName(option.label);
                         setEditDialogOpen(true);
                       };
 
@@ -881,9 +886,9 @@ const Page = () => {
                       />
                     )}
                   />
-                  {projectValueError && (
+                  {permissionValueError && (
                     <span className="text-[#D32F2F] text-[12px] -mt-3">
-                      {projectValueErrText}
+                      {permissionValueErrText}
                     </span>
                   )}
                   <div className="w-[60px]">
@@ -891,12 +896,12 @@ const Page = () => {
                       variant="contained"
                       color="info"
                       className={`rounded-md !bg-secondary ${
-                        projectValue === 0 ||
+                        permissionValue === 0 ||
                         !hasPermissionWorklog(tab, "save", "settings")
                           ? "opacity-50 pointer-events-none uppercase"
                           : ""
                       } ${
-                        projectValue === 0 ||
+                        permissionValue === 0 ||
                         !hasPermissionWorklog(tab, "save", "settings")
                           ? "cursor-not-allowed"
                           : ""
@@ -1104,7 +1109,8 @@ const Page = () => {
             }
             onEdit={handleEdit}
             expanded={isPermissionExpanded}
-            permissionValue={projectValue}
+            permissionValue={permissionValue}
+            permissionValueType={permissionValueType}
             sendDataToParent={(data: any) => setUpdatedPermissionsData(data)}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("permission", "view", "settings")}
@@ -1171,14 +1177,14 @@ const Page = () => {
           </DialogContentText>
           <TextField
             className="w-full mt-2"
-            value={projectName}
-            error={projectNameError}
-            helperText={projectNameError && projectNameErrText}
+            value={permissionName}
+            error={permissionNameError}
+            helperText={permissionNameError && permissionNameErrText}
             id="standard-basic"
             label="Role"
             placeholder={editDialogOpen ? "Edit a Role" : "Add new Role"}
             variant="standard"
-            onChange={handleProjectName}
+            onChange={handlePermissionName}
           />
         </DialogContent>
         <DialogActions>

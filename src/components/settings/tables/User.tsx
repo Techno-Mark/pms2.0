@@ -62,6 +62,7 @@ const User = ({
   const [openProcessDrawer, setOpenProcessDrawer] = useState(false);
   const [roleId, setRoleId] = useState(0);
   const [userId, setUserId] = useState(0);
+  const [userType, setUserType] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [totalCount, setTotalCount] = useState(0);
@@ -179,6 +180,7 @@ const User = ({
     setOpenProcessDrawer(false);
     setRoleId(0);
     setUserId(0);
+    setUserType(null);
   };
 
   const handleResendInvite = async (
@@ -220,7 +222,8 @@ const User = ({
     roleId: any,
     firstName: string,
     lastName: string,
-    email: any
+    email: any,
+    userType: any
   ) => {
     setSelectedRowId(id);
     if (actionId.toLowerCase() === "edit") {
@@ -233,6 +236,7 @@ const User = ({
       setOpenProcessDrawer(true);
       setRoleId(roleId);
       setUserId(id);
+      setUserType(userType);
     }
     if (actionId.toLowerCase() === "resend invite") {
       handleResendInvite(id, email, firstName, lastName);
@@ -246,9 +250,11 @@ const User = ({
     firstName,
     lastName,
     email,
+    userType,
   }: any) => {
     const actionsRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
+    console.log(userType)
 
     const handleOutsideClick = (event: MouseEvent) => {
       if (
@@ -298,7 +304,8 @@ const User = ({
                           roleId,
                           firstName,
                           lastName,
-                          email
+                          email,
+                          userType
                         )
                       }
                       className="flex w-full h-9 px-3 hover:bg-lightGray !cursor-pointer"
@@ -434,6 +441,7 @@ const User = ({
                 firstName={tableMeta.rowData[tableMeta.rowData.length - 4]}
                 lastName={tableMeta.rowData[tableMeta.rowData.length - 3]}
                 email={tableMeta.rowData[3]}
+                userType={tableMeta.rowData[1]}
               />
             );
           },
@@ -701,6 +709,7 @@ const User = ({
               userId={userId}
               roleId={roleId}
               onDataFetch={getAll}
+              userType={userType}
             />
             <DrawerOverlay
               isOpen={openProcessDrawer}
