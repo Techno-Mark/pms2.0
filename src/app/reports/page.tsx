@@ -58,6 +58,19 @@ const secondaryTabs = [
   { label: "log", value: 10 },
 ];
 
+const allTabs = [
+  { label: "project", value: 1 },
+  { label: "user", value: 2 },
+  { label: "timesheet", value: 3 },
+  { label: "workload", value: 4 },
+  { label: "billing", value: 7 },
+  { label: "custom", value: 8 },
+  { label: "user log", value: 5 },
+  { label: "audit", value: 6 },
+  { label: "rating", value: 9 },
+  { label: "log", value: 10 },
+];
+
 const MoreTabs = ({ moreTabs, handleMoreTabsClick }: any) => {
   return (
     <div
@@ -143,9 +156,12 @@ const Page = () => {
       router.push("/");
     } else {
       setActiveTabs(
-        primaryTabs.map((tab: any) =>
-          hasPermissionWorklog(tab.label, "view", "report") ? tab : false
-        )
+        allTabs
+          .map((tab: any) =>
+            hasPermissionWorklog(tab.label, "view", "report") ? tab : false
+          )
+          .filter((tab: any) => tab !== false)
+          .slice(0, 6)
       );
       setActiveTab(
         primaryTabs
@@ -153,6 +169,14 @@ const Page = () => {
             hasPermissionWorklog(tab.label, "view", "report") ? tab : false
           )
           .filter((tab: any) => tab !== false)[0].value
+      );
+      setMoreTabs(
+        allTabs
+          .map((tab: any) =>
+            hasPermissionWorklog(tab.label, "view", "report") ? tab : false
+          )
+          .filter((tab: any) => tab !== false)
+          .slice(6, 10)
       );
     }
   };
@@ -285,7 +309,11 @@ const Page = () => {
         <Navbar />
         <div className="w-full pr-5 flex items-center justify-between">
           <div className="flex justify-between items-center">
-            <div className="flex justify-center items-center">
+            <div
+              className={`flex justify-center items-center ${
+                moreTabs.length <= 0 ? "my-2" : ""
+              }`}
+            >
               {activeTabs
                 .filter((tab: any) => tab !== false)
                 .map((tab: any, index: number) => (
@@ -305,12 +333,14 @@ const Page = () => {
                 ))}
             </div>
             <div className="cursor-pointer relative">
-              <div
-                ref={moreTabsRef}
-                onClick={() => setShowMoreTabs(!showMoreTabs)}
-              >
-                <MoreIcon />
-              </div>
+              {moreTabs.length > 0 && (
+                <div
+                  ref={moreTabsRef}
+                  onClick={() => setShowMoreTabs(!showMoreTabs)}
+                >
+                  <MoreIcon />
+                </div>
+              )}
               {showMoreTabs && (
                 <MoreTabs
                   moreTabs={moreTabs}

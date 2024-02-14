@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-no-undef */
 import {
   generateCustomHeaderName,
   generateCommonBodyRender,
@@ -48,6 +47,11 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
           loaded: true,
           data: data.List,
           dataCount: data.TotalCount,
+        });
+      } else {
+        setCustomReportFields({
+          ...customReportFields,
+          loaded: true,
         });
       }
     };
@@ -166,7 +170,8 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         action.toLowerCase() === "edit" || action.toLowerCase() === "delete"
     );
 
-    return actionPermissions.length > 0 ? (
+    return actionPermissions.length > 0 &&
+      localStorage.getItem("IsAdmin") == "true" ? (
       <div>
         <span
           ref={actionsRef}
@@ -199,10 +204,14 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
           </React.Fragment>
         )}
       </div>
-    ) : (
+    ) : localStorage.getItem("IsAdmin") == "true" ? (
       <div className="w-5 h-5 relative opacity-50 pointer-events-none">
         <TableActionIcon />
       </div>
+    ) : (
+      localStorage.getItem("IsAdmin") == "false" && (
+        <div className="w-5 h-5 relative opacity-50 pointer-events-none">-</div>
+      )
     );
   };
 
@@ -575,10 +584,9 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Change Request"),
         customBodyRender: (value: any) => {
-          const admin = localStorage.getItem("roleName");
           return (
             <div>
-              {!value || value === "0" || admin !== "Admin" ? (
+              {!value || value === "0" ? (
                 <span className="ml-[-30px]">-</span>
               ) : (
                 <Actions actions={["Edit", "Delete"]} id={value} />

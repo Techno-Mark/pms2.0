@@ -248,7 +248,10 @@ const BillingReportFilter = ({
     const filterDropdowns = async () => {
       setClientDropdown(await getClientDropdownData());
       setProjectDropdown(
-        await getProjectDropdownData(clientName.length > 0 ? clientName[0] : 0)
+        await getProjectDropdownData(
+          clientName.length > 0 ? clientName[0] : 0,
+          null
+        )
       );
       setAssigneeDropdown(await getCCDropdownData());
       setReviewerDropdown(await getCCDropdownData());
@@ -294,7 +297,8 @@ const BillingReportFilter = ({
       savedFilters[index].AppliedFilter.projects.length > 0
         ? (
             await getProjectDropdownData(
-              savedFilters[index].AppliedFilter.clients[0]
+              savedFilters[index].AppliedFilter.clients[0],
+              null
             )
           ).filter(
             (item: any) =>

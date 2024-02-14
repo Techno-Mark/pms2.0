@@ -18,6 +18,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { isWeekend } from "@/utils/commonFunction";
+import { getFormattedDate } from "@/utils/timerFunctions";
 
 interface FilterModalProps {
   activeTab: number;
@@ -37,6 +38,7 @@ const initialFilter = {
   dueDate: null,
   startDate: null,
   endDate: null,
+  DateFilter: null,
 };
 
 const FilterDialog_Approval: React.FC<FilterModalProps> = ({
@@ -57,6 +59,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
   const [statusDropdownData, setStatusDropdownData] = useState([]);
   const [processDropdownData, setProcessDropdownData] = useState([]);
+  const [date, setDate] = useState<null | string>(null);
   const [dueDate, setDueDate] = useState<null | string>(null);
   const [startDate, setStartDate] = useState<null | string>(null);
   const [endDate, setEndDate] = useState<null | string>(null);
@@ -72,6 +75,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     setProjectName(0);
     setProjectDropdownData([]);
     setStatus(0);
+    setDate(null);
     setDueDate(null);
     setStartDate(null);
     setEndDate(null);
@@ -88,7 +92,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   const getDropdownData = async () => {
     setClientDropdownData(await getClientDropdownData());
     setUserData(await getCCDropdownData());
-    const data = await getStatusDropdownData();
+    const data = await getStatusDropdownData(3);
     data.length > 0 &&
       setStatusDropdownData(
         activeTab === 1
@@ -108,8 +112,8 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   };
 
   const getAllData = async (clientName: any) => {
-    setProcessDropdownData(await getProcessDropdownData(clientName));
-    setProjectDropdownData(await getProjectDropdownData(clientName));
+    setProcessDropdownData(await getProcessDropdownData(clientName, null));
+    setProjectDropdownData(await getProjectDropdownData(clientName, null));
   };
 
   useEffect(() => {
@@ -129,6 +133,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
       projectName !== 0 ||
       status !== 0 ||
       processName !== 0 ||
+      date !== null ||
       dueDate !== null ||
       startDate !== null ||
       endDate !== null;
@@ -140,6 +145,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     projectName,
     processName,
     status,
+    date,
     dueDate,
     startDate,
     endDate,
@@ -152,24 +158,15 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
       ProjectId: projectName || null,
       StatusId: status || null,
       ProcessId: processName || null,
-      startDate:
-        startDate !== null
-          ? new Date(
-              new Date(startDate).getTime() + 24 * 60 * 60 * 1000
-            )?.toISOString()
-          : null,
-      dueDate:
-        dueDate !== null
-          ? new Date(
-              new Date(dueDate).getTime() + 24 * 60 * 60 * 1000
-            )?.toISOString()
-          : null,
+      DateFilter: date !== null ? getFormattedDate(date) : null,
+      dueDate: dueDate !== null ? getFormattedDate(dueDate) : null,
+      startDate: startDate !== null ? getFormattedDate(startDate) : null,
       endDate:
-        endDate !== null
-          ? new Date(
-              new Date(endDate).getTime() + 24 * 60 * 60 * 1000
-            )?.toISOString()
-          : null,
+        endDate === null
+          ? startDate === null
+            ? null
+            : getFormattedDate(startDate)
+          : getFormattedDate(endDate),
     };
     setCurrSelectedFileds(selectedFields);
   }, [
@@ -178,6 +175,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     projectName,
     processName,
     status,
+    date,
     dueDate,
     startDate,
     endDate,
@@ -287,6 +285,28 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   ))}
                 </Select>
               </FormControl>
+              {activeTab === 1 && (
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Date"
+                      value={date === null ? null : dayjs(date)}
+                      onChange={(newDate: any) => {
+                        setDate(newDate.$d);
+                      }}
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now())}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+              )}
               {activeTab === 2 && (
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}

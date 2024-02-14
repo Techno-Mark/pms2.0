@@ -15,7 +15,7 @@ const initialReportTaskFilter = {
   PageNo: pageNoReportTask,
   PageSize: pageSizeReportTask,
   GlobalSearch: null,
-  IsDesc: false,
+  IsDesc: true,
   SortColumn: null,
   Priority: null,
   StatusFilter: null,

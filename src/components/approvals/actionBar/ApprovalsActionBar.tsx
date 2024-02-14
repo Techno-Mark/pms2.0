@@ -110,6 +110,10 @@ const ApprovalsActionBar = ({
     callAPI(url, params, successCallback, "POST");
   };
 
+  function areAllValuesSame(arr: any[]) {
+    return arr.every((value, index, array) => value === array[0]);
+  }
+
   const propsForActionBar = {
     onEdit,
     workitemId,
@@ -175,17 +179,33 @@ const ApprovalsActionBar = ({
           getOverLay={getOverLay}
         />
 
-        <ConditionalComponentWithoutConditions
+        <ConditionalComponent
+          condition={
+            hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+            Array.from(new Set(selectedRowWorkTypeId)).length === 1
+          }
           Component={Status}
           propsForActionBar={propsForActionBar}
           getOverLay={getOverLay}
         />
-        <ConditionalComponentWithoutConditions
+
+        <ConditionalComponent
+          condition={
+            areAllValuesSame(selectedRowClientId) &&
+            areAllValuesSame(selectedRowWorkTypeId) &&
+            Array.from(new Set(selectedRowWorkTypeId)).length === 1
+          }
           Component={Assignee}
           propsForActionBar={propsForActionBar}
           getOverLay={getOverLay}
         />
-        <ConditionalComponentWithoutConditions
+
+        <ConditionalComponent
+          condition={
+            areAllValuesSame(selectedRowClientId) &&
+            areAllValuesSame(selectedRowWorkTypeId) &&
+            Array.from(new Set(selectedRowWorkTypeId)).length === 1
+          }
           Component={Reviewer}
           propsForActionBar={propsForActionBar}
           getOverLay={getOverLay}

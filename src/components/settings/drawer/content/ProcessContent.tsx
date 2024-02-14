@@ -612,6 +612,7 @@ const ProcessContent = forwardRef<
                   <span className="!text-defaultRed">&nbsp;*</span>
                 </span>
               }
+              autoComplete="off"
               fullWidth
               className="pt-1"
               value={subProcessName?.trim().length <= 0 ? "" : subProcessName}
@@ -679,6 +680,7 @@ const ProcessContent = forwardRef<
                   <span className="!text-defaultRed">&nbsp;*</span>
                 </span>
               }
+              autoComplete="off"
               placeholder="00:00:00"
               fullWidth
               value={estTime}
@@ -721,6 +723,7 @@ const ProcessContent = forwardRef<
                     onChange={(e: any) => handleInputChange(e, i)}
                     margin="normal"
                     variant="standard"
+                    autoComplete="off"
                   />
                   {/* <Text
                       type="text"

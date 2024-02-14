@@ -194,7 +194,9 @@ const CustomReportFilter = ({
           : getFormattedDate(startDate),
       endDate:
         endDate.toString().trim().length <= 0
-          ? null
+          ? startDate.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(startDate)
           : getFormattedDate(endDate),
       dueDate:
         dueDate.toString().trim().length <= 0
@@ -267,7 +269,9 @@ const CustomReportFilter = ({
               : getFormattedDate(startDate),
           endDate:
             endDate.toString().trim().length <= 0
-              ? null
+              ? startDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(startDate)
               : getFormattedDate(endDate),
           dueDate:
             dueDate.toString().trim().length <= 0
@@ -350,13 +354,17 @@ const CustomReportFilter = ({
         ...(await getClientDropdownData()),
       ]);
       setProjectDropdown(
-        await getProjectDropdownData(clientName.length > 0 ? clientName[0] : 0)
+        await getProjectDropdownData(
+          clientName.length > 0 ? clientName[0] : 0,
+          null
+        )
       );
       setProcessDropdown(await getAllProcessDropdownData());
 
       setSubProcessDropdown(
         await getSubProcessDropdownData(
           clientName.length > 0 ? clientName[0] : 0,
+          null,
           processName === null ? 0 : processName.value
         ).then((result: any) =>
           result.map(
@@ -365,7 +373,7 @@ const CustomReportFilter = ({
         )
       );
       setUserDropdown(await getCCDropdownData());
-      setStatusDropdown(await getStatusDropdownData());
+      setStatusDropdown(await getStatusDropdownData(3));
     };
     customDropdowns();
 
@@ -411,7 +419,8 @@ const CustomReportFilter = ({
       savedFilters[index].AppliedFilter.projectIdsJSON.length > 0
         ? (
             await getProjectDropdownData(
-              savedFilters[index].AppliedFilter.clientIdsJSON[0]
+              savedFilters[index].AppliedFilter.clientIdsJSON[0],
+              null
             )
           ).filter(
             (item: any) =>

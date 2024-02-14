@@ -378,10 +378,11 @@ const Drawer = ({
         .split("(")
         .map((i: any, index: number) => {
           if (i.includes(")")) {
-            return parseInt(i.split(")")[0]);
+            const parsedValue = parseInt(i.split(")")[0]);
+            return isNaN(parsedValue) ? null : parsedValue;
           }
         })
-        .filter((i: any) => i !== undefined)
+        .filter((i: any) => i !== undefined && i !== null)
     );
     setCommentValueClientWorklogError(false);
   };
@@ -996,15 +997,6 @@ const Drawer = ({
             ? 2
             : 0
         );
-      const projectData: any =
-        clientId > 0 && (await getProjectDropdownData(clientId));
-      projectData.length > 0 &&
-        setProjectClientWorklogDropdownData(projectData);
-      const processData: any =
-        clientId > 0 && (await getProcessDropdownData(clientId));
-      setProcessClientWorklogDropdownData(
-        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
-      );
       setCCDropdownClientWorklogData(await getCCDropdownData());
     };
 
@@ -1022,10 +1014,26 @@ const Drawer = ({
   useEffect(() => {
     const getData = async () => {
       const clientId: any = await localStorage.getItem("clientId");
+      const projectData: any =
+        clientId > 0 &&
+        typeOfWorkClientWorklog > 0 &&
+        (await getProjectDropdownData(clientId, typeOfWorkClientWorklog));
+      projectData.length > 0 &&
+        setProjectClientWorklogDropdownData(projectData);
+      const processData: any =
+        clientId > 0 &&
+        (await getProcessDropdownData(clientId, typeOfWorkClientWorklog));
+      setProcessClientWorklogDropdownData(
+        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
+      );
       const subProcessData: any =
         clientId > 0 &&
         processNameClientWorklog !== 0 &&
-        (await getSubProcessDropdownData(clientId, processNameClientWorklog));
+        (await getSubProcessDropdownData(
+          clientId,
+          typeOfWorkClientWorklog,
+          processNameClientWorklog
+        ));
       subProcessData.length > 0 &&
         setSubProcessClientWorklogDropdownData(
           subProcessData.map(
@@ -1039,7 +1047,7 @@ const Drawer = ({
     }
 
     onOpen && getData();
-  }, [onOpen, onEdit, processNameClientWorklog]);
+  }, [onOpen, onEdit, processNameClientWorklog, typeOfWorkClientWorklog]);
 
   useEffect(() => {
     const getCommentDropdownData = async () => {
@@ -1251,6 +1259,9 @@ const Drawer = ({
                                 }
                                 onChange={(e) => {
                                   setTypeOfWorkClientWorklog(e.target.value);
+                                  setProjectNameClientWorklog(0);
+                                  setProcessNameClientWorklog(0);
+                                  setSubProcessNameClientWorklog(0);
                                 }}
                               >
                                 {typeOfWorkClientWorklogDropdownData.map(
@@ -1883,9 +1894,9 @@ const Drawer = ({
                                 <div className="flex items-center gap-2">
                                   {editingCommentIndexClientWorklog ===
                                   index ? (
-                                    <div className="flex items-center gap-2">
-                                      <div className="flex flex-col items-start">
-                                        <div className="flex items-start justify-center">
+                                    <div className="flex items-start gap-2">
+                                      <div className="flex flex-col">
+                                        <div className="flex items-start justify-start w-[70vw]">
                                           <MentionsInput
                                             style={mentionsInputStyle}
                                             className="!w-[100%] textareaOutlineNoneEdit"
@@ -1990,9 +2001,9 @@ const Drawer = ({
                                       </button>
                                     </div>
                                   ) : (
-                                    <>
+                                    <div className="flex items-start justify-start gap-8 w-[70vw]">
                                       <span className="hidden"></span>
-                                      <div className="flex items-start">
+                                      <div className="max-w-[60vw]">
                                         {extractText(i.Message).map(
                                           (i: any) => {
                                             const assignee =
@@ -2072,7 +2083,7 @@ const Drawer = ({
                                             <EditIcon className="h-4 w-4" />
                                           </button>
                                         )}
-                                    </>
+                                    </div>
                                   )}
                                 </div>
                               </div>

@@ -26,6 +26,7 @@ const WorklogActionbar = ({
   selectedRowStatusId,
   selectedRowId,
   selectedRowIds,
+  selectedRowWorkTypeId,
   onEdit,
   handleClearSelection,
   onComment,
@@ -211,7 +212,9 @@ const WorklogActionbar = ({
   };
 
   const getAllStatus = async () => {
-    const data = await getStatusDropdownData();
+    const data = await getStatusDropdownData(
+      Array.from(new Set(selectedRowWorkTypeId))[0]
+    );
     data.length > 0 &&
       setAllStatus(
         data
@@ -331,15 +334,20 @@ const WorklogActionbar = ({
                     </List>
                   </nav>
                 </Popover>
-                <ColorToolTip title="Status" arrow>
-                  <span
-                    aria-describedby={idStatus}
-                    onClick={handleClickStatus}
-                    className="pl-2 pr-2 pt-1 cursor-pointer border-l border-lightSilver"
-                  >
-                    <DetectorStatus />
-                  </span>
-                </ColorToolTip>
+
+                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+                  Array.from(new Set(selectedRowWorkTypeId)).length === 1 && (
+                    <ColorToolTip title="Status" arrow>
+                      <span
+                        aria-describedby={idStatus}
+                        onClick={handleClickStatus}
+                        className="pl-2 pr-2 pt-1 cursor-pointer border-l border-lightSilver"
+                      >
+                        <DetectorStatus />
+                      </span>
+                    </ColorToolTip>
+                  )}
+
                 {/* Status Popover */}
                 <Popover
                   id={idStatus}

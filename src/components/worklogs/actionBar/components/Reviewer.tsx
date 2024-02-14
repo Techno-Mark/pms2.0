@@ -5,20 +5,43 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import ReviewerIcon from "@/assets/icons/worklogs/Reviewer";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { callAPI } from "@/utils/API/callAPI";
+import { getReviewerDropdownData } from "@/utils/commonDropdownApiCall";
 
 const Reviewer = ({
   selectedRowIds,
   getWorkItemList,
-  reviewerDropdownData,
+  selectedRowClientId,
+  selectedRowWorkTypeId,
+  areAllValuesSame,
   getOverLay,
 }: any) => {
   const [reviewerSearchQuery, setReviewerSearchQuery] = useState("");
+  const [reviewer, setReviewer] = useState<any | any[]>([]);
 
   const [anchorElReviewer, setAnchorElReviewer] =
     React.useState<HTMLButtonElement | null>(null);
 
   const handleClickReviewer = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorElReviewer(event.currentTarget);
+    if (
+      selectedRowClientId.length > 0 &&
+      selectedRowWorkTypeId.length > 0 &&
+      areAllValuesSame(selectedRowClientId) &&
+      areAllValuesSame(selectedRowWorkTypeId)
+    ) {
+      const getReviewer = async () => {
+        setReviewer(
+          await getReviewerDropdownData(
+            selectedRowClientId,
+            selectedRowWorkTypeId[0]
+          )
+        );
+      };
+
+      getReviewer();
+    } else {
+      setReviewer([]);
+    }
   };
 
   const handleCloseReviewer = () => {
@@ -32,7 +55,7 @@ const Reviewer = ({
     setReviewerSearchQuery(event.target.value);
   };
 
-  const filteredReviewer = reviewerDropdownData?.filter((Reviewer: any) =>
+  const filteredReviewer = reviewer?.filter((Reviewer: any) =>
     Reviewer.label.toLowerCase().includes(reviewerSearchQuery.toLowerCase())
   );
 
@@ -110,7 +133,7 @@ const Reviewer = ({
             </div>
           </div>
           <List>
-            {reviewerDropdownData?.length === 0 ? (
+            {reviewer?.length === 0 ? (
               <span className="flex flex-col py-2 px-4  text-sm">
                 No Data Available
               </span>

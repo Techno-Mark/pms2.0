@@ -26,7 +26,7 @@ import IdleTimer from "@/components/common/IdleTimer";
 import Loading from "@/assets/icons/reports/Loading";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { callAPI } from "@/utils/API/callAPI";
-import TaskEditDrawer from "@/components/worklogs/HalfDay/TaskEditDrawer";
+import TaskEditDrawer from "@/components/worklogs/TaskEditDrawer";
 import TimelineFilterDialog from "@/components/worklogs/HalfDay/TimelineFilterDialog";
 import TimelineHalfDay from "@/components/worklogs/HalfDay/TimelineHalfDay";
 import UnassigneeFilterDialog from "@/components/worklogs/Unassignee/UnassigneeFilterDialog";
@@ -68,6 +68,8 @@ const Page = () => {
   const [isLoadingWorklogsDatatable, setIsLoadingWorklogsDatatable] =
     useState(false);
   const [timeValue, setTimeValue] = useState(null);
+  const [todayTimeValue, setTodayTimeValue] = useState(null);
+  const [breakTimeValue, setBreakTimeValue] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEdit, setHasEdit] = useState(0);
@@ -401,11 +403,18 @@ const Page = () => {
               )}
           </div>
           <div className="flex items-center justify-center gap-[10px]">
-            {(isTaskClicked || isTimelineClicked) && (
-              <span className="text-secondary font-light text-[14px]">
-                Total time: {timeValue}
-              </span>
-            )}
+            <div className="flex flex-col items-end justify-center">
+              {(isTaskClicked || isTimelineClicked) && (
+                <span className="text-secondary font-light text-[14px]">
+                  Total time: {timeValue}
+                </span>
+              )}
+              {isTaskClicked && (
+                <span className="text-secondary font-light text-[14px]">
+                  Today&apos;s time: {todayTimeValue}
+                </span>
+              )}
+            </div>
             <div className="relative">
               <InputBase
                 className="pl-1 pr-7 border-b border-b-lightSilver w-48"
@@ -584,7 +593,9 @@ const Page = () => {
                           toast.error("User not have permission to Break Task")
                   }
                 >
-                  <span className="text-white font-light">{timer}</span>
+                  <span className="text-white font-light">
+                    {breakTimeValue}
+                  </span>
                   <span className="text-white font-light -mt-2">
                     {breakId === 0 ? "Break" : "Stop break"}
                   </span>
@@ -640,7 +651,9 @@ const Page = () => {
             onHandleExport={handleCanExport}
             isTaskClicked={isTaskClicked}
             isUnassigneeClicked={isUnassigneeClicked}
-            onChangeLoader={(e: any) => setTimeValue(e)}
+            onChangeTimeLoader={(e: any) => setTimeValue(e)}
+            onChangeTodayTimeLoader={(e: any) => setTodayTimeValue(e)}
+            onChangeBreakTimeLoader={(e: any) => setBreakTimeValue(e)}
             setLoading={isLoadingWorklogsDatatable}
           />
         )}
@@ -664,7 +677,7 @@ const Page = () => {
           <TimelineDatatable
             currentFilterData={currentFilterData}
             onDataFetch={handleDataFetch}
-            searchValue={globalSearchValue}
+            searchValue={globalSearchValue.trim()}
             onHandleExport={handleCanExport}
             onChangeLoader={(e: any) => setTimeValue(e)}
           />

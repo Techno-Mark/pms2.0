@@ -26,6 +26,7 @@ import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { getFormattedDate } from "@/utils/timerFunctions";
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -789,23 +790,14 @@ const ClientContent = forwardRef<
               isAdditionalFieldsClicked,
               dateOfImplementation !== null &&
                 dateOfImplementation.toString().trim().length > 0
-                ? new Date(
-                    new Date(dateOfImplementation).getTime() +
-                      24 * 60 * 60 * 1000
-                  )
-                    .toISOString()
-                    .split("T")[0]
+                ? getFormattedDate(dateOfImplementation)
                 : null
             ),
             AgreementStartDate: getFieldValue(
               isAdditionalFieldsClicked,
               agreementStartDate !== null &&
                 agreementStartDate.toString().trim().length > 0
-                ? new Date(
-                    new Date(agreementStartDate).getTime() + 24 * 60 * 60 * 1000
-                  )
-                    .toISOString()
-                    .split("T")[0]
+                ? getFormattedDate(agreementStartDate)
                 : null
             ),
             FteAgreementTax: getFieldValue(

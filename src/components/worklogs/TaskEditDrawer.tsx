@@ -18,6 +18,7 @@ import { callAPI } from "@/utils/API/callAPI";
 import {
   getAssigneeDropdownData,
   getClientDropdownData,
+  getDepartmentDropdownData,
   getManagerDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
@@ -58,9 +59,7 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
   const [clientNameWorklogs, setClientNameWorklogs] = useState<any>(0);
   const [typeOfWorkWorklogsDropdownData, setTypeOfWorkWorklogsDropdownData] =
     useState<any>([]);
-  const [typeOfWorkWorklogs, setTypeOfWorkWorklogs] = useState<string | number>(
-    0
-  );
+  const [typeOfWorkWorklogs, setTypeOfWorkWorklogs] = useState<any>(0);
   const [projectWorklogsDropdownData, setProjectWorklogsDropdownData] =
     useState<any>([]);
   const [projectNameWorklogs, setProjectNameWorklogs] = useState<any>(0);
@@ -75,8 +74,9 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
   const [managerWorklogsDropdownData, setManagerWorklogsDropdownData] =
     useState<any>([]);
   const [managerWorklogs, setManagerWorklogs] = useState<any>(0);
-  const [statusWorklogsDropdownData, setStatusWorklogsDropdownData] =
-    useState<any>([]);
+  const [statusWorklogsDropdownData, setStatusWorklogsDropdownData] = useState(
+    []
+  );
   const [statusWorklogsDropdownDataUse, setStatusWorklogsDropdownDataUse] =
     useState([]);
   const [statusWorklogs, setStatusWorklogs] = useState<any>(0);
@@ -92,6 +92,9 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
   const [assigneeWorklogsDisable, setAssigneeWorklogsDisable] =
     useState<any>(true);
   const [reviewerWorklogsDropdownData, setReviewerWorklogsDropdownData] =
+    useState([]);
+  const [departmentWorklogs, setDepartmentWorklogs] = useState(0);
+  const [departmentWorklogsDropdownData, setDepartmentWorklogsDropdownData] =
     useState([]);
   const [reviewerWorklogs, setReviewerWorklogs] = useState<any>([]);
   const [dateOfReviewWorklogs, setDateOfReviewWorklogs] = useState<string>("");
@@ -110,9 +113,7 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
   const [clientNameWorklogsEdit, setClientNameWorklogsEdit] = useState<any>(0);
   const [clientNameWorklogsEditErr, setClientNameWorklogsEditErr] =
     useState(false);
-  const [typeOfWorkWorklogsEdit, setTypeOfWorkWorklogsEdit] = useState<
-    string | number
-  >(0);
+  const [typeOfWorkWorklogsEdit, setTypeOfWorkWorklogsEdit] = useState<any>(0);
   const [typeOfWorkWorklogsEditErr, setTypeOfWorkWorklogsEditErr] =
     useState(false);
   const [
@@ -172,6 +173,13 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
     reviewerWorklogsDropdownDataEdit,
     setReviewerWorklogsDropdownDataEdit,
   ] = useState([]);
+  const [departmentWorklogsEdit, setDepartmentWorklogsEdit] = useState(0);
+  const [departmentWorklogsEditErr, setDepartmentWorklogsEditErr] =
+    useState(false);
+  const [
+    departmentWorklogsDropdownDataEdit,
+    setDepartmentWorklogsDropdownDataEdit,
+  ] = useState([]);
   const [estTimeDataWorklogsEdit, setEstTimeDataWorklogsEdit] = useState([]);
   const [returnYearWorklogsEdit, setReturnYearWorklogsEdit] = useState<
     string | number
@@ -185,6 +193,8 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
     checklistWorkpaperWorklogsEditErr,
     setChecklistWorkpaperWorklogsEditErr,
   ] = useState(false);
+  const [errorlogSignedOffPending, setErrorlogSignedOffPending] =
+    useState(false);
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -214,6 +224,7 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
       dueDate: validateField(dueDateWorklogsEdit),
       assignee: validateField(assigneeWorklogsEdit),
       reviewer: validateField(reviewerWorklogsEdit),
+      department: validateField(departmentWorklogsEdit),
       manager: validateField(managerWorklogsEdit),
       returnYear:
         typeOfWorkWorklogsEdit === 3 && validateField(returnYearWorklogsEdit),
@@ -234,6 +245,7 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
     assigneeWorklogsDisable &&
       setAssigneeWorklogsEditErr(fieldValidationsEdit.assignee);
     setReviewerWorklogsEditErr(fieldValidationsEdit.reviewer);
+    setDepartmentWorklogsEditErr(fieldValidationsEdit.department);
     setManagerWorklogsEditErr(fieldValidationsEdit.manager);
     typeOfWorkWorklogsEdit === 3 &&
       setReturnYearWorklogsEditErr(fieldValidationsEdit.returnYear);
@@ -278,6 +290,7 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
         allInfoDateWorklogsEdit === "" ? null : allInfoDateWorklogsEdit,
       AssignedId: assigneeWorklogsEdit,
       ReviewerId: reviewerWorklogsEdit,
+      DepartmentId: departmentWorklogsEdit,
       managerId: managerWorklogsEdit,
       TaxReturnType: null,
       TaxCustomFields:
@@ -375,70 +388,80 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
       if (ResponseStatus === "Success" && error === false) {
         setEditDataWorklogs(ResponseData);
         setClientNameWorklogs(ResponseData.ClientId);
+        setClientNameWorklogsEdit(ResponseData.ClientId);
         setTypeOfWorkWorklogs(ResponseData.WorkTypeId);
+        setTypeOfWorkWorklogsEdit(ResponseData.WorkTypeId);
         setProjectNameWorklogs(
+          ResponseData.ProjectId === null ? "" : ResponseData.ProjectId
+        );
+        setProjectNameWorklogsEdit(
           ResponseData.ProjectId === null ? "" : ResponseData.ProjectId
         );
         setProcessNameWorklogs(
           ResponseData.ProcessId === null ? "" : ResponseData.ProcessId
         );
+        setProcessNameWorklogsEdit(
+          ResponseData.ProcessId === null ? "" : ResponseData.ProcessId
+        );
         setSubProcessWorklogs(
+          ResponseData.SubProcessId === null ? "" : ResponseData.SubProcessId
+        );
+        setSubProcessWorklogsEdit(
           ResponseData.SubProcessId === null ? "" : ResponseData.SubProcessId
         );
         setClientTaskNameWorklogs(
           ResponseData.TaskName === null ? "" : ResponseData.TaskName
         );
+        setClientTaskNameWorklogsEdit(
+          ResponseData.TaskName === null ? "" : ResponseData.TaskName
+        );
         setStatusWorklogs(ResponseData.StatusId);
+        setStatusWorklogsEdit(ResponseData.StatusId);
         setAllInfoDateWorklogs(
           ResponseData.AllInfoDate === null ? "" : ResponseData.AllInfoDate
         );
-        !ResponseData.ErrorlogSignedOffPending
-          ? setStatusWorklogsDropdownDataUse(
-              statusWorklogsDropdownData.filter(
-                (item: any) =>
-                  item.Type === "PendingFromAccounting" ||
-                  item.Type === "Assigned" ||
-                  item.Type === "OnHoldFromClient" ||
-                  item.Type === "WithDraw" ||
-                  item.Type === "WithdrawnbyClient" ||
-                  item.Type === "NotStarted" ||
-                  item.Type === "InProgress" ||
-                  item.Type === "Stop" ||
-                  item.Type === "Rework" ||
-                  item.value == ResponseData.StatusId
-              )
-            )
-          : setStatusWorklogsDropdownDataUse(
-              statusWorklogsDropdownData.filter(
-                (item: any) =>
-                  item.Type === "PendingFromAccounting" ||
-                  item.Type === "Assigned" ||
-                  item.Type === "OnHoldFromClient" ||
-                  item.Type === "WithDraw" ||
-                  item.Type === "WithdrawnbyClient" ||
-                  item.Type === "Rework" ||
-                  item.Type === "ReworkInProgress" ||
-                  item.Type === "ReworkPrepCompleted" ||
-                  item.value === ResponseData.StatusId
-              )
-            );
+        setAllInfoDateWorklogsEdit(
+          ResponseData.AllInfoDate === null ? "" : ResponseData.AllInfoDate
+        );
+        setErrorlogSignedOffPending(ResponseData.ErrorlogSignedOffPending);
         setPriorityWorklogs(
           ResponseData.Priority === null ? 0 : ResponseData.Priority
         );
+        setPriorityWorklogsEdit(
+          ResponseData.Priority === null ? 0 : ResponseData.Priority
+        );
         setQuantityWorklogs(ResponseData.Quantity);
+        setQuantityWorklogsEdit(ResponseData.Quantity);
         setDescriptionWorklogs(
           ResponseData.Description === null ? "" : ResponseData.Description
         );
+        setDescriptionWorklogsEdit(
+          ResponseData.Description === null ? "" : ResponseData.Description
+        );
         setReceiverDateWorklogs(ResponseData.ReceiverDate);
+        setReceiverDateWorklogsEdit(ResponseData.ReceiverDate);
         setDueDateWorklogs(ResponseData.DueDate);
+        setDueDateWorklogsEdit(ResponseData.DueDate);
         setDateOfReviewWorklogs(ResponseData.ReviewerDate);
         setDateOfPreperationWorklogs(ResponseData.PreparationDate);
         setAssigneeWorklogs(ResponseData.AssignedId);
+        setAssigneeWorklogsEdit(ResponseData.AssignedId);
+        setDepartmentWorklogs(ResponseData.DepartmentId);
+        setDepartmentWorklogsEdit(ResponseData.DepartmentId);
         setReviewerWorklogs(ResponseData.ReviewerId);
+        setReviewerWorklogsEdit(ResponseData.ReviewerId);
         setManagerWorklogs(
           ResponseData.ManagerId === null ? 0 : ResponseData.ManagerId
         );
+        setManagerWorklogsEdit(
+          ResponseData.ManagerId === null ? 0 : ResponseData.ManagerId
+        );
         setReturnYearWorklogs(
+          ResponseData.TypeOfReturnId === 0
+            ? null
+            : ResponseData.TaxCustomFields.ReturnYear
+        );
+        setReturnYearWorklogsEdit(
           ResponseData.TypeOfReturnId === 0
             ? null
             : ResponseData.TaxCustomFields.ReturnYear
@@ -448,7 +471,19 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
             ? null
             : ResponseData.TaxCustomFields.NoOfPages
         );
+        setNoOfPagesWorklogsEdit(
+          ResponseData.TypeOfReturnId === 0
+            ? null
+            : ResponseData.TaxCustomFields.NoOfPages
+        );
         setChecklistWorkpaperWorklogs(
+          ResponseData.ChecklistWorkpaper === true
+            ? 1
+            : ResponseData.ChecklistWorkpaper === false
+            ? 2
+            : 0
+        );
+        setChecklistWorkpaperWorklogsEdit(
           ResponseData.ChecklistWorkpaper === true
             ? 1
             : ResponseData.ChecklistWorkpaper === false
@@ -462,12 +497,19 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
 
   useEffect(() => {
     const getData = async () => {
-      const statusData = await getStatusDropdownData();
+      await getEditDataWorklogs();
+    };
+    getData();
+  }, [onEdit, onOpen]);
+
+  useEffect(() => {
+    const getData = async () => {
+      const statusData =
+        typeOfWorkWorklogs > 0 &&
+        (await getStatusDropdownData(typeOfWorkWorklogs));
       onOpen &&
-        statusWorklogsDropdownData.length === 0 &&
-        (await setStatusWorklogsDropdownData(statusData));
-      onOpen &&
-        statusWorklogsDropdownData.length === 0 &&
+        onEdit === 0 &&
+        statusWorklogsDropdownDataUse.length === 0 &&
         (await setStatusWorklogsDropdownDataUse(
           statusData.filter(
             (item: any) =>
@@ -479,6 +521,7 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient" ||
+              (typeOfWorkWorklogs !== 3 && item.Type === "PartialSubmitted") ||
               (onEdit > 0 &&
                 (item.Type === "Rework" ||
                   item.Type === "ReworkInProgress" ||
@@ -486,16 +529,86 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
           )
         ));
       onOpen &&
-        onEdit === 0 &&
-        setStatusWorklogs(
-          statusWorklogsDropdownData
-            .map((i: any) => (i.Type === "NotStarted" ? i.value : undefined))
-            .filter((i: any) => i !== undefined)[0]
+        onEdit > 0 &&
+        statusWorklogsDropdownDataUse.length === 0 &&
+        !errorlogSignedOffPending &&
+        setStatusWorklogsDropdownDataUse(
+          statusData.filter(
+            (item: any) =>
+              item.Type === "PendingFromAccounting" ||
+              item.Type === "Assigned" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient" ||
+              item.Type === "NotStarted" ||
+              item.Type === "InProgress" ||
+              item.Type === "Stop" ||
+              item.Type === "Rework" ||
+              (typeOfWorkWorklogs !== 3 && item.Type === "PartialSubmitted") ||
+              item.value === statusWorklogs
+          )
         );
-      statusWorklogsDropdownData.length > 0 && (await getEditDataWorklogs());
+      onOpen &&
+        onEdit > 0 &&
+        statusWorklogsDropdownDataUse.length === 0 &&
+        errorlogSignedOffPending &&
+        setStatusWorklogsDropdownDataUse(
+          statusData.filter(
+            (item: any) =>
+              item.Type === "PendingFromAccounting" ||
+              item.Type === "PartialSubmitted" ||
+              item.Type === "Assigned" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient" ||
+              item.Type === "Rework" ||
+              item.Type === "ReworkInProgress" ||
+              item.Type === "ReworkPrepCompleted" ||
+              (typeOfWorkWorklogs !== 3 && item.Type === "PartialSubmitted") ||
+              item.value === statusWorklogs
+          )
+        );
     };
     getData();
-  }, [onEdit, onOpen, statusWorklogsDropdownData]);
+  }, [onOpen, typeOfWorkWorklogs]);
+
+  useEffect(() => {
+    const getData = async () => {
+      const statusData =
+        typeOfWorkWorklogsEdit > 0 &&
+        (await getStatusDropdownData(typeOfWorkWorklogsEdit));
+      typeOfWorkWorklogsEdit > 0 &&
+        (await setStatusWorklogsDropdownData(statusData));
+    };
+    getData();
+  }, [onOpen, typeOfWorkWorklogsEdit]);
+
+  useEffect(() => {
+    const getData = async () => {
+      const departmentData = await getDepartmentDropdownData(assigneeWorklogs);
+      departmentData.DepartmentList.length > 0 &&
+        setDepartmentWorklogsDropdownData(departmentData.DepartmentList);
+    };
+
+    assigneeWorklogs > 0 && getData();
+  }, [assigneeWorklogs]);
+
+  useEffect(() => {
+    const getData = async () => {
+      const departmentDataEdit = await getDepartmentDropdownData(
+        assigneeWorklogsEdit
+      );
+      departmentDataEdit.DepartmentList.length > 0 &&
+        setDepartmentWorklogsDropdownDataEdit(
+          departmentDataEdit.DepartmentList
+        );
+      departmentDataEdit.DefaultId > 0 &&
+        departmentDataEdit <= 0 &&
+        setDepartmentWorklogsEdit(departmentDataEdit.DefaultId);
+    };
+
+    assigneeWorklogsEdit > 0 && getData();
+  }, [assigneeWorklogsEdit]);
 
   useEffect(() => {
     const getData = async () => {
@@ -518,20 +631,6 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
             ? 2
             : 0
         );
-      const projectData: any =
-        clientNameWorklogs > 0 &&
-        (await getProjectDropdownData(clientNameWorklogs));
-      projectData.length > 0 && setProjectWorklogsDropdownData(projectData);
-      projectData.length > 0 &&
-        projectData.length === 1 &&
-        onEdit === 0 &&
-        setProjectNameWorklogs(projectData.map((i: any) => i.value)[0]);
-      const processData: any =
-        clientNameWorklogs > 0 &&
-        (await getProcessDropdownData(clientNameWorklogs));
-      setProcessWorklogsDropdownData(
-        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
-      );
     };
 
     onOpen && getData();
@@ -539,10 +638,29 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
 
   useEffect(() => {
     const getData = async () => {
+      const projectData: any =
+        clientNameWorklogs > 0 &&
+        typeOfWorkWorklogs > 0 &&
+        (await getProjectDropdownData(clientNameWorklogs, typeOfWorkWorklogs));
+      projectData.length > 0 && setProjectWorklogsDropdownData(projectData);
+      projectData.length > 0 &&
+        projectData.length === 1 &&
+        onEdit === 0 &&
+        setProjectNameWorklogs(projectData.map((i: any) => i.value)[0]);
+
+      const processData: any =
+        clientNameWorklogs > 0 &&
+        typeOfWorkWorklogs > 0 &&
+        (await getProcessDropdownData(clientNameWorklogs, typeOfWorkWorklogs));
+      setProcessWorklogsDropdownData(
+        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
+      );
+
       const data: any =
         processNameWorklogs !== 0 &&
         (await getSubProcessDropdownData(
           clientNameWorklogs,
+          typeOfWorkWorklogs,
           processNameWorklogs
         ));
       data.length > 0 && setEstTimeDataWorklogs(data);
@@ -553,7 +671,7 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
     };
 
     getData();
-  }, [processNameWorklogs]);
+  }, [processNameWorklogs, typeOfWorkWorklogs]);
 
   useEffect(() => {
     const getData = async () => {
@@ -581,16 +699,6 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
         (await getTypeOfWorkDropdownData(clientNameWorklogsEdit));
       workTypeData.length > 0 &&
         setTypeOfWorkWorklogsDropdownDataEdit(workTypeData);
-      const projectData: any =
-        clientNameWorklogsEdit > 0 &&
-        (await getProjectDropdownData(clientNameWorklogsEdit));
-      projectData.length > 0 && setProjectWorklogsDropdownDataEdit(projectData);
-      const processData: any =
-        clientNameWorklogsEdit > 0 &&
-        (await getProcessDropdownData(clientNameWorklogsEdit));
-      setProcessWorklogsDropdownDataEdit(
-        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
-      );
     };
 
     onOpen && getData();
@@ -598,10 +706,31 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
 
   useEffect(() => {
     const getData = async () => {
+      const projectData: any =
+        clientNameWorklogsEdit > 0 &&
+        typeOfWorkWorklogsEdit > 0 &&
+        (await getProjectDropdownData(
+          clientNameWorklogsEdit,
+          typeOfWorkWorklogsEdit
+        ));
+      projectData.length > 0 && setProjectWorklogsDropdownDataEdit(projectData);
+
+      const processData: any =
+        clientNameWorklogsEdit > 0 &&
+        typeOfWorkWorklogsEdit > 0 &&
+        (await getProcessDropdownData(
+          clientNameWorklogsEdit,
+          typeOfWorkWorklogsEdit
+        ));
+      setProcessWorklogsDropdownDataEdit(
+        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
+      );
+
       const data: any =
         processNameWorklogsEdit !== 0 &&
         (await getSubProcessDropdownData(
           clientNameWorklogsEdit,
+          typeOfWorkWorklogsEdit,
           processNameWorklogsEdit
         ));
       data.length > 0 && setEstTimeDataWorklogsEdit(data);
@@ -612,7 +741,7 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
     };
 
     getData();
-  }, [processNameWorklogsEdit]);
+  }, [processNameWorklogsEdit, typeOfWorkWorklogsEdit]);
 
   useEffect(() => {
     const getData = async () => {
@@ -672,6 +801,7 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
     setAssigneeWorklogs(0);
     setAssigneeWorklogsDisable(true);
     setReviewerWorklogs(0);
+    setDepartmentWorklogs(0);
     setDateOfReviewWorklogs("");
     setDateOfPreperationWorklogs("");
     setEstTimeDataWorklogs([]);
@@ -707,6 +837,8 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
     setAssigneeWorklogsEditErr(false);
     setReviewerWorklogsEdit(0);
     setReviewerWorklogsEditErr(false);
+    setDepartmentWorklogsEdit(0);
+    setDepartmentWorklogsEditErr(false);
     setEstTimeDataWorklogsEdit([]);
     setReturnYearWorklogsEdit(0);
     setReturnYearWorklogsEditErr(false);
@@ -1250,6 +1382,40 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                     <Autocomplete
                       disablePortal
                       id="combo-box-demo"
+                      options={departmentWorklogsDropdownData}
+                      disabled
+                      value={
+                        departmentWorklogsDropdownData.find(
+                          (i: any) => i.value === departmentWorklogs
+                        ) || null
+                      }
+                      sx={{
+                        width: 300,
+                        mt: typeOfWorkWorklogs === 3 ? 0.2 : -1,
+                        mx: 0.75,
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="standard"
+                          label={
+                            <span>
+                              Department
+                              <span className="text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={3}
+                    className={`${typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"}`}
+                  >
+                    <Autocomplete
+                      disablePortal
+                      id="combo-box-demo"
                       options={managerWorklogsDropdownData}
                       disabled
                       value={
@@ -1317,15 +1483,6 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                           margin="normal"
                           variant="standard"
                           sx={{ width: 300, mt: 0, mx: 0.75 }}
-                          onFocus={(e) =>
-                            e.target.addEventListener(
-                              "wheel",
-                              function (e) {
-                                e.preventDefault();
-                              },
-                              { passive: false }
-                            )
-                          }
                         />
                       </Grid>
                       <Grid item xs={3} className="pt-4">
@@ -1465,24 +1622,19 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                           setTypeOfWorkWorklogsEditErr(false);
                           setProjectNameWorklogsEdit(0);
                           setProjectNameWorklogsEditErr(false);
+                          setStatusWorklogsEdit(0);
+                          setStatusWorklogsEditErr(false);
                           setProcessNameWorklogsEdit(0);
                           setProcessNameWorklogsEditErr(false);
                           setSubProcessWorklogsEdit(0);
                           setSubProcessWorklogsEditErr(false);
-                          setDescriptionWorklogsEdit("");
-                          setManagerWorklogsEdit(0);
-                          setManagerWorklogsEditErr(false);
-                          setPriorityWorklogsEdit(0);
-                          setQuantityWorklogsEdit(1);
-                          setQuantityWorklogsEditErr(false);
-                          setReceiverDateWorklogsEdit("");
-                          setReceiverDateWorklogsEditErr(false);
-                          setDueDateWorklogsEdit("");
                           assigneeWorklogsDisable && setAssigneeWorklogsEdit(0);
                           assigneeWorklogsDisable &&
                             setAssigneeWorklogsEditErr(false);
                           setReviewerWorklogsEdit(0);
                           setReviewerWorklogsEditErr(false);
+                          setDepartmentWorklogsEdit(0);
+                          setDepartmentWorklogsEditErr(false);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -1533,6 +1685,16 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                               setAssigneeWorklogsEdit(0);
                             setReviewerWorklogsEdit(0);
                             setTypeOfWorkWorklogsEdit(e.target.value);
+                            setProjectNameWorklogsEdit(0);
+                            setProjectNameWorklogsEditErr(false);
+                            setProcessNameWorklogsEdit(0);
+                            setProcessNameWorklogsEditErr(false);
+                            setSubProcessWorklogsEdit(0);
+                            setSubProcessWorklogsEditErr(false);
+                            setStatusWorklogsEdit(0);
+                            setStatusWorklogsEditErr(false);
+                            setDepartmentWorklogsEdit(0);
+                            setDepartmentWorklogsEditErr(false);
                           }}
                           onBlur={(e: any) => {
                             if (e.target.value > 0) {
@@ -1597,9 +1759,9 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                     <Grid item xs={3} className="pt-4">
                       <Autocomplete
                         id="combo-box-demo"
-                        options={statusWorklogsDropdownDataUse}
+                        options={statusWorklogsDropdownData}
                         value={
-                          statusWorklogsDropdownDataUse.find(
+                          statusWorklogsDropdownData.find(
                             (i: any) => i.value === statusWorklogsEdit
                           ) || null
                         }
@@ -2058,6 +2220,8 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                         }
                         onChange={(e, value: any) => {
                           value && setAssigneeWorklogsEdit(value.value);
+                          setDepartmentWorklogsEdit(0);
+                          setDepartmentWorklogsEditErr(false);
                         }}
                         sx={{ width: 300, mt: -1, mx: 0.75 }}
                         renderInput={(params) => (
@@ -2127,6 +2291,55 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                             }}
                             helperText={
                               reviewerWorklogsEditErr
+                                ? "This is a required field."
+                                : ""
+                            }
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid
+                      item
+                      xs={3}
+                      className={`${
+                        typeOfWorkWorklogsEdit === 3 ? "pt-4" : "pt-5"
+                      }`}
+                    >
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={departmentWorklogsDropdownDataEdit}
+                        value={
+                          departmentWorklogsDropdownDataEdit.find(
+                            (i: any) => i.value === departmentWorklogsEdit
+                          ) || null
+                        }
+                        onChange={(e, value: any) => {
+                          value && setDepartmentWorklogsEdit(value.value);
+                        }}
+                        sx={{
+                          width: 300,
+                          mt: typeOfWorkWorklogsEdit === 3 ? 0.2 : -1,
+                          mx: 0.75,
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Department
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={departmentWorklogsEditErr}
+                            onBlur={(e) => {
+                              if (departmentWorklogs > 0) {
+                                setDepartmentWorklogsEditErr(false);
+                              }
+                            }}
+                            helperText={
+                              departmentWorklogsEditErr
                                 ? "This is a required field."
                                 : ""
                             }
@@ -2243,15 +2456,6 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                             margin="normal"
                             variant="standard"
                             sx={{ width: 300, mt: 0, mx: 0.75 }}
-                            onFocus={(e) =>
-                              e.target.addEventListener(
-                                "wheel",
-                                function (e) {
-                                  e.preventDefault();
-                                },
-                                { passive: false }
-                              )
-                            }
                           />
                         </Grid>
                         <Grid item xs={3} className="pt-4">

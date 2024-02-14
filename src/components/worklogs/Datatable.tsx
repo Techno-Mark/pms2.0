@@ -73,7 +73,9 @@ const Datatable = ({
   onComment,
   searchValue,
   isUnassigneeClicked,
-  onChangeLoader,
+  onChangeTimeLoader,
+  onChangeTodayTimeLoader,
+  onChangeBreakTimeLoader,
   setLoading,
 }: any) => {
   const [isLoadingWorklogsDatatable, setIsLoadingWorklogsDatatable] =
@@ -266,6 +268,7 @@ const Datatable = ({
   };
 
   const handleSync = async (selectedRowId: number) => {
+    setIsLoadingWorklogsDatatable(true);
     const params = {
       workitemId: selectedRowId,
     };
@@ -390,7 +393,9 @@ const Datatable = ({
       ResponseStatus: any
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        onChangeLoader(ResponseData.TotalTime);
+        onChangeTimeLoader(ResponseData.TotalTime);
+        onChangeTodayTimeLoader(ResponseData.TodaysTime);
+        onChangeBreakTimeLoader(ResponseData.BreakTime);
         onHandleExport(ResponseData.List.length > 0 ? true : false);
         setLoaded(true);
         setWorkItemData(ResponseData.List);
@@ -585,6 +590,11 @@ const Datatable = ({
     {
       name: "AssignedByName",
       label: "Assigned By",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "Description",
+      label: "Description",
       bodyRenderer: generateCommonBodyRender,
     },
     {

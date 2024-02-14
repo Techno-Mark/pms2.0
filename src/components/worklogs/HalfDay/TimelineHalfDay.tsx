@@ -43,7 +43,7 @@ const initialFilter = {
   IsDownload: false,
   PageNo: pageNo,
   PageSize: pageSize,
-  IsDesc: false,
+  IsDesc: true,
   SortColumn: "",
   MonthFilter: null,
   YearFilter: null,
@@ -295,25 +295,23 @@ const TimelineHalfDay: React.FC<HalfDayModalProps> = ({ onOpen, onClose }) => {
           <span className="text-lg font-medium">
             Apply for a Half Day Leave
           </span>
-          <span className="flex items-center justify-center">
-            <ColorToolTip title="Filter" placement="top" arrow>
-              <span
-                className="cursor-pointer"
-                onClick={() => setisFilterOpen(true)}
-              >
-                <FilterIcon />
-              </span>
-            </ColorToolTip>
-            <Tooltip title="Close" placement="top" arrow>
-              <IconButton onClick={handleClose}>
-                <Close />
-              </IconButton>
-            </Tooltip>
-          </span>
+          <Tooltip title="Close" placement="top" arrow>
+            <IconButton onClick={handleClose}>
+              <Close />
+            </IconButton>
+          </Tooltip>
         </DialogTitle>
         <DialogContent>
           <div className="my-4 flex items-end justify-end">
             <div className="flex items-center justify-center">
+              <ColorToolTip title="Filter" placement="top" arrow>
+                <span
+                  className="cursor-pointer mr-4"
+                  onClick={() => setisFilterOpen(true)}
+                >
+                  <FilterIcon />
+                </span>
+              </ColorToolTip>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   label="Date"

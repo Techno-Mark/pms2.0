@@ -1,17 +1,6 @@
 /* eslint-disable react/display-name */
 import { callAPI } from "@/utils/API/callAPI";
-import { Delete, Edit } from "@mui/icons-material";
-import {
-  Autocomplete,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  TextField,
-  createFilterOptions,
-} from "@mui/material";
+import { Autocomplete, Button, TextField } from "@mui/material";
 import React, {
   forwardRef,
   useEffect,
@@ -23,13 +12,6 @@ import { toast } from "react-toastify";
 export interface ProjectContentRef {
   clearAllData: () => void;
 }
-
-type Options = {
-  label: string;
-  value: string;
-};
-
-const filter = createFilterOptions<Options>();
 
 const ProjectContent = forwardRef<
   ProjectContentRef,
@@ -57,7 +39,6 @@ const ProjectContent = forwardRef<
     },
     ref
   ) => {
-    const [textFieldOpen, setTextFieldOpen] = useState(false);
     const [addMoreClicked, setAddMoreClicked] = useState(false);
 
     const [client, setClient] = useState(0);
@@ -72,20 +53,9 @@ const ProjectContent = forwardRef<
     const [subProject, setSubProject] = useState("");
     const [subProjectId, setSubProjectId] = useState(null);
 
-    const [projectValueError, setProjectValueError] = useState(false);
-    const [projectValueErrText, setProjectValueErrText] = useState<string>(
-      "This field is required."
-    );
-    const [projectDrpdown, setProjectDrpdown] = useState([]);
     const [projectValue, setProjectValue] = useState<any>(0);
     const [projectName, setProjectName] = useState("");
     const [projectNameError, setProjectNameError] = useState(false);
-    const [projectNameErrText, setProjectNameErrText] = useState<string>(
-      "This field is required."
-    );
-    const [hoveredItem, setHoveredItem] = useState(null);
-    const [editDialogOpen, setEditDialogOpen] = useState(false);
-    const [open, toggleOpen] = useState(false);
 
     useEffect(() => {
       const getData = async () => {
@@ -128,6 +98,7 @@ const ProjectContent = forwardRef<
                   : ResponseData.WorkTypeIds
               );
               setProjectValue(ResponseData.ProjectId);
+              setProjectName(ResponseData.ProjectName);
               setSubProject(ResponseData.SubProjectName);
               setSubProjectId(ResponseData.SubProjectId);
             }
@@ -165,42 +136,9 @@ const ProjectContent = forwardRef<
       callAPI(url, params, successCallback, "POST");
     };
 
-    const getData = async () => {
-      const params = {
-        ClientId: client,
-        SelectAll: true,
-      };
-      const url = `${process.env.pms_api_url}/project/getdropdown`;
-      const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
-      ) => {
-        if (ResponseStatus === "Success" && error === false) {
-          setProjectDrpdown(ResponseData.List);
-          onEdit == 0 &&
-            setProjectValue(
-              ResponseData.List.length === 1 ? ResponseData.List[0].value : 0
-            );
-          onEdit == 0 &&
-            setProjectValueError(
-              ResponseData.List.length === 1 ? false : false
-            );
-          onEdit > 0 &&
-            setProjectName(
-              ResponseData.List.map((i: any) =>
-                i.value === projectValue ? i.label : false
-              ).filter((j: any) => j !== false)
-            );
-        }
-      };
-      callAPI(url, params, successCallback, "POST");
-    };
-
     useEffect(() => {
       onOpen && client > 0 && getWorktypeData();
-      onOpen && client > 0 && getData();
-    }, [client, onOpen]);
+    }, [client, onOpen, typeOfWorkName]);
 
     const clearAllFields = () => {
       setClient(0);
@@ -210,14 +148,10 @@ const ProjectContent = forwardRef<
       setTypeOfWorks([]);
       setTypeOfWorkNameError(false);
       setSubProject("");
-      setTextFieldOpen(false);
 
       setProjectName("");
       setProjectNameError(false);
-      setProjectNameErrText("");
       setProjectValue(0);
-      setProjectValueError(false);
-      setProjectDrpdown([]);
     };
 
     const clearAllData = async () => {
@@ -235,54 +169,6 @@ const ProjectContent = forwardRef<
 
       client <= 0 && setClientError(true);
       typeOfWorks.length <= 0 && setTypeOfWorkNameError(true);
-      projectValue <= 0 && setProjectValueError(true);
-
-      if (
-        !clientError &&
-        client > 0 &&
-        !typeOfWorkNameError &&
-        typeOfWorkName.length > 0 &&
-        !projectNameError &&
-        projectValue > 0 &&
-        subProject !== null &&
-        subProject.trim().length > 0
-      ) {
-        onChangeLoader(true);
-        const params = {
-          SubProjectId: subProjectId,
-          SubProjectName: subProject.trim(),
-          ProjectId: projectValue,
-          WorkTypeIds: typeOfWorkName,
-        };
-        const url = `${process.env.pms_api_url}/project/savesubproject`;
-        const successCallback = async (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
-        ) => {
-          if (ResponseStatus === "Success" && error === false) {
-            toast.success(
-              `Project ${onEdit ? "Updated" : "created"} successfully.`
-            );
-            await clearAllFields();
-            await onDataFetch();
-            onChangeLoader(false);
-            {
-              !addMoreClicked && onClose();
-            }
-          } else {
-            onChangeLoader(false);
-          }
-        };
-        callAPI(url, params, successCallback, "POST");
-      } else if (client > 0 && typeOfWorks.length > 0 && projectValue > 0) {
-        handleAddProject();
-      }
-    };
-
-    const handleAddProject = async () => {
-      client <= 0 && setClientError(true);
-      typeOfWorks.length <= 0 && setTypeOfWorkNameError(true);
       projectName.toString().trim().length <= 0 && setProjectNameError(true);
 
       if (
@@ -291,7 +177,7 @@ const ProjectContent = forwardRef<
         !typeOfWorkNameError &&
         typeOfWorkName.length > 0 &&
         !projectNameError &&
-        projectName !== ""
+        projectName.trim().length > 0
       ) {
         const params = {
           ClientId: client,
@@ -316,7 +202,6 @@ const ProjectContent = forwardRef<
                   : "Updated"
               } successfully.`
             );
-            handleClose();
             clearAllFields();
             onDataFetch();
             onClose();
@@ -324,45 +209,6 @@ const ProjectContent = forwardRef<
         };
         callAPI(url, params, successCallback, "POST");
       }
-    };
-
-    const handleClose = () => {
-      toggleOpen(false);
-      setEditDialogOpen(false);
-    };
-
-    const handleProjectName = (e: any) => {
-      if (e.target.value === "" || e.target.value.trim().length <= 0) {
-        setProjectName(e.target.value);
-        setProjectNameError(true);
-        setProjectNameErrText("This is required field.");
-      } else {
-        setProjectName(e.target.value);
-        setProjectNameError(false);
-        setProjectNameErrText("This field is required.");
-      }
-    };
-
-    const handleProject = (e: React.SyntheticEvent, value: any) => {
-      if (value !== null) {
-        if (isNaN(parseInt(value.value))) {
-          toggleOpen(true);
-          setProjectName(value.value);
-          setProjectValue(null);
-        }
-        if (value !== null && !isNaN(parseInt(value.value))) {
-          const selectedValue = value.value;
-          setProjectValue(selectedValue);
-          setProjectValueError(false);
-          setProjectValueErrText("");
-        } else {
-          setProjectValue(0);
-        }
-      }
-    };
-
-    const handleValueChange = (isDeleteOpen: any, selectedRowId: boolean) => {
-      onValuesChange(selectedRowId, isDeleteOpen);
     };
 
     return (
@@ -452,95 +298,40 @@ const ProjectContent = forwardRef<
               )}
             />
 
-            <Autocomplete
-              className={`${projectValueError ? "errorAutocomplete" : ""}`}
-              limitTags={2}
-              id="checkboxes-tags-demo"
-              options={projectDrpdown}
-              value={
-                projectValue !== 0
-                  ? projectDrpdown.find(
-                      (option: any) => option.value === projectValue
-                    ) || null
-                  : null
+            <TextField
+              label={
+                <span>
+                  Project
+                  <span className="!text-defaultRed">&nbsp;*</span>
+                </span>
               }
-              getOptionLabel={(option: any) => option.label}
-              onChange={handleProject}
-              filterOptions={(options: any, params: any) => {
-                const filtered = filter(options, params);
-                if (params.inputValue !== "") {
-                  const isExistingProject = options.some(
-                    (option: any) =>
-                      option.label.toLowerCase() ===
-                      params.inputValue.toLowerCase()
-                  );
-
-                  if (!isExistingProject && !onEdit) {
-                    filtered.push({
-                      label: `Add "${params.inputValue}"`,
-                      value: params.inputValue,
-                    });
-                  }
+              fullWidth
+              value={projectName?.trim().length <= 0 ? "" : projectName}
+              onChange={(e) => {
+                setProjectName(e.target.value);
+                setProjectNameError(false);
+              }}
+              onBlur={(e: any) => {
+                if (
+                  e.target.value.trim().length <= 0 ||
+                  e.target.value.trim().length > 50
+                ) {
+                  setProjectNameError(true);
                 }
-
-                return filtered;
               }}
-              renderOption={(props: any, option: any) => {
-                const isItemHovered = option === hoveredItem;
-
-                const handleEditClick = () => {
-                  setProjectName(option.label);
-                  setEditDialogOpen(true);
-                };
-
-                const handleDeleteClick = () => {
-                  handleValueChange(true, option.value);
-                };
-                return (
-                  <li
-                    {...props}
-                    onMouseEnter={() => setHoveredItem(option)}
-                    onMouseLeave={() => setHoveredItem(null)}
-                  >
-                    {option.label}
-                    {isItemHovered && (
-                      <div className="flex justify-center items-center">
-                        <span
-                          className="absolute right-3"
-                          onClick={handleDeleteClick}
-                        >
-                          <Delete />
-                        </span>
-                        <span
-                          className="absolute right-10 pt-1"
-                          onClick={handleEditClick}
-                        >
-                          <Edit />
-                        </span>
-                      </div>
-                    )}
-                  </li>
-                );
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label={
-                    <span>
-                      Project
-                      <span className="text-defaultRed">&nbsp;*</span>
-                    </span>
-                  }
-                  placeholder="Please Select..."
-                  variant="standard"
-                />
-              )}
+              error={projectNameError}
+              helperText={
+                projectNameError && projectName?.trim().length > 50
+                  ? "Maximum 50 characters allowed."
+                  : projectNameError
+                  ? "This is a required field."
+                  : ""
+              }
+              margin="normal"
+              variant="standard"
+              autoComplete="off"
+              sx={{ marginTop: "-3px" }}
             />
-            {projectValueError && (
-              <span className="text-[#D32F2F] text-[12px] -mt-3">
-                {projectValueErrText}
-              </span>
-            )}
 
             {/* {!textFieldOpen && (
               <TextField
@@ -581,48 +372,6 @@ const ProjectContent = forwardRef<
             </Button>
           </div>
         </form>
-        <Dialog open={editDialogOpen || open} onClose={handleClose}>
-          <DialogTitle>
-            {editDialogOpen ? "Edit Project" : "Add a new Project"}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              {editDialogOpen
-                ? "Are you sure you want to update this Project?"
-                : "Are you sure you want to add this Project?"}
-            </DialogContentText>
-            <TextField
-              className="w-full mt-2"
-              value={projectName}
-              error={projectNameError}
-              helperText={projectNameError && projectNameErrText}
-              id="standard-basic"
-              label="Project"
-              placeholder={
-                editDialogOpen ? "Edit a project" : "Add new project"
-              }
-              variant="standard"
-              onChange={handleProjectName}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={handleClose}
-              variant="outlined"
-              className="rounded-[4px] !h-[36px]"
-            >
-              Close
-            </Button>
-            <Button
-              variant="contained"
-              className="rounded-[4px] !h-[36px] !bg-[#0592c6]"
-              type="button"
-              onClick={handleAddProject}
-            >
-              {editDialogOpen ? "Save" : "Add"}
-            </Button>
-          </DialogActions>
-        </Dialog>
       </>
     );
   }

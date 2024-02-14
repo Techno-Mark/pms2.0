@@ -166,6 +166,7 @@ const Page = () => {
     const ClientId = await localStorage.getItem("clientId");
     const params = {
       clientId: ClientId,
+      TypeofWorkId: null,
       isAll: true,
     };
     const url = `${process.env.pms_api_url}/project/getdropdown`;

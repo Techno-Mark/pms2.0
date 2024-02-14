@@ -155,7 +155,10 @@ export const getTypeOfWorkDropdownData = async (clientId: any) => {
   );
 };
 
-export const getProjectDropdownData = async (clientId: any) => {
+export const getProjectDropdownData = async (
+  clientId: any,
+  WorkTypeId: any
+) => {
   const token = await localStorage.getItem("token");
   const Org_Token = await localStorage.getItem("Org_Token");
   try {
@@ -163,6 +166,7 @@ export const getProjectDropdownData = async (clientId: any) => {
       `${process.env.pms_api_url}/project/getdropdown`,
       {
         clientId: clientId,
+        TypeofWorkId: WorkTypeId,
       },
       {
         headers: {
@@ -188,27 +192,36 @@ export const getProjectDropdownData = async (clientId: any) => {
   }
 };
 
-export const getProcessDropdownData = async (clientId: any) => {
+export const getProcessDropdownData = async (
+  clientId: any,
+  WorkTypeId: any
+) => {
   return await postApiFunction(
     `${process.env.pms_api_url}/Process/GetDropdownByClient`,
     {
       clientId: clientId,
+      WorkTypeId: WorkTypeId,
     }
   );
 };
 
-export const getStatusDropdownData = async () => {
-  return await getApiFunction(`${process.env.pms_api_url}/status/GetDropdown`);
+export const getStatusDropdownData = async (WorkTypeId: any) => {
+  return await postApiFunction(
+    `${process.env.pms_api_url}/status/GetDropdown`,
+    { WorkTypeId: WorkTypeId }
+  );
 };
 
 export const getSubProcessDropdownData = async (
   clientId: any,
+  WorkTypeId: any,
   processId: any
 ) => {
   return await postApiFunction(
     `${process.env.pms_api_url}/Process/GetDropdownByClient`,
     {
       clientId: clientId,
+      WorkTypeId: WorkTypeId,
       processId: processId,
     }
   );
@@ -224,6 +237,15 @@ export const getAssigneeDropdownData = async (
       ClientIds: clientId,
       WorktypeId: workTypeId,
       IsAll: clientId.length > 1 ? true : false,
+    }
+  );
+};
+
+export const getDepartmentDropdownData = async (UserId: any) => {
+  return await postApiFunction(
+    `${process.env.pms_api_url}/department/getdropdownbyuser`,
+    {
+      UserId: UserId,
     }
   );
 };

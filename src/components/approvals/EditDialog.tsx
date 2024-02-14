@@ -148,6 +148,8 @@ const EditDialog: React.FC<EditModalProps> = ({
             setActualTime(formatTime(ResponseData.ActualTime));
             setInitialEditTime(formatTime(ResponseData.ManagerTime));
             setEditTime(formatTime(ResponseData.ManagerTime));
+            setCheckboxClicked(ResponseData.IsPercent);
+            setPercentage(ResponseData.Percentage);
           }
         };
         callAPI(url, params, successCallback, "POST");
@@ -162,12 +164,15 @@ const EditDialog: React.FC<EditModalProps> = ({
     const convertedEditTime =
       parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
 
-    getOverLay(true);
+    // getOverLay(true);
     const params = {
       WorkItemId: onSelectWorkItemId,
       managerTime: convertedEditTime,
       SubmissionId: onSelectedSubmissionId,
+      IsPercent: checkboxClicked,
+      Percentage: checkboxClicked ? percentage.toString() : null,
     };
+
     const url = `${process.env.worklog_api_url}/workitem/approval/updateManualTime`;
     const successCallback = (
       ResponseData: any,
@@ -188,7 +193,7 @@ const EditDialog: React.FC<EditModalProps> = ({
   };
 
   const hasEditTimeChanged = () => {
-    return editTime !== initialEditTime;
+    return editTime !== initialEditTime || (checkboxClicked && percentage > 0);
   };
 
   const handleCheckboxChange = (e: any) => {
@@ -201,11 +206,17 @@ const EditDialog: React.FC<EditModalProps> = ({
   };
 
   const handleInputChange = (inputValue: any) => {
-    const digitRegex = /^\d*$/;
-    if (digitRegex.test(inputValue) && inputValue.length <= 2) {
-      setPercentage(inputValue);
-      const total: any = toSeconds(totalTime);
-      setEditTime(toHoursAndMinutes(Math.round((inputValue * total) / 100)));
+    const digitRegex = /^\d*\.?\d*$/;
+
+    if (digitRegex.test(inputValue) && inputValue <= 99.99) {
+      const hasDecimal = inputValue.includes(".");
+      const decimalPart = hasDecimal ? inputValue.split(".")[1] || "" : "";
+
+      if (!hasDecimal || (hasDecimal && decimalPart.length <= 2)) {
+        setPercentage(inputValue);
+        const total: any = toSeconds(totalTime);
+        setEditTime(toHoursAndMinutes(Math.round((inputValue * total) / 100)));
+      }
     }
   };
 
@@ -304,6 +315,8 @@ const EditDialog: React.FC<EditModalProps> = ({
                       { passive: false }
                     )
                   }
+                  autoComplete="off"
+                  inputProps={{ step: "any" }}
                   sx={{ mx: 0.75, maxWidth: 100 }}
                 />
               </FormControl>

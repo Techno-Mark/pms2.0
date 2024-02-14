@@ -10,6 +10,7 @@ const UserPermissionDrawer = ({
   userId,
   roleId,
   onDataFetch,
+  userType,
 }: any) => {
   const [isLoadingUserPermission, setIsLoadingUserPermission] = useState(false);
   const [data, setData] = useState<any>([]);
@@ -222,7 +223,22 @@ const UserPermissionDrawer = ({
               childIndex +
               action.ActionId.toString();
 
-        return (
+        return userType === "Client" ? (
+          action.ActionId !== 12 && (
+            <CheckBox
+              key={uniqueId}
+              label={action.ActionName}
+              type="checkbox"
+              id={uniqueId}
+              checked={action.IsChecked}
+              onChange={() =>
+                parentId === 3 && data.length === 3
+                  ? handleCheckboxChange(2, childIndex, index)
+                  : handleCheckboxChange(parentId, childIndex, index)
+              }
+            />
+          )
+        ) : (
           <CheckBox
             key={uniqueId}
             label={action.ActionName}
