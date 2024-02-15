@@ -113,9 +113,7 @@ const Status = ({
             item.Type === "SecondManagerReview" ||
             item.Type === "OnHoldFromClient" ||
             item.Type === "WithDraw" ||
-            item.Type === "WithdrawnbyClient" ||
-            (Array.from(new Set(selectedRowWorkTypeId))[0] !== 3 &&
-              item.Type === "PartialSubmitted")
+            item.Type === "WithdrawnbyClient"
         )
       );
   };

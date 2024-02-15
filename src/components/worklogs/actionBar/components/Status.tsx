@@ -68,9 +68,7 @@ const Status = ({
                 item.Type === "ReworkSubmitted") ||
             item.Type === "OnHoldFromClient" ||
             item.Type === "WithDraw" ||
-            item.Type === "WithdrawnbyClient" ||
-            (Array.from(new Set(selectedRowWorkTypeId))[0] === 1 &&
-              item.Type === "PartialSubmitted")
+            item.Type === "WithdrawnbyClient"
         )
       );
   };
