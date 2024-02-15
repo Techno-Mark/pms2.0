@@ -2184,6 +2184,7 @@ const EditDrawer = ({
         }
         setEditDataWorklogs(ResponseData);
         setIsCreatedByClientWorklogsDrawer(ResponseData.IsCreatedByClient);
+        setErrorlogSignOffPending(ResponseData.ErrorlogSignedOffPending);
         setIsManual(ResponseData.IsManual);
         setClientNameWorklogs(ResponseData.ClientId);
         setTypeOfWorkWorklogs(ResponseData.WorkTypeId);
@@ -2238,7 +2239,6 @@ const EditDrawer = ({
             ? 2
             : 0
         );
-        setErrorlogSignOffPending(ResponseData.ErrorlogSignedOffPending);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -2284,7 +2284,6 @@ const EditDrawer = ({
         (await setStatusWorklogsDropdownData(statusData));
       onOpen &&
         onEdit === 0 &&
-        statusWorklogsDropdownDataUse.length === 0 &&
         (await setStatusWorklogsDropdownDataUse(
           statusData.filter(
             (item: any) =>
@@ -2303,9 +2302,13 @@ const EditDrawer = ({
                   item.Type === "ReworkPrepCompleted"))
           )
         ));
+
+      const getType = statusData.filter(
+        (item: any) => item.value === editStatusWorklogs
+      )[0].Type;
+
       onOpen &&
         onEdit > 0 &&
-        statusWorklogsDropdownDataUse.length === 0 &&
         !errorlogSignedOffPending &&
         setStatusWorklogsDropdownDataUse(
           statusData.filter(
@@ -2319,19 +2322,20 @@ const EditDrawer = ({
               item.Type === "InProgress" ||
               item.Type === "Stop" ||
               item.Type === "Rework" ||
-              (typeOfWorkWorklogs !== 3 && item.Type === "PartialSubmitted") ||
+              (getType !== "PartialSubmitted" && item.Type === "Submitted") ||
+              (typeOfWorkWorklogs !== 3 &&
+                getType !== "Submitted" &&
+                item.Type === "PartialSubmitted") ||
               item.value === editStatusWorklogs
           )
         );
       onOpen &&
         onEdit > 0 &&
-        statusWorklogsDropdownDataUse.length === 0 &&
         errorlogSignedOffPending &&
         setStatusWorklogsDropdownDataUse(
           statusData.filter(
             (item: any) =>
               item.Type === "PendingFromAccounting" ||
-              item.Type === "PartialSubmitted" ||
               item.Type === "Assigned" ||
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
@@ -2339,7 +2343,11 @@ const EditDrawer = ({
               item.Type === "Rework" ||
               item.Type === "ReworkInProgress" ||
               item.Type === "ReworkPrepCompleted" ||
-              (typeOfWorkWorklogs !== 3 && item.Type === "PartialSubmitted") ||
+              (getType !== "PartialSubmitted" &&
+                item.Type === "ReworkSubmitted") ||
+              (typeOfWorkWorklogs !== 3 &&
+                getType !== "ReworkSubmitted" &&
+                item.Type === "PartialSubmitted") ||
               item.value === editStatusWorklogs
           )
         );

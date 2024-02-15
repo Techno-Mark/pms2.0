@@ -11,8 +11,6 @@ const Reviewer = ({
   selectedWorkItemIds,
   selectedRowClientId,
   selectedRowWorkTypeId,
-  selectedRowStatusId,
-  selectedRowsCount,
   handleClearSelection,
   getReviewList,
   getOverLay,

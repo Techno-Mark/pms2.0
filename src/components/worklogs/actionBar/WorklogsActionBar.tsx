@@ -33,12 +33,10 @@ import Reviewer from "./components/Reviewer";
 
 const WorklogsActionBar = ({
   selectedRowsCount,
-  selectedRowStatusId,
   selectedRowId,
   selectedRowsdata,
   selectedRowClientId,
   selectedRowWorkTypeId,
-  selectedRowStatusName,
   selectedRowIds,
   onEdit,
   handleClearSelection,
@@ -344,7 +342,6 @@ const WorklogsActionBar = ({
     workItemData,
     selectedRowId,
     selectedRowIds,
-    selectedRowStatusId,
     handleClearSelection,
     getWorkItemList,
     selectedRowsCount,
@@ -413,7 +410,6 @@ const WorklogsActionBar = ({
           Component={Priority}
           propsForActionBar={{
             selectedRowIds: selectedRowIds,
-            selectedRowStatusId: selectedRowStatusId,
             selectedRowsCount: selectedRowsCount,
             getData: getWorkItemList,
           }}

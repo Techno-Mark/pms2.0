@@ -99,9 +99,6 @@ const Datatable = ({
   const [stopReviewTimer, setStopReviewTimer] = useState<boolean>(false);
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
   const [reviewList, setReviewList] = useState<any>([]);
-  const [selectedRowStatusId, setSelectedRowStatusId] = useState<
-    any | number[]
-  >([]);
   const [selectedRowClientId, setSelectedRowClientId] = useState<
     any | number[]
   >([]);
@@ -215,12 +212,6 @@ const Datatable = ({
     setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
 
     // adding all selected row's status Ids in an array
-    const selectedWorkItemStatusIds =
-      selectedData.length > 0
-        ? selectedData?.map((selectedRow: any) => selectedRow?.StatusId)
-        : [];
-
-    setSelectedRowStatusId(selectedWorkItemStatusIds);
 
     if (allRowsSelected) {
       setIsPopupOpen(true);
@@ -804,11 +795,16 @@ const Datatable = ({
                 {reviewList[tableMeta.rowIndex].ReviewerId ==
                   localStorage.getItem("UserId") &&
                   reviewList.length > 0 &&
-                  (reviewList[tableMeta.rowIndex].StatusId === 56 ||
-                    reviewList[tableMeta.rowIndex].StatusId === 58 ||
-                    reviewList[tableMeta.rowIndex].StatusId === 59 ||
-                    reviewList[tableMeta.rowIndex].StatusId === 6 ||
-                    reviewList[tableMeta.rowIndex].StatusId === 54) &&
+                  (reviewList[tableMeta.rowIndex].StatusType === "InReview" ||
+                    reviewList[tableMeta.rowIndex].StatusType ===
+                      "ReworkInReview" ||
+                    reviewList[tableMeta.rowIndex].StatusType ===
+                      "PartialSubmitted" ||
+                    reviewList[tableMeta.rowIndex].StatusType ===
+                      "SecondManagerReview" ||
+                    reviewList[tableMeta.rowIndex].StatusType === "Submitted" ||
+                    reviewList[tableMeta.rowIndex].StatusType ===
+                      "ReworkSubmitted") &&
                   reviewList[tableMeta.rowIndex].IsFinalSubmited &&
                   tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
                   tableMeta.rowData[tableMeta.rowData.length - 1] !==
@@ -894,11 +890,16 @@ const Datatable = ({
                       </ColorToolTip>
                     </div>
                   )}
-                {(reviewList[tableMeta.rowIndex].StatusId === 56 ||
-                  reviewList[tableMeta.rowIndex].StatusId === 58 ||
-                  reviewList[tableMeta.rowIndex].StatusId === 59 ||
-                  reviewList[tableMeta.rowIndex].StatusId === 6 ||
-                  reviewList[tableMeta.rowIndex].StatusId === 54) &&
+                {(reviewList[tableMeta.rowIndex].StatusType === "InReview" ||
+                  reviewList[tableMeta.rowIndex].StatusType ===
+                    "ReworkInReview" ||
+                  reviewList[tableMeta.rowIndex].StatusType ===
+                    "PartialSubmitted" ||
+                  reviewList[tableMeta.rowIndex].StatusType ===
+                    "SecondManagerReview" ||
+                  reviewList[tableMeta.rowIndex].StatusType === "Submitted" ||
+                  reviewList[tableMeta.rowIndex].StatusType ===
+                    "ReworkSubmitted") &&
                   reviewList[tableMeta.rowIndex].ReviewerId ==
                     localStorage.getItem("UserId") &&
                   tableMeta.rowData[tableMeta.rowData.length - 4] !== false && (
@@ -1148,7 +1149,6 @@ const Datatable = ({
   const propsForActionBar = {
     selectedRowsCount,
     selectedRows,
-    selectedRowStatusId,
     selectedRowIds,
     selectedWorkItemIds,
     selectedRowClientId,
@@ -1265,7 +1265,7 @@ const Datatable = ({
                 title={undefined}
                 columns={expandableColumns}
                 data={reviewListInsideData}
-                options={{ ...options, tableBodyHeight: "276px" }}
+                options={{ ...options, tableBodyHeight: "450px" }}
               />
             </Popover>
           ) : (

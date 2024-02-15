@@ -509,7 +509,6 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
         (await getStatusDropdownData(typeOfWorkWorklogs));
       onOpen &&
         onEdit === 0 &&
-        statusWorklogsDropdownDataUse.length === 0 &&
         (await setStatusWorklogsDropdownDataUse(
           statusData.filter(
             (item: any) =>
@@ -530,7 +529,6 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
         ));
       onOpen &&
         onEdit > 0 &&
-        statusWorklogsDropdownDataUse.length === 0 &&
         !errorlogSignedOffPending &&
         setStatusWorklogsDropdownDataUse(
           statusData.filter(
@@ -550,7 +548,6 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
         );
       onOpen &&
         onEdit > 0 &&
-        statusWorklogsDropdownDataUse.length === 0 &&
         errorlogSignedOffPending &&
         setStatusWorklogsDropdownDataUse(
           statusData.filter(

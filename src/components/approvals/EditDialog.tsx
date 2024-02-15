@@ -129,7 +129,11 @@ const EditDialog: React.FC<EditModalProps> = ({
   }
 
   useEffect(() => {
-    if (onSelectedSubmissionId > 0 && onSelectedSubmissionId !== null) {
+    if (
+      onSelectedSubmissionId > 0 &&
+      onSelectedSubmissionId !== null &&
+      onOpen
+    ) {
       const getDataForManualTime = async () => {
         const params = {
           SubmissionId: onSelectedSubmissionId,
@@ -143,9 +147,8 @@ const EditDialog: React.FC<EditModalProps> = ({
           if (ResponseStatus === "Success" && error === false) {
             setEstTime(formatTime(ResponseData.EstimateTime));
             setQuantity(ResponseData.Quantity);
-            setActualTime(formatTime(ResponseData.ActualTime));
-            setTotalTime(formatTime(ResponseData.TotalEstimateTime));
-            setActualTime(formatTime(ResponseData.ActualTime));
+            setActualTime(formatTime(ResponseData.TotalEstimateTime));
+            setTotalTime(formatTime(ResponseData.ActualTime));
             setInitialEditTime(formatTime(ResponseData.ManagerTime));
             setEditTime(formatTime(ResponseData.ManagerTime));
             setCheckboxClicked(ResponseData.IsPercent);
@@ -157,14 +160,14 @@ const EditDialog: React.FC<EditModalProps> = ({
 
       getDataForManualTime();
     }
-  }, [onSelectedSubmissionId]);
+  }, [onSelectedSubmissionId, onOpen]);
 
   const updateManualTime = async () => {
     const [hours, minutes, seconds] = editTime.split(":");
     const convertedEditTime =
       parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
 
-    // getOverLay(true);
+    getOverLay(true);
     const params = {
       WorkItemId: onSelectWorkItemId,
       managerTime: convertedEditTime,
@@ -264,7 +267,7 @@ const EditDialog: React.FC<EditModalProps> = ({
             </FormControl>
             <FormControl variant="standard">
               <TextField
-                label="Actual Time"
+                label="Std. Time"
                 type="text"
                 fullWidth
                 value={actualTime}
@@ -275,7 +278,7 @@ const EditDialog: React.FC<EditModalProps> = ({
             </FormControl>
             <FormControl variant="standard">
               <TextField
-                label="Total Time"
+                label="Actual Time"
                 type="text"
                 fullWidth
                 value={totalTime}

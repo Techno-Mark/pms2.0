@@ -2014,6 +2014,9 @@ const EditDrawer = ({
       ResponseStatus: any
     ) => {
       if (ResponseStatus === "Success" && error === false) {
+        setErrorlogSignOffPendingApprovals(
+          ResponseData.ErrorlogSignedOffPending
+        );
         setEditData(ResponseData);
         setIsCreatedByClient(ResponseData.IsCreatedByClient);
         setIsManual(ResponseData.IsManual);
@@ -2062,9 +2065,6 @@ const EditDrawer = ({
             ? 2
             : 0
         );
-        setErrorlogSignOffPendingApprovals(
-          ResponseData.ErrorlogSignedOffPending
-        );
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -2076,34 +2076,44 @@ const EditDrawer = ({
 
       await setStatusApprovalsDropdownData(statusData);
 
+      const getType = statusData.filter(
+        (item: any) => item.value === editStatusApprovals
+      )[0].Type;
+
       !errorlogSignedOffPendingApprovals &&
         setStatusApprovalsDropdownDataUse(
           statusData.filter(
             (item: any) =>
               item.Type === "Rework" ||
               item.Type === "InReview" ||
-              item.Type === "Submitted" ||
               item.Type === "Accept" ||
               item.Type === "AcceptWithNotes" ||
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient" ||
-              (typeOfWorkApprovals !== 3 && item.Type === "PartialSubmitted") ||
+              (getType !== "PartialSubmitted" && item.Type === "Submitted") ||
+              (typeOfWorkApprovals !== 3 &&
+                getType !== "Submitted" &&
+                item.Type === "PartialSubmitted") ||
               item.value === editStatusApprovals
           )
         );
+
       errorlogSignedOffPendingApprovals &&
         setStatusApprovalsDropdownDataUse(
           statusData.filter(
             (item: any) =>
               item.Type === "Rework In Review" ||
-              item.Type === "ReworkSubmitted" ||
               item.Type === "ReworkAccept" ||
               item.Type === "ReworkAcceptWithNotes" ||
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient" ||
-              (typeOfWorkApprovals !== 3 && item.Type === "PartialSubmitted") ||
+              (getType !== "PartialSubmitted" &&
+                item.Type === "ReworkSubmitted") ||
+              (typeOfWorkApprovals !== 3 &&
+                getType !== "ReworkSubmitted" &&
+                item.Type === "PartialSubmitted") ||
               item.value === editStatusApprovals
           )
         );

@@ -13,8 +13,6 @@ const priorityOptions = [
 
 const Priority = ({
   selectedRowIds,
-  selectedRowStatusId,
-  selectedRowsCount,
   getData,
   getOverLay,
 }: any) => {

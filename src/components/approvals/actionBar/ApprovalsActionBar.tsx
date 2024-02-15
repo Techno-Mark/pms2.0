@@ -50,7 +50,6 @@ const ConditionalComponent = ({
 
 const ApprovalsActionBar = ({
   selectedRowsCount,
-  selectedRowStatusId,
   selectedRowIds,
   selectedWorkItemIds,
   selectedRowClientId,
@@ -105,6 +104,8 @@ const ApprovalsActionBar = ({
         handleClearSelection();
         getReviewList();
         getOverLay(false);
+      } else {
+        getOverLay(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -121,7 +122,6 @@ const ApprovalsActionBar = ({
     selectedRowIds,
     acceptWorkitem,
     selectedWorkItemIds,
-    selectedRowStatusId,
     selectedRowsCount,
     handleClearSelection,
     getReviewList,
@@ -172,7 +172,6 @@ const ApprovalsActionBar = ({
           Component={Priority}
           propsForActionBar={{
             selectedRowIds: selectedWorkItemIds,
-            selectedRowStatusId: selectedRowStatusId,
             selectedRowsCount: selectedRowsCount,
             getData: getReviewList,
           }}

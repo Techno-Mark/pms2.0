@@ -89,9 +89,6 @@ const Datatable = ({
   const [selectedRowStatusName, setSelectedRowStatusName] = useState<
     any | string[]
   >([]);
-  const [selectedRowStatusId, setSelectedRowStatusId] = useState<
-    any | number[]
-  >([]);
   const [selectedRowClientId, setSelectedRowClientId] = useState<
     any | number[]
   >([]);
@@ -153,14 +150,6 @@ const Datatable = ({
         : [];
 
     setSelectedRowStatusName(selectedWorkItemStatus);
-
-    // adding all selected row's status Ids in an array
-    const selectedWorkItemStatusIds =
-      selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow?.StatusId)
-        : [];
-
-    setSelectedRowStatusId(selectedWorkItemStatusIds);
 
     // adding all selected row's Client Ids in an array
     const selectedWorkItemClientIds =
@@ -619,7 +608,7 @@ const Datatable = ({
       },
     },
     {
-      name: "StatusId",
+      name: "StatusType",
       options: {
         display: false,
         viewColumns: false,
@@ -689,21 +678,35 @@ const Datatable = ({
                 {tableMeta.rowData[tableMeta.rowData.length - 4].toString() ===
                   localStorage.getItem("UserId") &&
                   tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
-                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 7 &&
-                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 9 &&
-                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 6 &&
-                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 8 &&
-                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 4 &&
-                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 11 &&
-                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 13 &&
-                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 53 &&
-                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 54 &&
-                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 55 &&
-                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 57 &&
-                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 58 &&
-                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 59 &&
-                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 60 &&
-                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 61 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !==
+                    "Accept" &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !==
+                    "AcceptWithNotes" &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !==
+                    "InReview" &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !==
+                    "Reject" &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== "Stop" &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !==
+                    "SignedOff" &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !==
+                    "WithDraw" &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !==
+                    "ReworkPrepCompleted" &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !==
+                    "ReworkInReview" &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !==
+                    "ReworkAccept" &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !==
+                    "WithdrawnbyClient" &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !==
+                    "Submitted" &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !==
+                    "ReworkSubmitted" &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !==
+                    "ReworkAcceptWithNotes" &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !==
+                    "PendingFromAccounting" &&
                   tableMeta.rowData[tableMeta.rowData.length - 1] !==
                     isRunning &&
                   (tableMeta.rowData[tableMeta.rowData.length - 2] === 0 ? (
@@ -910,9 +913,9 @@ const Datatable = ({
           viewColumns: false,
         },
       };
-    } else if (column.name === "StatusId") {
+    } else if (column.name === "StatusType") {
       return {
-        name: "StatusId",
+        name: "StatusType",
         options: {
           display: false,
           viewColumns: false,
@@ -954,7 +957,6 @@ const Datatable = ({
   const propsForActionBar = {
     selectedRowsCount,
     selectedRows,
-    selectedRowStatusId,
     selectedRowId,
     selectedRowsdata,
     selectedRowClientId,

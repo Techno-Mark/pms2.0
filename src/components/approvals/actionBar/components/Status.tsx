@@ -97,6 +97,7 @@ const Status = ({
     const data = await getStatusDropdownData(
       Array.from(new Set(selectedRowWorkTypeId))[0]
     );
+
     data.length > 0 &&
       setAllStatus(
         data.filter(
