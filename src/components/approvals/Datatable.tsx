@@ -1243,7 +1243,9 @@ const Datatable = ({
                       User Name:
                     </label>
                     <label className="text-sm font-bold font-proxima capitalize">
-                      {reviewListInsideData[0].UserName}
+                      {reviewListInsideData[0]?.UserName.length > 0
+                        ? reviewListInsideData[0]?.UserName
+                        : "-"}
                     </label>
                   </div>
                 </div>

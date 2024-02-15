@@ -2292,11 +2292,11 @@ const EditDrawer = ({
               item.Type === "Assigned" ||
               item.Type === "NotStarted" ||
               item.Type === "InProgress" ||
-              item.Type === "Stop" ||
+              // item.Type === "Stop" ||
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient" ||
-              (typeOfWorkWorklogs !== 3 && item.Type === "PartialSubmitted") ||
+              // (typeOfWorkWorklogs !== 3 && item.Type === "PartialSubmitted") ||
               (onEdit > 0 &&
                 (item.Type === "Rework" ||
                   item.Type === "ReworkInProgress" ||

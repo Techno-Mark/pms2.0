@@ -2088,6 +2088,7 @@ const EditDrawer = ({
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient" ||
+              (typeOfWorkApprovals !== 3 && item.Type === "PartialSubmitted") ||
               item.value === editStatusApprovals
           )
         );
@@ -2102,6 +2103,7 @@ const EditDrawer = ({
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient" ||
+              (typeOfWorkApprovals !== 3 && item.Type === "PartialSubmitted") ||
               item.value === editStatusApprovals
           )
         );
