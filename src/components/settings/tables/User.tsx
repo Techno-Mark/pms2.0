@@ -254,7 +254,6 @@ const User = ({
   }: any) => {
     const actionsRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
-    console.log(userType)
 
     const handleOutsideClick = (event: MouseEvent) => {
       if (

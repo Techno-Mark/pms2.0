@@ -25,6 +25,7 @@ import {
   getTypeOfWorkDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
+import { getFormattedDate } from "@/utils/timerFunctions";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -135,14 +136,23 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     setWorktypeDropdownData(await getTypeOfWorkDropdownData(clientName));
   };
 
-  const getProjectData = async (clientName: string | number) => {
-    setProjectDropdownData(await getProjectDropdownData(clientName));
+  const getProjectData = async (
+    clientName: string | number,
+    workType: string | number
+  ) => {
+    setProjectDropdownData(await getProjectDropdownData(clientName, workType));
   };
 
-  const getAllStatus = async () => {
-    const data = await getStatusDropdownData();
+  const getAllStatus = async (workType: any) => {
+    const data = workType > 0 && (await getStatusDropdownData(workType));
     data.length > 0 &&
-      setStatusDropdownData(data.filter((i: any) => i.Type !== "Reject"));
+      setStatusDropdownData(
+        data.filter(
+          (i: any) =>
+            i.Type !== "Reject" ||
+            (workType !== 1 && i.Type !== "PartialSubmitted")
+        )
+      );
   };
 
   const getAssignee = async () => {
@@ -164,15 +174,21 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   useEffect(() => {
     if (onOpen === true) {
       getClientData();
-      getAllStatus();
       getAssignee();
     }
   }, [onOpen]);
 
   useEffect(() => {
     clientName !== null && getWorkTypeData(clientName?.value);
-    clientName !== null && getProjectData(clientName?.value);
   }, [clientName]);
+
+  useEffect(() => {
+    clientName !== null &&
+      workType !== null &&
+      getProjectData(clientName?.value, workType?.value);
+
+    clientName !== null && workType !== null && getAllStatus(workType?.value);
+  }, [clientName, workType]);
 
   const saveCurrentFilter = async () => {
     if (filterName.trim().length === 0) {
@@ -191,9 +207,14 @@ const FilterDialog: React.FC<FilterModalProps> = ({
           Status: status !== null ? status.value : null,
           AssignedTo: assignedTo || 0,
           AssignedBy: assignedBy !== null ? assignedBy.value : null,
-          DueDate: dueDate || null,
-          StartDate: startDate || null,
-          EndDate: endDate || null,
+          DueDate: dueDate !== null ? getFormattedDate(dueDate) : null,
+          StartDate: startDate !== null ? getFormattedDate(startDate) : null,
+          EndDate:
+            endDate === null
+              ? startDate === null
+                ? null
+                : getFormattedDate(startDate)
+              : getFormattedDate(endDate),
           ReviewStatus: ReviewStatus || 0,
         },
         type: 1,
@@ -346,24 +367,14 @@ const FilterDialog: React.FC<FilterModalProps> = ({
       StatusId: status !== null ? status.value : null,
       AssignedTo: assignedTo || null,
       AssignedBy: assignedBy !== null ? assignedBy.value : null,
-      DueDate:
-        dueDate !== null
-          ? new Date(
-              new Date(dueDate).getTime() + 24 * 60 * 60 * 1000
-            )?.toISOString()
-          : null,
-      StartDate:
-        startDate !== null
-          ? new Date(
-              new Date(startDate).getTime() + 24 * 60 * 60 * 1000
-            )?.toISOString()
-          : null,
+      DueDate: dueDate !== null ? getFormattedDate(dueDate) : null,
+      StartDate: startDate !== null ? getFormattedDate(startDate) : null,
       EndDate:
-        endDate !== null
-          ? new Date(
-              new Date(endDate).getTime() + 24 * 60 * 60 * 1000
-            )?.toISOString()
-          : null,
+        endDate === null
+          ? startDate === null
+            ? null
+            : getFormattedDate(startDate)
+          : getFormattedDate(endDate),
       ReviewStatus: ReviewStatus || null,
     };
     setCurrSelectedFileds(selectedFields);
@@ -415,6 +426,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                     setClientName(data);
                     setWorkType(null);
                     setProjectName(null);
+                    setStatus(null);
                   }}
                   value={clientName}
                   renderInput={(params: any) => (
@@ -437,6 +449,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   getOptionLabel={(option: any) => option.label}
                   onChange={(e: any, data: any) => {
                     setWorkType(data);
+                    setProjectName(null);
+                    setStatus(null);
                   }}
                   value={workType}
                   renderInput={(params: any) => (

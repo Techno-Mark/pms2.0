@@ -29,6 +29,7 @@ import {
   getProjectDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
+import { getFormattedDate } from "@/utils/timerFunctions";
 
 const RatingReportFilter = ({
   isFiltering,
@@ -141,31 +142,15 @@ const RatingReportFilter = ({
         ratingreport_ratings !== null ? ratingreport_ratings.value : null,
       StartDate:
         ratingreport_startDate !== null
-          ? new Date(
-              new Date(ratingreport_startDate).getTime() + 24 * 60 * 60 * 1000
-            )
-              .toISOString()
-              .split("T")[0]
+          ? getFormattedDate(ratingreport_startDate)
           : ratingreport_endDate !== null
-          ? new Date(
-              new Date(ratingreport_endDate).getTime() + 24 * 60 * 60 * 1000
-            )
-              .toISOString()
-              .split("T")[0]
+          ? getFormattedDate(ratingreport_endDate)
           : null,
       EndDate:
         ratingreport_endDate !== null
-          ? new Date(
-              new Date(ratingreport_endDate).getTime() + 24 * 60 * 60 * 1000
-            )
-              .toISOString()
-              .split("T")[0]
+          ? getFormattedDate(ratingreport_endDate)
           : ratingreport_startDate !== null
-          ? new Date(
-              new Date(ratingreport_startDate).getTime() + 24 * 60 * 60 * 1000
-            )
-              .toISOString()
-              .split("T")[0]
+          ? getFormattedDate(ratingreport_startDate)
           : null,
     });
 
@@ -222,33 +207,15 @@ const RatingReportFilter = ({
             ratingreport_ratings !== null ? ratingreport_ratings.value : null,
           StartDate:
             ratingreport_startDate !== null
-              ? new Date(
-                  new Date(ratingreport_startDate).getTime() +
-                    24 * 60 * 60 * 1000
-                )
-                  .toISOString()
-                  .split("T")[0]
+              ? getFormattedDate(ratingreport_startDate)
               : ratingreport_endDate !== null
-              ? new Date(
-                  new Date(ratingreport_endDate).getTime() + 24 * 60 * 60 * 1000
-                )
-                  .toISOString()
-                  .split("T")[0]
+              ? getFormattedDate(ratingreport_endDate)
               : null,
           EndDate:
             ratingreport_endDate !== null
-              ? new Date(
-                  new Date(ratingreport_endDate).getTime() + 24 * 60 * 60 * 1000
-                )
-                  .toISOString()
-                  .split("T")[0]
+              ? getFormattedDate(ratingreport_endDate)
               : ratingreport_startDate !== null
-              ? new Date(
-                  new Date(ratingreport_startDate).getTime() +
-                    24 * 60 * 60 * 1000
-                )
-                  .toISOString()
-                  .split("T")[0]
+              ? getFormattedDate(ratingreport_startDate)
               : null,
         },
         type: AdminRatingsReports,
@@ -310,7 +277,8 @@ const RatingReportFilter = ({
       ratingreport_savedFilters[index].AppliedFilter.Projects.length > 0
         ? (
             await getProjectDropdownData(
-              ratingreport_savedFilters[index].AppliedFilter.Clients[0]
+              ratingreport_savedFilters[index].AppliedFilter.Clients[0],
+              null
             )
           ).filter(
             (item: any) =>
@@ -395,7 +363,8 @@ const RatingReportFilter = ({
       setRatingReport_ClientDropdown(await getClientDropdownData());
       setRatingReport_ProjectDropdown(
         await getProjectDropdownData(
-          ratingreport_clientName.length > 0 ? ratingreport_clientName[0] : 0
+          ratingreport_clientName.length > 0 ? ratingreport_clientName[0] : 0,
+          null
         )
       );
     };

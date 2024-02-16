@@ -263,7 +263,8 @@ const LogReportFilter = ({
       setLogReport_ClientDropdown(await getClientDropdownData());
       setLogReport_ProjectDropdown(
         await getProjectDropdownData(
-          logReport_clientName.length > 0 ? logReport_clientName[0] : 0
+          logReport_clientName.length > 0 ? logReport_clientName[0] : 0,
+          null
         )
       );
       setLogReport_ProcessDropdown(await getAllProcessDropdownData());
@@ -314,7 +315,8 @@ const LogReportFilter = ({
       logReport_savedFilters[index].AppliedFilter.projectFilter.length > 0
         ? (
             await getProjectDropdownData(
-              logReport_savedFilters[index].AppliedFilter.clientFilter[0]
+              logReport_savedFilters[index].AppliedFilter.clientFilter[0],
+              null
             )
           ).filter(
             (item: any) =>

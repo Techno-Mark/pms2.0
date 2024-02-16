@@ -12,9 +12,7 @@ import { callAPI } from "@/utils/API/callAPI";
 
 const Status = ({
   selectedWorkItemIds,
-  selectedRowStatusId,
   reviewList,
-  selectedRowsCount,
   handleClearSelection,
   getReviewList,
   selectedRowClientId,
@@ -96,7 +94,10 @@ const Status = ({
         }
       }
     });
-    const data = await getStatusDropdownData();
+    const data = await getStatusDropdownData(
+      Array.from(new Set(selectedRowWorkTypeId))[0]
+    );
+
     data.length > 0 &&
       setAllStatus(
         data.filter(

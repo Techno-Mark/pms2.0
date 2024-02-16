@@ -20,6 +20,7 @@ import {
   getProjectDropdownData,
   getTypeOfWorkDropdownData,
 } from "@/utils/commonDropdownApiCall";
+import { getFormattedDate } from "@/utils/timerFunctions";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -46,9 +47,7 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
   >([]);
   const [projectFilterTaskDropdownData, setProjectFilterTaskDropdownData] =
     useState([]);
-  const [typeOfWorkFilterTask, setTypeOfWorkFilterTask] = useState<
-    null | number
-  >(0);
+  const [typeOfWorkFilterTask, setTypeOfWorkFilterTask] = useState<any>(0);
   const [
     typeOfWorkFilterTaskDropdownData,
     setTypeOfWorkFilterTaskDropdownData,
@@ -108,29 +107,17 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
       WorkType: typeOfWorkFilterTask || null,
       Priority: priorityFilterTask || null,
       DueDate:
-        dueDateFilterTask !== null
-          ? new Date(
-              new Date(dueDateFilterTask).getTime() + 24 * 60 * 60 * 1000
-            )
-              .toISOString()
-              .split("T")[0]
-          : null,
+        dueDateFilterTask !== null ? getFormattedDate(dueDateFilterTask) : null,
       StartDate:
         startDateFilterTask !== null
-          ? new Date(
-              new Date(startDateFilterTask).getTime() + 24 * 60 * 60 * 1000
-            )
-              .toISOString()
-              .split("T")[0]
+          ? getFormattedDate(startDateFilterTask)
           : null,
       EndDate:
-        endDateFilterTask !== null
-          ? new Date(
-              new Date(endDateFilterTask).getTime() + 24 * 60 * 60 * 1000
-            )
-              .toISOString()
-              .split("T")[0]
-          : null,
+        endDateFilterTask === null
+          ? startDateFilterTask === null
+            ? null
+            : getFormattedDate(startDateFilterTask)
+          : getFormattedDate(endDateFilterTask),
     };
     setCurrSelectedTaskFileds(selectedFields);
   }, [
@@ -149,8 +136,10 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
 
   const getProjectData = async () => {
     const clientId = await localStorage.getItem("clientId");
-    setProjectFilterTaskDropdownData(await getProjectDropdownData(clientId));
-    getWorkTypeData();
+    typeOfWorkFilterTask > 0 &&
+      setProjectFilterTaskDropdownData(
+        await getProjectDropdownData(clientId, typeOfWorkFilterTask)
+      );
   };
 
   const getWorkTypeData = async () => {
@@ -158,10 +147,11 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
     setTypeOfWorkFilterTaskDropdownData(
       await getTypeOfWorkDropdownData(clientId)
     );
+    getProjectData();
   };
 
   useEffect(() => {
-    onOpen && getProjectData();
+    onOpen && getWorkTypeData();
   }, [onOpen]);
 
   return (
@@ -183,14 +173,17 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
           <div className="flex flex-col gap-[20px] pt-[15px]">
             <div className="flex gap-[20px]">
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
-                <InputLabel id="project">Project</InputLabel>
+                <InputLabel id="workTypes-label">Types of Work</InputLabel>
                 <Select
-                  labelId="project"
-                  id="project"
-                  value={projectFilterTask === 0 ? "" : projectFilterTask}
-                  onChange={(e: any) => setProjectFilterTask(e.target.value)}
+                  labelId="workTypes-label"
+                  id="workTypes-select"
+                  value={typeOfWorkFilterTask === 0 ? "" : typeOfWorkFilterTask}
+                  onChange={(e: any) => {
+                    setTypeOfWorkFilterTask(e.target.value);
+                    setProjectFilterTask(0);
+                  }}
                 >
-                  {projectFilterTaskDropdownData.map(
+                  {typeOfWorkFilterTaskDropdownData.map(
                     (i: any, index: number) => (
                       <MenuItem value={i.value} key={i.value}>
                         {i.label}
@@ -201,14 +194,14 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
               </FormControl>
 
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
-                <InputLabel id="workTypes-label">Types of Work</InputLabel>
+                <InputLabel id="project">Project</InputLabel>
                 <Select
-                  labelId="workTypes-label"
-                  id="workTypes-select"
-                  value={typeOfWorkFilterTask === 0 ? "" : typeOfWorkFilterTask}
-                  onChange={(e: any) => setTypeOfWorkFilterTask(e.target.value)}
+                  labelId="project"
+                  id="project"
+                  value={projectFilterTask === 0 ? "" : projectFilterTask}
+                  onChange={(e: any) => setProjectFilterTask(e.target.value)}
                 >
-                  {typeOfWorkFilterTaskDropdownData.map(
+                  {projectFilterTaskDropdownData.map(
                     (i: any, index: number) => (
                       <MenuItem value={i.value} key={i.value}>
                         {i.label}

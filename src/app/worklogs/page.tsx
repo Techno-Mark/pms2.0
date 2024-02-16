@@ -69,6 +69,7 @@ const Page = () => {
     useState(false);
   const [timeValue, setTimeValue] = useState(null);
   const [todayTimeValue, setTodayTimeValue] = useState(null);
+  const [breakTimeValue, setBreakTimeValue] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEdit, setHasEdit] = useState(0);
@@ -592,7 +593,9 @@ const Page = () => {
                           toast.error("User not have permission to Break Task")
                   }
                 >
-                  <span className="text-white font-light">{timer}</span>
+                  <span className="text-white font-light">
+                    {breakTimeValue}
+                  </span>
                   <span className="text-white font-light -mt-2">
                     {breakId === 0 ? "Break" : "Stop break"}
                   </span>
@@ -650,6 +653,7 @@ const Page = () => {
             isUnassigneeClicked={isUnassigneeClicked}
             onChangeTimeLoader={(e: any) => setTimeValue(e)}
             onChangeTodayTimeLoader={(e: any) => setTodayTimeValue(e)}
+            onChangeBreakTimeLoader={(e: any) => setBreakTimeValue(e)}
             setLoading={isLoadingWorklogsDatatable}
           />
         )}

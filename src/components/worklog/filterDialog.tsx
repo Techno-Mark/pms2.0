@@ -23,6 +23,7 @@ import {
   getTypeOfWorkDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
+import { getFormattedDate } from "@/utils/timerFunctions";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -62,7 +63,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   const [project, setProject] = useState<null | number>(0);
   const [priority, setPriority] = useState<null | number>(0);
   const [status, setStatus] = useState<null | number>(0);
-  const [typeOfWork, setTypeOfWork] = useState<null | number>(0);
+  const [typeOfWork, setTypeOfWork] = useState<any>(0);
   const [startDate, setStartDate] = useState<null | string>(null);
   const [endDate, setEndDate] = useState<null | string>(null);
   const [dueDate, setDueDate] = useState<null | string>(null);
@@ -129,24 +130,9 @@ const FilterDialog: React.FC<FilterModalProps> = ({
       PriorityId: priority || null,
       StatusId: status || null,
       WorkTypeId: typeOfWork || null,
-      DueDate:
-        dueDate !== null
-          ? new Date(
-              new Date(dueDate).getTime() + 24 * 60 * 60 * 1000
-            ).toISOString()
-          : null,
-      StartDate:
-        startDate !== null
-          ? new Date(
-              new Date(startDate).getTime() + 24 * 60 * 60 * 1000
-            ).toISOString()
-          : null,
-      EndDate:
-        endDate !== null
-          ? new Date(
-              new Date(endDate).getTime() + 24 * 60 * 60 * 1000
-            ).toISOString()
-          : null,
+      DueDate: dueDate !== null ? getFormattedDate(dueDate) : null,
+      StartDate: startDate !== null ? getFormattedDate(startDate) : null,
+      EndDate: endDate !== null ? getFormattedDate(endDate) : null,
       AssignedTo: assignee || null,
       OverdueBy: overDue || null,
       IsSignedOff: isChecked,
@@ -170,20 +156,23 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     onClose();
   };
 
-  const getProjectData = async () => {
-    const clientId = await localStorage.getItem("clientId");
-    setProjectDropdownData(await getProjectDropdownData(clientId));
-    getWorkTypeData();
-  };
-
   const getWorkTypeData = async () => {
     const clientId = await localStorage.getItem("clientId");
     setTypeOfWorkDropdownData(await getTypeOfWorkDropdownData(clientId));
+    getProjectData();
+  };
+
+  const getProjectData = async () => {
+    const clientId = await localStorage.getItem("clientId");
+    typeOfWork > 0 &&
+      setProjectDropdownData(
+        await getProjectDropdownData(clientId, typeOfWork)
+      );
     getAllStatus();
   };
 
   const getAllStatus = async () => {
-    const data = await getStatusDropdownData();
+    const data = typeOfWork > 0 && (await getStatusDropdownData(typeOfWork));
     data.length > 0 &&
       setStatusDropdownWorklogData(
         data.filter(
@@ -240,7 +229,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   };
 
   useEffect(() => {
-    onOpen && getProjectData();
+    onOpen && getWorkTypeData();
   }, [onOpen]);
 
   return (

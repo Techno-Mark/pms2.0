@@ -236,7 +236,7 @@ const ProjectFilter = ({
     const filterDropdowns = async () => {
       setProject_ClientDropdown(await getClientDropdownData());
       setProject_ProjectDropdown(
-        await getProjectDropdownData(project_clientName[0])
+        await getProjectDropdownData(project_clientName[0], null)
       );
       project_clientName.length > 0 &&
         setProject_WorkTypeDropdown(
@@ -288,7 +288,8 @@ const ProjectFilter = ({
       project_savedFilters[index].AppliedFilter.projects.length > 0
         ? (
             await getProjectDropdownData(
-              project_savedFilters[index].AppliedFilter.clients[0]
+              project_savedFilters[index].AppliedFilter.clients[0],
+              null
             )
           ).filter(
             (item: any) =>

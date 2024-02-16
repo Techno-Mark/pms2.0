@@ -4,6 +4,7 @@ import {
 } from "@/utils/commonDropdownApiCall";
 import { isWeekend } from "@/utils/commonFunction";
 import { DialogTransition } from "@/utils/style/DialogTransition";
+import { getFormattedDate } from "@/utils/timerFunctions";
 import {
   Autocomplete,
   Button,
@@ -77,18 +78,8 @@ const TimelineFilterDialog: React.FC<FilterModalProps> = ({
     const selectedFields = {
       ClientId: clientName !== null ? clientName.value : null,
       ProjectId: project !== null ? project.value : null,
-      StartDate:
-        startDate !== null
-          ? new Date(
-              new Date(startDate).getTime() + 24 * 60 * 60 * 1000
-            )?.toISOString()
-          : null,
-      EndDate:
-        endDate !== null
-          ? new Date(
-              new Date(endDate).getTime() + 24 * 60 * 60 * 1000
-            )?.toISOString()
-          : null,
+      StartDate: startDate !== null ? getFormattedDate(startDate) : null,
+      EndDate: endDate !== null ? getFormattedDate(endDate) : null,
     };
     setCurrSelectedFileds(selectedFields);
   }, [clientName, project, startDate, endDate]);
@@ -103,7 +94,7 @@ const TimelineFilterDialog: React.FC<FilterModalProps> = ({
   };
 
   const getProjectData = async (clientName: string | number) => {
-    setProjectDropdownData(await getProjectDropdownData(clientName));
+    setProjectDropdownData(await getProjectDropdownData(clientName, null));
   };
 
   useEffect(() => {

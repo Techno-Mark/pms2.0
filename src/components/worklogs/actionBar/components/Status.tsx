@@ -8,11 +8,10 @@ import { callAPI } from "@/utils/API/callAPI";
 
 const Status = ({
   selectedRowIds,
-  selectedRowStatusId,
   workItemData,
-  selectedRowsCount,
   getWorkItemList,
   handleClearSelection,
+  selectedRowWorkTypeId,
   getOverLay,
 }: any) => {
   const [allStatus, setAllStatus] = useState<any | any[]>([]);
@@ -49,7 +48,9 @@ const Status = ({
         }
       }
     });
-    const data = await getStatusDropdownData();
+    const data = await getStatusDropdownData(
+      Array.from(new Set(selectedRowWorkTypeId))[0]
+    );
     data.length > 0 &&
       setAllStatus(
         data.filter(

@@ -12,9 +12,7 @@ const Assignee = ({
   selectedRowClientId,
   selectedRowWorkTypeId,
   areAllValuesSame,
-  selectedRowStatusId,
   workItemData,
-  selectedRowsCount,
   getWorkItemList,
   handleClearSelection,
   getOverLay,
@@ -27,6 +25,25 @@ const Assignee = ({
 
   const handleClickAssignee = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorElAssignee(event.currentTarget);
+    if (
+      selectedRowClientId.length > 0 &&
+      selectedRowWorkTypeId.length > 0 &&
+      areAllValuesSame(selectedRowClientId) &&
+      areAllValuesSame(selectedRowWorkTypeId)
+    ) {
+      const getAssignee = async () => {
+        setAssignee(
+          await getAssigneeDropdownData(
+            selectedRowClientId,
+            selectedRowWorkTypeId[0]
+          )
+        );
+      };
+
+      getAssignee();
+    } else {
+      setAssignee([]);
+    }
   };
 
   const handleCloseAssignee = () => {
@@ -48,26 +65,6 @@ const Assignee = ({
     updateAssignee(selectedRowIds, id);
     handleCloseAssignee();
   };
-
-  useEffect(() => {
-    if (
-      selectedRowClientId.length > 0 &&
-      selectedRowWorkTypeId.length > 0 &&
-      areAllValuesSame(selectedRowClientId) &&
-      areAllValuesSame(selectedRowWorkTypeId)
-    ) {
-      const getAssignee = async () => {
-        setAssignee(
-          await getAssigneeDropdownData(
-            selectedRowClientId,
-            selectedRowWorkTypeId[0]
-          )
-        );
-      };
-
-      getAssignee();
-    }
-  }, [selectedRowClientId, selectedRowWorkTypeId]);
 
   const updateAssignee = (id: number[], assigneeId: number) => {
     const isRunning = workItemData

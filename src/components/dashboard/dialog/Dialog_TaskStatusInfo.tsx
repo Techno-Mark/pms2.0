@@ -66,7 +66,7 @@ const Dialog_TaskStatusInfo: React.FC<TaskStatusInfoDialogProps> = ({
   }, [clickedStatusName, onSelectedStatusName]);
 
   const getAllStatus = async () => {
-    setAllStatus(await getStatusDropdownData());
+    setAllStatus(await getStatusDropdownData(3));
   };
 
   useEffect(() => {

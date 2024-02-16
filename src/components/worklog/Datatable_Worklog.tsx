@@ -57,6 +57,9 @@ const Datatable_Worklog = ({
   const [selectedRows, setSelectedRows] = useState([]);
   const [workItemData, setWorkItemData] = useState<any | any[]>([]);
   const [selectedRowIds, setSelectedRowIds] = useState<any | number[]>([]);
+  const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<
+    any | number[]
+  >([]);
   const [selectedRowStatusId, setSelectedRowStatusId] = useState<
     any | number[]
   >([]);
@@ -83,6 +86,14 @@ const Datatable_Worklog = ({
         ? selectedData.map((selectedRow: any) => selectedRow.WorkitemId)
         : [];
     setSelectedRowIds(selectedWorkItemIds);
+
+    // adding all selected workitemid in an array
+    const selectedWorkTypeId =
+      selectedData.length > 0
+        ? selectedData.map((selectedRow: any) => selectedRow.WorkTypeId)
+        : [];
+
+    setSelectedRowWorkTypeId(selectedWorkTypeId);
 
     // adding only one or last selected id
     const lastSelectedWorkItemId =
@@ -182,6 +193,7 @@ const Datatable_Worklog = ({
     selectedRowStatusId,
     selectedRowId,
     selectedRowIds,
+    selectedRowWorkTypeId,
     onEdit,
     handleClearSelection,
     onComment,

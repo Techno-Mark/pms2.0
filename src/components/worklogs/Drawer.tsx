@@ -54,6 +54,7 @@ import {
   getCCDropdownData,
   getClientDropdownData,
   getCommentUserDropdownData,
+  getDepartmentDropdownData,
   getManagerDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
@@ -162,9 +163,7 @@ const EditDrawer = ({
   const [clientNameWorklogsErr, setClientNameWorklogsErr] = useState(false);
   const [typeOfWorkWorklogsDropdownData, setTypeOfWorkWorklogsDropdownData] =
     useState<any>([]);
-  const [typeOfWorkWorklogs, setTypeOfWorkWorklogs] = useState<string | number>(
-    0
-  );
+  const [typeOfWorkWorklogs, setTypeOfWorkWorklogs] = useState<any>(0);
   const [typeOfWorkWorklogsErr, setTypeOfWorkWorklogsErr] = useState(false);
   const [projectWorklogsDropdownData, setProjectWorklogsDropdownData] =
     useState<any>([]);
@@ -186,10 +185,12 @@ const EditDrawer = ({
     useState<any>([]);
   const [managerWorklogs, setManagerWorklogs] = useState<any>(0);
   const [managerWorklogsErr, setManagerWorklogsErr] = useState(false);
-  const [statusWorklogsDropdownData, setStatusWorklogsDropdownData] =
-    useState<any>([]);
+  const [statusWorklogsDropdownData, setStatusWorklogsDropdownData] = useState(
+    []
+  );
   const [statusWorklogsDropdownDataUse, setStatusWorklogsDropdownDataUse] =
     useState([]);
+  const [errorlogSignedOffPending, setErrorlogSignOffPending] = useState(false);
   const [statusWorklogs, setStatusWorklogs] = useState<any>(0);
   const [editStatusWorklogs, setEditStatusWorklogs] = useState<any>(0);
   const [statusWorklogsErr, setStatusWorklogsErr] = useState(false);
@@ -203,14 +204,18 @@ const EditDrawer = ({
   const [allInfoDateWorklogs, setAllInfoDateWorklogs] = useState<any>("");
   const [assigneeWorklogsDropdownData, setAssigneeWorklogsDropdownData] =
     useState<any>([]);
-  const [assigneeWorklogs, setAssigneeWorklogs] = useState<any>([]);
+  const [assigneeWorklogs, setAssigneeWorklogs] = useState<any>(0);
   const [assigneeWorklogsErr, setAssigneeWorklogsErr] = useState(false);
   const [assigneeWorklogsDisable, setAssigneeWorklogsDisable] =
     useState<any>(true);
   const [reviewerWorklogsDropdownData, setReviewerWorklogsDropdownData] =
     useState([]);
-  const [reviewerWorklogs, setReviewerWorklogs] = useState<any>([]);
+  const [reviewerWorklogs, setReviewerWorklogs] = useState<any>(0);
   const [reviewerWorklogsErr, setReviewerWorklogsErr] = useState(false);
+  const [departmentWorklogsDropdownData, setDepartmentWorklogsDropdownData] =
+    useState([]);
+  const [departmentWorklogs, setDepartmentWorklogs] = useState<any>(0);
+  const [departmentWorklogsErr, setDepartmentWorklogsErr] = useState(false);
   const [dateOfReviewWorklogs, setDateOfReviewWorklogs] = useState<string>("");
   const [dateOfPreperationWorklogs, setDateOfPreperationWorklogs] =
     useState<string>("");
@@ -1282,10 +1287,11 @@ const EditDrawer = ({
         .split("(")
         .map((i: any, index: number) => {
           if (i.includes(")")) {
-            return parseInt(i.split(")")[0]);
+            const parsedValue = parseInt(i.split(")")[0]);
+            return isNaN(parsedValue) ? null : parsedValue;
           }
         })
-        .filter((i: any) => i !== undefined)
+        .filter((i: any) => i !== undefined && i !== null)
     );
     setValueWorklogsError(false);
   };
@@ -1758,6 +1764,7 @@ const EditDrawer = ({
       receiverDate: validateField(receiverDateWorklogs),
       assignee: assigneeWorklogsDisable && validateField(assigneeWorklogs),
       reviewer: validateField(reviewerWorklogs),
+      department: validateField(departmentWorklogs),
       manager: validateField(managerWorklogs),
       returnYear: typeOfWorkWorklogs === 3 && validateField(returnYearWorklogs),
       checklistWorkpaper:
@@ -1788,6 +1795,7 @@ const EditDrawer = ({
     assigneeWorklogsDisable &&
       setAssigneeWorklogsErr(fieldValidations.assignee);
     setReviewerWorklogsErr(fieldValidations.reviewer);
+    setDepartmentWorklogsErr(fieldValidations.department);
     setManagerWorklogsErr(fieldValidations.manager);
     typeOfWorkWorklogs === 3 &&
       setReturnYearWorklogsErr(fieldValidations.returnYear);
@@ -1844,6 +1852,7 @@ const EditDrawer = ({
       dueDate: validateField(dueDateWorklogs),
       assignee: validateField(assigneeWorklogs),
       reviewer: validateField(reviewerWorklogs),
+      department: validateField(departmentWorklogs),
       manager: validateField(managerWorklogs),
       returnYear: typeOfWorkWorklogs === 3 && validateField(returnYearWorklogs),
       checklistWorkpaper:
@@ -1970,6 +1979,7 @@ const EditDrawer = ({
       allInfoDate: allInfoDateWorklogs === "" ? null : allInfoDateWorklogs,
       AssignedId: assigneeWorklogs,
       ReviewerId: reviewerWorklogs,
+      DepartmentId: departmentWorklogs,
       managerId: managerWorklogs,
       TaxReturnType: null,
       TaxCustomFields:
@@ -2066,6 +2076,10 @@ const EditDrawer = ({
           onEdit === 0 && onClose();
           onEdit === 0 && handleClose();
           setIsLoadingWorklogs(false);
+        } else if (ResponseStatus === "Warning" && error === false) {
+          toast.warning(ResponseData);
+          setIsLoadingWorklogs(false);
+          onEdit > 0 && getEditDataWorklogs();
         } else {
           setIsLoadingWorklogs(false);
         }
@@ -2174,6 +2188,7 @@ const EditDrawer = ({
         }
         setEditDataWorklogs(ResponseData);
         setIsCreatedByClientWorklogsDrawer(ResponseData.IsCreatedByClient);
+        setErrorlogSignOffPending(ResponseData.ErrorlogSignedOffPending);
         setIsManual(ResponseData.IsManual);
         setClientNameWorklogs(ResponseData.ClientId);
         setTypeOfWorkWorklogs(ResponseData.WorkTypeId);
@@ -2194,36 +2209,6 @@ const EditDrawer = ({
         setAllInfoDateWorklogs(
           ResponseData.AllInfoDate === null ? "" : ResponseData.AllInfoDate
         );
-        !ResponseData.ErrorlogSignedOffPending
-          ? setStatusWorklogsDropdownDataUse(
-              statusWorklogsDropdownData.filter(
-                (item: any) =>
-                  item.Type === "PendingFromAccounting" ||
-                  item.Type === "Assigned" ||
-                  item.Type === "OnHoldFromClient" ||
-                  item.Type === "WithDraw" ||
-                  item.Type === "WithdrawnbyClient" ||
-                  item.Type === "NotStarted" ||
-                  item.Type === "InProgress" ||
-                  item.Type === "Stop" ||
-                  item.Type === "Rework" ||
-                  item.value == ResponseData.StatusId
-              )
-            )
-          : setStatusWorklogsDropdownDataUse(
-              statusWorklogsDropdownData.filter(
-                (item: any) =>
-                  item.Type === "PendingFromAccounting" ||
-                  item.Type === "Assigned" ||
-                  item.Type === "OnHoldFromClient" ||
-                  item.Type === "WithDraw" ||
-                  item.Type === "WithdrawnbyClient" ||
-                  item.Type === "Rework" ||
-                  item.Type === "ReworkInProgress" ||
-                  item.Type === "ReworkPrepCompleted" ||
-                  item.value === ResponseData.StatusId
-              )
-            );
         setPriorityWorklogs(
           ResponseData.Priority === null ? 0 : ResponseData.Priority
         );
@@ -2237,6 +2222,7 @@ const EditDrawer = ({
         setDateOfPreperationWorklogs(ResponseData.PreparationDate);
         setAssigneeWorklogs(ResponseData.AssignedId);
         setReviewerWorklogs(ResponseData.ReviewerId);
+        setDepartmentWorklogs(ResponseData.DepartmentId);
         setManagerWorklogs(
           ResponseData.ManagerId === null ? 0 : ResponseData.ManagerId
         );
@@ -2288,12 +2274,20 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
-      const statusData = await getStatusDropdownData();
-      onOpen &&
-        statusWorklogsDropdownData.length === 0 &&
+      await onEditDataWorklogs();
+    };
+    onOpen && onEdit > 0 && getData();
+  }, [onEdit, onOpen]);
+
+  useEffect(() => {
+    const getData = async () => {
+      const statusData =
+        typeOfWorkWorklogs > 0 &&
+        (await getStatusDropdownData(typeOfWorkWorklogs));
+      statusWorklogsDropdownData.length === 0 &&
         (await setStatusWorklogsDropdownData(statusData));
       onOpen &&
-        statusWorklogsDropdownData.length === 0 &&
+        onEdit === 0 &&
         (await setStatusWorklogsDropdownDataUse(
           statusData.filter(
             (item: any) =>
@@ -2301,30 +2295,68 @@ const EditDrawer = ({
               item.Type === "Assigned" ||
               item.Type === "NotStarted" ||
               item.Type === "InProgress" ||
-              item.Type === "Stop" ||
+              // item.Type === "Stop" ||
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient" ||
+              // (typeOfWorkWorklogs !== 3 && item.Type === "PartialSubmitted") ||
               (onEdit > 0 &&
                 (item.Type === "Rework" ||
                   item.Type === "ReworkInProgress" ||
                   item.Type === "ReworkPrepCompleted"))
           )
         ));
+
+      onOpen &&
+        onEdit > 0 &&
+        !errorlogSignedOffPending &&
+        setStatusWorklogsDropdownDataUse(
+          statusData.filter(
+            (item: any) =>
+              item.Type === "PendingFromAccounting" ||
+              item.Type === "Assigned" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient" ||
+              item.Type === "NotStarted" ||
+              item.Type === "InProgress" ||
+              item.Type === "Stop" ||
+              item.Type === "Rework" ||
+              item.Type === "Submitted" ||
+              item.value === editStatusWorklogs
+          )
+        );
+      onOpen &&
+        onEdit > 0 &&
+        errorlogSignedOffPending &&
+        setStatusWorklogsDropdownDataUse(
+          statusData.filter(
+            (item: any) =>
+              item.Type === "PendingFromAccounting" ||
+              item.Type === "Assigned" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient" ||
+              item.Type === "Rework" ||
+              item.Type === "ReworkInProgress" ||
+              item.Type === "ReworkPrepCompleted" ||
+              item.Type === "ReworkSubmitted" ||
+              item.value === editStatusWorklogs
+          )
+        );
       onOpen &&
         onEdit === 0 &&
         setStatusWorklogs(
-          statusWorklogsDropdownData
+          statusData
             .map((i: any) => (i.Type === "NotStarted" ? i.value : undefined))
             .filter((i: any) => i !== undefined)[0]
         );
       onOpen &&
         statusWorklogsDropdownData.length === 0 &&
         (await setCCDropdownDataWorklogs(await getCCDropdownData()));
-      statusWorklogsDropdownData.length > 0 && (await onEditDataWorklogs());
     };
     getData();
-  }, [onEdit, onOpen, statusWorklogsDropdownData]);
+  }, [typeOfWorkWorklogs, onOpen]);
 
   useEffect(() => {
     const getData = async () => {
@@ -2347,20 +2379,6 @@ const EditDrawer = ({
             ? 2
             : 0
         );
-      const projectData: any =
-        clientNameWorklogs > 0 &&
-        (await getProjectDropdownData(clientNameWorklogs));
-      projectData.length > 0 && setProjectWorklogsDropdownData(projectData);
-      projectData.length > 0 &&
-        projectData.length === 1 &&
-        onEdit === 0 &&
-        setProjectNameWorklogs(projectData.map((i: any) => i.value)[0]);
-      const processData: any =
-        clientNameWorklogs > 0 &&
-        (await getProcessDropdownData(clientNameWorklogs));
-      setProcessWorklogsDropdownData(
-        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
-      );
     };
 
     onOpen && getData();
@@ -2383,10 +2401,27 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
+      const projectData: any =
+        clientNameWorklogs > 0 &&
+        typeOfWorkWorklogs > 0 &&
+        (await getProjectDropdownData(clientNameWorklogs, typeOfWorkWorklogs));
+      projectData.length > 0 && setProjectWorklogsDropdownData(projectData);
+      projectData.length > 0 &&
+        projectData.length === 1 &&
+        onEdit === 0 &&
+        setProjectNameWorklogs(projectData.map((i: any) => i.value)[0]);
+      const processData: any =
+        clientNameWorklogs > 0 &&
+        typeOfWorkWorklogs > 0 &&
+        (await getProcessDropdownData(clientNameWorklogs, typeOfWorkWorklogs));
+      setProcessWorklogsDropdownData(
+        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
+      );
       const data: any =
         processNameWorklogs !== 0 &&
         (await getSubProcessDropdownData(
           clientNameWorklogs,
+          typeOfWorkWorklogs,
           processNameWorklogs
         ));
       data.length > 0 && setEstTimeDataWorklogs(data);
@@ -2397,7 +2432,7 @@ const EditDrawer = ({
     };
 
     getData();
-  }, [processNameWorklogs]);
+  }, [processNameWorklogs, typeOfWorkWorklogs]);
 
   useEffect(() => {
     const getData = async () => {
@@ -2438,7 +2473,20 @@ const EditDrawer = ({
     };
 
     typeOfWorkWorklogs !== 0 && getData();
-  }, [typeOfWorkWorklogs, clientNameWorklogs]);
+  }, [typeOfWorkWorklogs]);
+
+  useEffect(() => {
+    const getData = async () => {
+      const departmentData = await getDepartmentDropdownData(assigneeWorklogs);
+      departmentData.DepartmentList.length > 0 &&
+        setDepartmentWorklogsDropdownData(departmentData.DepartmentList);
+      departmentData.DefaultId > 0 &&
+        onEdit === 0 &&
+        setDepartmentWorklogs(departmentData.DefaultId);
+    };
+
+    assigneeWorklogs > 0 && getData();
+  }, [assigneeWorklogs]);
 
   const getUserDetails = async () => {
     const params = {};
@@ -2478,6 +2526,7 @@ const EditDrawer = ({
     setSubProcessWorklogsErr(false);
     setManagerWorklogs(0);
     setManagerWorklogsErr(false);
+    setErrorlogSignOffPending(false);
     setEditStatusWorklogs(0);
     setStatusWorklogs(0);
     setStatusWorklogsErr(false);
@@ -2494,6 +2543,8 @@ const EditDrawer = ({
     setAssigneeWorklogsDisable(true);
     setReviewerWorklogs(0);
     setReviewerWorklogsErr(false);
+    setDepartmentWorklogs(0);
+    setDepartmentWorklogsErr(false);
     setDateOfReviewWorklogs("");
     setDateOfPreperationWorklogs("");
     setEstTimeDataWorklogs([]);
@@ -2626,9 +2677,11 @@ const EditDrawer = ({
     setProjectWorklogsDropdownData([]);
     setProcessWorklogsDropdownData([]);
     setSubProcessWorklogsDropdownData([]);
+    setStatusWorklogsDropdownData([]);
     setStatusWorklogsDropdownDataUse([]);
     setAssigneeWorklogsDropdownData([]);
     setReviewerWorklogsDropdownData([]);
+    setDepartmentWorklogsDropdownData([]);
 
     // Others
     scrollToPanel(0);
@@ -2719,6 +2772,8 @@ const EditDrawer = ({
                           setTypeOfWorkWorklogsErr(false);
                           setProjectNameWorklogs(0);
                           setProjectNameWorklogsErr(false);
+                          onEdit > 0 && setStatusWorklogs(0);
+                          onEdit > 0 && setStatusWorklogsErr(false);
                           setProcessNameWorklogs(0);
                           setProcessNameWorklogsErr(false);
                           setSubProcessWorklogs(0);
@@ -2737,6 +2792,8 @@ const EditDrawer = ({
                             setAssigneeWorklogsErr(false);
                           setReviewerWorklogs(0);
                           setReviewerWorklogsErr(false);
+                          setDepartmentWorklogs(0);
+                          setDepartmentWorklogsErr(false);
                         }}
                         disabled={
                           (isCreatedByClientWorklogsDrawer &&
@@ -2791,28 +2848,23 @@ const EditDrawer = ({
                             typeOfWorkWorklogs === 0 ? "" : typeOfWorkWorklogs
                           }
                           onChange={(e) => {
-                            onEdit === 0 && setProjectNameWorklogs(0);
-                            onEdit === 0 && setProjectNameWorklogsErr(false);
-                            onEdit === 0 && setProcessNameWorklogs(0);
-                            onEdit === 0 && setProcessNameWorklogsErr(false);
-                            onEdit === 0 && setSubProcessWorklogs(0);
-                            onEdit === 0 && setSubProcessWorklogsErr(false);
-                            onEdit === 0 && setDescriptionWorklogs("");
-                            onEdit === 0 && setManagerWorklogs(0);
-                            onEdit === 0 && setManagerWorklogsErr(false);
-                            onEdit === 0 && setPriorityWorklogs(0);
-                            onEdit === 0 && setQuantityWorklogs(1);
-                            onEdit === 0 && setQuantityWorklogsErr(false);
-                            onEdit === 0 && setReceiverDateWorklogs("");
-                            onEdit === 0 && setReceiverDateWorklogsErr(false);
-                            onEdit === 0 && setDueDateWorklogs("");
+                            setProjectNameWorklogs(0);
+                            setProjectNameWorklogsErr(false);
+                            onEdit > 0 && setStatusWorklogs(0);
+                            onEdit > 0 && setStatusWorklogsErr(false);
+                            setProcessNameWorklogs(0);
+                            setProcessNameWorklogsErr(false);
+                            setSubProcessWorklogs(0);
+                            setSubProcessWorklogsErr(false);
                             assigneeWorklogsDisable && setAssigneeWorklogs(0);
                             setReviewerWorklogs(0);
                             setTypeOfWorkWorklogs(e.target.value);
                             onEdit === 0 && setDateOfReviewWorklogs("");
                             onEdit === 0 && setDateOfPreperationWorklogs("");
-                            onEdit === 0 && setReturnYearWorklogs(0);
-                            onEdit === 0 && setNoOfPagesWorklogs(0);
+                            setReturnYearWorklogs(0);
+                            setNoOfPagesWorklogs(0);
+                            setDepartmentWorklogs(0);
+                            setDepartmentWorklogsErr(false);
                           }}
                           onBlur={(e: any) => {
                             if (e.target.value > 0) {
@@ -3346,6 +3398,8 @@ const EditDrawer = ({
                         }
                         onChange={(e, value: any) => {
                           value && setAssigneeWorklogs(value.value);
+                          setDepartmentWorklogs(0);
+                          setDepartmentWorklogsErr(false);
                         }}
                         sx={{ width: 300, mt: -1, mx: 0.75 }}
                         renderInput={(params) => (
@@ -3416,6 +3470,56 @@ const EditDrawer = ({
                             }}
                             helperText={
                               reviewerWorklogsErr
+                                ? "This is a required field."
+                                : ""
+                            }
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid
+                      item
+                      xs={3}
+                      className={`${
+                        typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
+                      }`}
+                    >
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={departmentWorklogsDropdownData}
+                        disabled={isIdDisabled}
+                        value={
+                          departmentWorklogsDropdownData.find(
+                            (i: any) => i.value === departmentWorklogs
+                          ) || null
+                        }
+                        onChange={(e, value: any) => {
+                          value && setDepartmentWorklogs(value.value);
+                        }}
+                        sx={{
+                          width: 300,
+                          mt: typeOfWorkWorklogs === 3 ? 0.2 : -1,
+                          mx: 0.75,
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Department
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={departmentWorklogsErr}
+                            onBlur={(e) => {
+                              if (departmentWorklogs > 0) {
+                                setDepartmentWorklogsErr(false);
+                              }
+                            }}
+                            helperText={
+                              departmentWorklogsErr
                                 ? "This is a required field."
                                 : ""
                             }
@@ -3518,7 +3622,7 @@ const EditDrawer = ({
                             )}
                           </FormControl>
                         </Grid>
-                        <Grid item xs={3} className="pt-4">
+                        <Grid item xs={3} className="pt-[13px]">
                           <TextField
                             label="No of Pages"
                             type="number"
@@ -4083,10 +4187,10 @@ const EditDrawer = ({
                                 {editingCommentIndexWorklogs === index ? (
                                   <div className="flex items-start gap-8">
                                     <div className="flex flex-col">
-                                      <div className="flex items-start justify-center">
+                                      <div className="flex items-start justify-start w-[70vw]">
                                         <MentionsInput
                                           style={mentionsInputStyle}
-                                          className="!w-[100%] textareaOutlineNoneEdit max-w-[70%]"
+                                          className="!w-[100%] textareaOutlineNoneEdit max-w-[60vw]"
                                           value={valueEditWorklogs}
                                           onChange={(e) => {
                                             setValueEditWorklogs(
@@ -4178,9 +4282,9 @@ const EditDrawer = ({
                                     </button>
                                   </div>
                                 ) : (
-                                  <div className="flex items-start justify-center gap-8">
+                                  <div className="flex items-start justify-start gap-8 w-[70vw]">
                                     <span className="hidden"></span>
-                                    <div className="flex items-start max-w-[70%]">
+                                    <div className="max-w-[60vw]">
                                       {extractText(i.Message).map((i: any) => {
                                         const assignee =
                                           commentWorklogsUserData.map(
@@ -4628,9 +4732,9 @@ const EditDrawer = ({
                           : recurringTime === 2
                           ? `Occurs every ${selectedDays
                               .sort()
-                              .map((day: any) => " " + days[day])} ${
-                              selectedDays.length <= 0 && "day"
-                            } starting from today`
+                              .map(
+                                (day: any) => " " + days[day]
+                              )} starting from today`
                           : recurringTime === 3 &&
                             "Occurs every month starting from today"}
                       </span>

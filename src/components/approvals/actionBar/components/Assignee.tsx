@@ -9,8 +9,6 @@ import { callAPI } from "@/utils/API/callAPI";
 
 const Assignee = ({
   selectedWorkItemIds,
-  selectedRowStatusId,
-  selectedRowsCount,
   handleClearSelection,
   getReviewList,
   selectedRowClientId,

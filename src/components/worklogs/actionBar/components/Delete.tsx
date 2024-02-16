@@ -7,9 +7,7 @@ import { callAPI } from "@/utils/API/callAPI";
 
 const Delete = ({
   workItemData,
-  selectedRowId,
   selectedRowIds,
-  selectedRowStatusId,
   handleClearSelection,
   getWorkItemList,
   getOverLay,

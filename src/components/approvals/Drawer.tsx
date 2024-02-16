@@ -55,6 +55,7 @@ import {
   getCCDropdownData,
   getClientDropdownData,
   getCommentUserDropdownData,
+  getDepartmentDropdownData,
   getManagerDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
@@ -177,9 +178,7 @@ const EditDrawer = ({
   const [clientNameApprovalsErr, setClientNameApprovalsErr] = useState(false);
   const [workTypeApprovalsDropdownData, setWorkTypeApprovalsDropdownData] =
     useState([]);
-  const [typeOfWorkApprovals, setTypeOfWorkApprovals] = useState<
-    string | number
-  >(0);
+  const [typeOfWorkApprovals, setTypeOfWorkApprovals] = useState<any>(0);
   const [typeOfWorkApprovalsErr, setTypeOfWorkApprovalsErr] = useState(false);
   const [projectApprovalsDropdownData, setProjectApprovalsDropdownData] =
     useState([]);
@@ -197,16 +196,25 @@ const EditDrawer = ({
     useState<any>([]);
   const [statusApprovalsDropdownDataUse, setStatusApprovalsDropdownDataUse] =
     useState<any>([]);
+  const [
+    errorlogSignedOffPendingApprovals,
+    setErrorlogSignOffPendingApprovals,
+  ] = useState(false);
+  const [editStatusApprovals, setEditStatusApprovals] = useState(0);
   const [statusApprovals, setStatusApprovals] = useState<any>(0);
   const [statusApprovalsErr, setStatusApprovalsErr] = useState(false);
   const [assigneeApprovalsDropdownData, setAssigneeApprovalsDropdownData] =
     useState<any>([]);
-  const [assigneeApprovals, setAssigneeApprovals] = useState<any>([]);
+  const [assigneeApprovals, setAssigneeApprovals] = useState<any>(0);
   const [assigneeApprovalsErr, setAssigneeApprovalsErr] = useState(false);
   const [reviewerApprovalsDropdownData, setReviewerApprovalsDropdownData] =
     useState([]);
-  const [reviewerApprovals, setReviewerApprovals] = useState<any>([]);
+  const [reviewerApprovals, setReviewerApprovals] = useState<any>(0);
   const [reviewerApprovalsErr, setReviewerApprovalsErr] = useState(false);
+  const [departmentApprovalsDropdownData, setDepartmentApprovalsDropdownData] =
+    useState([]);
+  const [departmentApprovals, setDepartmentApprovals] = useState<any>(0);
+  const [departmentApprovalsErr, setDepartmentApprovalsErr] = useState(false);
   const [managerApprovalsDropdownData, setManagerApprovalsDropdownData] =
     useState<any>([]);
   const [managerApprovals, setManagerApprovals] = useState<any>(0);
@@ -810,10 +818,10 @@ const EditDrawer = ({
 
   const handleSaveClickApprovals = async (e: any, i: any, type: any) => {
     e.preventDefault();
-    setValueEditError(valueEdit.trim().length < 51);
+    setValueEditError(valueEdit.trim().length < 1);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (valueEdit.trim().length > 51 && !valueEditError) {
+      if (valueEdit.trim().length > 1 && !valueEditError) {
         setIsLoadingApprovals(true);
         const params = {
           workitemId: onEdit,
@@ -866,10 +874,11 @@ const EditDrawer = ({
         .split("(")
         .map((i: any, index: number) => {
           if (i.includes(")")) {
-            return parseInt(i.split(")")[0]);
+            const parsedValue = parseInt(i.split(")")[0]);
+            return isNaN(parsedValue) ? null : parsedValue;
           }
         })
-        .filter((i: any) => i !== undefined)
+        .filter((i: any) => i !== undefined && i !== null)
     );
     setValueError(false);
   };
@@ -1820,6 +1829,7 @@ const EditDrawer = ({
       dueDate: validateField(dueDateApprovals),
       assignee: assigneeDisableApprovals && validateField(assigneeApprovals),
       reviewer: validateField(reviewerApprovals),
+      department: validateField(departmentApprovals),
       manager: validateField(managerApprovals),
       returnYear:
         typeOfWorkApprovals === 3 && validateField(returnYearApprovals),
@@ -1846,6 +1856,7 @@ const EditDrawer = ({
     assigneeDisableApprovals &&
       setAssigneeApprovalsErr(fieldValidations.assignee);
     setReviewerApprovalsErr(fieldValidations.reviewer);
+    setDepartmentApprovalsErr(fieldValidations.department);
     setManagerApprovalsErr(fieldValidations.manager);
     typeOfWorkApprovals === 3 &&
       setReturnYearApprovalsErr(fieldValidations.returnYear);
@@ -1889,6 +1900,7 @@ const EditDrawer = ({
       receiverDate: validateField(receiverDateApprovals),
       assignee: validateField(assigneeApprovals),
       reviewer: validateField(reviewerApprovals),
+      separtment: validateField(departmentApprovals),
       manager: validateField(managerApprovals),
       returnYear:
         typeOfWorkApprovals === 3 && validateField(returnYearApprovals),
@@ -1920,6 +1932,7 @@ const EditDrawer = ({
       allInfoDate: allInfoDateApprovals === "" ? null : allInfoDateApprovals,
       AssignedId: assigneeApprovals,
       ReviewerId: reviewerApprovals,
+      DepartmentId: departmentApprovals,
       managerId: managerApprovals,
       TaxReturnType: null,
       TaxCustomFields:
@@ -1963,6 +1976,10 @@ const EditDrawer = ({
           onEdit === 0 && onClose();
           onEdit === 0 && handleClose();
           setIsLoadingApprovals(false);
+        } else if (ResponseStatus === "Warning" && error === false) {
+          toast.warning(ResponseData);
+          setIsLoadingApprovals(false);
+          onEdit > 0 && getEditData();
         } else {
           setIsLoadingApprovals(false);
         }
@@ -2001,6 +2018,9 @@ const EditDrawer = ({
       ResponseStatus: any
     ) => {
       if (ResponseStatus === "Success" && error === false) {
+        setErrorlogSignOffPendingApprovals(
+          ResponseData.ErrorlogSignedOffPending
+        );
         setEditData(ResponseData);
         setIsCreatedByClient(ResponseData.IsCreatedByClient);
         setIsManual(ResponseData.IsManual);
@@ -2013,37 +2033,10 @@ const EditDrawer = ({
           ResponseData.TaskName === null ? "" : ResponseData.TaskName
         );
         setStatusApprovals(ResponseData.StatusId);
+        setEditStatusApprovals(ResponseData.StatusId);
         setAllInfoDateApprovals(
           ResponseData.AllInfoDate === null ? "" : ResponseData.AllInfoDate
         );
-        !ResponseData.ErrorlogSignedOffPending
-          ? setStatusApprovalsDropdownDataUse(
-              statusApprovalsDropdownData.filter(
-                (item: any) =>
-                  item.Type === "Rework" ||
-                  item.Type === "InReview" ||
-                  item.Type === "Submitted" ||
-                  item.Type === "Accept" ||
-                  item.Type === "AcceptWithNotes" ||
-                  item.Type === "OnHoldFromClient" ||
-                  item.Type === "WithDraw" ||
-                  item.Type === "WithdrawnbyClient" ||
-                  item.value == ResponseData.StatusId
-              )
-            )
-          : setStatusApprovalsDropdownDataUse(
-              statusApprovalsDropdownData.filter(
-                (item: any) =>
-                  item.Type === "Rework In Review" ||
-                  item.Type === "ReworkSubmitted" ||
-                  item.Type === "ReworkAccept" ||
-                  item.Type === "ReworkAcceptWithNotes" ||
-                  item.Type === "OnHoldFromClient" ||
-                  item.Type === "WithDraw" ||
-                  item.Type === "WithdrawnbyClient" ||
-                  item.value == ResponseData.StatusId
-              )
-            );
         setPriorityApprovals(ResponseData.Priority);
         setQuantityApprovals(ResponseData.Quantity);
         setDescriptionApprovals(
@@ -2055,6 +2048,7 @@ const EditDrawer = ({
         setDateOfPreperationApprovals(ResponseData.PreparationDate);
         setAssigneeApprovals(ResponseData.AssignedId);
         setReviewerApprovals(ResponseData.ReviewerId);
+        setDepartmentApprovals(ResponseData.DepartmentId);
         setManagerApprovals(
           ResponseData.ManagerId === null ? 0 : ResponseData.ManagerId
         );
@@ -2082,14 +2076,66 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
-      const statusData = await getStatusDropdownData();
+      const statusData = await getStatusDropdownData(typeOfWorkApprovals);
 
       await setStatusApprovalsDropdownData(statusData);
+
+      const getType = statusData.filter(
+        (item: any) => item.value === editStatusApprovals
+      )[0].Type;
+
+      !errorlogSignedOffPendingApprovals &&
+        setStatusApprovalsDropdownDataUse(
+          statusData.filter(
+            (item: any) =>
+              item.Type === "Rework" ||
+              item.Type === "InReview" ||
+              item.Type === "Accept" ||
+              item.Type === "AcceptWithNotes" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient" ||
+              (getType !== "PartialSubmitted" && item.Type === "Submitted") ||
+              (typeOfWorkApprovals !== 3 &&
+                getType !== "Submitted" &&
+                item.Type === "PartialSubmitted") ||
+              item.value === editStatusApprovals
+          )
+        );
+
+      errorlogSignedOffPendingApprovals &&
+        setStatusApprovalsDropdownDataUse(
+          statusData.filter(
+            (item: any) =>
+              item.Type === "Rework In Review" ||
+              item.Type === "ReworkAccept" ||
+              item.Type === "ReworkAcceptWithNotes" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient" ||
+              (getType !== "PartialSubmitted" &&
+                item.Type === "ReworkSubmitted") ||
+              (typeOfWorkApprovals !== 3 &&
+                getType !== "ReworkSubmitted" &&
+                item.Type === "PartialSubmitted") ||
+              item.value === editStatusApprovals
+          )
+        );
+    };
+
+    onOpen &&
+      statusApprovalsDropdownData?.length === 0 &&
+      typeOfWorkApprovals > 0 &&
+      getData();
+  }, [onEdit, statusApprovalsDropdownData, typeOfWorkApprovals]);
+
+  useEffect(() => {
+    const getData = async () => {
       await setCCDropdownDataApprovals(await getCCDropdownData());
     };
 
-    onOpen && statusApprovalsDropdownData.length === 0 && getData();
-    if (onEdit > 0 && statusApprovalsDropdownData.length > 0) {
+    onOpen && getData();
+    if (onEdit > 0) {
       getEditData();
       getSubTaskDataApprovals();
       getRecurringDataApprovals();
@@ -2102,7 +2148,7 @@ const EditDrawer = ({
     if (onEdit > 0 && assigneeApprovalsDropdownData.length > 0) {
       getReminderDataApprovals();
     }
-  }, [onEdit, statusApprovalsDropdownData, assigneeApprovalsDropdownData]);
+  }, [onEdit, assigneeApprovalsDropdownData]);
 
   useEffect(() => {
     onEdit > 0 &&
@@ -2136,16 +2182,6 @@ const EditDrawer = ({
         setWorkTypeApprovalsDropdownData(
           await getTypeOfWorkDropdownData(clientNameApprovals)
         );
-      clientNameApprovals > 0 &&
-        setProjectApprovalsDropdownData(
-          await getProjectDropdownData(clientNameApprovals)
-        );
-      const processData: any =
-        clientNameApprovals > 0 &&
-        (await getProcessDropdownData(clientNameApprovals));
-      setProcessApprovalsDropdownData(
-        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
-      );
     };
 
     onOpen && getData();
@@ -2167,10 +2203,26 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
+      clientNameApprovals > 0 &&
+        typeOfWorkApprovals > 0 &&
+        setProjectApprovalsDropdownData(
+          await getProjectDropdownData(clientNameApprovals, typeOfWorkApprovals)
+        );
+      const processData: any =
+        clientNameApprovals > 0 &&
+        typeOfWorkApprovals > 0 &&
+        (await getProcessDropdownData(
+          clientNameApprovals,
+          typeOfWorkApprovals
+        ));
+      setProcessApprovalsDropdownData(
+        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
+      );
       const data: any =
         processNameApprovals !== 0 &&
         (await getSubProcessDropdownData(
           clientNameApprovals,
+          typeOfWorkApprovals,
           processNameApprovals
         ));
       data.length > 0 && setEstTimeDataApprovals(data);
@@ -2181,7 +2233,7 @@ const EditDrawer = ({
     };
 
     getData();
-  }, [processNameApprovals]);
+  }, [processNameApprovals, typeOfWorkApprovals]);
 
   useEffect(() => {
     const getData = async () => {
@@ -2200,6 +2252,19 @@ const EditDrawer = ({
 
     typeOfWorkApprovals !== 0 && getData();
   }, [typeOfWorkApprovals, clientNameApprovals]);
+
+  useEffect(() => {
+    const getData = async () => {
+      const departmentData = await getDepartmentDropdownData(assigneeApprovals);
+      departmentData.DepartmentList.length > 0 &&
+        setDepartmentApprovalsDropdownData(departmentData.DepartmentList);
+      departmentData.DefaultId > 0 &&
+        onEdit === 0 &&
+        setDepartmentApprovals(departmentData.DefaultId);
+    };
+
+    assigneeApprovals > 0 && getData();
+  }, [assigneeApprovals]);
 
   const handleClose = () => {
     // Common
@@ -2231,8 +2296,12 @@ const EditDrawer = ({
     setManagerApprovals(0);
     setManagerApprovalsErr(false);
     setStatusApprovalsDropdownDataUse([]);
+    setErrorlogSignOffPendingApprovals(false);
+    setEditStatusApprovals(0);
     setStatusApprovals(0);
     setStatusApprovalsErr(false);
+    setStatusApprovalsDropdownData([]);
+    setStatusApprovalsDropdownDataUse([]);
     setDescriptionApprovals("");
     setPriorityApprovals(0);
     setQuantityApprovals(1);
@@ -2248,6 +2317,9 @@ const EditDrawer = ({
     setReviewerApprovalsDropdownData([]);
     setReviewerApprovals(0);
     setReviewerApprovalsErr(false);
+    setDepartmentApprovalsDropdownData([]);
+    setDepartmentApprovals(0);
+    setDepartmentApprovalsErr(false);
     setDateOfReviewApprovals("");
     setDateOfPreperationApprovals("");
     setEstTimeDataApprovals([]);
@@ -2469,6 +2541,8 @@ const EditDrawer = ({
                           setTypeOfWorkApprovalsErr(false);
                           setProjectNameApprovals(0);
                           setProjectNameApprovalsErr(false);
+                          setStatusApprovals(0);
+                          setStatusApprovalsErr(false);
                           setProcessNameApprovals(0);
                           setProcessNameApprovalsErr(false);
                           setSubProcessApprovals(0);
@@ -2487,6 +2561,8 @@ const EditDrawer = ({
                             setAssigneeApprovalsErr(false);
                           setReviewerApprovals(0);
                           setReviewerApprovalsErr(false);
+                          setDepartmentApprovals(0);
+                          setDepartmentApprovalsErr(false);
                           setReturnYearApprovals(0);
                           setNoOfPagesApprovals(0);
                           setChecklistWorkpaperApprovals(0);
@@ -2545,6 +2621,16 @@ const EditDrawer = ({
                             setReturnYearApprovals(0);
                             setNoOfPagesApprovals(0);
                             setChecklistWorkpaperApprovals(0);
+                            setProjectNameApprovals(0);
+                            setProjectNameApprovalsErr(false);
+                            setStatusApprovals(0);
+                            setStatusApprovalsErr(false);
+                            setProcessNameApprovals(0);
+                            setProcessNameApprovalsErr(false);
+                            setSubProcessApprovals(0);
+                            setSubProcessApprovalsErr(false);
+                            setDepartmentApprovals(0);
+                            setDepartmentApprovalsErr(false);
                           }}
                           onBlur={(e: any) => {
                             if (e.target.value > 0) {
@@ -3072,6 +3158,8 @@ const EditDrawer = ({
                         }
                         onChange={(e, value: any) => {
                           value && setAssigneeApprovals(value.value);
+                          setDepartmentApprovals(0);
+                          setDepartmentApprovalsErr(false);
                         }}
                         sx={{ width: 300, mt: -1, mx: 0.75 }}
                         renderInput={(params) => (
@@ -3141,6 +3229,55 @@ const EditDrawer = ({
                             }}
                             helperText={
                               reviewerApprovalsErr
+                                ? "This is a required field."
+                                : ""
+                            }
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid
+                      item
+                      xs={3}
+                      className={`${
+                        typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
+                      }`}
+                    >
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={departmentApprovalsDropdownData}
+                        value={
+                          departmentApprovalsDropdownData.find(
+                            (i: any) => i.value === departmentApprovals
+                          ) || null
+                        }
+                        onChange={(e, value: any) => {
+                          value && setDepartmentApprovals(value.value);
+                        }}
+                        sx={{
+                          width: 300,
+                          mt: typeOfWorkApprovals === 3 ? 0.2 : -1,
+                          mx: 0.75,
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Department
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={departmentApprovalsErr}
+                            onBlur={(e) => {
+                              if (departmentApprovals > 0) {
+                                setDepartmentApprovalsErr(false);
+                              }
+                            }}
+                            helperText={
+                              departmentApprovalsErr
                                 ? "This is a required field."
                                 : ""
                             }
@@ -3780,10 +3917,10 @@ const EditDrawer = ({
                               {editingCommentIndexApprovals === index ? (
                                 <div className="flex items-start justify-center gap-8">
                                   <div className="flex flex-col">
-                                    <div className="flex items-start justify-center">
+                                    <div className="flex items-start justify-start w-[70vw]">
                                       <MentionsInput
                                         style={mentionsInputStyle}
-                                        className="!w-[100%] textareaOutlineNoneEdit max-w-[70%]"
+                                        className="!w-[100%] textareaOutlineNoneEdit max-w-[60vw]"
                                         value={valueEdit}
                                         onChange={(e) => {
                                           setValueEdit(e.target.value);
@@ -3868,9 +4005,9 @@ const EditDrawer = ({
                                   </button>
                                 </div>
                               ) : (
-                                <div className="flex items-start justify-center gap-8">
+                                <div className="flex items-start justify-start gap-8 w-[70vw]">
                                   <span className="hidden"></span>
-                                  <div className="flex items-start max-w-[70%]">
+                                  <div className="max-w-[60vw]">
                                     {extractText(i.Message).map((i: any) => {
                                       const assignee =
                                         commentUserDataApprovals.map(
@@ -4214,9 +4351,9 @@ const EditDrawer = ({
                           : recurringTimeApprovals === 2
                           ? `Occurs every ${selectedDays
                               .sort()
-                              .map((day: any) => " " + days[day])} ${
-                              selectedDays.length <= 0 && "day"
-                            } starting from today`
+                              .map(
+                                (day: any) => " " + days[day]
+                              )} starting from today`
                           : recurringTimeApprovals === 3 &&
                             "Occurs every month starting from today"}
                       </span>
@@ -4226,88 +4363,81 @@ const EditDrawer = ({
               </div>
             )}
 
-              <div
-                className="mt-14"
-                id="tabpanel-5"
-              >
-                <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
-                  <span className="flex items-center">
-                    <ClockIcon />
-                    <span className="ml-[21px]">Manual Time</span>
-                  </span>
-                  <span
-                    className={`cursor-pointer ${
-                      manualTimeDrawer ? "rotate-180" : ""
-                    }`}
-                    onClick={() => setManualTimeDrawer(!manualTimeDrawer)}
-                  >
-                    <ChevronDownIcon />
-                  </span>
-                </div>
-                {manualTimeDrawer && (
-                  <>
-                    <div className="-mt-2 pl-6">
-                      {manualFieldsApprovals.map((field) => (
-                        <div key={field.Id}>
-                          <div
-                            className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]`}
-                          >
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                              <DatePicker
-                                label={
-                                  <span>
-                                    Date
-                                    <span className="!text-defaultRed">
-                                      &nbsp;*
-                                    </span>
+            <div className="mt-14" id="tabpanel-5">
+              <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
+                <span className="flex items-center">
+                  <ClockIcon />
+                  <span className="ml-[21px]">Manual Time</span>
+                </span>
+                <span
+                  className={`cursor-pointer ${
+                    manualTimeDrawer ? "rotate-180" : ""
+                  }`}
+                  onClick={() => setManualTimeDrawer(!manualTimeDrawer)}
+                >
+                  <ChevronDownIcon />
+                </span>
+              </div>
+              {manualTimeDrawer && (
+                <>
+                  <div className="-mt-2 pl-6">
+                    {manualFieldsApprovals.map((field) => (
+                      <div key={field.Id}>
+                        <div
+                          className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]`}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              label={
+                                <span>
+                                  Date
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
                                   </span>
-                                }
-                                value={
-                                  field.inputDate === ""
-                                    ? null
-                                    : dayjs(field.inputDate)
-                                }
-                                readOnly
-                              />
-                            </LocalizationProvider>
-                          </div>
-                          <TextField
-                            label={
-                              <span>
-                                Start Time(24h)
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
                                 </span>
-                              </span>
-                            }
-                            placeholder="00:00:00"
-                            fullWidth
-                            value={field.startTime}
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 230 }}
-                          />
-                          <TextField
-                            label={
-                              <span>
-                                End Time(24h)
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            placeholder="00:00:00"
-                            fullWidth
-                            value={field.endTime}
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 230 }}
-                          />
-                          {/* <TextField
+                              }
+                              value={
+                                field.inputDate === ""
+                                  ? null
+                                  : dayjs(field.inputDate)
+                              }
+                              readOnly
+                            />
+                          </LocalizationProvider>
+                        </div>
+                        <TextField
+                          label={
+                            <span>
+                              Start Time(24h)
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          placeholder="00:00:00"
+                          fullWidth
+                          value={field.startTime}
+                          InputProps={{ readOnly: true }}
+                          inputProps={{ readOnly: true }}
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 230 }}
+                        />
+                        <TextField
+                          label={
+                            <span>
+                              End Time(24h)
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          placeholder="00:00:00"
+                          fullWidth
+                          value={field.endTime}
+                          InputProps={{ readOnly: true }}
+                          inputProps={{ readOnly: true }}
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 230 }}
+                        />
+                        {/* <TextField
                             label="Total Time"
                             disabled
                             fullWidth
@@ -4323,41 +4453,39 @@ const EditDrawer = ({
                             InputProps={{ readOnly: true }}
                             inputProps={{ readOnly: true }}
                           /> */}
-                          <TextField
-                            label="Total Time"
-                            disabled
-                            fullWidth
-                            value={field.totalTime}
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 225 }}
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
-                          />
-                          <TextField
-                            label={
-                              <span>
-                                Description
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            className="mt-4"
-                            fullWidth
-                            value={field.manualDesc}
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
+                        <TextField
+                          label="Total Time"
+                          disabled
+                          fullWidth
+                          value={field.totalTime}
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 225 }}
+                          InputProps={{ readOnly: true }}
+                          inputProps={{ readOnly: true }}
+                        />
+                        <TextField
+                          label={
+                            <span>
+                              Description
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          className="mt-4"
+                          fullWidth
+                          value={field.manualDesc}
+                          InputProps={{ readOnly: true }}
+                          inputProps={{ readOnly: true }}
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
 
             <div className="mt-14" id="tabpanel-6">
               <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">

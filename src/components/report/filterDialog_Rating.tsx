@@ -17,6 +17,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { getProjectDropdownData } from "@/utils/commonDropdownApiCall";
+import { getFormattedDate } from "@/utils/timerFunctions";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -98,20 +99,14 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
       Ratings: ratingsFilterRating || null,
       StartDate:
         startDateFilterRating !== null
-          ? new Date(
-              new Date(startDateFilterRating).getTime() + 24 * 60 * 60 * 1000
-            )
-              .toISOString()
-              .split("T")[0]
+          ? getFormattedDate(startDateFilterRating)
           : null,
       EndDate:
-        endDateFilterRating !== null
-          ? new Date(
-              new Date(endDateFilterRating).getTime() + 24 * 60 * 60 * 1000
-            )
-              .toISOString()
-              .split("T")[0]
-          : null,
+        endDateFilterRating === null
+          ? startDateFilterRating === null
+            ? null
+            : getFormattedDate(startDateFilterRating)
+          : getFormattedDate(endDateFilterRating),
     };
     setCurrSelectedRatingFileds(selectedFields);
   }, [
@@ -129,7 +124,9 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
 
   const getProjectData = async () => {
     const clientId = await localStorage.getItem("clientId");
-    setProjectFilterRatingDropdownData(await getProjectDropdownData(clientId));
+    setProjectFilterRatingDropdownData(
+      await getProjectDropdownData(clientId, null)
+    );
   };
 
   useEffect(() => {
@@ -189,9 +186,7 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
                 </Select>
               </FormControl>
 
-              <div
-                className="inline-flex mt-[0px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]"
-              >
+              <div className="inline-flex mt-[0px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     label="From"

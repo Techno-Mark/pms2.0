@@ -57,6 +57,7 @@ const initialFilter = {
   dueDate: null,
   StatusId: null,
   ProcessId: null,
+  DateFilter: null,
 };
 
 const Datatable = ({
@@ -79,6 +80,7 @@ const Datatable = ({
   const [isLoadingApprovalsDatatable, setIsLoadingApprovalsDatatable] =
     useState(false);
   const [loaded, setLoaded] = useState<boolean>(false);
+  const [loadingInside, setLoadingInside] = useState<boolean>(false);
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -97,9 +99,6 @@ const Datatable = ({
   const [stopReviewTimer, setStopReviewTimer] = useState<boolean>(false);
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
   const [reviewList, setReviewList] = useState<any>([]);
-  const [selectedRowStatusId, setSelectedRowStatusId] = useState<
-    any | number[]
-  >([]);
   const [selectedRowClientId, setSelectedRowClientId] = useState<
     any | number[]
   >([]);
@@ -108,6 +107,7 @@ const Datatable = ({
   >([]);
   const [isWorkloadExpanded, setIsWorkloadExpanded] = useState<boolean>(false);
   const [clickedWorkloadRowId, setClickedWorkloadRowId] = useState<number>(-1);
+  const [reviewListInsideData, setReviewListInsideData] = useState<any>([]);
 
   const getInitialPagePerRows = () => {
     setRowsPerPage(10);
@@ -212,12 +212,6 @@ const Datatable = ({
     setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
 
     // adding all selected row's status Ids in an array
-    const selectedWorkItemStatusIds =
-      selectedData.length > 0
-        ? selectedData?.map((selectedRow: any) => selectedRow?.StatusId)
-        : [];
-
-    setSelectedRowStatusId(selectedWorkItemStatusIds);
 
     if (allRowsSelected) {
       setIsPopupOpen(true);
@@ -391,13 +385,42 @@ const Datatable = ({
     return () => clearTimeout(timer);
   }, [currentFilterData, searchValue, activeTab, filteredObject]);
 
+  const getReviewListInside = async () => {
+    setLoadingInside(false);
+    const params = {
+      WorkItemSubmissionId: clickedWorkloadRowId,
+      DateFilter: activeTab === 2 ? null : filteredObject.DateFilter,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/approval/getbreakandidletime`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus.toLowerCase() === "success" && error === false) {
+        setLoadingInside(true);
+        setReviewListInsideData(ResponseData);
+      } else {
+        setLoadingInside(true);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await getReviewListInside();
+    };
+    isWorkloadExpanded && fetchData();
+  }, [isWorkloadExpanded]);
+
   const generateManualTimeBodyRender = (bodyValue: any) => {
     return <div>{bodyValue ? formatTime(bodyValue) : "00:00:00"}</div>;
   };
 
   const columnConfigReview = [
     {
-      name: "WorkitemId",
+      name: "SubmissionId",
       label: "",
       bodyRenderer: generateCommonBodyRender,
     },
@@ -772,11 +795,16 @@ const Datatable = ({
                 {reviewList[tableMeta.rowIndex].ReviewerId ==
                   localStorage.getItem("UserId") &&
                   reviewList.length > 0 &&
-                  (reviewList[tableMeta.rowIndex].StatusId === 56 ||
-                    reviewList[tableMeta.rowIndex].StatusId === 58 ||
-                    reviewList[tableMeta.rowIndex].StatusId === 59 ||
-                    reviewList[tableMeta.rowIndex].StatusId === 6 ||
-                    reviewList[tableMeta.rowIndex].StatusId === 54) &&
+                  (reviewList[tableMeta.rowIndex].StatusType === "InReview" ||
+                    reviewList[tableMeta.rowIndex].StatusType ===
+                      "ReworkInReview" ||
+                    reviewList[tableMeta.rowIndex].StatusType ===
+                      "PartialSubmitted" ||
+                    reviewList[tableMeta.rowIndex].StatusType ===
+                      "SecondManagerReview" ||
+                    reviewList[tableMeta.rowIndex].StatusType === "Submitted" ||
+                    reviewList[tableMeta.rowIndex].StatusType ===
+                      "ReworkSubmitted") &&
                   reviewList[tableMeta.rowIndex].IsFinalSubmited &&
                   tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
                   tableMeta.rowData[tableMeta.rowData.length - 1] !==
@@ -862,11 +890,16 @@ const Datatable = ({
                       </ColorToolTip>
                     </div>
                   )}
-                {(reviewList[tableMeta.rowIndex].StatusId === 56 ||
-                  reviewList[tableMeta.rowIndex].StatusId === 58 ||
-                  reviewList[tableMeta.rowIndex].StatusId === 59 ||
-                  reviewList[tableMeta.rowIndex].StatusId === 6 ||
-                  reviewList[tableMeta.rowIndex].StatusId === 54) &&
+                {(reviewList[tableMeta.rowIndex].StatusType === "InReview" ||
+                  reviewList[tableMeta.rowIndex].StatusType ===
+                    "ReworkInReview" ||
+                  reviewList[tableMeta.rowIndex].StatusType ===
+                    "PartialSubmitted" ||
+                  reviewList[tableMeta.rowIndex].StatusType ===
+                    "SecondManagerReview" ||
+                  reviewList[tableMeta.rowIndex].StatusType === "Submitted" ||
+                  reviewList[tableMeta.rowIndex].StatusType ===
+                    "ReworkSubmitted") &&
                   reviewList[tableMeta.rowIndex].ReviewerId ==
                     localStorage.getItem("UserId") &&
                   tableMeta.rowData[tableMeta.rowData.length - 4] !== false && (
@@ -895,7 +928,7 @@ const Datatable = ({
       };
     } else if (column.label === "") {
       return {
-        name: "WorkitemId",
+        name: "SubmissionId",
         options: {
           filter: true,
           viewColumns: false,
@@ -1044,7 +1077,7 @@ const Datatable = ({
 
   const expandableColumns: any[] = [
     {
-      name: "Start Date & Time",
+      name: "StartDateTime",
       options: {
         sort: true,
         filter: true,
@@ -1056,7 +1089,7 @@ const Datatable = ({
       },
     },
     {
-      name: "End Date & Time",
+      name: "EndDateTime",
       options: {
         sort: true,
         filter: true,
@@ -1101,7 +1134,7 @@ const Datatable = ({
       },
     },
     {
-      name: "Total Hours",
+      name: "TotalHours",
       options: {
         sort: true,
         filter: true,
@@ -1116,7 +1149,6 @@ const Datatable = ({
   const propsForActionBar = {
     selectedRowsCount,
     selectedRows,
-    selectedRowStatusId,
     selectedRowIds,
     selectedWorkItemIds,
     selectedRowClientId,
@@ -1183,55 +1215,62 @@ const Datatable = ({
             }}
           />
 
-          <Popover
-            id={workloadIdFilter}
-            open={isWorkloadExpanded}
-            anchorEl={workloadAnchorElFilter}
-            TransitionComponent={DialogTransition}
-            onClose={() => setIsWorkloadExpanded(false)}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "center",
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "center",
-            }}
-          >
-            <div className="px-5 w-full flex items-center justify-between">
-              <div className="my-5 flex items-center">
-                <div className="mr-[10px]">
-                  <label className="text-sm font-normal font-proxima text-slatyGrey capitalize mr-[5px]">
-                    Task Name:
-                  </label>
-                  <label className="text-sm font-bold font-proxima capitalize">
-                    {reviewList
-                      .map((i: any) =>
-                        i.WorkitemId === clickedWorkloadRowId
-                          ? i.TaskName
-                          : false
-                      )
-                      .filter((j: any) => j !== false)}
-                  </label>
+          {loadingInside ? (
+            <Popover
+              id={workloadIdFilter}
+              open={isWorkloadExpanded}
+              anchorEl={workloadAnchorElFilter}
+              TransitionComponent={DialogTransition}
+              onClose={() => {
+                setIsWorkloadExpanded(false);
+                setClickedWorkloadRowId(-1);
+                setReviewListInsideData([]);
+                setLoadingInside(false);
+              }}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "center",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "center",
+              }}
+            >
+              <div className="px-5 w-full flex items-center justify-between">
+                <div className="my-5 flex items-center">
+                  <div className="mr-[10px]">
+                    <label className="text-sm font-normal font-proxima text-slatyGrey capitalize mr-[5px]">
+                      User Name:
+                    </label>
+                    <label className="text-sm font-bold font-proxima capitalize">
+                      {reviewListInsideData[0]?.UserName.length > 0
+                        ? reviewListInsideData[0]?.UserName
+                        : "-"}
+                    </label>
+                  </div>
+                </div>
+                <div
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setIsWorkloadExpanded(false);
+                    setClickedWorkloadRowId(-1);
+                    setReviewListInsideData([]);
+                    setLoadingInside(false);
+                  }}
+                >
+                  <CloseIcon />
                 </div>
               </div>
-              <div
-                className="cursor-pointer"
-                onClick={() => {
-                  setIsWorkloadExpanded(false);
-                  setClickedWorkloadRowId(-1);
-                }}
-              >
-                <CloseIcon />
-              </div>
-            </div>
-            <MUIDataTable
-              title={undefined}
-              columns={expandableColumns}
-              data={[]}
-              options={{ ...options, tableBodyHeight: "276px" }}
-            />
-          </Popover>
+              <MUIDataTable
+                title={undefined}
+                columns={expandableColumns}
+                data={reviewListInsideData}
+                options={{ ...options, tableBodyHeight: "450px" }}
+              />
+            </Popover>
+          ) : (
+            <ReportLoader />
+          )}
         </ThemeProvider>
       ) : (
         <ReportLoader />
