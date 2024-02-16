@@ -59,6 +59,11 @@ const Process = ({
         handleClearSelection();
         getWorkItemList();
         getOverLay(false);
+      } else if (ResponseStatus === "Warning" && error === false) {
+        toast.warning(ResponseData);
+        handleClearSelection();
+        getWorkItemList();
+        getOverLay(false);
       } else {
         getOverLay(false);
       }

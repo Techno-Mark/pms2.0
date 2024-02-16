@@ -4,7 +4,13 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { FormControl, InputLabel, MenuItem } from "@mui/material";
+import {
+  Autocomplete,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  TextField,
+} from "@mui/material";
 import Select from "@mui/material/Select";
 import {
   getCCDropdownData,
@@ -12,6 +18,7 @@ import {
   getProcessDropdownData,
   getProjectDropdownData,
   getStatusDropdownData,
+  getTypeOfWorkDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -31,6 +38,7 @@ interface FilterModalProps {
 
 const initialFilter = {
   ClientId: null,
+  TypeOfWork: null,
   userId: null,
   ProjectId: null,
   ProcessId: null,
@@ -47,12 +55,14 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   onClose,
   currentFilterData,
 }) => {
-  const [clientName, setClientName] = useState<any>(0);
-  const [userName, setUser] = useState<number | string>(0);
-  const [projectName, setProjectName] = useState<number | string>(0);
-  const [status, setStatus] = useState<number | string>(0);
-  const [processName, setProcessName] = useState<number | string>(0);
+  const [clientName, setClientName] = useState<any>(null);
+  const [workType, setWorkType] = useState<any>(null);
+  const [userName, setUser] = useState<any>(null);
+  const [projectName, setProjectName] = useState<any>(null);
+  const [status, setStatus] = useState<any>(null);
+  const [processName, setProcessName] = useState<any>(null);
   const [clientDropdownData, setClientDropdownData] = useState([]);
+  const [worktypeDropdownData, setWorktypeDropdownData] = useState([]);
   const [userDropdownData, setUserData] = useState([]);
   const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState<any>(false);
@@ -70,17 +80,20 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   };
 
   const handleResetAll = () => {
-    setClientName(0);
-    setUser(0);
-    setProjectName(0);
-    setProjectDropdownData([]);
-    setStatus(0);
+    setClientName(null);
+    setWorkType(null);
+    setUser(null);
+    setProjectName(null);
+    setProcessName(null);
+    setStatus(null);
     setDate(null);
     setDueDate(null);
     setStartDate(null);
     setEndDate(null);
-    setProcessName(0);
+    setWorktypeDropdownData([]);
+    setProjectDropdownData([]);
     setProcessDropdownData([]);
+    setStatusDropdownData([]);
     currentFilterData(initialFilter);
   };
 
@@ -92,28 +105,31 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   const getDropdownData = async () => {
     setClientDropdownData(await getClientDropdownData());
     setUserData(await getCCDropdownData());
-    const data = await getStatusDropdownData(3);
-    data.length > 0 &&
-      setStatusDropdownData(
-        activeTab === 1
-          ? data.filter(
-              (item: any) =>
-                item.Type === "InReview" ||
-                item.Type === "OnHoldFromClient" ||
-                item.Type === "ReworkInReview" ||
-                item.Type === "Submitted" ||
-                item.Type === "ReworkSubmitted" ||
-                item.Type === "SecondManagerReview" ||
-                item.Type === "WithDraw" ||
-                item.Type === "WithdrawnbyClient"
-            )
-          : data
-      );
   };
 
-  const getAllData = async (clientName: any) => {
-    setProcessDropdownData(await getProcessDropdownData(clientName, null));
-    setProjectDropdownData(await getProjectDropdownData(clientName, null));
+  const getClientData = async (clientName: any) => {
+    setWorktypeDropdownData(await getTypeOfWorkDropdownData(clientName));
+  };
+
+  const getAllData = async (clientName: any, workType: any) => {
+    setProcessDropdownData(await getProcessDropdownData(clientName, workType));
+    setProjectDropdownData(await getProjectDropdownData(clientName, workType));
+    const statusData = await getStatusDropdownData(workType);
+
+    statusData.length > 0 &&
+      setStatusDropdownData(
+        activeTab === 1
+          ? statusData.filter(
+              (item: any) =>
+                item.Type === "InReview" ||
+                item.Type === "ReworkInReview" ||
+                item.Type === "PartialSubmitted" ||
+                item.Type === "Submitted" ||
+                item.Type === "ReworkSubmitted" ||
+                item.Type === "SecondManagerReview"
+            )
+          : statusData
+      );
   };
 
   useEffect(() => {
@@ -123,16 +139,23 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   }, [onOpen]);
 
   useEffect(() => {
-    clientName > 0 && getAllData(clientName);
+    clientName !== null && getClientData(clientName?.value);
   }, [clientName]);
 
   useEffect(() => {
+    clientName !== null &&
+      workType !== null &&
+      getAllData(clientName?.value, workType?.value);
+  }, [clientName, workType]);
+
+  useEffect(() => {
     const isAnyFieldSelected: any =
-      clientName !== 0 ||
-      userName !== 0 ||
-      projectName !== 0 ||
-      status !== 0 ||
-      processName !== 0 ||
+      clientName !== null ||
+      workType !== null ||
+      userName !== null ||
+      projectName !== null ||
+      status !== null ||
+      processName !== null ||
       date !== null ||
       dueDate !== null ||
       startDate !== null ||
@@ -141,6 +164,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     setAnyFieldSelected(isAnyFieldSelected);
   }, [
     clientName,
+    workType,
     userName,
     projectName,
     processName,
@@ -153,11 +177,12 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
 
   useEffect(() => {
     const selectedFields = {
-      ClientId: clientName || null,
-      userId: userName || null,
-      ProjectId: projectName || null,
-      StatusId: status || null,
-      ProcessId: processName || null,
+      ClientId: clientName !== null ? clientName.value : null,
+      TypeOfWork: workType !== null ? workType.value : null,
+      userId: userName !== null ? userName.value : null,
+      ProjectId: projectName !== null ? projectName.value : null,
+      StatusId: status !== null ? status.value : null,
+      ProcessId: processName !== null ? processName.value : null,
       DateFilter: date !== null ? getFormattedDate(date) : null,
       dueDate: dueDate !== null ? getFormattedDate(dueDate) : null,
       startDate: startDate !== null ? getFormattedDate(startDate) : null,
@@ -171,6 +196,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     setCurrSelectedFileds(selectedFields);
   }, [
     clientName,
+    workType,
     userName,
     projectName,
     processName,
@@ -204,90 +230,148 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
         <DialogContent>
           <div className="flex flex-col gap-[20px] pt-[15px]">
             <div className="flex gap-[20px]">
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="client_Name">Client Name</InputLabel>
-                <Select
-                  labelId="client_Name"
-                  id="client_Name"
-                  value={clientName === 0 ? "" : clientName}
-                  onChange={(e) => setClientName(e.target.value)}
-                >
-                  {clientDropdownData.map((i: any) => (
-                    <MenuItem value={i.value} key={i.value}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+              >
+                <Autocomplete
+                  id="tags-standard"
+                  options={clientDropdownData}
+                  getOptionLabel={(option: any) => option.label}
+                  onChange={(e: any, data: any) => {
+                    setClientName(data);
+                    setWorkType(null);
+                    setProjectName(null);
+                    setProcessName(null);
+                    setStatus(null);
+                    setProcessName(null);
+                  }}
+                  value={clientName}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Client Name"
+                    />
+                  )}
+                />
               </FormControl>
 
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="employee">Employee Name</InputLabel>
-                <Select
-                  labelId="employee"
-                  id="employee"
-                  value={userName === 0 ? "" : userName}
-                  onChange={(e) => setUser(e.target.value)}
-                >
-                  {userDropdownData.map((i: any) => (
-                    <MenuItem value={i.value} key={i.value}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+              >
+                <Autocomplete
+                  id="tags-standard"
+                  options={worktypeDropdownData}
+                  getOptionLabel={(option: any) => option.label}
+                  onChange={(e: any, data: any) => {
+                    setWorkType(data);
+                    setProjectName(null);
+                    setProcessName(null);
+                    setStatus(null);
+                  }}
+                  value={workType}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Type Of Work"
+                    />
+                  )}
+                />
               </FormControl>
 
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="project_Name">Project Name</InputLabel>
-                <Select
-                  labelId="project_Name"
-                  id="project_Name"
-                  value={projectName === 0 ? "" : projectName}
-                  onChange={(e) => setProjectName(e.target.value)}
-                >
-                  {projectDropdownData.map((i: any) => (
-                    <MenuItem value={i.value} key={i.value}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+              >
+                <Autocomplete
+                  id="tags-standard"
+                  options={userDropdownData}
+                  getOptionLabel={(option: any) => option.label}
+                  onChange={(e: any, data: any) => {
+                    setUser(data);
+                  }}
+                  value={userName}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Employee Name"
+                    />
+                  )}
+                />
               </FormControl>
             </div>
 
             <div className="flex gap-[20px]">
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="process_Name">Process Name</InputLabel>
-                <Select
-                  labelId="process_Name"
-                  id="process_Name"
-                  value={processName === 0 ? "" : processName}
-                  onChange={(e) => setProcessName(e.target.value)}
-                >
-                  {processDropdownData.map((i: any) => (
-                    <MenuItem value={i.Id} key={i.Id}>
-                      {i.Name}
-                    </MenuItem>
-                  ))}
-                </Select>
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+              >
+                <Autocomplete
+                  id="tags-standard"
+                  options={projectDropdownData}
+                  getOptionLabel={(option: any) => option.label}
+                  onChange={(e: any, data: any) => {
+                    setProjectName(data);
+                  }}
+                  value={projectName}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Project Name"
+                    />
+                  )}
+                />
               </FormControl>
 
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="status">Status</InputLabel>
-                <Select
-                  labelId="status"
-                  id="status"
-                  value={status === 0 ? "" : status}
-                  onChange={(e) => setStatus(e.target.value)}
-                >
-                  {statusDropdownData.map((i: any) => (
-                    <MenuItem value={i.value} key={i.value}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+              >
+                <Autocomplete
+                  id="tags-standard"
+                  options={processDropdownData}
+                  getOptionLabel={(option: any) => option.label}
+                  onChange={(e: any, data: any) => {
+                    setProcessName(data);
+                  }}
+                  value={userName}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Process Name"
+                    />
+                  )}
+                />
               </FormControl>
+
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+              >
+                <Autocomplete
+                  id="tags-standard"
+                  options={statusDropdownData}
+                  getOptionLabel={(option: any) => option.label}
+                  onChange={(e: any, data: any) => {
+                    setStatus(data);
+                  }}
+                  value={status}
+                  renderInput={(params: any) => (
+                    <TextField {...params} variant="standard" label="Status" />
+                  )}
+                />
+              </FormControl>
+            </div>
+            <div className="flex gap-[20px]">
               {activeTab === 1 && (
                 <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
@@ -309,7 +393,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
               )}
               {activeTab === 2 && (
                 <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
@@ -329,51 +413,51 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   </LocalizationProvider>
                 </div>
               )}
+              {activeTab === 2 && (
+                <>
+                  <div
+                    className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+                  >
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        label="From"
+                        value={startDate === null ? null : dayjs(startDate)}
+                        shouldDisableDate={isWeekend}
+                        maxDate={dayjs(Date.now())}
+                        onChange={(newDate: any) => {
+                          setStartDate(newDate.$d);
+                        }}
+                        slotProps={{
+                          textField: {
+                            readOnly: true,
+                          } as Record<string, any>,
+                        }}
+                      />
+                    </LocalizationProvider>
+                  </div>
+                  <div
+                    className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+                  >
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        label="To"
+                        value={endDate === null ? null : dayjs(endDate)}
+                        shouldDisableDate={isWeekend}
+                        maxDate={dayjs(Date.now())}
+                        onChange={(newDate: any) => {
+                          setEndDate(newDate.$d);
+                        }}
+                        slotProps={{
+                          textField: {
+                            readOnly: true,
+                          } as Record<string, any>,
+                        }}
+                      />
+                    </LocalizationProvider>
+                  </div>
+                </>
+              )}
             </div>
-            {activeTab === 2 && (
-              <div className="flex gap-[20px]">
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}
-                >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="From"
-                      value={startDate === null ? null : dayjs(startDate)}
-                      shouldDisableDate={isWeekend}
-                      maxDate={dayjs(Date.now())}
-                      onChange={(newDate: any) => {
-                        setStartDate(newDate.$d);
-                      }}
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}
-                >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="To"
-                      value={endDate === null ? null : dayjs(endDate)}
-                      shouldDisableDate={isWeekend}
-                      maxDate={dayjs(Date.now())}
-                      onChange={(newDate: any) => {
-                        setEndDate(newDate.$d);
-                      }}
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
-              </div>
-            )}
           </div>
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">

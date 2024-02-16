@@ -490,6 +490,21 @@ const Datatable = ({
         generateStatusWithColor(value, tableMeta.rowData[11]),
     },
     {
+      name: "TaskColorCode",
+      options: {
+        filter: false,
+        sort: false,
+        display: false,
+        viewColumns: false,
+      },
+    },
+    {
+      name: "TaskStatusName",
+      label: "Task Status",
+      bodyRenderer: (value: any, tableMeta: any) =>
+        generateStatusWithColor(value, tableMeta.rowData[13]),
+    },
+    {
       name: "EstimateTime",
       label: "Est. Hours",
       bodyRenderer: generateManualTimeBodyRender,
@@ -655,6 +670,21 @@ const Datatable = ({
         generateStatusWithColor(value, tableMeta.rowData[10]),
     },
     {
+      name: "TaskColorCode",
+      options: {
+        filter: false,
+        sort: false,
+        display: false,
+        viewColumns: false,
+      },
+    },
+    {
+      name: "TaskStatusName",
+      label: "Task Status",
+      bodyRenderer: (value: any, tableMeta: any) =>
+        generateStatusWithColor(value, tableMeta.rowData[12]),
+    },
+    {
       name: "EstimateTime",
       label: "Est. Hours",
       bodyRenderer: generateManualTimeBodyRender,
@@ -776,8 +806,8 @@ const Datatable = ({
               <div className="w-44 h-7 flex items-center">
                 <ColorToolTip
                   title={`Estimated Time: ${toHoursAndMinutes(
-                    tableMeta.rowData[activeTab === 1 ? 13 : 12] *
-                      tableMeta.rowData[activeTab === 1 ? 14 : 13]
+                    tableMeta.rowData[activeTab === 1 ? 15 : 14] *
+                      tableMeta.rowData[activeTab === 1 ? 16 : 15]
                   )}`}
                   placement="top"
                   arrow
@@ -805,7 +835,9 @@ const Datatable = ({
                     reviewList[tableMeta.rowIndex].StatusType === "Submitted" ||
                     reviewList[tableMeta.rowIndex].StatusType ===
                       "ReworkSubmitted") &&
-                  reviewList[tableMeta.rowIndex].IsFinalSubmited &&
+                  (reviewList[tableMeta.rowIndex].StatusType ===
+                    "PartialSubmitted" ||
+                    reviewList[tableMeta.rowIndex].IsFinalSubmited) &&
                   tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
                   tableMeta.rowData[tableMeta.rowData.length - 1] !==
                     isRunning &&
@@ -972,6 +1004,16 @@ const Datatable = ({
           viewColumns: false,
         },
       };
+    } else if (column.name === "TaskColorCode") {
+      return {
+        name: "TaskColorCode",
+        options: {
+          filter: false,
+          sort: false,
+          display: false,
+          viewColumns: false,
+        },
+      };
     } else if (column.name === "StatusName") {
       return {
         name: "StatusName",
@@ -982,7 +1024,40 @@ const Datatable = ({
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
           customBodyRender: (value: any, tableMeta: any) => {
             const statusColorCode =
-              tableMeta.rowData[activeTab === 1 ? 11 : 10];
+              tableMeta.rowData[activeTab === 1 ? 13 : 12];
+
+            return (
+              <div>
+                {value === null ||
+                value === "" ||
+                value === 0 ||
+                value === "0" ? (
+                  "-"
+                ) : (
+                  <div className="inline-block mr-1">
+                    <div
+                      className="w-[10px] h-[10px] rounded-full inline-block mr-2"
+                      style={{ backgroundColor: statusColorCode }}
+                    ></div>
+                    {value}
+                  </div>
+                )}
+              </div>
+            );
+          },
+        },
+      };
+    } else if (column.name === "TaskStatusName") {
+      return {
+        name: "TaskStatusName",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Task Status"),
+          customBodyRender: (value: any, tableMeta: any) => {
+            const statusColorCode =
+              tableMeta.rowData[activeTab === 1 ? 15 : 14];
 
             return (
               <div>
@@ -1017,8 +1092,8 @@ const Datatable = ({
             return (
               <span>
                 {toHoursAndMinutes(
-                  tableMeta.rowData[activeTab === 1 ? 13 : 12] *
-                    tableMeta.rowData[activeTab === 1 ? 14 : 13]
+                  tableMeta.rowData[activeTab === 1 ? 15 : 14] *
+                    tableMeta.rowData[activeTab === 1 ? 16 : 15]
                 )}
               </span>
             );

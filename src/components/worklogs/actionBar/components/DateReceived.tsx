@@ -51,6 +51,11 @@ const DateReceived = ({ getWorkItemList, selectedRowIds, getOverLay }: any) => {
         handleCloseDateReceived();
         getWorkItemList();
         getOverLay(false);
+      } else if (ResponseStatus === "Warning" && error === false) {
+        toast.warning(ResponseData);
+        handleCloseDateReceived();
+        getWorkItemList();
+        getOverLay(false);
       } else {
         getOverLay(false);
       }

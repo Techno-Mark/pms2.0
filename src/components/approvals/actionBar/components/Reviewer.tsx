@@ -70,6 +70,11 @@ const Reviewer = ({
         handleClearSelection();
         getReviewList();
         getOverLay(false);
+      } else if (ResponseStatus === "Warning" && error === false) {
+        toast.warning(ResponseData);
+        handleClearSelection();
+        getReviewList();
+        getOverLay(false);
       } else {
         getReviewList();
         getOverLay(false);

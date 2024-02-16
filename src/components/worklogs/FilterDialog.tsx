@@ -426,6 +426,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                     setClientName(data);
                     setWorkType(null);
                     setProjectName(null);
+                    setStatus(null);
                   }}
                   value={clientName}
                   renderInput={(params: any) => (
@@ -448,6 +449,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   getOptionLabel={(option: any) => option.label}
                   onChange={(e: any, data: any) => {
                     setWorkType(data);
+                    setProjectName(null);
+                    setStatus(null);
                   }}
                   value={workType}
                   renderInput={(params: any) => (
