@@ -542,7 +542,6 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
               item.Type === "InProgress" ||
               item.Type === "Stop" ||
               item.Type === "Rework" ||
-              (typeOfWorkWorklogs !== 3 && item.Type === "PartialSubmitted") ||
               item.value === statusWorklogs
           )
         );
@@ -561,7 +560,6 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
               item.Type === "Rework" ||
               item.Type === "ReworkInProgress" ||
               item.Type === "ReworkPrepCompleted" ||
-              (typeOfWorkWorklogs !== 3 && item.Type === "PartialSubmitted") ||
               item.value === statusWorklogs
           )
         );

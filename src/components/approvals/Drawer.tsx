@@ -1976,6 +1976,10 @@ const EditDrawer = ({
           onEdit === 0 && onClose();
           onEdit === 0 && handleClose();
           setIsLoadingApprovals(false);
+        } else if (ResponseStatus === "Warning" && error === false) {
+          toast.warning(ResponseData);
+          setIsLoadingApprovals(false);
+          onEdit > 0 && getEditData();
         } else {
           setIsLoadingApprovals(false);
         }
@@ -4347,9 +4351,9 @@ const EditDrawer = ({
                           : recurringTimeApprovals === 2
                           ? `Occurs every ${selectedDays
                               .sort()
-                              .map((day: any) => " " + days[day])} ${
-                              selectedDays.length <= 0 && "day"
-                            } starting from today`
+                              .map(
+                                (day: any) => " " + days[day]
+                              )} starting from today`
                           : recurringTimeApprovals === 3 &&
                             "Occurs every month starting from today"}
                       </span>

@@ -2076,6 +2076,10 @@ const EditDrawer = ({
           onEdit === 0 && onClose();
           onEdit === 0 && handleClose();
           setIsLoadingWorklogs(false);
+        } else if (ResponseStatus === "Warning" && error === false) {
+          toast.warning(ResponseData);
+          setIsLoadingWorklogs(false);
+          onEdit > 0 && getEditDataWorklogs();
         } else {
           setIsLoadingWorklogs(false);
         }
@@ -2303,10 +2307,6 @@ const EditDrawer = ({
           )
         ));
 
-      const getType = statusData.filter(
-        (item: any) => item.value === editStatusWorklogs
-      )[0].Type;
-
       onOpen &&
         onEdit > 0 &&
         !errorlogSignedOffPending &&
@@ -2322,10 +2322,7 @@ const EditDrawer = ({
               item.Type === "InProgress" ||
               item.Type === "Stop" ||
               item.Type === "Rework" ||
-              (getType !== "PartialSubmitted" && item.Type === "Submitted") ||
-              (typeOfWorkWorklogs !== 3 &&
-                getType !== "Submitted" &&
-                item.Type === "PartialSubmitted") ||
+              item.Type === "Submitted" ||
               item.value === editStatusWorklogs
           )
         );
@@ -2343,11 +2340,7 @@ const EditDrawer = ({
               item.Type === "Rework" ||
               item.Type === "ReworkInProgress" ||
               item.Type === "ReworkPrepCompleted" ||
-              (getType !== "PartialSubmitted" &&
-                item.Type === "ReworkSubmitted") ||
-              (typeOfWorkWorklogs !== 3 &&
-                getType !== "ReworkSubmitted" &&
-                item.Type === "PartialSubmitted") ||
+              item.Type === "ReworkSubmitted" ||
               item.value === editStatusWorklogs
           )
         );
@@ -4739,9 +4732,9 @@ const EditDrawer = ({
                           : recurringTime === 2
                           ? `Occurs every ${selectedDays
                               .sort()
-                              .map((day: any) => " " + days[day])} ${
-                              selectedDays.length <= 0 && "day"
-                            } starting from today`
+                              .map(
+                                (day: any) => " " + days[day]
+                              )} starting from today`
                           : recurringTime === 3 &&
                             "Occurs every month starting from today"}
                       </span>
