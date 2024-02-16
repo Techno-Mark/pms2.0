@@ -1024,7 +1024,7 @@ const Datatable = ({
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
           customBodyRender: (value: any, tableMeta: any) => {
             const statusColorCode =
-              tableMeta.rowData[activeTab === 1 ? 13 : 12];
+              tableMeta.rowData[activeTab === 1 ? 11 : 10];
 
             return (
               <div>
@@ -1057,7 +1057,7 @@ const Datatable = ({
           customHeadLabelRender: () => generateCustomHeaderName("Task Status"),
           customBodyRender: (value: any, tableMeta: any) => {
             const statusColorCode =
-              tableMeta.rowData[activeTab === 1 ? 15 : 14];
+              tableMeta.rowData[activeTab === 1 ? 13 : 12];
 
             return (
               <div>
