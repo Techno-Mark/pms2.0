@@ -106,6 +106,7 @@ const ApprovalsActionBar = ({
         getOverLay(false);
       } else {
         getOverLay(false);
+        getReviewList();
       }
     };
     callAPI(url, params, successCallback, "POST");

@@ -59,6 +59,10 @@ const SubProcess = ({
         toast.success("Sub-Process has been updated successfully.");
         getWorkItemList();
         getOverLay(false);
+      } else if (ResponseStatus === "Warning" && error === false) {
+        toast.warning(ResponseData);
+        getWorkItemList();
+        getOverLay(false);
       } else {
         getOverLay(false);
       }

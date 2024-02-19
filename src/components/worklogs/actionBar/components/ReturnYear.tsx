@@ -46,6 +46,10 @@ const ReturnYear = ({ selectedRowIds, getWorkItemList, getOverLay }: any) => {
         toast.success("Return Year has been updated successfully.");
         getWorkItemList();
         getOverLay(false);
+      } else if (ResponseStatus === "Warning" && error === false) {
+        toast.warning(ResponseData);
+        getWorkItemList();
+        getOverLay(false);
       } else {
         getOverLay(false);
       }

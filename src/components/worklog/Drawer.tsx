@@ -1023,9 +1023,12 @@ const Drawer = ({
       const processData: any =
         clientId > 0 &&
         (await getProcessDropdownData(clientId, typeOfWorkClientWorklog));
-      setProcessClientWorklogDropdownData(
-        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
-      );
+      processData.length > 0 &&
+        setProcessClientWorklogDropdownData(
+          processData?.map(
+            (i: any) => new Object({ label: i.Name, value: i.Id })
+          )
+        );
       const subProcessData: any =
         clientId > 0 &&
         processNameClientWorklog !== 0 &&
@@ -1036,7 +1039,7 @@ const Drawer = ({
         ));
       subProcessData.length > 0 &&
         setSubProcessClientWorklogDropdownData(
-          subProcessData.map(
+          subProcessData?.map(
             (i: any) => new Object({ label: i.Name, value: i.Id })
           )
         );

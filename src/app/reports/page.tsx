@@ -117,7 +117,6 @@ const Page = () => {
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
 
-  //handling outside click for moreTabs
   useEffect(() => {
     const handleOutsideClick = (event: any) => {
       const isOutsideMoreTabs =
@@ -135,7 +134,6 @@ const Page = () => {
     };
   }, []);
 
-  //check if has permissions
   const hasTabsPermission = () => {
     return (
       !hasPermissionWorklog("", "View", "Report") &&
@@ -150,7 +148,6 @@ const Page = () => {
     );
   };
 
-  //redirect or set required states
   const actionAfterPermissionCheck = () => {
     if (hasTabsPermission()) {
       router.push("/");
@@ -181,7 +178,6 @@ const Page = () => {
     }
   };
 
-  //handle routing & permission
   useEffect(() => {
     const isClient = localStorage.getItem("isClient") === "false";
 
@@ -192,44 +188,33 @@ const Page = () => {
     }
   }, [router]);
 
-  //tab change handling
   const handleTabChange = (tabId: number) => {
     setActiveTab(tabId);
     setFilteredData(null);
     setSearchValue("");
   };
 
-  //handle export on data length
   const handleCanExport = (arg1: boolean) => {
     setCanExport(arg1);
   };
 
-  //handling more tabs
   const handleMoreTabsClick = (tab: any, index: number) => {
-    //index of clicked tab in moreTab section
     const clickedIndex = index;
 
-    //object of last present in activeTabs
     const lastVisibleTab = activeTabs[activeTabs.length - 1];
 
-    //closing the more tabs section
     setShowMoreTabs(false);
 
-    //handling tab change
     handleTabChange(tab.value);
 
-    //updating the activeTabs state with the newly clicked tab
     setActiveTabs((prevTabs) =>
       prevTabs.map((tab: any, index: number) =>
-        //swap the last tab of activeTabs with clicked tab of moreTabs
         index === activeTabs.length - 1 ? moreTabs[clickedIndex] : tab
       )
     );
 
-    //updating the moreTabs state with the last tab present in activeTabs
     setMoreTabs((prevTabs) =>
       prevTabs.map((tab: any, index: number) =>
-        //swap the last tab of activeTabs with clicked tab of moreTabs
         index === clickedIndex ? lastVisibleTab : tab
       )
     );

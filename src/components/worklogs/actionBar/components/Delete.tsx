@@ -52,7 +52,7 @@ const Delete = ({
             handleClearSelection();
             getWorkItemList();
             getOverLay(false);
-          } else if (ResponseStatus === "Warning") {
+          } else if (ResponseStatus === "Warning" && error === false) {
             toast.warning(ResponseData);
             handleClearSelection();
             getWorkItemList();
