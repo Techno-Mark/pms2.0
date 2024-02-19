@@ -243,7 +243,9 @@ const ApprovalsActionBar = ({
             hasPermissionWorklog("", "Approve", "Approvals") &&
             selectedRowsCount === 1 &&
             isNotReviewer.length === 0 &&
-            isReviewer.length > 0
+            isReviewer.length > 0 &&
+            reviewList.filter((i: any) => i.WorkitemId === workitemId)[0]
+              .IsFinalSubmited
           }
           className=""
           Component={EditTime}
