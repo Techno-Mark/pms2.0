@@ -2216,9 +2216,12 @@ const EditDrawer = ({
           clientNameApprovals,
           typeOfWorkApprovals
         ));
-      setProcessApprovalsDropdownData(
-        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
-      );
+      processData.length > 0 &&
+        setProcessApprovalsDropdownData(
+          processData?.map(
+            (i: any) => new Object({ label: i.Name, value: i.Id })
+          )
+        );
       const data: any =
         processNameApprovals !== 0 &&
         (await getSubProcessDropdownData(

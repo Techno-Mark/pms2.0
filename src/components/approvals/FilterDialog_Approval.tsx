@@ -112,7 +112,11 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   };
 
   const getAllData = async (clientName: any, workType: any) => {
-    setProcessDropdownData(await getProcessDropdownData(clientName, workType));
+    const processData = await getProcessDropdownData(clientName, workType);
+    processData.length > 0 &&
+      setProcessDropdownData(
+        processData?.map((i: any) => new Object({ label: i.Name, value: i.Id }))
+      );
     setProjectDropdownData(await getProjectDropdownData(clientName, workType));
     const statusData = await getStatusDropdownData(workType);
 

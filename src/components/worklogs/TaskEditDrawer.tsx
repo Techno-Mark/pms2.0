@@ -647,9 +647,12 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
         clientNameWorklogs > 0 &&
         typeOfWorkWorklogs > 0 &&
         (await getProcessDropdownData(clientNameWorklogs, typeOfWorkWorklogs));
-      setProcessWorklogsDropdownData(
-        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
-      );
+      processData.length > 0 &&
+        setProcessWorklogsDropdownData(
+          processData?.map(
+            (i: any) => new Object({ label: i.Name, value: i.Id })
+          )
+        );
 
       const data: any =
         processNameWorklogs !== 0 &&
@@ -717,9 +720,12 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
           clientNameWorklogsEdit,
           typeOfWorkWorklogsEdit
         ));
-      setProcessWorklogsDropdownDataEdit(
-        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
-      );
+      processData.length > 0 &&
+        setProcessWorklogsDropdownDataEdit(
+          processData?.map(
+            (i: any) => new Object({ label: i.Name, value: i.Id })
+          )
+        );
 
       const data: any =
         processNameWorklogsEdit !== 0 &&

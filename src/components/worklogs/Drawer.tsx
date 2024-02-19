@@ -2414,9 +2414,12 @@ const EditDrawer = ({
         clientNameWorklogs > 0 &&
         typeOfWorkWorklogs > 0 &&
         (await getProcessDropdownData(clientNameWorklogs, typeOfWorkWorklogs));
-      setProcessWorklogsDropdownData(
-        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
-      );
+      processData.length > 0 &&
+        setProcessWorklogsDropdownData(
+          processData?.map(
+            (i: any) => new Object({ label: i.Name, value: i.Id })
+          )
+        );
       const data: any =
         processNameWorklogs !== 0 &&
         (await getSubProcessDropdownData(
