@@ -42,22 +42,6 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import LogReport from "@/components/reports/tables/LogReport";
 import LogReportFilter from "@/components/reports/Filter/LogReportFilter";
 
-const primaryTabs = [
-  { label: "project", value: 1 },
-  { label: "user", value: 2 },
-  { label: "timesheet", value: 3 },
-  { label: "workload", value: 4 },
-  { label: "billing", value: 7 },
-  { label: "custom", value: 8 },
-];
-
-const secondaryTabs = [
-  { label: "user log", value: 5 },
-  { label: "audit", value: 6 },
-  { label: "rating", value: 9 },
-  { label: "log", value: 10 },
-];
-
 const allTabs = [
   { label: "project", value: 1 },
   { label: "user", value: 2 },
@@ -104,8 +88,8 @@ const Page = () => {
   const router = useRouter();
   const moreTabsRef = useRef<HTMLDivElement>(null);
   const [canExport, setCanExport] = useState<boolean>(false);
-  const [activeTabs, setActiveTabs] = useState<any[]>(primaryTabs);
-  const [moreTabs, setMoreTabs] = useState<any[]>(secondaryTabs);
+  const [activeTabs, setActiveTabs] = useState<any[]>([]);
+  const [moreTabs, setMoreTabs] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<number>(1);
   const [showMoreTabs, setShowMoreTabs] = useState<boolean>(false);
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
@@ -136,20 +120,21 @@ const Page = () => {
 
   const hasTabsPermission = () => {
     return (
-      !hasPermissionWorklog("", "View", "Report") &&
-      (!hasPermissionWorklog("project", "View", "Report") ||
-        !hasPermissionWorklog("user", "View", "Report") ||
-        !hasPermissionWorklog("timesheet", "View", "Report") ||
-        !hasPermissionWorklog("workload", "View", "Report") ||
-        !hasPermissionWorklog("user log", "View", "Report") ||
-        !hasPermissionWorklog("audit", "View", "Report") ||
-        !hasPermissionWorklog("billing report", "View", "Report") ||
-        !hasPermissionWorklog("custom report", "View", "Report"))
+      hasPermissionWorklog("", "View", "Report") &&
+      (hasPermissionWorklog("project", "View", "Report") ||
+        hasPermissionWorklog("user", "View", "Report") ||
+        hasPermissionWorklog("timesheet", "View", "Report") ||
+        hasPermissionWorklog("workload", "View", "Report") ||
+        hasPermissionWorklog("user log", "View", "Report") ||
+        hasPermissionWorklog("audit", "View", "Report") ||
+        hasPermissionWorklog("billing", "View", "Report") ||
+        hasPermissionWorklog("custom", "View", "Report") ||
+        hasPermissionWorklog("log", "View", "Report"))
     );
   };
 
   const actionAfterPermissionCheck = () => {
-    if (hasTabsPermission()) {
+    if (!hasTabsPermission()) {
       router.push("/");
     } else {
       setActiveTabs(
@@ -161,11 +146,11 @@ const Page = () => {
           .slice(0, 6)
       );
       setActiveTab(
-        primaryTabs
+        allTabs
           .map((tab: any) =>
             hasPermissionWorklog(tab.label, "view", "report") ? tab : false
           )
-          .filter((tab: any) => tab !== false)[0].value
+          .filter((tab: any) => tab !== false)[0]?.value
       );
       setMoreTabs(
         allTabs
@@ -173,7 +158,7 @@ const Page = () => {
             hasPermissionWorklog(tab.label, "view", "report") ? tab : false
           )
           .filter((tab: any) => tab !== false)
-          .slice(6, 10)
+          .slice(6)
       );
     }
   };

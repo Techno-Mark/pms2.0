@@ -1757,6 +1757,7 @@ const EditDrawer = ({
       clientName: validateField(clientNameWorklogs),
       typeOfWork: validateField(typeOfWorkWorklogs),
       projectName: validateField(projectNameWorklogs),
+      status: validateField(statusWorklogs),
       processName: validateField(processNameWorklogs),
       subProcess: validateField(subProcessWorklogs),
       clientTaskName: validateField(clientTaskNameWorklogs),
@@ -1787,6 +1788,7 @@ const EditDrawer = ({
     setClientNameWorklogsErr(fieldValidations.clientName);
     setTypeOfWorkWorklogsErr(fieldValidations.typeOfWork);
     setProjectNameWorklogsErr(fieldValidations.projectName);
+    setStatusWorklogsErr(fieldValidations.status);
     setProcessNameWorklogsErr(fieldValidations.processName);
     setSubProcessWorklogsErr(fieldValidations.subProcess);
     setClientTaskNameWorklogsErr(fieldValidations.clientTaskName);
@@ -1843,10 +1845,10 @@ const EditDrawer = ({
       clientName: validateField(clientNameWorklogs),
       typeOfWork: validateField(typeOfWorkWorklogs),
       projectName: validateField(projectNameWorklogs),
+      status: validateField(statusWorklogs),
       processName: validateField(processNameWorklogs),
       subProcess: validateField(subProcessWorklogs),
       clientTaskName: validateField(clientTaskNameWorklogs),
-      status: validateField(statusWorklogs),
       quantity: validateField(quantityWorklogs),
       receiverDate: validateField(receiverDateWorklogs),
       dueDate: validateField(dueDateWorklogs),

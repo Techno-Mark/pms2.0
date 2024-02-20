@@ -14,7 +14,7 @@ export default {
     input: {
       padding: 1,
       border: "2px inset",
-    }
+    },
   },
   suggestions: {
     list: {

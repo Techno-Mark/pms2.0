@@ -268,6 +268,7 @@ const Page = () => {
         setIsLoadingWorklogsDatatable(false);
       } else {
         setIsLoadingWorklogsDatatable(false);
+        getBreakData();
       }
     };
     callAPI(url, params, successCallback, "POST");
