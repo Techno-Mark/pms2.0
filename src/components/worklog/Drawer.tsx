@@ -87,22 +87,7 @@ const Drawer = ({
     }
   };
 
-  const getFieldsByClientClientWorklog = async () => {
-    const clientId = await localStorage.getItem("clientId");
-    const params = {
-      clientId: clientId || 0,
-    };
-    const url = `${process.env.pms_api_url}/client/GetFields`;
-    const successCallback = (ResponseData: any, error: any) => {
-      if (ResponseData !== null && ResponseData.length > 0 && error === false) {
-        setClientWorklogFieldsData(ResponseData);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
-  };
-
   useEffect(() => {
-    onOpen && getFieldsByClientClientWorklog();
     onComment && scrollToPanelClientWorklog(2);
     onErrorLog && scrollToPanelClientWorklog(3);
     const userIdLocal: any = localStorage.getItem("UserId");
@@ -149,11 +134,28 @@ const Drawer = ({
     useState<string>("");
   const [clientTaskNameClientWorklogErr, setClientTaskNameClientWorklogErr] =
     useState(false);
-  const [editStatusClientWorklog, setEditStatusClientWorklog] =
-    useState<any>(0);
   const [returnYearClientWorklog, setReturnYearClientWorklog] =
     useState<any>(0);
   const [statusClientWorklog, setStatusClientWorklog] = useState<any>(0);
+
+  const getFieldsByClientClientWorklog = async () => {
+    const clientId = await localStorage.getItem("clientId");
+    const params = {
+      clientId: clientId || 0,
+      WorkTypeId: typeOfWorkClientWorklog,
+    };
+    const url = `${process.env.pms_api_url}/client/GetFields`;
+    const successCallback = (ResponseData: any, error: any) => {
+      if (ResponseData !== null && ResponseData.length > 0 && error === false) {
+        setClientWorklogFieldsData(ResponseData);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  useEffect(() => {
+    typeOfWorkClientWorklog > 0 && getFieldsByClientClientWorklog();
+  }, [typeOfWorkClientWorklog]);
 
   // Sub-Task
   const [subTaskClientWorklogSwitch, setSubTaskClientWorklogSwitch] =
@@ -969,11 +971,6 @@ const Drawer = ({
             ? 0
             : ResponseData.TaxCustomFields.ReturnYear
         );
-        setEditStatusClientWorklog(
-          ResponseData.StatusId === null || ResponseData.StatusId === 0
-            ? 0
-            : ResponseData.StatusId
-        );
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -1093,7 +1090,6 @@ const Drawer = ({
     setClientTaskNameClientWorklog("");
     setClientTaskNameClientWorklogErr(false);
     setReturnYearClientWorklog(0);
-    setEditStatusClientWorklog(0);
     setStatusClientWorklog(0);
     setSubProcessClientWorklogDropdownData([]);
 
@@ -1236,50 +1232,49 @@ const Drawer = ({
                 </div>
                 {taskClientWorklogDrawer && (
                   <Grid container className="px-8">
+                    <Grid item xs={3} className="pt-4">
+                      <FormControl
+                        variant="standard"
+                        sx={{ width: 300, mt: -0.3 }}
+                        disabled={
+                          !isCreatedByClientWorklog ||
+                          (isCompletedTaskClicked &&
+                            onEdit > 0 &&
+                            !isCreatedByClientWorklog) ||
+                          statusClientWorklog > 1
+                        }
+                      >
+                        <InputLabel id="demo-simple-select-standard-label">
+                          Type of Work
+                        </InputLabel>
+                        <Select
+                          labelId="demo-simple-select-standard-label"
+                          id="demo-simple-select-standard"
+                          value={
+                            typeOfWorkClientWorklog === 0
+                              ? ""
+                              : typeOfWorkClientWorklog
+                          }
+                          onChange={(e) => {
+                            setTypeOfWorkClientWorklog(e.target.value);
+                            setProjectNameClientWorklog(0);
+                            setProcessNameClientWorklog(0);
+                            setSubProcessNameClientWorklog(0);
+                            setReturnYearClientWorklog(0);
+                          }}
+                        >
+                          {typeOfWorkClientWorklogDropdownData.map(
+                            (i: any, index: number) => (
+                              <MenuItem value={i.value} key={index}>
+                                {i.label}
+                              </MenuItem>
+                            )
+                          )}
+                        </Select>
+                      </FormControl>
+                    </Grid>
                     {clientWorklogFieldsData.map((type: any) => (
                       <>
-                        {type.Type === "TypeOfWork" && type.IsChecked && (
-                          <Grid item xs={3} className="pt-4">
-                            <FormControl
-                              variant="standard"
-                              sx={{ width: 300, mt: -0.3 }}
-                              disabled={
-                                !isCreatedByClientWorklog ||
-                                (isCompletedTaskClicked &&
-                                  onEdit > 0 &&
-                                  !isCreatedByClientWorklog) ||
-                                statusClientWorklog > 1
-                              }
-                            >
-                              <InputLabel id="demo-simple-select-standard-label">
-                                Type of Work
-                              </InputLabel>
-                              <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
-                                value={
-                                  typeOfWorkClientWorklog === 0
-                                    ? ""
-                                    : typeOfWorkClientWorklog
-                                }
-                                onChange={(e) => {
-                                  setTypeOfWorkClientWorklog(e.target.value);
-                                  setProjectNameClientWorklog(0);
-                                  setProcessNameClientWorklog(0);
-                                  setSubProcessNameClientWorklog(0);
-                                }}
-                              >
-                                {typeOfWorkClientWorklogDropdownData.map(
-                                  (i: any, index: number) => (
-                                    <MenuItem value={i.value} key={index}>
-                                      {i.label}
-                                    </MenuItem>
-                                  )
-                                )}
-                              </Select>
-                            </FormControl>
-                          </Grid>
-                        )}
                         {type.Type === "ProjectName" && type.IsChecked && (
                           <Grid item xs={3} className="pt-4">
                             <Autocomplete

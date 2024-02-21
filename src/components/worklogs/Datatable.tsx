@@ -207,8 +207,16 @@ const Datatable = ({
 
   useEffect(() => {
     setRunning(
-      workItemData.filter((data: any) => data.TimelogId > 0).length > 0
-        ? workItemData.filter((data: any) => data.TimelogId > 0)[0].WorkitemId
+      workItemData.filter(
+        (data: any) =>
+          data.TimelogId > 0 &&
+          data.AssignedToId == localStorage.getItem("UserId")
+      ).length > 0
+        ? workItemData.filter(
+            (data: any) =>
+              data.TimelogId > 0 &&
+              data.AssignedToId == localStorage.getItem("UserId")
+          )[0].WorkitemId
         : -1
     );
     setWorkitemTimeId(
