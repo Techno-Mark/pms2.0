@@ -727,6 +727,9 @@ const Datatable = ({
                       </span>
                     </ColorToolTip>
                   ) : (
+                    tableMeta.rowData[
+                      tableMeta.rowData.length - 4
+                    ].toString() === localStorage.getItem("UserId") &&
                     (workItemData[tableMeta.rowIndex].IsManual === false ||
                       !workItemData[tableMeta.rowIndex].IsManual) &&
                     tableMeta.rowData[tableMeta.rowData.length - 2] === 2 && (
@@ -747,64 +750,66 @@ const Datatable = ({
                       </ColorToolTip>
                     )
                   ))}
-                {(tableMeta.rowData[tableMeta.rowData.length - 2] === 1 ||
-                  tableMeta.rowData[tableMeta.rowData.length - 1] ===
-                    isRunning) && (
-                  <div className="flex">
-                    <ColorToolTip title="Pause" placement="top" arrow>
-                      <span
-                        className="cursor-pointer"
-                        onClick={() => {
-                          setRunning(
-                            tableMeta.rowData[tableMeta.rowData.length - 1]
-                          );
-                          handleTimer(
-                            2,
-                            tableMeta.rowData[tableMeta.rowData.length - 1],
-                            workitemTimeId
-                          );
-                          handleClearSelection();
-                        }}
-                      >
-                        <PauseButton />
-                      </span>
-                    </ColorToolTip>
-                    <ColorToolTip title="Stop" placement="top" arrow>
-                      <span
-                        className="cursor-pointer mt-[2px]"
-                        onClick={() => {
-                          handleSync(
-                            tableMeta.rowData[tableMeta.rowData.length - 1]
-                          );
-                          setRunning(
-                            tableMeta.rowData[tableMeta.rowData.length - 1]
-                          );
-                          setStopTimerDialog(true);
-                          value > estimatedTimeInSeconds
-                            ? setIsTimeExceed(true)
-                            : setIsTimeExceed(false);
+                {tableMeta.rowData[tableMeta.rowData.length - 4].toString() ===
+                  localStorage.getItem("UserId") &&
+                  (tableMeta.rowData[tableMeta.rowData.length - 2] === 1 ||
+                    tableMeta.rowData[tableMeta.rowData.length - 1] ===
+                      isRunning) && (
+                    <div className="flex">
+                      <ColorToolTip title="Pause" placement="top" arrow>
+                        <span
+                          className="cursor-pointer"
+                          onClick={() => {
+                            setRunning(
+                              tableMeta.rowData[tableMeta.rowData.length - 1]
+                            );
+                            handleTimer(
+                              2,
+                              tableMeta.rowData[tableMeta.rowData.length - 1],
+                              workitemTimeId
+                            );
+                            handleClearSelection();
+                          }}
+                        >
+                          <PauseButton />
+                        </span>
+                      </ColorToolTip>
+                      <ColorToolTip title="Stop" placement="top" arrow>
+                        <span
+                          className="cursor-pointer mt-[2px]"
+                          onClick={() => {
+                            handleSync(
+                              tableMeta.rowData[tableMeta.rowData.length - 1]
+                            );
+                            setRunning(
+                              tableMeta.rowData[tableMeta.rowData.length - 1]
+                            );
+                            setStopTimerDialog(true);
+                            value > estimatedTimeInSeconds
+                              ? setIsTimeExceed(true)
+                              : setIsTimeExceed(false);
 
-                          handleClearSelection();
-                        }}
-                      >
-                        <StopButton />
-                      </span>
-                    </ColorToolTip>
-                    <ColorToolTip title="Sync" placement="top" arrow>
-                      <span
-                        className="cursor-pointer"
-                        onClick={() => {
-                          handleSync(
-                            tableMeta.rowData[tableMeta.rowData.length - 1]
-                          );
-                          handleClearSelection();
-                        }}
-                      >
-                        <RestartButton />
-                      </span>
-                    </ColorToolTip>
-                  </div>
-                )}
+                            handleClearSelection();
+                          }}
+                        >
+                          <StopButton />
+                        </span>
+                      </ColorToolTip>
+                      <ColorToolTip title="Sync" placement="top" arrow>
+                        <span
+                          className="cursor-pointer"
+                          onClick={() => {
+                            handleSync(
+                              tableMeta.rowData[tableMeta.rowData.length - 1]
+                            );
+                            handleClearSelection();
+                          }}
+                        >
+                          <RestartButton />
+                        </span>
+                      </ColorToolTip>
+                    </div>
+                  )}
               </div>
             );
           },
