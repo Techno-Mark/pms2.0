@@ -1062,8 +1062,13 @@ const Datatable = ({
               <span>
                 {runningTimerData.length > 0
                   ? toHoursAndMinutes(
-                      (toSeconds(runningTimerData[0].EstimateTime) ?? 0) *
-                        runningTimerData[0]?.Quantity
+                      isNaN(
+                        (toSeconds(runningTimerData[0].EstimateTime) ?? 0) *
+                          runningTimerData[0]?.Quantity
+                      )
+                        ? 0
+                        : (toSeconds(runningTimerData[0].EstimateTime) ?? 0) *
+                            runningTimerData[0]?.Quantity
                     )
                   : "00:00:00"}
               </span>
@@ -1071,11 +1076,13 @@ const Datatable = ({
             <div className="w-full flex items-center justify-between border-b border-gray-500 py-2 my-3">
               <span>Yout total time spent</span>
               <span>
-                {toHoursAndMinutes(
-                  runningTimerData.length > 0
-                    ? runningTimerData[0].Timer
-                    : "00:00:00"
-                )}
+                {runningTimerData.length > 0
+                  ? toHoursAndMinutes(
+                      isNaN(runningTimerData[0].Timer)
+                        ? 0
+                        : runningTimerData[0].Timer
+                    )
+                  : "00:00:00"}
               </span>
             </div>
           </DialogContentText>

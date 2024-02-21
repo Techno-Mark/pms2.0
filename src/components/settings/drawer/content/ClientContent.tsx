@@ -1949,7 +1949,7 @@ const ClientContent = forwardRef<
             )}
           </div>
 
-          <div className="flex justify-end fixed w-full bottom-0 gap-[20px] px-[20px] py-[15px] bg-pureWhite border-t border-lightSilver">
+          <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
             {onEdit ? (
               <Button
                 variant="outlined"

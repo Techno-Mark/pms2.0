@@ -29,7 +29,6 @@ import {
   createFilterOptions,
 } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { getTypeOfWorkDropdownData } from "@/utils/commonDropdownApiCall";
 
 export interface ProcessContentRef {
   ProcessDataValue: () => void;

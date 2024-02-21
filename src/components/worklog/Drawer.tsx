@@ -1014,21 +1014,22 @@ const Drawer = ({
   useEffect(() => {
     const getData = async () => {
       const clientId: any = await localStorage.getItem("clientId");
-      const projectData: any =
-        clientId > 0 &&
+      clientId > 0 &&
         typeOfWorkClientWorklog > 0 &&
-        (await getProjectDropdownData(clientId, typeOfWorkClientWorklog));
-      projectData.length > 0 &&
-        setProjectClientWorklogDropdownData(projectData);
+        setProjectClientWorklogDropdownData(
+          await getProjectDropdownData(clientId, typeOfWorkClientWorklog)
+        );
       const processData: any =
         clientId > 0 &&
+        typeOfWorkClientWorklog > 0 &&
         (await getProcessDropdownData(clientId, typeOfWorkClientWorklog));
-      processData.length > 0 &&
-        setProcessClientWorklogDropdownData(
-          processData?.map(
-            (i: any) => new Object({ label: i.Name, value: i.Id })
+      processData.length > 0
+        ? setProcessClientWorklogDropdownData(
+            processData?.map(
+              (i: any) => new Object({ label: i.Name, value: i.Id })
+            )
           )
-        );
+        : setProcessClientWorklogDropdownData([]);
       const subProcessData: any =
         clientId > 0 &&
         processNameClientWorklog !== 0 &&
@@ -1037,12 +1038,13 @@ const Drawer = ({
           typeOfWorkClientWorklog,
           processNameClientWorklog
         ));
-      subProcessData.length > 0 &&
-        setSubProcessClientWorklogDropdownData(
-          subProcessData?.map(
-            (i: any) => new Object({ label: i.Name, value: i.Id })
+      subProcessData.length > 0
+        ? setSubProcessClientWorklogDropdownData(
+            subProcessData?.map(
+              (i: any) => new Object({ label: i.Name, value: i.Id })
+            )
           )
-        );
+        : setSubProcessClientWorklogDropdownData([]);
     };
 
     if (onEdit > 0) {

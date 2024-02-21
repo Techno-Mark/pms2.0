@@ -1821,6 +1821,7 @@ const EditDrawer = ({
       clientName: validateField(clientNameApprovals),
       typeOfWork: validateField(typeOfWorkApprovals),
       projectName: validateField(projectNameApprovals),
+      status: validateField(statusApprovals),
       processName: validateField(processNameApprovals),
       subProcess: validateField(subProcessApprovals),
       clientTaskName: validateField(clientTaskNameApprovals),
@@ -1848,6 +1849,7 @@ const EditDrawer = ({
     setClientNameApprovalsErr(fieldValidations.clientName);
     setTypeOfWorkApprovalsErr(fieldValidations.typeOfWork);
     setProjectNameApprovalsErr(fieldValidations.projectName);
+    setStatusApprovalsErr(fieldValidations.status);
     setProcessNameApprovalsErr(fieldValidations.processName);
     setSubProcessApprovalsErr(fieldValidations.subProcess);
     setClientTaskNameApprovalsErr(fieldValidations.clientTaskName);
@@ -2219,12 +2221,13 @@ const EditDrawer = ({
           clientNameApprovals,
           typeOfWorkApprovals
         ));
-      processData.length > 0 &&
-        setProcessApprovalsDropdownData(
-          processData?.map(
-            (i: any) => new Object({ label: i.Name, value: i.Id })
+      processData.length > 0
+        ? setProcessApprovalsDropdownData(
+            processData?.map(
+              (i: any) => new Object({ label: i.Name, value: i.Id })
+            )
           )
-        );
+        : setProcessApprovalsDropdownData([]);
       const data: any =
         processNameApprovals !== 0 &&
         (await getSubProcessDropdownData(
@@ -2233,10 +2236,11 @@ const EditDrawer = ({
           processNameApprovals
         ));
       data.length > 0 && setEstTimeDataApprovals(data);
-      data.length > 0 &&
-        setSubProcessApprovalsDropdownData(
-          data.map((i: any) => new Object({ label: i.Name, value: i.Id }))
-        );
+      data.length > 0
+        ? setSubProcessApprovalsDropdownData(
+            data.map((i: any) => new Object({ label: i.Name, value: i.Id }))
+          )
+        : setSubProcessApprovalsDropdownData([]);
     };
 
     getData();
@@ -2244,11 +2248,12 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
-      const assigneeData = await getAssigneeDropdownData(
-        [clientNameApprovals],
-        typeOfWorkApprovals
+      setAssigneeApprovalsDropdownData(
+        await getAssigneeDropdownData(
+          [clientNameApprovals],
+          typeOfWorkApprovals
+        )
       );
-      assigneeData.length > 0 && setAssigneeApprovalsDropdownData(assigneeData);
       setReviewerApprovalsDropdownData(
         await getReviewerDropdownData(
           [clientNameApprovals],
@@ -2257,14 +2262,15 @@ const EditDrawer = ({
       );
     };
 
-    typeOfWorkApprovals !== 0 && getData();
+    typeOfWorkApprovals > 0 && getData();
   }, [typeOfWorkApprovals, clientNameApprovals]);
 
   useEffect(() => {
     const getData = async () => {
       const departmentData = await getDepartmentDropdownData(assigneeApprovals);
-      departmentData.DepartmentList.length > 0 &&
-        setDepartmentApprovalsDropdownData(departmentData.DepartmentList);
+      departmentData.DepartmentList.length > 0
+        ? setDepartmentApprovalsDropdownData(departmentData.DepartmentList)
+        : setDepartmentApprovalsDropdownData([]);
       departmentData.DefaultId > 0 &&
         onEdit === 0 &&
         setDepartmentApprovals(departmentData.DefaultId);

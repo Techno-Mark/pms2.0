@@ -2353,9 +2353,7 @@ const EditDrawer = ({
             .map((i: any) => (i.Type === "NotStarted" ? i.value : undefined))
             .filter((i: any) => i !== undefined)[0]
         );
-      onOpen &&
-        statusWorklogsDropdownData.length === 0 &&
-        (await setCCDropdownDataWorklogs(await getCCDropdownData()));
+      onOpen && (await setCCDropdownDataWorklogs(await getCCDropdownData()));
     };
     getData();
   }, [typeOfWorkWorklogs, onOpen]);
@@ -2407,7 +2405,9 @@ const EditDrawer = ({
         clientNameWorklogs > 0 &&
         typeOfWorkWorklogs > 0 &&
         (await getProjectDropdownData(clientNameWorklogs, typeOfWorkWorklogs));
-      projectData.length > 0 && setProjectWorklogsDropdownData(projectData);
+      projectData.length > 0
+        ? setProjectWorklogsDropdownData(projectData)
+        : setProjectWorklogsDropdownData([]);
       projectData.length > 0 &&
         projectData.length === 1 &&
         onEdit === 0 &&
@@ -2416,12 +2416,13 @@ const EditDrawer = ({
         clientNameWorklogs > 0 &&
         typeOfWorkWorklogs > 0 &&
         (await getProcessDropdownData(clientNameWorklogs, typeOfWorkWorklogs));
-      processData.length > 0 &&
-        setProcessWorklogsDropdownData(
-          processData?.map(
-            (i: any) => new Object({ label: i.Name, value: i.Id })
+      processData.length > 0
+        ? setProcessWorklogsDropdownData(
+            processData?.map(
+              (i: any) => new Object({ label: i.Name, value: i.Id })
+            )
           )
-        );
+        : setProcessWorklogsDropdownData([]);
       const data: any =
         processNameWorklogs !== 0 &&
         (await getSubProcessDropdownData(
@@ -2430,10 +2431,11 @@ const EditDrawer = ({
           processNameWorklogs
         ));
       data.length > 0 && setEstTimeDataWorklogs(data);
-      data.length > 0 &&
-        setSubProcessWorklogsDropdownData(
-          data.map((i: any) => new Object({ label: i.Name, value: i.Id }))
-        );
+      data.length > 0
+        ? setSubProcessWorklogsDropdownData(
+            data.map((i: any) => new Object({ label: i.Name, value: i.Id }))
+          )
+        : setSubProcessWorklogsDropdownData([]);
     };
 
     getData();
@@ -2445,7 +2447,9 @@ const EditDrawer = ({
         [clientNameWorklogs],
         typeOfWorkWorklogs
       );
-      assigneeData.length > 0 && setAssigneeWorklogsDropdownData(assigneeData);
+      assigneeData.length > 0
+        ? setAssigneeWorklogsDropdownData(assigneeData)
+        : setAssigneeWorklogsDropdownData([]);
       const assigneeId =
         onEdit > 0 &&
         assigneeWorklogs > 0 &&
@@ -2464,7 +2468,9 @@ const EditDrawer = ({
         [clientNameWorklogs],
         typeOfWorkWorklogs
       );
-      reviewerData.length > 0 && setReviewerWorklogsDropdownData(reviewerData);
+      reviewerData.length > 0
+        ? setReviewerWorklogsDropdownData(reviewerData)
+        : setReviewerWorklogsDropdownData([]);
       const UserId: any = await localStorage.getItem("UserId");
       const reviwerId =
         reviewerData.length > 0 &&
@@ -2483,8 +2489,9 @@ const EditDrawer = ({
   useEffect(() => {
     const getData = async () => {
       const departmentData = await getDepartmentDropdownData(assigneeWorklogs);
-      departmentData.DepartmentList.length > 0 &&
-        setDepartmentWorklogsDropdownData(departmentData.DepartmentList);
+      departmentData.DepartmentList.length > 0
+        ? setDepartmentWorklogsDropdownData(departmentData.DepartmentList)
+        : setDepartmentWorklogsDropdownData([]);
       departmentData.DefaultId > 0 &&
         onEdit === 0 &&
         setDepartmentWorklogs(departmentData.DefaultId);
