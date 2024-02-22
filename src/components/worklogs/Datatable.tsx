@@ -128,7 +128,6 @@ const Datatable = ({
     setSelectedRows(rowsSelected);
     setSelectedRowsData(selectedData);
 
-    // adding all selected Ids in an array
     const selectedWorkItemIds =
       selectedData.length > 0
         ? selectedData.map((selectedRow: any) => selectedRow?.WorkitemId)
@@ -136,14 +135,12 @@ const Datatable = ({
 
     setSelectedRowIds(selectedWorkItemIds);
 
-    // adding only one or last selected id
     const lastSelectedWorkItemId =
       selectedData.length > 0
         ? selectedData[selectedData.length - 1]?.WorkitemId
         : null;
     setSelectedRowId(lastSelectedWorkItemId);
 
-    // adding all selected row's status name in an array
     const selectedWorkItemStatus =
       selectedData.length > 0
         ? selectedData.map((selectedRow: any) => selectedRow?.StatusName)
@@ -151,7 +148,6 @@ const Datatable = ({
 
     setSelectedRowStatusName(selectedWorkItemStatus);
 
-    // adding all selected row's Client Ids in an array
     const selectedWorkItemClientIds =
       selectedData.length > 0
         ? selectedData.map((selectedRow: any) => selectedRow?.ClientId)
@@ -159,7 +155,6 @@ const Datatable = ({
 
     setSelectedRowClientId(selectedWorkItemClientIds);
 
-    // adding all selected row's WorkType Ids in an array
     const selectedWorkItemWorkTypeIds =
       selectedData.length > 0
         ? selectedData
@@ -235,7 +230,6 @@ const Datatable = ({
       onGetBreakData();
       onSetBreak();
     }
-
     setIsLoadingWorklogsDatatable(true);
     const params = {
       workitemTimeId: workitemTimeId && workitemTimeId > 0 ? workitemTimeId : 0,
@@ -292,6 +286,7 @@ const Datatable = ({
           );
           setIsLoadingWorklogsDatatable(false);
         } else {
+          setRunning(-1);
           getWorkItemList();
           setIsLoadingWorklogsDatatable(false);
         }

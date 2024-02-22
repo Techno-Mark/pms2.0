@@ -100,7 +100,10 @@ const reportTaskColConfig = [
     name: "Status",
     label: "Status",
     bodyRenderer: (value: any, tableMeta: any) =>
-      generateStatusWithColor(value, tableMeta.rowData[11]),
+      generateStatusWithColor(
+        value,
+        tableMeta.rowData[tableMeta.rowData.length - 1]
+      ),
   },
   {
     name: "AssignedTo",
@@ -434,7 +437,7 @@ const reportDatatatbleRatingCols: any = RatingReportColsConfig.map((col: any) =>
 );
 
 const reportDatatableTaskCols: any = reportTaskColConfig.map((col: any) =>
-  generateCustomizableCols(col, 11)
+  generateCustomizableCols(col, 10)
 );
 
 const reportsAuditCols: any = auditColConfig.map((col: any) =>

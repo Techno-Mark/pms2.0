@@ -94,6 +94,9 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     setAssignee(0);
     setOverDue(0);
     setIsChecked(false);
+    setProjectDropdownData([]);
+    setStatusDropdownWorklogData([]);
+    setStatusDropdownCompletedData([]);
     currentFilterData(initialFilter);
   };
 
@@ -156,11 +159,10 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     onClose();
   };
 
-  const getWorkTypeData = async () => {
-    const clientId = await localStorage.getItem("clientId");
-    setTypeOfWorkDropdownData(await getTypeOfWorkDropdownData(clientId));
-    getProjectData();
-  };
+  useEffect(() => {
+    typeOfWork > 0 && getProjectData();
+    typeOfWork > 0 && getAllStatus();
+  }, [typeOfWork]);
 
   const getProjectData = async () => {
     const clientId = await localStorage.getItem("clientId");
@@ -168,7 +170,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
       setProjectDropdownData(
         await getProjectDropdownData(clientId, typeOfWork)
       );
-    getAllStatus();
   };
 
   const getAllStatus = async () => {
@@ -179,38 +180,26 @@ const FilterDialog: React.FC<FilterModalProps> = ({
           (i: any) =>
             i.Type !== "Accept" &&
             i.Type !== "AcceptWithNotes" &&
+            i.Type !== "ReworkSubmitted" &&
+            i.Type !== "ReworkAcceptWithNotes" &&
             i.Type !== "Reject" &&
             i.Type !== "SignedOff"
         )
       );
     data.length > 0 &&
       setStatusDropdownCompletedData(
-        data.filter(
-          (i: any) =>
-            i.Type !== "PendingFromAccounting" &&
-            i.Type !== "Assigned" &&
-            i.Type !== "Errorlogs" &&
-            i.Type !== "InProgress" &&
-            i.Type !== "InReview" &&
-            i.Type !== "OnHoldFromClient" &&
-            i.Type !== "ReworkInReview" &&
-            i.Type !== "ReworkInProgress" &&
-            i.Type !== "ReworkPrepCompleted" &&
-            i.Type !== "ReworkSubmitted" &&
-            i.Type !== "SecondManagerReview" &&
-            i.Type !== "Submitted" &&
-            i.Type !== "SecondManagerReview" &&
-            i.Type !== "NotStarted" &&
-            i.Type !== "OnHoldFromClient" &&
-            i.Type !== "PartialSubmitted" &&
-            i.Type !== "Rework" &&
-            i.Type !== "Reject" &&
-            i.Type !== "Stop" &&
-            i.Type !== "WithdrawnbyClient" &&
-            i.Type !== "WithDraw"
-        )
+        data
+          .map((i: any) =>
+            i.Type === "Accept" ||
+            i.Type === "AcceptWithNotes" ||
+            i.Type === "ReworkSubmitted" ||
+            i.Type === "ReworkAcceptWithNotes" ||
+            i.Type === "SignedOff"
+              ? i
+              : false
+          )
+          .filter((j: any) => j !== false)
       );
-    getAssignee();
   };
 
   const getAssignee = async () => {
@@ -228,8 +217,14 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     callAPI(url, params, successCallback, "GET");
   };
 
+  const getWorkTypeData = async () => {
+    const clientId = await localStorage.getItem("clientId");
+    setTypeOfWorkDropdownData(await getTypeOfWorkDropdownData(clientId));
+  };
+
   useEffect(() => {
     onOpen && getWorkTypeData();
+    onOpen && getAssignee();
   }, [onOpen]);
 
   return (
@@ -251,6 +246,22 @@ const FilterDialog: React.FC<FilterModalProps> = ({
           <div className="flex flex-col gap-[20px] pt-[15px]">
             <div className="flex gap-[20px]">
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
+                <InputLabel id="workTypes-label">Types of Work</InputLabel>
+                <Select
+                  labelId="workTypes-label"
+                  id="workTypes-select"
+                  value={typeOfWork === 0 ? "" : typeOfWork}
+                  onChange={(e: any) => setTypeOfWork(e.target.value)}
+                >
+                  {typeOfWorkDropdownData.map((i: any) => (
+                    <MenuItem value={i.value} key={i.value}>
+                      {i.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
                 <InputLabel id="project">Project</InputLabel>
                 <Select
                   labelId="project"
@@ -263,20 +274,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                       {i.label}
                     </MenuItem>
                   ))}
-                </Select>
-              </FormControl>
-
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
-                <InputLabel id="priority">Priority</InputLabel>
-                <Select
-                  labelId="priority"
-                  id="priority"
-                  value={priority === 0 ? "" : priority}
-                  onChange={(e: any) => setPriority(e.target.value)}
-                >
-                  <MenuItem value={1}>High</MenuItem>
-                  <MenuItem value={2}>Medium</MenuItem>
-                  <MenuItem value={3}>Low</MenuItem>
                 </Select>
               </FormControl>
 
@@ -309,18 +306,16 @@ const FilterDialog: React.FC<FilterModalProps> = ({
             </div>
             <div className="flex gap-[20px]">
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
-                <InputLabel id="workTypes-label">Types of Work</InputLabel>
+                <InputLabel id="priority">Priority</InputLabel>
                 <Select
-                  labelId="workTypes-label"
-                  id="workTypes-select"
-                  value={typeOfWork === 0 ? "" : typeOfWork}
-                  onChange={(e: any) => setTypeOfWork(e.target.value)}
+                  labelId="priority"
+                  id="priority"
+                  value={priority === 0 ? "" : priority}
+                  onChange={(e: any) => setPriority(e.target.value)}
                 >
-                  {typeOfWorkDropdownData.map((i: any) => (
-                    <MenuItem value={i.value} key={i.value}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
+                  <MenuItem value={1}>High</MenuItem>
+                  <MenuItem value={2}>Medium</MenuItem>
+                  <MenuItem value={3}>Low</MenuItem>
                 </Select>
               </FormControl>
 

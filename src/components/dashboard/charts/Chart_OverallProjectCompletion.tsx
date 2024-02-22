@@ -137,11 +137,7 @@ const Chart_OverallProjectCompletion: React.FC<
           <HighchartsReact highcharts={Highcharts} options={chartOptions} />
         </div>
         {data.length > 0 && (
-          <span
-            className={`flex flex-col items-center absolute bottom-[9rem] z-0 ${
-              totalCount <= 1 ? "left-[8.45rem]" : "left-[5rem]"
-            }`}
-          >
+          <span className="flex flex-col items-center absolute bottom-[9rem] z-0 left-[5rem]">
             <span className="text-xl font-semibold text-darkCharcoal">
               {totalCount}
             </span>

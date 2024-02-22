@@ -203,11 +203,16 @@ const ApprovalsActionBar = ({
         />
         <ConditionalComponent
           condition={
-            // hasPermissionWorklog("", "Reject", "Approvals") &&
+            hasPermissionWorklog("", "Approve", "Approvals") &&
             selectedRowsCount === 1 &&
             isNotReviewer.length === 0 &&
             isReviewer.length > 0 &&
-            !Array.from(new Set(selectedRowWorkTypeId)).includes(3)
+            !Array.from(new Set(selectedRowWorkTypeId)).includes(3) &&
+            reviewList.filter(
+              (i: any) =>
+                i.WorkitemId === workitemId &&
+                i.StatusType !== "PartialSubmitted"
+            ).length > 0
           }
           Component={Reject}
           propsForActionBar={propsForActionBar}

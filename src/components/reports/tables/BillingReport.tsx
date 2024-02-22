@@ -99,6 +99,7 @@ const BillingReport = ({
   const [finalBTCData, setFinalBTCData] = useState<any>([]);
   const [isBTCSaved, setBTCSaved] = useState<boolean>(false);
   const [raisedInvoice, setRaisedInvoice] = useState<any>([]);
+  const [selectedIndex, setSelectedIndex] = useState([]);
   const [billingReportData, setBiliingReportData] = useState<any>([]);
   const [billingCurrentPage, setBiliingCurrentPage] = useState<number>(0);
   const [billingRowsPerPage, setBillingRowsPerPage] = useState<any>(10);
@@ -149,6 +150,7 @@ const BillingReport = ({
         setBTCData([]);
         setRaisedInvoice([]);
         setFinalBTCData([]);
+        setSelectedIndex([]);
         getData(
           filteredData !== null ? filteredData : billingreport_InitialFilter
         );
@@ -223,7 +225,7 @@ const BillingReport = ({
     const map = new Map();
 
     array1.forEach((item: any) => {
-      map.set(item.workItemId, item);
+      map.set(item.workItemId, new Object({ ...item, IsBTC: false }));
     });
 
     array2.forEach((item: any) => {
@@ -238,7 +240,6 @@ const BillingReport = ({
     });
 
     const mergedArray = Array.from(map.values());
-
     return mergedArray;
   };
 
@@ -258,7 +259,6 @@ const BillingReport = ({
     }
   }, [filteredData, searchValue]);
 
-  //handling btcData as well as raisedInvoice props
   useEffect(
     () => hasBTCData(btcData.length > 0 && raisedInvoice.length === 0),
     [btcData, raisedInvoice]
@@ -269,14 +269,12 @@ const BillingReport = ({
     [raisedInvoice]
   );
 
-  //handling saveBTCData api call
   useEffect(() => {
     if (isSavingBTCData) {
       saveBTCData(finalBTCData);
     }
   }, [isSavingBTCData]);
 
-  //handling the merge of btcData & raisedInvoice
   useEffect(() => {
     setFinalBTCData(mergeBTCDataAndRaisedInvoiceArrays(btcData, raisedInvoice));
   }, [btcData, raisedInvoice]);
@@ -517,7 +515,7 @@ const BillingReport = ({
         options={{
           ...options,
           selectableRows: "multiple",
-          rowsSelected: isBTCSaved ? [] : undefined,
+          rowsSelected: isBTCSaved ? [] : selectedIndex,
           onRowSelectionChange: (i: any, j: any, selectedRowsIndex: any) => {
             if (selectedRowsIndex.length > 0) {
               const data = selectedRowsIndex.map(
@@ -531,10 +529,11 @@ const BillingReport = ({
                     IsBTC: true,
                   })
               );
-
+              setSelectedIndex(selectedRowsIndex);
               setRaisedInvoice(data);
             } else {
               setRaisedInvoice([]);
+              setSelectedIndex([]);
             }
           },
         }}

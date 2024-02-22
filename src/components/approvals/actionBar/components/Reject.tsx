@@ -1,6 +1,6 @@
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import React, { useState } from "react";
-import RejectDialog from "../RejectDialog";
+import RejectDialog from "../../RejectDialog";
 import RejectIcon from "@/assets/icons/worklogs/RejectIcon";
 
 const Reject = ({ selectedRowIds, rejectWorkitem }: any) => {
