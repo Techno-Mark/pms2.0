@@ -83,6 +83,7 @@ const EditDrawer = ({
   onComment,
   onErrorLog,
   onManualTime,
+  activeTab,
 }: any) => {
   const router = useRouter();
   const yearDropdown = getYears();
@@ -2124,6 +2125,19 @@ const EditDrawer = ({
               (typeOfWorkApprovals !== 3 &&
                 getType !== "ReworkSubmitted" &&
                 item.Type === "PartialSubmitted") ||
+              item.value === editStatusApprovals
+          )
+        );
+
+      activeTab === 2 &&
+        getType === "Reject" &&
+        setStatusApprovalsDropdownDataUse(
+          statusData.filter(
+            (item: any) =>
+              item.Type === "Rework" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient" ||
               item.value === editStatusApprovals
           )
         );

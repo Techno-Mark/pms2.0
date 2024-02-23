@@ -261,6 +261,7 @@ const Page = () => {
         />
 
         <Drawer
+          activeTab={activeTab}
           onDataFetch={dataFunction}
           onOpen={openDrawer}
           onClose={handleDrawerClose}
