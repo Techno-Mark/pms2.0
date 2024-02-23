@@ -51,6 +51,7 @@ const initialFilter = {
   globalSearch: "",
   userId: null,
   ClientId: null,
+  TypeOfWork: null,
   projectId: null,
   startDate: null,
   endDate: null,

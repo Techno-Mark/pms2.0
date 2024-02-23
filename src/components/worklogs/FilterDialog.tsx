@@ -144,15 +144,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   };
 
   const getAllStatus = async (workType: any) => {
-    const data = workType > 0 && (await getStatusDropdownData(workType));
-    data.length > 0 &&
-      setStatusDropdownData(
-        data.filter(
-          (i: any) =>
-            i.Type !== "Reject" ||
-            (workType !== 1 && i.Type !== "PartialSubmitted")
-        )
-      );
+    workType > 0 &&
+      setStatusDropdownData(await getStatusDropdownData(workType));
   };
 
   const getAssignee = async () => {

@@ -83,6 +83,7 @@ const EditDrawer = ({
   onComment,
   onErrorLog,
   onManualTime,
+  activeTab,
 }: any) => {
   const router = useRouter();
   const yearDropdown = getYears();
@@ -1821,6 +1822,7 @@ const EditDrawer = ({
       clientName: validateField(clientNameApprovals),
       typeOfWork: validateField(typeOfWorkApprovals),
       projectName: validateField(projectNameApprovals),
+      status: validateField(statusApprovals),
       processName: validateField(processNameApprovals),
       subProcess: validateField(subProcessApprovals),
       clientTaskName: validateField(clientTaskNameApprovals),
@@ -1848,6 +1850,7 @@ const EditDrawer = ({
     setClientNameApprovalsErr(fieldValidations.clientName);
     setTypeOfWorkApprovalsErr(fieldValidations.typeOfWork);
     setProjectNameApprovalsErr(fieldValidations.projectName);
+    setStatusApprovalsErr(fieldValidations.status);
     setProcessNameApprovalsErr(fieldValidations.processName);
     setSubProcessApprovalsErr(fieldValidations.subProcess);
     setClientTaskNameApprovalsErr(fieldValidations.clientTaskName);
@@ -2089,12 +2092,13 @@ const EditDrawer = ({
           statusData.filter(
             (item: any) =>
               item.Type === "Rework" ||
-              item.Type === "Accept" ||
-              item.Type === "AcceptWithNotes" ||
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient" ||
-              (getType !== "PartialSubmitted" && item.Type === "Rework") ||
+              (getType !== "PartialSubmitted" && item.Type === "Accept") ||
+              (getType !== "PartialSubmitted" &&
+                item.Type === "AcceptWithNotes") ||
+              (getType !== "PartialSubmitted" && item.Type === "InReview") ||
               (getType !== "PartialSubmitted" && item.Type === "Submitted") ||
               (typeOfWorkApprovals !== 3 &&
                 getType !== "Submitted" &&
@@ -2107,11 +2111,13 @@ const EditDrawer = ({
         setStatusApprovalsDropdownDataUse(
           statusData.filter(
             (item: any) =>
-              item.Type === "ReworkAccept" ||
-              item.Type === "ReworkAcceptWithNotes" ||
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient" ||
+              (getType !== "PartialSubmitted" &&
+                item.Type === "ReworkAccept") ||
+              (getType !== "PartialSubmitted" &&
+                item.Type === "ReworkAcceptWithNotes") ||
               (getType !== "PartialSubmitted" &&
                 item.Type === "ReworkInReview") ||
               (getType !== "PartialSubmitted" &&
@@ -2119,6 +2125,19 @@ const EditDrawer = ({
               (typeOfWorkApprovals !== 3 &&
                 getType !== "ReworkSubmitted" &&
                 item.Type === "PartialSubmitted") ||
+              item.value === editStatusApprovals
+          )
+        );
+
+      activeTab === 2 &&
+        getType === "Reject" &&
+        setStatusApprovalsDropdownDataUse(
+          statusData.filter(
+            (item: any) =>
+              item.Type === "Rework" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient" ||
               item.value === editStatusApprovals
           )
         );
@@ -2216,12 +2235,13 @@ const EditDrawer = ({
           clientNameApprovals,
           typeOfWorkApprovals
         ));
-      processData.length > 0 &&
-        setProcessApprovalsDropdownData(
-          processData?.map(
-            (i: any) => new Object({ label: i.Name, value: i.Id })
+      processData.length > 0
+        ? setProcessApprovalsDropdownData(
+            processData?.map(
+              (i: any) => new Object({ label: i.Name, value: i.Id })
+            )
           )
-        );
+        : setProcessApprovalsDropdownData([]);
       const data: any =
         processNameApprovals !== 0 &&
         (await getSubProcessDropdownData(
@@ -2230,10 +2250,11 @@ const EditDrawer = ({
           processNameApprovals
         ));
       data.length > 0 && setEstTimeDataApprovals(data);
-      data.length > 0 &&
-        setSubProcessApprovalsDropdownData(
-          data.map((i: any) => new Object({ label: i.Name, value: i.Id }))
-        );
+      data.length > 0
+        ? setSubProcessApprovalsDropdownData(
+            data.map((i: any) => new Object({ label: i.Name, value: i.Id }))
+          )
+        : setSubProcessApprovalsDropdownData([]);
     };
 
     getData();
@@ -2241,11 +2262,12 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
-      const assigneeData = await getAssigneeDropdownData(
-        [clientNameApprovals],
-        typeOfWorkApprovals
+      setAssigneeApprovalsDropdownData(
+        await getAssigneeDropdownData(
+          [clientNameApprovals],
+          typeOfWorkApprovals
+        )
       );
-      assigneeData.length > 0 && setAssigneeApprovalsDropdownData(assigneeData);
       setReviewerApprovalsDropdownData(
         await getReviewerDropdownData(
           [clientNameApprovals],
@@ -2254,14 +2276,15 @@ const EditDrawer = ({
       );
     };
 
-    typeOfWorkApprovals !== 0 && getData();
+    typeOfWorkApprovals > 0 && getData();
   }, [typeOfWorkApprovals, clientNameApprovals]);
 
   useEffect(() => {
     const getData = async () => {
       const departmentData = await getDepartmentDropdownData(assigneeApprovals);
-      departmentData.DepartmentList.length > 0 &&
-        setDepartmentApprovalsDropdownData(departmentData.DepartmentList);
+      departmentData.DepartmentList.length > 0
+        ? setDepartmentApprovalsDropdownData(departmentData.DepartmentList)
+        : setDepartmentApprovalsDropdownData([]);
       departmentData.DefaultId > 0 &&
         onEdit === 0 &&
         setDepartmentApprovals(departmentData.DefaultId);

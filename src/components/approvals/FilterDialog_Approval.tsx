@@ -11,7 +11,6 @@ import {
   MenuItem,
   TextField,
 } from "@mui/material";
-import Select from "@mui/material/Select";
 import {
   getCCDropdownData,
   getClientDropdownData,
@@ -112,28 +111,34 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   };
 
   const getAllData = async (clientName: any, workType: any) => {
-    const processData = await getProcessDropdownData(clientName, workType);
-    processData.length > 0 &&
-      setProcessDropdownData(
-        processData?.map((i: any) => new Object({ label: i.Name, value: i.Id }))
-      );
     setProjectDropdownData(await getProjectDropdownData(clientName, workType));
+
+    const processData = await getProcessDropdownData(clientName, workType);
+    processData.length > 0
+      ? setProcessDropdownData(
+          processData?.map(
+            (i: any) => new Object({ label: i.Name, value: i.Id })
+          )
+        )
+      : setProcessDropdownData([]);
+
     const statusData = await getStatusDropdownData(workType);
 
-    statusData.length > 0 &&
-      setStatusDropdownData(
-        activeTab === 1
-          ? statusData.filter(
-              (item: any) =>
-                item.Type === "InReview" ||
-                item.Type === "ReworkInReview" ||
-                item.Type === "PartialSubmitted" ||
-                item.Type === "Submitted" ||
-                item.Type === "ReworkSubmitted" ||
-                item.Type === "SecondManagerReview"
-            )
-          : statusData
-      );
+    statusData.length > 0
+      ? setStatusDropdownData(
+          activeTab === 1
+            ? statusData.filter(
+                (item: any) =>
+                  item.Type === "InReview" ||
+                  item.Type === "ReworkInReview" ||
+                  item.Type === "PartialSubmitted" ||
+                  item.Type === "Submitted" ||
+                  item.Type === "ReworkSubmitted" ||
+                  item.Type === "SecondManagerReview"
+              )
+            : statusData
+        )
+      : setStatusDropdownData([]);
   };
 
   useEffect(() => {

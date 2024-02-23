@@ -28,9 +28,10 @@ import { Delete, Edit } from "@mui/icons-material";
 import { getFormattedDate } from "@/utils/timerFunctions";
 import { isWeekend } from "@/utils/commonFunction";
 import {
-  getCCDropdownData,
+  getAssigneeDropdownData,
   getClientDropdownData,
   getProjectDropdownData,
+  getReviewerDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
 
@@ -253,8 +254,18 @@ const BillingReportFilter = ({
           null
         )
       );
-      setAssigneeDropdown(await getCCDropdownData());
-      setReviewerDropdown(await getCCDropdownData());
+      setAssigneeDropdown(
+        await getAssigneeDropdownData(
+          clientName.length > 0 ? clientName[0] : 0,
+          3
+        )
+      );
+      setReviewerDropdown(
+        await getReviewerDropdownData(
+          clientName.length > 0 ? clientName[0] : 0,
+          3
+        )
+      );
     };
     filterDropdowns();
 

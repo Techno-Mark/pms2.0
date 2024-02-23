@@ -237,14 +237,10 @@ const Page = () => {
       ResponseStatus: any
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        if (ResponseData.BreakId === null && ResponseData.TotalTime === null) {
+        if (ResponseData.BreakId === null) {
           setBreakID(0);
-          setTimer("00:00:00");
-        } else if (!ResponseData.IsStared && ResponseData.TotalTime !== null) {
-          setTimer(ResponseData.TotalTime);
         } else if (ResponseData.IsStared && ResponseData.BreakId !== null) {
           setBreakID(ResponseData.BreakId);
-          setTimer(ResponseData.TotalTime);
         }
       }
     };
@@ -268,6 +264,7 @@ const Page = () => {
         setIsLoadingWorklogsDatatable(false);
       } else {
         setIsLoadingWorklogsDatatable(false);
+        getBreakData();
       }
     };
     callAPI(url, params, successCallback, "POST");

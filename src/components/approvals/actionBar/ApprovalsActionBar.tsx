@@ -18,6 +18,7 @@ import {
   Comments,
 } from "@/components/common/actionBar/components/ActionBarComponents";
 import { callAPI } from "@/utils/API/callAPI";
+import Reject from "./components/Reject";
 
 const ConditionalComponentWithoutConditions = ({
   Component,
@@ -112,6 +113,37 @@ const ApprovalsActionBar = ({
     callAPI(url, params, successCallback, "POST");
   };
 
+  const rejectWorkitem = async (note: string, id: number[]) => {
+    getOverLay(true);
+    const params = {
+      workitemSubmissionIds: id,
+      comment: note ? note : null,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/approval/rejectworkitem`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Selected tasks have been successfully approved.");
+        handleClearSelection();
+        getReviewList();
+        getInitialPagePerRows();
+        getOverLay(false);
+      } else if (ResponseStatus === "Warning" && error === false) {
+        toast.warning(ResponseData);
+        handleClearSelection();
+        getReviewList();
+        getOverLay(false);
+      } else {
+        getOverLay(false);
+        getReviewList();
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
   function areAllValuesSame(arr: any[]) {
     return arr.every((value, index, array) => value === array[0]);
   }
@@ -122,6 +154,7 @@ const ApprovalsActionBar = ({
     id,
     selectedRowIds,
     acceptWorkitem,
+    rejectWorkitem,
     selectedWorkItemIds,
     selectedRowsCount,
     handleClearSelection,
@@ -166,6 +199,22 @@ const ApprovalsActionBar = ({
             isReviewer.length > 0
           }
           Component={AcceptWithNotes}
+          propsForActionBar={propsForActionBar}
+        />
+        <ConditionalComponent
+          condition={
+            hasPermissionWorklog("", "Approve", "Approvals") &&
+            selectedRowsCount === 1 &&
+            isNotReviewer.length === 0 &&
+            isReviewer.length > 0 &&
+            !Array.from(new Set(selectedRowWorkTypeId)).includes(3) &&
+            reviewList.filter(
+              (i: any) =>
+                i.WorkitemId === workitemId &&
+                i.StatusType !== "PartialSubmitted"
+            ).length > 0
+          }
+          Component={Reject}
           propsForActionBar={propsForActionBar}
         />
 
@@ -243,7 +292,9 @@ const ApprovalsActionBar = ({
             hasPermissionWorklog("", "Approve", "Approvals") &&
             selectedRowsCount === 1 &&
             isNotReviewer.length === 0 &&
-            isReviewer.length > 0
+            isReviewer.length > 0 &&
+            reviewList.filter((i: any) => i.WorkitemId === workitemId)[0]
+              .IsFinalSubmited
           }
           className=""
           Component={EditTime}
