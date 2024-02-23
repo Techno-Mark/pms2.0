@@ -239,7 +239,12 @@ const Page = () => {
       if (ResponseStatus === "Success" && error === false) {
         if (ResponseData.BreakId === null) {
           setBreakID(0);
-        }else if (ResponseData.IsStared && ResponseData.BreakId !== null) {
+        } else if (
+          ResponseData.BreakId === null &&
+          ResponseData.TotalTime !== null
+        ) {
+          setBreakID(0);
+        } else if (ResponseData.IsStared && ResponseData.BreakId !== null) {
           setBreakID(ResponseData.BreakId);
         }
       }
