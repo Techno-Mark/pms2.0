@@ -14,7 +14,7 @@ const project_InitialFilter = {
   isClientReport: false,
 };
 
-const Project = ({ filteredData, searchValue, onHandleExport }: any) => {
+const ProjectReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [projectFields, setProjectFields] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -126,4 +126,4 @@ const Project = ({ filteredData, searchValue, onHandleExport }: any) => {
   );
 };
 
-export default Project;
+export default ProjectReport;

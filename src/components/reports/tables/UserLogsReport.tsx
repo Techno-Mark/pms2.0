@@ -9,7 +9,7 @@ import { TablePagination, ThemeProvider } from "@mui/material";
 import { userLogs_InitialFilter } from "@/utils/reports/getFilters";
 import { reportsUserLogsCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 
-const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
+const UserLogsReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [userlogFields, setUserlogFields] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -105,4 +105,4 @@ const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
   );
 };
 
-export default UserLogs;
+export default UserLogsReport;

@@ -10,7 +10,10 @@ import {
   DialogTitle,
   FormControl,
   InputBase,
+  InputLabel,
+  MenuItem,
   Popover,
+  Select,
   TextField,
   Tooltip,
 } from "@mui/material";
@@ -19,107 +22,110 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { FilterType } from "../types/ReportsFilterType";
-import { timesheet } from "../Enum/Filtertype";
-import { timeSheet_InitialFilter } from "@/utils/reports/getFilters";
-import { getDates, getFormattedDate } from "@/utils/timerFunctions";
+import { user } from "../Enum/Filtertype";
+import { userLogs_InitialFilter } from "@/utils/reports/getFilters";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
+import { getFormattedDate } from "@/utils/timerFunctions";
 import { isWeekend } from "@/utils/commonFunction";
 import { callAPI } from "@/utils/API/callAPI";
 import { getCCDropdownData, getDeptData } from "@/utils/commonDropdownApiCall";
 
-const TimesheetFilter = ({
+const isLoggedIn = 2;
+const isLoggedOut = 3;
+
+const UserLogsReportFilter = ({
   isFiltering,
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
-  const [timesheetUserNames, setTimesheetUserNames] = useState<number[]>([]);
-  const [timesheetUsers, setTimesheetUsers] = useState<number[]>([]);
-  const [timesheetDept, setTimesheetDept] = useState<any>(null);
-  const [timesheetFilterName, setTimesheetFilterName] = useState<string>("");
-  const [timesheetSaveFilter, setTimesheetSaveFilter] =
+  const [userlogs_users, setUserlogs_Users] = useState<any[]>([]);
+  const [userlogs_userNames, setUserlogs_UserNames] = useState<number[]>([]);
+  const [userlogs_dept, setUserlogs_Dept] = useState<any>(null);
+  const [userlogs_dateFilter, setUserlogs_DateFilter] = useState<any>("");
+  const [userlogs_filterName, setUserlogs_FilterName] = useState<string>("");
+  const [userlogs_isloggedIn, setUserlogs_IsloggedIn] = useState<
+    number | string
+  >(0);
+  const [userlogs_saveFilter, setUserlogs_SaveFilter] =
     useState<boolean>(false);
-  const [timesheetDeptDropdown, setTimesheetDeptDropdown] = useState<any[]>([]);
-  const [timesheetUserDropdown, setTimesheetUserDropdown] = useState<any[]>([]);
-  const [timesheetAnyFieldSelected, setTimesheetAnyFieldSelected] =
+  const [userlogs_deptDropdown, setUserlogs_DeptDropdown] = useState<any[]>([]);
+  const [userlogs_userDropdown, setUserlogs_UserDropdown] = useState<any[]>([]);
+  const [userlogs_anyFieldSelected, setUserlogs_AnyFieldSelected] =
     useState(false);
-  const [timesheetCurrentFilterId, setTimesheetCurrentFilterId] =
+  const [userlogs_currentFilterId, setUserlogs_CurrentFilterId] =
     useState<any>("");
-  const [timesheetSavedFilters, setTimesheetSavedFilters] = useState<any[]>([]);
-  const [timesheetDefaultFilter, setTimesheetDefaultFilter] =
+  const [userlogs_savedFilters, setUserlogs_SavedFilters] = useState<any[]>([]);
+  const [userlogs_defaultFilter, setUserlogs_DefaultFilter] =
     useState<boolean>(false);
-  const [timesheetSearchValue, setTimesheetSearchValue] = useState<string>("");
-  const [timesheetIsDeleting, setTimesheetIsDeleting] =
+  const [userlogs_searchValue, setUserlogs_SearchValue] = useState<string>("");
+  const [userlogs_isDeleting, setUserlogs_IsDeleting] =
     useState<boolean>(false);
-  const [timesheetStartDate, setTimesheetStartDate] = useState<string | number>(
-    ""
-  );
-  const [timesheetEndDate, setTimesheetEndDate] = useState<string | number>("");
-  const [timesheetError, setTimesheetError] = useState("");
+  const [userlogs_error, setUserlogs_Error] = useState("");
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
 
-  const handleTimesheetResetAll = () => {
-    setTimesheetUserNames([]);
-    setTimesheetUsers([]);
-    setTimesheetDept(null);
-    setTimesheetStartDate("");
-    setTimesheetEndDate("");
-    setTimesheetError("");
+  const handleResetAll = () => {
+    setUserlogs_UserNames([]);
+    setUserlogs_Users([]);
+    setUserlogs_Dept(null);
+    setUserlogs_IsloggedIn(0);
+    setUserlogs_DateFilter("");
+    setUserlogs_Error("");
 
     sendFilterToPage({
-      ...timeSheet_InitialFilter,
+      ...userLogs_InitialFilter,
     });
   };
 
-  const handleTimesheetClose = () => {
+  const handleClose = () => {
     onDialogClose(false);
-    setTimesheetFilterName("");
-    setTimesheetDefaultFilter(false);
-    setTimesheetUserNames([]);
-    setTimesheetUsers([]);
-    setTimesheetDept(null);
-    setTimesheetStartDate("");
-    setTimesheetEndDate("");
-    setTimesheetError("");
+    setUserlogs_FilterName("");
+    setUserlogs_DefaultFilter(false);
+    setUserlogs_UserNames([]);
+    setUserlogs_Users([]);
+    setUserlogs_Dept(null);
+    setUserlogs_IsloggedIn(0);
+    setUserlogs_DateFilter("");
+    setUserlogs_Error("");
   };
 
-  const handleTimesheetFilterApply = () => {
+  const getLoggedInFilterValue = () => {
+    if (userlogs_isloggedIn === isLoggedIn) return 1;
+    if (userlogs_isloggedIn === isLoggedOut) return 0;
+    return null;
+  };
+
+  const handleFilterApply = () => {
     sendFilterToPage({
-      ...timeSheet_InitialFilter,
-      users: timesheetUserNames,
+      ...userLogs_InitialFilter,
+      users: userlogs_userNames,
       departmentId:
-        timesheetDept === null || timesheetDept === ""
+        userlogs_dept === null || userlogs_dept === ""
           ? null
-          : timesheetDept.value,
-      startDate:
-        timesheetStartDate.toString().trim().length <= 0
-          ? timesheetEndDate.toString().trim().length <= 0
-            ? getDates()[0]
-            : getFormattedDate(timesheetEndDate)
-          : getFormattedDate(timesheetStartDate),
-      endDate:
-        timesheetEndDate.toString().trim().length <= 0
-          ? timesheetStartDate.toString().trim().length <= 0
-            ? getDates()[getDates().length - 1]
-            : getFormattedDate(timesheetStartDate)
-          : getFormattedDate(timesheetEndDate),
+          : userlogs_dept.value,
+      dateFilter:
+        userlogs_dateFilter === null ||
+        userlogs_dateFilter.toString().trim().length <= 0
+          ? null
+          : getFormattedDate(userlogs_dateFilter),
+      isLoggedInFilter: getLoggedInFilterValue(),
     });
 
     onDialogClose(false);
   };
 
-  const handleTimesheetSavedFilterApply = (index: number) => {
+  const handleSavedFilterApply = (index: number) => {
     if (Number.isInteger(index)) {
       if (index !== undefined) {
         sendFilterToPage({
-          ...timeSheet_InitialFilter,
-          users: timesheetSavedFilters[index].AppliedFilter.users,
-          departmentId: timesheetSavedFilters[index].AppliedFilter.Department,
-          startDate: timesheetSavedFilters[index].AppliedFilter.startDate,
-          endDate: timesheetSavedFilters[index].AppliedFilter.endDate,
+          ...userLogs_InitialFilter,
+          users: userlogs_savedFilters[index].AppliedFilter.users,
+          department: userlogs_savedFilters[index].AppliedFilter.Department,
+          isLoggedInFilter:
+            userlogs_savedFilters[index].AppliedFilter.isLoggedInFilter,
         });
       }
     }
@@ -127,34 +133,27 @@ const TimesheetFilter = ({
     onDialogClose(false);
   };
 
-  const handleTimesheetSaveFilter = async () => {
-    if (timesheetFilterName.trim().length === 0) {
-      setTimesheetError("This is required field!");
-    } else if (timesheetFilterName.trim().length > 15) {
-      setTimesheetError("Max 15 characters allowed!");
+  const handleSaveFilter = async () => {
+    if (userlogs_filterName.trim().length === 0) {
+      setUserlogs_Error("This is required field!");
+    } else if (userlogs_filterName.trim().length > 15) {
+      setUserlogs_Error("Max 15 characters allowed!");
     } else {
-      setTimesheetError("");
+      setUserlogs_Error("");
       const params = {
         filterId:
-          timesheetCurrentFilterId !== "" ? timesheetCurrentFilterId : null,
-        name: timesheetFilterName,
+          userlogs_currentFilterId !== "" ? userlogs_currentFilterId : null,
+        name: userlogs_filterName,
         AppliedFilter: {
-          users: timesheetUserNames.length > 0 ? timesheetUserNames : [],
-          departmentId: timesheetDept === null ? null : timesheetDept.value,
-          startDate:
-            timesheetStartDate.toString().trim().length <= 0
-              ? timesheetEndDate.toString().trim().length <= 0
-                ? getDates()[0]
-                : getFormattedDate(timesheetEndDate)
-              : getFormattedDate(timesheetStartDate),
-          endDate:
-            timesheetEndDate.toString().trim().length <= 0
-              ? timesheetStartDate.toString().trim().length <= 0
-                ? getDates()[getDates().length - 1]
-                : getFormattedDate(timesheetStartDate)
-              : getFormattedDate(timesheetEndDate),
+          users: userlogs_userNames.length > 0 ? userlogs_userNames : [],
+          Department: userlogs_dept === null ? null : userlogs_dept.value,
+          dateFilter:
+            userlogs_dateFilter === null || userlogs_dateFilter === ""
+              ? null
+              : userlogs_dateFilter,
+          isLoggedInFilter: getLoggedInFilterValue(),
         },
-        type: timesheet,
+        type: user,
       };
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
@@ -164,10 +163,10 @@ const TimesheetFilter = ({
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success("Filter has been successully saved.");
-          handleTimesheetClose();
-          getTimesheetFilterList();
-          handleTimesheetFilterApply();
-          setTimesheetSaveFilter(false);
+          handleClose();
+          getFilterList();
+          handleFilterApply();
+          setUserlogs_SaveFilter(false);
         }
       };
       callAPI(url, params, successCallback, "POST");
@@ -175,31 +174,36 @@ const TimesheetFilter = ({
   };
 
   useEffect(() => {
-    getTimesheetFilterList();
+    getFilterList();
   }, []);
 
   useEffect(() => {
     const isAnyFieldSelected =
-      timesheetUserNames.length > 0 ||
-      timesheetDept !== null ||
-      timesheetStartDate.toString().trim().length > 0 ||
-      timesheetEndDate.toString().trim().length > 0;
+      userlogs_userNames.length > 0 ||
+      userlogs_dept !== null ||
+      userlogs_dateFilter !== "" ||
+      userlogs_isloggedIn !== 0;
 
-    setTimesheetAnyFieldSelected(isAnyFieldSelected);
-    setTimesheetSaveFilter(false);
-  }, [timesheetDept, timesheetUserNames, timesheetStartDate, timesheetEndDate]);
+    setUserlogs_AnyFieldSelected(isAnyFieldSelected);
+    setUserlogs_SaveFilter(false);
+  }, [
+    userlogs_dept,
+    userlogs_userNames,
+    userlogs_dateFilter,
+    userlogs_isloggedIn,
+  ]);
 
   useEffect(() => {
     const userDropdowns = async () => {
-      setTimesheetDeptDropdown(await getDeptData());
-      setTimesheetUserDropdown(await getCCDropdownData());
+      setUserlogs_DeptDropdown(await getDeptData());
+      setUserlogs_UserDropdown(await getCCDropdownData());
     };
     userDropdowns();
   }, []);
 
-  const getTimesheetFilterList = async () => {
+  const getFilterList = async () => {
     const params = {
-      type: timesheet,
+      type: user,
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
@@ -208,47 +212,49 @@ const TimesheetFilter = ({
       ResponseStatus: any
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        setTimesheetSavedFilters(ResponseData);
+        setUserlogs_SavedFilters(ResponseData);
       }
     };
     callAPI(url, params, successCallback, "POST");
   };
 
-  const handleTimesheetSavedFilterEdit = (index: number) => {
-    setTimesheetCurrentFilterId(timesheetSavedFilters[index].FilterId);
-    setTimesheetFilterName(timesheetSavedFilters[index].Name);
-    setTimesheetUsers(
-      timesheetSavedFilters[index].AppliedFilter.users.length > 0
-        ? timesheetUserDropdown.filter((user: any) =>
-            timesheetSavedFilters[index].AppliedFilter.users.includes(
+  const handleSavedFilterEdit = (index: number) => {
+    setUserlogs_CurrentFilterId(userlogs_savedFilters[index].FilterId);
+    setUserlogs_FilterName(userlogs_savedFilters[index].Name);
+    setUserlogs_Users(
+      userlogs_savedFilters[index].AppliedFilter.users.length > 0
+        ? userlogs_userDropdown.filter((user: any) =>
+            userlogs_savedFilters[index].AppliedFilter.users.includes(
               user.value
             )
           )
         : []
     );
-    setTimesheetUserNames(timesheetSavedFilters[index].AppliedFilter.users);
-    setTimesheetDept(
-      timesheetSavedFilters[index].AppliedFilter.departmentId === null
+    setUserlogs_UserNames(userlogs_savedFilters[index].AppliedFilter.users);
+    setUserlogs_Dept(
+      userlogs_savedFilters[index].AppliedFilter.Department === null
         ? null
-        : timesheetDeptDropdown.filter(
+        : userlogs_deptDropdown.filter(
             (item: any) =>
               item.value ===
-              timesheetSavedFilters[index].AppliedFilter.departmentId
+              userlogs_savedFilters[index].AppliedFilter.Department
           )[0]
     );
-    setTimesheetStartDate(
-      timesheetSavedFilters[index].AppliedFilter.startDate ?? ""
+    setUserlogs_IsloggedIn(
+      userlogs_savedFilters[index].AppliedFilter.isLoggedInFilter ?? 0
     );
-    setTimesheetEndDate(
-      timesheetSavedFilters[index].AppliedFilter.endDate ?? ""
+    setUserlogs_DefaultFilter(true);
+    setUserlogs_SaveFilter(true);
+    setUserlogs_DateFilter(
+      userlogs_savedFilters[index].AppliedFilter.dateFilter === null
+        ? ""
+        : userlogs_savedFilters[index].AppliedFilter.dateFilter
     );
-    setTimesheetDefaultFilter(true);
-    setTimesheetSaveFilter(true);
   };
 
-  const handleTimesheetSavedFilterDelete = async () => {
+  const handleSavedFilterDelete = async () => {
     const params = {
-      filterId: timesheetCurrentFilterId,
+      filterId: userlogs_currentFilterId,
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
@@ -258,9 +264,9 @@ const TimesheetFilter = ({
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Filter has been deleted successfully.");
-        handleTimesheetClose();
-        getTimesheetFilterList();
-        setTimesheetCurrentFilterId("");
+        handleClose();
+        getFilterList();
+        setUserlogs_CurrentFilterId("");
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -268,12 +274,12 @@ const TimesheetFilter = ({
 
   return (
     <>
-      {timesheetSavedFilters.length > 0 && !timesheetDefaultFilter ? (
+      {userlogs_savedFilters.length > 0 && !userlogs_defaultFilter ? (
         <Popover
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleTimesheetClose}
+          onClose={handleClose}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -287,8 +293,8 @@ const TimesheetFilter = ({
             <span
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
-                setTimesheetDefaultFilter(true);
-                setTimesheetCurrentFilterId(0);
+                setUserlogs_DefaultFilter(true);
+                setUserlogs_CurrentFilterId(0);
               }}
             >
               Default Filter
@@ -300,15 +306,15 @@ const TimesheetFilter = ({
                 className="pr-7 border-b border-b-slatyGrey w-full"
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
-                value={timesheetSearchValue}
-                onChange={(e: any) => setTimesheetSearchValue(e.target.value)}
+                value={userlogs_searchValue}
+                onChange={(e: any) => setUserlogs_SearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {timesheetSavedFilters.map((i: any, index: number) => {
+            {userlogs_savedFilters.map((i: any, index: number) => {
               return (
                 <>
                   <div
@@ -318,25 +324,23 @@ const TimesheetFilter = ({
                     <span
                       className="pl-1"
                       onClick={() => {
-                        setTimesheetCurrentFilterId(i.FilterId);
+                        setUserlogs_CurrentFilterId(i.FilterId);
                         onDialogClose(false);
-                        handleTimesheetSavedFilterApply(index);
+                        handleSavedFilterApply(index);
                       }}
                     >
                       {i.Name}
                     </span>
                     <span className="flex gap-[10px] pr-[10px]">
-                      <span
-                        onClick={() => handleTimesheetSavedFilterEdit(index)}
-                      >
+                      <span onClick={() => handleSavedFilterEdit(index)}>
                         <Tooltip title="Edit" placement="top" arrow>
                           <Edit className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
                         </Tooltip>
                       </span>
                       <span
                         onClick={() => {
-                          setTimesheetIsDeleting(true);
-                          setTimesheetCurrentFilterId(i.FilterId);
+                          setUserlogs_IsDeleting(true);
+                          setUserlogs_CurrentFilterId(i.FilterId);
                         }}
                       >
                         <Tooltip title="Delete" placement="top" arrow>
@@ -349,11 +353,7 @@ const TimesheetFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button
-              onClick={handleTimesheetResetAll}
-              className="mt-2"
-              color="error"
-            >
+            <Button onClick={handleResetAll} className="mt-2" color="error">
               clear all
             </Button>
           </div>
@@ -364,11 +364,11 @@ const TimesheetFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleTimesheetClose}
+          onClose={handleClose}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleTimesheetResetAll}>
+            <Button color="error" onClick={handleResetAll}>
               Reset all
             </Button>
           </DialogTitle>
@@ -377,18 +377,18 @@ const TimesheetFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, my: 0.4, minWidth: 210 }}
+                  sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
                 >
                   <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={timesheetUserDropdown}
+                    options={userlogs_userDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setTimesheetUserNames(data.map((d: any) => d.value));
-                      setTimesheetUsers(data);
+                      setUserlogs_Users(data);
+                      setUserlogs_UserNames(data.map((d: any) => d.value));
                     }}
-                    value={timesheetUsers}
+                    value={userlogs_users}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
@@ -404,12 +404,12 @@ const TimesheetFilter = ({
                 >
                   <Autocomplete
                     id="tags-standard"
-                    options={timesheetDeptDropdown}
+                    options={userlogs_deptDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setTimesheetDept(data);
+                      setUserlogs_Dept(data);
                     }}
-                    value={timesheetDept}
+                    value={userlogs_dept}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
@@ -424,16 +424,16 @@ const TimesheetFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="Start Date"
+                      label="Date"
                       shouldDisableDate={isWeekend}
-                      maxDate={dayjs(Date.now()) || dayjs(timesheetEndDate)}
+                      maxDate={dayjs(Date.now())}
                       value={
-                        timesheetStartDate === ""
+                        userlogs_dateFilter === ""
                           ? null
-                          : dayjs(timesheetStartDate)
+                          : dayjs(userlogs_dateFilter)
                       }
                       onChange={(newValue: any) =>
-                        setTimesheetStartDate(newValue)
+                        setUserlogs_DateFilter(newValue)
                       }
                       slotProps={{
                         textField: {
@@ -445,41 +445,34 @@ const TimesheetFilter = ({
                 </div>
               </div>
               <div className="flex gap-[20px]">
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="End Date"
-                      shouldDisableDate={isWeekend}
-                      minDate={dayjs(timesheetStartDate)}
-                      maxDate={dayjs(Date.now())}
-                      value={
-                        timesheetEndDate === "" ? null : dayjs(timesheetEndDate)
-                      }
-                      onChange={(newValue: any) =>
-                        setTimesheetEndDate(newValue)
-                      }
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
+                  <InputLabel id="isLoggedInFilter">Is LoggedIn</InputLabel>
+                  <Select
+                    labelId="isLoggedInFilter"
+                    id="isLoggedInFilter"
+                    value={userlogs_isloggedIn === 0 ? "" : userlogs_isloggedIn}
+                    onChange={(e) => setUserlogs_IsloggedIn(e.target.value)}
+                  >
+                    <MenuItem value={1}>All</MenuItem>
+                    <MenuItem value={2}>Yes</MenuItem>
+                    <MenuItem value={3}>No</MenuItem>
+                  </Select>
+                </FormControl>
               </div>
             </div>
           </DialogContent>
           <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">
-            {!timesheetSaveFilter ? (
+            {!userlogs_saveFilter ? (
               <>
                 <Button
                   variant="contained"
                   color="info"
-                  className={`${timesheetAnyFieldSelected && "!bg-secondary"}`}
-                  disabled={!timesheetAnyFieldSelected}
-                  onClick={handleTimesheetFilterApply}
+                  className={`${userlogs_anyFieldSelected && "!bg-secondary"}`}
+                  disabled={!userlogs_anyFieldSelected}
+                  onClick={handleFilterApply}
                 >
                   Apply Filter
                 </Button>
@@ -487,9 +480,9 @@ const TimesheetFilter = ({
                 <Button
                   variant="contained"
                   color="info"
-                  className={`${timesheetAnyFieldSelected && "!bg-secondary"}`}
-                  onClick={() => setTimesheetSaveFilter(true)}
-                  disabled={!timesheetAnyFieldSelected}
+                  className={`${userlogs_anyFieldSelected && "!bg-secondary"}`}
+                  onClick={() => setUserlogs_SaveFilter(true)}
+                  disabled={!userlogs_anyFieldSelected}
                 >
                   Save Filter
                 </Button>
@@ -505,34 +498,30 @@ const TimesheetFilter = ({
                     fullWidth
                     required
                     variant="standard"
-                    value={timesheetFilterName}
+                    value={userlogs_filterName}
                     onChange={(e) => {
-                      setTimesheetFilterName(e.target.value);
-                      setTimesheetError("");
+                      setUserlogs_FilterName(e.target.value);
+                      setUserlogs_Error("");
                     }}
-                    error={timesheetError.length > 0 ? true : false}
-                    helperText={timesheetError}
+                    error={userlogs_error.length > 0 ? true : false}
+                    helperText={userlogs_error}
                   />
                 </FormControl>
                 <Button
                   variant="contained"
                   color="info"
-                  onClick={handleTimesheetSaveFilter}
+                  onClick={handleSaveFilter}
                   className={`${
-                    timesheetFilterName.length === 0 ? "" : "!bg-secondary"
+                    userlogs_filterName.length === 0 ? "" : "!bg-secondary"
                   }`}
-                  disabled={timesheetFilterName.length === 0}
+                  disabled={userlogs_filterName.length === 0}
                 >
                   Save & Apply
                 </Button>
               </>
             )}
 
-            <Button
-              variant="outlined"
-              color="info"
-              onClick={handleTimesheetClose}
-            >
+            <Button variant="outlined" color="info" onClick={handleClose}>
               Cancel
             </Button>
           </DialogActions>
@@ -540,9 +529,9 @@ const TimesheetFilter = ({
       )}
 
       <DeleteDialog
-        isOpen={timesheetIsDeleting}
-        onClose={() => setTimesheetIsDeleting(false)}
-        onActionClick={handleTimesheetSavedFilterDelete}
+        isOpen={userlogs_isDeleting}
+        onClose={() => setUserlogs_IsDeleting(false)}
+        onActionClick={handleSavedFilterDelete}
         Title={"Delete Filter"}
         firstContent={"Are you sure you want to delete this saved filter?"}
         secondContent={
@@ -553,4 +542,4 @@ const TimesheetFilter = ({
   );
 };
 
-export default TimesheetFilter;
+export default UserLogsReportFilter;

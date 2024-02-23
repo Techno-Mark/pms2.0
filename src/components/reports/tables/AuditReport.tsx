@@ -9,7 +9,7 @@ import { TablePagination, ThemeProvider } from "@mui/material";
 import { audit_InitialFilter } from "@/utils/reports/getFilters";
 import { reportsAuditCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 
-const Audit = ({ filteredData, searchValue, onHandleExport }: any) => {
+const AuditReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [auditFields, setAuditFields] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -110,4 +110,4 @@ const Audit = ({ filteredData, searchValue, onHandleExport }: any) => {
   );
 };
 
-export default Audit;
+export default AuditReport;

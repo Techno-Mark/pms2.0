@@ -14,12 +14,12 @@ import FilterIcon from "@/assets/icons/FilterIcon";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
 import SearchIcon from "@/assets/icons/SearchIcon";
-import Project from "@/components/reports/tables/Project";
-import User from "@/components/reports/tables/User";
-import TimeSheet from "@/components/reports/tables/TimeSheet";
-import Workload from "@/components/reports/tables/Workload";
-import UserLogs from "@/components/reports/tables/UserLogs";
-import Audit from "@/components/reports/tables/Audit";
+import ProjectReport from "@/components/reports/tables/ProjectReport";
+import UserReport from "@/components/reports/tables/UserReport";
+import TimeSheetReport from "@/components/reports/tables/TimeSheetReport";
+import WorkloadReport from "@/components/reports/tables/WorkloadReport";
+import UserLogsReport from "@/components/reports/tables/UserLogsReport";
+import AuditReport from "@/components/reports/tables/AuditReport";
 import BillingReport from "@/components/reports/tables/BillingReport";
 import CustomReport from "@/components/reports/tables/CustomReport";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
@@ -28,16 +28,16 @@ import {
   customreport_InitialFilter,
   getCurrentTabDetails,
 } from "@/utils/reports/getFilters";
-import ProjectFilter from "@/components/reports/Filter/ProjectFilter";
-import UserFilter from "@/components/reports/Filter/UserFilter";
-import WorkLoadFilter from "@/components/reports/Filter/WorkLoadFilter";
-import UserLogsFilter from "@/components/reports/Filter/UserLogsFilter";
-import TimesheetFilter from "@/components/reports/Filter/TimesheetFilter";
+import ProjectReportFilter from "@/components/reports/Filter/ProjectReportFilter";
+import UserReportFilter from "@/components/reports/Filter/UserReportFilter";
+import WorkLoadReportFilter from "@/components/reports/Filter/WorkLoadReportFilter";
+import UserLogsReportFilter from "@/components/reports/Filter/UserLogsReportFilter";
+import TimesheetReportFilter from "@/components/reports/Filter/TimesheetReportFilter";
 import BillingReportFilter from "@/components/reports/Filter/BillingReportFilter";
 import CustomReportFilter from "@/components/reports/Filter/CustomReportFilter";
 import RatingReport from "@/components/reports/tables/RatingReport";
 import RatingReportFilter from "@/components/reports/Filter/RatingReportFilter";
-import AuditFilter from "@/components/reports/Filter/AuditFilter";
+import AuditReportFilter from "@/components/reports/Filter/AuditReportFilter";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import LogReport from "@/components/reports/tables/LogReport";
 import LogReportFilter from "@/components/reports/Filter/LogReportFilter";
@@ -154,8 +154,11 @@ const Page = () => {
       );
       setMoreTabs(
         allTabs
-          .map((tab: any) =>
-            hasPermissionWorklog(tab.label, "view", "report") ? tab : false
+          .map(
+            (tab: any) =>
+              // hasPermissionWorklog(tab.label, "view", "report") ?
+              tab
+            // : false
           )
           .filter((tab: any) => tab !== false)
           .slice(6)
@@ -399,42 +402,42 @@ const Page = () => {
 
         {/* tabs */}
         {activeTab === 1 && (
-          <Project
+          <ProjectReport
             searchValue={searchValue}
             filteredData={filteredData}
             onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 2 && (
-          <User
+          <UserReport
             searchValue={searchValue}
             filteredData={filteredData}
             onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 3 && (
-          <TimeSheet
+          <TimeSheetReport
             searchValue={searchValue}
             filteredData={filteredData}
             onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 4 && (
-          <Workload
+          <WorkloadReport
             searchValue={searchValue}
             filteredData={filteredData}
             onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 5 && (
-          <UserLogs
+          <UserLogsReport
             searchValue={searchValue}
             filteredData={filteredData}
             onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 6 && (
-          <Audit
+          <AuditReport
             searchValue={searchValue}
             filteredData={filteredData}
             onHandleExport={handleCanExport}
@@ -477,7 +480,7 @@ const Page = () => {
 
       {/* tabs filter */}
       {activeTab === 1 && (
-        <ProjectFilter
+        <ProjectReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}
@@ -485,7 +488,7 @@ const Page = () => {
       )}
 
       {activeTab === 2 && (
-        <UserFilter
+        <UserReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}
@@ -493,7 +496,7 @@ const Page = () => {
       )}
 
       {activeTab === 3 && (
-        <TimesheetFilter
+        <TimesheetReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}
@@ -501,7 +504,7 @@ const Page = () => {
       )}
 
       {activeTab === 4 && (
-        <WorkLoadFilter
+        <WorkLoadReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}
@@ -509,7 +512,7 @@ const Page = () => {
       )}
 
       {activeTab === 5 && (
-        <UserLogsFilter
+        <UserLogsReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}
@@ -517,7 +520,7 @@ const Page = () => {
       )}
 
       {activeTab === 6 && (
-        <AuditFilter
+        <AuditReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}

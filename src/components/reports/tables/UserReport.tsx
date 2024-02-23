@@ -18,7 +18,7 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { TablePagination, ThemeProvider } from "@mui/material";
 import { user_InitialFilter } from "@/utils/reports/getFilters";
 
-const User = ({ filteredData, searchValue, onHandleExport }: any) => {
+const UserReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [userDates, setUserDates] = useState<any>([]);
   const [userFields, setUserFields] = useState<FieldsType>({
     loaded: false,
@@ -288,4 +288,4 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
   );
 };
 
-export default User;
+export default UserReport;

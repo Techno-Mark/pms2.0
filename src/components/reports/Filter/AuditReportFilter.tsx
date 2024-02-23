@@ -31,7 +31,7 @@ import {
 } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
 
-const AuditFilter = ({
+const AuditReportFilter = ({
   isFiltering,
   onDialogClose,
   sendFilterToPage,
@@ -558,4 +558,4 @@ const AuditFilter = ({
   );
 };
 
-export default AuditFilter;
+export default AuditReportFilter;

@@ -38,7 +38,7 @@ const project_filter_InitialFilter = {
   isClientReport: false,
 };
 
-const ProjectFilter = ({
+const ProjectReportFilter = ({
   isFiltering,
   sendFilterToPage,
   onDialogClose,
@@ -681,4 +681,4 @@ const ProjectFilter = ({
   );
 };
 
-export default ProjectFilter;
+export default ProjectReportFilter;

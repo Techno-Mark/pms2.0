@@ -28,7 +28,7 @@ import { isWeekend } from "@/utils/commonFunction";
 import { callAPI } from "@/utils/API/callAPI";
 import { getCCDropdownData, getDeptData } from "@/utils/commonDropdownApiCall";
 
-const WorkLoadFilter = ({
+const WorkLoadReportFilter = ({
   isFiltering,
   sendFilterToPage,
   onDialogClose,
@@ -487,4 +487,4 @@ const WorkLoadFilter = ({
   );
 };
 
-export default WorkLoadFilter;
+export default WorkLoadReportFilter;

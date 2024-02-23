@@ -18,7 +18,7 @@ import { DialogTransition } from "@/utils/style/DialogTransition";
 import { workLoad_InitialFilter } from "@/utils/reports/getFilters";
 import { Popover, TablePagination, ThemeProvider } from "@mui/material";
 
-const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
+const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const workloadAnchorElFilter: HTMLButtonElement | null = null;
   const openWorkloadFilter = Boolean(workloadAnchorElFilter);
   const workloadIdFilter = openWorkloadFilter ? "simple-popover" : undefined;
@@ -344,4 +344,4 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
   );
 };
 
-export default Workload;
+export default WorkloadReport;

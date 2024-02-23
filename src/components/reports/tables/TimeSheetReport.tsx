@@ -403,7 +403,11 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
   );
 };
 
-const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
+const TimeSheetReport = ({
+  filteredData,
+  searchValue,
+  onHandleExport,
+}: any) => {
   const [dates, setDates] = useState<any>([]);
   const [timesheetFields, setTimesheetFields] = useState<FieldsType>({
     loaded: false,
@@ -700,4 +704,4 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
   );
 };
 
-export default TimeSheet;
+export default TimeSheetReport;
