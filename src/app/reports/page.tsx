@@ -53,12 +53,12 @@ const allTabs = [
   { label: "audit", value: 6 },
   { label: "rating", value: 9 },
   { label: "log", value: 10 },
-  { label: "activity", value: 11 },
-  { label: "a/p", value: 12 },
-  { label: "client", value: 13 },
-  { label: "kra", value: 14 },
-  { label: "auto/manual", value: 15 },
-  { label: "wltr", value: 16 },
+  // { label: "activity", value: 11 },
+  // { label: "a/p", value: 12 },
+  // { label: "client", value: 13 },
+  // { label: "kra", value: 14 },
+  // { label: "auto/manual", value: 15 },
+  // { label: "wltr", value: 16 },
 ];
 
 const MoreTabs = ({ moreTabs, handleMoreTabsClick }: any) => {
