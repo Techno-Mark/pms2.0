@@ -2324,7 +2324,7 @@ const EditDrawer = ({
               item.Type === "InProgress" ||
               item.Type === "Stop" ||
               item.Type === "Rework" ||
-              item.Type === "Submitted" ||
+              // item.Type === "Submitted" ||
               item.value === editStatusWorklogs
           )
         );
@@ -2342,7 +2342,7 @@ const EditDrawer = ({
               item.Type === "Rework" ||
               item.Type === "ReworkInProgress" ||
               item.Type === "ReworkPrepCompleted" ||
-              item.Type === "ReworkSubmitted" ||
+              // item.Type === "ReworkSubmitted" ||
               item.value === editStatusWorklogs
           )
         );
