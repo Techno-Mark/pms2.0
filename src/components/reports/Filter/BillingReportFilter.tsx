@@ -28,10 +28,9 @@ import { Delete, Edit } from "@mui/icons-material";
 import { getFormattedDate } from "@/utils/timerFunctions";
 import { isWeekend } from "@/utils/commonFunction";
 import {
-  getAssigneeDropdownData,
+  getCCDropdownData,
   getClientDropdownData,
   getProjectDropdownData,
-  getReviewerDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
 
@@ -254,18 +253,13 @@ const BillingReportFilter = ({
           null
         )
       );
-      setAssigneeDropdown(
-        await getAssigneeDropdownData(
-          clientName.length > 0 ? clientName[0] : 0,
-          3
-        )
-      );
-      setReviewerDropdown(
-        await getReviewerDropdownData(
-          clientName.length > 0 ? clientName[0] : 0,
-          3
-        )
-      );
+      const userData = await getCCDropdownData();
+      userData.length > 0
+        ? setAssigneeDropdown(userData)
+        : setAssigneeDropdown([]);
+      userData.length > 0
+        ? setReviewerDropdown(userData)
+        : setReviewerDropdown([]);
     };
     filterDropdowns();
 
@@ -563,7 +557,7 @@ const BillingReportFilter = ({
 
                 <FormControl
                   variant="standard"
-                  sx={{ mt: 0.35, mx: 0.75, minWidth: 210 }}
+                  sx={{ mt: 0, mx: 0.75, minWidth: 210 }}
                 >
                   <TextField
                     id="noOfPages"
@@ -574,7 +568,7 @@ const BillingReportFilter = ({
                   />
                 </FormControl>
                 <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px] -mt-1`}
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker

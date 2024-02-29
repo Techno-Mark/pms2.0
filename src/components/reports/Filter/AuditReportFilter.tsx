@@ -199,10 +199,10 @@ const AuditReportFilter = ({
     };
     filterDropdowns();
 
-    if (auditClientName.length > 0 || resetting) {
-      onDialogClose(true);
-    }
-  }, [auditClientName]);
+    // if (auditClientName.length > 0 || resetting) {
+    //   onDialogClose(true);
+    // }
+  }, []);
 
   const getFilterList = async () => {
     const params = {

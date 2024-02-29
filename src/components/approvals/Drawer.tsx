@@ -2091,13 +2091,14 @@ const EditDrawer = ({
         setStatusApprovalsDropdownDataUse(
           statusData.filter(
             (item: any) =>
+              item.Type === "InReviewWithClients" ||
               item.Type === "Rework" ||
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient" ||
               (getType !== "PartialSubmitted" && item.Type === "Accept") ||
-              (getType !== "PartialSubmitted" &&
-                item.Type === "AcceptWithNotes") ||
+              // (getType !== "PartialSubmitted" &&
+              //   item.Type === "AcceptWithNotes") ||
               (getType !== "PartialSubmitted" && item.Type === "InReview") ||
               (getType !== "PartialSubmitted" && item.Type === "Submitted") ||
               (typeOfWorkApprovals !== 3 &&
@@ -2111,13 +2112,14 @@ const EditDrawer = ({
         setStatusApprovalsDropdownDataUse(
           statusData.filter(
             (item: any) =>
+              item.Type === "InReviewWithClients" ||
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient" ||
               (getType !== "PartialSubmitted" &&
                 item.Type === "ReworkAccept") ||
-              (getType !== "PartialSubmitted" &&
-                item.Type === "ReworkAcceptWithNotes") ||
+              // (getType !== "PartialSubmitted" &&
+              //   item.Type === "ReworkAcceptWithNotes") ||
               (getType !== "PartialSubmitted" &&
                 item.Type === "ReworkInReview") ||
               (getType !== "PartialSubmitted" &&
@@ -2134,6 +2136,7 @@ const EditDrawer = ({
         setStatusApprovalsDropdownDataUse(
           statusData.filter(
             (item: any) =>
+              item.Type === "InReviewWithClients" ||
               item.Type === "Rework" ||
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
@@ -3100,8 +3103,8 @@ const EditDrawer = ({
                               const selectedDate = dayjs(newDate.$d);
                               let nextDate: any = selectedDate;
                               if (
-                                selectedDate.day() === 4 ||
-                                selectedDate.day() === 5
+                                selectedDate.day() === 5 ||
+                                selectedDate.day() === 6
                               ) {
                                 nextDate = nextDate.add(4, "day");
                               } else {

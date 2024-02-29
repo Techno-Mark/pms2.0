@@ -43,6 +43,7 @@ const Page = () => {
   const [hasEditId, setHasEditId] = useState(0);
   const [iconIndex, setIconIndex] = useState<number>(0);
   const [hasId, setHasId] = useState("");
+  const [searchValue, setSearchValue] = useState("");
   const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
@@ -83,6 +84,7 @@ const Page = () => {
     setHasManual(false);
     setHasId("");
     setGlobalSearchValue("");
+    setSearchValue("");
   };
 
   const handleEdit = (rowId: any, Id: any, iconIndex?: number) => {
@@ -167,6 +169,14 @@ const Page = () => {
     setCanExport(arg1);
   };
 
+  const handleSearchChange = (e: any) => {
+    setSearchValue(e.target.value);
+    const timer = setTimeout(() => {
+      setGlobalSearchValue(e.target.value);
+    }, 500);
+    return () => clearTimeout(timer);
+  };
+
   return (
     <Wrapper>
       <IdleTimer onIdle={() => window.location.reload()} />
@@ -184,6 +194,7 @@ const Page = () => {
                 setActiveTab(1);
                 setCurrentFilterData({ PageNo: 1, PageSize: 10 });
                 setGlobalSearchValue("");
+                setSearchValue("");
               }}
             >
               Review
@@ -199,6 +210,7 @@ const Page = () => {
                 setActiveTab(2);
                 setCurrentFilterData({ PageNo: 1, PageSize: 10 });
                 setGlobalSearchValue("");
+                setSearchValue("");
               }}
             >
               All Task
@@ -214,8 +226,8 @@ const Page = () => {
               <InputBase
                 className="pl-1 pr-7 border-b border-b-lightSilver w-52"
                 placeholder="Search"
-                value={globalSearchValue}
-                onChange={(e: any) => setGlobalSearchValue(e.target.value)}
+                value={searchValue}
+                onChange={(e: any) => handleSearchChange(e)}
               />
               <span className="absolute top-2 right-2 text-slatyGrey">
                 <SearchIcon />

@@ -82,10 +82,10 @@ const Page = () => {
   const [currentFilterId, setCurrentFilterId] = useState<number>(0);
   const [clickedFilterId, setclickedFilterId] = useState<number>(0);
   const [searchValue, setSearchValue] = useState("");
+  const [search, setSearch] = useState("");
   const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [currentFilterData, setCurrentFilterData] = useState([]);
   const [breakId, setBreakID] = useState<number>(0);
-  const [timer, setTimer] = useState<string>("00:00:00");
   const [loaded, setLoaded] = useState(false);
   const [isTimelineClicked, setIsTimelineClicked] = useState(false);
   const [isTaskClicked, setIsTaskClicked] = useState(true);
@@ -110,7 +110,7 @@ const Page = () => {
     setAnchorElFilter(null);
   };
 
-  const handleSearchChange = (event: any) => {
+  const handleSearchChangeWorklog = (event: any) => {
     setSearchValue(event.target.value);
   };
 
@@ -156,6 +156,7 @@ const Page = () => {
     setHasComment(false);
     setHasId("");
     setGlobalSearchValue("");
+    setSearch("");
   };
 
   const handleEdit = (rowData: any, Id: any) => {
@@ -331,6 +332,14 @@ const Page = () => {
     }
   };
 
+  const handleSearchChange = (e: any) => {
+    setSearch(e.target.value);
+    const timer = setTimeout(() => {
+      setGlobalSearchValue(e.target.value);
+    }, 500);
+    return () => clearTimeout(timer);
+  };
+
   return (
     <Wrapper>
       <IdleTimer onIdle={() => window.location.reload()} />
@@ -341,6 +350,7 @@ const Page = () => {
             <label
               onClick={() => {
                 setGlobalSearchValue("");
+                setSearch("");
                 setIsTimelineClicked(true);
                 setIsTaskClicked(false);
                 setIsUnassigneeClicked(false);
@@ -359,6 +369,7 @@ const Page = () => {
             <label
               onClick={() => {
                 setGlobalSearchValue("");
+                setSearch("");
                 setIsTimelineClicked(false);
                 setIsTaskClicked(true);
                 setIsUnassigneeClicked(false);
@@ -383,6 +394,7 @@ const Page = () => {
                 <label
                   onClick={() => {
                     setGlobalSearchValue("");
+                    setSearch("");
                     setIsTimelineClicked(false);
                     setIsTaskClicked(false);
                     setIsUnassigneeClicked(true);
@@ -416,8 +428,8 @@ const Page = () => {
               <InputBase
                 className="pl-1 pr-7 border-b border-b-lightSilver w-48"
                 placeholder="Search"
-                value={globalSearchValue}
-                onChange={(e: any) => setGlobalSearchValue(e.target.value)}
+                value={search}
+                onChange={(e: any) => handleSearchChange(e)}
               />
               <span className="absolute top-2 right-2 text-slatyGrey">
                 <SearchIcon />
@@ -467,7 +479,7 @@ const Page = () => {
                         placeholder="Search saved filters"
                         inputProps={{ "aria-label": "search" }}
                         value={searchValue}
-                        onChange={handleSearchChange}
+                        onChange={handleSearchChangeWorklog}
                         sx={{ fontSize: 14 }}
                       />
                       <span className="absolute top-4 right-3 text-slatyGrey">

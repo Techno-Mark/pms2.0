@@ -102,6 +102,7 @@ const Status = ({
       setAllStatus(
         data.filter(
           (item: any) =>
+            item.Type === "InReviewWithClients" ||
             item.Type === "Rework" ||
             (isNotRework.length > 0
               ? item.Type === "InReview" ||

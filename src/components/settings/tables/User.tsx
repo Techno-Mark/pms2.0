@@ -590,7 +590,7 @@ const User = ({
   const options: any = {
     filterType: "checkbox",
     responsive: "standard",
-    tableBodyHeight: "65vh",
+    tableBodyHeight: "63.5vh",
     viewColumns: true,
     filter: false,
     print: false,

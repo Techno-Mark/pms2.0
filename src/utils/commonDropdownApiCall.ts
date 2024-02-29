@@ -296,3 +296,9 @@ export const getDeptData = async () => {
     `${process.env.pms_api_url}/department/getdropdown`
   );
 };
+
+export const getBillingTypes = async () => {
+  return await getApiFunction(
+    `${process.env.pms_api_url}/BillingType/GetDropdown`
+  );
+};

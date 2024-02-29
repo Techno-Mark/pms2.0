@@ -29,7 +29,7 @@ const DateReceived = ({ getWorkItemList, selectedRowIds, getOverLay }: any) => {
   const updateDate = async (id: number[], date: any) => {
     const selectedDate = dayjs(date);
     let nextDate: any = selectedDate;
-    if (selectedDate.day() === 4 || selectedDate.day() === 5) {
+    if (selectedDate.day() === 5 || selectedDate.day() === 6) {
       nextDate = nextDate.add(4, "day");
     } else {
       nextDate = dayjs(date).add(2, "day").toDate();

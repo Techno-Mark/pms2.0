@@ -124,6 +124,12 @@ const Datatable = ({
     }
   }, [onCloseDrawer]);
 
+  useEffect(() => {
+    handleClearSelection();
+    setPage(0);
+    setRowsPerPage(10);
+  }, [activeTab]);
+
   const getReviewList = () => {
     setLoaded(false);
     const params = {
@@ -826,7 +832,9 @@ const Datatable = ({
                 {reviewList[tableMeta.rowIndex].ReviewerId ==
                   localStorage.getItem("UserId") &&
                   reviewList.length > 0 &&
-                  (reviewList[tableMeta.rowIndex].StatusType === "InReview" ||
+                  (reviewList[tableMeta.rowIndex].StatusType ===
+                    "InReviewWithClients" ||
+                    reviewList[tableMeta.rowIndex].StatusType === "InReview" ||
                     reviewList[tableMeta.rowIndex].StatusType ===
                       "ReworkInReview" ||
                     reviewList[tableMeta.rowIndex].StatusType ===
@@ -846,14 +854,15 @@ const Datatable = ({
                     <ColorToolTip title="Start" placement="top" arrow>
                       <span
                         className="cursor-pointer"
-                        onClick={() =>
+                        onClick={() => {
                           handleReviewTimer(
                             1,
                             tableMeta.rowData[tableMeta.rowData.length - 1],
                             tableMeta.rowData[tableMeta.rowData.length - 3],
                             0
-                          )
-                        }
+                          );
+                          handleClearSelection();
+                        }}
                       >
                         <PlayButton />
                       </span>
@@ -863,14 +872,15 @@ const Datatable = ({
                       <ColorToolTip title="Resume" placement="top" arrow>
                         <span
                           className="cursor-pointer"
-                          onClick={() =>
+                          onClick={() => {
                             handleReviewTimer(
                               1,
                               tableMeta.rowData[tableMeta.rowData.length - 1],
                               tableMeta.rowData[tableMeta.rowData.length - 3],
                               0
-                            )
-                          }
+                            );
+                            handleClearSelection();
+                          }}
                         >
                           <PlayPause />
                         </span>
@@ -896,6 +906,7 @@ const Datatable = ({
                               tableMeta.rowData[tableMeta.rowData.length - 3],
                               workitemTimeId
                             );
+                            handleClearSelection();
                           }}
                         >
                           <PauseButton />
@@ -912,18 +923,21 @@ const Datatable = ({
                       <ColorToolTip title="Sync" placement="top" arrow>
                         <span
                           className="cursor-pointer"
-                          onClick={() =>
+                          onClick={() => {
                             handleReviewSync(
                               tableMeta.rowData[tableMeta.rowData.length - 3]
-                            )
-                          }
+                            );
+                            handleClearSelection();
+                          }}
                         >
                           <RestartButton />
                         </span>
                       </ColorToolTip>
                     </div>
                   )}
-                {(reviewList[tableMeta.rowIndex].StatusType === "InReview" ||
+                {(reviewList[tableMeta.rowIndex].StatusType ===
+                  "InReviewWithClients" ||
+                  reviewList[tableMeta.rowIndex].StatusType === "InReview" ||
                   reviewList[tableMeta.rowIndex].StatusType ===
                     "ReworkInReview" ||
                   reviewList[tableMeta.rowIndex].StatusType ===
@@ -943,12 +957,13 @@ const Datatable = ({
                     >
                       <span
                         className="ml-2 cursor-pointer"
-                        onClick={() =>
+                        onClick={() => {
                           handleReviewerManualTime(
                             tableMeta.rowData[tableMeta.rowData.length - 1],
                             tableMeta.rowData[tableMeta.rowData.length - 3]
-                          )
-                        }
+                          );
+                          handleClearSelection();
+                        }}
                       >
                         <ClockIcon />
                       </span>

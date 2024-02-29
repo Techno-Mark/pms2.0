@@ -3322,8 +3322,8 @@ const EditDrawer = ({
                               const selectedDate = dayjs(newDate.$d);
                               let nextDate: any = selectedDate;
                               if (
-                                selectedDate.day() === 4 ||
-                                selectedDate.day() === 5
+                                selectedDate.day() === 5 ||
+                                selectedDate.day() === 6
                               ) {
                                 nextDate = nextDate.add(4, "day");
                               } else {

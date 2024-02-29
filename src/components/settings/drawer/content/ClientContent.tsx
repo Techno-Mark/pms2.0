@@ -27,6 +27,7 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getFormattedDate } from "@/utils/timerFunctions";
+import { getBillingTypes } from "@/utils/commonDropdownApiCall";
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -910,40 +911,13 @@ const ClientContent = forwardRef<
     }));
 
     useEffect(() => {
-      billingTypeData.length <= 0 && getBillingTypes();
+      billingTypeData.length <= 0 && getBillingTypesData();
       groupTypeData.length <= 0 && getGroupTypes();
       stateList.length <= 0 && getStates();
     }, [onOpen]);
 
-    const getBillingTypes = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.get(
-          `${process.env.pms_api_url}/BillingType/GetDropdown`,
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setBillingTypeData(response.data.ResponseData);
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Failed Please try again.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } catch (error) {
-        console.error(error);
-      }
+    const getBillingTypesData = async () => {
+      await getBillingTypes();
     };
 
     const getGroupTypes = async () => {

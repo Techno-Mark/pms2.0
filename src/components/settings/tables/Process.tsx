@@ -10,10 +10,8 @@ import { callAPI } from "@/utils/API/callAPI";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import {
   Paper,
-  Switch,
   Table,
   TableBody,
-  TableCell,
   TableContainer,
   TablePagination,
   TableRow,
@@ -446,7 +444,7 @@ function Process({
   const options: any = {
     filterType: "checkbox",
     responsive: "standard",
-    tableBodyHeight: "73vh",
+    tableBodyHeight: "70vh",
     viewColumns: false,
     filter: false,
     print: false,
