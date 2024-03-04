@@ -66,7 +66,7 @@ const allTabs = [
   { label: "rating", value: 9 },
   { label: "log", value: 10 },
   { label: "activity", value: 11 },
-  { label: "a/p", value: 12 },
+  { label: "actual/planned", value: 12 },
   { label: "client", value: 13 },
   { label: "kra", value: 14 },
   { label: "auto/manual", value: 15 },
@@ -148,14 +148,13 @@ const Page = () => {
         hasPermissionWorklog("audit", "View", "Report") ||
         hasPermissionWorklog("billing", "View", "Report") ||
         hasPermissionWorklog("custom", "View", "Report") ||
-        hasPermissionWorklog("log", "View", "Report"))
-      // ||
-      // hasPermissionWorklog("activity", "View", "Report") ||
-      // hasPermissionWorklog("a/p", "View", "Report") ||
-      // hasPermissionWorklog("client", "View", "Report") ||
-      // hasPermissionWorklog("kra", "View", "Report") ||
-      // hasPermissionWorklog("auto/manual", "View", "Report") ||
-      // hasPermissionWorklog("wltr", "View", "Report")
+        hasPermissionWorklog("log", "View", "Report") ||
+        hasPermissionWorklog("activity", "View", "Report") ||
+        hasPermissionWorklog("Actual/Planned", "View", "Report") ||
+        hasPermissionWorklog("client", "View", "Report") ||
+        hasPermissionWorklog("kra", "View", "Report") ||
+        hasPermissionWorklog("Auto/Manual", "View", "Report") ||
+        hasPermissionWorklog("wltr", "View", "Report"))
     );
   };
 
@@ -180,11 +179,8 @@ const Page = () => {
       );
       setMoreTabs(
         allTabs
-          .map(
-            (tab: any) =>
-              // hasPermissionWorklog(tab.label, "view", "report") ?
-              tab
-            // : false
+          .map((tab: any) =>
+            hasPermissionWorklog(tab.label, "view", "report") ? tab : false
           )
           .filter((tab: any) => tab !== false)
           .slice(6)
@@ -256,6 +252,10 @@ const Page = () => {
     const response = await axios.post(
       getCurrentTabDetails(activeTab).toLowerCase() === "billing"
         ? `${process.env.report_api_url}/report/billing/exportclientwisezipReport`
+        : getCurrentTabDetails(activeTab).toLowerCase() === "auto/manual"
+        ? `${process.env.report_api_url}/report/automanual/export`
+        : getCurrentTabDetails(activeTab).toLowerCase() === "a/p"
+        ? `${process.env.report_api_url}/report/actualplanned/export`
         : `${process.env.report_api_url}/report/${getCurrentTabDetails(
             activeTab
           )}/export`,
@@ -304,9 +304,9 @@ const Page = () => {
   };
 
   const handleSearchChange = (e: any) => {
-    setSearch(e.target.value)
+    setSearch(e.target.value);
     const timer = setTimeout(() => {
-      setSearchValue(e.target.value)
+      setSearchValue(e.target.value);
     }, 500);
     return () => clearTimeout(timer);
   };

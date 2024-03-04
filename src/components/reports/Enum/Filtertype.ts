@@ -15,5 +15,5 @@ export const activityReport = 15;
 export const apReport = 16;
 export const amReport = 17;
 export const kraReport = 18;
-export const clientReport = 19;
+export const clientReport = 4;
 export const wltrReport = 20;

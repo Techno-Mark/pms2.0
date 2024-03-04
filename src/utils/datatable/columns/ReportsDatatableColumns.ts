@@ -360,21 +360,26 @@ const reportsActivityColConfig = [
   {
     header: "TotalNonProductive",
     label: "Non-Productive",
-    bodyRenderer: generateInitialTimer,
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "TotalBillable",
     label: "Billable",
-    bodyRenderer: generateInitialTimer,
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "TotalNonBillable",
     label: "Non-Billable",
-    bodyRenderer: generateInitialTimer,
+    bodyRenderer: generateCommonBodyRender,
   },
 ];
 
 const reportsAPColConfig = [
+  {
+    name: "WorkItemId",
+    label: "Task ID",
+    bodyRenderer: generateCommonBodyRender,
+  },
   {
     header: "ClientName",
     label: "Client Name",
@@ -388,7 +393,7 @@ const reportsAPColConfig = [
   {
     header: "TaskDate",
     label: "Task Date",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateDateWithoutTime,
   },
   {
     header: "ProcessName",
@@ -456,17 +461,17 @@ const reportsKRAColConfig = [
   {
     header: "Process",
     label: "Process",
-    bodyRenderer: generateInitialTimer,
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "SubProcess",
     label: "Sub-Process",
-    bodyRenderer: generateInitialTimer,
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "Username",
     label: "User Name",
-    bodyRenderer: generateInitialTimer,
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "STDTime",
@@ -481,17 +486,17 @@ const reportsKRAColConfig = [
   {
     header: "QTY",
     label: "QTY",
-    bodyRenderer: generateInitialTimer,
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "Efficiency",
     label: "Efficiency (%)",
-    bodyRenderer: generateInitialTimer,
+    bodyRenderer: generateCommonBodyRenderPercentage,
   },
   {
     header: "Remarks/Comments",
     label: "Remarks/Comments",
-    bodyRenderer: generateInitialTimer,
+    bodyRenderer: generateCommonBodyRender,
   },
 ];
 
@@ -509,7 +514,7 @@ const reportsAMColConfig = [
   {
     header: "ReportingTo",
     label: "Reporting Name",
-    bodyRenderer: generateInitialTimer,
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "StdTime",
