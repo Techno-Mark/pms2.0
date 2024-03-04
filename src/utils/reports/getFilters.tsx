@@ -174,7 +174,7 @@ export const activity_InitialFilter = {
   GlobalSearch: "",
   StartDate: null,
   EndDate: null,
-  User: [],
+  Users: [],
   DepartmentId: null,
   IsDownload: false,
 };
@@ -226,14 +226,15 @@ export const kra_InitialFilter = {
 export const am_InitialFilter = {
   PageNo: 1,
   PageSize: 10,
-  GlobalSearch: "",
-  SortColumn: "",
+  sortColumn: "",
   IsDesc: true,
-  IsDownload: false,
+  GlobalSearch: "",
   StartDate: null,
   EndDate: null,
-  ReportingManager: [],
-  Department: [],
+  Users: [],
+  ReportingManagerId: null,
+  DepartmentId: null,
+  IsDownload: false,
 };
 
 export const wltr_InitialFilter = {

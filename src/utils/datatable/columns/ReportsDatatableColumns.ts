@@ -497,22 +497,22 @@ const reportsKRAColConfig = [
 
 const reportsAMColConfig = [
   {
-    header: "Username",
+    header: "UserName",
     label: "User Name",
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    header: "Department",
+    header: "DepartmentName",
     label: "Department",
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    header: "ReportingName",
+    header: "ReportingTo",
     label: "Reporting Name",
     bodyRenderer: generateInitialTimer,
   },
   {
-    header: "STDTime",
+    header: "StdTime",
     label: "STD Time",
     bodyRenderer: generateInitialTimer,
   },

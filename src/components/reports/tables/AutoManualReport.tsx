@@ -30,7 +30,7 @@ const AutoManualReport = ({
       loaded: false,
     });
 
-    const url = `${process.env.report_api_url}/report/project`;
+    const url = `${process.env.report_api_url}/report/automanual`;
 
     const successCallback = (data: any, error: any) => {
       if (data !== null && error === false) {
@@ -38,8 +38,7 @@ const AutoManualReport = ({
         setAutoManualFields({
           ...autoManualFields,
           loaded: true,
-          // data: data.List,
-          data: [],
+          data: data.List,
           dataCount: data.TotalCount,
         });
       } else {
@@ -94,14 +93,14 @@ const AutoManualReport = ({
   useEffect(() => {
     if (filteredData !== null) {
       const timer = setTimeout(() => {
-        getData({ ...filteredData, globalSearch: searchValue });
+        getData({ ...filteredData, GlobalSearch: searchValue });
         setAutoManualCurrentPage(0);
         setAutoManualRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     } else {
       const timer = setTimeout(() => {
-        getData({ ...am_InitialFilter, globalSearch: searchValue });
+        getData({ ...am_InitialFilter, GlobalSearch: searchValue });
       }, 500);
       return () => clearTimeout(timer);
     }

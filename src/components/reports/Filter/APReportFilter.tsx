@@ -8,7 +8,7 @@ import {
   getDeptData,
 } from "@/utils/commonDropdownApiCall";
 import { getFormattedDate } from "@/utils/timerFunctions";
-import { activity_InitialFilter } from "@/utils/reports/getFilters";
+import { ap_InitialFilter } from "@/utils/reports/getFilters";
 import { apReport } from "../Enum/Filtertype";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import {
@@ -41,6 +41,8 @@ const APReportFilter = ({
   const [clientName, setClientName] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [userName, setUserName] = useState<any[]>([]);
+  const [reportingManager, setReportingManager] = useState<any[]>([]);
+  const [reportingManagerName, setReportingManagerName] = useState<any[]>([]);
   const [department, setDepartment] = useState<any>(null);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
@@ -69,13 +71,15 @@ const APReportFilter = ({
     setClients([]);
     setUserName([]);
     setUsers([]);
+    setReportingManager([]);
+    setReportingManagerName([]);
     setDepartment(null);
     setStartDate("");
     setEndDate("");
     setError("");
 
     sendFilterToPage({
-      ...activity_InitialFilter,
+      ...ap_InitialFilter,
     });
   };
 
@@ -89,6 +93,8 @@ const APReportFilter = ({
     setClients([]);
     setUserName([]);
     setUsers([]);
+    setReportingManager([]);
+    setReportingManagerName([]);
     setDepartment(null);
     setStartDate("");
     setEndDate("");
@@ -97,9 +103,11 @@ const APReportFilter = ({
 
   const handleFilterApply = () => {
     sendFilterToPage({
-      ...activity_InitialFilter,
+      ...ap_InitialFilter,
       Clients: clientName.length > 0 ? clientName : [],
       Users: userName.length > 0 ? userName : [],
+      ReportingManagers:
+        reportingManagerName.length > 0 ? reportingManagerName : [],
       DepartmentId: department !== null ? department.value : null,
       StartDate:
         startDate.toString().trim().length <= 0
@@ -122,9 +130,10 @@ const APReportFilter = ({
     if (Number.isInteger(index)) {
       if (index !== undefined) {
         sendFilterToPage({
-          ...activity_InitialFilter,
+          ...ap_InitialFilter,
           Clients: savedFilters[index].AppliedFilter.clients,
           Users: savedFilters[index].AppliedFilter.users,
+          ReportingManagers: savedFilters[index].AppliedFilter.reportingManager,
           Department: savedFilters[index].AppliedFilter.department,
           StartDate: savedFilters[index].AppliedFilter.startDate,
           EndDate: savedFilters[index].AppliedFilter.endDate,
@@ -151,6 +160,7 @@ const APReportFilter = ({
       AppliedFilter: {
         Clients: clientName,
         Users: userName,
+        ReportingManagers: reportingManagerName,
         DepartmentId: department !== null ? department.value : null,
         StartDate:
           startDate.toString().trim().length <= 0
@@ -192,6 +202,7 @@ const APReportFilter = ({
     const isAnyFieldSelected =
       clientName.length > 0 ||
       userName.length > 0 ||
+      reportingManagerName.length > 0 ||
       department !== null ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0;
@@ -199,7 +210,14 @@ const APReportFilter = ({
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
     setResetting(false);
-  }, [clientName, userName, department, startDate, endDate]);
+  }, [
+    clientName,
+    userName,
+    reportingManagerName,
+    department,
+    startDate,
+    endDate,
+  ]);
 
   useEffect(() => {
     const filterDropdowns = async () => {
@@ -234,32 +252,48 @@ const APReportFilter = ({
     setCurrentFilterId(savedFilters[index].FilterId);
 
     setClients(
-      savedFilters[index].AppliedFilter.clients === null
+      savedFilters[index].AppliedFilter.Clients === null
         ? []
         : clientDropdown.filter((client: any) =>
-            savedFilters[index].AppliedFilter.clients.includes(client.value)
+            savedFilters[index].AppliedFilter.Clients.includes(client.value)
           )
     );
     setClientName(
-      savedFilters[index].AppliedFilter.clients === null
+      savedFilters[index].AppliedFilter.Clients === null
         ? []
-        : savedFilters[index].AppliedFilter.clients
+        : savedFilters[index].AppliedFilter.Clients
     );
 
     setUsers(
-      savedFilters[index].AppliedFilter.users === null
+      savedFilters[index].AppliedFilter.Users === null
         ? []
         : userDropdown.filter((user: any) =>
-            savedFilters[index].AppliedFilter.users.includes(user.value)
+            savedFilters[index].AppliedFilter.Users.includes(user.value)
           )
     );
     setUserName(
-      savedFilters[index].AppliedFilter.users === null
+      savedFilters[index].AppliedFilter.Users === null
         ? []
-        : savedFilters[index].AppliedFilter.users
+        : savedFilters[index].AppliedFilter.Users
     );
+
+    setReportingManager(
+      savedFilters[index].AppliedFilter.ReportingManagers === null
+        ? []
+        : userDropdown.filter((user: any) =>
+            savedFilters[index].AppliedFilter.ReportingManagers.includes(
+              user.value
+            )
+          )
+    );
+    setReportingManagerName(
+      savedFilters[index].AppliedFilter.ReportingManagers === null
+        ? []
+        : savedFilters[index].AppliedFilter.ReportingManagers
+    );
+
     setDepartment(
-      savedFilters[index].AppliedFilter.reportingManager.length > 0
+      savedFilters[index].AppliedFilter.DepartmentId !== null
         ? departmentDropdown.filter(
             (item: any) =>
               item.value === savedFilters[index].AppliedFilter.DepartmentId[0]
@@ -458,6 +492,36 @@ const APReportFilter = ({
                   sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={userDropdown.filter(
+                      (option) =>
+                        !reportingManager.find(
+                          (user) => user.value === option.value
+                        )
+                    )}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setReportingManager(data);
+                      setReportingManagerName(data.map((d: any) => d.value));
+                    }}
+                    value={reportingManager}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Reporting Manager"
+                      />
+                    )}
+                  />
+                </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+                >
+                  <Autocomplete
                     id="tags-standard"
                     options={departmentDropdown}
                     getOptionLabel={(option: any) => option.label}
@@ -474,8 +538,6 @@ const APReportFilter = ({
                     )}
                   />
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >

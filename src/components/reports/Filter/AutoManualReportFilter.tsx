@@ -27,7 +27,6 @@ import { isWeekend } from "@/utils/commonFunction";
 import dayjs from "dayjs";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import {
-  getDepartmentDropdownData,
   getDeptData,
   getRMWiseUserDropdownData,
 } from "@/utils/commonDropdownApiCall";
@@ -88,9 +87,9 @@ const AutoManualReportFilter = ({
   const handleFilterApply = () => {
     sendFilterToPage({
       ...am_InitialFilter,
-      ReportingManager:
-        reportingManager !== null ? [reportingManager.value] : [],
-      Department: department !== null ? [department.value] : [],
+      ReportingManagerId:
+        reportingManager !== null ? reportingManager.value : null,
+      DepartmentId: department !== null ? department.value : null,
       StartDate:
         startDate.toString().trim().length <= 0
           ? endDate.toString().trim().length <= 0
@@ -113,8 +112,9 @@ const AutoManualReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...am_InitialFilter,
-          ReportingManager: savedFilters[index].AppliedFilter.reportingManager,
-          Department: savedFilters[index].AppliedFilter.department,
+          ReportingManagerId:
+            savedFilters[index].AppliedFilter.reportingManager,
+          DepartmentId: savedFilters[index].AppliedFilter.department,
           StartDate: savedFilters[index].AppliedFilter.startDate,
           EndDate: savedFilters[index].AppliedFilter.endDate,
         });
@@ -138,9 +138,9 @@ const AutoManualReportFilter = ({
       filterId: !!currentFilterId ?? currentFilterId,
       name: filterName,
       AppliedFilter: {
-        ReportingManager:
-          reportingManager !== null ? [reportingManager.value] : [],
-        Department: department !== null ? [department.value] : [],
+        ReportingManagerId:
+          reportingManager !== null ? reportingManager.value : null,
+        DepartmentId: department !== null ? department.value : null,
         StartDate:
           startDate.toString().trim().length <= 0
             ? endDate.toString().trim().length <= 0
@@ -221,19 +221,19 @@ const AutoManualReportFilter = ({
     setCurrentFilterId(savedFilters[index].FilterId);
 
     setReportingManager(
-      savedFilters[index].AppliedFilter.reportingManager.length > 0
+      savedFilters[index].AppliedFilter.ReportingManagerId !== null
         ? rmDropdown.filter(
             (item: any) =>
               item.value ===
-              savedFilters[index].AppliedFilter.reportingManager[0]
+              savedFilters[index].AppliedFilter.ReportingManagerId[0]
           )[0]
         : null
     );
     setDepartment(
-      savedFilters[index].AppliedFilter.reportingManager.length > 0
+      savedFilters[index].AppliedFilter.DepartmentId !== null
         ? departmentDropdown.filter(
             (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.department[0]
+              item.value === savedFilters[index].AppliedFilter.DepartmentId[0]
           )[0]
         : null
     );

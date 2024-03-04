@@ -87,7 +87,7 @@ const ActivityReportFilter = ({
   const handleFilterApply = () => {
     sendFilterToPage({
       ...activity_InitialFilter,
-      User: userName.length > 0 ? userName : [],
+      Users: userName.length > 0 ? userName : [],
       DepartmentId: department !== null ? department.value : null,
       StartDate:
         startDate.toString().trim().length <= 0
@@ -111,7 +111,7 @@ const ActivityReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...activity_InitialFilter,
-          User: savedFilters[index].AppliedFilter.User,
+          Users: savedFilters[index].AppliedFilter.User,
           DepartmentId: savedFilters[index].AppliedFilter.department,
           StartDate: savedFilters[index].AppliedFilter.startDate,
           EndDate: savedFilters[index].AppliedFilter.endDate,
@@ -136,7 +136,7 @@ const ActivityReportFilter = ({
       filterId: !!currentFilterId ?? currentFilterId,
       name: filterName,
       AppliedFilter: {
-        User: userName,
+        Users: userName,
         DepartmentId: department !== null ? department.value : null,
         StartDate:
           startDate.toString().trim().length <= 0
@@ -218,19 +218,19 @@ const ActivityReportFilter = ({
     setCurrentFilterId(savedFilters[index].FilterId);
 
     setUsers(
-      savedFilters[index].AppliedFilter.User === null
+      savedFilters[index].AppliedFilter.Users === null
         ? []
         : userDropdown.filter((user: any) =>
-            savedFilters[index].AppliedFilter.User.includes(user.value)
+            savedFilters[index].AppliedFilter.Users.includes(user.value)
           )
     );
     setUserName(
-      savedFilters[index].AppliedFilter.User === null
+      savedFilters[index].AppliedFilter.Users === null
         ? []
-        : savedFilters[index].AppliedFilter.User
+        : savedFilters[index].AppliedFilter.Users
     );
     setDepartment(
-      savedFilters[index].AppliedFilter.reportingManager.length > 0
+      savedFilters[index].AppliedFilter.DepartmentId !== null
         ? departmentDropdown.filter(
             (item: any) =>
               item.value === savedFilters[index].AppliedFilter.DepartmentId[0]
