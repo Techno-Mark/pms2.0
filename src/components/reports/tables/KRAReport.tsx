@@ -1,41 +1,43 @@
-import MUIDataTable from "mui-datatables";
-import { useEffect, useState } from "react";
-import { callAPI } from "@/utils/API/callAPI";
-import { FieldsType } from "../types/FieldsType";
-import { options } from "@/utils/datatable/TableOptions";
-import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import ReportLoader from "@/components/common/ReportLoader";
+import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { options } from "@/utils/datatable/TableOptions";
 import { TablePagination, ThemeProvider } from "@mui/material";
-import { rating_InitialFilter } from "@/utils/reports/getFilters";
-import { reportsRatingCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
+import MUIDataTable from "mui-datatables";
+import React, { useEffect, useState } from "react";
+import { FieldsType } from "../types/FieldsType";
+import { kra_InitialFilter } from "@/utils/reports/getFilters";
+import { reportsKRACols } from "@/utils/datatable/columns/ReportsDatatableColumns";
+import { callAPI } from "@/utils/API/callAPI";
 
-const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
-  const [ratingReportFields, setRatingReportFields] = useState<FieldsType>({
+const KRAReport = ({ filteredData, searchValue, onHandleExport }: any) => {
+  const [kraFields, setKraFields] = useState<FieldsType>({
     loaded: false,
     data: [],
     dataCount: 0,
   });
-  const [ratingCurrentPage, setRatingCurrentPage] = useState<number>(0);
-  const [ratingRowsPerPage, setRatingRowsPerPage] = useState<number>(10);
+  const [kraCurrentPage, setKraCurrentPage] = useState<number>(0);
+  const [kraRowsPerPage, setKraRowsPerPage] = useState<number>(10);
 
   const getData = async (arg1: any) => {
-    setRatingReportFields({
-      ...ratingReportFields,
+    setKraFields({
+      ...kraFields,
       loaded: false,
     });
-    const url = `${process.env.report_api_url}/report/admin/rating`;
+
+    const url = `${process.env.report_api_url}/report/project`;
 
     const successCallback = (data: any, error: any) => {
       if (data !== null && error === false) {
         onHandleExport(data.List.length > 0);
-        setRatingReportFields({
-          ...ratingReportFields,
+        setKraFields({
+          ...kraFields,
           loaded: true,
-          data: data.List,
+          // data: data.List,
+          data: [],
           dataCount: data.TotalCount,
         });
       } else {
-        setRatingReportFields({ ...ratingReportFields, loaded: true });
+        setKraFields({ ...kraFields, loaded: true });
       }
     };
 
@@ -46,18 +48,18 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setRatingCurrentPage(newPage);
+    setKraCurrentPage(newPage);
     if (filteredData !== null) {
       getData({
         ...filteredData,
         pageNo: newPage + 1,
-        pageSize: ratingRowsPerPage,
+        pageSize: kraRowsPerPage,
       });
     } else {
       getData({
-        ...rating_InitialFilter,
+        ...kra_InitialFilter,
         pageNo: newPage + 1,
-        pageSize: ratingRowsPerPage,
+        pageSize: kraRowsPerPage,
       });
     }
   };
@@ -65,18 +67,18 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setRatingCurrentPage(0);
-    setRatingRowsPerPage(parseInt(event.target.value));
+    setKraCurrentPage(0);
+    setKraRowsPerPage(parseInt(event.target.value));
 
     if (filteredData !== null) {
       getData({
         ...filteredData,
         pageNo: 1,
-        pageSize: ratingRowsPerPage,
+        pageSize: kraRowsPerPage,
       });
     } else {
       getData({
-        ...rating_InitialFilter,
+        ...kra_InitialFilter,
         pageNo: 1,
         pageSize: event.target.value,
       });
@@ -86,33 +88,33 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       const timer = setTimeout(() => {
-        getData({ ...filteredData, GlobalSearch: searchValue });
-        setRatingCurrentPage(0);
-        setRatingRowsPerPage(10);
+        getData({ ...filteredData, globalSearch: searchValue });
+        setKraCurrentPage(0);
+        setKraRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     } else {
       const timer = setTimeout(() => {
-        getData({ ...rating_InitialFilter, GlobalSearch: searchValue });
+        getData({ ...kra_InitialFilter, globalSearch: searchValue });
       }, 500);
       return () => clearTimeout(timer);
     }
   }, [filteredData, searchValue]);
 
-  return ratingReportFields.loaded ? (
+  return kraFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
+        columns={reportsKRACols}
+        data={kraFields.data}
         title={undefined}
-        columns={reportsRatingCols}
-        data={ratingReportFields.data}
         options={{ ...options, tableBodyHeight: "73vh" }}
       />
       <TablePagination
         component="div"
-        count={ratingReportFields.dataCount}
-        page={ratingCurrentPage}
+        count={kraFields.dataCount}
+        page={kraCurrentPage}
         onPageChange={handleChangePage}
-        rowsPerPage={ratingRowsPerPage}
+        rowsPerPage={kraRowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
@@ -121,4 +123,4 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   );
 };
 
-export default RatingReport;
+export default KRAReport;

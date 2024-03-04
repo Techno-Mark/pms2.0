@@ -609,7 +609,7 @@ const RatingReportFilter = ({
                 </div>
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210 }}
+                  sx={{ mx: 0.75, minWidth: 210, mt: 0.5 }}
                 >
                   <Autocomplete
                     id="tags-standard"

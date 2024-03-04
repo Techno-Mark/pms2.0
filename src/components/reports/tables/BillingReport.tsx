@@ -514,6 +514,7 @@ const BillingReport = ({
         title={undefined}
         options={{
           ...options,
+          tableBodyHeight: "73vh",
           selectableRows: "multiple",
           rowsSelected: isBTCSaved ? [] : selectedIndex,
           onRowSelectionChange: (i: any, j: any, selectedRowsIndex: any) => {

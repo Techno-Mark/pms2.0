@@ -1,5 +1,6 @@
 import {
   generateCommonBodyRender,
+  generateCommonBodyRenderPercentage,
   generateCustomFormatDate,
   generateCustomHeaderName,
   generateDateWithTime,
@@ -340,6 +341,198 @@ const reportsRatingColConfig = [
   },
 ];
 
+const reportsActivityColConfig = [
+  {
+    header: "UserName",
+    label: "User Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "TotalHours",
+    label: "Total Hours",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "TotalProductive",
+    label: "Productive",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "TotalNonProductive",
+    label: "Non-Productive",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "TotalBillable",
+    label: "Billable",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "TotalNonBillable",
+    label: "Non-Billable",
+    bodyRenderer: generateInitialTimer,
+  },
+];
+
+const reportsAPColConfig = [
+  {
+    header: "ClientName",
+    label: "Client Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ProjectName",
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "TaskDate",
+    label: "Task Date",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ProcessName",
+    label: "Process",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "SubProcessName",
+    label: "Sub-Process",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "Description",
+    label: "Description",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "AssignedTo",
+    label: "Assign To",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ReportingTo",
+    label: "Reporting To",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "Quantity",
+    label: "QTY",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "StdTime",
+    label: "STD Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "Difference",
+    label: "Difference (%)",
+    bodyRenderer: generateCommonBodyRenderPercentage,
+  },
+  {
+    header: "Comment",
+    label: "Comment",
+    bodyRenderer: generateCommonBodyRender,
+  },
+];
+
+const reportsKRAColConfig = [
+  {
+    header: "ClientName",
+    label: "Client Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ProjectName",
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "Process",
+    label: "Process",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "SubProcess",
+    label: "Sub-Process",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "Username",
+    label: "User Name",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "STDTime",
+    label: "STD Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "QTY",
+    label: "QTY",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "Efficiency",
+    label: "Efficiency (%)",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "Remarks/Comments",
+    label: "Remarks/Comments",
+    bodyRenderer: generateInitialTimer,
+  },
+];
+
+const reportsAMColConfig = [
+  {
+    header: "Username",
+    label: "User Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "Department",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ReportingName",
+    label: "Reporting Name",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "STDTime",
+    label: "STD Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "AutoTime",
+    label: "Auto Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "ManualTime",
+    label: "Manual Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateInitialTimer,
+  },
+];
+
 const generateCustomizableCols = (
   column: {
     name: string;
@@ -456,6 +649,22 @@ const reportsRatingCols: any = reportsRatingColConfig.map((col: any) =>
   generateCustomColumn(col.name, col.label, col.bodyRenderer)
 );
 
+const reportsActivityCols: any = reportsActivityColConfig.map((col: any) =>
+  generateCustomColumn(col.header, col.label, col.bodyRenderer)
+);
+
+const reportsAPCols: any = reportsAPColConfig.map((col: any) =>
+  generateCustomColumn(col.header, col.label, col.bodyRenderer)
+);
+
+const reportsKRACols: any = reportsKRAColConfig.map((col: any) =>
+  generateCustomColumn(col.header, col.label, col.bodyRenderer)
+);
+
+const reportsAMCols: any = reportsAMColConfig.map((col: any) =>
+  generateCustomColumn(col.header, col.label, col.bodyRenderer)
+);
+
 const reportsUserLogsCols: any[] = [
   {
     name: "UserName",
@@ -564,4 +773,8 @@ export {
   reportsRatingCols,
   reportsUserLogsCols,
   reportsLogCols,
+  reportsActivityCols,
+  reportsAPCols,
+  reportsKRACols,
+  reportsAMCols,
 };

@@ -377,7 +377,7 @@ const TimesheetReportFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, my: 0.4, minWidth: 210 }}
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <Autocomplete
                     multiple

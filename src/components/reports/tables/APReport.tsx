@@ -1,41 +1,42 @@
-import MUIDataTable from "mui-datatables";
-import { useEffect, useState } from "react";
-import { callAPI } from "@/utils/API/callAPI";
+import React, { useEffect, useState } from "react";
 import { FieldsType } from "../types/FieldsType";
-import { options } from "@/utils/datatable/TableOptions";
-import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import ReportLoader from "@/components/common/ReportLoader";
 import { TablePagination, ThemeProvider } from "@mui/material";
-import { rating_InitialFilter } from "@/utils/reports/getFilters";
-import { reportsRatingCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
+import MUIDataTable from "mui-datatables";
+import { options } from "@/utils/datatable/TableOptions";
+import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { reportsAPCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
+import { ap_InitialFilter } from "@/utils/reports/getFilters";
+import { callAPI } from "@/utils/API/callAPI";
 
-const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
-  const [ratingReportFields, setRatingReportFields] = useState<FieldsType>({
+const APReport = ({ filteredData, searchValue, onHandleExport }: any) => {
+  const [apFields, setApFields] = useState<FieldsType>({
     loaded: false,
     data: [],
     dataCount: 0,
   });
-  const [ratingCurrentPage, setRatingCurrentPage] = useState<number>(0);
-  const [ratingRowsPerPage, setRatingRowsPerPage] = useState<number>(10);
+  const [apCurrentPage, setApCurrentPage] = useState<number>(0);
+  const [apRowsPerPage, setApRowsPerPage] = useState<number>(10);
 
   const getData = async (arg1: any) => {
-    setRatingReportFields({
-      ...ratingReportFields,
+    setApFields({
+      ...apFields,
       loaded: false,
     });
-    const url = `${process.env.report_api_url}/report/admin/rating`;
+
+    const url = `${process.env.report_api_url}/report/actualplanned`;
 
     const successCallback = (data: any, error: any) => {
       if (data !== null && error === false) {
         onHandleExport(data.List.length > 0);
-        setRatingReportFields({
-          ...ratingReportFields,
+        setApFields({
+          ...apFields,
           loaded: true,
           data: data.List,
           dataCount: data.TotalCount,
         });
       } else {
-        setRatingReportFields({ ...ratingReportFields, loaded: true });
+        setApFields({ ...apFields, data: [], dataCount: 0, loaded: true });
       }
     };
 
@@ -46,18 +47,18 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setRatingCurrentPage(newPage);
+    setApCurrentPage(newPage);
     if (filteredData !== null) {
       getData({
         ...filteredData,
         pageNo: newPage + 1,
-        pageSize: ratingRowsPerPage,
+        pageSize: apRowsPerPage,
       });
     } else {
       getData({
-        ...rating_InitialFilter,
+        ...ap_InitialFilter,
         pageNo: newPage + 1,
-        pageSize: ratingRowsPerPage,
+        pageSize: apRowsPerPage,
       });
     }
   };
@@ -65,18 +66,18 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setRatingCurrentPage(0);
-    setRatingRowsPerPage(parseInt(event.target.value));
+    setApCurrentPage(0);
+    setApRowsPerPage(parseInt(event.target.value));
 
     if (filteredData !== null) {
       getData({
         ...filteredData,
         pageNo: 1,
-        pageSize: ratingRowsPerPage,
+        pageSize: apRowsPerPage,
       });
     } else {
       getData({
-        ...rating_InitialFilter,
+        ...ap_InitialFilter,
         pageNo: 1,
         pageSize: event.target.value,
       });
@@ -87,32 +88,32 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     if (filteredData !== null) {
       const timer = setTimeout(() => {
         getData({ ...filteredData, GlobalSearch: searchValue });
-        setRatingCurrentPage(0);
-        setRatingRowsPerPage(10);
+        setApCurrentPage(0);
+        setApRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     } else {
       const timer = setTimeout(() => {
-        getData({ ...rating_InitialFilter, GlobalSearch: searchValue });
+        getData({ ...ap_InitialFilter, GlobalSearch: searchValue });
       }, 500);
       return () => clearTimeout(timer);
     }
   }, [filteredData, searchValue]);
 
-  return ratingReportFields.loaded ? (
+  return apFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
+        columns={reportsAPCols}
+        data={apFields.data}
         title={undefined}
-        columns={reportsRatingCols}
-        data={ratingReportFields.data}
         options={{ ...options, tableBodyHeight: "73vh" }}
       />
       <TablePagination
         component="div"
-        count={ratingReportFields.dataCount}
-        page={ratingCurrentPage}
+        count={apFields.dataCount}
+        page={apCurrentPage}
         onPageChange={handleChangePage}
-        rowsPerPage={ratingRowsPerPage}
+        rowsPerPage={apRowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
@@ -121,4 +122,4 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   );
 };
 
-export default RatingReport;
+export default APReport;

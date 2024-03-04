@@ -110,7 +110,7 @@ const ProjectReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         columns={reportsProjectsCols}
         data={projectFields.data}
         title={undefined}
-        options={options}
+        options={{ ...options, tableBodyHeight: "73vh" }}
       />
       <TablePagination
         component="div"

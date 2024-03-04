@@ -150,16 +150,102 @@ export const rating_InitialFilter: any = {
 export const logReport_InitialFilter = {
   pageNo: 1,
   pageSize: 10,
-  globalSearch: "",
-  sortColumn: null,
+  sortColumn: "",
   isDesc: true,
-  clientFilter: [],
+  globalSearch: "",
+  typeOfWork: null,
+  billType: null,
+  clients: [],
+  projects: [],
+  department: null,
+  isActive: true,
+  showSubProject: false,
+  isClientReport: false,
   isDownload: false,
-  projectFilter: [],
-  processFilter: [],
-  updatedByFilter: [],
   startDate: null,
   endDate: null,
+};
+
+export const activity_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  sortColumn: "",
+  IsDesc: true,
+  GlobalSearch: "",
+  StartDate: null,
+  EndDate: null,
+  User: [],
+  DepartmentId: null,
+  IsDownload: false,
+};
+
+export const ap_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  sortColumn: "",
+  IsDesc: true,
+  GlobalSearch: "",
+  StartDate: null,
+  EndDate: null,
+  Users: [],
+  Clients: [],
+  ReportingManagers: [],
+  DepartmentId: null,
+  IsDownload: false,
+};
+
+export const client_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  GlobalSearch: "",
+  SortColumn: "",
+  IsDesc: true,
+  IsDownload: false,
+  StartDate: null,
+  EndDate: null,
+  Client: [],
+  TypeOfWork: [],
+  Department: [],
+  BillingType: [],
+};
+
+export const kra_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  GlobalSearch: "",
+  SortColumn: "",
+  IsDesc: true,
+  IsDownload: false,
+  StartDate: null,
+  EndDate: null,
+  Users: [],
+  Clients: [],
+  Department: [],
+};
+
+export const am_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  GlobalSearch: "",
+  SortColumn: "",
+  IsDesc: true,
+  IsDownload: false,
+  StartDate: null,
+  EndDate: null,
+  ReportingManager: [],
+  Department: [],
+};
+
+export const wltr_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  GlobalSearch: "",
+  SortColumn: "",
+  IsDesc: true,
+  IsDownload: false,
+  StartDate: null,
+  EndDate: null,
+  Clients: [],
 };
 
 export const getCurrentTabDetails = (activeTab: number, getBody?: boolean) => {
@@ -192,5 +278,23 @@ export const getCurrentTabDetails = (activeTab: number, getBody?: boolean) => {
   }
   if (activeTab === 10) {
     return getBody ? logReport_InitialFilter : "auditlog";
+  }
+  if (activeTab === 11) {
+    return getBody ? activity_InitialFilter : "activity";
+  }
+  if (activeTab === 12) {
+    return getBody ? ap_InitialFilter : "a/p";
+  }
+  if (activeTab === 13) {
+    return getBody ? kra_InitialFilter : "client";
+  }
+  if (activeTab === 14) {
+    return getBody ? kra_InitialFilter : "kra";
+  }
+  if (activeTab === 15) {
+    return getBody ? kra_InitialFilter : "auto/manual";
+  }
+  if (activeTab === 16) {
+    return getBody ? wltr_InitialFilter : "wltr";
   }
 };

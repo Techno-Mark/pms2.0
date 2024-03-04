@@ -41,6 +41,18 @@ import AuditReportFilter from "@/components/reports/Filter/AuditReportFilter";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import LogReport from "@/components/reports/tables/LogReport";
 import LogReportFilter from "@/components/reports/Filter/LogReportFilter";
+import ActivityReport from "@/components/reports/tables/ActivityReport";
+import ActivityReportFilter from "@/components/reports/Filter/ActivityReportFilter";
+import APReport from "@/components/reports/tables/APReport";
+import APReportFilter from "@/components/reports/Filter/APReportFilter";
+import ClientReport from "@/components/reports/tables/ClientReport";
+import KRAReport from "@/components/reports/tables/KRAReport";
+import AutoManualReport from "@/components/reports/tables/AutoManualReport";
+import WLTRReport from "@/components/reports/tables/WLTRReport";
+import WLTRReportFilter from "@/components/reports/Filter/WLTRReportFilter";
+import AutoManualReportFilter from "@/components/reports/Filter/AutoManualReportFilter";
+import KRAReportFilter from "@/components/reports/Filter/KRAReportFilter";
+import ClientReportFilter from "@/components/reports/Filter/ClientReportFilter";
 
 const allTabs = [
   { label: "project", value: 1 },
@@ -53,12 +65,12 @@ const allTabs = [
   { label: "audit", value: 6 },
   { label: "rating", value: 9 },
   { label: "log", value: 10 },
-  // { label: "activity", value: 11 },
-  // { label: "a/p", value: 12 },
-  // { label: "client", value: 13 },
-  // { label: "kra", value: 14 },
-  // { label: "auto/manual", value: 15 },
-  // { label: "wltr", value: 16 },
+  { label: "activity", value: 11 },
+  { label: "a/p", value: 12 },
+  { label: "client", value: 13 },
+  { label: "kra", value: 14 },
+  { label: "auto/manual", value: 15 },
+  { label: "wltr", value: 16 },
 ];
 
 const MoreTabs = ({ moreTabs, handleMoreTabsClick }: any) => {
@@ -105,6 +117,7 @@ const Page = () => {
     useState<boolean>(false);
   const [saveBTCData, setSaveBTCData] = useState<boolean>(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>("");
   const [searchValue, setSearchValue] = useState<string>("");
 
   useEffect(() => {
@@ -136,6 +149,13 @@ const Page = () => {
         hasPermissionWorklog("billing", "View", "Report") ||
         hasPermissionWorklog("custom", "View", "Report") ||
         hasPermissionWorklog("log", "View", "Report"))
+      // ||
+      // hasPermissionWorklog("activity", "View", "Report") ||
+      // hasPermissionWorklog("a/p", "View", "Report") ||
+      // hasPermissionWorklog("client", "View", "Report") ||
+      // hasPermissionWorklog("kra", "View", "Report") ||
+      // hasPermissionWorklog("auto/manual", "View", "Report") ||
+      // hasPermissionWorklog("wltr", "View", "Report")
     );
   };
 
@@ -186,6 +206,7 @@ const Page = () => {
     setActiveTab(tabId);
     setFilteredData(null);
     setSearchValue("");
+    setSearch("");
   };
 
   const handleCanExport = (arg1: boolean) => {
@@ -282,6 +303,14 @@ const Page = () => {
     }
   };
 
+  const handleSearchChange = (e: any) => {
+    setSearch(e.target.value)
+    const timer = setTimeout(() => {
+      setSearchValue(e.target.value)
+    }, 500);
+    return () => clearTimeout(timer);
+  };
+
   return (
     <Wrapper>
       <div>
@@ -334,8 +363,8 @@ const Page = () => {
               <InputBase
                 className="pl-1 pr-7 border-b border-b-lightSilver w-52"
                 placeholder="Search"
-                value={searchValue}
-                onChange={(e: any) => setSearchValue(e.target.value)}
+                value={search}
+                onChange={(e: any) => handleSearchChange(e)}
               />
               <span className="absolute top-2 right-2 text-slatyGrey">
                 <SearchIcon />
@@ -482,6 +511,54 @@ const Page = () => {
             onHandleExport={handleCanExport}
           />
         )}
+
+        {activeTab === 11 && (
+          <ActivityReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
+        {activeTab === 12 && (
+          <APReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
+        {activeTab === 13 && (
+          <ClientReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
+        {activeTab === 14 && (
+          <KRAReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
+        {activeTab === 15 && (
+          <AutoManualReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
+        {activeTab === 16 && (
+          <WLTRReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
       </div>
 
       {/* tabs filter */}
@@ -556,6 +633,48 @@ const Page = () => {
       )}
       {activeTab === 10 && (
         <LogReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 11 && (
+        <ActivityReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 12 && (
+        <APReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 13 && (
+        <ClientReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 14 && (
+        <KRAReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 15 && (
+        <AutoManualReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 16 && (
+        <WLTRReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}

@@ -1,62 +1,55 @@
-import dayjs from "dayjs";
+import React, { useEffect, useState } from "react";
+import { FilterType } from "../types/ReportsFilterType";
+import { callAPI } from "@/utils/API/callAPI";
 import { toast } from "react-toastify";
-import React, { useEffect, useRef, useState } from "react";
+import {
+  getCCDropdownData,
+  getClientDropdownData,
+  getDeptData,
+} from "@/utils/commonDropdownApiCall";
+import { getFormattedDate } from "@/utils/timerFunctions";
+import { activity_InitialFilter } from "@/utils/reports/getFilters";
+import { apReport } from "../Enum/Filtertype";
+import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import {
   Autocomplete,
   Button,
-  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
-  FormControlLabel,
   InputBase,
   Popover,
   TextField,
   Tooltip,
 } from "@mui/material";
-import { DialogTransition } from "@/utils/style/DialogTransition";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import DeleteDialog from "@/components/common/workloags/DeleteDialog";
-import { FilterType } from "../types/ReportsFilterType";
-import { billingReport } from "../Enum/Filtertype";
-import { billingreport_InitialFilter } from "@/utils/reports/getFilters";
-import SearchIcon from "@/assets/icons/SearchIcon";
-import { Delete, Edit } from "@mui/icons-material";
-import { getFormattedDate } from "@/utils/timerFunctions";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { isWeekend } from "@/utils/commonFunction";
-import {
-  getCCDropdownData,
-  getClientDropdownData,
-  getProjectDropdownData,
-} from "@/utils/commonDropdownApiCall";
-import { callAPI } from "@/utils/API/callAPI";
+import dayjs from "dayjs";
+import { DialogTransition } from "@/utils/style/DialogTransition";
+import { Delete, Edit } from "@mui/icons-material";
+import SearchIcon from "@/assets/icons/SearchIcon";
 
-const BillingReportFilter = ({
+const APReportFilter = ({
   isFiltering,
-  sendFilterToPage,
   onDialogClose,
+  sendFilterToPage,
 }: FilterType) => {
-  const isBTCRef_ForPreviousValue = useRef<boolean>(false);
   const [clients, setClients] = useState<any[]>([]);
   const [clientName, setClientName] = useState<any[]>([]);
-  const [projectName, setProjectName] = useState<any>(null);
-  const [assignee, setAssignee] = useState<any>(null);
-  const [reviewer, setReviewer] = useState<any>(null);
-  const [noOfPages, setNoOfPages] = useState<number | string>("");
-  const [isBTC, setIsBTC] = useState<boolean>(false);
+  const [users, setUsers] = useState<any[]>([]);
+  const [userName, setUserName] = useState<any[]>([]);
+  const [department, setDepartment] = useState<any>(null);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
 
-  const [clientDropdown, setClientDropdown] = useState<any[]>([]);
-  const [projectDropdown, setProjectDropdown] = useState<any[]>([]);
-  const [assigneeDropdown, setAssigneeDropdown] = useState<any[]>([]);
-  const [reviewerDropdown, setReviewerDropdown] = useState<any[]>([]);
-
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
+  const [clientDropdown, setClientDropdown] = useState<any[]>([]);
+  const [userDropdown, setUserDropdown] = useState<any[]>([]);
+  const [departmentDropdown, setDepartmentDropdown] = useState<any[]>([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [savedFilters, setSavedFilters] = useState<any[]>([]);
@@ -67,37 +60,22 @@ const BillingReportFilter = ({
   const [error, setError] = useState("");
 
   const anchorElFilter: HTMLButtonElement | null = null;
+
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
-
-  const handleNoOfPageChange = (e: any) => {
-    if (/^\d+$/.test(e.target.value.trim())) {
-      setNoOfPages(e.target.value);
-    } else {
-      return;
-    }
-  };
-
-  const handleIsBTCChange = (e: any) => {
-    isBTCRef_ForPreviousValue.current = isBTC;
-    setIsBTC(e.target.checked);
-  };
 
   const handleResetAll = () => {
     setClientName([]);
     setClients([]);
-    setProjectName(null);
-    setAssignee(null);
-    setReviewer(null);
-    setNoOfPages("");
-    setResetting(true);
-    setIsBTC(false);
+    setUserName([]);
+    setUsers([]);
+    setDepartment(null);
     setStartDate("");
     setEndDate("");
     setError("");
 
     sendFilterToPage({
-      ...billingreport_InitialFilter,
+      ...activity_InitialFilter,
     });
   };
 
@@ -109,11 +87,9 @@ const BillingReportFilter = ({
 
     setClientName([]);
     setClients([]);
-    setProjectName(null);
-    setAssignee(null);
-    setReviewer(null);
-    setNoOfPages("");
-    setIsBTC(false);
+    setUserName([]);
+    setUsers([]);
+    setDepartment(null);
     setStartDate("");
     setEndDate("");
     setError("");
@@ -121,20 +97,17 @@ const BillingReportFilter = ({
 
   const handleFilterApply = () => {
     sendFilterToPage({
-      ...billingreport_InitialFilter,
-      clients: clientName.length > 0 ? clientName : [],
-      projects: projectName !== null ? [projectName.value] : [],
-      assigneeId: assignee !== null ? assignee.value : null,
-      reviewerId: reviewer !== null ? reviewer.value : null,
-      numberOfPages: noOfPages.toString().trim().length > 0 ? noOfPages : null,
-      IsBTC: isBTC,
-      startDate:
+      ...activity_InitialFilter,
+      Clients: clientName.length > 0 ? clientName : [],
+      Users: userName.length > 0 ? userName : [],
+      DepartmentId: department !== null ? department.value : null,
+      StartDate:
         startDate.toString().trim().length <= 0
           ? endDate.toString().trim().length <= 0
             ? null
             : getFormattedDate(endDate)
           : getFormattedDate(startDate),
-      endDate:
+      EndDate:
         endDate.toString().trim().length <= 0
           ? startDate.toString().trim().length <= 0
             ? null
@@ -149,15 +122,12 @@ const BillingReportFilter = ({
     if (Number.isInteger(index)) {
       if (index !== undefined) {
         sendFilterToPage({
-          ...billingreport_InitialFilter,
-          clients: savedFilters[index].AppliedFilter.clients,
-          projects: savedFilters[index].AppliedFilter.projects,
-          assigneeId: savedFilters[index].AppliedFilter.assigneeId,
-          reviewerId: savedFilters[index].AppliedFilter.reviewerId,
-          numberOfPages: savedFilters[index].AppliedFilter.numberOfPages,
-          IsBTC: savedFilters[index].AppliedFilter.IsBTC,
-          startDate: savedFilters[index].AppliedFilter.startDate,
-          endDate: savedFilters[index].AppliedFilter.endDate,
+          ...activity_InitialFilter,
+          Clients: savedFilters[index].AppliedFilter.clients,
+          Users: savedFilters[index].AppliedFilter.users,
+          Department: savedFilters[index].AppliedFilter.department,
+          StartDate: savedFilters[index].AppliedFilter.startDate,
+          EndDate: savedFilters[index].AppliedFilter.endDate,
         });
       }
     }
@@ -174,33 +144,28 @@ const BillingReportFilter = ({
       setError("Max 15 characters allowed!");
       return;
     }
-
     setError("");
     const params = {
-      filterId: currentFilterId !== "" ? currentFilterId : null,
+      filterId: !!currentFilterId ?? currentFilterId,
       name: filterName,
       AppliedFilter: {
-        clients: clientName,
-        projects: projectName !== null ? [projectName.value] : [],
-        assigneeId: assignee !== null ? assignee.value : null,
-        reviewerId: reviewer !== null ? reviewer.value : null,
-        numberOfPages:
-          noOfPages.toString().trim().length > 0 ? noOfPages : null,
-        IsBTC: isBTC,
-        startDate:
+        Clients: clientName,
+        Users: userName,
+        DepartmentId: department !== null ? department.value : null,
+        StartDate:
           startDate.toString().trim().length <= 0
             ? endDate.toString().trim().length <= 0
               ? null
               : getFormattedDate(endDate)
             : getFormattedDate(startDate),
-        endDate:
+        EndDate:
           endDate.toString().trim().length <= 0
             ? startDate.toString().trim().length <= 0
               ? null
               : getFormattedDate(startDate)
             : getFormattedDate(endDate),
       },
-      type: billingReport,
+      type: apReport,
     };
     const url = `${process.env.worklog_api_url}/filter/savefilter`;
     const successCallback = (
@@ -220,61 +185,34 @@ const BillingReportFilter = ({
   };
 
   useEffect(() => {
+    getFilterList();
+  }, []);
+
+  useEffect(() => {
     const isAnyFieldSelected =
       clientName.length > 0 ||
-      projectName !== null ||
-      assignee !== null ||
-      reviewer !== null ||
-      noOfPages.toString().trim().length > 0 ||
-      isBTC !== isBTCRef_ForPreviousValue.current ||
+      userName.length > 0 ||
+      department !== null ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
     setResetting(false);
-  }, [
-    clientName,
-    projectName,
-    assignee,
-    reviewer,
-    noOfPages,
-    isBTC,
-    startDate,
-    endDate,
-  ]);
+  }, [clientName, userName, department, startDate, endDate]);
 
   useEffect(() => {
     const filterDropdowns = async () => {
       setClientDropdown(await getClientDropdownData());
-      setProjectDropdown(
-        await getProjectDropdownData(
-          clientName.length > 0 ? clientName[0] : 0,
-          null
-        )
-      );
-      const userData = await getCCDropdownData();
-      userData.length > 0
-        ? setAssigneeDropdown(userData)
-        : setAssigneeDropdown([]);
-      userData.length > 0
-        ? setReviewerDropdown(userData)
-        : setReviewerDropdown([]);
+      setUserDropdown(await getCCDropdownData());
+      setDepartmentDropdown(await getDeptData());
     };
     filterDropdowns();
-
-    if (clientName.length > 0 || resetting) {
-      onDialogClose(true);
-    }
-  }, [clientName]);
-
-  useEffect(() => {
-    getFilterList();
   }, []);
 
   const getFilterList = async () => {
     const params = {
-      type: billingReport,
+      type: apReport,
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
@@ -289,7 +227,12 @@ const BillingReportFilter = ({
     callAPI(url, params, successCallback, "POST");
   };
 
-  const handleSavedFilterEdit = async (index: number) => {
+  const handleSavedFilterEdit = (index: number) => {
+    setSaveFilter(true);
+    setDefaultFilter(true);
+    setFilterName(savedFilters[index].Name);
+    setCurrentFilterId(savedFilters[index].FilterId);
+
     setClients(
       savedFilters[index].AppliedFilter.clients === null
         ? []
@@ -297,45 +240,42 @@ const BillingReportFilter = ({
             savedFilters[index].AppliedFilter.clients.includes(client.value)
           )
     );
-    setClientName(savedFilters[index].AppliedFilter.clients);
-    setProjectName(
-      savedFilters[index].AppliedFilter.projects.length > 0
-        ? (
-            await getProjectDropdownData(
-              savedFilters[index].AppliedFilter.clients[0],
-              null
-            )
-          ).filter(
+    setClientName(
+      savedFilters[index].AppliedFilter.clients === null
+        ? []
+        : savedFilters[index].AppliedFilter.clients
+    );
+
+    setUsers(
+      savedFilters[index].AppliedFilter.users === null
+        ? []
+        : userDropdown.filter((user: any) =>
+            savedFilters[index].AppliedFilter.users.includes(user.value)
+          )
+    );
+    setUserName(
+      savedFilters[index].AppliedFilter.users === null
+        ? []
+        : savedFilters[index].AppliedFilter.users
+    );
+    setDepartment(
+      savedFilters[index].AppliedFilter.reportingManager.length > 0
+        ? departmentDropdown.filter(
             (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.projects[0]
+              item.value === savedFilters[index].AppliedFilter.DepartmentId[0]
           )[0]
         : null
     );
-
-    setAssignee(
-      savedFilters[index].AppliedFilter.assigneeId === null
-        ? null
-        : assigneeDropdown.filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.assigneeId
-          )[0]
+    setStartDate(
+      savedFilters[index].AppliedFilter.startDate === null
+        ? ""
+        : savedFilters[index].AppliedFilter.startDate
     );
-    setReviewer(
-      savedFilters[index].AppliedFilter.reviewerId === null
-        ? null
-        : reviewerDropdown.filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.reviewerId
-          )[0]
+    setEndDate(
+      savedFilters[index].AppliedFilter.endDate === null
+        ? ""
+        : savedFilters[index].AppliedFilter.endDate
     );
-    setNoOfPages(savedFilters[index].AppliedFilter.numberOfPages ?? "");
-    setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
-    setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
-
-    setCurrentFilterId(savedFilters[index].FilterId);
-    setFilterName(savedFilters[index].Name);
-    setDefaultFilter(true);
-    setSaveFilter(true);
   };
 
   const handleSavedFilterDelete = async () => {
@@ -463,7 +403,7 @@ const BillingReportFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210 }}
+                  sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
                 >
                   <Autocomplete
                     multiple
@@ -476,7 +416,6 @@ const BillingReportFilter = ({
                     onChange={(e: any, data: any) => {
                       setClients(data);
                       setClientName(data.map((d: any) => d.value));
-                      setProjectName(null);
                     }}
                     value={clients}
                     renderInput={(params: any) => (
@@ -490,85 +429,55 @@ const BillingReportFilter = ({
                 </FormControl>
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210 }}
+                  sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
-                    options={projectDropdown}
+                    options={userDropdown.filter(
+                      (option) =>
+                        !users.find((user) => user.value === option.value)
+                    )}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setProjectName(data);
+                      setUsers(data);
+                      setUserName(data.map((d: any) => d.value));
                     }}
-                    disabled={clientName.length > 1}
-                    value={projectName}
+                    value={users}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
                         variant="standard"
-                        label="Project Name"
+                        label="User Name"
                       />
                     )}
                   />
                 </FormControl>
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210 }}
+                  sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
                 >
                   <Autocomplete
                     id="tags-standard"
-                    options={assigneeDropdown}
+                    options={departmentDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setAssignee(data);
+                      setDepartment(data);
                     }}
-                    value={assignee}
+                    value={department}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
                         variant="standard"
-                        label="Prepared/Assignee"
+                        label="Department"
                       />
                     )}
                   />
                 </FormControl>
               </div>
               <div className="flex gap-[20px]">
-                <FormControl
-                  variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210 }}
-                >
-                  <Autocomplete
-                    id="tags-standard"
-                    options={reviewerDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
-                      setReviewer(data);
-                    }}
-                    value={reviewer}
-                    renderInput={(params: any) => (
-                      <TextField
-                        {...params}
-                        variant="standard"
-                        label="Reviewer"
-                      />
-                    )}
-                  />
-                </FormControl>
-
-                <FormControl
-                  variant="standard"
-                  sx={{ mt: 0, mx: 0.75, minWidth: 210 }}
-                >
-                  <TextField
-                    id="noOfPages"
-                    label="Number of Pages"
-                    variant="standard"
-                    value={noOfPages}
-                    onChange={handleNoOfPageChange}
-                  />
-                </FormControl>
                 <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px] -mt-1`}
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
@@ -585,8 +494,6 @@ const BillingReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
-              </div>
-              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
@@ -606,22 +513,6 @@ const BillingReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
-                <FormControl
-                  variant="standard"
-                  sx={{
-                    mt: 2,
-                    mx: 0.75,
-                    minWidth: 100,
-                  }}
-                >
-                  <FormControlLabel
-                    sx={{ color: "#818181" }}
-                    control={
-                      <Checkbox checked={isBTC} onChange={handleIsBTCChange} />
-                    }
-                    label="Is Invoice Raised"
-                  />
-                </FormControl>
               </div>
             </div>
           </DialogContent>
@@ -703,4 +594,4 @@ const BillingReportFilter = ({
   );
 };
 
-export default BillingReportFilter;
+export default APReportFilter;

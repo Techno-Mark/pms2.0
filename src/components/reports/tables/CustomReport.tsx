@@ -616,6 +616,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
             title={undefined}
             options={{
               ...options,
+              tableBodyHeight: "73vh",
               textLabels: {
                 body: {
                   noMatch: (

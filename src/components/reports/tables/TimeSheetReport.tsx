@@ -686,7 +686,7 @@ const TimeSheetReport = ({
         title={undefined}
         options={{
           ...options,
-          tableBodyHeight: "67vh",
+          tableBodyHeight: "68vh",
         }}
       />
       <Legends legends={timesheetLegend} />

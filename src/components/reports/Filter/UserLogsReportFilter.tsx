@@ -377,7 +377,7 @@ const UserLogsReportFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <Autocomplete
                     multiple

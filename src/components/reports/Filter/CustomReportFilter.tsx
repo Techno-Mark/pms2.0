@@ -632,7 +632,7 @@ const CustomReportFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, my: 0.5, minWidth: 200 }}
+                  sx={{ mx: 0.75, minWidth: 200 }}
                 >
                   <Autocomplete
                     multiple
