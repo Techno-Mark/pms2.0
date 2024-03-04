@@ -376,7 +376,7 @@ const reportsActivityColConfig = [
 
 const reportsAPColConfig = [
   {
-    name: "WorkItemId",
+    header: "WorkItemId",
     label: "Task ID",
     bodyRenderer: generateCommonBodyRender,
   },
