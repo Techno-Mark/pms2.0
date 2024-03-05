@@ -161,6 +161,12 @@ const BillingReport = ({
     callAPI(url, params, successCallback, "POST");
   };
 
+  const handleClearSelection = () => {
+    setSelectedIndex([]);
+    setRaisedInvoice([]);
+    setBTCData([]);
+  };
+
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
@@ -172,6 +178,7 @@ const BillingReport = ({
       pageNo: newPage + 1,
       pageSize: billingRowsPerPage,
     });
+    handleClearSelection();
   };
 
   const handleChangeRowsPerPage = (
@@ -185,6 +192,7 @@ const BillingReport = ({
       pageNo: 1,
       pageSize: event.target.value,
     });
+    handleClearSelection();
   };
 
   const handleBTCData = (newValue: any, workItemId: any) => {
@@ -376,7 +384,7 @@ const BillingReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () =>
-          generateCustomHeaderName("Preparation Date"),
+          generateCustomHeaderName("Date of Preparation"),
         customBodyRender: (value: any) => {
           return generateDateWithTime(value);
         },
@@ -387,7 +395,7 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Reviewer Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Date of Review"),
         customBodyRender: (value: any) => {
           return generateDateWithTime(value);
         },
@@ -434,6 +442,17 @@ const BillingReport = ({
         customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "ReturnYear",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Return Year."),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
         },
       },
     },

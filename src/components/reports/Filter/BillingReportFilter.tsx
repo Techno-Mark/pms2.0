@@ -49,6 +49,8 @@ const BillingReportFilter = ({
   const [isBTC, setIsBTC] = useState<boolean>(false);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
+  const [startDateReview, setStartDateReview] = useState<string | number>("");
+  const [endDateReview, setEndDateReview] = useState<string | number>("");
 
   const [clientDropdown, setClientDropdown] = useState<any[]>([]);
   const [projectDropdown, setProjectDropdown] = useState<any[]>([]);
@@ -94,6 +96,8 @@ const BillingReportFilter = ({
     setIsBTC(false);
     setStartDate("");
     setEndDate("");
+    setStartDateReview("");
+    setEndDateReview("");
     setError("");
 
     sendFilterToPage({
@@ -116,6 +120,8 @@ const BillingReportFilter = ({
     setIsBTC(false);
     setStartDate("");
     setEndDate("");
+    setStartDateReview("");
+    setEndDateReview("");
     setError("");
   };
 
@@ -140,6 +146,18 @@ const BillingReportFilter = ({
             ? null
             : getFormattedDate(startDate)
           : getFormattedDate(endDate),
+      startDateReview:
+        startDateReview.toString().trim().length <= 0
+          ? endDateReview.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(endDateReview)
+          : getFormattedDate(startDateReview),
+      endDateReview:
+        endDateReview.toString().trim().length <= 0
+          ? startDateReview.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(startDateReview)
+          : getFormattedDate(endDateReview),
     });
 
     onDialogClose(false);
@@ -158,6 +176,8 @@ const BillingReportFilter = ({
           IsBTC: savedFilters[index].AppliedFilter.IsBTC,
           startDate: savedFilters[index].AppliedFilter.startDate,
           endDate: savedFilters[index].AppliedFilter.endDate,
+          startDateReview: savedFilters[index].AppliedFilter.startDateReview,
+          endDateReview: savedFilters[index].AppliedFilter.endDateReview,
         });
       }
     }
@@ -199,6 +219,18 @@ const BillingReportFilter = ({
               ? null
               : getFormattedDate(startDate)
             : getFormattedDate(endDate),
+        startDateReview:
+          startDateReview.toString().trim().length <= 0
+            ? endDateReview.toString().trim().length <= 0
+              ? null
+              : getFormattedDate(endDateReview)
+            : getFormattedDate(startDateReview),
+        endDateReview:
+          endDateReview.toString().trim().length <= 0
+            ? startDateReview.toString().trim().length <= 0
+              ? null
+              : getFormattedDate(startDateReview)
+            : getFormattedDate(endDateReview),
       },
       type: billingReport,
     };
@@ -228,7 +260,9 @@ const BillingReportFilter = ({
       noOfPages.toString().trim().length > 0 ||
       isBTC !== isBTCRef_ForPreviousValue.current ||
       startDate.toString().trim().length > 0 ||
-      endDate.toString().trim().length > 0;
+      endDate.toString().trim().length > 0 ||
+      startDateReview.toString().trim().length > 0 ||
+      endDateReview.toString().trim().length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
@@ -242,6 +276,8 @@ const BillingReportFilter = ({
     isBTC,
     startDate,
     endDate,
+    startDateReview,
+    endDateReview,
   ]);
 
   useEffect(() => {
@@ -331,6 +367,8 @@ const BillingReportFilter = ({
     setNoOfPages(savedFilters[index].AppliedFilter.numberOfPages ?? "");
     setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
     setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
+    setStartDateReview(savedFilters[index].AppliedFilter.startDateReview ?? "");
+    setEndDateReview(savedFilters[index].AppliedFilter.endDateReview ?? "");
 
     setCurrentFilterId(savedFilters[index].FilterId);
     setFilterName(savedFilters[index].Name);
@@ -572,7 +610,7 @@ const BillingReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="Start Date"
+                      label="Preparation From"
                       shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(endDate)}
                       value={startDate === "" ? null : dayjs(startDate)}
@@ -592,7 +630,7 @@ const BillingReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="End Date"
+                      label="Preparation To"
                       shouldDisableDate={isWeekend}
                       minDate={dayjs(startDate)}
                       maxDate={dayjs(Date.now())}
@@ -606,10 +644,50 @@ const BillingReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Review From"
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now()) || dayjs(endDateReview)}
+                      value={
+                        startDateReview === "" ? null : dayjs(startDateReview)
+                      }
+                      onChange={(newValue: any) => setStartDateReview(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Review To"
+                      shouldDisableDate={isWeekend}
+                      minDate={dayjs(startDateReview)}
+                      maxDate={dayjs(Date.now())}
+                      value={endDateReview === "" ? null : dayjs(endDateReview)}
+                      onChange={(newValue: any) => setEndDateReview(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+              </div>
+              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{
-                    mt: 2,
                     mx: 0.75,
                     minWidth: 100,
                   }}

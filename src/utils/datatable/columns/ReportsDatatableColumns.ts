@@ -348,6 +348,11 @@ const reportsActivityColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
+    header: "DepartmentName",
+    label: "Department Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     header: "TotalHours",
     label: "Total Hours",
     bodyRenderer: generateCommonBodyRender,

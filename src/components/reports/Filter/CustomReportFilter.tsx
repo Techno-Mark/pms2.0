@@ -89,6 +89,8 @@ const CustomReportFilter = ({
   const [priority, setPriority] = useState<any>(null);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
+  const [startDateReview, setStartDateReview] = useState<string | number>("");
+  const [endDateReview, setEndDateReview] = useState<string | number>("");
   const [dueDate, setDueDate] = useState<string | number>("");
   const [allInfoDate, setAllInfoDate] = useState<string | number>("");
 
@@ -138,6 +140,8 @@ const CustomReportFilter = ({
     setPriority(null);
     setStartDate("");
     setEndDate("");
+    setStartDateReview("");
+    setEndDateReview("");
     setDueDate("");
     setAllInfoDate("");
     setError("");
@@ -167,6 +171,8 @@ const CustomReportFilter = ({
     setPriority(null);
     setStartDate("");
     setEndDate("");
+    setStartDateReview("");
+    setEndDateReview("");
     setDueDate("");
     setAllInfoDate("");
     setError("");
@@ -190,7 +196,9 @@ const CustomReportFilter = ({
       priority: priority === null ? null : priority.value,
       startDate:
         startDate.toString().trim().length <= 0
-          ? null
+          ? endDate.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(endDate)
           : getFormattedDate(startDate),
       endDate:
         endDate.toString().trim().length <= 0
@@ -198,6 +206,18 @@ const CustomReportFilter = ({
             ? null
             : getFormattedDate(startDate)
           : getFormattedDate(endDate),
+      startDateReview:
+        startDateReview.toString().trim().length <= 0
+          ? endDateReview.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(endDateReview)
+          : getFormattedDate(startDateReview),
+      endDateReview:
+        endDateReview.toString().trim().length <= 0
+          ? startDateReview.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(startDateReview)
+          : getFormattedDate(endDateReview),
       dueDate:
         dueDate.toString().trim().length <= 0
           ? null
@@ -230,6 +250,8 @@ const CustomReportFilter = ({
           priority: savedFilters[index].AppliedFilter.priority,
           startDate: savedFilters[index].AppliedFilter.startDate,
           endDate: savedFilters[index].AppliedFilter.endDate,
+          startDateReview: savedFilters[index].AppliedFilter.startDateReview,
+          endDateReview: savedFilters[index].AppliedFilter.endDateReview,
           dueDate: savedFilters[index].AppliedFilter.dueDate,
           allInfoDate: savedFilters[index].AppliedFilter.allInfoDate,
         });
@@ -265,7 +287,9 @@ const CustomReportFilter = ({
           priority: priority === null ? null : priority.value,
           startDate:
             startDate.toString().trim().length <= 0
-              ? null
+              ? endDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(endDate)
               : getFormattedDate(startDate),
           endDate:
             endDate.toString().trim().length <= 0
@@ -273,6 +297,18 @@ const CustomReportFilter = ({
                 ? null
                 : getFormattedDate(startDate)
               : getFormattedDate(endDate),
+          startDateReview:
+            startDateReview.toString().trim().length <= 0
+              ? endDateReview.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(endDateReview)
+              : getFormattedDate(startDateReview),
+          endDateReview:
+            endDateReview.toString().trim().length <= 0
+              ? startDateReview.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(startDateReview)
+              : getFormattedDate(endDateReview),
           dueDate:
             dueDate.toString().trim().length <= 0
               ? null
@@ -322,6 +358,8 @@ const CustomReportFilter = ({
       priority !== null ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0 ||
+      startDateReview.toString().trim().length > 0 ||
+      endDateReview.toString().trim().length > 0 ||
       dueDate.toString().trim().length > 0 ||
       allInfoDate.toString().trim().length > 0;
 
@@ -343,6 +381,8 @@ const CustomReportFilter = ({
     priority,
     startDate,
     endDate,
+    startDateReview,
+    endDateReview,
     dueDate,
     allInfoDate,
   ]);
@@ -503,6 +543,8 @@ const CustomReportFilter = ({
     );
     setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
     setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
+    setStartDateReview(savedFilters[index].AppliedFilter.startDateReview ?? "");
+    setEndDateReview(savedFilters[index].AppliedFilter.endDateReview ?? "");
     setDueDate(savedFilters[index].AppliedFilter.dueDate ?? "");
     setAllInfoDate(savedFilters[index].AppliedFilter.allInfoDate ?? "");
   };
@@ -917,7 +959,7 @@ const CustomReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="From"
+                      label="Preparation From"
                       value={startDate === "" ? null : dayjs(startDate)}
                       shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
@@ -935,7 +977,7 @@ const CustomReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="To"
+                      label="Preparation To"
                       value={endDate === "" ? null : dayjs(endDate)}
                       shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
@@ -978,6 +1020,45 @@ const CustomReportFilter = ({
                       label="All Info Date"
                       value={allInfoDate === "" ? null : dayjs(allInfoDate)}
                       onChange={(newValue: any) => setAllInfoDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Review From"
+                      value={
+                        startDateReview === "" ? null : dayjs(startDateReview)
+                      }
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now())}
+                      onChange={(newValue: any) => setStartDateReview(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Review To"
+                      value={endDateReview === "" ? null : dayjs(endDateReview)}
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now())}
+                      minDate={dayjs(startDateReview)}
+                      onChange={(newValue: any) => setEndDateReview(newValue)}
                       slotProps={{
                         textField: {
                           readOnly: true,

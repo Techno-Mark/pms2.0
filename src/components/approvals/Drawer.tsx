@@ -2168,6 +2168,9 @@ const EditDrawer = ({
       getReviewerNoteDataApprovals();
       getLogsDataWorklogs();
     }
+  }, [onEdit]);
+
+  useEffect(() => {
     if (onEdit > 0 && assigneeApprovalsDropdownData.length > 0) {
       getReminderDataApprovals();
     }
