@@ -41,8 +41,7 @@ const KRAReportFilter = ({
   const [clientName, setClientName] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [userName, setUserName] = useState<any[]>([]);
-  const [department, setDepartment] = useState<any[]>([]);
-  const [departmentName, setDepartmentName] = useState<any[]>([]);
+  const [department, setDepartment] = useState<any>(null);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
 
@@ -70,11 +69,12 @@ const KRAReportFilter = ({
     setClients([]);
     setUserName([]);
     setUsers([]);
-    setDepartmentName([]);
-    setDepartment([]);
+    setDepartment(null);
     setStartDate("");
     setEndDate("");
     setError("");
+    setFilterName("");
+    setDefaultFilter(false);
 
     sendFilterToPage({
       ...kra_InitialFilter,
@@ -91,8 +91,7 @@ const KRAReportFilter = ({
     setClients([]);
     setUserName([]);
     setUsers([]);
-    setDepartmentName([]);
-    setDepartment([]);
+    setDepartment(null);
     setStartDate("");
     setEndDate("");
     setError("");
@@ -103,7 +102,7 @@ const KRAReportFilter = ({
       ...kra_InitialFilter,
       Clients: clientName.length > 0 ? clientName : [],
       Users: userName.length > 0 ? userName : [],
-      Department: departmentName.length > 0 ? departmentName : [],
+      DepartmentId: department !== null ? department.value : null,
       StartDate:
         startDate.toString().trim().length <= 0
           ? endDate.toString().trim().length <= 0
@@ -128,7 +127,7 @@ const KRAReportFilter = ({
           ...kra_InitialFilter,
           Clients: savedFilters[index].AppliedFilter.clients,
           Users: savedFilters[index].AppliedFilter.users,
-          Department: savedFilters[index].AppliedFilter.department,
+          DepartmentId: savedFilters[index].AppliedFilter.department,
           StartDate: savedFilters[index].AppliedFilter.startDate,
           EndDate: savedFilters[index].AppliedFilter.endDate,
         });
@@ -154,7 +153,7 @@ const KRAReportFilter = ({
       AppliedFilter: {
         Clients: clientName,
         Users: userName,
-        Department: departmentName,
+        DepartmentId: department !== null ? department.value : null,
         StartDate:
           startDate.toString().trim().length <= 0
             ? endDate.toString().trim().length <= 0
@@ -195,14 +194,14 @@ const KRAReportFilter = ({
     const isAnyFieldSelected =
       clientName.length > 0 ||
       userName.length > 0 ||
-      departmentName.length > 0 ||
+      department !== null ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
     setResetting(false);
-  }, [clientName, userName, departmentName, startDate, endDate]);
+  }, [clientName, userName, department, startDate, endDate]);
 
   useEffect(() => {
     const filterDropdowns = async () => {
@@ -263,18 +262,12 @@ const KRAReportFilter = ({
     );
 
     setDepartment(
-      savedFilters[index].AppliedFilter.clients === null
-        ? []
-        : departmentDropdown.filter((department: any) =>
-            savedFilters[index].AppliedFilter.department.includes(
-              department.value
-            )
-          )
-    );
-    setDepartmentName(
-      savedFilters[index].AppliedFilter.department === null
-        ? []
-        : savedFilters[index].AppliedFilter.department
+      savedFilters[index].AppliedFilter.DepartmentId !== null
+        ? departmentDropdown.filter(
+            (item: any) =>
+              item.value === savedFilters[index].AppliedFilter.DepartmentId[0]
+          )[0]
+        : null
     );
     setStartDate(
       savedFilters[index].AppliedFilter.startDate === null
@@ -303,6 +296,7 @@ const KRAReportFilter = ({
         handleClose();
         getFilterList();
         setCurrentFilterId("");
+        sendFilterToPage({ ...kra_InitialFilter });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -315,7 +309,7 @@ const KRAReportFilter = ({
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -400,7 +394,7 @@ const KRAReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
@@ -468,13 +462,11 @@ const KRAReportFilter = ({
                   sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
                 >
                   <Autocomplete
-                    multiple
                     id="tags-standard"
                     options={departmentDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
                       setDepartment(data);
-                      setDepartmentName(data.map((d: any) => d.value));
                     }}
                     value={department}
                     renderInput={(params: any) => (
@@ -585,7 +577,11 @@ const KRAReportFilter = ({
               </>
             )}
 
-            <Button variant="outlined" color="info" onClick={handleClose}>
+            <Button
+              variant="outlined"
+              color="info"
+              onClick={() => onDialogClose(false)}
+            >
               Cancel
             </Button>
           </DialogActions>

@@ -24,7 +24,7 @@ const KRAReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       loaded: false,
     });
 
-    const url = `${process.env.report_api_url}/report/project`;
+    const url = `${process.env.report_api_url}/report/kra`;
 
     const successCallback = (data: any, error: any) => {
       if (data !== null && error === false) {
@@ -32,12 +32,11 @@ const KRAReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         setKraFields({
           ...kraFields,
           loaded: true,
-          // data: data.List,
-          data: [],
+          data: data.List,
           dataCount: data.TotalCount,
         });
       } else {
-        setKraFields({ ...kraFields, loaded: true });
+        setKraFields({ ...kraFields, data: [], dataCount: 0, loaded: true });
       }
     };
 
@@ -88,14 +87,14 @@ const KRAReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       const timer = setTimeout(() => {
-        getData({ ...filteredData, globalSearch: searchValue });
+        getData({ ...filteredData, GlobalSearch: searchValue });
         setKraCurrentPage(0);
         setKraRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     } else {
       const timer = setTimeout(() => {
-        getData({ ...kra_InitialFilter, globalSearch: searchValue });
+        getData({ ...kra_InitialFilter, GlobalSearch: searchValue });
       }, 500);
       return () => clearTimeout(timer);
     }

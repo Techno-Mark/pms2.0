@@ -107,6 +107,8 @@ const RatingReportFilter = ({
     setRatingReport_Ratings(null);
     setRatingReport_Resetting(true);
     setRatingReport_Error("");
+    setRatingReport_FilterName("");
+    setRatingReport_DefaultFilter(false);
 
     sendFilterToPage({
       ...rating_InitialFilter,
@@ -314,10 +316,10 @@ const RatingReportFilter = ({
   };
 
   const handleRatingReport_SavedFilterDelete = async () => {
-    const params = `${process.env.worklog_api_url}/filter/delete`;
-    const url = {
+    const params = {
       filterId: ratingreport_currentFilterId,
     };
+    const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
       ResponseData: any,
       error: any,
@@ -328,6 +330,7 @@ const RatingReportFilter = ({
         handleRatingReport_Close();
         getRatingReport_FilterList();
         setRatingReport_CurrentFilterId("");
+        sendFilterToPage({ ...rating_InitialFilter });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -382,7 +385,7 @@ const RatingReportFilter = ({
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleRatingReport_Close}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -477,7 +480,7 @@ const RatingReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleRatingReport_Close}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
@@ -695,7 +698,7 @@ const RatingReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={handleRatingReport_Close}
+              onClick={() => onDialogClose(false)}
             >
               Cancel
             </Button>

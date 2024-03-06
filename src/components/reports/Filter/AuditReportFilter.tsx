@@ -69,6 +69,8 @@ const AuditReportFilter = ({
     setStartDate("");
     setEndDate("");
     setError("");
+    setFilterName("");
+    setDefaultFilter(false);
 
     sendFilterToPage({
       ...audit_InitialFilter,
@@ -279,6 +281,7 @@ const AuditReportFilter = ({
         handleClose();
         getFilterList();
         setCurrentFilterId("");
+        sendFilterToPage({ ...audit_InitialFilter });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -291,7 +294,7 @@ const AuditReportFilter = ({
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -376,7 +379,7 @@ const AuditReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
@@ -537,7 +540,11 @@ const AuditReportFilter = ({
               </>
             )}
 
-            <Button variant="outlined" color="info" onClick={handleClose}>
+            <Button
+              variant="outlined"
+              color="info"
+              onClick={() => onDialogClose(false)}
+            >
               Cancel
             </Button>
           </DialogActions>

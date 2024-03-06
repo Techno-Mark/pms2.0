@@ -68,6 +68,8 @@ const TimesheetReportFilter = ({
     setTimesheetStartDate("");
     setTimesheetEndDate("");
     setTimesheetError("");
+    setTimesheetFilterName("");
+    setTimesheetDefaultFilter(false);
 
     sendFilterToPage({
       ...timeSheet_InitialFilter,
@@ -261,6 +263,7 @@ const TimesheetReportFilter = ({
         handleTimesheetClose();
         getTimesheetFilterList();
         setTimesheetCurrentFilterId("");
+        sendFilterToPage({ ...timeSheet_InitialFilter });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -273,7 +276,7 @@ const TimesheetReportFilter = ({
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleTimesheetClose}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -364,7 +367,7 @@ const TimesheetReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleTimesheetClose}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
@@ -531,7 +534,7 @@ const TimesheetReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={handleTimesheetClose}
+              onClick={() => onDialogClose(false)}
             >
               Cancel
             </Button>

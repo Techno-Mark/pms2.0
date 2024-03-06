@@ -61,6 +61,8 @@ const UserReportFilter = ({
     setUser_StartDate("");
     setUser_EndDate("");
     setUser_Error("");
+    setUser_FilterName("");
+    setUser_DefaultFilter(false);
 
     sendFilterToPage({
       ...user_InitialFilter,
@@ -244,6 +246,7 @@ const UserReportFilter = ({
         handleUserClose();
         getUserFilterList();
         setUser_CurrentFilterId("");
+        sendFilterToPage({ ...user_InitialFilter });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -256,7 +259,7 @@ const UserReportFilter = ({
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleUserClose}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -341,7 +344,7 @@ const UserReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleUserClose}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
@@ -497,7 +500,11 @@ const UserReportFilter = ({
               </>
             )}
 
-            <Button variant="outlined" color="info" onClick={handleUserClose}>
+            <Button
+              variant="outlined"
+              color="info"
+              onClick={() => onDialogClose(false)}
+            >
               Cancel
             </Button>
           </DialogActions>

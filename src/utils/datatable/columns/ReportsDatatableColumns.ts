@@ -397,7 +397,7 @@ const reportsAPColConfig = [
   },
   {
     header: "TaskDate",
-    label: "Task Date",
+    label: "Created On",
     bodyRenderer: generateDateWithoutTime,
   },
   {
@@ -436,6 +436,16 @@ const reportsAPColConfig = [
     bodyRenderer: generateInitialTimer,
   },
   {
+    header: "AutoTime",
+    label: "Auto Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "ManualTime",
+    label: "Manual Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
     header: "TotalTime",
     label: "Total Time",
     bodyRenderer: generateInitialTimer,
@@ -447,12 +457,17 @@ const reportsAPColConfig = [
   },
   {
     header: "Comment",
-    label: "Comment",
+    label: "Reviewer's Note",
     bodyRenderer: generateCommonBodyRender,
   },
 ];
 
 const reportsKRAColConfig = [
+  {
+    header: "WorkItemId",
+    label: "Task ID",
+    bodyRenderer: generateCommonBodyRender,
+  },
   {
     header: "ClientName",
     label: "Client Name",
@@ -464,23 +479,33 @@ const reportsKRAColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    header: "Process",
+    header: "ProcessName",
     label: "Process",
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    header: "SubProcess",
+    header: "SubProcessName",
     label: "Sub-Process",
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    header: "Username",
+    header: "UserName",
     label: "User Name",
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    header: "STDTime",
+    header: "StdTime",
     label: "STD Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "AutoTime",
+    label: "Auto Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "ManualTime",
+    label: "Manual Time",
     bodyRenderer: generateInitialTimer,
   },
   {
@@ -489,7 +514,7 @@ const reportsKRAColConfig = [
     bodyRenderer: generateInitialTimer,
   },
   {
-    header: "QTY",
+    header: "Quantity",
     label: "QTY",
     bodyRenderer: generateCommonBodyRender,
   },
@@ -499,7 +524,7 @@ const reportsKRAColConfig = [
     bodyRenderer: generateCommonBodyRenderPercentage,
   },
   {
-    header: "Remarks/Comments",
+    header: "Remarks",
     label: "Remarks/Comments",
     bodyRenderer: generateCommonBodyRender,
   },

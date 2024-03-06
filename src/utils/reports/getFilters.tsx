@@ -129,6 +129,8 @@ export const customreport_InitialFilter = {
   allInfoDate: null,
   startDate: null,
   endDate: null,
+  startDateReview: null,
+  endDateReview: null,
   isDownload: false,
 };
 
@@ -148,22 +150,17 @@ export const rating_InitialFilter: any = {
 };
 
 export const logReport_InitialFilter = {
-  pageNo: 1,
-  pageSize: 10,
-  sortColumn: "",
-  isDesc: true,
-  globalSearch: "",
-  typeOfWork: null,
-  billType: null,
-  clients: [],
-  projects: [],
-  department: null,
-  isActive: true,
-  showSubProject: false,
-  isClientReport: false,
-  isDownload: false,
-  startDate: null,
-  endDate: null,
+  GlobalSearch: "",
+  PageNo: 1,
+  PageSize: 100,
+  SortColumn: null,
+  IsDesc: 1,
+  ClientFilter: [],
+  ProjectFilter: [],
+  ProcessFilter: [],
+  UpdatedByFilter: [],
+  StartDate: null,
+  EndDate: null,
 };
 
 export const activity_InitialFilter = {
@@ -212,15 +209,15 @@ export const client_InitialFilter = {
 export const kra_InitialFilter = {
   PageNo: 1,
   PageSize: 10,
-  GlobalSearch: "",
-  SortColumn: "",
+  sortColumn: "",
   IsDesc: true,
-  IsDownload: false,
+  GlobalSearch: "",
   StartDate: null,
   EndDate: null,
   Users: [],
   Clients: [],
-  Department: [],
+  DepartmentId: null,
+  IsDownload: false,
 };
 
 export const am_InitialFilter = {

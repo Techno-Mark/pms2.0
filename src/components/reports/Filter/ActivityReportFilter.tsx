@@ -64,6 +64,8 @@ const ActivityReportFilter = ({
     setStartDate("");
     setEndDate("");
     setError("");
+    setFilterName("");
+    setDefaultFilter(false);
 
     sendFilterToPage({
       ...activity_InitialFilter,
@@ -264,6 +266,7 @@ const ActivityReportFilter = ({
         handleClose();
         getFilterList();
         setCurrentFilterId("");
+        sendFilterToPage({ ...activity_InitialFilter });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -276,7 +279,7 @@ const ActivityReportFilter = ({
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -361,7 +364,7 @@ const ActivityReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
@@ -518,7 +521,11 @@ const ActivityReportFilter = ({
               </>
             )}
 
-            <Button variant="outlined" color="info" onClick={handleClose}>
+            <Button
+              variant="outlined"
+              color="info"
+              onClick={() => onDialogClose(false)}
+            >
               Cancel
             </Button>
           </DialogActions>

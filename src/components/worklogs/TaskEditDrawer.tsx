@@ -279,7 +279,7 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
         subProcessWorklogsEdit === 0 ? null : subProcessWorklogsEdit,
       StatusId: statusWorklogsEdit,
       Priority: priorityWorklogsEdit === 0 ? 0 : priorityWorklogsEdit,
-      Quantity: quantityWorklogsEdit,
+      Quantity: quantityWorklogsEdit <= 0 ? null : quantityWorklogsEdit,
       Description:
         descriptionWorklogsEdit.toString().length <= 0
           ? null

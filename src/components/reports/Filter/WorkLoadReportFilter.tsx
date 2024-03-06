@@ -64,6 +64,8 @@ const WorkLoadReportFilter = ({
     setWorkload_Dept(null);
     setWorkload_DateFilter("");
     setWorkload_Error("");
+    setWorkload_FilterName("");
+    setWorkload_DefaultFilter(false);
 
     sendFilterToPage({
       ...workLoad_InitialFilter,
@@ -229,6 +231,7 @@ const WorkLoadReportFilter = ({
         handleUserClose();
         getFilterList();
         setWorkload_CurrentFilterId("");
+        sendFilterToPage({ ...workLoad_InitialFilter });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -241,7 +244,7 @@ const WorkLoadReportFilter = ({
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleUserClose}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -326,7 +329,7 @@ const WorkLoadReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleUserClose}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
@@ -466,7 +469,11 @@ const WorkLoadReportFilter = ({
               </>
             )}
 
-            <Button variant="outlined" color="info" onClick={handleUserClose}>
+            <Button
+              variant="outlined"
+              color="info"
+              onClick={() => onDialogClose(false)}
+            >
               Cancel
             </Button>
           </DialogActions>

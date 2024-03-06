@@ -77,6 +77,8 @@ const APReportFilter = ({
     setStartDate("");
     setEndDate("");
     setError("");
+    setFilterName("");
+    setDefaultFilter(false);
 
     sendFilterToPage({
       ...ap_InitialFilter,
@@ -134,7 +136,7 @@ const APReportFilter = ({
           Clients: savedFilters[index].AppliedFilter.clients,
           Users: savedFilters[index].AppliedFilter.users,
           ReportingManagers: savedFilters[index].AppliedFilter.reportingManager,
-          Department: savedFilters[index].AppliedFilter.department,
+          DepartmentId: savedFilters[index].AppliedFilter.department,
           StartDate: savedFilters[index].AppliedFilter.startDate,
           EndDate: savedFilters[index].AppliedFilter.endDate,
         });
@@ -328,6 +330,7 @@ const APReportFilter = ({
         getFilterList();
         setCurrentFilterId("");
       }
+      sendFilterToPage({ ...ap_InitialFilter });
     };
     callAPI(url, params, successCallback, "POST");
   };
@@ -339,7 +342,7 @@ const APReportFilter = ({
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -424,7 +427,7 @@ const APReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
@@ -635,7 +638,11 @@ const APReportFilter = ({
               </>
             )}
 
-            <Button variant="outlined" color="info" onClick={handleClose}>
+            <Button
+              variant="outlined"
+              color="info"
+              onClick={() => onDialogClose(false)}
+            >
               Cancel
             </Button>
           </DialogActions>

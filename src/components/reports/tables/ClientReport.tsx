@@ -51,7 +51,12 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
           dataCount: data.TotalCount,
         });
       } else {
-        setClientFields({ ...clientFields, loaded: true });
+        setClientFields({
+          ...clientFields,
+          data: [],
+          dataCount: 0,
+          loaded: true,
+        });
       }
     };
 
@@ -102,14 +107,14 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       const timer = setTimeout(() => {
-        getData({ ...filteredData, globalSearch: searchValue });
+        getData({ ...filteredData, GlobalSearch: searchValue });
         setClientCurrentPage(0);
         setClientRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     } else {
       const timer = setTimeout(() => {
-        getData({ ...client_InitialFilter, globalSearch: searchValue });
+        getData({ ...client_InitialFilter, GlobalSearch: searchValue });
       }, 500);
       return () => clearTimeout(timer);
     }

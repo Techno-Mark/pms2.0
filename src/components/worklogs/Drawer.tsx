@@ -1971,7 +1971,7 @@ const EditDrawer = ({
       SubProcessId: subProcessWorklogs === 0 ? null : subProcessWorklogs,
       StatusId: statusWorklogs,
       Priority: priorityWorklogs === 0 ? 0 : priorityWorklogs,
-      Quantity: quantityWorklogs,
+      Quantity: quantityWorklogs <= 0 ? null : quantityWorklogs,
       Description:
         descriptionWorklogs.toString().length <= 0
           ? null

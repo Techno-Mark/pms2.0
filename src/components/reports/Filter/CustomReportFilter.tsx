@@ -146,6 +146,8 @@ const CustomReportFilter = ({
     setAllInfoDate("");
     setError("");
     setResetting(true);
+    setFilterName("");
+    setDefaultFilter(false);
 
     sendFilterToPage({
       ...customreport_InitialFilter,
@@ -564,6 +566,7 @@ const CustomReportFilter = ({
         handleClose();
         getFilterList();
         setCurrentFilterId("");
+        sendFilterToPage({ ...customreport_InitialFilter });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -576,7 +579,7 @@ const CustomReportFilter = ({
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -661,7 +664,7 @@ const CustomReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
@@ -1127,7 +1130,11 @@ const CustomReportFilter = ({
               </>
             )}
 
-            <Button variant="outlined" color="info" onClick={handleClose}>
+            <Button
+              variant="outlined"
+              color="info"
+              onClick={() => onDialogClose(false)}
+            >
               Cancel
             </Button>
           </DialogActions>

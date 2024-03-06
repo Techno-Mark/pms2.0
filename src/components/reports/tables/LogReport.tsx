@@ -86,14 +86,14 @@ const LogReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       const timer = setTimeout(() => {
-        getData({ ...filteredData, globalSearch: searchValue });
+        getData({ ...filteredData, GlobalSearch: searchValue });
         setLogReportCurrentPage(0);
         setLogReportRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     } else {
       const timer = setTimeout(() => {
-        getData({ ...logReport_InitialFilter, globalSearch: searchValue });
+        getData({ ...logReport_InitialFilter, GlobalSearch: searchValue });
       }, 500);
       return () => clearTimeout(timer);
     }

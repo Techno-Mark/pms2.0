@@ -450,7 +450,7 @@ const BillingReport = ({
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Return Year."),
+        customHeadLabelRender: () => generateCustomHeaderName("Return Year"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },

@@ -51,7 +51,7 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
           dataCount: data.TotalCount,
         });
       } else {
-        setWltrFields({ ...wltrFields, loaded: true });
+        setWltrFields({ ...wltrFields, data: [], dataCount: 0, loaded: true });
       }
     };
 
@@ -102,14 +102,14 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       const timer = setTimeout(() => {
-        getData({ ...filteredData, globalSearch: searchValue });
+        getData({ ...filteredData, GlobalSearch: searchValue });
         setWltrCurrentPage(0);
         setWltrRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     } else {
       const timer = setTimeout(() => {
-        getData({ ...wltr_InitialFilter, globalSearch: searchValue });
+        getData({ ...wltr_InitialFilter, GlobalSearch: searchValue });
       }, 500);
       return () => clearTimeout(timer);
     }

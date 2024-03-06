@@ -74,6 +74,8 @@ const UserLogsReportFilter = ({
     setUserlogs_IsloggedIn(0);
     setUserlogs_DateFilter("");
     setUserlogs_Error("");
+    setUserlogs_FilterName("");
+    setUserlogs_DefaultFilter(false);
 
     sendFilterToPage({
       ...userLogs_InitialFilter,
@@ -267,6 +269,7 @@ const UserLogsReportFilter = ({
         handleClose();
         getFilterList();
         setUserlogs_CurrentFilterId("");
+        sendFilterToPage({ ...userLogs_InitialFilter });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -279,7 +282,7 @@ const UserLogsReportFilter = ({
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -364,7 +367,7 @@ const UserLogsReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
@@ -521,7 +524,11 @@ const UserLogsReportFilter = ({
               </>
             )}
 
-            <Button variant="outlined" color="info" onClick={handleClose}>
+            <Button
+              variant="outlined"
+              color="info"
+              onClick={() => onDialogClose(false)}
+            >
               Cancel
             </Button>
           </DialogActions>

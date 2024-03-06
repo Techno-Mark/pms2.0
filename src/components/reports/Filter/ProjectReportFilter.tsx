@@ -95,6 +95,8 @@ const ProjectReportFilter = ({
     setProject_Error("");
     setProject_ProjectDropdown([]);
     setProject_WorkTypeDropdown([]);
+    setProject_FilterName("");
+    setProject_DefaultFilter(false);
 
     sendFilterToPage({
       ...project_filter_InitialFilter,
@@ -357,6 +359,9 @@ const ProjectReportFilter = ({
         handleProject_Close();
         getProject_FilterList();
         setProject_CurrentFilterId("");
+        sendFilterToPage({
+          ...project_filter_InitialFilter,
+        });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -369,7 +374,7 @@ const ProjectReportFilter = ({
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleProject_Close}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -456,7 +461,7 @@ const ProjectReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleProject_Close}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
@@ -676,7 +681,7 @@ const ProjectReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={handleProject_Close}
+              onClick={() => onDialogClose(false)}
             >
               Cancel
             </Button>

@@ -1925,7 +1925,7 @@ const EditDrawer = ({
       SubProcessId: subProcessApprovals === 0 ? null : subProcessApprovals,
       StatusId: statusApprovals,
       Priority: priorityApprovals === 0 ? 0 : priorityApprovals,
-      Quantity: quantityApprovals,
+      Quantity: quantityApprovals <= 0 ? null : quantityApprovals,
       Description:
         descriptionApprovals.toString().length <= 0
           ? null
