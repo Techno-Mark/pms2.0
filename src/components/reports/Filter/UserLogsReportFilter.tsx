@@ -53,8 +53,7 @@ const UserLogsReportFilter = ({
   const [userlogs_userDropdown, setUserlogs_UserDropdown] = useState<any[]>([]);
   const [userlogs_anyFieldSelected, setUserlogs_AnyFieldSelected] =
     useState(false);
-  const [userlogs_currentFilterId, setUserlogs_CurrentFilterId] =
-    useState<any>("");
+  const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [userlogs_savedFilters, setUserlogs_SavedFilters] = useState<any[]>([]);
   const [userlogs_defaultFilter, setUserlogs_DefaultFilter] =
     useState<boolean>(false);
@@ -62,10 +61,14 @@ const UserLogsReportFilter = ({
   const [userlogs_isDeleting, setUserlogs_IsDeleting] =
     useState<boolean>(false);
   const [userlogs_error, setUserlogs_Error] = useState("");
+  const [idFilter, setIdFilter] = useState<any>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
+
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
 
   const handleResetAll = () => {
     setUserlogs_UserNames([]);
@@ -76,6 +79,8 @@ const UserLogsReportFilter = ({
     setUserlogs_Error("");
     setUserlogs_FilterName("");
     setUserlogs_DefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...userLogs_InitialFilter,
@@ -143,8 +148,7 @@ const UserLogsReportFilter = ({
     } else {
       setUserlogs_Error("");
       const params = {
-        filterId:
-          userlogs_currentFilterId !== "" ? userlogs_currentFilterId : null,
+        filterId: currentFilterId !== "" ? currentFilterId : null,
         name: userlogs_filterName,
         AppliedFilter: {
           users: userlogs_userNames.length > 0 ? userlogs_userNames : [],
@@ -221,7 +225,7 @@ const UserLogsReportFilter = ({
   };
 
   const handleSavedFilterEdit = (index: number) => {
-    setUserlogs_CurrentFilterId(userlogs_savedFilters[index].FilterId);
+    setCurrentFilterId(userlogs_savedFilters[index].FilterId);
     setUserlogs_FilterName(userlogs_savedFilters[index].Name);
     setUserlogs_Users(
       userlogs_savedFilters[index].AppliedFilter.users.length > 0
@@ -256,7 +260,7 @@ const UserLogsReportFilter = ({
 
   const handleSavedFilterDelete = async () => {
     const params = {
-      filterId: userlogs_currentFilterId,
+      filterId: currentFilterId,
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
@@ -268,7 +272,7 @@ const UserLogsReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleClose();
         getFilterList();
-        setUserlogs_CurrentFilterId("");
+        setCurrentFilterId("");
         sendFilterToPage({ ...userLogs_InitialFilter });
       }
     };
@@ -297,7 +301,7 @@ const UserLogsReportFilter = ({
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
                 setUserlogs_DefaultFilter(true);
-                setUserlogs_CurrentFilterId(0);
+                setCurrentFilterId(0);
               }}
             >
               Default Filter
@@ -327,7 +331,7 @@ const UserLogsReportFilter = ({
                     <span
                       className="pl-1"
                       onClick={() => {
-                        setUserlogs_CurrentFilterId(i.FilterId);
+                        setCurrentFilterId(i.FilterId);
                         onDialogClose(false);
                         handleSavedFilterApply(index);
                       }}
@@ -343,7 +347,7 @@ const UserLogsReportFilter = ({
                       <span
                         onClick={() => {
                           setUserlogs_IsDeleting(true);
-                          setUserlogs_CurrentFilterId(i.FilterId);
+                          setCurrentFilterId(i.FilterId);
                         }}
                       >
                         <Tooltip title="Delete" placement="top" arrow>
@@ -527,7 +531,11 @@ const UserLogsReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => onDialogClose(false)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
             >
               Cancel
             </Button>

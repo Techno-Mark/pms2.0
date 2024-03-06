@@ -109,12 +109,15 @@ const CustomReportFilter = ({
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [resetting, setResetting] = useState<boolean>(false);
   const [error, setError] = useState("");
+  const [idFilter, setIdFilter] = useState<any>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
+
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
 
   const handleNoOfPageChange = (e: any) => {
     if (/^\d+$/.test(e.target.value.trim())) {
@@ -145,9 +148,10 @@ const CustomReportFilter = ({
     setDueDate("");
     setAllInfoDate("");
     setError("");
-    setResetting(true);
     setFilterName("");
     setDefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...customreport_InitialFilter,
@@ -178,7 +182,6 @@ const CustomReportFilter = ({
     setDueDate("");
     setAllInfoDate("");
     setError("");
-    setResetting(false);
   };
 
   const handleFilterApply = () => {
@@ -367,7 +370,6 @@ const CustomReportFilter = ({
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-    setResetting(false);
   }, [
     clientName,
     projectName,
@@ -418,10 +420,6 @@ const CustomReportFilter = ({
       setStatusDropdown(await getStatusDropdownData(3));
     };
     customDropdowns();
-
-    if (clientName.length > 0 || resetting) {
-      onDialogClose(true);
-    }
   }, [clientName, processName]);
 
   const getFilterList = async () => {
@@ -1020,22 +1018,6 @@ const CustomReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="All Info Date"
-                      value={allInfoDate === "" ? null : dayjs(allInfoDate)}
-                      onChange={(newValue: any) => setAllInfoDate(newValue)}
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
-                >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
                       label="Review From"
                       value={
                         startDateReview === "" ? null : dayjs(startDateReview)
@@ -1062,6 +1044,22 @@ const CustomReportFilter = ({
                       maxDate={dayjs(Date.now())}
                       minDate={dayjs(startDateReview)}
                       onChange={(newValue: any) => setEndDateReview(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="All Info Date"
+                      value={allInfoDate === "" ? null : dayjs(allInfoDate)}
+                      onChange={(newValue: any) => setAllInfoDate(newValue)}
                       slotProps={{
                         textField: {
                           readOnly: true,
@@ -1133,7 +1131,11 @@ const CustomReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => onDialogClose(false)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
             >
               Cancel
             </Button>

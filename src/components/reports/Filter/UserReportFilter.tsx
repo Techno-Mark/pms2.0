@@ -41,7 +41,7 @@ const UserReportFilter = ({
   const [user_deptDropdown, setUser_DeptDropdown] = useState<any[]>([]);
   const [user_userDropdown, setUser_UserDropdown] = useState<any[]>([]);
   const [user_anyFieldSelected, setUser_AnyFieldSelected] = useState(false);
-  const [user_currentFilterId, setUser_CurrentFilterId] = useState<any>("");
+  const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [user_savedFilters, setUser_SavedFilters] = useState<any[]>([]);
   const [user_defaultFilter, setUser_DefaultFilter] = useState<boolean>(false);
   const [user_searchValue, setUser_SearchValue] = useState<string>("");
@@ -49,12 +49,16 @@ const UserReportFilter = ({
   const [user_startDate, setUser_StartDate] = useState<string | number>("");
   const [user_endDate, setUser_EndDate] = useState<string | number>("");
   const [user_error, setUser_Error] = useState("");
+  const [idFilter, setIdFilter] = useState<any>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
 
-  const handleUserResetAll = () => {
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
+
+  const handleResetAll = () => {
     setUser_UserNames([]);
     setUser_Users([]);
     setUser_Dept(null);
@@ -63,6 +67,8 @@ const UserReportFilter = ({
     setUser_Error("");
     setUser_FilterName("");
     setUser_DefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...user_InitialFilter,
@@ -128,7 +134,7 @@ const UserReportFilter = ({
     } else {
       setUser_Error("");
       const params = {
-        filterId: user_currentFilterId !== "" ? user_currentFilterId : null,
+        filterId: currentFilterId !== "" ? currentFilterId : null,
         name: user_filterName,
         AppliedFilter: {
           users: user_userNames.length > 0 ? user_userNames : [],
@@ -207,7 +213,7 @@ const UserReportFilter = ({
   };
 
   const handleUserSavedFilterEdit = (index: number) => {
-    setUser_CurrentFilterId(user_savedFilters[index].FilterId);
+    setCurrentFilterId(user_savedFilters[index].FilterId);
     setUser_FilterName(user_savedFilters[index].Name);
     setUser_Users(
       user_savedFilters[index].AppliedFilter.users.length > 0
@@ -233,7 +239,7 @@ const UserReportFilter = ({
 
   const handleUserSavedFilterDelete = async () => {
     const params = {
-      filterId: user_currentFilterId,
+      filterId: currentFilterId,
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
@@ -245,7 +251,7 @@ const UserReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleUserClose();
         getUserFilterList();
-        setUser_CurrentFilterId("");
+        setCurrentFilterId("");
         sendFilterToPage({ ...user_InitialFilter });
       }
     };
@@ -274,7 +280,7 @@ const UserReportFilter = ({
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
                 setUser_DefaultFilter(true);
-                setUser_CurrentFilterId(0);
+                setCurrentFilterId(0);
               }}
             >
               Default Filter
@@ -304,7 +310,7 @@ const UserReportFilter = ({
                     <span
                       className="pl-1"
                       onClick={() => {
-                        setUser_CurrentFilterId(i.FilterId);
+                        setCurrentFilterId(i.FilterId);
                         onDialogClose(false);
                         handleUserSavedFilterApply(index);
                       }}
@@ -320,7 +326,7 @@ const UserReportFilter = ({
                       <span
                         onClick={() => {
                           setUser_IsDeleting(true);
-                          setUser_CurrentFilterId(i.FilterId);
+                          setCurrentFilterId(i.FilterId);
                         }}
                       >
                         <Tooltip title="Delete" placement="top" arrow>
@@ -333,7 +339,7 @@ const UserReportFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button onClick={handleUserResetAll} className="mt-2" color="error">
+            <Button onClick={handleResetAll} className="mt-2" color="error">
               clear all
             </Button>
           </div>
@@ -348,7 +354,7 @@ const UserReportFilter = ({
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleUserResetAll}>
+            <Button color="error" onClick={handleResetAll}>
               Reset all
             </Button>
           </DialogTitle>
@@ -503,7 +509,11 @@ const UserReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => onDialogClose(false)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
             >
               Cancel
             </Button>

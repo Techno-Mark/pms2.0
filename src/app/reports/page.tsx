@@ -55,22 +55,22 @@ import KRAReportFilter from "@/components/reports/Filter/KRAReportFilter";
 import ClientReportFilter from "@/components/reports/Filter/ClientReportFilter";
 
 const allTabs = [
-  { label: "project", value: 1 },
-  { label: "user", value: 2 },
-  { label: "timesheet", value: 3 },
-  { label: "workload", value: 4 },
-  { label: "billing", value: 7 },
-  { label: "custom", value: 8 },
-  { label: "user log", value: 5 },
-  { label: "audit", value: 6 },
-  { label: "rating", value: 9 },
-  { label: "log", value: 10 },
-  { label: "activity", value: 11 },
-  { label: "actual/planned", value: 12 },
-  { label: "client", value: 13 },
-  { label: "kra", value: 14 },
-  { label: "auto/manual", value: 15 },
-  { label: "wltr", value: 16 },
+  { label: "project", value: 1, name: "Project" },
+  { label: "user", value: 2, name: "User" },
+  { label: "timesheet", value: 3, name: "Timesheet" },
+  { label: "workload", value: 4, name: "Workload" },
+  { label: "billing", value: 7, name: "Billing" },
+  { label: "custom", value: 8, name: "Custom" },
+  { label: "user log", value: 5, name: "User Log" },
+  { label: "audit", value: 6, name: "Audit" },
+  { label: "rating", value: 9, name: "Rating" },
+  { label: "log", value: 10, name: "Log" },
+  { label: "activity", value: 11, name: "Activity" },
+  { label: "actual/planned", value: 12, name: "Actual/Planned" },
+  { label: "client", value: 13, name: "Client" },
+  { label: "kra", value: 14, name: "KRA" },
+  { label: "auto/manual", value: 15, name: "Auto/Manual" },
+  { label: "wltr", value: 16, name: "WLTR" },
 ];
 
 const MoreTabs = ({ moreTabs, handleMoreTabsClick }: any) => {
@@ -91,10 +91,8 @@ const MoreTabs = ({ moreTabs, handleMoreTabsClick }: any) => {
             } ${index === moreTabs.length - 1 ? "rounded-b" : ""}`}
             onClick={() => handleMoreTabsClick(tab, index)}
           >
-            <label
-              className={`mx-4 my-1 flex capitalize cursor-pointer text-base`}
-            >
-              {tab.label}
+            <label className={`mx-4 my-1 flex cursor-pointer text-base`}>
+              {tab.name}
             </label>
           </div>
         ))}
@@ -327,14 +325,14 @@ const Page = () => {
                 .map((tab: any, index: number) => (
                   <Fragment key={tab.value}>
                     <label
-                      className={`mx-4 capitalize cursor-pointer text-base ${
+                      className={`mx-4 cursor-pointer text-base ${
                         activeTab === tab.value
                           ? "text-secondary font-semibold"
                           : "text-slatyGrey"
                       }`}
                       onClick={() => handleTabChange(tab.value)}
                     >
-                      {tab.label}
+                      {tab.name}
                     </label>
                     <LineIcon />
                   </Fragment>

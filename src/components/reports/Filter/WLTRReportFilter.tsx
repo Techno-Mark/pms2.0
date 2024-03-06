@@ -47,13 +47,15 @@ const WLTRReportFilter = ({
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [resetting, setResetting] = useState<boolean>(false);
   const [error, setError] = useState("");
+  const [idFilter, setIdFilter] = useState<any>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
-
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
+
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
 
   const handleResetAll = () => {
     setClientName([]);
@@ -63,6 +65,8 @@ const WLTRReportFilter = ({
     setError("");
     setFilterName("");
     setDefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...wltr_InitialFilter,
@@ -70,7 +74,6 @@ const WLTRReportFilter = ({
   };
 
   const handleClose = () => {
-    setResetting(false);
     setFilterName("");
     onDialogClose(false);
     setDefaultFilter(false);
@@ -129,7 +132,7 @@ const WLTRReportFilter = ({
     }
     setError("");
     const params = {
-      filterId: !!currentFilterId ?? currentFilterId,
+      filterId: currentFilterId !== "" ? currentFilterId : null,
       name: filterName,
       AppliedFilter: {
         Clients: clientName,
@@ -177,7 +180,6 @@ const WLTRReportFilter = ({
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-    setResetting(false);
   }, [clientName, startDate, endDate]);
 
   useEffect(() => {
@@ -484,7 +486,11 @@ const WLTRReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => onDialogClose(false)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
             >
               Cancel
             </Button>

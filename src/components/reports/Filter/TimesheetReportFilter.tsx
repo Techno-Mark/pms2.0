@@ -43,8 +43,7 @@ const TimesheetReportFilter = ({
   const [timesheetUserDropdown, setTimesheetUserDropdown] = useState<any[]>([]);
   const [timesheetAnyFieldSelected, setTimesheetAnyFieldSelected] =
     useState(false);
-  const [timesheetCurrentFilterId, setTimesheetCurrentFilterId] =
-    useState<any>("");
+  const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [timesheetSavedFilters, setTimesheetSavedFilters] = useState<any[]>([]);
   const [timesheetDefaultFilter, setTimesheetDefaultFilter] =
     useState<boolean>(false);
@@ -56,12 +55,16 @@ const TimesheetReportFilter = ({
   );
   const [timesheetEndDate, setTimesheetEndDate] = useState<string | number>("");
   const [timesheetError, setTimesheetError] = useState("");
+  const [idFilter, setIdFilter] = useState<any>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
 
-  const handleTimesheetResetAll = () => {
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
+
+  const handleResetAll = () => {
     setTimesheetUserNames([]);
     setTimesheetUsers([]);
     setTimesheetDept(null);
@@ -70,6 +73,8 @@ const TimesheetReportFilter = ({
     setTimesheetError("");
     setTimesheetFilterName("");
     setTimesheetDefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...timeSheet_InitialFilter,
@@ -137,8 +142,7 @@ const TimesheetReportFilter = ({
     } else {
       setTimesheetError("");
       const params = {
-        filterId:
-          timesheetCurrentFilterId !== "" ? timesheetCurrentFilterId : null,
+        filterId: currentFilterId !== "" ? currentFilterId : null,
         name: timesheetFilterName,
         AppliedFilter: {
           users: timesheetUserNames.length > 0 ? timesheetUserNames : [],
@@ -217,7 +221,7 @@ const TimesheetReportFilter = ({
   };
 
   const handleTimesheetSavedFilterEdit = (index: number) => {
-    setTimesheetCurrentFilterId(timesheetSavedFilters[index].FilterId);
+    setCurrentFilterId(timesheetSavedFilters[index].FilterId);
     setTimesheetFilterName(timesheetSavedFilters[index].Name);
     setTimesheetUsers(
       timesheetSavedFilters[index].AppliedFilter.users.length > 0
@@ -250,7 +254,7 @@ const TimesheetReportFilter = ({
 
   const handleTimesheetSavedFilterDelete = async () => {
     const params = {
-      filterId: timesheetCurrentFilterId,
+      filterId: currentFilterId,
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
@@ -262,7 +266,7 @@ const TimesheetReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleTimesheetClose();
         getTimesheetFilterList();
-        setTimesheetCurrentFilterId("");
+        setCurrentFilterId("");
         sendFilterToPage({ ...timeSheet_InitialFilter });
       }
     };
@@ -291,7 +295,7 @@ const TimesheetReportFilter = ({
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
                 setTimesheetDefaultFilter(true);
-                setTimesheetCurrentFilterId(0);
+                setCurrentFilterId(0);
               }}
             >
               Default Filter
@@ -321,7 +325,7 @@ const TimesheetReportFilter = ({
                     <span
                       className="pl-1"
                       onClick={() => {
-                        setTimesheetCurrentFilterId(i.FilterId);
+                        setCurrentFilterId(i.FilterId);
                         onDialogClose(false);
                         handleTimesheetSavedFilterApply(index);
                       }}
@@ -339,7 +343,7 @@ const TimesheetReportFilter = ({
                       <span
                         onClick={() => {
                           setTimesheetIsDeleting(true);
-                          setTimesheetCurrentFilterId(i.FilterId);
+                          setCurrentFilterId(i.FilterId);
                         }}
                       >
                         <Tooltip title="Delete" placement="top" arrow>
@@ -352,11 +356,7 @@ const TimesheetReportFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button
-              onClick={handleTimesheetResetAll}
-              className="mt-2"
-              color="error"
-            >
+            <Button onClick={handleResetAll} className="mt-2" color="error">
               clear all
             </Button>
           </div>
@@ -371,7 +371,7 @@ const TimesheetReportFilter = ({
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleTimesheetResetAll}>
+            <Button color="error" onClick={handleResetAll}>
               Reset all
             </Button>
           </DialogTitle>
@@ -534,7 +534,11 @@ const TimesheetReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => onDialogClose(false)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
             >
               Cancel
             </Button>

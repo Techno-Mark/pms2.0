@@ -65,12 +65,15 @@ const BillingReportFilter = ({
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [resetting, setResetting] = useState<boolean>(false);
   const [error, setError] = useState("");
+  const [idFilter, setIdFilter] = useState<any>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
+
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
 
   const handleNoOfPageChange = (e: any) => {
     if (/^\d+$/.test(e.target.value.trim())) {
@@ -92,16 +95,16 @@ const BillingReportFilter = ({
     setAssignee(null);
     setReviewer(null);
     setNoOfPages("");
-    setResetting(true);
     setIsBTC(false);
     setStartDate("");
     setEndDate("");
     setStartDateReview("");
     setEndDateReview("");
     setError("");
-    setResetting(false);
     setFilterName("");
     setDefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...billingreport_InitialFilter,
@@ -109,7 +112,6 @@ const BillingReportFilter = ({
   };
 
   const handleClose = () => {
-    setResetting(false);
     setFilterName("");
     onDialogClose(false);
     setDefaultFilter(false);
@@ -269,7 +271,6 @@ const BillingReportFilter = ({
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-    setResetting(false);
   }, [
     clientName,
     projectName,
@@ -301,10 +302,6 @@ const BillingReportFilter = ({
         : setReviewerDropdown([]);
     };
     filterDropdowns();
-
-    if (clientName.length > 0 || resetting) {
-      onDialogClose(true);
-    }
   }, [clientName]);
 
   useEffect(() => {
@@ -769,7 +766,11 @@ const BillingReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => onDialogClose(false)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
             >
               Cancel
             </Button>

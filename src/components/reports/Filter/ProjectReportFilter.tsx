@@ -69,27 +69,28 @@ const ProjectReportFilter = ({
   );
   const [project_anyFieldSelected, setProject_AnyFieldSelected] =
     useState(false);
-  const [project_currentFilterId, setProject_CurrentFilterId] =
-    useState<any>("");
+  const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [project_savedFilters, setProject_SavedFilters] = useState<any[]>([]);
   const [project_defaultFilter, setProject_DefaultFilter] =
     useState<boolean>(false);
   const [project_searchValue, setProject_SearchValue] = useState<string>("");
   const [project_isDeleting, setProject_IsDeleting] = useState<boolean>(false);
-  const [project_resetting, setProject_Resetting] = useState<boolean>(false);
   const [project_error, setProject_Error] = useState("");
+  const [idFilter, setIdFilter] = useState<any>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
 
-  const handleProject_ResetAll = () => {
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
+
+  const handleResetAll = () => {
     setProject_ClientName([]);
     setProject_Clients([]);
     setProject_Projects(null);
     setProject_TypeOfWork(null);
     setProject_BillingType(null);
-    setProject_Resetting(true);
     setProject_StartDate("");
     setProject_EndDate("");
     setProject_Error("");
@@ -97,6 +98,8 @@ const ProjectReportFilter = ({
     setProject_WorkTypeDropdown([]);
     setProject_FilterName("");
     setProject_DefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...project_filter_InitialFilter,
@@ -105,7 +108,6 @@ const ProjectReportFilter = ({
 
   const handleProject_Close = () => {
     onDialogClose(false);
-    setProject_Resetting(false);
     setProject_FilterName("");
     setProject_DefaultFilter(false);
     setProject_Clients([]);
@@ -170,8 +172,7 @@ const ProjectReportFilter = ({
     } else {
       setProject_Error("");
       const params = {
-        filterId:
-          project_currentFilterId !== "" ? project_currentFilterId : null,
+        filterId: currentFilterId !== "" ? currentFilterId : null,
         name: project_filterName,
         AppliedFilter: {
           clients: project_clientName.length > 0 ? project_clientName : [],
@@ -228,7 +229,6 @@ const ProjectReportFilter = ({
 
     setProject_AnyFieldSelected(isAnyFieldSelected);
     setProject_SaveFilter(false);
-    setProject_Resetting(false);
   }, [
     project_typeOfWork,
     project_billingType,
@@ -248,10 +248,6 @@ const ProjectReportFilter = ({
       setProject_BillingTypeDropdown(await getBillingTypeData());
     };
     filterDropdowns();
-
-    if (project_clientName.length > 0 || project_resetting) {
-      onDialogClose(true);
-    }
   }, [project_clientName]);
 
   useEffect(() => {
@@ -289,7 +285,7 @@ const ProjectReportFilter = ({
     setProject_SaveFilter(true);
     setProject_DefaultFilter(true);
     setProject_FilterName(project_savedFilters[index].Name);
-    setProject_CurrentFilterId(project_savedFilters[index].FilterId);
+    setCurrentFilterId(project_savedFilters[index].FilterId);
 
     setProject_Clients(
       project_savedFilters[index].AppliedFilter.clients.length > 0
@@ -346,7 +342,7 @@ const ProjectReportFilter = ({
 
   const handleProject_SavedFilterDelete = async () => {
     const params = {
-      filterId: project_currentFilterId,
+      filterId: currentFilterId,
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
@@ -358,7 +354,7 @@ const ProjectReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleProject_Close();
         getProject_FilterList();
-        setProject_CurrentFilterId("");
+        setCurrentFilterId("");
         sendFilterToPage({
           ...project_filter_InitialFilter,
         });
@@ -389,7 +385,7 @@ const ProjectReportFilter = ({
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
                 setProject_DefaultFilter(true);
-                setProject_CurrentFilterId(0);
+                setCurrentFilterId(0);
               }}
             >
               Default Filter
@@ -418,7 +414,7 @@ const ProjectReportFilter = ({
                   <span
                     className="pl-1"
                     onClick={() => {
-                      setProject_CurrentFilterId(i.FilterId);
+                      setCurrentFilterId(i.FilterId);
                       onDialogClose(false);
                       handleProject_SavedFilterApply(index);
                     }}
@@ -434,7 +430,7 @@ const ProjectReportFilter = ({
                     <span
                       onClick={() => {
                         setProject_IsDeleting(true);
-                        setProject_CurrentFilterId(i.FilterId);
+                        setCurrentFilterId(i.FilterId);
                       }}
                     >
                       <Tooltip title="Delete" placement="top" arrow>
@@ -446,11 +442,7 @@ const ProjectReportFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button
-              onClick={handleProject_ResetAll}
-              className="mt-2"
-              color="error"
-            >
+            <Button onClick={handleResetAll} className="mt-2" color="error">
               clear all
             </Button>
           </div>
@@ -465,7 +457,7 @@ const ProjectReportFilter = ({
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleProject_ResetAll}>
+            <Button color="error" onClick={handleResetAll}>
               Reset all
             </Button>
           </DialogTitle>
@@ -681,14 +673,17 @@ const ProjectReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => onDialogClose(false)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
             >
               Cancel
             </Button>
           </DialogActions>
         </Dialog>
       )}
-
       <DeleteDialog
         isOpen={project_isDeleting}
         onClose={() => setProject_IsDeleting(false)}

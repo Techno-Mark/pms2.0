@@ -61,13 +61,15 @@ const LogReportFilter = ({
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [resetting, setResetting] = useState<boolean>(false);
   const [error, setError] = useState("");
+  const [idFilter, setIdFilter] = useState<any>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
-
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
+
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
 
   const handleResetAll = () => {
     setClientName([]);
@@ -84,6 +86,8 @@ const LogReportFilter = ({
     setError("");
     setFilterName("");
     setDefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...logReport_InitialFilter,
@@ -91,7 +95,6 @@ const LogReportFilter = ({
   };
 
   const handleClose = () => {
-    setResetting(false);
     setFilterName("");
     onDialogClose(false);
     setDefaultFilter(false);
@@ -161,7 +164,7 @@ const LogReportFilter = ({
     }
     setError("");
     const params = {
-      filterId: !!currentFilterId ?? currentFilterId,
+      filterId: currentFilterId !== "" ? currentFilterId : null,
       name: filterName,
       AppliedFilter: {
         ClientFilter: clientName,
@@ -215,7 +218,6 @@ const LogReportFilter = ({
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-    setResetting(false);
   }, [clientName, projectName, processName, updatedByName, startDate, endDate]);
 
   useEffect(() => {
@@ -672,7 +674,11 @@ const LogReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => onDialogClose(false)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
             >
               Cancel
             </Button>

@@ -396,11 +396,6 @@ const reportsAPColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    header: "TaskDate",
-    label: "Created On",
-    bodyRenderer: generateDateWithoutTime,
-  },
-  {
     header: "ProcessName",
     label: "Process",
     bodyRenderer: generateCommonBodyRender,
@@ -409,6 +404,16 @@ const reportsAPColConfig = [
     header: "SubProcessName",
     label: "Sub-Process",
     bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "DepartmentName",
+    label: "Department Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "TaskDate",
+    label: "Created On",
+    bodyRenderer: generateDateWithoutTime,
   },
   {
     header: "Description",
@@ -494,9 +499,19 @@ const reportsKRAColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
+    header: "DepartmentName",
+    label: "Department Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     header: "StdTime",
     label: "STD Time",
     bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "Quantity",
+    label: "QTY",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "AutoTime",
@@ -512,11 +527,6 @@ const reportsKRAColConfig = [
     header: "TotalTime",
     label: "Total Time",
     bodyRenderer: generateInitialTimer,
-  },
-  {
-    header: "Quantity",
-    label: "QTY",
-    bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "Efficiency",

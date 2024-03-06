@@ -57,13 +57,15 @@ const ClientReportFilter = ({
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [resetting, setResetting] = useState<boolean>(false);
   const [error, setError] = useState("");
+  const [idFilter, setIdFilter] = useState<any>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
-
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
+
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
 
   const handleResetAll = () => {
     setStartDate("");
@@ -76,6 +78,8 @@ const ClientReportFilter = ({
     setBillingType(null);
     setFilterName("");
     setDefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...client_InitialFilter,
@@ -83,7 +87,6 @@ const ClientReportFilter = ({
   };
 
   const handleClose = () => {
-    setResetting(false);
     setFilterName("");
     onDialogClose(false);
     setDefaultFilter(false);
@@ -151,7 +154,7 @@ const ClientReportFilter = ({
     }
     setError("");
     const params = {
-      filterId: !!currentFilterId ?? currentFilterId,
+      filterId: currentFilterId !== "" ? currentFilterId : null,
       name: filterName,
       AppliedFilter: {
         Clients: client !== null ? [client.value] : [],
@@ -205,7 +208,6 @@ const ClientReportFilter = ({
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-    setResetting(false);
   }, [client, typeOfWork, department, billingType, startDate, endDate]);
 
   useEffect(() => {
@@ -606,7 +608,11 @@ const ClientReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => onDialogClose(false)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
             >
               Cancel
             </Button>

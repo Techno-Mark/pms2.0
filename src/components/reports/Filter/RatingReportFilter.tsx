@@ -61,8 +61,7 @@ const RatingReportFilter = ({
     useState<any[]>([]);
   const [ratingreport_anyFieldSelected, setRatingReport_AnyFieldSelected] =
     useState(false);
-  const [ratingreport_currentFilterId, setRatingReport_CurrentFilterId] =
-    useState<any>("");
+  const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [ratingreport_savedFilters, setRatingReport_SavedFilters] = useState<
     any[]
   >([]);
@@ -72,13 +71,16 @@ const RatingReportFilter = ({
     useState<string>("");
   const [ratingreport_isDeleting, setRatingReport_IsDeleting] =
     useState<boolean>(false);
-  const [ratingreport_resetting, setRatingReport_Resetting] =
-    useState<boolean>(false);
   const [ratingreport_error, setRatingReport_Error] = useState("");
+  const [idFilter, setIdFilter] = useState<any>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
+
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
+
   const ratingReport_Dropdown = [
     {
       label: "Individual Return",
@@ -97,7 +99,7 @@ const RatingReportFilter = ({
     { label: "5", value: "5" },
   ];
 
-  const handleRatingReport_ResetAll = () => {
+  const handleResetAll = () => {
     setRatingReport_Clients([]);
     setRatingReport_ClientName([]);
     setRatingReport_ProjectName(null);
@@ -105,10 +107,11 @@ const RatingReportFilter = ({
     setRatingReport_StartDate(null);
     setRatingReport_EndDate(null);
     setRatingReport_Ratings(null);
-    setRatingReport_Resetting(true);
     setRatingReport_Error("");
     setRatingReport_FilterName("");
     setRatingReport_DefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...rating_InitialFilter,
@@ -117,7 +120,6 @@ const RatingReportFilter = ({
 
   const handleRatingReport_Close = () => {
     onDialogClose(false);
-    setRatingReport_Resetting(false);
     setRatingReport_FilterName("");
     setRatingReport_DefaultFilter(false);
     setRatingReport_ClientName([]);
@@ -189,10 +191,7 @@ const RatingReportFilter = ({
     } else {
       setRatingReport_Error("");
       const params = {
-        filterId:
-          ratingreport_currentFilterId !== ""
-            ? ratingreport_currentFilterId
-            : null,
+        filterId: currentFilterId !== "" ? currentFilterId : null,
         name: ratingreport_filterName,
         AppliedFilter: {
           Clients:
@@ -261,7 +260,7 @@ const RatingReportFilter = ({
     setRatingReport_SaveFilter(true);
     setRatingReport_DefaultFilter(true);
     setRatingReport_FilterName(ratingreport_savedFilters[index].Name);
-    setRatingReport_CurrentFilterId(ratingreport_savedFilters[index].FilterId);
+    setCurrentFilterId(ratingreport_savedFilters[index].FilterId);
 
     setRatingReport_Clients(
       ratingreport_savedFilters[index].AppliedFilter.Clients.length > 0
@@ -317,7 +316,7 @@ const RatingReportFilter = ({
 
   const handleRatingReport_SavedFilterDelete = async () => {
     const params = {
-      filterId: ratingreport_currentFilterId,
+      filterId: currentFilterId,
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
@@ -329,7 +328,7 @@ const RatingReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleRatingReport_Close();
         getRatingReport_FilterList();
-        setRatingReport_CurrentFilterId("");
+        setCurrentFilterId("");
         sendFilterToPage({ ...rating_InitialFilter });
       }
     };
@@ -351,7 +350,6 @@ const RatingReportFilter = ({
 
     setRatingReport_AnyFieldSelected(isAnyFieldSelected);
     setRatingReport_SaveFilter(false);
-    setRatingReport_Resetting(false);
   }, [
     ratingreport_clientName,
     ratingreport_projectName,
@@ -372,10 +370,6 @@ const RatingReportFilter = ({
       );
     };
     filterDropdowns();
-
-    if (ratingreport_clientName.length > 0 || ratingreport_resetting) {
-      onDialogClose(true);
-    }
   }, [ratingreport_clientName]);
 
   return (
@@ -400,7 +394,7 @@ const RatingReportFilter = ({
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
                 setRatingReport_DefaultFilter(true);
-                setRatingReport_CurrentFilterId(0);
+                setCurrentFilterId(0);
               }}
             >
               Default Filter
@@ -432,7 +426,7 @@ const RatingReportFilter = ({
                     <span
                       className="pl-1"
                       onClick={() => {
-                        setRatingReport_CurrentFilterId(i.FilterId);
+                        setCurrentFilterId(i.FilterId);
                         onDialogClose(false);
                         handleRatingReport_SavedFilterApply(index);
                       }}
@@ -452,7 +446,7 @@ const RatingReportFilter = ({
                       <span
                         onClick={() => {
                           setRatingReport_IsDeleting(true);
-                          setRatingReport_CurrentFilterId(i.FilterId);
+                          setCurrentFilterId(i.FilterId);
                         }}
                       >
                         <Tooltip title="Delete" placement="top" arrow>
@@ -465,11 +459,7 @@ const RatingReportFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button
-              onClick={handleRatingReport_ResetAll}
-              className="mt-2"
-              color="error"
-            >
+            <Button onClick={handleResetAll} className="mt-2" color="error">
               clear all
             </Button>
           </div>
@@ -484,7 +474,7 @@ const RatingReportFilter = ({
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleRatingReport_ResetAll}>
+            <Button color="error" onClick={handleResetAll}>
               Reset all
             </Button>
           </DialogTitle>
@@ -698,7 +688,11 @@ const RatingReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => onDialogClose(false)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
             >
               Cancel
             </Button>

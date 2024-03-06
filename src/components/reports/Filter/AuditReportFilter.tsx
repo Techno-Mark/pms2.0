@@ -53,13 +53,15 @@ const AuditReportFilter = ({
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [resetting, setResetting] = useState<boolean>(false);
   const [error, setError] = useState("");
+  const [idFilter, setIdFilter] = useState<any>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
-
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
+
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
 
   const handleResetAll = () => {
     setAuditClientName([]);
@@ -71,6 +73,8 @@ const AuditReportFilter = ({
     setError("");
     setFilterName("");
     setDefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...audit_InitialFilter,
@@ -78,7 +82,6 @@ const AuditReportFilter = ({
   };
 
   const handleClose = () => {
-    setResetting(false);
     setFilterName("");
     onDialogClose(false);
     setDefaultFilter(false);
@@ -141,7 +144,7 @@ const AuditReportFilter = ({
     }
     setError("");
     const params = {
-      filterId: !!currentFilterId ?? currentFilterId,
+      filterId: currentFilterId !== "" ? currentFilterId : null,
       name: filterName,
       AppliedFilter: {
         clients: auditClientName,
@@ -191,7 +194,6 @@ const AuditReportFilter = ({
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-    setResetting(false);
   }, [auditClientName, userName, startDate, endDate]);
 
   useEffect(() => {
@@ -200,10 +202,6 @@ const AuditReportFilter = ({
       setUserDropdown(await getCCDropdownData());
     };
     filterDropdowns();
-
-    // if (auditClientName.length > 0 || resetting) {
-    //   onDialogClose(true);
-    // }
   }, []);
 
   const getFilterList = async () => {
@@ -543,7 +541,11 @@ const AuditReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => onDialogClose(false)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
             >
               Cancel
             </Button>

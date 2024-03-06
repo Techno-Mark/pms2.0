@@ -44,8 +44,7 @@ const WorkLoadReportFilter = ({
   const [workload_userDropdown, setWorkload_UserDropdown] = useState<any[]>([]);
   const [workload_anyFieldSelected, setWorkload_AnyFieldSelected] =
     useState(false);
-  const [workload_currentFilterId, setWorkload_CurrentFilterId] =
-    useState<any>("");
+  const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [workload_savedFilters, setWorkload_SavedFilters] = useState<any[]>([]);
   const [workload_defaultFilter, setWorkload_DefaultFilter] =
     useState<boolean>(false);
@@ -53,12 +52,16 @@ const WorkLoadReportFilter = ({
   const [workload_isDeleting, setWorkload_IsDeleting] =
     useState<boolean>(false);
   const [workload_error, setWorkload_Error] = useState("");
+  const [idFilter, setIdFilter] = useState<any>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
 
-  const handleUserResetAll = () => {
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
+
+  const handleResetAll = () => {
     setWorkload_UserNames([]);
     setWorkload_Users([]);
     setWorkload_Dept(null);
@@ -66,6 +69,8 @@ const WorkLoadReportFilter = ({
     setWorkload_Error("");
     setWorkload_FilterName("");
     setWorkload_DefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...workLoad_InitialFilter,
@@ -124,7 +129,7 @@ const WorkLoadReportFilter = ({
     } else {
       setWorkload_Error("");
       const params = {
-        filterId: !workload_currentFilterId ? null : workload_currentFilterId,
+        filterId: !currentFilterId ? null : currentFilterId,
         name: workload_filterName,
         AppliedFilter: {
           users: workload_userNames.length > 0 ? workload_userNames : [],
@@ -198,7 +203,7 @@ const WorkLoadReportFilter = ({
         : []
     );
     setWorkload_UserNames(workload_savedFilters[index].AppliedFilter.users);
-    setWorkload_CurrentFilterId(workload_savedFilters[index].FilterId);
+    setCurrentFilterId(workload_savedFilters[index].FilterId);
     setWorkload_FilterName(workload_savedFilters[index].Name);
     setWorkload_Dept(
       workload_savedFilters[index].AppliedFilter.Department === null
@@ -218,7 +223,7 @@ const WorkLoadReportFilter = ({
 
   const handleSavedFilterDelete = async () => {
     const params = {
-      filterId: workload_currentFilterId,
+      filterId: currentFilterId,
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
@@ -230,7 +235,7 @@ const WorkLoadReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleUserClose();
         getFilterList();
-        setWorkload_CurrentFilterId("");
+        setCurrentFilterId("");
         sendFilterToPage({ ...workLoad_InitialFilter });
       }
     };
@@ -259,7 +264,7 @@ const WorkLoadReportFilter = ({
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
                 setWorkload_DefaultFilter(true);
-                setWorkload_CurrentFilterId(0);
+                setCurrentFilterId(0);
               }}
             >
               Default Filter
@@ -289,7 +294,7 @@ const WorkLoadReportFilter = ({
                     <span
                       className="pl-1"
                       onClick={() => {
-                        setWorkload_CurrentFilterId(i.FilterId);
+                        setCurrentFilterId(i.FilterId);
                         onDialogClose(false);
                         handleSavedFilterApply(index);
                       }}
@@ -305,7 +310,7 @@ const WorkLoadReportFilter = ({
                       <span
                         onClick={() => {
                           setWorkload_IsDeleting(true);
-                          setWorkload_CurrentFilterId(i.FilterId);
+                          setCurrentFilterId(i.FilterId);
                         }}
                       >
                         <Tooltip title="Delete" placement="top" arrow>
@@ -318,7 +323,7 @@ const WorkLoadReportFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button onClick={handleUserResetAll} className="mt-2" color="error">
+            <Button onClick={handleResetAll} className="mt-2" color="error">
               clear all
             </Button>
           </div>
@@ -333,7 +338,7 @@ const WorkLoadReportFilter = ({
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleUserResetAll}>
+            <Button color="error" onClick={handleResetAll}>
               Reset all
             </Button>
           </DialogTitle>
@@ -472,7 +477,11 @@ const WorkLoadReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => onDialogClose(false)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
             >
               Cancel
             </Button>

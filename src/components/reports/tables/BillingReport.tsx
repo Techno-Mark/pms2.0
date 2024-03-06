@@ -565,6 +565,17 @@ const BillingReport = ({
         onPageChange={handleChangePage}
         rowsPerPage={billingRowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        rowsPerPageOptions={
+          billingReportFields.dataCount <= 10
+            ? [10, 25, 50, 100]
+            : billingReportFields.dataCount <= 20
+            ? [10, billingReportFields.dataCount]
+            : billingReportFields.dataCount <= 30
+            ? [10, 20, billingReportFields.dataCount]
+            : billingReportFields.dataCount <= 50
+            ? [10, 25, billingReportFields.dataCount]
+            : [10, 25, 50, billingReportFields.dataCount]
+        }
       />
     </ThemeProvider>
   ) : (
