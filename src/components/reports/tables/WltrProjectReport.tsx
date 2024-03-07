@@ -3,12 +3,11 @@ import {
   generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { TablePagination, ThemeProvider } from "@mui/material";
 import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
-import { ThemeProvider } from "@mui/styles";
 import MUIDataTable from "mui-datatables";
 import React, { useEffect, useState } from "react";
 import { FieldsType } from "../types/FieldsType";
-import { TablePagination } from "@mui/material";
 import { options } from "@/utils/datatable/TableOptions";
 import ReportLoader from "@/components/common/ReportLoader";
 import { callAPI } from "@/utils/API/callAPI";
@@ -200,13 +199,16 @@ const WltrProjectReport = ({ searchValue, filteredData }: any) => {
     generateCustomColumn(col.header, col.label, col.bodyRenderer)
   );
 
-  return true ? (
+  return wltrFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={reportsWLTRCols}
         data={wltrFields.data}
         title={undefined}
-        options={{ ...options, tableBodyHeight: "72vh" }}
+        options={{
+          ...options,
+          tableBodyHeight: "72vh",
+        }}
       />
       <TablePagination
         component="div"

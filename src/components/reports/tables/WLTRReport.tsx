@@ -215,7 +215,17 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
                         (i: any, index: any) => (
                           <TableRow key={index}>
                             <TableCell className="!pl-[4.5rem] w-[15rem]">
-                              {i.ProjectName === null ? "-" : i.ProjectName}
+                              {i.ProjectName === null ? (
+                                "-"
+                              ) : (
+                                <a
+                                  target="_blank"
+                                  href={`${process.env.redirectURLWLTR}${i.ProjectId}`}
+                                  className="text-[#0592C6] cursor-pointer"
+                                >
+                                  {i.ProjectName}
+                                </a>
+                              )}
                             </TableCell>
                             <TableCell className="w-[17.5rem]">
                               {i.TotalHours === null
@@ -223,15 +233,9 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
                                 : i.TotalHours}
                             </TableCell>
                             <TableCell className="w-[18.5rem]">
-                              <a
-                                target="_blank"
-                                href={`${process.env.redirectURLWLTR}${i.ProjectId}`}
-                                className="text-[#0592C6] cursor-pointer"
-                              >
-                                {i.ApprovedHours === null
-                                  ? "00:00:00"
-                                  : i.ApprovedHours}
-                              </a>
+                              {i.ApprovedHours === null
+                                ? "00:00:00"
+                                : i.ApprovedHours}
                             </TableCell>
                             <TableCell className="w-[18.5rem]">
                               {i.RejectedHours === null

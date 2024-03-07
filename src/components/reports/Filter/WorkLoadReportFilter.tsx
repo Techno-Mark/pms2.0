@@ -157,6 +157,10 @@ const WorkLoadReportFilter = ({
   };
 
   useEffect(() => {
+    getFilterList();
+  }, []);
+
+  useEffect(() => {
     const isAnyFieldSelected =
       workload_dept !== null ||
       workload_dateFilter !== "" ||
