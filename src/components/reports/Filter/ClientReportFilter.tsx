@@ -130,12 +130,12 @@ const ClientReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...client_InitialFilter,
-          Client: savedFilters[index].AppliedFilter.clients,
-          TypeOfWork: savedFilters[index].AppliedFilter.typeOfWork,
-          Department: savedFilters[index].AppliedFilter.department,
-          BillingType: savedFilters[index].AppliedFilter.billingType,
-          StartDate: savedFilters[index].AppliedFilter.startDate,
-          EndDate: savedFilters[index].AppliedFilter.endDate,
+          Client: savedFilters[index].AppliedFilter.Client,
+          TypeOfWork: savedFilters[index].AppliedFilter.TypeOfWork,
+          Department: savedFilters[index].AppliedFilter.Department,
+          BillingType: savedFilters[index].AppliedFilter.BillingType,
+          StartDate: savedFilters[index].AppliedFilter.StartDate,
+          EndDate: savedFilters[index].AppliedFilter.EndDate,
         });
       }
     }

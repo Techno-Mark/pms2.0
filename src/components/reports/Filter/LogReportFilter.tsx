@@ -21,7 +21,7 @@ import dayjs from "dayjs";
 import { getFormattedDate } from "@/utils/timerFunctions";
 import { logReport_InitialFilter } from "@/utils/reports/getFilters";
 import { toast } from "react-toastify";
-import { kraReport } from "../Enum/Filtertype";
+import { logReport } from "../Enum/Filtertype";
 import { callAPI } from "@/utils/API/callAPI";
 import {
   getAllProcessDropdownData,
@@ -140,10 +140,10 @@ const LogReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...logReport_InitialFilter,
-          ClientFilter: savedFilters[index].AppliedFilter.clients,
-          ProjectFilter: savedFilters[index].AppliedFilter.project,
-          ProcessFilter: savedFilters[index].AppliedFilter.processLog,
-          UpdatedByFilter: savedFilters[index].AppliedFilter.updatedBy,
+          ClientFilter: savedFilters[index].AppliedFilter.clientFilter,
+          ProjectFilter: savedFilters[index].AppliedFilter.projectFilter,
+          ProcessFilter: savedFilters[index].AppliedFilter.processFilter,
+          UpdatedByFilter: savedFilters[index].AppliedFilter.updatedByFilter,
           StartDate: savedFilters[index].AppliedFilter.startDate,
           EndDate: savedFilters[index].AppliedFilter.endDate,
         });
@@ -184,7 +184,7 @@ const LogReportFilter = ({
               : getFormattedDate(startDate)
             : getFormattedDate(endDate),
       },
-      type: kraReport,
+      type: logReport,
     };
     const url = `${process.env.worklog_api_url}/filter/savefilter`;
     const successCallback = (
@@ -248,7 +248,7 @@ const LogReportFilter = ({
 
   const getFilterList = async () => {
     const params = {
-      type: kraReport,
+      type: logReport,
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (

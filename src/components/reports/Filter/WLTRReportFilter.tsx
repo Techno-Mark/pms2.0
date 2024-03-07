@@ -111,9 +111,9 @@ const WLTRReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...wltr_InitialFilter,
-          Clients: savedFilters[index].AppliedFilter.clients,
-          StartDate: savedFilters[index].AppliedFilter.startDate,
-          EndDate: savedFilters[index].AppliedFilter.endDate,
+          Clients: savedFilters[index].AppliedFilter.Clients,
+          StartDate: savedFilters[index].AppliedFilter.StartDate,
+          EndDate: savedFilters[index].AppliedFilter.EndDate,
         });
       }
     }

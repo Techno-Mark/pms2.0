@@ -136,12 +136,13 @@ const APReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...ap_InitialFilter,
-          Clients: savedFilters[index].AppliedFilter.clients,
-          Users: savedFilters[index].AppliedFilter.users,
-          ReportingManagers: savedFilters[index].AppliedFilter.reportingManager,
-          DepartmentId: savedFilters[index].AppliedFilter.department,
-          StartDate: savedFilters[index].AppliedFilter.startDate,
-          EndDate: savedFilters[index].AppliedFilter.endDate,
+          Clients: savedFilters[index].AppliedFilter.Clients,
+          Users: savedFilters[index].AppliedFilter.Users,
+          ReportingManagers:
+            savedFilters[index].AppliedFilter.ReportingManagers,
+          DepartmentId: savedFilters[index].AppliedFilter.DepartmentId,
+          StartDate: savedFilters[index].AppliedFilter.StartDate,
+          EndDate: savedFilters[index].AppliedFilter.EndDate,
         });
       }
     }

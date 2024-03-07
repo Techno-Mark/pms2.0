@@ -118,10 +118,10 @@ const AutoManualReportFilter = ({
         sendFilterToPage({
           ...am_InitialFilter,
           ReportingManagerId:
-            savedFilters[index].AppliedFilter.reportingManager,
-          DepartmentId: savedFilters[index].AppliedFilter.department,
-          StartDate: savedFilters[index].AppliedFilter.startDate,
-          EndDate: savedFilters[index].AppliedFilter.endDate,
+            savedFilters[index].AppliedFilter.ReportingManagerId,
+          DepartmentId: savedFilters[index].AppliedFilter.DepartmentId,
+          StartDate: savedFilters[index].AppliedFilter.StartDate,
+          EndDate: savedFilters[index].AppliedFilter.EndDate,
         });
       }
     }

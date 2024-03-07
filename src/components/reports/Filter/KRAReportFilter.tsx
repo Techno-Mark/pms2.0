@@ -128,11 +128,11 @@ const KRAReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...kra_InitialFilter,
-          Clients: savedFilters[index].AppliedFilter.clients,
-          Users: savedFilters[index].AppliedFilter.users,
-          DepartmentId: savedFilters[index].AppliedFilter.department,
-          StartDate: savedFilters[index].AppliedFilter.startDate,
-          EndDate: savedFilters[index].AppliedFilter.endDate,
+          Clients: savedFilters[index].AppliedFilter.Clients,
+          Users: savedFilters[index].AppliedFilter.Users,
+          DepartmentId: savedFilters[index].AppliedFilter.DepartmentId,
+          StartDate: savedFilters[index].AppliedFilter.StartDate,
+          EndDate: savedFilters[index].AppliedFilter.EndDate,
         });
       }
     }
