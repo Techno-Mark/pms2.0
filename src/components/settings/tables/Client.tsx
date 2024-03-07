@@ -241,7 +241,7 @@ const Client = ({
         </span>
         {open && (
           <React.Fragment>
-            <div className="absolute top-30 right-[5.5rem] z-10 flex justify-center items-center">
+            <div className="absolute top-30 right-[0.5rem] z-10 flex justify-center items-center">
               <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-28">
                   {actionPermissions.map((action: any, index: any) => (
@@ -468,7 +468,7 @@ const Client = ({
           <ReportLoader />
         ) : (
           <>
-            <div className="">
+            <div className="muiTableActionHeight">
               <ThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable
                   data={clientData}

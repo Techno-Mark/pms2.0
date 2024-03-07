@@ -17,6 +17,20 @@ const generateCustomColumn = (
   },
 });
 
+const generateCustomColumnSortFalse = (
+  name: any,
+  label: string,
+  bodyRenderer: (arg0: any) => any
+) => ({
+  name,
+  options: {
+    filter: true,
+    sort: false,
+    customHeadLabelRender: () => generateCustomHeaderName(label),
+    customBodyRender: (value: any) => bodyRenderer(value),
+  },
+});
+
 const generateStatusColumn = (
   column: {
     name: string;
@@ -57,4 +71,8 @@ const generateStatusColumn = (
   }
 };
 
-export { generateCustomColumn, generateStatusColumn };
+export {
+  generateCustomColumn,
+  generateCustomColumnSortFalse,
+  generateStatusColumn,
+};

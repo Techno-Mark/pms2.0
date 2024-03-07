@@ -445,7 +445,7 @@ const Page = () => {
                 sendData={handleValueFromPriority}
               />
             </Card>
-            {workType !== 1 && (
+            {workType === 3 && (
               <Card className="w-full h-[344px] border border-lightSilver rounded-lg justify-center flex">
                 <Chart_ReturnType
                   onSelectedProjectIds={currentProjectId}

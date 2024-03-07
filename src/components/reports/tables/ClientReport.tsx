@@ -16,7 +16,7 @@ import React, { useEffect, useState } from "react";
 import { FieldsType } from "../types/FieldsType";
 import { client_InitialFilter } from "@/utils/reports/getFilters";
 import { callAPI } from "@/utils/API/callAPI";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumnSortFalse } from "@/utils/datatable/columns/ColsGenerateFunctions";
 import {
   generateCommonBodyRender,
   generateInitialTimer,
@@ -139,7 +139,7 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   ];
 
   const reportsClientCols: any = reportsClientColConfig.map((col: any) =>
-    generateCustomColumn(col.name, col.label, col.bodyRenderer)
+    generateCustomColumnSortFalse(col.name, col.label, col.bodyRenderer)
   );
 
   const optionsExpand: any = {

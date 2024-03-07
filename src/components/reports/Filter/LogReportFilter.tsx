@@ -140,12 +140,12 @@ const LogReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...logReport_InitialFilter,
-          ClientFilter: savedFilters[index].AppliedFilter.clientFilter,
-          ProjectFilter: savedFilters[index].AppliedFilter.projectFilter,
-          ProcessFilter: savedFilters[index].AppliedFilter.processFilter,
-          UpdatedByFilter: savedFilters[index].AppliedFilter.updatedByFilter,
-          StartDate: savedFilters[index].AppliedFilter.startDate,
-          EndDate: savedFilters[index].AppliedFilter.endDate,
+          ClientFilter: savedFilters[index].AppliedFilter.ClientFilter,
+          ProjectFilter: savedFilters[index].AppliedFilter.ProjectFilter,
+          ProcessFilter: savedFilters[index].AppliedFilter.ProcessFilter,
+          UpdatedByFilter: savedFilters[index].AppliedFilter.UpdatedByFilter,
+          StartDate: savedFilters[index].AppliedFilter.StartDate,
+          EndDate: savedFilters[index].AppliedFilter.EndDate,
         });
       }
     }

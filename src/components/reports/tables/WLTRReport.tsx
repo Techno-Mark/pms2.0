@@ -20,13 +20,43 @@ import {
   generateCommonBodyRender,
   generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumnSortFalse } from "@/utils/datatable/columns/ColsGenerateFunctions";
 import { options } from "@/utils/datatable/TableOptions";
 
 const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [wltrFields, setWltrFields] = useState<FieldsType>({
     loaded: false,
-    data: [],
+    data: [
+      {
+        ClientId: 225,
+        ClientName: "Client user Client 1",
+        ContractHrs: "11",
+        TotalHours: null,
+        ApprovedHours: null,
+        RejectedHours: null,
+        FTE: null,
+        ClientProjectData: [
+          {
+            ProjectId: 390,
+            ProjectName: "client Dashboard 1",
+            ClientId: 225,
+            TotalHours: null,
+            ApprovedHours: null,
+            RejectedHours: null,
+            FTE: null,
+          },
+          {
+            ProjectId: 391,
+            ProjectName: "client Dashboard 2",
+            ClientId: 225,
+            TotalHours: 20,
+            ApprovedHours: 10,
+            RejectedHours: null,
+            FTE: null,
+          },
+        ],
+      },
+    ],
     dataCount: 0,
   });
   const [wltrCurrentPage, setWltrCurrentPage] = useState<number>(0);
@@ -38,7 +68,7 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       loaded: false,
     });
 
-    const url = `${process.env.report_api_url}/report/project`;
+    const url = `${process.env.report_api_url}/report/wltr`;
 
     const successCallback = (data: any, error: any) => {
       if (data !== null && error === false) {
@@ -55,7 +85,7 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       }
     };
 
-    callAPI(url, arg1, successCallback, "post");
+    // callAPI(url, arg1, successCallback, "post");
   };
 
   const handleChangePage = (
@@ -117,12 +147,12 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
 
   const reportsWLTRColConfig = [
     {
-      header: "Clientname",
+      header: "ClientName",
       label: "Client Name",
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      header: "ContractedHours",
+      header: "ContractHrs",
       label: "Contracted Hours",
       bodyRenderer: generateCommonBodyRender,
     },
@@ -132,13 +162,13 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       bodyRenderer: generateInitialTimer,
     },
     {
-      header: "STDTime",
-      label: "STD Time",
+      header: "ApprovedHours",
+      label: "Approved Hours",
       bodyRenderer: generateInitialTimer,
     },
     {
-      header: "ApprovedHours",
-      label: "Approved Hours",
+      header: "RejectedHours",
+      label: "Rejected Hours",
       bodyRenderer: generateInitialTimer,
     },
     {
@@ -146,15 +176,10 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       label: "FTE",
       bodyRenderer: generateInitialTimer,
     },
-    {
-      header: "TotalTime",
-      label: "Total Time",
-      bodyRenderer: generateInitialTimer,
-    },
   ];
 
   const reportsWLTRCols: any = reportsWLTRColConfig.map((col: any) =>
-    generateCustomColumn(col.name, col.label, col.bodyRenderer)
+    generateCustomColumnSortFalse(col.header, col.label, col.bodyRenderer)
   );
 
   const optionsExpand: any = {
@@ -169,35 +194,52 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
                   <TableHead>
                     <TableRow>
                       <TableCell className="!pl-[4.5rem] font-semibold">
-                        Type Of Work
+                        Project name
                       </TableCell>
                       <TableCell className="font-semibold">
-                        Billing Type
+                        Total hours
                       </TableCell>
                       <TableCell className="font-semibold">
-                        Contracted Hrs.
+                        Approved Hours
                       </TableCell>
                       <TableCell className="font-semibold">
-                        Internal Hrs.
+                        Rejected Hours
                       </TableCell>
+                      <TableCell className="font-semibold">FTE</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {wltrFields.data[rowMeta.rowIndex].WorkTypes.length > 0 ? (
-                      wltrFields.data[rowMeta.rowIndex].WorkTypes.map(
+                    {wltrFields.data[rowMeta.rowIndex].ClientProjectData
+                      .length > 0 ? (
+                      wltrFields.data[rowMeta.rowIndex].ClientProjectData.map(
                         (i: any, index: any) => (
                           <TableRow key={index}>
                             <TableCell className="!pl-[4.5rem] w-[15rem]">
-                              {i.WorkTypeName}
+                              {i.ProjectName === null ? "-" : i.ProjectName}
                             </TableCell>
                             <TableCell className="w-[17.5rem]">
-                              {i.BillingTypeName}
+                              {i.TotalHours === null
+                                ? "00:00:00"
+                                : i.TotalHours}
                             </TableCell>
                             <TableCell className="w-[18.5rem]">
-                              {i.ContractHrs}
+                              <a
+                                target="_blank"
+                                href={`${process.env.redirectURLWLTR}${i.ProjectId}`}
+                                className="text-[#0592C6] cursor-pointer"
+                              >
+                                {i.ApprovedHours === null
+                                  ? "00:00:00"
+                                  : i.ApprovedHours}
+                              </a>
                             </TableCell>
                             <TableCell className="w-[18.5rem]">
-                              {i.InternalHrs}
+                              {i.RejectedHours === null
+                                ? "00:00:00"
+                                : i.RejectedHours}
+                            </TableCell>
+                            <TableCell className="w-[18.5rem]">
+                              {i.FTE === null ? "-" : i.FTE}
                             </TableCell>
                           </TableRow>
                         )
@@ -221,7 +263,7 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     selectableRows: "none",
   };
 
-  return wltrFields.loaded ? (
+  return true ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={reportsWLTRCols}

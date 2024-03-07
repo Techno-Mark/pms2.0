@@ -14,14 +14,8 @@ import {
 import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import {
-  Paper,
   Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
   TablePagination,
-  TableRow,
   ThemeProvider,
 } from "@mui/material";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
