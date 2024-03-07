@@ -14,7 +14,10 @@ import dayjs from "dayjs";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { getFormattedDate } from "@/utils/timerFunctions";
 
-const InitialFilter = {};
+const InitialFilter = {
+  StartDate: null,
+  EndDate: null,
+};
 
 const WltrProjectReportFilter = ({
   isFiltering,

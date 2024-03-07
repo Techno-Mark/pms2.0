@@ -12,7 +12,16 @@ import { options } from "@/utils/datatable/TableOptions";
 import ReportLoader from "@/components/common/ReportLoader";
 import { callAPI } from "@/utils/API/callAPI";
 
-const InitialFilter = {};
+const InitialFilter = {
+  pageNo: 1,
+  pageSize: 100,
+  sortColumn: "",
+  isDesc: true,
+  GlobalSearch: "",
+  ProjctId: null,
+  StartDate: null,
+  EndDate: null,
+};
 
 const WltrProjectReport = ({ searchValue, filteredData }: any) => {
   const [wltrFields, setWltrFields] = useState<FieldsType>({
@@ -41,15 +50,14 @@ const WltrProjectReport = ({ searchValue, filteredData }: any) => {
       loaded: false,
     });
 
-    const url = `${process.env.report_api_url}/report/wltr`;
+    const url = `${process.env.report_api_url}/report/getwltrprojectdetails`;
 
     const successCallback = (data: any, error: any) => {
       if (data !== null && error === false) {
         setWltrFields({
           ...wltrFields,
           loaded: true,
-          // data: data.List,
-          data: [],
+          data: data.List,
           dataCount: data.TotalCount,
         });
       } else {
@@ -70,12 +78,14 @@ const WltrProjectReport = ({ searchValue, filteredData }: any) => {
         ...filteredData,
         pageNo: newPage + 1,
         pageSize: wltrRowsPerPage,
+        ProjctId: Id,
       });
     } else {
       getData({
         ...InitialFilter,
         pageNo: newPage + 1,
         pageSize: wltrRowsPerPage,
+        ProjctId: Id,
       });
     }
   };
@@ -91,12 +101,14 @@ const WltrProjectReport = ({ searchValue, filteredData }: any) => {
         ...filteredData,
         pageNo: 1,
         pageSize: wltrRowsPerPage,
+        ProjctId: Id,
       });
     } else {
       getData({
         ...InitialFilter,
         pageNo: 1,
         pageSize: event.target.value,
+        ProjctId: Id,
       });
     }
   };
@@ -104,14 +116,14 @@ const WltrProjectReport = ({ searchValue, filteredData }: any) => {
   useEffect(() => {
     if (filteredData !== null && Id > 0) {
       const timer = setTimeout(() => {
-        getData({ ...filteredData, GlobalSearch: searchValue });
+        getData({ ...filteredData, GlobalSearch: searchValue, ProjctId: Id });
         setWltrCurrentPage(0);
         setWltrRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     } else {
       const timer = setTimeout(() => {
-        getData({ ...InitialFilter, GlobalSearch: searchValue });
+        getData({ ...InitialFilter, GlobalSearch: searchValue, ProjctId: Id });
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -134,12 +146,12 @@ const WltrProjectReport = ({ searchValue, filteredData }: any) => {
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      header: "Process",
+      header: "ProcessName",
       label: "Process",
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      header: "SubProcess",
+      header: "SubProcessName",
       label: "Sub-Process",
       bodyRenderer: generateCommonBodyRender,
     },
@@ -159,7 +171,7 @@ const WltrProjectReport = ({ searchValue, filteredData }: any) => {
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      header: "QTY",
+      header: "Quantity",
       label: "QTY.",
       bodyRenderer: generateCommonBodyRender,
     },
@@ -169,12 +181,12 @@ const WltrProjectReport = ({ searchValue, filteredData }: any) => {
       bodyRenderer: generateInitialTimer,
     },
     {
-      header: "Auto",
+      header: "AutoTime",
       label: "Auto",
       bodyRenderer: generateInitialTimer,
     },
     {
-      header: "Manual",
+      header: "ManualTime",
       label: "Manual",
       bodyRenderer: generateInitialTimer,
     },
@@ -189,7 +201,7 @@ const WltrProjectReport = ({ searchValue, filteredData }: any) => {
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      header: "Comments",
+      header: "Comment",
       label: "Comments",
       bodyRenderer: generateCommonBodyRender,
     },
