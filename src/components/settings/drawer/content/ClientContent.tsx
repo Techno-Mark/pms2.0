@@ -1064,7 +1064,7 @@ const ClientContent = forwardRef<
                   onBlur={(e: any) => {
                     if (
                       e.target.value.trim().length < 2 ||
-                      e.target.value.trim().length > 20
+                      e.target.value.trim().length > 50
                     ) {
                       setClientNameError(true);
                     }
