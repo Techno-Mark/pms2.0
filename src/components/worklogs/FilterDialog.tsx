@@ -97,7 +97,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     setFilterName("");
     currentFilterData(initialFilter);
     setError("");
-    onClose();
   };
 
   const getClientData = async () => {

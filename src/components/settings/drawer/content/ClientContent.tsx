@@ -27,7 +27,7 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getFormattedDate } from "@/utils/timerFunctions";
-import { getBillingTypes } from "@/utils/commonDropdownApiCall";
+import { getBillingTypeData } from "@/utils/commonDropdownApiCall";
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -917,7 +917,7 @@ const ClientContent = forwardRef<
     }, [onOpen]);
 
     const getBillingTypesData = async () => {
-      await getBillingTypes();
+      setBillingTypeData(await getBillingTypeData());
     };
 
     const getGroupTypes = async () => {
@@ -1217,7 +1217,7 @@ const ClientContent = forwardRef<
                       <div className="flex flex-col gap-[17px] pl-[34px]">
                         <FormControl variant="standard" error={i.billingErr}>
                           <InputLabel id="demo-simple-select-standard-label">
-                            Type of Work
+                            Billing Type
                             <span className="text-defaultRed">&nbsp;*</span>
                           </InputLabel>
                           <Select

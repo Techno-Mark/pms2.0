@@ -25,7 +25,7 @@ import { callAPI } from "@/utils/API/callAPI";
 import { toast } from "react-toastify";
 import { clientReport } from "../Enum/Filtertype";
 import {
-  getBillingTypes,
+  getBillingTypeData,
   getClientDropdownData,
   getDeptData,
   getTypeOfWorkDropdownData,
@@ -214,7 +214,7 @@ const ClientReportFilter = ({
     const filterDropdowns = async () => {
       setClientDropdown(await getClientDropdownData());
       setDepartmentDropdown(await getDeptData());
-      setBillingTypeDropdown(await getBillingTypes());
+      setBillingTypeDropdown(await getBillingTypeData());
     };
     filterDropdowns();
   }, []);
