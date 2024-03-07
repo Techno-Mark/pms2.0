@@ -26,37 +26,7 @@ import { options } from "@/utils/datatable/TableOptions";
 const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [wltrFields, setWltrFields] = useState<FieldsType>({
     loaded: false,
-    data: [
-      {
-        ClientId: 225,
-        ClientName: "Client user Client 1",
-        ContractHrs: "11",
-        TotalHours: null,
-        ApprovedHours: null,
-        RejectedHours: null,
-        FTE: null,
-        ClientProjectData: [
-          {
-            ProjectId: 390,
-            ProjectName: "client Dashboard 1",
-            ClientId: 225,
-            TotalHours: null,
-            ApprovedHours: null,
-            RejectedHours: null,
-            FTE: null,
-          },
-          {
-            ProjectId: 391,
-            ProjectName: "client Dashboard 2",
-            ClientId: 225,
-            TotalHours: 20,
-            ApprovedHours: 10,
-            RejectedHours: null,
-            FTE: null,
-          },
-        ],
-      },
-    ],
+    data: [],
     dataCount: 0,
   });
   const [wltrCurrentPage, setWltrCurrentPage] = useState<number>(0);
@@ -76,8 +46,7 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         setWltrFields({
           ...wltrFields,
           loaded: true,
-          // data: data.List,
-          data: [],
+          data: data.List,
           dataCount: data.TotalCount,
         });
       } else {
@@ -85,7 +54,7 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       }
     };
 
-    // callAPI(url, arg1, successCallback, "post");
+    callAPI(url, arg1, successCallback, "post");
   };
 
   const handleChangePage = (
