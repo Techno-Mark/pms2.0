@@ -134,7 +134,9 @@ const WorkLoadReportFilter = ({
         AppliedFilter: {
           users: workload_userNames.length > 0 ? workload_userNames : [],
           Department: workload_dept === null ? null : workload_dept.value,
-          dateFilter: !workload_dateFilter ? null : workload_dateFilter,
+          dateFilter: !workload_dateFilter
+            ? null
+            : getFormattedDate(workload_dateFilter),
         },
         type: workload,
       };

@@ -270,7 +270,7 @@ const LogReportFilter = ({
     setCurrentFilterId(savedFilters[index].FilterId);
 
     setClients(
-      savedFilters[index].AppliedFilter.ClientFilter === null
+      savedFilters[index].AppliedFilter.ClientFilter.length === 0
         ? []
         : clientDropdown.filter((client: any) =>
             savedFilters[index].AppliedFilter.ClientFilter.includes(
@@ -279,13 +279,13 @@ const LogReportFilter = ({
           )
     );
     setClientName(
-      savedFilters[index].AppliedFilter.ClientFilter === null
+      savedFilters[index].AppliedFilter.ClientFilter.length === 0
         ? []
         : savedFilters[index].AppliedFilter.ClientFilter
     );
 
     setProject(
-      savedFilters[index].AppliedFilter.ProjectFilter === null
+      savedFilters[index].AppliedFilter.ProjectFilter.length === 0
         ? []
         : (
             await getProjectDropdownData(
@@ -298,26 +298,26 @@ const LogReportFilter = ({
           )[0]
     );
     setProjectName(
-      savedFilters[index].AppliedFilter.ProjectFilter === null
+      savedFilters[index].AppliedFilter.ProjectFilter.length === 0
         ? []
         : savedFilters[index].AppliedFilter.ProjectFilter
     );
 
     setProcessLog(
-      savedFilters[index].AppliedFilter.ProcessFilter === null
+      savedFilters[index].AppliedFilter.ProcessFilter.length === 0
         ? []
         : processDropdown.filter((user: any) =>
             savedFilters[index].AppliedFilter.ProcessFilter.includes(user.value)
           )
     );
     setProcessName(
-      savedFilters[index].AppliedFilter.ProcessFilter === null
+      savedFilters[index].AppliedFilter.ProcessFilter.length === 0
         ? []
         : savedFilters[index].AppliedFilter.ProcessFilter
     );
 
     setUpdatedBy(
-      savedFilters[index].AppliedFilter.UpdatedByFilter === null
+      savedFilters[index].AppliedFilter.UpdatedByFilter.length === 0
         ? []
         : updatedByDropdown.filter((user: any) =>
             savedFilters[index].AppliedFilter.UpdatedByFilter.includes(
@@ -326,7 +326,7 @@ const LogReportFilter = ({
           )
     );
     setUpdatedByName(
-      savedFilters[index].AppliedFilter.UpdatedByFilter === null
+      savedFilters[index].AppliedFilter.UpdatedByFilter.length === 0
         ? []
         : savedFilters[index].AppliedFilter.UpdatedByFilter
     );

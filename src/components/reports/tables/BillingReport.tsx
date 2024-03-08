@@ -104,6 +104,12 @@ const BillingReport = ({
   const [billingCurrentPage, setBiliingCurrentPage] = useState<number>(0);
   const [billingRowsPerPage, setBillingRowsPerPage] = useState<any>(10);
 
+  const handleClearSelection = () => {
+    setSelectedIndex([]);
+    setRaisedInvoice([]);
+    setBTCData([]);
+  };
+
   const getData = async (arg1: any) => {
     setBillingReportFields({
       ...billingReportFields,
@@ -119,7 +125,7 @@ const BillingReport = ({
       if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0);
         setBiliingReportData(ResponseData.List);
-
+        handleClearSelection();
         setBillingReportFields({
           ...billingReportFields,
           loaded: true,
@@ -159,12 +165,6 @@ const BillingReport = ({
       }
     };
     callAPI(url, params, successCallback, "POST");
-  };
-
-  const handleClearSelection = () => {
-    setSelectedIndex([]);
-    setRaisedInvoice([]);
-    setBTCData([]);
   };
 
   const handleChangePage = (
@@ -534,18 +534,19 @@ const BillingReport = ({
         options={{
           ...options,
           tableBodyHeight: "73vh",
-          selectableRows: "multiple",
+          selectableRows:
+            filteredData !== null && filteredData?.IsBTC ? "none" : "multiple",
           rowsSelected: isBTCSaved ? [] : selectedIndex,
           onRowSelectionChange: (i: any, j: any, selectedRowsIndex: any) => {
             if (selectedRowsIndex.length > 0) {
               const data = selectedRowsIndex.map(
                 (d: any) =>
                   new Object({
-                    workItemId: billingReportData[d].WorkItemId,
+                    workItemId: billingReportData[d]?.WorkItemId,
                     btcValue:
-                      billingReportData[d].BTC !== null
-                        ? toSeconds(billingReportData[d].BTC)
-                        : billingReportData[d].BTC,
+                      billingReportData[d]?.BTC !== null
+                        ? toSeconds(billingReportData[d]?.BTC)
+                        : billingReportData[d]?.BTC,
                     IsBTC: true,
                   })
               );
