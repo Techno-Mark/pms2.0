@@ -26,36 +26,7 @@ import { options } from "@/utils/datatable/TableOptions";
 const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [clientFields, setClientFields] = useState<FieldsType>({
     loaded: false,
-    data: [
-      {
-        ClientId: 143,
-        ClientName: "Bilaspura",
-        ContractHrs: "8",
-        InternalHrs: "5",
-        STDTime: "127557",
-        EditHours: null,
-        TotalTime: null,
-        DifferenceTime: null,
-        contracteddiff: null,
-        ClientWorkTypeData: [
-          {
-            ClientId: 143,
-            ClientName: "Bilaspura",
-            ContractHrs: "8",
-            InternalHrs: "5",
-            STDTime: "127557",
-            EditHours: null,
-            TotalTime: null,
-            DifferenceTime: null,
-            contracteddiff: null,
-            WorkTypeId: null,
-            WorkTypeName: null,
-            BillingTypeId: null,
-            BillingTypeName: null,
-          },
-        ],
-      },
-    ],
+    data: [],
     dataCount: 0,
   });
   const [clientCurrentPage, setClientCurrentPage] = useState<number>(0);
@@ -88,7 +59,7 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       }
     };
 
-    // callAPI(url, arg1, successCallback, "post");
+    callAPI(url, arg1, successCallback, "post");
   };
 
   const handleChangePage = (
