@@ -15,6 +15,9 @@ const page = () => {
   const [searchValue, setSearchValue] = useState<string>("");
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
   const [filteredData, setFilteredData] = useState<any>(null);
+  const [totalQuantity, setTotalQuantity] = useState("00:00:00");
+  const [totalTime, setTotalTime] = useState("00:00:00");
+  const [totalSTDTime, setTotalSTDTime] = useState("00:00:00");
 
   const handleFilter = (arg1: boolean) => {
     setIsFiltering(arg1);
@@ -37,7 +40,20 @@ const page = () => {
       <div>
         <Navbar />
         <div className="w-full pr-5 flex items-center justify-between my-3">
-          <div></div>
+          <div className="flex items-center justify-center gap-5 ml-4 text-darkCharcoal text-[14px]">
+            <p>
+              <span className="text-secondary font-semibold">TotalQuanitiy: </span>
+              {totalQuantity}
+            </p>
+            <p>
+              <span className="text-secondary font-semibold">TotalTime: </span>
+              {totalTime}
+            </p>
+            <p>
+              <span className="text-secondary font-semibold">TotalSTDTime: </span>
+              {totalSTDTime}
+            </p>
+          </div>
           <div className="h-full flex items-center gap-5">
             <div className="relative">
               <InputBase
@@ -66,6 +82,9 @@ const page = () => {
         <WltrProjectReport
           searchValue={searchValue}
           filteredData={filteredData}
+          getTotalQuanitiy={(e: any) => setTotalQuantity(e)}
+          getTotalTime={(e: any) => setTotalTime(e)}
+          getTotalSTDTime={(e: any) => setTotalSTDTime(e)}
         />
         <WltrProjectReportFilter
           isFiltering={isFiltering}

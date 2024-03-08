@@ -143,7 +143,7 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     {
       header: "FTE",
       label: "FTE",
-      bodyRenderer: generateInitialTimer,
+      bodyRenderer: generateCommonBodyRender,
     },
   ];
 
@@ -236,7 +236,7 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     selectableRows: "none",
   };
 
-  return true ? (
+  return wltrFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={reportsWLTRCols}

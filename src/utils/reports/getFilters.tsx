@@ -152,7 +152,7 @@ export const rating_InitialFilter: any = {
 export const logReport_InitialFilter = {
   GlobalSearch: "",
   PageNo: 1,
-  PageSize: 100,
+  PageSize: 10,
   SortColumn: null,
   IsDesc: 1,
   ClientFilter: [],

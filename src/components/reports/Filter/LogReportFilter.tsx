@@ -114,7 +114,7 @@ const LogReportFilter = ({
   const handleFilterApply = () => {
     sendFilterToPage({
       ...logReport_InitialFilter,
-      Clients: clientName.length > 0 ? clientName : [],
+      ClientFilter: clientName.length > 0 ? clientName : [],
       ProjectFilter: projectName.length > 0 ? projectName : [],
       ProcessFilter: processName.length > 0 ? processName : [],
       UpdatedByFilter: updatedByName.length > 0 ? updatedByName : [],
@@ -504,7 +504,7 @@ const LogReportFilter = ({
                     options={projectDropdown.filter(
                       (option) => !project.find((p) => p.value === option.value)
                     )}
-                    disabled={clientName.length > 0}
+                    disabled={clientName.length > 1}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
                       setProject(data);

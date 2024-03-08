@@ -1,5 +1,6 @@
 import {
   generateCommonBodyRender,
+  generateDateWithoutTime,
   generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
@@ -14,16 +15,22 @@ import { callAPI } from "@/utils/API/callAPI";
 
 const InitialFilter = {
   pageNo: 1,
-  pageSize: 100,
+  pageSize: 10,
   sortColumn: "",
   isDesc: true,
   GlobalSearch: "",
-  ProjctId: null,
+  ProjectId: null,
   StartDate: null,
   EndDate: null,
 };
 
-const WltrProjectReport = ({ searchValue, filteredData }: any) => {
+const WltrProjectReport = ({
+  searchValue,
+  filteredData,
+  getTotalQuanitiy,
+  getTotalTime,
+  getTotalSTDTime,
+}: any) => {
   const [wltrFields, setWltrFields] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -60,6 +67,9 @@ const WltrProjectReport = ({ searchValue, filteredData }: any) => {
           data: data.List,
           dataCount: data.TotalCount,
         });
+        getTotalQuanitiy(data.TotalQuantity);
+        getTotalTime(data.TotalTime);
+        getTotalSTDTime(data.TotalSTDTime);
       } else {
         setWltrFields({ ...wltrFields, data: [], dataCount: 0, loaded: true });
       }
@@ -78,14 +88,14 @@ const WltrProjectReport = ({ searchValue, filteredData }: any) => {
         ...filteredData,
         pageNo: newPage + 1,
         pageSize: wltrRowsPerPage,
-        ProjctId: Id,
+        ProjectId: Id,
       });
     } else {
       getData({
         ...InitialFilter,
         pageNo: newPage + 1,
         pageSize: wltrRowsPerPage,
-        ProjctId: Id,
+        ProjectId: Id,
       });
     }
   };
@@ -101,14 +111,14 @@ const WltrProjectReport = ({ searchValue, filteredData }: any) => {
         ...filteredData,
         pageNo: 1,
         pageSize: wltrRowsPerPage,
-        ProjctId: Id,
+        ProjectId: Id,
       });
     } else {
       getData({
         ...InitialFilter,
         pageNo: 1,
         pageSize: event.target.value,
-        ProjctId: Id,
+        ProjectId: Id,
       });
     }
   };
@@ -116,14 +126,14 @@ const WltrProjectReport = ({ searchValue, filteredData }: any) => {
   useEffect(() => {
     if (filteredData !== null && Id > 0) {
       const timer = setTimeout(() => {
-        getData({ ...filteredData, GlobalSearch: searchValue, ProjctId: Id });
+        getData({ ...filteredData, GlobalSearch: searchValue, ProjectId: Id });
         setWltrCurrentPage(0);
         setWltrRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     } else {
       const timer = setTimeout(() => {
-        getData({ ...InitialFilter, GlobalSearch: searchValue, ProjctId: Id });
+        getData({ ...InitialFilter, GlobalSearch: searchValue, ProjectId: Id });
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -143,7 +153,7 @@ const WltrProjectReport = ({ searchValue, filteredData }: any) => {
     {
       header: "TaskDate",
       label: "Task Date",
-      bodyRenderer: generateCommonBodyRender,
+      bodyRenderer: generateDateWithoutTime,
     },
     {
       header: "ProcessName",
