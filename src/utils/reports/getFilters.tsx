@@ -198,12 +198,12 @@ export const client_InitialFilter = {
   SortColumn: "",
   IsDesc: true,
   IsDownload: false,
+  DepartmentId: null,
+  BillingTypeId: null,
+  WorkTypeId: null,
   StartDate: null,
   EndDate: null,
-  Client: [],
-  TypeOfWork: [],
-  Department: [],
-  BillingType: [],
+  Clients: [],
 };
 
 export const kra_InitialFilter = {

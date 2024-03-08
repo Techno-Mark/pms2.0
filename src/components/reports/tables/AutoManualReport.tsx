@@ -101,6 +101,8 @@ const AutoManualReport = ({
     } else {
       const timer = setTimeout(() => {
         getData({ ...am_InitialFilter, GlobalSearch: searchValue });
+        setAutoManualCurrentPage(0);
+        setAutoManualRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }

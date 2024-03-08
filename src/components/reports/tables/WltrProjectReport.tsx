@@ -1,5 +1,6 @@
 import {
   generateCommonBodyRender,
+  generateCommonBodyRenderPercentage,
   generateDateWithoutTime,
   generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
@@ -134,6 +135,8 @@ const WltrProjectReport = ({
     } else {
       const timer = setTimeout(() => {
         getData({ ...InitialFilter, GlobalSearch: searchValue, ProjectId: Id });
+        setWltrCurrentPage(0);
+        setWltrRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -208,7 +211,7 @@ const WltrProjectReport = ({
     {
       header: "Difference",
       label: "Difference %",
-      bodyRenderer: generateCommonBodyRender,
+      bodyRenderer: generateCommonBodyRenderPercentage,
     },
     {
       header: "Comment",

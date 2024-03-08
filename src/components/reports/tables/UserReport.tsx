@@ -99,6 +99,8 @@ const UserReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     } else {
       const timer = setTimeout(() => {
         getData({ ...user_InitialFilter, globalSearch: searchValue });
+        setUserCurrentPage(0);
+        setUserRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }

@@ -109,6 +109,8 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     } else {
       const timer = setTimeout(() => {
         getData({ ...wltr_InitialFilter, GlobalSearch: searchValue });
+        setWltrCurrentPage(0);
+        setWltrRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -183,7 +185,7 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
                       wltrFields.data[rowMeta.rowIndex].ClientProjectData.map(
                         (i: any, index: any) => (
                           <TableRow key={index}>
-                            <TableCell className="!pl-[4.5rem] w-[15rem]">
+                            <TableCell className="!pl-[4.5rem] w-[20rem]">
                               {i.ProjectName === null ? (
                                 "-"
                               ) : (
@@ -211,7 +213,7 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
                                 ? "00:00:00"
                                 : i.RejectedHours}
                             </TableCell>
-                            <TableCell className="w-[18.5rem]">
+                            <TableCell className="w-[13.5rem]">
                               {i.FTE === null ? "-" : i.FTE}
                             </TableCell>
                           </TableRow>

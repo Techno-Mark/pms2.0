@@ -99,6 +99,8 @@ const ProjectReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     } else {
       const timer = setTimeout(() => {
         getData({ ...project_InitialFilter, globalSearch: searchValue });
+        setProjectCurrentPage(0);
+        setProjectRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }

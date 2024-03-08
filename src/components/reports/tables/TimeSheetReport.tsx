@@ -488,6 +488,8 @@ const TimeSheetReport = ({
     } else {
       const timer = setTimeout(() => {
         getData({ ...timeSheet_InitialFilter, globalSearch: searchValue });
+        setTimesheetCurrentPage(0);
+        setTimesheetRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }

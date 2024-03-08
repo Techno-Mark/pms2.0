@@ -94,6 +94,8 @@ const LogReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     } else {
       const timer = setTimeout(() => {
         getData({ ...logReport_InitialFilter, GlobalSearch: searchValue });
+        setLogReportCurrentPage(0);
+        setLogReportRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }

@@ -26,7 +26,36 @@ import { options } from "@/utils/datatable/TableOptions";
 const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [clientFields, setClientFields] = useState<FieldsType>({
     loaded: false,
-    data: [],
+    data: [
+      {
+        ClientId: 143,
+        ClientName: "Bilaspura",
+        ContractHrs: "8",
+        InternalHrs: "5",
+        STDTime: "127557",
+        EditHours: null,
+        TotalTime: null,
+        DifferenceTime: null,
+        contracteddiff: null,
+        ClientWorkTypeData: [
+          {
+            ClientId: 143,
+            ClientName: "Bilaspura",
+            ContractHrs: "8",
+            InternalHrs: "5",
+            STDTime: "127557",
+            EditHours: null,
+            TotalTime: null,
+            DifferenceTime: null,
+            contracteddiff: null,
+            WorkTypeId: null,
+            WorkTypeName: null,
+            BillingTypeId: null,
+            BillingTypeName: null,
+          },
+        ],
+      },
+    ],
     dataCount: 0,
   });
   const [clientCurrentPage, setClientCurrentPage] = useState<number>(0);
@@ -38,7 +67,7 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       loaded: false,
     });
 
-    const url = `${process.env.report_api_url}/report/project`;
+    const url = `${process.env.report_api_url}/report/client`;
 
     const successCallback = (data: any, error: any) => {
       if (data !== null && error === false) {
@@ -46,8 +75,7 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         setClientFields({
           ...clientFields,
           loaded: true,
-          // data: data.List,
-          data: [],
+          data: data.List,
           dataCount: data.TotalCount,
         });
       } else {
@@ -60,7 +88,7 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       }
     };
 
-    callAPI(url, arg1, successCallback, "post");
+    // callAPI(url, arg1, successCallback, "post");
   };
 
   const handleChangePage = (
@@ -115,6 +143,8 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     } else {
       const timer = setTimeout(() => {
         getData({ ...client_InitialFilter, GlobalSearch: searchValue });
+        setClientCurrentPage(0);
+        setClientRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -122,8 +152,18 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
 
   const reportsClientColConfig = [
     {
-      header: "Clientname",
+      header: "ClientName",
       label: "Client Name",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      header: "InternalHrs",
+      label: "Total Internal Hours",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      header: "ContractHrs",
+      label: "Total Contracted Hours",
       bodyRenderer: generateCommonBodyRender,
     },
     {
@@ -133,8 +173,23 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     },
     {
       header: "EditHours",
-      label: "Edit Hours",
+      label: "Edited Time",
       bodyRenderer: generateInitialTimer,
+    },
+    {
+      header: "TotalTime",
+      label: "Total Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      header: "DifferenceTime",
+      label: "Difference",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      header: "contracteddiff",
+      label: "Contracted Difference",
+      bodyRenderer: generateCommonBodyRender,
     },
   ];
 
@@ -160,34 +215,62 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
                         Billing Type
                       </TableCell>
                       <TableCell className="font-semibold">
-                        Contracted Hrs.
+                        Internal Hours
                       </TableCell>
                       <TableCell className="font-semibold">
-                        Internal Hrs.
+                        Contracted Hours
+                      </TableCell>
+                      <TableCell className="font-semibold">STD Time</TableCell>
+                      <TableCell className="font-semibold">
+                        Edited Time
+                      </TableCell>
+                      <TableCell className="font-semibold">
+                        Total Time
+                      </TableCell>
+                      <TableCell className="font-semibold">
+                        Difference
+                      </TableCell>
+                      <TableCell className="font-semibold">
+                        Contracted Difference
                       </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {clientFields.data[rowMeta.rowIndex].WorkTypes.length >
-                    0 ? (
-                      clientFields.data[rowMeta.rowIndex].WorkTypes.map(
-                        (i: any, index: any) => (
-                          <TableRow key={index}>
-                            <TableCell className="!pl-[4.5rem] w-[15rem]">
-                              {i.WorkTypeName}
-                            </TableCell>
-                            <TableCell className="w-[17.5rem]">
-                              {i.BillingTypeName}
-                            </TableCell>
-                            <TableCell className="w-[18.5rem]">
-                              {i.ContractHrs}
-                            </TableCell>
-                            <TableCell className="w-[18.5rem]">
-                              {i.InternalHrs}
-                            </TableCell>
-                          </TableRow>
-                        )
-                      )
+                    {clientFields.data[rowMeta.rowIndex].ClientWorkTypeData
+                      .length > 0 ? (
+                      clientFields.data[
+                        rowMeta.rowIndex
+                      ].ClientWorkTypeData.map((i: any, index: any) => (
+                        <TableRow key={index}>
+                          <TableCell className="!pl-[4.5rem] w-[15rem]">
+                            {i.WorkTypeName}
+                          </TableCell>
+                          <TableCell className="w-[17.5rem]">
+                            {i.BillingTypeName}
+                          </TableCell>
+                          <TableCell className="w-[18.5rem]">
+                            {i.InternalHrs}
+                          </TableCell>
+                          <TableCell className="w-[18.5rem]">
+                            {i.ContractHrs}
+                          </TableCell>
+                          <TableCell className="w-[18.5rem]">
+                            {i.STDTime}
+                          </TableCell>
+                          <TableCell className="w-[18.5rem]">
+                            {i.EditHours}
+                          </TableCell>
+                          <TableCell className="w-[18.5rem]">
+                            {i.TotalTime}
+                          </TableCell>
+                          <TableCell className="w-[18.5rem]">
+                            {i.DifferenceTime}
+                          </TableCell>
+                          <TableCell className="w-[18.5rem]">
+                            {i.contracteddiff}
+                          </TableCell>
+                        </TableRow>
+                      ))
                     ) : (
                       <TableRow className="h-16">
                         <span className="flex items-center justify-start ml-16 pt-5">

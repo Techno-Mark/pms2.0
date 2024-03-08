@@ -262,6 +262,8 @@ const BillingReport = ({
     } else {
       const timer = setTimeout(() => {
         getData({ ...billingreport_InitialFilter, globalSearch: searchValue });
+        setBiliingCurrentPage(0);
+        setBillingRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }

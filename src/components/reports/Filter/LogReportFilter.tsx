@@ -465,7 +465,7 @@ const LogReportFilter = ({
           </DialogTitle>
           <DialogContent>
             <div className="flex flex-col gap-[20px] pt-[15px]">
-              <div className="flex gap-[20px]">
+              {/* <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
@@ -546,7 +546,7 @@ const LogReportFilter = ({
                     )}
                   />
                 </FormControl>
-              </div>
+              </div> */}
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"

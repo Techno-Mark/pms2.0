@@ -95,6 +95,8 @@ const APReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     } else {
       const timer = setTimeout(() => {
         getData({ ...ap_InitialFilter, GlobalSearch: searchValue });
+        setApCurrentPage(0);
+        setApRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }

@@ -100,11 +100,13 @@ const ActivityReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     } else {
       const timer = setTimeout(() => {
         getData({ ...activity_InitialFilter, GlobalSearch: searchValue });
+        setActivityCurrentPage(0);
+        setActivityRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }
   }, [filteredData, searchValue]);
-  
+
   return activityFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable

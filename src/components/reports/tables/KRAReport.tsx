@@ -95,6 +95,8 @@ const KRAReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     } else {
       const timer = setTimeout(() => {
         getData({ ...kra_InitialFilter, GlobalSearch: searchValue });
+        setKraCurrentPage(0);
+        setKraRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }

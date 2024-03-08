@@ -94,6 +94,8 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     } else {
       const timer = setTimeout(() => {
         getData({ ...workLoad_InitialFilter, globalSearch: searchValue });
+        setWorkloadCurrentPage(0);
+        setWorkloadRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }

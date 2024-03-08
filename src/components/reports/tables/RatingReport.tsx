@@ -94,6 +94,8 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     } else {
       const timer = setTimeout(() => {
         getData({ ...rating_InitialFilter, GlobalSearch: searchValue });
+        setRatingCurrentPage(0);
+        setRatingRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }

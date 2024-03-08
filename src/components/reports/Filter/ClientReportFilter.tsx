@@ -38,7 +38,8 @@ const ClientReportFilter = ({
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
-  const [client, setClient] = useState<any>(null);
+  const [clients, setClients] = useState<any[]>([]);
+  const [clientName, setClientName] = useState<any[]>([]);
   const [typeOfWork, setTypeOfWork] = useState<any>(null);
   const [department, setDepartment] = useState<any>(null);
   const [billingType, setBillingType] = useState<any>(null);
@@ -71,7 +72,8 @@ const ClientReportFilter = ({
     setStartDate("");
     setEndDate("");
     setError("");
-    setClient(null);
+    setClientName([]);
+    setClients([]);
     setTypeOfWork(null);
     setTypeOfWorkDropdown([]);
     setDepartment(null);
@@ -91,7 +93,8 @@ const ClientReportFilter = ({
     onDialogClose(false);
     setDefaultFilter(false);
 
-    setClient(null);
+    setClientName([]);
+    setClients([]);
     setTypeOfWork(null);
     setTypeOfWorkDropdown([]);
     setDepartment(null);
@@ -104,10 +107,10 @@ const ClientReportFilter = ({
   const handleFilterApply = () => {
     sendFilterToPage({
       ...client_InitialFilter,
-      Client: client !== null ? [client.value] : [],
-      TypeOfWork: typeOfWork !== null ? [typeOfWork.value] : [],
-      Department: department !== null ? [department.value] : [],
-      BillingType: billingType !== null ? [billingType.value] : [],
+      Clients: clientName.length > 0 ? clientName : [],
+      WorkTypeId: typeOfWork !== null ? typeOfWork.value : null,
+      DepartmentId: department !== null ? department.value : null,
+      BillingTypeId: billingType !== null ? billingType.value : null,
       StartDate:
         startDate.toString().trim().length <= 0
           ? endDate.toString().trim().length <= 0
@@ -130,10 +133,10 @@ const ClientReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...client_InitialFilter,
-          Client: savedFilters[index].AppliedFilter.Client,
-          TypeOfWork: savedFilters[index].AppliedFilter.TypeOfWork,
-          Department: savedFilters[index].AppliedFilter.Department,
-          BillingType: savedFilters[index].AppliedFilter.BillingType,
+          Clients: savedFilters[index].AppliedFilter.Clients,
+          WorkTypeId: savedFilters[index].AppliedFilter.WorkTypeId,
+          DepartmentId: savedFilters[index].AppliedFilter.DepartmentId,
+          BillingTypeId: savedFilters[index].AppliedFilter.BillingTypeId,
           StartDate: savedFilters[index].AppliedFilter.StartDate,
           EndDate: savedFilters[index].AppliedFilter.EndDate,
         });
@@ -157,10 +160,10 @@ const ClientReportFilter = ({
       filterId: currentFilterId !== "" ? currentFilterId : null,
       name: filterName,
       AppliedFilter: {
-        Clients: client !== null ? [client.value] : [],
-        TypeOfWork: typeOfWork !== null ? [typeOfWork.value] : [],
-        Department: department !== null ? [department.value] : [],
-        BillingType: billingType !== null ? [billingType.value] : [],
+        Clients: clientName,
+        WorkTypeId: typeOfWork !== null ? typeOfWork.value : null,
+        DepartmentId: department !== null ? department.value : null,
+        BillingTypeId: billingType !== null ? billingType.value : null,
         StartDate:
           startDate.toString().trim().length <= 0
             ? endDate.toString().trim().length <= 0
@@ -199,7 +202,7 @@ const ClientReportFilter = ({
 
   useEffect(() => {
     const isAnyFieldSelected =
-      client !== null ||
+      clientName.length > 0 ||
       typeOfWork !== null ||
       department !== null ||
       billingType !== null ||
@@ -208,7 +211,7 @@ const ClientReportFilter = ({
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-  }, [client, typeOfWork, department, billingType, startDate, endDate]);
+  }, [clientName, typeOfWork, department, billingType, startDate, endDate]);
 
   useEffect(() => {
     const filterDropdowns = async () => {
@@ -221,10 +224,10 @@ const ClientReportFilter = ({
 
   useEffect(() => {
     const filterDropdowns = async () => {
-      setTypeOfWorkDropdown(await getTypeOfWorkDropdownData(client?.value));
+      setTypeOfWorkDropdown(await getTypeOfWorkDropdownData(clientName[0]));
     };
-    client !== null && client?.value > 0 && filterDropdowns();
-  }, [client?.value]);
+    clientName.length === 1 && filterDropdowns();
+  }, [clientName]);
 
   const getFilterList = async () => {
     const params = {
@@ -249,51 +252,56 @@ const ClientReportFilter = ({
     setFilterName(savedFilters[index].Name);
     setCurrentFilterId(savedFilters[index].FilterId);
 
-    setClientDropdown(
-      savedFilters[index].AppliedFilter.client.length > 0
-        ? clientDropdown.filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.client[0]
-          )[0]
-        : null
+    setClients(
+      savedFilters[index].AppliedFilter.Clients === null
+        ? []
+        : clientDropdown.filter((client: any) =>
+            savedFilters[index].AppliedFilter.Clients.includes(client.value)
+          )
+    );
+    setClientName(
+      savedFilters[index].AppliedFilter.Clients === null
+        ? []
+        : savedFilters[index].AppliedFilter.Clients
     );
     setTypeOfWork(
-      savedFilters[index].AppliedFilter.client.length > 0
+      savedFilters[index].AppliedFilter.Clients.length === 1 &&
+        savedFilters[index].AppliedFilter.WorkTypeId !== null
         ? (
             await getTypeOfWorkDropdownData(
-              savedFilters[index].AppliedFilter.client[0]
+              savedFilters[index].AppliedFilter.Clients[0]
             )
           ).filter(
             (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.typeOfWork[0]
+              item.value === savedFilters[index].AppliedFilter.WorkTypeId[0]
           )[0]
         : null
     );
     setDepartment(
-      savedFilters[index].AppliedFilter.department.length > 0
+      savedFilters[index].AppliedFilter.DepartmentId !== null
         ? departmentDropdown.filter(
             (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.department[0]
+              item.value === savedFilters[index].AppliedFilter.DepartmentId[0]
           )[0]
         : null
     );
     setBillingType(
-      savedFilters[index].AppliedFilter.billingType.length > 0
+      savedFilters[index].AppliedFilter.BillingTypeId !== null
         ? billingTypeDropdown.filter(
             (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.billingType[0]
+              item.value === savedFilters[index].AppliedFilter.BillingTypeId[0]
           )[0]
         : null
     );
     setStartDate(
-      savedFilters[index].AppliedFilter.startDate === null
+      savedFilters[index].AppliedFilter.StartDate === null
         ? ""
-        : savedFilters[index].AppliedFilter.startDate
+        : savedFilters[index].AppliedFilter.StartDate
     );
     setEndDate(
-      savedFilters[index].AppliedFilter.endDate === null
+      savedFilters[index].AppliedFilter.EndDate === null
         ? ""
-        : savedFilters[index].AppliedFilter.endDate
+        : savedFilters[index].AppliedFilter.EndDate
     );
   };
 
@@ -423,17 +431,22 @@ const ClientReportFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210 }}
+                  sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
-                    options={clientDropdown}
+                    options={clientDropdown.filter(
+                      (option) =>
+                        !clients.find((client) => client.value === option.value)
+                    )}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setClient(data);
+                      setClients(data);
+                      setClientName(data.map((d: any) => d.value));
                       setTypeOfWork(null);
                     }}
-                    value={client}
+                    value={clients}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
@@ -450,6 +463,7 @@ const ClientReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={typeOfWorkDropdown}
+                    disabled={clientName.length > 1}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
                       setTypeOfWork(data);
