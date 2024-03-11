@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
-import { Button, Typography, Password, Spinner } from "next-ts-lib";
+import { Typography, Password, Spinner } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import Footer from "@/components/common/Footer";
 import { useState } from "react";
@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Pabs from "@/assets/icons/Pabs";
 import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
+import { Button } from "@mui/material";
 
 const Page = () => {
   const getToken = useSearchParams();
@@ -117,21 +118,15 @@ const Page = () => {
               </span>
             ) : (
               <Button
+                variant="contained"
+                className="rounded-full !font-semibold mt-[35px] w-full !bg-secondary"
                 type="submit"
-                variant="btn-primary"
-                className="rounded-full !font-semibold mt-[35px] w-full"
               >
                 CONTINUE
               </Button>
             )}
           </div>
         </form>
-        {/* <div className="pb-4 flex justify-between items-center mt-[20px] text-darkCharcoal text-sm lg:text-base">
-          Don&rsquo;t have an accout?&nbsp;
-          <Link href={""} className="text-primary font-semibold underline">
-            Sign Up
-          </Link>
-        </div> */}
       </div>
       <Footer />
     </div>

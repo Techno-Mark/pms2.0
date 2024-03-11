@@ -21,15 +21,6 @@ import { hasNoToken, hasPermissionWorklog } from "@/utils/commonFunction";
 import { useRouter } from "next/navigation";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import Loading from "@/assets/icons/reports/Loading";
-import {
-  CLIENT,
-  GROUP,
-  ORGANIZATION,
-  PROCESS,
-  PROJECT,
-  STATUS,
-  USER,
-} from "@/components/settings/tables/Constants/Tabname";
 import { toast } from "react-toastify";
 import ReportLoader from "@/components/common/ReportLoader";
 import { callAPI } from "@/utils/API/callAPI";
@@ -161,13 +152,8 @@ const Page = () => {
     number | null
   >(null);
 
-  const [clientSearchValue, setClientSearchValue] = useState("");
-  const [projectSearchValue, setProjectSearchValue] = useState("");
-  const [userSearchValue, setUserSearchValue] = useState("");
-  const [processSearchValue, setProcessSearchValue] = useState("");
-  const [statusSearchValue, setStatusSearchValue] = useState("");
-  const [groupSearchValue, setGroupSearchValue] = useState("");
-  const [orgSearchValue, setOrgSearchValue] = useState("");
+  const [search, setSearch] = useState("");
+  const [searchValue, setSearchValue] = useState("");
   const [canExport, setCanExport] = useState<boolean>(false);
 
   useEffect(() => {
@@ -235,13 +221,8 @@ const Page = () => {
       if (visibleTabs.some((tab) => tab.id === tabId)) {
         setTab(tabId);
         setSelectedTabIndex(index);
-        setClientSearchValue("");
-        setProjectSearchValue("");
-        setUserSearchValue("");
-        setProcessSearchValue("");
-        setGroupSearchValue("");
-        setStatusSearchValue("");
-        setOrgSearchValue("");
+        setSearch("");
+        setSearchValue("");
         return;
       }
 
@@ -510,29 +491,8 @@ const Page = () => {
   };
 
   const clearSearchValue = (tab: string) => {
-    switch (tab) {
-      case CLIENT:
-        setClientSearchValue("");
-        break;
-      case PROJECT:
-        setProjectSearchValue("");
-        break;
-      case USER:
-        setUserSearchValue("");
-        break;
-      case PROCESS:
-        setProcessSearchValue("");
-        break;
-      case GROUP:
-        setGroupSearchValue("");
-        break;
-      case STATUS:
-        setStatusSearchValue("");
-        break;
-      case ORGANIZATION:
-        setOrgSearchValue("");
-        break;
-    }
+    setSearch("");
+    setSearchValue("");
   };
 
   const handlePermissionName = (e: any) => {
@@ -636,6 +596,14 @@ const Page = () => {
     setIsDeleteOpenProject(false);
   };
 
+  const handleSearchChange = (e: any) => {
+    setSearch(e.target.value);
+    const timer = setTimeout(() => {
+      setSearchValue(e.target.value);
+    }, 500);
+    return () => clearTimeout(timer);
+  };
+
   return (
     <Wrapper className="min-h-screen overflow-y-auto">
       <Navbar
@@ -692,37 +660,8 @@ const Page = () => {
                       <InputBase
                         className="pl-1 pr-7 border-b border-b-lightSilver w-48"
                         placeholder="Search"
-                        value={
-                          tab === "Client"
-                            ? clientSearchValue
-                            : tab === "Project"
-                            ? projectSearchValue
-                            : tab === "User"
-                            ? userSearchValue
-                            : tab === "Process"
-                            ? processSearchValue
-                            : tab === "Group"
-                            ? groupSearchValue
-                            : tab === "Status"
-                            ? statusSearchValue
-                            : tab === "Organization" && orgSearchValue
-                        }
-                        onChange={(e: any) =>
-                          tab === "Client"
-                            ? setClientSearchValue(e.target.value)
-                            : tab === "Project"
-                            ? setProjectSearchValue(e.target.value)
-                            : tab === "User"
-                            ? setUserSearchValue(e.target.value)
-                            : tab === "Process"
-                            ? setProcessSearchValue(e.target.value)
-                            : tab === "Group"
-                            ? setGroupSearchValue(e.target.value)
-                            : tab === "Status"
-                            ? setStatusSearchValue(e.target.value)
-                            : tab === "Organization" &&
-                              setOrgSearchValue(e.target.value)
-                        }
+                        value={search}
+                        onChange={(e: any) => handleSearchChange(e)}
                       />
                       <span className="absolute top-2 right-2 text-slatyGrey">
                         <SearchIcon />
@@ -786,12 +725,12 @@ const Page = () => {
                                 };
 
                                 const searchData: any = {
-                                  Client: clientSearchValue,
-                                  Group: groupSearchValue,
-                                  Process: processSearchValue,
-                                  Project: projectSearchValue,
-                                  Status: statusSearchValue,
-                                  User: userSearchValue,
+                                  Client: search,
+                                  Group: search,
+                                  Process: search,
+                                  Project: search,
+                                  Status: search,
+                                  User: search,
                                 };
 
                                 const selectedTab = tabMappings[tab];
@@ -994,7 +933,7 @@ const Page = () => {
             canEdit={hasPermissionWorklog("client", "save", "settings")}
             canDelete={hasPermissionWorklog("client", "delete", "settings")}
             canProcess={hasPermissionWorklog("client", "save", "settings")}
-            onSearchClientData={clientSearchValue}
+            onSearchClientData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
           />
@@ -1013,7 +952,7 @@ const Page = () => {
             canView={hasPermissionWorklog("project", "view", "settings")}
             canEdit={hasPermissionWorklog("project", "save", "settings")}
             canDelete={hasPermissionWorklog("project", "delete", "settings")}
-            onSearchProjectData={projectSearchValue}
+            onSearchProjectData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
           />
@@ -1032,7 +971,7 @@ const Page = () => {
             canView={hasPermissionWorklog("user", "view", "settings")}
             canEdit={hasPermissionWorklog("user", "save", "settings")}
             canDelete={hasPermissionWorklog("user", "delete", "settings")}
-            onSearchUserData={userSearchValue}
+            onSearchUserData={searchValue}
             canPermission={
               hasPermissionWorklog("permission", "view", "settings") &&
               hasPermissionWorklog("permission", "save", "settings")
@@ -1055,7 +994,7 @@ const Page = () => {
             canView={hasPermissionWorklog("group", "view", "settings")}
             canEdit={hasPermissionWorklog("group", "save", "settings")}
             canDelete={hasPermissionWorklog("group", "delete", "settings")}
-            onSearchGroupData={groupSearchValue}
+            onSearchGroupData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
           />
@@ -1074,7 +1013,7 @@ const Page = () => {
             canView={hasPermissionWorklog("process", "view", "settings")}
             canEdit={hasPermissionWorklog("process", "save", "settings")}
             canDelete={hasPermissionWorklog("process", "delete", "settings")}
-            onSearchProcessData={processSearchValue}
+            onSearchProcessData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
           />
@@ -1093,7 +1032,7 @@ const Page = () => {
             canView={hasPermissionWorklog("status", "view", "settings")}
             canEdit={hasPermissionWorklog("status", "save", "settings")}
             canDelete={hasPermissionWorklog("status", "delete", "settings")}
-            onSearchStatusData={statusSearchValue}
+            onSearchStatusData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
             currentFilterData={currentFilterData}
@@ -1131,7 +1070,7 @@ const Page = () => {
             onHandleOrgData={handleOrgData}
             onDataFetch={handleDataFetch}
             getOrgDetailsFunction={getOrgDetailsFunction}
-            onSearchOrgData={orgSearchValue}
+            onSearchOrgData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
           />

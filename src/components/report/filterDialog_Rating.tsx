@@ -61,11 +61,6 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
     0
   );
 
-  const handleRatingClose = () => {
-    handleRatingResetAll();
-    onClose();
-  };
-
   const handleRatingResetAll = () => {
     setProjectFilterRating(0);
     setReturnTypeFilterRating(0);
@@ -140,7 +135,7 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
         TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="md"
-        onClose={handleRatingClose}
+        onClose={() => onClose()}
       >
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
           <span className="text-lg font-medium">Filter</span>
@@ -262,7 +257,7 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
             Apply Filter
           </Button>
 
-          <Button variant="outlined" color="info" onClick={handleRatingClose}>
+          <Button variant="outlined" color="info" onClick={() => onClose()}>
             Cancel
           </Button>
         </DialogActions>

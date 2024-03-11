@@ -94,6 +94,8 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     } else {
       const timer = setTimeout(() => {
         getData({ ...workLoad_InitialFilter, globalSearch: searchValue });
+        setWorkloadCurrentPage(0);
+        setWorkloadRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -256,7 +258,7 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         title={undefined}
         columns={columns}
         data={workloadFields.data}
-        options={options}
+        options={{ ...options, tableBodyHeight: "73vh" }}
       />
       <TablePagination
         component="div"

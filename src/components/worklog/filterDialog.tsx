@@ -78,11 +78,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     handleResetAll();
   }, [isCompletedTaskClicked]);
 
-  const handleClose = () => {
-    handleResetAll();
-    onClose();
-  };
-
   const handleResetAll = () => {
     setProject(0);
     setPriority(0);
@@ -234,7 +229,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
         TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="md"
-        onClose={handleClose}
+        onClose={() => onClose()}
       >
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
           <span className="text-lg font-medium">Filter</span>
@@ -429,7 +424,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
             Apply Filter
           </Button>
 
-          <Button variant="outlined" color="info" onClick={handleClose}>
+          <Button variant="outlined" color="info" onClick={() => onClose()}>
             Cancel
           </Button>
         </DialogActions>

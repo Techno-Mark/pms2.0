@@ -28,10 +28,9 @@ import { Delete, Edit } from "@mui/icons-material";
 import { getFormattedDate } from "@/utils/timerFunctions";
 import { isWeekend } from "@/utils/commonFunction";
 import {
-  getAssigneeDropdownData,
+  getCCDropdownData,
   getClientDropdownData,
   getProjectDropdownData,
-  getReviewerDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
 
@@ -50,6 +49,8 @@ const BillingReportFilter = ({
   const [isBTC, setIsBTC] = useState<boolean>(false);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
+  const [startDateReview, setStartDateReview] = useState<string | number>("");
+  const [endDateReview, setEndDateReview] = useState<string | number>("");
 
   const [clientDropdown, setClientDropdown] = useState<any[]>([]);
   const [projectDropdown, setProjectDropdown] = useState<any[]>([]);
@@ -64,12 +65,15 @@ const BillingReportFilter = ({
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [resetting, setResetting] = useState<boolean>(false);
   const [error, setError] = useState("");
+  const [idFilter, setIdFilter] = useState<any>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
+
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
 
   const handleNoOfPageChange = (e: any) => {
     if (/^\d+$/.test(e.target.value.trim())) {
@@ -91,11 +95,16 @@ const BillingReportFilter = ({
     setAssignee(null);
     setReviewer(null);
     setNoOfPages("");
-    setResetting(true);
     setIsBTC(false);
     setStartDate("");
     setEndDate("");
+    setStartDateReview("");
+    setEndDateReview("");
     setError("");
+    setFilterName("");
+    setDefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...billingreport_InitialFilter,
@@ -103,7 +112,6 @@ const BillingReportFilter = ({
   };
 
   const handleClose = () => {
-    setResetting(false);
     setFilterName("");
     onDialogClose(false);
     setDefaultFilter(false);
@@ -117,6 +125,8 @@ const BillingReportFilter = ({
     setIsBTC(false);
     setStartDate("");
     setEndDate("");
+    setStartDateReview("");
+    setEndDateReview("");
     setError("");
   };
 
@@ -141,6 +151,18 @@ const BillingReportFilter = ({
             ? null
             : getFormattedDate(startDate)
           : getFormattedDate(endDate),
+      startDateReview:
+        startDateReview.toString().trim().length <= 0
+          ? endDateReview.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(endDateReview)
+          : getFormattedDate(startDateReview),
+      endDateReview:
+        endDateReview.toString().trim().length <= 0
+          ? startDateReview.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(startDateReview)
+          : getFormattedDate(endDateReview),
     });
 
     onDialogClose(false);
@@ -159,6 +181,8 @@ const BillingReportFilter = ({
           IsBTC: savedFilters[index].AppliedFilter.IsBTC,
           startDate: savedFilters[index].AppliedFilter.startDate,
           endDate: savedFilters[index].AppliedFilter.endDate,
+          startDateReview: savedFilters[index].AppliedFilter.startDateReview,
+          endDateReview: savedFilters[index].AppliedFilter.endDateReview,
         });
       }
     }
@@ -200,6 +224,18 @@ const BillingReportFilter = ({
               ? null
               : getFormattedDate(startDate)
             : getFormattedDate(endDate),
+        startDateReview:
+          startDateReview.toString().trim().length <= 0
+            ? endDateReview.toString().trim().length <= 0
+              ? null
+              : getFormattedDate(endDateReview)
+            : getFormattedDate(startDateReview),
+        endDateReview:
+          endDateReview.toString().trim().length <= 0
+            ? startDateReview.toString().trim().length <= 0
+              ? null
+              : getFormattedDate(startDateReview)
+            : getFormattedDate(endDateReview),
       },
       type: billingReport,
     };
@@ -229,11 +265,12 @@ const BillingReportFilter = ({
       noOfPages.toString().trim().length > 0 ||
       isBTC !== isBTCRef_ForPreviousValue.current ||
       startDate.toString().trim().length > 0 ||
-      endDate.toString().trim().length > 0;
+      endDate.toString().trim().length > 0 ||
+      startDateReview.toString().trim().length > 0 ||
+      endDateReview.toString().trim().length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-    setResetting(false);
   }, [
     clientName,
     projectName,
@@ -243,6 +280,8 @@ const BillingReportFilter = ({
     isBTC,
     startDate,
     endDate,
+    startDateReview,
+    endDateReview,
   ]);
 
   useEffect(() => {
@@ -254,24 +293,15 @@ const BillingReportFilter = ({
           null
         )
       );
-      setAssigneeDropdown(
-        await getAssigneeDropdownData(
-          clientName.length > 0 ? clientName[0] : 0,
-          3
-        )
-      );
-      setReviewerDropdown(
-        await getReviewerDropdownData(
-          clientName.length > 0 ? clientName[0] : 0,
-          3
-        )
-      );
+      const userData = await getCCDropdownData();
+      userData.length > 0
+        ? setAssigneeDropdown(userData)
+        : setAssigneeDropdown([]);
+      userData.length > 0
+        ? setReviewerDropdown(userData)
+        : setReviewerDropdown([]);
     };
     filterDropdowns();
-
-    if (clientName.length > 0 || resetting) {
-      onDialogClose(true);
-    }
   }, [clientName]);
 
   useEffect(() => {
@@ -337,6 +367,8 @@ const BillingReportFilter = ({
     setNoOfPages(savedFilters[index].AppliedFilter.numberOfPages ?? "");
     setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
     setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
+    setStartDateReview(savedFilters[index].AppliedFilter.startDateReview ?? "");
+    setEndDateReview(savedFilters[index].AppliedFilter.endDateReview ?? "");
 
     setCurrentFilterId(savedFilters[index].FilterId);
     setFilterName(savedFilters[index].Name);
@@ -359,6 +391,9 @@ const BillingReportFilter = ({
         handleClose();
         getFilterList();
         setCurrentFilterId("");
+        sendFilterToPage({
+          ...billingreport_InitialFilter,
+        });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -371,7 +406,7 @@ const BillingReportFilter = ({
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -456,7 +491,7 @@ const BillingReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
@@ -469,7 +504,7 @@ const BillingReportFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, my: 0.4, minWidth: 210 }}
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <Autocomplete
                     multiple
@@ -563,7 +598,7 @@ const BillingReportFilter = ({
 
                 <FormControl
                   variant="standard"
-                  sx={{ mt: 0.35, mx: 0.75, minWidth: 210 }}
+                  sx={{ mt: 0, mx: 0.75, minWidth: 210 }}
                 >
                   <TextField
                     id="noOfPages"
@@ -574,11 +609,11 @@ const BillingReportFilter = ({
                   />
                 </FormControl>
                 <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px] -mt-1`}
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="Start Date"
+                      label="Preparation From"
                       shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(endDate)}
                       value={startDate === "" ? null : dayjs(startDate)}
@@ -598,7 +633,7 @@ const BillingReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="End Date"
+                      label="Preparation To"
                       shouldDisableDate={isWeekend}
                       minDate={dayjs(startDate)}
                       maxDate={dayjs(Date.now())}
@@ -612,10 +647,50 @@ const BillingReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Review From"
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now()) || dayjs(endDateReview)}
+                      value={
+                        startDateReview === "" ? null : dayjs(startDateReview)
+                      }
+                      onChange={(newValue: any) => setStartDateReview(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Review To"
+                      shouldDisableDate={isWeekend}
+                      minDate={dayjs(startDateReview)}
+                      maxDate={dayjs(Date.now())}
+                      value={endDateReview === "" ? null : dayjs(endDateReview)}
+                      onChange={(newValue: any) => setEndDateReview(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+              </div>
+              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{
-                    mt: 2,
                     mx: 0.75,
                     minWidth: 100,
                   }}
@@ -688,7 +763,15 @@ const BillingReportFilter = ({
               </>
             )}
 
-            <Button variant="outlined" color="info" onClick={handleClose}>
+            <Button
+              variant="outlined"
+              color="info"
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
+            >
               Cancel
             </Button>
           </DialogActions>

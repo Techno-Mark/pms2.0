@@ -11,7 +11,7 @@ import MUIDataTable from "mui-datatables";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import { callAPI } from "@/utils/API/callAPI";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 
 const pageNo = 1;
 const pageSize = 10;

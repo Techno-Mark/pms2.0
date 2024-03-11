@@ -86,14 +86,16 @@ const LogReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       const timer = setTimeout(() => {
-        getData({ ...filteredData, globalSearch: searchValue });
+        getData({ ...filteredData, GlobalSearch: searchValue });
         setLogReportCurrentPage(0);
         setLogReportRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     } else {
       const timer = setTimeout(() => {
-        getData({ ...logReport_InitialFilter, globalSearch: searchValue });
+        getData({ ...logReport_InitialFilter, GlobalSearch: searchValue });
+        setLogReportCurrentPage(0);
+        setLogReportRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -107,7 +109,7 @@ const LogReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         columns={reportsLogCols}
         data={logReportFields.data}
         title={undefined}
-        options={options}
+        options={{ ...options, tableBodyHeight: "73vh" }}
       />
       <TablePagination
         component="div"

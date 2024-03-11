@@ -3,10 +3,10 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 export const callAPI = async (
-  url: any,
+  url: string,
   params: any,
   successCallback: any,
-  method: string
+  method: "get" | "post" | "GET" | "POST"
 ) => {
   try {
     const token = await localStorage.getItem("token");

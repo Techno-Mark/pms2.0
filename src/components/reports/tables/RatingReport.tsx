@@ -94,6 +94,8 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     } else {
       const timer = setTimeout(() => {
         getData({ ...rating_InitialFilter, GlobalSearch: searchValue });
+        setRatingCurrentPage(0);
+        setRatingRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -105,7 +107,7 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         title={undefined}
         columns={reportsRatingCols}
         data={ratingReportFields.data}
-        options={options}
+        options={{ ...options, tableBodyHeight: "73vh" }}
       />
       <TablePagination
         component="div"

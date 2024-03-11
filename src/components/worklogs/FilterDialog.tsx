@@ -4,14 +4,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import {
-  Autocomplete,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  TextField,
-} from "@mui/material";
-import Select from "@mui/material/Select";
+import { Autocomplete, FormControl, TextField } from "@mui/material";
 import { toast } from "react-toastify";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -52,7 +45,6 @@ const initialFilter = {
 const FilterDialog: React.FC<FilterModalProps> = ({
   onOpen,
   onClose,
-  onActionClick,
   onDataFetch,
   onCurrentFilterId,
   currentFilterData,
@@ -105,27 +97,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     setFilterName("");
     currentFilterData(initialFilter);
     setError("");
-  };
-
-  const handleResetAllOnEdit = () => {
-    setClientName(null);
-    setWorkType(null);
-    setProjectName(null);
-    setStatus(null);
-    setAssignedTo(0);
-    setAssignedBy(null);
-    setDueDate(null);
-    setStartDate(null);
-    setEndDate(null);
-    setReviewStatus(0);
-    setFilterName("");
-    currentFilterData(initialFilter);
-    setError("");
-  };
-
-  const handleClose = () => {
-    handleResetAll();
-    onClose();
   };
 
   const getClientData = async () => {
@@ -391,16 +362,11 @@ const FilterDialog: React.FC<FilterModalProps> = ({
         TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="md"
-        onClose={handleClose}
+        onClose={() => onClose()}
       >
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
           <span className="text-lg font-medium">Filter</span>
-          <Button
-            color="error"
-            onClick={
-              onCurrentFilterId > 0 ? handleResetAllOnEdit : handleResetAll
-            }
-          >
+          <Button color="error" onClick={handleResetAll}>
             Reset all
           </Button>
         </DialogTitle>
@@ -678,7 +644,15 @@ const FilterDialog: React.FC<FilterModalProps> = ({
             </>
           )}
 
-          <Button variant="outlined" color="info" onClick={handleClose}>
+          <Button
+            variant="outlined"
+            color="info"
+            onClick={() =>
+              onCurrentFilterId > 0 || !!onCurrentFilterId
+                ? handleResetAll()
+                : onClose()
+            }
+          >
             Cancel
           </Button>
         </DialogActions>

@@ -352,6 +352,17 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       },
     },
     {
+      name: "Quantity",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Qty."),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
       name: "ReturnYear",
       options: {
         filter: true,
@@ -616,6 +627,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
             title={undefined}
             options={{
               ...options,
+              tableBodyHeight: "73vh",
               textLabels: {
                 body: {
                   noMatch: (

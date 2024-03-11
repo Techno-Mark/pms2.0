@@ -1971,7 +1971,7 @@ const EditDrawer = ({
       SubProcessId: subProcessWorklogs === 0 ? null : subProcessWorklogs,
       StatusId: statusWorklogs,
       Priority: priorityWorklogs === 0 ? 0 : priorityWorklogs,
-      Quantity: quantityWorklogs,
+      Quantity: quantityWorklogs <= 0 ? null : quantityWorklogs,
       Description:
         descriptionWorklogs.toString().length <= 0
           ? null
@@ -2324,7 +2324,7 @@ const EditDrawer = ({
               item.Type === "InProgress" ||
               item.Type === "Stop" ||
               item.Type === "Rework" ||
-              item.Type === "Submitted" ||
+              // item.Type === "Submitted" ||
               item.value === editStatusWorklogs
           )
         );
@@ -2342,7 +2342,7 @@ const EditDrawer = ({
               item.Type === "Rework" ||
               item.Type === "ReworkInProgress" ||
               item.Type === "ReworkPrepCompleted" ||
-              item.Type === "ReworkSubmitted" ||
+              // item.Type === "ReworkSubmitted" ||
               item.value === editStatusWorklogs
           )
         );
@@ -3322,8 +3322,8 @@ const EditDrawer = ({
                               const selectedDate = dayjs(newDate.$d);
                               let nextDate: any = selectedDate;
                               if (
-                                selectedDate.day() === 4 ||
-                                selectedDate.day() === 5
+                                selectedDate.day() === 5 ||
+                                selectedDate.day() === 6
                               ) {
                                 nextDate = nextDate.add(4, "day");
                               } else {

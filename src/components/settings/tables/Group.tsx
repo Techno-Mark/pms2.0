@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { GROUP } from "./Constants/Tabname";
 import { toast } from "react-toastify";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import {
   generateCommonBodyRender,
   generateCustomHeaderName,

@@ -170,7 +170,7 @@ const Datatable_Worklog = ({
     setFilteredOject({
       ...filteredObject,
       PageNo: 1,
-      pageSize: pageSize,
+      PageSize: pageSize,
       GlobalSearch: onSearchWorkTypeData,
     });
     onSearchWorkTypeData.length > 0 && setPage(0);

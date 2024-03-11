@@ -9,7 +9,15 @@ export const generateCustomHeaderName = (headerName: string) => {
 export const generateCommonBodyRender = (bodyValue: any) => {
   return (
     <div className="ml-2">
-      {!bodyValue || bodyValue === "0" ? "-" : bodyValue}
+      {!bodyValue || bodyValue === "0" || bodyValue === null ? "-" : bodyValue}
+    </div>
+  );
+};
+
+export const generateCommonBodyRenderPercentage = (bodyValue: any) => {
+  return (
+    <div className="ml-2">
+      {!bodyValue || bodyValue === "0" || bodyValue === null ? "-" : `${bodyValue} %`}
     </div>
   );
 };

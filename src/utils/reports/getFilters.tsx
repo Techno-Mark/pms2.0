@@ -129,6 +129,8 @@ export const customreport_InitialFilter = {
   allInfoDate: null,
   startDate: null,
   endDate: null,
+  startDateReview: null,
+  endDateReview: null,
   isDownload: false,
 };
 
@@ -148,18 +150,100 @@ export const rating_InitialFilter: any = {
 };
 
 export const logReport_InitialFilter = {
-  pageNo: 1,
-  pageSize: 10,
-  globalSearch: "",
-  sortColumn: null,
-  isDesc: true,
-  clientFilter: [],
-  isDownload: false,
-  projectFilter: [],
-  processFilter: [],
-  updatedByFilter: [],
-  startDate: null,
-  endDate: null,
+  GlobalSearch: "",
+  PageNo: 1,
+  PageSize: 10,
+  SortColumn: null,
+  IsDesc: 1,
+  ClientFilter: [],
+  ProjectFilter: [],
+  ProcessFilter: [],
+  UpdatedByFilter: [],
+  StartDate: null,
+  EndDate: null,
+};
+
+export const activity_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  sortColumn: "",
+  IsDesc: true,
+  GlobalSearch: "",
+  StartDate: null,
+  EndDate: null,
+  Users: [],
+  DepartmentId: null,
+  IsDownload: false,
+};
+
+export const ap_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  sortColumn: "",
+  IsDesc: true,
+  GlobalSearch: "",
+  StartDate: null,
+  EndDate: null,
+  Users: [],
+  Clients: [],
+  ReportingManagers: [],
+  DepartmentId: null,
+  IsDownload: false,
+};
+
+export const client_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  GlobalSearch: "",
+  SortColumn: "",
+  IsDesc: true,
+  IsDownload: false,
+  DepartmentId: null,
+  BillingTypeId: null,
+  WorkTypeId: null,
+  StartDate: null,
+  EndDate: null,
+  Clients: [],
+};
+
+export const kra_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  sortColumn: "",
+  IsDesc: true,
+  GlobalSearch: "",
+  StartDate: null,
+  EndDate: null,
+  Users: [],
+  Clients: [],
+  DepartmentId: null,
+  IsDownload: false,
+};
+
+export const am_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  sortColumn: "",
+  IsDesc: true,
+  GlobalSearch: "",
+  StartDate: null,
+  EndDate: null,
+  Users: [],
+  ReportingManagerId: null,
+  DepartmentId: null,
+  IsDownload: false,
+};
+
+export const wltr_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  GlobalSearch: "",
+  SortColumn: "",
+  IsDesc: true,
+  IsDownload: false,
+  StartDate: null,
+  EndDate: null,
+  Clients: [],
 };
 
 export const getCurrentTabDetails = (activeTab: number, getBody?: boolean) => {
@@ -192,5 +276,23 @@ export const getCurrentTabDetails = (activeTab: number, getBody?: boolean) => {
   }
   if (activeTab === 10) {
     return getBody ? logReport_InitialFilter : "auditlog";
+  }
+  if (activeTab === 11) {
+    return getBody ? activity_InitialFilter : "activity";
+  }
+  if (activeTab === 12) {
+    return getBody ? ap_InitialFilter : "a/p";
+  }
+  if (activeTab === 13) {
+    return getBody ? kra_InitialFilter : "client";
+  }
+  if (activeTab === 14) {
+    return getBody ? kra_InitialFilter : "kra";
+  }
+  if (activeTab === 15) {
+    return getBody ? kra_InitialFilter : "auto/manual";
+  }
+  if (activeTab === 16) {
+    return getBody ? wltr_InitialFilter : "wltr";
   }
 };

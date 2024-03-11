@@ -89,6 +89,8 @@ const CustomReportFilter = ({
   const [priority, setPriority] = useState<any>(null);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
+  const [startDateReview, setStartDateReview] = useState<string | number>("");
+  const [endDateReview, setEndDateReview] = useState<string | number>("");
   const [dueDate, setDueDate] = useState<string | number>("");
   const [allInfoDate, setAllInfoDate] = useState<string | number>("");
 
@@ -107,12 +109,15 @@ const CustomReportFilter = ({
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [resetting, setResetting] = useState<boolean>(false);
   const [error, setError] = useState("");
+  const [idFilter, setIdFilter] = useState<any>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
+
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
 
   const handleNoOfPageChange = (e: any) => {
     if (/^\d+$/.test(e.target.value.trim())) {
@@ -138,10 +143,15 @@ const CustomReportFilter = ({
     setPriority(null);
     setStartDate("");
     setEndDate("");
+    setStartDateReview("");
+    setEndDateReview("");
     setDueDate("");
     setAllInfoDate("");
     setError("");
-    setResetting(true);
+    setFilterName("");
+    setDefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...customreport_InitialFilter,
@@ -167,10 +177,11 @@ const CustomReportFilter = ({
     setPriority(null);
     setStartDate("");
     setEndDate("");
+    setStartDateReview("");
+    setEndDateReview("");
     setDueDate("");
     setAllInfoDate("");
     setError("");
-    setResetting(false);
   };
 
   const handleFilterApply = () => {
@@ -190,7 +201,9 @@ const CustomReportFilter = ({
       priority: priority === null ? null : priority.value,
       startDate:
         startDate.toString().trim().length <= 0
-          ? null
+          ? endDate.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(endDate)
           : getFormattedDate(startDate),
       endDate:
         endDate.toString().trim().length <= 0
@@ -198,6 +211,18 @@ const CustomReportFilter = ({
             ? null
             : getFormattedDate(startDate)
           : getFormattedDate(endDate),
+      startDateReview:
+        startDateReview.toString().trim().length <= 0
+          ? endDateReview.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(endDateReview)
+          : getFormattedDate(startDateReview),
+      endDateReview:
+        endDateReview.toString().trim().length <= 0
+          ? startDateReview.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(startDateReview)
+          : getFormattedDate(endDateReview),
       dueDate:
         dueDate.toString().trim().length <= 0
           ? null
@@ -230,6 +255,8 @@ const CustomReportFilter = ({
           priority: savedFilters[index].AppliedFilter.priority,
           startDate: savedFilters[index].AppliedFilter.startDate,
           endDate: savedFilters[index].AppliedFilter.endDate,
+          startDateReview: savedFilters[index].AppliedFilter.startDateReview,
+          endDateReview: savedFilters[index].AppliedFilter.endDateReview,
           dueDate: savedFilters[index].AppliedFilter.dueDate,
           allInfoDate: savedFilters[index].AppliedFilter.allInfoDate,
         });
@@ -265,7 +292,9 @@ const CustomReportFilter = ({
           priority: priority === null ? null : priority.value,
           startDate:
             startDate.toString().trim().length <= 0
-              ? null
+              ? endDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(endDate)
               : getFormattedDate(startDate),
           endDate:
             endDate.toString().trim().length <= 0
@@ -273,6 +302,18 @@ const CustomReportFilter = ({
                 ? null
                 : getFormattedDate(startDate)
               : getFormattedDate(endDate),
+          startDateReview:
+            startDateReview.toString().trim().length <= 0
+              ? endDateReview.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(endDateReview)
+              : getFormattedDate(startDateReview),
+          endDateReview:
+            endDateReview.toString().trim().length <= 0
+              ? startDateReview.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(startDateReview)
+              : getFormattedDate(endDateReview),
           dueDate:
             dueDate.toString().trim().length <= 0
               ? null
@@ -322,12 +363,13 @@ const CustomReportFilter = ({
       priority !== null ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0 ||
+      startDateReview.toString().trim().length > 0 ||
+      endDateReview.toString().trim().length > 0 ||
       dueDate.toString().trim().length > 0 ||
       allInfoDate.toString().trim().length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-    setResetting(false);
   }, [
     clientName,
     projectName,
@@ -343,6 +385,8 @@ const CustomReportFilter = ({
     priority,
     startDate,
     endDate,
+    startDateReview,
+    endDateReview,
     dueDate,
     allInfoDate,
   ]);
@@ -376,10 +420,6 @@ const CustomReportFilter = ({
       setStatusDropdown(await getStatusDropdownData(3));
     };
     customDropdowns();
-
-    if (clientName.length > 0 || resetting) {
-      onDialogClose(true);
-    }
   }, [clientName, processName]);
 
   const getFilterList = async () => {
@@ -503,6 +543,8 @@ const CustomReportFilter = ({
     );
     setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
     setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
+    setStartDateReview(savedFilters[index].AppliedFilter.startDateReview ?? "");
+    setEndDateReview(savedFilters[index].AppliedFilter.endDateReview ?? "");
     setDueDate(savedFilters[index].AppliedFilter.dueDate ?? "");
     setAllInfoDate(savedFilters[index].AppliedFilter.allInfoDate ?? "");
   };
@@ -522,6 +564,7 @@ const CustomReportFilter = ({
         handleClose();
         getFilterList();
         setCurrentFilterId("");
+        sendFilterToPage({ ...customreport_InitialFilter });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -534,7 +577,7 @@ const CustomReportFilter = ({
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -619,7 +662,7 @@ const CustomReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
@@ -632,7 +675,7 @@ const CustomReportFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, my: 0.5, minWidth: 200 }}
+                  sx={{ mx: 0.75, minWidth: 200 }}
                 >
                   <Autocomplete
                     multiple
@@ -917,7 +960,7 @@ const CustomReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="From"
+                      label="Recieved From"
                       value={startDate === "" ? null : dayjs(startDate)}
                       shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
@@ -935,7 +978,7 @@ const CustomReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="To"
+                      label="Recieved To"
                       value={endDate === "" ? null : dayjs(endDate)}
                       shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
@@ -970,6 +1013,45 @@ const CustomReportFilter = ({
                 </div>
               </div>
               <div className="flex gap-[20px]">
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Review From"
+                      value={
+                        startDateReview === "" ? null : dayjs(startDateReview)
+                      }
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now())}
+                      onChange={(newValue: any) => setStartDateReview(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Review To"
+                      value={endDateReview === "" ? null : dayjs(endDateReview)}
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now())}
+                      minDate={dayjs(startDateReview)}
+                      onChange={(newValue: any) => setEndDateReview(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
                 >
@@ -1046,7 +1128,15 @@ const CustomReportFilter = ({
               </>
             )}
 
-            <Button variant="outlined" color="info" onClick={handleClose}>
+            <Button
+              variant="outlined"
+              color="info"
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
+            >
               Cancel
             </Button>
           </DialogActions>

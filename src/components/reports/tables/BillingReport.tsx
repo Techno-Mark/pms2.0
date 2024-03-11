@@ -104,6 +104,12 @@ const BillingReport = ({
   const [billingCurrentPage, setBiliingCurrentPage] = useState<number>(0);
   const [billingRowsPerPage, setBillingRowsPerPage] = useState<any>(10);
 
+  const handleClearSelection = () => {
+    setSelectedIndex([]);
+    setRaisedInvoice([]);
+    setBTCData([]);
+  };
+
   const getData = async (arg1: any) => {
     setBillingReportFields({
       ...billingReportFields,
@@ -119,7 +125,7 @@ const BillingReport = ({
       if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0);
         setBiliingReportData(ResponseData.List);
-
+        handleClearSelection();
         setBillingReportFields({
           ...billingReportFields,
           loaded: true,
@@ -172,6 +178,7 @@ const BillingReport = ({
       pageNo: newPage + 1,
       pageSize: billingRowsPerPage,
     });
+    handleClearSelection();
   };
 
   const handleChangeRowsPerPage = (
@@ -185,6 +192,7 @@ const BillingReport = ({
       pageNo: 1,
       pageSize: event.target.value,
     });
+    handleClearSelection();
   };
 
   const handleBTCData = (newValue: any, workItemId: any) => {
@@ -254,6 +262,8 @@ const BillingReport = ({
     } else {
       const timer = setTimeout(() => {
         getData({ ...billingreport_InitialFilter, globalSearch: searchValue });
+        setBiliingCurrentPage(0);
+        setBillingRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -376,7 +386,7 @@ const BillingReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () =>
-          generateCustomHeaderName("Preparation Date"),
+          generateCustomHeaderName("Date of Preparation"),
         customBodyRender: (value: any) => {
           return generateDateWithTime(value);
         },
@@ -387,7 +397,7 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Reviewer Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Date of Review"),
         customBodyRender: (value: any) => {
           return generateDateWithTime(value);
         },
@@ -434,6 +444,17 @@ const BillingReport = ({
         customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "ReturnYear",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Return Year"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -514,18 +535,20 @@ const BillingReport = ({
         title={undefined}
         options={{
           ...options,
-          selectableRows: "multiple",
+          tableBodyHeight: "73vh",
+          selectableRows:
+            filteredData !== null && filteredData?.IsBTC ? "none" : "multiple",
           rowsSelected: isBTCSaved ? [] : selectedIndex,
           onRowSelectionChange: (i: any, j: any, selectedRowsIndex: any) => {
             if (selectedRowsIndex.length > 0) {
               const data = selectedRowsIndex.map(
                 (d: any) =>
                   new Object({
-                    workItemId: billingReportData[d].WorkItemId,
+                    workItemId: billingReportData[d]?.WorkItemId,
                     btcValue:
-                      billingReportData[d].BTC !== null
-                        ? toSeconds(billingReportData[d].BTC)
-                        : billingReportData[d].BTC,
+                      billingReportData[d]?.BTC !== null
+                        ? toSeconds(billingReportData[d]?.BTC)
+                        : billingReportData[d]?.BTC,
                     IsBTC: true,
                   })
               );
@@ -545,6 +568,11 @@ const BillingReport = ({
         onPageChange={handleChangePage}
         rowsPerPage={billingRowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        rowsPerPageOptions={
+          billingReportFields.dataCount > 100
+            ? [10, 25, 50, 100, billingReportFields.dataCount]
+            : [10, 25, 50, 100]
+        }
       />
     </ThemeProvider>
   ) : (

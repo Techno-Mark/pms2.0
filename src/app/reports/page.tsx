@@ -41,18 +41,36 @@ import AuditReportFilter from "@/components/reports/Filter/AuditReportFilter";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import LogReport from "@/components/reports/tables/LogReport";
 import LogReportFilter from "@/components/reports/Filter/LogReportFilter";
+import ActivityReport from "@/components/reports/tables/ActivityReport";
+import ActivityReportFilter from "@/components/reports/Filter/ActivityReportFilter";
+import APReport from "@/components/reports/tables/APReport";
+import APReportFilter from "@/components/reports/Filter/APReportFilter";
+import ClientReport from "@/components/reports/tables/ClientReport";
+import KRAReport from "@/components/reports/tables/KRAReport";
+import AutoManualReport from "@/components/reports/tables/AutoManualReport";
+import WLTRReport from "@/components/reports/tables/WLTRReport";
+import WLTRReportFilter from "@/components/reports/Filter/WLTRReportFilter";
+import AutoManualReportFilter from "@/components/reports/Filter/AutoManualReportFilter";
+import KRAReportFilter from "@/components/reports/Filter/KRAReportFilter";
+import ClientReportFilter from "@/components/reports/Filter/ClientReportFilter";
 
 const allTabs = [
-  { label: "project", value: 1 },
-  { label: "user", value: 2 },
-  { label: "timesheet", value: 3 },
-  { label: "workload", value: 4 },
-  { label: "billing", value: 7 },
-  { label: "custom", value: 8 },
-  { label: "user log", value: 5 },
-  { label: "audit", value: 6 },
-  { label: "rating", value: 9 },
-  { label: "log", value: 10 },
+  { label: "project", value: 1, name: "Project" },
+  { label: "user", value: 2, name: "User" },
+  { label: "timesheet", value: 3, name: "Timesheet" },
+  { label: "workload", value: 4, name: "Workload" },
+  { label: "billing", value: 7, name: "Billing" },
+  { label: "custom", value: 8, name: "Custom" },
+  { label: "user log", value: 5, name: "User Log" },
+  { label: "audit", value: 6, name: "Audit" },
+  { label: "rating", value: 9, name: "Rating" },
+  { label: "log", value: 10, name: "Log" },
+  { label: "activity", value: 11, name: "Activity" },
+  { label: "actual/planned", value: 12, name: "Actual/Planned" },
+  { label: "client", value: 13, name: "Client" },
+  { label: "kra", value: 14, name: "KRA" },
+  { label: "auto/manual", value: 15, name: "Auto/Manual" },
+  { label: "wltr", value: 16, name: "WLTR" },
 ];
 
 const MoreTabs = ({ moreTabs, handleMoreTabsClick }: any) => {
@@ -73,10 +91,8 @@ const MoreTabs = ({ moreTabs, handleMoreTabsClick }: any) => {
             } ${index === moreTabs.length - 1 ? "rounded-b" : ""}`}
             onClick={() => handleMoreTabsClick(tab, index)}
           >
-            <label
-              className={`mx-4 my-1 flex capitalize cursor-pointer text-base`}
-            >
-              {tab.label}
+            <label className={`mx-4 my-1 flex cursor-pointer text-base`}>
+              {tab.name}
             </label>
           </div>
         ))}
@@ -99,6 +115,7 @@ const Page = () => {
     useState<boolean>(false);
   const [saveBTCData, setSaveBTCData] = useState<boolean>(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>("");
   const [searchValue, setSearchValue] = useState<string>("");
 
   useEffect(() => {
@@ -129,7 +146,13 @@ const Page = () => {
         hasPermissionWorklog("audit", "View", "Report") ||
         hasPermissionWorklog("billing", "View", "Report") ||
         hasPermissionWorklog("custom", "View", "Report") ||
-        hasPermissionWorklog("log", "View", "Report"))
+        hasPermissionWorklog("log", "View", "Report") ||
+        hasPermissionWorklog("activity", "View", "Report") ||
+        hasPermissionWorklog("Actual/Planned", "View", "Report") ||
+        hasPermissionWorklog("client", "View", "Report") ||
+        hasPermissionWorklog("kra", "View", "Report") ||
+        hasPermissionWorklog("Auto/Manual", "View", "Report") ||
+        hasPermissionWorklog("wltr", "View", "Report"))
     );
   };
 
@@ -154,11 +177,8 @@ const Page = () => {
       );
       setMoreTabs(
         allTabs
-          .map(
-            (tab: any) =>
-              // hasPermissionWorklog(tab.label, "view", "report") ?
-              tab
-            // : false
+          .map((tab: any) =>
+            hasPermissionWorklog(tab.label, "view", "report") ? tab : false
           )
           .filter((tab: any) => tab !== false)
           .slice(6)
@@ -180,6 +200,7 @@ const Page = () => {
     setActiveTab(tabId);
     setFilteredData(null);
     setSearchValue("");
+    setSearch("");
   };
 
   const handleCanExport = (arg1: boolean) => {
@@ -229,6 +250,10 @@ const Page = () => {
     const response = await axios.post(
       getCurrentTabDetails(activeTab).toLowerCase() === "billing"
         ? `${process.env.report_api_url}/report/billing/exportclientwisezipReport`
+        : getCurrentTabDetails(activeTab).toLowerCase() === "auto/manual"
+        ? `${process.env.report_api_url}/report/automanual/export`
+        : getCurrentTabDetails(activeTab).toLowerCase() === "a/p"
+        ? `${process.env.report_api_url}/report/actualplanned/export`
         : `${process.env.report_api_url}/report/${getCurrentTabDetails(
             activeTab
           )}/export`,
@@ -276,6 +301,14 @@ const Page = () => {
     }
   };
 
+  const handleSearchChange = (e: any) => {
+    setSearch(e.target.value);
+    const timer = setTimeout(() => {
+      setSearchValue(e.target.value);
+    }, 500);
+    return () => clearTimeout(timer);
+  };
+
   return (
     <Wrapper>
       <div>
@@ -292,14 +325,14 @@ const Page = () => {
                 .map((tab: any, index: number) => (
                   <Fragment key={tab.value}>
                     <label
-                      className={`mx-4 capitalize cursor-pointer text-base ${
+                      className={`mx-4 cursor-pointer text-base ${
                         activeTab === tab.value
                           ? "text-secondary font-semibold"
                           : "text-slatyGrey"
                       }`}
                       onClick={() => handleTabChange(tab.value)}
                     >
-                      {tab.label}
+                      {tab.name}
                     </label>
                     <LineIcon />
                   </Fragment>
@@ -328,8 +361,8 @@ const Page = () => {
               <InputBase
                 className="pl-1 pr-7 border-b border-b-lightSilver w-52"
                 placeholder="Search"
-                value={searchValue}
-                onChange={(e: any) => setSearchValue(e.target.value)}
+                value={search}
+                onChange={(e: any) => handleSearchChange(e)}
               />
               <span className="absolute top-2 right-2 text-slatyGrey">
                 <SearchIcon />
@@ -476,6 +509,54 @@ const Page = () => {
             onHandleExport={handleCanExport}
           />
         )}
+
+        {activeTab === 11 && (
+          <ActivityReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
+        {activeTab === 12 && (
+          <APReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
+        {activeTab === 13 && (
+          <ClientReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
+        {activeTab === 14 && (
+          <KRAReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
+        {activeTab === 15 && (
+          <AutoManualReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
+        {activeTab === 16 && (
+          <WLTRReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
       </div>
 
       {/* tabs filter */}
@@ -550,6 +631,48 @@ const Page = () => {
       )}
       {activeTab === 10 && (
         <LogReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 11 && (
+        <ActivityReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 12 && (
+        <APReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 13 && (
+        <ClientReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 14 && (
+        <KRAReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 15 && (
+        <AutoManualReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 16 && (
+        <WLTRReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}

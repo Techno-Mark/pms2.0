@@ -10,10 +10,8 @@ import { callAPI } from "@/utils/API/callAPI";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import {
   Paper,
-  Switch,
   Table,
   TableBody,
-  TableCell,
   TableContainer,
   TablePagination,
   TableRow,
@@ -25,7 +23,7 @@ import {
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import MUIDataTable from "mui-datatables";
 
@@ -40,14 +38,13 @@ const initialFilter = {
   IsDesc: 0,
   IsBillable: null,
   IsProductive: null,
-  WorkTypeFilter: null, //[1] //null
+  WorkTypeFilter: null,
 };
 
 function Process({
   onOpen,
   onEdit,
   onDataFetch,
-  onHandleProcessData,
   getOrgDetailsFunction,
   canView,
   canEdit,
@@ -191,7 +188,7 @@ function Process({
         </span>
         {open && (
           <React.Fragment>
-            <div className="absolute top-30 right-[-9rem] z-10 flex justify-center items-center">
+            <div className="absolute top-30 right-[1rem] z-10 flex justify-center items-center">
               <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-28">
                   {actionPermissions.map((action: any, index: any) => (
@@ -446,7 +443,7 @@ function Process({
   const options: any = {
     filterType: "checkbox",
     responsive: "standard",
-    tableBodyHeight: "73vh",
+    tableBodyHeight: "70vh",
     viewColumns: false,
     filter: false,
     print: false,
@@ -474,7 +471,10 @@ function Process({
                             return (
                               <TableRow className="h-12" key={index}>
                                 <span className="flex items-center justify-start pt-3">
-                                  {index === data[rowMeta.rowIndex].ActivityList.length - 1 ? i : i + ", "}
+                                  {index ===
+                                  data[rowMeta.rowIndex].ActivityList.length - 1
+                                    ? i
+                                    : i + ", "}
                                 </span>
                               </TableRow>
                             );

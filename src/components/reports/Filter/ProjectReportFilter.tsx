@@ -69,30 +69,37 @@ const ProjectReportFilter = ({
   );
   const [project_anyFieldSelected, setProject_AnyFieldSelected] =
     useState(false);
-  const [project_currentFilterId, setProject_CurrentFilterId] =
-    useState<any>("");
+  const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [project_savedFilters, setProject_SavedFilters] = useState<any[]>([]);
   const [project_defaultFilter, setProject_DefaultFilter] =
     useState<boolean>(false);
   const [project_searchValue, setProject_SearchValue] = useState<string>("");
   const [project_isDeleting, setProject_IsDeleting] = useState<boolean>(false);
-  const [project_resetting, setProject_Resetting] = useState<boolean>(false);
   const [project_error, setProject_Error] = useState("");
+  const [idFilter, setIdFilter] = useState<any>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
 
-  const handleProject_ResetAll = () => {
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
+
+  const handleResetAll = () => {
     setProject_ClientName([]);
     setProject_Clients([]);
     setProject_Projects(null);
     setProject_TypeOfWork(null);
     setProject_BillingType(null);
-    setProject_Resetting(true);
     setProject_StartDate("");
     setProject_EndDate("");
     setProject_Error("");
+    setProject_ProjectDropdown([]);
+    setProject_WorkTypeDropdown([]);
+    setProject_FilterName("");
+    setProject_DefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...project_filter_InitialFilter,
@@ -101,7 +108,6 @@ const ProjectReportFilter = ({
 
   const handleProject_Close = () => {
     onDialogClose(false);
-    setProject_Resetting(false);
     setProject_FilterName("");
     setProject_DefaultFilter(false);
     setProject_Clients([]);
@@ -112,6 +118,8 @@ const ProjectReportFilter = ({
     setProject_StartDate("");
     setProject_EndDate("");
     setProject_Error("");
+    setProject_ProjectDropdown([]);
+    setProject_WorkTypeDropdown([]);
   };
 
   const handleProject_FilterApply = () => {
@@ -164,8 +172,7 @@ const ProjectReportFilter = ({
     } else {
       setProject_Error("");
       const params = {
-        filterId:
-          project_currentFilterId !== "" ? project_currentFilterId : null,
+        filterId: currentFilterId !== "" ? currentFilterId : null,
         name: project_filterName,
         AppliedFilter: {
           clients: project_clientName.length > 0 ? project_clientName : [],
@@ -222,7 +229,6 @@ const ProjectReportFilter = ({
 
     setProject_AnyFieldSelected(isAnyFieldSelected);
     setProject_SaveFilter(false);
-    setProject_Resetting(false);
   }, [
     project_typeOfWork,
     project_billingType,
@@ -235,9 +241,6 @@ const ProjectReportFilter = ({
   useEffect(() => {
     const filterDropdowns = async () => {
       setProject_ClientDropdown(await getClientDropdownData());
-      setProject_ProjectDropdown(
-        await getProjectDropdownData(project_clientName[0], null)
-      );
       project_clientName.length > 0 &&
         setProject_WorkTypeDropdown(
           await getTypeOfWorkDropdownData(project_clientName[0])
@@ -245,11 +248,21 @@ const ProjectReportFilter = ({
       setProject_BillingTypeDropdown(await getBillingTypeData());
     };
     filterDropdowns();
-
-    if (project_clientName.length > 0 || project_resetting) {
-      onDialogClose(true);
-    }
   }, [project_clientName]);
+
+  useEffect(() => {
+    const filterDropdowns = async () => {
+      project_clientName.length > 0 &&
+        project_typeOfWork?.value > 0 &&
+        setProject_ProjectDropdown(
+          await getProjectDropdownData(
+            project_clientName[0],
+            project_typeOfWork?.value
+          )
+        );
+    };
+    filterDropdowns();
+  }, [project_clientName, project_typeOfWork]);
 
   const getProject_FilterList = async () => {
     const params = {
@@ -272,7 +285,7 @@ const ProjectReportFilter = ({
     setProject_SaveFilter(true);
     setProject_DefaultFilter(true);
     setProject_FilterName(project_savedFilters[index].Name);
-    setProject_CurrentFilterId(project_savedFilters[index].FilterId);
+    setCurrentFilterId(project_savedFilters[index].FilterId);
 
     setProject_Clients(
       project_savedFilters[index].AppliedFilter.clients.length > 0
@@ -284,20 +297,6 @@ const ProjectReportFilter = ({
         : []
     );
     setProject_ClientName(project_savedFilters[index].AppliedFilter.clients);
-    setProject_Projects(
-      project_savedFilters[index].AppliedFilter.projects.length > 0
-        ? (
-            await getProjectDropdownData(
-              project_savedFilters[index].AppliedFilter.clients[0],
-              null
-            )
-          ).filter(
-            (item: any) =>
-              item.value ===
-              project_savedFilters[index].AppliedFilter.projects[0]
-          )[0]
-        : null
-    );
     setProject_TypeOfWork(
       project_savedFilters[index].AppliedFilter.TypeOfWork === null
         ? null
@@ -310,6 +309,21 @@ const ProjectReportFilter = ({
               item.value ===
               project_savedFilters[index].AppliedFilter.TypeOfWork
           )[0]
+    );
+    setProject_Projects(
+      project_savedFilters[index].AppliedFilter.projects.length > 0 &&
+        project_savedFilters[index].AppliedFilter.TypeOfWork > 0
+        ? (
+            await getProjectDropdownData(
+              project_savedFilters[index].AppliedFilter.clients[0],
+              project_savedFilters[index].AppliedFilter.TypeOfWork
+            )
+          ).filter(
+            (item: any) =>
+              item.value ===
+              project_savedFilters[index].AppliedFilter.projects[0]
+          )[0]
+        : null
     );
     setProject_BillingType(
       project_savedFilters[index].AppliedFilter.BillingType === null
@@ -328,7 +342,7 @@ const ProjectReportFilter = ({
 
   const handleProject_SavedFilterDelete = async () => {
     const params = {
-      filterId: project_currentFilterId,
+      filterId: currentFilterId,
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
@@ -340,7 +354,10 @@ const ProjectReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleProject_Close();
         getProject_FilterList();
-        setProject_CurrentFilterId("");
+        setCurrentFilterId("");
+        sendFilterToPage({
+          ...project_filter_InitialFilter,
+        });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -353,7 +370,7 @@ const ProjectReportFilter = ({
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleProject_Close}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -368,7 +385,7 @@ const ProjectReportFilter = ({
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
                 setProject_DefaultFilter(true);
-                setProject_CurrentFilterId(0);
+                setCurrentFilterId(0);
               }}
             >
               Default Filter
@@ -397,7 +414,7 @@ const ProjectReportFilter = ({
                   <span
                     className="pl-1"
                     onClick={() => {
-                      setProject_CurrentFilterId(i.FilterId);
+                      setCurrentFilterId(i.FilterId);
                       onDialogClose(false);
                       handleProject_SavedFilterApply(index);
                     }}
@@ -413,7 +430,7 @@ const ProjectReportFilter = ({
                     <span
                       onClick={() => {
                         setProject_IsDeleting(true);
-                        setProject_CurrentFilterId(i.FilterId);
+                        setCurrentFilterId(i.FilterId);
                       }}
                     >
                       <Tooltip title="Delete" placement="top" arrow>
@@ -425,11 +442,7 @@ const ProjectReportFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button
-              onClick={handleProject_ResetAll}
-              className="mt-2"
-              color="error"
-            >
+            <Button onClick={handleResetAll} className="mt-2" color="error">
               clear all
             </Button>
           </div>
@@ -440,11 +453,11 @@ const ProjectReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleProject_Close}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleProject_ResetAll}>
+            <Button color="error" onClick={handleResetAll}>
               Reset all
             </Button>
           </DialogTitle>
@@ -453,7 +466,7 @@ const ProjectReportFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, my: 0.4, minWidth: 210 }}
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <Autocomplete
                     multiple
@@ -468,8 +481,8 @@ const ProjectReportFilter = ({
                     onChange={(e: any, data: any) => {
                       setProject_Clients(data);
                       setProject_ClientName(data.map((d: any) => d.value));
-                      setProject_Projects(null);
                       setProject_TypeOfWork(null);
+                      setProject_Projects(null);
                     }}
                     value={project_clients}
                     renderInput={(params: any) => (
@@ -477,6 +490,29 @@ const ProjectReportFilter = ({
                         {...params}
                         variant="standard"
                         label="Client Name"
+                      />
+                    )}
+                  />
+                </FormControl>
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, minWidth: 210 }}
+                >
+                  <Autocomplete
+                    id="tags-standard"
+                    options={project_workTypeDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setProject_TypeOfWork(data);
+                      setProject_Projects(null);
+                    }}
+                    disabled={project_clientName.length > 1}
+                    value={project_typeOfWork}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Type Of Work"
                       />
                     )}
                   />
@@ -499,28 +535,6 @@ const ProjectReportFilter = ({
                         {...params}
                         variant="standard"
                         label="Project Name"
-                      />
-                    )}
-                  />
-                </FormControl>
-                <FormControl
-                  variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210 }}
-                >
-                  <Autocomplete
-                    id="tags-standard"
-                    options={project_workTypeDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
-                      setProject_TypeOfWork(data);
-                    }}
-                    disabled={project_clientName.length > 1}
-                    value={project_typeOfWork}
-                    renderInput={(params: any) => (
-                      <TextField
-                        {...params}
-                        variant="standard"
-                        label="Type Of Work"
                       />
                     )}
                   />
@@ -659,14 +673,17 @@ const ProjectReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={handleProject_Close}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
             >
               Cancel
             </Button>
           </DialogActions>
         </Dialog>
       )}
-
       <DeleteDialog
         isOpen={project_isDeleting}
         onClose={() => setProject_IsDeleting(false)}

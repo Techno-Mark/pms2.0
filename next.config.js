@@ -10,6 +10,7 @@ const nextConfig = {
     storageName: process.env.storageName,
     attachment: process.env.attachment,
     sasToken: process.env.sasToken,
+    redirectURLWLTR: process.env.redirectURLWLTR,
   },
 };
 

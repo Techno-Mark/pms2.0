@@ -8,7 +8,7 @@ import {
   generateCommonBodyRender,
   generateCustomHeaderName,
 } from "@/utils/datatable/CommonFunction";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import { Switch, ThemeProvider } from "@mui/material";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";

@@ -95,12 +95,6 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     setStatusDropdownData([]);
     currentFilterData(initialFilter);
   };
-
-  const handleClose = () => {
-    handleResetAll();
-    onClose();
-  };
-
   const getDropdownData = async () => {
     setClientDropdownData(await getClientDropdownData());
     setUserData(await getCCDropdownData());
@@ -227,7 +221,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
         TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="md"
-        onClose={handleClose}
+        onClose={() => onClose()}
       >
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
           <span className="text-lg font-medium">Filter</span>

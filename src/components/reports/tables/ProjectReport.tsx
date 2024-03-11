@@ -99,6 +99,8 @@ const ProjectReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     } else {
       const timer = setTimeout(() => {
         getData({ ...project_InitialFilter, globalSearch: searchValue });
+        setProjectCurrentPage(0);
+        setProjectRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -110,7 +112,7 @@ const ProjectReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         columns={reportsProjectsCols}
         data={projectFields.data}
         title={undefined}
-        options={options}
+        options={{ ...options, tableBodyHeight: "73vh" }}
       />
       <TablePagination
         component="div"

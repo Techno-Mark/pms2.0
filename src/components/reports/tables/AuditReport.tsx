@@ -83,6 +83,8 @@ const AuditReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     } else {
       const timer = setTimeout(() => {
         getData({ ...audit_InitialFilter, GlobalSearch: searchValue });
+        setAuditCurrentPage(0);
+        setAuditRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -94,7 +96,7 @@ const AuditReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         title={undefined}
         columns={reportsAuditCols}
         data={auditFields.data}
-        options={options}
+        options={{ ...options, tableBodyHeight: "73vh" }}
       />
       <TablePagination
         component="div"

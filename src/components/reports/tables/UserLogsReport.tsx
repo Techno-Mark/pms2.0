@@ -78,6 +78,8 @@ const UserLogsReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     } else {
       const timer = setTimeout(() => {
         getData({ ...userLogs_InitialFilter, globalSearch: searchValue });
+        setUserCurrentPage(0);
+        setUserRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -89,7 +91,7 @@ const UserLogsReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         title={undefined}
         columns={reportsUserLogsCols}
         data={userlogFields.data}
-        options={options}
+        options={{ ...options, tableBodyHeight: "73vh" }}
       />
       <TablePagination
         component="div"

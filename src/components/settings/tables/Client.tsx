@@ -4,7 +4,7 @@ import {
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
-import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { ColorToolTip, getMuiTheme } from "@/utils/datatable/CommonStyle";
 import {
   Paper,
   Switch,
@@ -22,7 +22,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { CLIENT } from "./Constants/Tabname";
 import ReportLoader from "@/components/common/ReportLoader";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import SwitchModal from "@/components/common/SwitchModal";
 import DrawerOverlay from "../drawer/DrawerOverlay";
 import ClientFieldsDrawer from "../drawer/ClientFieldDrawer";
@@ -241,7 +241,7 @@ const Client = ({
         </span>
         {open && (
           <React.Fragment>
-            <div className="absolute top-30 right-[5.5rem] z-10 flex justify-center items-center">
+            <div className="absolute top-30 right-[0.5rem] z-10 flex justify-center items-center">
               <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-28">
                   {actionPermissions.map((action: any, index: any) => (
@@ -340,6 +340,25 @@ const Client = ({
     }
   };
 
+  const generateShortProcessNameBody = (bodyValue: any) => {
+    const shortProcessName =
+      bodyValue.length > 50 ? bodyValue.slice(0, 50) : bodyValue;
+    return (
+      <div>
+        {bodyValue === null || bodyValue === "" ? (
+          "-"
+        ) : (
+          <>
+            <ColorToolTip title={bodyValue} placement="top">
+              {shortProcessName}
+            </ColorToolTip>
+            <span>...</span>
+          </>
+        )}
+      </div>
+    );
+  };
+
   const column = [
     {
       name: "Name",
@@ -354,7 +373,7 @@ const Client = ({
     {
       name: "Address",
       label: "Address",
-      bodyRenderer: generateCommonBodyRender,
+      bodyRenderer: generateShortProcessNameBody,
     },
     {
       name: "ContactNo",

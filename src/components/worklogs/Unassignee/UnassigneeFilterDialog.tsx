@@ -42,15 +42,11 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
 
-  const handleClose = () => {
-    handleResetAll();
-    onClose();
-  };
-
   const handleResetAll = () => {
     setClientName(null);
     setTypeOfWork(null);
     currentFilterData(initialFilter);
+    onClose();
   };
 
   useEffect(() => {
@@ -61,8 +57,8 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
 
   useEffect(() => {
     const selectedFields = {
-      ClientId: clientName !== null ? clientName : null,
-      TypeOfWork: typeOfWork !== null ? typeOfWork : null,
+      ClientId: clientName !== null ? clientName.value : null,
+      TypeOfWork: typeOfWork !== null ? typeOfWork.value : null,
     };
     setCurrSelectedFileds(selectedFields);
   }, [clientName, typeOfWork]);
@@ -97,7 +93,7 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
         TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="md"
-        onClose={handleClose}
+        onClose={() => onClose()}
       >
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
           <span className="text-lg font-medium">Filter</span>
@@ -160,7 +156,7 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
             Apply Filter
           </Button>
 
-          <Button variant="outlined" color="info" onClick={handleClose}>
+          <Button variant="outlined" color="info" onClick={() => onClose()}>
             Cancel
           </Button>
         </DialogActions>

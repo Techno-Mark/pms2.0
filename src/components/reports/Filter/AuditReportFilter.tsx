@@ -53,13 +53,15 @@ const AuditReportFilter = ({
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [resetting, setResetting] = useState<boolean>(false);
   const [error, setError] = useState("");
+  const [idFilter, setIdFilter] = useState<any>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
-
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
+
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
 
   const handleResetAll = () => {
     setAuditClientName([]);
@@ -69,6 +71,10 @@ const AuditReportFilter = ({
     setStartDate("");
     setEndDate("");
     setError("");
+    setFilterName("");
+    setDefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...audit_InitialFilter,
@@ -76,7 +82,6 @@ const AuditReportFilter = ({
   };
 
   const handleClose = () => {
-    setResetting(false);
     setFilterName("");
     onDialogClose(false);
     setDefaultFilter(false);
@@ -139,7 +144,7 @@ const AuditReportFilter = ({
     }
     setError("");
     const params = {
-      filterId: !!currentFilterId ?? currentFilterId,
+      filterId: currentFilterId !== "" ? currentFilterId : null,
       name: filterName,
       AppliedFilter: {
         clients: auditClientName,
@@ -189,7 +194,6 @@ const AuditReportFilter = ({
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-    setResetting(false);
   }, [auditClientName, userName, startDate, endDate]);
 
   useEffect(() => {
@@ -198,11 +202,7 @@ const AuditReportFilter = ({
       setUserDropdown(await getCCDropdownData());
     };
     filterDropdowns();
-
-    if (auditClientName.length > 0 || resetting) {
-      onDialogClose(true);
-    }
-  }, [auditClientName]);
+  }, []);
 
   const getFilterList = async () => {
     const params = {
@@ -279,6 +279,7 @@ const AuditReportFilter = ({
         handleClose();
         getFilterList();
         setCurrentFilterId("");
+        sendFilterToPage({ ...audit_InitialFilter });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -291,7 +292,7 @@ const AuditReportFilter = ({
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -376,7 +377,7 @@ const AuditReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleClose}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
@@ -537,7 +538,15 @@ const AuditReportFilter = ({
               </>
             )}
 
-            <Button variant="outlined" color="info" onClick={handleClose}>
+            <Button
+              variant="outlined"
+              color="info"
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
+            >
               Cancel
             </Button>
           </DialogActions>

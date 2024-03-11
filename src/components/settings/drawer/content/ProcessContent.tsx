@@ -303,8 +303,8 @@ const ProcessContent = forwardRef<
       setSubProcessNameError(false);
       setReturnTypeError(false);
       setEstTimeError(false);
-      setProductive(true);
-      setBillable(true);
+      !onEdit && setProductive(true);
+      !onEdit && setBillable(true);
     };
 
     const ProcessDataValue = async () => {
@@ -324,28 +324,20 @@ const ProcessContent = forwardRef<
       const estTimeTotalSeconds =
         parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
       subProcessName.trim().length <= 0 && setSubProcessNameError(true);
-      parseInt(returnType) <= 0 && setReturnTypeError(true);
+      typeOfWork === 3 && parseInt(returnType) <= 0 && setReturnTypeError(true);
       estTime.length < 8 && setEstTimeError(true);
-      if (
-        typeOfWork > 0 &&
-        !typeOfWorkError &&
-        processValue > 0 &&
-        subProcessName.trim().length > 0 &&
-        returnType > 0 &&
-        estTime !== "00:00:00" &&
-        estTime !== "" &&
-        estTime.length >= 8 &&
-        estTimeTotalSeconds > 0 &&
-        !processValueError &&
-        !subProcessNameError &&
-        !returnTypeError &&
-        !estTimeError
-      ) {
+
+      const saveData = () => {
         onChangeLoader(true);
         const params = {
           ProcessId: onEdit || 0,
           Name: subProcessName.trim(),
-          ReturnTypeId: parseInt(returnType) === 3 ? 0 : parseInt(returnType),
+          ReturnTypeId:
+            typeOfWork !== 3
+              ? null
+              : parseInt(returnType) === 3
+              ? 0
+              : parseInt(returnType),
           ActivityList: activity
             .map((i: any) =>
               i !== undefined && i.trim().length > 0 ? i.trim() : false
@@ -381,6 +373,40 @@ const ProcessContent = forwardRef<
           }
         };
         callAPI(url, params, successCallback, "POST");
+      };
+
+      if (
+        typeOfWork > 0 &&
+        typeOfWork === 3 &&
+        !typeOfWorkError &&
+        processValue > 0 &&
+        subProcessName.trim().length > 0 &&
+        returnType > 0 &&
+        estTime !== "00:00:00" &&
+        estTime !== "" &&
+        estTime.length >= 8 &&
+        estTimeTotalSeconds > 0 &&
+        !processValueError &&
+        !subProcessNameError &&
+        !returnTypeError &&
+        !estTimeError
+      ) {
+        saveData();
+      } else if (
+        typeOfWork > 0 &&
+        typeOfWork !== 3 &&
+        !typeOfWorkError &&
+        processValue > 0 &&
+        subProcessName.trim().length > 0 &&
+        estTime !== "00:00:00" &&
+        estTime !== "" &&
+        estTime.length >= 8 &&
+        estTimeTotalSeconds > 0 &&
+        !processValueError &&
+        !subProcessNameError &&
+        !estTimeError
+      ) {
+        saveData();
       }
     };
 
@@ -415,7 +441,7 @@ const ProcessContent = forwardRef<
     }, [onEdit, onOpen, typeOfWork]);
 
     useEffect(() => {
-      clearError();
+      // clearError();
       if (!onEdit) {
         onOpen && setActivity([]);
       } else {
@@ -491,6 +517,13 @@ const ProcessContent = forwardRef<
                 onChange={(e: any) => {
                   setTypeOfWork(e.target.value);
                   setProcessValue(0);
+                  setProcessValueError(false);
+                  setProcessNameError(false);
+                  setProcessNameErrText("");
+                  setSubProcessName("");
+                  setSubProcessNameError(false);
+                  setReturnType(0);
+                  setReturnTypeError(false);
                   e.target.value > 0 && setTypeOfWorkError(false);
                 }}
                 onBlur={(e: any) => {
@@ -639,38 +672,36 @@ const ProcessContent = forwardRef<
               variant="standard"
             />
           </div>
-          <div className="flex flex-col px-[20px] mt-2">
-            <FormControl
-              variant="standard"
-              // sx={{ width: 300, mt: -0.3, mx: 0.75 }}
-              error={returnTypeError}
-            >
-              <InputLabel id="demo-simple-select-standard-label">
-                Return Type
-                <span className="text-defaultRed">&nbsp;*</span>
-              </InputLabel>
-              <Select
-                labelId="demo-simple-select-standard-label"
-                id="demo-simple-select-standard"
-                value={returnType === 0 ? "" : returnType}
-                onChange={(e) => setReturnType(parseInt(e.target.value))}
-                onBlur={(e: any) => {
-                  if (e.target.value > 0) {
-                    setReturnTypeError(false);
-                  }
-                }}
-              >
-                {returnTypeDrpdown.map((i: any, index: number) => (
-                  <MenuItem value={i.value} key={index}>
-                    {i.label}
-                  </MenuItem>
-                ))}
-              </Select>
-              {returnTypeError && (
-                <FormHelperText>This is a required field.</FormHelperText>
-              )}
-            </FormControl>
-          </div>
+          {typeOfWork === 3 && (
+            <div className="flex flex-col px-[20px] mt-2">
+              <FormControl variant="standard" error={returnTypeError}>
+                <InputLabel id="demo-simple-select-standard-label">
+                  Return Type
+                  <span className="text-defaultRed">&nbsp;*</span>
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-standard-label"
+                  id="demo-simple-select-standard"
+                  value={returnType === 0 ? "" : returnType}
+                  onChange={(e) => setReturnType(parseInt(e.target.value))}
+                  onBlur={(e: any) => {
+                    if (e.target.value > 0) {
+                      setReturnTypeError(false);
+                    }
+                  }}
+                >
+                  {returnTypeDrpdown.map((i: any, index: number) => (
+                    <MenuItem value={i.value} key={index}>
+                      {i.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {returnTypeError && (
+                  <FormHelperText>This is a required field.</FormHelperText>
+                )}
+              </FormControl>
+            </div>
+          )}
           <div className="flex flex-col px-[20px]">
             <TextField
               label={
