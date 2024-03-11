@@ -7,49 +7,58 @@ import "next-ts-lib/dist/index.css";
 import Pabs from "@/assets/icons/Pabs";
 import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
+import { TextField } from "@mui/material";
+import Image from "next/image";
 
 const ForgetPassword = () => {
   const router = useRouter();
-  const [forgetValue, setForgetValue] = useState("");
-  const [error, setError] = useState(false);
-  const [emailError, setEmaiLError] = useState(false);
   const [clicked, setClicked] = useState(false);
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (forgetValue.trim() === "") {
-      setError(true);
-    } else {
-      setError(false);
+
+    email.trim().length <= 0 && setEmailError(true);
+    email.trim().length > 100 && setEmailError(true);
+    setEmailError(!regex.test(email));
+
+    if (
+      !emailError &&
+      email.trim().length > 0 &&
+      email.trim().length < 100 &&
+      regex.test(email)
+    ) {
       setClicked(true);
-      if (forgetValue.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/) && emailError) {
-        const params = { Username: forgetValue };
-        const url = `${process.env.api_url}/auth/forgotpassword`;
-        const successCallback = (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
-        ) => {
-          if (ResponseStatus === "Success" && error === false) {
-            router.push(`/forgot-confirm/?email=${forgetValue}`);
-            toast.success("Please check your email.");
-            setClicked(false);
-          } else {
-            setClicked(false);
-          }
-        };
-        callAPI(url, params, successCallback, "POST");
-      }
+      const params = { Username: email };
+      const url = `${process.env.api_url}/auth/forgotpassword`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          router.push(`/forgot-confirm/?email=${email}`);
+          toast.success("Please check your email.");
+          setClicked(false);
+        } else {
+          setClicked(false);
+        }
+      };
+      callAPI(url, params, successCallback, "POST");
     }
   };
 
   return (
     <div className="flex flex-col justify-center min-h-screen">
       <div className="flex items-center justify-between max-h-screen min-w-full relative">
-        <img
+        <Image
           src="https://staging-tms.azurewebsites.net/assets/images/pages/forgot-password-v2.svg"
           alt="FP"
           className="w-[50%]"
+          width={500}
+          height={500}
         />
         <span className="absolute top-10 left-4">
           <Pabs width="200" height="50" />
@@ -68,15 +77,42 @@ const ForgetPassword = () => {
             onSubmit={handleSubmit}
           >
             <div className="pb-2 w-[300px] lg:w-[356px]">
-              <Email
-                label="Email"
+              <TextField
                 type="email"
-                id="email"
-                name="email"
-                validate
-                getValue={(e) => setForgetValue(e)}
-                getError={(e) => setEmaiLError(e)}
-                hasError={error}
+                sx={{ mt: "-10px" }}
+                label={
+                  <span>
+                    Email
+                    <span className="!text-defaultRed">&nbsp;*</span>
+                  </span>
+                }
+                fullWidth
+                value={email?.trim().length <= 0 ? "" : email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEmailError(false);
+                }}
+                onBlur={(e: any) => {
+                  if (
+                    e.target.value.trim().length < 1 ||
+                    e.target.value.trim().length > 100 ||
+                    !regex.test(e.target.value)
+                  ) {
+                    setEmailError(true);
+                  }
+                }}
+                error={emailError}
+                helperText={
+                  emailError && email?.trim().length > 100
+                    ? "Maximum 100 characters allowed."
+                    : emailError && !regex.test(email)
+                    ? "Please enter valid email."
+                    : emailError
+                    ? "This is a required field."
+                    : ""
+                }
+                margin="normal"
+                variant="standard"
               />
             </div>
             {clicked ? (

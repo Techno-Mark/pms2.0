@@ -75,7 +75,6 @@ const ClientReportFilter = ({
     setClientName([]);
     setClients([]);
     setTypeOfWork(null);
-    setTypeOfWorkDropdown([]);
     setDepartment(null);
     setBillingType(null);
     setFilterName("");
@@ -96,7 +95,6 @@ const ClientReportFilter = ({
     setClientName([]);
     setClients([]);
     setTypeOfWork(null);
-    setTypeOfWorkDropdown([]);
     setDepartment(null);
     setBillingType(null);
     setStartDate("");
@@ -445,7 +443,7 @@ const ClientReportFilter = ({
                     onChange={(e: any, data: any) => {
                       setClients(data);
                       setClientName(data.map((d: any) => d.value));
-                      setTypeOfWork(null);
+                      // setTypeOfWork(null);
                     }}
                     value={clients}
                     renderInput={(params: any) => (

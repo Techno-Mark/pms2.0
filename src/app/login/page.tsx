@@ -33,11 +33,6 @@ const Page = () => {
   const validateEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const showErrorToast = (message: string) => {
-    const errorMessage = message || "Login failed. Please try again.";
-    toast.error(errorMessage);
-  };
-
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setEmailError(email.trim().length <= 0);
