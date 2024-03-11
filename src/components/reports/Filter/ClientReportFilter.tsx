@@ -216,18 +216,19 @@ const ClientReportFilter = ({
   useEffect(() => {
     const filterDropdowns = async () => {
       setClientDropdown(await getClientDropdownData());
+      setTypeOfWorkDropdown(await getTypeOfWorkDropdownData(0));
       setDepartmentDropdown(await getDeptData());
       setBillingTypeDropdown(await getBillingTypeData());
     };
     filterDropdowns();
   }, []);
 
-  useEffect(() => {
-    const filterDropdowns = async () => {
-      setTypeOfWorkDropdown(await getTypeOfWorkDropdownData(clientName[0]));
-    };
-    clientName.length === 1 && filterDropdowns();
-  }, [clientName]);
+  // useEffect(() => {
+  //   const filterDropdowns = async () => {
+  //     setTypeOfWorkDropdown(await getTypeOfWorkDropdownData(clientName[0]));
+  //   };
+  //   clientName.length === 1 && filterDropdowns();
+  // }, [clientName]);
 
   const getFilterList = async () => {
     const params = {

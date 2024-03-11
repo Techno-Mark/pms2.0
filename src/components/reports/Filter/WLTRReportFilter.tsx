@@ -213,26 +213,26 @@ const WLTRReportFilter = ({
     setCurrentFilterId(savedFilters[index].FilterId);
 
     setClients(
-      savedFilters[index].AppliedFilter.clients === null
+      savedFilters[index].AppliedFilter.Clients.length <= 0
         ? []
         : clientDropdown.filter((client: any) =>
-            savedFilters[index].AppliedFilter.clients.includes(client.value)
+            savedFilters[index].AppliedFilter.Clients.includes(client.value)
           )
     );
     setClientName(
-      savedFilters[index].AppliedFilter.clients === null
+      savedFilters[index].AppliedFilter.Clients.length <= 0
         ? []
-        : savedFilters[index].AppliedFilter.clients
+        : savedFilters[index].AppliedFilter.Clients
     );
     setStartDate(
-      savedFilters[index].AppliedFilter.startDate === null
+      savedFilters[index].AppliedFilter.StartDate === null
         ? ""
-        : savedFilters[index].AppliedFilter.startDate
+        : savedFilters[index].AppliedFilter.StartDate
     );
     setEndDate(
-      savedFilters[index].AppliedFilter.endDate === null
+      savedFilters[index].AppliedFilter.EndDate === null
         ? ""
-        : savedFilters[index].AppliedFilter.endDate
+        : savedFilters[index].AppliedFilter.EndDate
     );
   };
 

@@ -15,6 +15,12 @@ import { DialogTransition } from "@/utils/style/DialogTransition";
 import { getFormattedDate } from "@/utils/timerFunctions";
 
 const InitialFilter = {
+  pageNo: 1,
+  pageSize: 10,
+  sortColumn: "",
+  isDesc: true,
+  GlobalSearch: "",
+  ProjectId: null,
   StartDate: null,
   EndDate: null,
 };
