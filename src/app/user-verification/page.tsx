@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Button, Password, Spinner } from "next-ts-lib";
+import { Password, Spinner } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
 import Footer from "@/components/common/Footer";
@@ -10,6 +10,7 @@ import Pabs from "@/assets/icons/Pabs";
 import { toast } from "react-toastify";
 import ReportLoader from "@/components/common/ReportLoader";
 import { callAPI } from "@/utils/API/callAPI";
+import { Button } from "@mui/material";
 
 const Page = () => {
   const router = useRouter();
@@ -195,9 +196,9 @@ const Page = () => {
                   <Spinner size="20px" />
                 ) : (
                   <Button
+                    variant="contained"
+                    className="rounded-full !font-semibold mt-[35px] w-full !bg-secondary"
                     type="submit"
-                    variant="btn-primary"
-                    className="rounded-full !w-[300px] !font-semibold mt-[20px]"
                   >
                     CONTINUE
                   </Button>

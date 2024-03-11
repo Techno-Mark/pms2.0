@@ -4,7 +4,7 @@ import {
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
-import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { ColorToolTip, getMuiTheme } from "@/utils/datatable/CommonStyle";
 import {
   Paper,
   Switch,
@@ -340,6 +340,25 @@ const Client = ({
     }
   };
 
+  const generateShortProcessNameBody = (bodyValue: any) => {
+    const shortProcessName =
+      bodyValue.length > 50 ? bodyValue.slice(0, 50) : bodyValue;
+    return (
+      <div>
+        {bodyValue === null || bodyValue === "" ? (
+          "-"
+        ) : (
+          <>
+            <ColorToolTip title={bodyValue} placement="top">
+              {shortProcessName}
+            </ColorToolTip>
+            <span>...</span>
+          </>
+        )}
+      </div>
+    );
+  };
+
   const column = [
     {
       name: "Name",
@@ -354,7 +373,7 @@ const Client = ({
     {
       name: "Address",
       label: "Address",
-      bodyRenderer: generateCommonBodyRender,
+      bodyRenderer: generateShortProcessNameBody,
     },
     {
       name: "ContactNo",

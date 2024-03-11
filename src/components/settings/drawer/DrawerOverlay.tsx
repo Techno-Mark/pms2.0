@@ -1,8 +1,8 @@
 import React from "react";
 interface OverlayProps {
   isOpen: boolean;
-  className: string;
-  onClose: () => void;
+  className?: string;
+  onClose?: () => void;
 }
 
 const DrawerOverlay = ({ isOpen, className, onClose }: OverlayProps) => {

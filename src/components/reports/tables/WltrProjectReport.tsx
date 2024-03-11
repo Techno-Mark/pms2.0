@@ -195,12 +195,12 @@ const WltrProjectReport = ({
     },
     {
       header: "AutoTime",
-      label: "Auto",
+      label: "Auto Time",
       bodyRenderer: generateInitialTimer,
     },
     {
       header: "ManualTime",
-      label: "Manual",
+      label: "Manual Time",
       bodyRenderer: generateInitialTimer,
     },
     {

@@ -2,12 +2,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button, Typography, Email, Spinner } from "next-ts-lib";
+import { Typography, Spinner } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import Pabs from "@/assets/icons/Pabs";
 import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
-import { TextField } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import Image from "next/image";
 
 const ForgetPassword = () => {
@@ -121,9 +121,9 @@ const ForgetPassword = () => {
               </span>
             ) : (
               <Button
+                variant="contained"
+                className="rounded-full !font-semibold mt-[20px] !w-[300px] !bg-secondary"
                 type="submit"
-                variant="btn-secondary"
-                className="rounded-full !font-semibold mt-[20px] !w-[300px]"
               >
                 SEND EMAIL
               </Button>
