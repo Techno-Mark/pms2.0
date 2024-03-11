@@ -1,6 +1,6 @@
 import React from "react";
 
-const DrawerOverlay = ({ isOpen, onClose, className }: any) => {
+const DrawerOverlay = ({ isOpen, className }: any) => {
   if (!isOpen) return null;
 
   return (

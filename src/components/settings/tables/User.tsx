@@ -22,7 +22,7 @@ import {
 } from "@mui/material";
 import MUIDataTable from "mui-datatables";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 
 const pageNo = 1;

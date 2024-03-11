@@ -22,7 +22,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { CLIENT } from "./Constants/Tabname";
 import ReportLoader from "@/components/common/ReportLoader";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import SwitchModal from "@/components/common/SwitchModal";
 import DrawerOverlay from "../drawer/DrawerOverlay";
 import ClientFieldsDrawer from "../drawer/ClientFieldDrawer";
@@ -468,7 +468,7 @@ const Client = ({
           <ReportLoader />
         ) : (
           <>
-            <div className="muiTableActionHeight">
+            <div className="">
               <ThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable
                   data={clientData}

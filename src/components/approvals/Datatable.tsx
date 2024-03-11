@@ -31,7 +31,7 @@ import {
 import { approvals_Dt_Options } from "@/utils/datatable/TableOptions";
 import { ColorToolTip, getMuiTheme } from "@/utils/datatable/CommonStyle";
 import ApprovalsActionBar from "./actionBar/ApprovalsActionBar";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import ReportLoader from "../common/ReportLoader";
 import OverLay from "../common/OverLay";
 import { callAPI } from "@/utils/API/callAPI";

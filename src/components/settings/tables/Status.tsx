@@ -22,7 +22,7 @@ import {
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 

@@ -11,7 +11,7 @@ import {
   generateRatingsBodyRender,
   generateStatusWithColor,
 } from "../CommonFunction";
-import { generateCustomColumn } from "./ColsGenerateFunctions";
+import { generateCustomColumn } from "../ColsGenerateFunctions";
 
 const RatingReportColsConfig = [
   {

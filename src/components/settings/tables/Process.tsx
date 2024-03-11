@@ -23,7 +23,7 @@ import {
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import MUIDataTable from "mui-datatables";
 
@@ -38,14 +38,13 @@ const initialFilter = {
   IsDesc: 0,
   IsBillable: null,
   IsProductive: null,
-  WorkTypeFilter: null, //[1] //null
+  WorkTypeFilter: null,
 };
 
 function Process({
   onOpen,
   onEdit,
   onDataFetch,
-  onHandleProcessData,
   getOrgDetailsFunction,
   canView,
   canEdit,
@@ -508,7 +507,7 @@ function Process({
           <ReportLoader />
         ) : (
           <>
-            <div className="muiTableActionHeight">
+            <div className="">
               <ThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable
                   data={data}

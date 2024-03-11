@@ -9,7 +9,7 @@ import {
 import {
   generateCustomColumn,
   generateStatusColumn,
-} from "./ColsGenerateFunctions";
+} from "../ColsGenerateFunctions";
 
 const adminDashboardReportCols = [
   { header: "ClientName", label: "Client Name" },

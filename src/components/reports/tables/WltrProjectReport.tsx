@@ -6,7 +6,7 @@ import {
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { TablePagination, ThemeProvider } from "@mui/material";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import MUIDataTable from "mui-datatables";
 import React, { useEffect, useState } from "react";
 import { FieldsType } from "../types/FieldsType";

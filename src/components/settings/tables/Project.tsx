@@ -11,13 +11,9 @@ import {
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
-import {
-  Switch,
-  TablePagination,
-  ThemeProvider,
-} from "@mui/material";
+import { Switch, TablePagination, ThemeProvider } from "@mui/material";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import MUIDataTable from "mui-datatables";
 

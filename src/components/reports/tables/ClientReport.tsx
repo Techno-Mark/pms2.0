@@ -16,7 +16,7 @@ import React, { useEffect, useState } from "react";
 import { FieldsType } from "../types/FieldsType";
 import { client_InitialFilter } from "@/utils/reports/getFilters";
 import { callAPI } from "@/utils/API/callAPI";
-import { generateCustomColumnSortFalse } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumnSortFalse } from "@/utils/datatable/ColsGenerateFunctions";
 import {
   generateCommonBodyRender,
   generateInitialTimer,
@@ -165,7 +165,7 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   ];
 
   const reportsClientCols: any = reportsClientColConfig.map((col: any) =>
-    generateCustomColumnSortFalse(col.name, col.label, col.bodyRenderer)
+    generateCustomColumnSortFalse(col.header, col.label, col.bodyRenderer)
   );
 
   const optionsExpand: any = {
@@ -175,7 +175,7 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         <React.Fragment>
           <tr>
             <td colSpan={12}>
-              <TableContainer component={Paper}>
+              <TableContainer component={Paper} className="whitespace-nowrap">
                 <Table style={{ minWidth: "650" }} aria-label="simple table">
                   <TableHead>
                     <TableRow>

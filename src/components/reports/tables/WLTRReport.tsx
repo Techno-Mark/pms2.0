@@ -20,7 +20,7 @@ import {
   generateCommonBodyRender,
   generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
-import { generateCustomColumnSortFalse } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumnSortFalse } from "@/utils/datatable/ColsGenerateFunctions";
 import { options } from "@/utils/datatable/TableOptions";
 
 const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
