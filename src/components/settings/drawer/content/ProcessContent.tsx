@@ -501,6 +501,39 @@ const ProcessContent = forwardRef<
       onValuesChange(selectedRowId, isDeleteOpen);
     };
 
+    interface CheckboxComponentParams {
+      id: string;
+      name: string;
+      checked: boolean;
+      onChangeFunction: () => void;
+      value: string;
+      label: string;
+      disabled?: boolean;
+    }
+
+    const CheckboxComponent = ({
+      id,
+      name,
+      checked,
+      onChangeFunction,
+      value,
+      label,
+      disabled,
+    }: CheckboxComponentParams) => (
+      <div className="checkboxRadio">
+        <input
+          type="checkbox"
+          id={id}
+          name={name}
+          checked={checked}
+          onChange={onChangeFunction}
+          value={value}
+          disabled={disabled}
+        />
+        <span>{label}</span>
+      </div>
+    );
+
     return (
       <>
         <form className="max-h-[78vh] overflow-y-auto" onSubmit={handleSubmit}>
@@ -755,16 +788,6 @@ const ProcessContent = forwardRef<
                     variant="standard"
                     autoComplete="off"
                   />
-                  {/* <Text
-                      type="text"
-                      label="Activities"
-                      placeholder={"Enter Activities"}
-                      value={inputItem.activityName}
-                      getValue={(e: any) => handleInputChange(e, i)}
-                      onChange={(e: any) => handleInputChange(e, i)}
-                      getError={(e: any) => setActivityHasError(e)}
-                      hasError={activityError}
-                    /> */}
                   <div className="btn-box">
                     {i === 0 ? (
                       <span className="cursor-pointer" onClick={handleAddClick}>
@@ -783,55 +806,43 @@ const ProcessContent = forwardRef<
               </>
             ))}
           </div>
-          <span className="flex items-center pr-[20px] pl-[20px] pb-[20px]">
-            <div className="mr-[100px] checkboxRadio">
-              <input
-                type="checkbox"
-                id="p1"
-                name="group1"
-                checked={productive}
-                onChange={() => handleProductiveChange("p1")}
-                value="productive"
-              />
-              <span>Productive</span>
-            </div>
-            <div className="checkboxRadio">
-              <input
-                type="checkbox"
-                id="non_p1"
-                name="group1"
-                checked={!productive}
-                onChange={() => handleProductiveChange("non_p1")}
-                value="non_productive"
-              />
-              <span>Non-Productive</span>
-            </div>
+          <span className="flex items-center pr-[20px] pl-[20px] pb-[20px] gap-[100px]">
+            <CheckboxComponent
+              id="p1"
+              name="group1"
+              checked={productive}
+              onChangeFunction={() => handleProductiveChange("p1")}
+              value="productive"
+              label="Productive"
+            />
+            <CheckboxComponent
+              id="non_p1"
+              name="group1"
+              checked={!productive}
+              onChangeFunction={() => handleProductiveChange("non_p1")}
+              value="non_productive"
+              label="Non-Productive"
+            />
           </span>
-          <span className="flex items-center pr-[20px] pl-[20px] pb-[20px]">
-            <div className="mr-[128px] checkboxRadio">
-              <input
-                type="checkbox"
-                id="billable"
-                name="group2"
-                onChange={() => handleBillableChange("billable")}
-                disabled={!productive}
-                checked={billable}
-                value="billable"
-              />
-              <span>Billable</span>
-            </div>
-            <div className="checkboxRadio">
-              <input
-                type="checkbox"
-                onChange={() => handleBillableChange("non_billable")}
-                disabled={!productive}
-                checked={!billable}
-                value="non_billable"
-                name="group2"
-                id="non_billable"
-              />
-              <span>Non-Billable</span>
-            </div>
+          <span className="flex items-center pr-[20px] pl-[20px] pb-[20px] gap-[123px]">
+            <CheckboxComponent
+              id="billable"
+              name="group2"
+              checked={billable}
+              onChangeFunction={() => handleBillableChange("billable")}
+              value="billable"
+              label="Billable"
+              disabled={!productive}
+            />
+            <CheckboxComponent
+              id="non_billable"
+              name="group2"
+              checked={!billable}
+              onChangeFunction={() => handleBillableChange("non_billable")}
+              value="non_billable"
+              label="Non-Billable"
+              disabled={!productive}
+            />
           </span>
 
           {/* Footer */}

@@ -13,9 +13,7 @@ const AcceptWithNotes = ({ selectedRowIds, acceptWorkitem }: any) => {
   return (
     <div>
       <ColorToolTip title="Accept with Note" arrow>
-        <span
-          onClick={() => setisAcceptOpen(true)}
-        >
+        <span onClick={() => setisAcceptOpen(true)}>
           <AcceptNote />
         </span>
       </ColorToolTip>

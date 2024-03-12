@@ -42,16 +42,18 @@ const page = () => {
         <div className="w-full pr-5 flex items-center justify-between my-3">
           <div className="flex items-center justify-center gap-5 ml-4 text-darkCharcoal text-[14px]">
             <p>
-              <span className="text-secondary font-semibold">TotalQuanitiy: </span>
+              <span className="text-secondary font-semibold">Total QTY.: </span>
               {totalQuantity}
             </p>
             <p>
-              <span className="text-secondary font-semibold">TotalTime: </span>
-              {totalTime}
+              <span className="text-secondary font-semibold">
+                Total STD Time:
+              </span>
+              {totalSTDTime}
             </p>
             <p>
-              <span className="text-secondary font-semibold">TotalSTDTime: </span>
-              {totalSTDTime}
+              <span className="text-secondary font-semibold">Total Time: </span>
+              {totalTime}
             </p>
           </div>
           <div className="h-full flex items-center gap-5">

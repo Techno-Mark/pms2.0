@@ -229,7 +229,7 @@ input[type="time"]::-moz-time-text {
   justify-content: end;
 }
 
-.muiTableAction tbody tr td:last-child {
+.muiTableAction tbody tr td:nth-child(5) {
   /* width: 2px !important; */
   display: flex;
   justify-content: end;
