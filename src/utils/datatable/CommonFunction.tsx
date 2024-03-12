@@ -14,10 +14,16 @@ export const generateCommonBodyRender = (bodyValue: any) => {
   );
 };
 
+export const generateCommonBodyRenderNullCheck = (bodyValue: any) => {
+  return <div className="ml-2">{bodyValue === null ? "-" : bodyValue}</div>;
+};
+
 export const generateCommonBodyRenderPercentage = (bodyValue: any) => {
   return (
     <div className="ml-2">
-      {!bodyValue || bodyValue === "0" || bodyValue === null ? "-" : `${bodyValue} %`}
+      {!bodyValue || bodyValue === "0" || bodyValue === null
+        ? "-"
+        : `${bodyValue} %`}
     </div>
   );
 };

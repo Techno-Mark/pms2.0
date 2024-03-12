@@ -172,12 +172,19 @@ const BillingReport = ({
     newPage: number
   ) => {
     setBiliingCurrentPage(newPage);
-
-    getData({
-      ...filteredData,
-      pageNo: newPage + 1,
-      pageSize: billingRowsPerPage,
-    });
+    if (filteredData !== null) {
+      getData({
+        ...filteredData,
+        pageNo: newPage + 1,
+        pageSize: billingRowsPerPage,
+      });
+    } else {
+      getData({
+        ...billingreport_InitialFilter,
+        pageNo: newPage + 1,
+        pageSize: billingRowsPerPage,
+      });
+    }
     handleClearSelection();
   };
 
@@ -187,11 +194,19 @@ const BillingReport = ({
     setBiliingCurrentPage(0);
     setBillingRowsPerPage(parseInt(event.target.value));
 
-    getData({
-      ...filteredData,
-      pageNo: 1,
-      pageSize: event.target.value,
-    });
+    if (filteredData !== null) {
+      getData({
+        ...filteredData,
+        pageNo: 1,
+        pageSize: event.target.value,
+      });
+    } else {
+      getData({
+        ...billingreport_InitialFilter,
+        pageNo: 1,
+        pageSize: event.target.value,
+      });
+    }
     handleClearSelection();
   };
 

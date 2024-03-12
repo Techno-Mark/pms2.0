@@ -78,7 +78,7 @@ const ActivityReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       getData({
         ...filteredData,
         pageNo: 1,
-        pageSize: activityRowsPerPage,
+        pageSize: event.target.value,
       });
     } else {
       getData({

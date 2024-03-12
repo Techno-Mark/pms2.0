@@ -47,11 +47,19 @@ const UserLogsReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     newPage: number
   ) => {
     setUserCurrentPage(newPage);
-    getData({
-      ...filteredData,
-      pageNo: newPage + 1,
-      pageSize: userRowsPerPage,
-    });
+    if (filteredData !== null) {
+      getData({
+        ...filteredData,
+        pageNo: newPage + 1,
+        pageSize: userRowsPerPage,
+      });
+    } else {
+      getData({
+        ...userLogs_InitialFilter,
+        pageNo: newPage + 1,
+        pageSize: userRowsPerPage,
+      });
+    }
   };
 
   const handleChangeRowsPerPage = (
@@ -60,11 +68,19 @@ const UserLogsReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     setUserCurrentPage(0);
     setUserRowsPerPage(parseInt(event.target.value));
 
-    getData({
-      ...filteredData,
-      pageNo: 1,
-      pageSize: event.target.value,
-    });
+    if (filteredData !== null) {
+      getData({
+        ...filteredData,
+        pageNo: 1,
+        pageSize: event.target.value,
+      });
+    } else {
+      getData({
+        ...userLogs_InitialFilter,
+        pageNo: 1,
+        pageSize: event.target.value,
+      });
+    }
   };
 
   useEffect(() => {

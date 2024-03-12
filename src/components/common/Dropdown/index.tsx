@@ -14,15 +14,6 @@ export default function Dropdown({ options, getUserDetails }: any) {
   const [searchQuery, setSearchQuery] = useState(
     localStorage.getItem("Org_Name") || ""
   );
-  const [selectedId, setSelectedId] = useState(
-    localStorage.getItem("Org_Id") || ""
-  );
-  const [selectedValue, setSelectedValue] = useState(
-    localStorage.getItem("Org_Name") || ""
-  );
-  const [selectedToken, setSelectedToken] = useState(
-    localStorage.getItem("Org_Token") || ""
-  );
 
   const handleRefresh = () => {
     window.location.reload();
@@ -108,10 +99,7 @@ export default function Dropdown({ options, getUserDetails }: any) {
                   const id = liElementWithValue.getAttribute("id");
                   const value = liElementWithValue.getAttribute("value");
                   setOpen(false);
-                  setSelectedId(id);
                   setSearchQuery(value);
-                  setSelectedValue(value);
-                  setSelectedToken(option.token);
 
                   localStorage.setItem("Org_Token", option.token);
                   localStorage.setItem("Org_Id", option.id);

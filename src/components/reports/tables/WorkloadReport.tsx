@@ -63,11 +63,19 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     newPage: number
   ) => {
     setWorkloadCurrentPage(newPage);
-    getData({
-      ...filteredData,
-      pageNo: newPage + 1,
-      pageSize: workloadRowsPerPage,
-    });
+    if (filteredData !== null) {
+      getData({
+        ...filteredData,
+        pageNo: newPage + 1,
+        pageSize: workloadRowsPerPage,
+      });
+    } else {
+      getData({
+        ...workLoad_InitialFilter,
+        pageNo: newPage + 1,
+        pageSize: workloadRowsPerPage,
+      });
+    }
   };
 
   const handleChangeRowsPerPage = (
@@ -76,11 +84,19 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     setWorkloadCurrentPage(0);
     setWorkloadRowsPerPage(parseInt(event.target.value));
 
-    getData({
-      ...filteredData,
-      pageNo: 1,
-      pageSize: event.target.value,
-    });
+    if (filteredData !== null) {
+      getData({
+        ...filteredData,
+        pageNo: 1,
+        pageSize: event.target.value,
+      });
+    } else {
+      getData({
+        ...workLoad_InitialFilter,
+        pageNo: 1,
+        pageSize: event.target.value,
+      });
+    }
   };
 
   useEffect(() => {
@@ -120,12 +136,12 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         {bodyValue === null || "" ? (
           "-"
         ) : (
-          <>
+          <div className="text-[#0592C6] flex flex-col">
             <span>{bodyValue}</span>
             <span>
               {workloadFields.data[TableMeta.rowIndex].DepartmentName}
             </span>
-          </>
+          </div>
         )}
       </div>
     );
@@ -300,7 +316,7 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
                 Designation:
               </label>
               <label className="text-sm font-normal font-proxima text-slatyGrey capitalize">
-                {workloadFields.data[clickedWorkloadRowId]?.DepartmentName}
+                {workloadFields.data[clickedWorkloadRowId]?.RoleType}
               </label>
             </div>
             <LineIcon />
