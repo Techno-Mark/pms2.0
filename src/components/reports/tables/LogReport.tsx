@@ -50,14 +50,14 @@ const LogReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     if (filteredData !== null) {
       getData({
         ...filteredData,
-        pageNo: newPage + 1,
-        pageSize: logReportRowsPerPage,
+        PageNo: newPage + 1,
+        PageSize: logReportRowsPerPage,
       });
     } else {
       getData({
         ...logReport_InitialFilter,
-        pageNo: newPage + 1,
-        pageSize: logReportRowsPerPage,
+        PageNo: newPage + 1,
+        PageSize: logReportRowsPerPage,
       });
     }
   };
@@ -71,14 +71,14 @@ const LogReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     if (filteredData !== null) {
       getData({
         ...filteredData,
-        pageNo: 1,
-        pageSize: logReportRowsPerPage,
+        PageNo: 1,
+        PageSize: logReportRowsPerPage,
       });
     } else {
       getData({
         ...logReport_InitialFilter,
-        pageNo: 1,
-        pageSize: event.target.value,
+        PageNo: 1,
+        PageSize: event.target.value,
       });
     }
   };
