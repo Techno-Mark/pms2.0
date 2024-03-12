@@ -1,5 +1,3 @@
-/* eslint-disable react/jsx-key */
-/* eslint-disable react/display-name */
 import React, {
   useImperativeHandle,
   forwardRef,
@@ -1254,7 +1252,7 @@ const ClientContent = forwardRef<
                             }}
                           >
                             {billingTypeData.map((i: any, index: number) => (
-                              <MenuItem value={i.value} key={index}>
+                              <MenuItem value={i.value} key={i.value + index}>
                                 {i.label}
                               </MenuItem>
                             ))}
@@ -1960,4 +1958,5 @@ const ClientContent = forwardRef<
   }
 );
 
+ClientContent.displayName = "ClientContent";
 export default ClientContent;

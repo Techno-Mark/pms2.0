@@ -1,13 +1,9 @@
-/* eslint-disable react/display-name */
-/* eslint-disable react-hooks/exhaustive-deps */
-import { Text } from "next-ts-lib";
 import React, {
   useState,
   forwardRef,
   useEffect,
   useImperativeHandle,
 } from "react";
-
 import PlusIcon from "@/assets/icons/PlusIcon";
 import MinusIcon from "@/assets/icons/MinusIcon";
 import { toast } from "react-toastify";

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import FilterIcon from "@/assets/icons/FilterIcon";
 import SearchIcon from "@/assets/icons/SearchIcon";
@@ -10,7 +9,7 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { InputBase } from "@mui/material";
 import React, { useState } from "react";
 
-const page = () => {
+const Page = () => {
   const [search, setSearch] = useState<string>("");
   const [searchValue, setSearchValue] = useState<string>("");
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
@@ -98,4 +97,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

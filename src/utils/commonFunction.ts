@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { toast } from "react-toastify";
 import { callAPI } from "./API/callAPI";
 

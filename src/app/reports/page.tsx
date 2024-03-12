@@ -1,5 +1,3 @@
-/* eslint-disable react/jsx-key */
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import axios from "axios";
 import { useRouter } from "next/navigation";

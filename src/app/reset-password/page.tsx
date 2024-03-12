@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import { Typography, Password, Spinner } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";

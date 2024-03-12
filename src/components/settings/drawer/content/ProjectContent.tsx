@@ -1,4 +1,3 @@
-/* eslint-disable react/display-name */
 import { callAPI } from "@/utils/API/callAPI";
 import { Autocomplete, Button, TextField } from "@mui/material";
 import React, {
