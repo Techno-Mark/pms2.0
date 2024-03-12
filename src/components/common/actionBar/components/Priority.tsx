@@ -11,11 +11,7 @@ const priorityOptions = [
   { id: 1, text: "High" },
 ];
 
-const Priority = ({
-  selectedRowIds,
-  getData,
-  getOverLay,
-}: any) => {
+const Priority = ({ selectedRowIds, getData, getOverLay }: any) => {
   const [anchorElPriority, setAnchorElPriority] =
     React.useState<HTMLButtonElement | null>(null);
 

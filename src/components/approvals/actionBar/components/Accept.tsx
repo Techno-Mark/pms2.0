@@ -6,9 +6,7 @@ const Accept = ({ selectedRowIds, acceptWorkitem }: any) => {
   return (
     <div>
       <ColorToolTip title="Accept" arrow>
-        <span
-          onClick={() => acceptWorkitem("", selectedRowIds)}
-        >
+        <span onClick={() => acceptWorkitem("", selectedRowIds)}>
           <AcceptIcon />
         </span>
       </ColorToolTip>

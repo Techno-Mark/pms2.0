@@ -788,16 +788,6 @@ const ProcessContent = forwardRef<
                     variant="standard"
                     autoComplete="off"
                   />
-                  {/* <Text
-                      type="text"
-                      label="Activities"
-                      placeholder={"Enter Activities"}
-                      value={inputItem.activityName}
-                      getValue={(e: any) => handleInputChange(e, i)}
-                      onChange={(e: any) => handleInputChange(e, i)}
-                      getError={(e: any) => setActivityHasError(e)}
-                      hasError={activityError}
-                    /> */}
                   <div className="btn-box">
                     {i === 0 ? (
                       <span className="cursor-pointer" onClick={handleAddClick}>

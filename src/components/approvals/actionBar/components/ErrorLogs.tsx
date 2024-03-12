@@ -6,9 +6,7 @@ const ErrorLogs = ({ settingSelectedId }: any) => {
   return (
     <div>
       <ColorToolTip title="Error logs" arrow>
-        <span
-          onClick={settingSelectedId}
-        >
+        <span onClick={settingSelectedId}>
           <ErrorLogsIcon />
         </span>
       </ColorToolTip>

@@ -24,7 +24,6 @@ const EditTime = ({
         </span>
       </ColorToolTip>
 
-      {/* Filter Dialog Box */}
       <EditDialog
         onOpen={isEditOpen}
         onClose={closeModal}
