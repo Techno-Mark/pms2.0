@@ -182,7 +182,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         </span>
         {open && (
           <React.Fragment>
-            <div className="absolute top-30 right-3 z-10 flex justify-center items-center">
+            <div className="absolute top-30 right-10 z-10 flex justify-center items-center">
               <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-28">
                   {actionPermissions.map((action: any, index: any) => (
