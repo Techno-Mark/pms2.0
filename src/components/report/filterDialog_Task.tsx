@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { isWeekend } from "@/utils/commonFunction";
 import {

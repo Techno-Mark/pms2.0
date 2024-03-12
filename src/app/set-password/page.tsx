@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import Link from "next/link";
 import { Typography, Password } from "next-ts-lib";

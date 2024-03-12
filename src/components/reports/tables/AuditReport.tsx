@@ -53,11 +53,19 @@ const AuditReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     newPage: number
   ) => {
     setAuditCurrentPage(newPage);
-    getData({
-      ...audit_InitialFilter,
-      pageNo: newPage + 1,
-      pageSize: auditRowsPerPage,
-    });
+    if (filteredData !== null) {
+      getData({
+        ...filteredData,
+        PageNo: newPage + 1,
+        PageSize: auditRowsPerPage,
+      });
+    } else {
+      getData({
+        ...audit_InitialFilter,
+        PageNo: newPage + 1,
+        PageSize: auditRowsPerPage,
+      });
+    }
   };
 
   const handleChangeRowsPerPage = (
@@ -65,11 +73,20 @@ const AuditReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   ) => {
     setAuditCurrentPage(0);
     setAuditRowsPerPage(parseInt(event.target.value));
-    getData({
-      ...audit_InitialFilter,
-      pageNo: 1,
-      pageSize: event.target.value,
-    });
+
+    if (filteredData !== null) {
+      getData({
+        ...filteredData,
+        PageNo: 1,
+        PageSize: event.target.value,
+      });
+    } else {
+      getData({
+        ...audit_InitialFilter,
+        PageNo: 1,
+        PageSize: event.target.value,
+      });
+    }
   };
 
   useEffect(() => {

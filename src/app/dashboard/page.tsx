@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import React, { useEffect, useState } from "react";
 import Navbar from "@/components/common/Navbar";
@@ -77,6 +76,16 @@ const Page = () => {
     useState<boolean>(false);
   const [clickedReturnTypeValue, setClickedReturnTypeValue] = useState<any>("");
 
+  useEffect(() => {
+    if (localStorage.getItem("isClient") === "true") {
+      if (hasPermissionWorklog("", "View", "Dashboard") === false) {
+        router.push("/");
+      }
+    } else {
+      router.push("/");
+    }
+  }, [router]);
+
   const handleClickProjects = (event: any) => {
     setAnchorElProjects(event.currentTarget);
   };
@@ -128,14 +137,6 @@ const Page = () => {
     setClickedReturnTypeValue(selectedPointData);
   };
 
-  const handleValueFromTotalHours = (
-    isDialogOpen: boolean,
-    selectedPointData: string
-  ) => {
-    setIsTotalHrsDialogOpen(isDialogOpen);
-    setClickedWorkTypeName(selectedPointData);
-  };
-
   const handleValueFromTaskStatus = (
     isDialogOpen: boolean,
     selectedPointData: string
@@ -151,16 +152,6 @@ const Page = () => {
     setIsPriorityInfoDialogOpen(isDialogOpen);
     setClickedPriorityName(selectedPointData);
   };
-
-  useEffect(() => {
-    if (localStorage.getItem("isClient") === "true") {
-      if (hasPermissionWorklog("", "View", "Dashboard") === false) {
-        router.push("/");
-      }
-    } else {
-      router.push("/");
-    }
-  }, [router]);
 
   const getProjects = async () => {
     const ClientId = await localStorage.getItem("clientId");

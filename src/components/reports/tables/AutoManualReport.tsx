@@ -79,7 +79,7 @@ const AutoManualReport = ({
       getData({
         ...filteredData,
         pageNo: 1,
-        pageSize: autoManualRowsPerPage,
+        pageSize: event.target.value,
       });
     } else {
       getData({

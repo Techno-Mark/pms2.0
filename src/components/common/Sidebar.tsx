@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import styles from "../../assets/scss/sidebar.module.scss";
 import React, { useEffect, useState } from "react";
@@ -15,12 +14,6 @@ import PabsCollapse from "../../assets/icons/PabsCollaps";
 import Link from "next/link";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { callAPI } from "@/utils/API/callAPI";
-
-interface SidebarItem {
-  name: string;
-  href: string;
-  icon: JSX.Element;
-}
 
 const DashboardItems = ({ pathname, isCollapsed, sidebarItems }: any) => {
   return (

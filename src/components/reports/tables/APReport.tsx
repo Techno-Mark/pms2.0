@@ -73,7 +73,7 @@ const APReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       getData({
         ...filteredData,
         pageNo: 1,
-        pageSize: apRowsPerPage,
+        pageSize: event.target.value,
       });
     } else {
       getData({

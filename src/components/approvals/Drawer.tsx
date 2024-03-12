@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-key */
 import React, { useEffect, useState } from "react";
 import ChevronDownIcon from "@/assets/icons/ChevronDownIcon";
 import TaskIcon from "@/assets/icons/TaskIcon";
@@ -2513,7 +2512,7 @@ const EditDrawer = ({
                 .filter((i: any) => i !== false)
                 .map((task: any, index: number) => (
                   <div
-                    key={index}
+                    key={task + index}
                     className={`my-2 px-3 text-[14px] ${
                       index !== Task.length - 1 &&
                       "border-r border-r-lightSilver"
@@ -2673,7 +2672,7 @@ const EditDrawer = ({
                         >
                           {workTypeApprovalsDropdownData.map(
                             (i: any, index: number) => (
-                              <MenuItem value={i.value} key={index}>
+                              <MenuItem value={i.value} key={i.value}>
                                 {i.label}
                               </MenuItem>
                             )
@@ -3397,7 +3396,7 @@ const EditDrawer = ({
                               }}
                             >
                               {yearDropdown.map((i: any, index: number) => (
-                                <MenuItem value={i.value} key={index}>
+                                <MenuItem value={i.value} key={i.value}>
                                   {i.label}
                                 </MenuItem>
                               ))}
@@ -3753,7 +3752,7 @@ const EditDrawer = ({
                   {checkListApprovalsDrawer &&
                     checkListDataApprovals?.length > 0 &&
                     checkListDataApprovals.map((i: any, index: number) => (
-                      <div className="mt-3">
+                      <div className="mt-3" key={i.Category + index}>
                         <span className="flex items-center">
                           <span onClick={() => toggleGeneralOpen(index)}>
                             {itemStatesApprovals[index] ? (
@@ -3771,6 +3770,7 @@ const EditDrawer = ({
                           <FormGroup className="ml-8 mt-2">
                             {i.Activities.map((j: any, index: number) => (
                               <FormControlLabel
+                                key={j.IsCheck + index}
                                 control={
                                   <Checkbox
                                     checked={j.IsCheck}
@@ -3923,7 +3923,7 @@ const EditDrawer = ({
                     {commentsApprovalsDrawer &&
                       commentDataApprovals.length > 0 &&
                       commentDataApprovals.map((i: any, index: number) => (
-                        <div className="flex gap-4">
+                        <div className="flex gap-4" key={i.UserName + index}>
                           {i.UserName.length > 0 ? (
                             <Avatar>
                               {i.UserName.split(" ")
@@ -4049,7 +4049,7 @@ const EditDrawer = ({
                                       return assignee.includes(i) ? (
                                         <span
                                           className="text-secondary"
-                                          key={index}
+                                          key={i + index}
                                         >
                                           &nbsp; {i} &nbsp;
                                         </span>
@@ -4324,7 +4324,7 @@ const EditDrawer = ({
                       <div className="pl-4 m-2 flex">
                         {days.map((day, index) => (
                           <div
-                            key={index}
+                            key={day[0] + index}
                             className={`px-3 py-1 rounded-[50%] m-[5px] ${
                               selectedDays.includes(index)
                                 ? "text-pureWhite bg-secondary"
@@ -5069,7 +5069,7 @@ const EditDrawer = ({
                           }}
                         >
                           {hours.map((i: any, index: number) => (
-                            <MenuItem value={i.value} key={index}>
+                            <MenuItem value={i.value} key={i.value}>
                               {i.label}
                             </MenuItem>
                           ))}
@@ -5164,7 +5164,10 @@ const EditDrawer = ({
                   <>
                     <div className="mt-3 pl-6">
                       {errorLogFieldsApprovals.map((field, index) => (
-                        <div className="w-[100%] mt-4" key={index}>
+                        <div
+                          className="w-[100%] mt-4"
+                          key={field.SubmitedBy + index}
+                        >
                           {field.SubmitedBy.length > 0 && (
                             <div className="ml-1 mt-8 mb-3">
                               <span className="font-bold">Correction By</span>
@@ -5695,7 +5698,10 @@ const EditDrawer = ({
               {reasonDrawerApprovals &&
                 reviewerNoteDataApprovals.length > 0 &&
                 reviewerNoteDataApprovals.map((i: any, index: number) => (
-                  <div className="mt-5 pl-[70px] text-sm">
+                  <div
+                    className="mt-5 pl-[70px] text-sm"
+                    key={i.ReviewedDate + index}
+                  >
                     <span className="font-semibold">
                       {i.ReviewedDate.split("-")
                         .slice(1)
@@ -5703,7 +5709,10 @@ const EditDrawer = ({
                         .join("-")}
                     </span>
                     {i.Details.map((j: any, index: number) => (
-                      <div className="flex gap-3 mt-4">
+                      <div
+                        className="flex gap-3 mt-4"
+                        key={j.ReviewerName + index}
+                      >
                         <span className="mt-2">{index + 1}</span>
                         {j.ReviewerName.length > 0 ? (
                           <Tooltip title={j.ReviewerName} placement="top" arrow>

@@ -73,7 +73,7 @@ const KRAReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       getData({
         ...filteredData,
         pageNo: 1,
-        pageSize: kraRowsPerPage,
+        pageSize: event.target.value,
       });
     } else {
       getData({

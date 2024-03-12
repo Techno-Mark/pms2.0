@@ -99,10 +99,6 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
 
-  const generateIsManulaBodyRender = (bodyValue: any) => {
-    return <span className="capitalize">{bodyValue ? "yes" : "no"}</span>;
-  };
-
   const generateIsManualHeaderRender = (headerName: string) => {
     return (
       <div className="font-bold text-sm capitalize !w-[100px]">
@@ -447,11 +443,19 @@ const TimeSheetReport = ({
     newPage: number
   ) => {
     setTimesheetCurrentPage(newPage);
-    getData({
-      ...filteredData,
-      pageNo: newPage + 1,
-      pageSize: timesheetRowsPerPage,
-    });
+    if (filteredData !== null) {
+      getData({
+        ...filteredData,
+        pageNo: newPage + 1,
+        pageSize: timesheetRowsPerPage,
+      });
+    } else {
+      getData({
+        ...timeSheet_InitialFilter,
+        pageNo: newPage + 1,
+        pageSize: timesheetRowsPerPage,
+      });
+    }
   };
 
   const handleChangeRowsPerPage = (
@@ -460,11 +464,19 @@ const TimeSheetReport = ({
     setTimesheetCurrentPage(0);
     setTimesheetRowsPerPage(parseInt(event.target.value));
 
-    getData({
-      ...filteredData,
-      pageNo: 1,
-      pageSize: event.target.value,
-    });
+    if (filteredData !== null) {
+      getData({
+        ...filteredData,
+        pageNo: 1,
+        pageSize: event.target.value,
+      });
+    } else {
+      getData({
+        ...timeSheet_InitialFilter,
+        pageNo: 1,
+        pageSize: event.target.value,
+      });
+    }
   };
 
   useEffect(() => {

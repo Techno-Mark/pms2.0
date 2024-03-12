@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import axios from "axios";
 import { toast } from "react-toastify";
 

@@ -1,5 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import Link from "next/link";
 import { Button, Password, Email, Spinner } from "next-ts-lib";
@@ -10,6 +8,7 @@ import { hasToken } from "@/utils/commonFunction";
 import Pabs from "@/assets/icons/Pabs";
 import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
+import Image from "next/image";
 
 const Page = () => {
   const router = useRouter();
@@ -77,10 +76,12 @@ const Page = () => {
   return (
     <div className="flex flex-col justify-center min-h-screen relative">
       <div className="flex items-center justify-between max-h-screen min-w-full relative">
-        <img
+        <Image
           src="https://staging-tms.azurewebsites.net/assets/images/pages/login-v2.svg"
           alt="Login"
           className="w-[50%]"
+          width={500}
+          height={500}
         />
         <span className="absolute -top-10 left-4">
           <Pabs width="200" height="50" />

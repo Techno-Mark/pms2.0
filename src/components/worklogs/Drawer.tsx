@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-key */
 import React, { useEffect, useState } from "react";
 import ChevronDownIcon from "@/assets/icons/ChevronDownIcon";
 import TaskIcon from "@/assets/icons/TaskIcon";
@@ -3996,7 +3995,7 @@ const EditDrawer = ({
                     {checkListWorklogsDrawer &&
                       checkListDataWorklogs?.length > 0 &&
                       checkListDataWorklogs.map((i: any, index: number) => (
-                        <div className="mt-3">
+                        <div className="mt-3" key={i.Category + index}>
                           <span className="flex items-center">
                             <span onClick={() => toggleGeneralOpen(index)}>
                               {itemStatesWorklogs[index] ? (
@@ -4014,6 +4013,7 @@ const EditDrawer = ({
                             <FormGroup className="ml-8 mt-2">
                               {i.Activities.map((j: any, index: number) => (
                                 <FormControlLabel
+                                  key={j.IsCheck + index}
                                   disabled={isIdDisabled || isUnassigneeClicked}
                                   control={
                                     <Checkbox
@@ -4172,7 +4172,7 @@ const EditDrawer = ({
                       {commentsWorklogsDrawer &&
                         commentDataWorklogs.length > 0 &&
                         commentDataWorklogs.map((i: any, index: number) => (
-                          <div className="flex gap-4">
+                          <div className="flex gap-4" key={i.UserName + index}>
                             {i.UserName.length > 0 ? (
                               <Avatar>
                                 {i.UserName.split(" ")
@@ -5865,7 +5865,10 @@ const EditDrawer = ({
                 {reasonWorklogsDrawer &&
                   reviewerNoteWorklogs.length > 0 &&
                   reviewerNoteWorklogs.map((i: any, index: number) => (
-                    <div className="mt-5 pl-[70px] text-sm">
+                    <div
+                      className="mt-5 pl-[70px] text-sm"
+                      key={i.ReviewedDate + index}
+                    >
                       <span className="font-semibold">
                         {i.ReviewedDate.split("-")
                           .slice(1)
@@ -5873,7 +5876,10 @@ const EditDrawer = ({
                           .join("-")}
                       </span>
                       {i.Details.map((j: any, index: number) => (
-                        <div className="flex gap-3 mt-4">
+                        <div
+                          className="flex gap-3 mt-4"
+                          key={j.ReviewerName + index}
+                        >
                           <span className="mt-2">{index + 1}</span>
                           {j.ReviewerName.length > 0 ? (
                             <Tooltip
@@ -5940,7 +5946,10 @@ const EditDrawer = ({
                 {logsWorklogsDrawer &&
                   logsDataWorklogs.length > 0 &&
                   logsDataWorklogs.map((i: any, index: number) => (
-                    <div className="mt-5 pl-[70px] text-sm">
+                    <div
+                      className="mt-5 pl-[70px] text-sm"
+                      key={i.UpdatedBy + index}
+                    >
                       <div className="flex gap-3 mt-4">
                         <b className="mt-2">{index + 1}</b>
                         <div className="flex flex-col items-start">

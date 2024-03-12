@@ -18,6 +18,7 @@ import { callAPI } from "@/utils/API/callAPI";
 import { wltr_InitialFilter } from "@/utils/reports/getFilters";
 import {
   generateCommonBodyRender,
+  generateCommonBodyRenderNullCheck,
   generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
 import { generateCustomColumnSortFalse } from "@/utils/datatable/ColsGenerateFunctions";
@@ -87,7 +88,7 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       getData({
         ...filteredData,
         pageNo: 1,
-        pageSize: wltrRowsPerPage,
+        pageSize: event.target.value,
       });
     } else {
       getData({
@@ -145,7 +146,7 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     {
       header: "FTE",
       label: "FTE",
-      bodyRenderer: generateCommonBodyRender,
+      bodyRenderer: generateCommonBodyRenderNullCheck,
     },
   ];
 

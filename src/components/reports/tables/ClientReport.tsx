@@ -92,7 +92,7 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       getData({
         ...filteredData,
         pageNo: 1,
-        pageSize: clientRowsPerPage,
+        pageSize: event.target.value,
       });
     } else {
       getData({

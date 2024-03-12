@@ -1,5 +1,3 @@
-/* eslint-disable react/display-name */
-/* eslint-disable react-hooks/exhaustive-deps */
 import { callAPI } from "@/utils/API/callAPI";
 import { Autocomplete, Button, TextField } from "@mui/material";
 import { ColorPicker } from "next-ts-lib";

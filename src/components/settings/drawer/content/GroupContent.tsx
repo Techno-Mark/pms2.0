@@ -1,5 +1,3 @@
-/* eslint-disable react/display-name */
-/* eslint-disable react-hooks/exhaustive-deps */
 import { Autocomplete, Button, Checkbox, TextField } from "@mui/material";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";

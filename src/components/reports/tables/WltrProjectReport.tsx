@@ -111,7 +111,7 @@ const WltrProjectReport = ({
       getData({
         ...filteredData,
         pageNo: 1,
-        pageSize: wltrRowsPerPage,
+        pageSize: event.target.value,
         ProjectId: Id,
       });
     } else {

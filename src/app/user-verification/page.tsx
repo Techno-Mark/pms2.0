@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable react-hooks/rules-of-hooks */
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Password, Spinner } from "next-ts-lib";

@@ -72,7 +72,7 @@ const LogReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       getData({
         ...filteredData,
         PageNo: 1,
-        PageSize: logReportRowsPerPage,
+        PageSize: event.target.value,
       });
     } else {
       getData({

@@ -1,4 +1,3 @@
-/* eslint-disable react/display-name */
 import { Autocomplete, Button, Checkbox, TextField } from "@mui/material";
 import axios from "axios";
 import React, {
