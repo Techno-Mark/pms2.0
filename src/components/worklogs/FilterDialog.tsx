@@ -124,8 +124,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     const url = `${process.env.api_url}/user/GetAssigneeFilterDropdown`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setAssignedByDropdownData(ResponseData);
@@ -186,8 +186,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success(
@@ -212,8 +212,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         const filteredData = ResponseData.filter(

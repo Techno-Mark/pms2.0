@@ -202,8 +202,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     const url = `${process.env.api_url}/user/GetAssigneeFilterDropdown`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setAssigneeDropdownData(ResponseData);

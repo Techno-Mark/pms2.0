@@ -44,8 +44,8 @@ const StatusContent = forwardRef<
     const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
     const successCallback = async (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setTypeOfWorkDropdown(ResponseData);
@@ -64,8 +64,8 @@ const StatusContent = forwardRef<
       const url = `${process.env.pms_api_url}/status/GetById`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           setStatusName(ResponseData.Name);
@@ -165,8 +165,8 @@ const StatusContent = forwardRef<
       const url = `${process.env.pms_api_url}/status/Save`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           onDataFetch();
@@ -222,8 +222,8 @@ const StatusContent = forwardRef<
       const url = `${process.env.pms_api_url}/status/Save`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           onDataFetch();

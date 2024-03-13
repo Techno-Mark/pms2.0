@@ -62,8 +62,8 @@ const Reviewer = ({
     const url = `${process.env.worklog_api_url}/workitem/UpdateReviewer`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         toast.success("Reviewer has been updated successfully.");

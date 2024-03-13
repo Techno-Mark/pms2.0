@@ -320,8 +320,8 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
       const url = `${process.env.worklog_api_url}/workitem/saveworkitem`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success(
@@ -382,8 +382,8 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
     const url = `${process.env.worklog_api_url}/workitem/getbyid`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setEditDataWorklogs(ResponseData);
@@ -774,8 +774,8 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
     const url = `${process.env.api_url}/auth/getuserdetails`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setAssigneeWorklogsDisable(ResponseData.IsHaveManageAssignee);

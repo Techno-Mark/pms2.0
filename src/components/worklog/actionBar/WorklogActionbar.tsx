@@ -101,8 +101,8 @@ const WorklogActionbar = ({
     const url = `${process.env.worklog_api_url}/workitem/UpdatePriority`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Priority has been updated successfully.");
@@ -150,8 +150,8 @@ const WorklogActionbar = ({
         const url = `${process.env.worklog_api_url}/workitem/deleteworkitem`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success("Task has been deleted successfully.");
@@ -195,8 +195,8 @@ const WorklogActionbar = ({
       const url = `${process.env.worklog_api_url}/workitem/copyworkitem`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success("Task has been duplicated successfully");
@@ -237,8 +237,8 @@ const WorklogActionbar = ({
     const url = `${process.env.worklog_api_url}/workitem/UpdateStatus`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Status has been updated successfully.");

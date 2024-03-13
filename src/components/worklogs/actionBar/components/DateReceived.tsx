@@ -43,8 +43,8 @@ const DateReceived = ({ getWorkItemList, selectedRowIds, getOverLay }: any) => {
     const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemreceiverdate`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Reciever Date has been updated successfully.");

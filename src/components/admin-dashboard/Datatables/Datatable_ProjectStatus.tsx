@@ -43,8 +43,8 @@ const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
     const url = `${process.env.report_api_url}/dashboard/projectstatuslist`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setData(ResponseData.ProjectStatusList);

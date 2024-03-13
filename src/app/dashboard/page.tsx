@@ -163,8 +163,8 @@ const Page = () => {
     const url = `${process.env.pms_api_url}/project/getdropdown`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setProjects(ResponseData.List);
@@ -193,8 +193,8 @@ const Page = () => {
     const url = `${process.env.report_api_url}/clientdashboard/summarybyproject`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setProjectSummary(ResponseData);
@@ -378,11 +378,12 @@ const Page = () => {
                 disabled={!isAllProject}
               >
                 <MenuItem value={0}>All</MenuItem>
-                {workTypeData.map((i: any) => (
-                  <MenuItem value={i.value} key={i.value}>
-                    {i.label}
-                  </MenuItem>
-                ))}
+                {workTypeData?.length > 0 &&
+                  workTypeData?.map((i: any) => (
+                    <MenuItem value={i.value} key={i.value}>
+                      {i.label}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
           </section>

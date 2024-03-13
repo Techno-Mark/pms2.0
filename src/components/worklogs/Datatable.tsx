@@ -241,8 +241,8 @@ const Datatable = ({
     const url = `${process.env.worklog_api_url}/workitem/saveworkitemtimestamp`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setComment("");
@@ -270,8 +270,8 @@ const Datatable = ({
     const url = `${process.env.worklog_api_url}/workitem/getworkitemsync`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         if (ResponseData !== null) {
@@ -310,8 +310,8 @@ const Datatable = ({
       const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           const filteredData = ResponseData.filter(
@@ -385,8 +385,8 @@ const Datatable = ({
     const url = `${process.env.worklog_api_url}/workitem/getworkitemlist`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         onChangeTimeLoader(ResponseData.TotalTime);

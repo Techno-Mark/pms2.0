@@ -39,8 +39,8 @@ const ReturnYear = ({ selectedRowIds, getWorkItemList, getOverLay }: any) => {
     const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemreturnyear`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Return Year has been updated successfully.");

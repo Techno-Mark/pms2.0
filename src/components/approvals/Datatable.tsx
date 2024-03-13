@@ -144,8 +144,8 @@ const Datatable = ({
     `;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         onChangeLoader(ResponseData.TotalTime);
@@ -283,8 +283,8 @@ const Datatable = ({
     const url = `${process.env.worklog_api_url}/workitem/approval/saveworkitemreviewertimestamp`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setWorkitemTimeId((prev) =>
@@ -308,8 +308,8 @@ const Datatable = ({
     const url = `${process.env.worklog_api_url}/workitem/approval/getreviewerworkitemsync`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setReviewList((prev: any) =>
@@ -401,8 +401,8 @@ const Datatable = ({
     const url = `${process.env.worklog_api_url}/workitem/approval/getbreakandidletime`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setLoadingInside(true);

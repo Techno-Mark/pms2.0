@@ -34,9 +34,9 @@ const ForgetPassword = () => {
       const params = { Username: email };
       const url = `${process.env.api_url}/auth/forgotpassword`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           router.push(`/forgot-confirm/?email=${email}`);
@@ -92,11 +92,11 @@ const ForgetPassword = () => {
                   setEmail(e.target.value);
                   setEmailError(false);
                 }}
-                onBlur={(e: any) => {
+                onBlur={() => {
                   if (
-                    e.target.value.trim().length < 1 ||
-                    e.target.value.trim().length > 100 ||
-                    !regex.test(e.target.value)
+                    email.trim().length < 1 ||
+                    email.trim().length > 100 ||
+                    !regex.test(email)
                   ) {
                     setEmailError(true);
                   }

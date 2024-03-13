@@ -9,39 +9,53 @@ import Pabs from "@/assets/icons/Pabs";
 import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
 import Image from "next/image";
+import { TextField } from "@mui/material";
+import SearchIcon from "@/assets/icons/SearchIcon";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+
+interface TokenList {
+  Token: string;
+  TokenExpiry: string;
+  Username: string;
+}
+interface Token {
+  TwoFactorEnabled: boolean;
+  Token: TokenList;
+}
 
 const Page = () => {
   const router = useRouter();
+  const [clicked, setClicked] = useState(false);
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState(false);
-  const [clicked, setClicked] = useState(false);
-  const [emailHasError, setEmailHasError] = useState(false);
-  const [passwordHasError, setPasswordHasError] = useState(false);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
     hasToken(router);
   }, [router]);
 
   useEffect(() => {
-    email.trim().length > 0 && setEmailHasError(true);
-    password.trim().length > 0 && setPasswordHasError(true);
+    email.trim().length > 0 && setEmail(email);
+    password.trim().length > 0 && setPassword(password);
   }, [email, password]);
-
-  const validateEmail = (email: string) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    setEmailError(email.trim().length <= 0);
+    email.trim().length <= 0 && setEmailError(true);
+    email.trim().length > 100 && setEmailError(true);
+    setEmailError(!regex.test(email));
     setPasswordError(password.trim().length <= 0);
 
     if (
-      validateEmail(email) &&
-      password.trim() !== "" &&
-      emailHasError &&
-      passwordHasError
+      !emailError &&
+      email.trim().length > 0 &&
+      email.trim().length < 100 &&
+      regex.test(email) &&
+      password.trim().length > 0 &&
+      !passwordError
     ) {
       setClicked(true);
       const params = {
@@ -50,16 +64,16 @@ const Page = () => {
       };
       const url = `${process.env.api_url}/auth/token`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: Token,
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success("You are successfully logged in.");
           setEmail("");
+          setEmailError(false);
           setPassword("");
-          setEmailHasError(false);
-          setPasswordHasError(false);
+          setPasswordError(false);
           localStorage.setItem("token", ResponseData.Token.Token);
           router.push("/");
           setClicked(false);
@@ -95,25 +109,79 @@ const Page = () => {
             onSubmit={handleSubmit}
           >
             <div className="mb-4 w-[300px] lg:w-[356px]">
-              <Email
-                label="Email"
+              <span className="text-gray-500 text-sm">
+                Email
+                <span className="!text-defaultRed">&nbsp;*</span>
+              </span>
+              <TextField
                 type="email"
-                validate
-                getValue={(e) => setEmail(e)}
-                getError={(e) => setEmailHasError(e)}
-                hasError={emailError}
-                autoComplete="off"
+                sx={{ mt: "-3px" }}
+                fullWidth
+                value={email?.trim().length <= 0 ? "" : email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEmailError(false);
+                }}
+                onBlur={() => {
+                  if (
+                    email.trim().length < 1 ||
+                    email.trim().length > 100 ||
+                    !regex.test(email)
+                  ) {
+                    setEmailError(true);
+                  }
+                }}
+                error={emailError}
+                helperText={
+                  emailError && email?.trim().length > 100
+                    ? "Maximum 100 characters allowed."
+                    : emailError && !regex.test(email)
+                    ? "Please enter valid email."
+                    : emailError
+                    ? "This is a required field."
+                    : ""
+                }
+                margin="normal"
+                variant="standard"
               />
             </div>
             <div className="mb-5 w-[300px] lg:w-[356px]">
-              <Password
-                label="Password"
-                validate
-                novalidate
-                getValue={(e) => setPassword(e)}
-                getError={(e) => setPasswordHasError(e)}
-                hasError={passwordError}
-                autoComplete="off"
+              <span className="text-gray-500 text-sm">
+                Password
+                <span className="!text-defaultRed">&nbsp;*</span>
+              </span>
+              <TextField
+                type={show ? "text" : "password"}
+                sx={{ mt: "-3px" }}
+                fullWidth
+                value={password?.trim().length <= 0 ? "" : password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setPasswordError(false);
+                }}
+                onBlur={() => {
+                  if (password.trim().length < 1) {
+                    setPasswordError(true);
+                  }
+                }}
+                error={passwordError}
+                helperText={passwordError ? "This is a required field." : ""}
+                margin="normal"
+                variant="standard"
+                InputProps={{
+                  endAdornment: (
+                    <span
+                      className="absolute top-1 right-2 text-slatyGrey cursor-pointer"
+                      onClick={() => setShow(!show)}
+                    >
+                      {show ? (
+                        <VisibilityOff className="text-[18px]" />
+                      ) : (
+                        <Visibility className="text-[18px]" />
+                      )}
+                    </span>
+                  ),
+                }}
               />
             </div>
             <div className="pb-0 w-[300px] lg:w-[356px] flex justify-between items-center">

@@ -29,8 +29,8 @@ const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
     const url = `${process.env.report_api_url}/dashboard/billingstatusgraph`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         const chartData = ResponseData.List.map(

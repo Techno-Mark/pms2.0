@@ -57,8 +57,8 @@ const Client = ({
     const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemclient`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Client has been updated successfully.");

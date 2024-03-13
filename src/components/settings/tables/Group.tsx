@@ -85,8 +85,8 @@ const Group = ({
     const url = `${process.env.pms_api_url}/group/getall`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0 ? true : false);
@@ -113,8 +113,8 @@ const Group = ({
     const url = `${process.env.pms_api_url}/group/delete`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Group has been deleted successfully!");

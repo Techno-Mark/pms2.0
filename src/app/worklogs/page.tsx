@@ -191,8 +191,8 @@ const Page = () => {
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setFilterList(ResponseData);
@@ -208,8 +208,8 @@ const Page = () => {
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Filter has been deleted successfully.");
@@ -233,8 +233,8 @@ const Page = () => {
     const url = `${process.env.worklog_api_url}/workitem/break/getbyuser`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         if (ResponseData.BreakId === null) {
@@ -255,8 +255,8 @@ const Page = () => {
     const url = `${process.env.worklog_api_url}/workitem/break/setbreak`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         getBreakData();

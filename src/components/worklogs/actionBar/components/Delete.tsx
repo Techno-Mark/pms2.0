@@ -44,8 +44,8 @@ const Delete = ({
         const url = `${process.env.worklog_api_url}/workitem/deleteworkitem`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success("Task has been deleted successfully.");

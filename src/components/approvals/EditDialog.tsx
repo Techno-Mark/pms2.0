@@ -141,8 +141,8 @@ const EditDialog: React.FC<EditModalProps> = ({
         const url = `${process.env.worklog_api_url}/workitem/approval/GetDataForManulTime`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             setEstTime(formatTime(ResponseData.EstimateTime));
@@ -179,8 +179,8 @@ const EditDialog: React.FC<EditModalProps> = ({
     const url = `${process.env.worklog_api_url}/workitem/approval/updateManualTime`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Time has been updated successfully.");

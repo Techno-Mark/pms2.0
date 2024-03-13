@@ -78,8 +78,8 @@ const Datatable_Rating = ({
     const url = `${process.env.report_api_url}/report/client/rating`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0);

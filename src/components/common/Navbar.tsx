@@ -33,8 +33,8 @@ const Navbar = (props: NavbarPropsType) => {
     const url = `${process.env.pms_api_url}/Role/GetDropdown`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -52,8 +52,8 @@ const Navbar = (props: NavbarPropsType) => {
     const url = `${process.env.api_url}/auth/getuserdetails`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         const username = ResponseData?.FirstName + " " + ResponseData?.LastName;

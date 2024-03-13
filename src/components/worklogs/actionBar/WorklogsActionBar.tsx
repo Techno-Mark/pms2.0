@@ -57,8 +57,8 @@ const WorklogsActionBar = ({
     const url = `${process.env.worklog_api_url}/workitem/getclientcommonprocess`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setProcessDropdownData(ResponseData);
@@ -302,8 +302,8 @@ const WorklogsActionBar = ({
     const url = `${process.env.worklog_api_url}/workitem/saveworkitemsubmission`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("The task has been successfully submitted.");

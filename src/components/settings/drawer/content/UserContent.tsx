@@ -253,8 +253,8 @@ const UserContent = forwardRef<
         const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
         const successCallback = async (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             setTypeOfWorkDropdownData(ResponseData);

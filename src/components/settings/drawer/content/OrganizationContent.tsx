@@ -132,8 +132,8 @@ const OrganizationContent = forwardRef<
         const url = `${process.env.pms_api_url}/organization/save`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             setResponseData(ResponseData);
@@ -187,8 +187,8 @@ const OrganizationContent = forwardRef<
         const url = `${process.env.pms_api_url}/organization/save`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             setResponseData(ResponseData);

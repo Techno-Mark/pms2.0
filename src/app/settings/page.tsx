@@ -257,8 +257,8 @@ const Page = () => {
     const url = `${process.env.pms_api_url}/Role/GetList`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setPermissionDropdownData(ResponseData);
@@ -291,8 +291,8 @@ const Page = () => {
     const url = `${process.env.pms_api_url}/Role/SavePermission`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Data saved successfully.");
@@ -545,8 +545,8 @@ const Page = () => {
       const url = `${process.env.pms_api_url}/Role/Save`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           getPermissionDropdown();
@@ -581,8 +581,8 @@ const Page = () => {
     const url = `${process.env.pms_api_url}/Role/Delete`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         getPermissionDropdown();

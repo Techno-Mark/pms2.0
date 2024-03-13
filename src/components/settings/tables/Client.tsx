@@ -99,8 +99,8 @@ const Client = ({
     const url = `${process.env.pms_api_url}/client/GetAll`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0 ? true : false);
@@ -123,8 +123,8 @@ const Client = ({
       const url = `${process.env.pms_api_url}/client/delete`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success("Client has been deleted successfully!");
@@ -153,8 +153,8 @@ const Client = ({
     const url = `${process.env.pms_api_url}/client/activeinactive`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setIsOpenSwitchModal(false);

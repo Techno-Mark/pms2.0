@@ -136,8 +136,8 @@ const Page = () => {
     const url = `${process.env.report_api_url}/dashboard/dashboardclientsummary`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setReportData(ResponseData.ClientSummary);
@@ -163,8 +163,8 @@ const Page = () => {
     const url = `${process.env.report_api_url}/dashboard/summary`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setDashboardSummary(ResponseData);

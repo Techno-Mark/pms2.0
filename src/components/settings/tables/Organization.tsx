@@ -66,8 +66,8 @@ const Organization = ({
     const url = `${process.env.pms_api_url}/organization/getbyid`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         onHandleOrgData(ResponseData);
@@ -83,8 +83,8 @@ const Organization = ({
     const url = `${process.env.pms_api_url}/organization/getall`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.length > 0 ? true : false);
@@ -109,8 +109,8 @@ const Organization = ({
     const url = `${process.env.pms_api_url}/organization/activeinactive`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setIsOpenSwitchModal(false);

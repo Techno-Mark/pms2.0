@@ -51,8 +51,8 @@ const Process = ({
     const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemprocess`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Process has been updated successfully.");

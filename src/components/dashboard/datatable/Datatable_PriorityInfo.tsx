@@ -41,8 +41,8 @@ const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
       const url = `${process.env.report_api_url}/clientdashboard/taskstatusandprioritylist`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           setData(ResponseData.List);

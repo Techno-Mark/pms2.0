@@ -97,8 +97,8 @@ const User = ({
     const url = `${process.env.api_url}/user/getall`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0 ? true : false);
@@ -125,8 +125,8 @@ const User = ({
     const url = `${process.env.api_url}/user/delete`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("User has been deleted successfully!");
@@ -159,8 +159,8 @@ const User = ({
     const url = `${process.env.api_url}/user/activeinactive`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setIsOpenSwitchModal(false);
@@ -200,8 +200,8 @@ const User = ({
     const url = `${process.env.api_url}/user/ResendLink`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Resend Link sent Successfully.");

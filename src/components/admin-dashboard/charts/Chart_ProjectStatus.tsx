@@ -31,8 +31,8 @@ const Chart_ProjectStatus: React.FC<ChartProjectStatusProps> = ({
     const url = `${process.env.report_api_url}/dashboard/projectstatusgraph`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         const chartData = ResponseData.List.map(

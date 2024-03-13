@@ -99,8 +99,8 @@ const Status = ({
     const url = `${process.env.pms_api_url}/status/GetAll`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0 ? true : false);
@@ -127,8 +127,8 @@ const Status = ({
     const url = `${process.env.pms_api_url}/status/delete`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Status has been deleted successfully!");

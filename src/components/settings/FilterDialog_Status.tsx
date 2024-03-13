@@ -38,8 +38,8 @@ const FilterDialog_Status = ({ onOpen, onClose, currentFilterData }: any) => {
     const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
     const successCallback = async (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setTypeOfWorkDropdown(ResponseData);

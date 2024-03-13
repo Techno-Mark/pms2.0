@@ -165,8 +165,8 @@ const TimesheetReportFilter = ({
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success("Filter has been successully saved.");
@@ -210,8 +210,8 @@ const TimesheetReportFilter = ({
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setTimesheetSavedFilters(ResponseData);
@@ -259,8 +259,8 @@ const TimesheetReportFilter = ({
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Filter has been deleted successfully.");
