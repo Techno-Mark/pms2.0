@@ -11,7 +11,7 @@ if (typeof Highcharts === "object") {
 interface ReturnTypeProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
-  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
+  sendData: any;
 }
 
 const Chart_ReturnType = ({
