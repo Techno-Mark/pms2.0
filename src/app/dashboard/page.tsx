@@ -39,6 +39,19 @@ import Dialog_SummaryList from "@/components/dashboard/dialog/Dialog_SummaryList
 import Dialog_ReturnTypeData from "@/components/dashboard/dialog/Dialog_ReturnTypeData";
 import { callAPI } from "@/utils/API/callAPI";
 import { getTypeOfWorkDropdownData } from "@/utils/commonDropdownApiCall";
+import { KeyValueColorCode, LabelValue } from "@/utils/Types/types";
+
+interface Project {
+  Childrens: Project[];
+  ProjectName: string;
+  Level: number;
+  ParentId: number | null;
+  ProjectId: number;
+}
+
+interface ProjectList {
+  List: Project[] | [];
+}
 
 const Page = () => {
   const router = useRouter();
@@ -97,19 +110,19 @@ const Page = () => {
   const openProjects = Boolean(anchorElProjects);
   const idProjects = openProjects ? "simple-popover" : undefined;
 
-  const handleOptionProjects = (id: any, name: any) => {
+  const handleOptionProjects = (id: number, name: string) => {
     setCurrentProjectId([id]);
     setCurrentProjectName(name);
     setIsAllProject(false);
     handleCloseProjects();
   };
 
-  const handleSearchChange = (event: any) => {
-    setSearchQuery(event.target.value);
+  const handleSearchChange = (e: string) => {
+    setSearchQuery(e);
   };
 
   const filteredProjects = searchQuery
-    ? projects.filter((project: any) =>
+    ? projects.filter((project: Project) =>
         project.ProjectName.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : projects;
@@ -131,7 +144,7 @@ const Page = () => {
 
   const handleValueFromReturnType = (
     isDialogOpen: boolean,
-    selectedPointData: number
+    selectedPointData: string
   ) => {
     setIsReturnTypeDialogOpen(isDialogOpen);
     setClickedReturnTypeValue(selectedPointData);
@@ -162,7 +175,7 @@ const Page = () => {
     };
     const url = `${process.env.pms_api_url}/project/getdropdown`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: ProjectList,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -192,7 +205,7 @@ const Page = () => {
     };
     const url = `${process.env.report_api_url}/clientdashboard/summarybyproject`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: KeyValueColorCode | [],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -250,11 +263,11 @@ const Page = () => {
                   {currentProjectName
                     ? currentProjectName
                         .split(" ")
-                        .map((word: any) => word.charAt(0).toUpperCase())
+                        .map((word: string) => word.charAt(0).toUpperCase())
                         .join("")
                     : "All Projects"
                         .split(" ")
-                        .map((word: any) => word.charAt(0).toUpperCase())
+                        .map((word: string) => word.charAt(0).toUpperCase())
                         .join("")}
                 </Avatar>
                 <span
@@ -294,7 +307,7 @@ const Page = () => {
                         placeholder="Search"
                         inputProps={{ "aria-label": "search" }}
                         value={searchQuery}
-                        onChange={handleSearchChange}
+                        onChange={(e) => handleSearchChange(e.target.value)}
                         style={{ fontSize: "13px" }}
                       />
                     </span>
@@ -310,7 +323,7 @@ const Page = () => {
                         <Avatar sx={{ width: 34, height: 34, fontSize: 14 }}>
                           {"All Projects"
                             .split(" ")
-                            .map((word: any) => word.charAt(0).toUpperCase())
+                            .map((word: string) => word.charAt(0).toUpperCase())
                             .join("")}
                         </Avatar>
 
@@ -337,7 +350,7 @@ const Page = () => {
                       </span>
                     )}
 
-                  {filteredProjects.map((project: any) => {
+                  {filteredProjects?.map((project: Project) => {
                     return (
                       <span
                         key={project.ProjectId}
@@ -354,7 +367,9 @@ const Page = () => {
                         >
                           <Avatar sx={{ width: 34, height: 34, fontSize: 14 }}>
                             {project.ProjectName.split(" ")
-                              .map((word: any) => word.charAt(0).toUpperCase())
+                              .map((word: string) =>
+                                word.charAt(0).toUpperCase()
+                              )
                               .join("")}
                           </Avatar>
 
@@ -379,7 +394,7 @@ const Page = () => {
               >
                 <MenuItem value={0}>All</MenuItem>
                 {workTypeData?.length > 0 &&
-                  workTypeData?.map((i: any) => (
+                  workTypeData?.map((i: LabelValue) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
@@ -390,7 +405,7 @@ const Page = () => {
 
           <section className="flex gap-[25px] items-center px-[20px] py-[10px]">
             {projectSummary &&
-              projectSummary.map((item: any) => (
+              projectSummary?.map((item: KeyValueColorCode) => (
                 <Card
                   key={item.Key}
                   className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}

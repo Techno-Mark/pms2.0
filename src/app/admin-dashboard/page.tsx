@@ -353,7 +353,7 @@ const Page = () => {
                       )
                   )}
                   getOptionLabel={(option: LabelValue) => option.label}
-                  onChange={(e: any, data: any) => {
+                  onChange={(e: React.ChangeEvent<{}>, data: any) => {
                     setFilteredObject({
                       ...filteredObject,
                       Clients: data.map((i: LabelValue) => i.value),
@@ -508,7 +508,6 @@ const Page = () => {
               <Card className="w-full border border-lightSilver rounded-lg">
                 <Chart_TaskStatus
                   sendData={handleValueFromTaskStatus}
-                  onSelectedProjectIds={[]}
                   onSelectedWorkType={0}
                 />
               </Card>
@@ -527,7 +526,6 @@ const Page = () => {
               <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
                 <Chart_BillingType
                   sendData={handleValueFromBillingType}
-                  onSelectedProjectIds={[]}
                   onSelectedWorkType={0}
                 />
               </Card>

@@ -48,7 +48,7 @@ const Datatable_CompletedTask = ({
   onComment,
   onErrorLog,
   currentFilterData,
-  onSearchWorkTypeData,
+  searchValue,
   onCloseDrawer,
 }: any) => {
   const [
@@ -159,10 +159,10 @@ const Datatable_CompletedTask = ({
       ...filteredObject,
       PageNo: 1,
       pageSize: pageSize,
-      GlobalSearch: onSearchWorkTypeData,
+      GlobalSearch: searchValue,
     });
-    onSearchWorkTypeData.length > 0 && setPage(0);
-  }, [onSearchWorkTypeData]);
+    searchValue.length > 0 && setPage(0);
+  }, [searchValue]);
 
   useEffect(() => {
     const fetchData = async () => {

@@ -110,7 +110,7 @@ const ClientReportFilter = ({
       ...client_InitialFilter,
       Clients: clientName.length > 0 ? clientName : [],
       WorkTypeId: typeOfWork !== null ? typeOfWork.value : null,
-      DepartmentId: deptName.length > 0 ? deptName : [],
+      DepartmentIds: deptName.length > 0 ? deptName : [],
       BillingTypeId: billingType !== null ? billingType.value : null,
       StartDate:
         startDate.toString().trim().length <= 0

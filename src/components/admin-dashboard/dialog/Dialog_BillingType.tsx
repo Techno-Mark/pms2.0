@@ -19,12 +19,7 @@ import Loading from "@/assets/icons/reports/Loading";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import axios from "axios";
 import { toast } from "react-toastify";
-
-interface Status {
-  Type: string;
-  label: string;
-  value: number;
-}
+import { LabelValue } from "@/utils/Types/types";
 
 interface BillingTypeDialogProps {
   onOpen: boolean;
@@ -39,8 +34,8 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
   onSelectedWorkType,
   onSelectedStatusName,
 }) => {
-  const [allBillingType, setAllBillingType] = useState<Status[]>([]);
-  const [billingType, setBillingType] = useState<number | any>(0);
+  const [allBillingType, setAllBillingType] = useState<LabelValue[]>([]);
+  const [billingType, setBillingType] = useState<number>(0);
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [searchValue, setSearchValue] = useState("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
@@ -52,10 +47,9 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
     setSearchValue("");
   };
 
-  function getValueByLabelOrType(labelOrType: any): number {
+  function getValueByLabelOrType(labelOrType: string): number {
     const billingType = allBillingType.find(
-      (billingType: Status) =>
-        billingType.Type === labelOrType || billingType.label === labelOrType
+      (billingType: LabelValue) => billingType.label === labelOrType
     );
     if (billingType) {
       return billingType.value;
@@ -70,8 +64,8 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
     setBillingType(billingTypeValue);
   }, [clickedStatusName, onSelectedStatusName]);
 
-  const handleChangeValue = (e: any) => {
-    setBillingType(e.target.value);
+  const handleChangeValue = (e: number) => {
+    setBillingType(e);
     setSearchValue("");
   };
 
@@ -182,11 +176,11 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
                   labelId="Billing Type"
                   id="Billing Type"
                   value={billingType ? billingType : 0}
-                  onChange={handleChangeValue}
+                  onChange={(e) => handleChangeValue(Number(e.target.value))}
                   sx={{ height: "36px" }}
                 >
                   <MenuItem value={0}>All</MenuItem>
-                  {allBillingType.map((i: any) => (
+                  {allBillingType.map((i: LabelValue) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>

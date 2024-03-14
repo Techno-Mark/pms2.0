@@ -33,6 +33,7 @@ import {
   getProjectDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
+const ALL = -1;
 
 const BillingReportFilter = ({
   isFiltering,
@@ -286,7 +287,10 @@ const BillingReportFilter = ({
 
   useEffect(() => {
     const filterDropdowns = async () => {
-      setClientDropdown(await getClientDropdownData());
+      setClientDropdown([
+        { label: "Select All", value: ALL },
+        ...(await getClientDropdownData()),
+      ]);
       setProjectDropdown(
         await getProjectDropdownData(
           clientName.length > 0 ? clientName[0] : 0,
@@ -509,15 +513,33 @@ const BillingReportFilter = ({
                   <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={clientDropdown.filter(
-                      (option) =>
-                        !clients.find((client) => client.value === option.value)
-                    )}
+                    options={
+                      clientDropdown.length - 1 === clients.length
+                        ? []
+                        : clientDropdown.filter(
+                            (option) =>
+                              !clients.find(
+                                (client) => client.value === option.value
+                              )
+                          )
+                    }
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setClients(data);
-                      setClientName(data.map((d: any) => d.value));
-                      setProjectName(null);
+                      if (data.some((d: any) => d.value === -1)) {
+                        setClients(
+                          clientDropdown.filter((d: any) => d.value !== -1)
+                        );
+                        setClientName(
+                          clientDropdown
+                            .filter((d: any) => d.value !== -1)
+                            .map((d: any) => d.value)
+                        );
+                        setProjectName(null);
+                      } else {
+                        setClients(data);
+                        setClientName(data.map((d: any) => d.value));
+                        setProjectName(null);
+                      }
                     }}
                     value={clients}
                     renderInput={(params: any) => (

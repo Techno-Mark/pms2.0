@@ -14,8 +14,26 @@ import { callAPI } from "@/utils/API/callAPI";
 interface BillingTypeProps {
   onSelectedWorkType: number;
   onSelectedStatusName: string;
-  onCurrentSelectedBillingType: any;
+  onCurrentSelectedBillingType: number | null;
   onSearchValue: string;
+}
+
+interface List {
+  ClientId: number;
+  ClientName: string;
+  TypeOfWorkId: number;
+  TypeOfWorkName: string;
+  BillingTypeId: number;
+  BillingTypeName: string;
+  Status: boolean;
+  ContractedHours: number;
+  InternalHours: number;
+}
+
+interface Response {
+  TotalCount: number;
+  DashboardSummaryFilters: null;
+  BillingStatusList: List[] | [];
 }
 
 const Datatable_BillingType: React.FC<BillingTypeProps> = ({
@@ -29,7 +47,7 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
 
-  const getBillingTypeData = async (value: any) => {
+  const getBillingTypeData = async (value: string) => {
     const params = {
       PageNo: page + 1,
       PageSize: rowsPerPage,
@@ -44,7 +62,7 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
     };
     const url = `${process.env.report_api_url}/dashboard/billingstatuslist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: Response,
       error: boolean,
       ResponseStatus: string
     ) => {

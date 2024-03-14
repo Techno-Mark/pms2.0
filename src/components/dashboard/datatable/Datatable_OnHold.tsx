@@ -15,15 +15,28 @@ interface OnHoldProps {
   onSelectedWorkType: number;
 }
 
+interface List {
+  WorkitemId: number | null;
+  ProjectId: number | null;
+  ProjectName: string | null;
+  TaskName: string | null;
+  CloseMonth: string | number | null;
+  StartDate: string | null;
+  DueDate: string | null;
+  DueFrom: number | null;
+}
+
 const Datatable_OnHold: React.FC<OnHoldProps> = ({
   onSelectedProjectIds,
   onSelectedWorkType,
 }) => {
-  const [data, setData] = useState<any | any[]>([]);
+  const [data, setData] = useState<List[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
-  const [options, setOptions] = useState<any>({
+  const [height, setHeight] = useState("86vh");
+
+  const options: any = {
     filterType: "checkbox",
     responsive: "standard",
     viewColumns: false,
@@ -49,23 +62,16 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
         toolTip: "",
       },
     },
-  });
+  };
 
   useEffect(() => {
     const handleResize = () => {
       const screenWidth = window.innerWidth;
-      let tableBodyHeight = "86vh";
-
       if (screenWidth > 1440) {
-        tableBodyHeight = "77vh";
+        setHeight("77vh");
       } else if (screenWidth > 1280) {
-        tableBodyHeight = "86vh";
+        setHeight("86vh");
       }
-
-      setOptions((prevOptions: any) => ({
-        ...prevOptions,
-        tableBodyHeight,
-      }));
     };
 
     handleResize();
@@ -88,7 +94,7 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
     };
     const url = `${process.env.report_api_url}/clientdashboard/tasklistbyproject`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: { List: List[] | []; TotalCount: number },
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -111,7 +117,7 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
           data={data}
           columns={dashboardOnHoldAndOverdueCols}
           title={undefined}
-          options={options}
+          options={{ ...options, tableBodyHeight: height }}
           data-tableid="dashboard_OnHold_Datatable"
         />
         <TablePagination

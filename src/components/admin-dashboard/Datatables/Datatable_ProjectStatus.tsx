@@ -10,6 +10,10 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardProjectStatusCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
+import {
+  ListDashboard,
+  ResponseDashboardProjectSummary,
+} from "@/utils/Types/dashboardTypes";
 
 interface ProjectStatusProps {
   onSelectedWorkType: number;
@@ -23,7 +27,7 @@ const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
   onSelectedProjectStatus,
   onCurrSelectedProjectStatus,
 }) => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<ListDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
@@ -42,7 +46,7 @@ const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
     };
     const url = `${process.env.report_api_url}/dashboard/projectstatuslist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: ResponseDashboardProjectSummary,
       error: boolean,
       ResponseStatus: string
     ) => {

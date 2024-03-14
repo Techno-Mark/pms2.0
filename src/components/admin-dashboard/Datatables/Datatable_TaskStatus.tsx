@@ -10,6 +10,10 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardTaskStatusCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
+import {
+  ListDashboard,
+  ResponseDashboardTask,
+} from "@/utils/Types/dashboardTypes";
 
 interface TaskStatusProps {
   onSelectedWorkType: number;
@@ -24,12 +28,12 @@ const Datatable_TaskStatus: React.FC<TaskStatusProps> = ({
   onCurrSelectedStatus,
   onSearchValue,
 }) => {
-  const [data, setData] = useState<any>([]);
+  const [data, setData] = useState<ListDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
 
-  const getTaskStatusData = async (value: any) => {
+  const getTaskStatusData = async (value: string) => {
     const params = {
       PageNo: page + 1,
       PageSize: rowsPerPage,
@@ -41,7 +45,7 @@ const Datatable_TaskStatus: React.FC<TaskStatusProps> = ({
     };
     const url = `${process.env.report_api_url}/dashboard/taskstatuslist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: ResponseDashboardTask,
       error: boolean,
       ResponseStatus: string
     ) => {

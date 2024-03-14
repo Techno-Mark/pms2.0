@@ -8,14 +8,24 @@ import { callAPI } from "@/utils/API/callAPI";
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
+
 interface ChartBillingTypeProps {
-  onSelectedProjectIds: number[];
   onSelectedWorkType: number;
-  sendData: any;
+  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
+}
+
+interface List {
+  Percentage: number;
+  Key: string;
+  Value: number;
+}
+
+interface Response {
+  List: List[] | [];
+  TotalCount: number;
 }
 
 const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
-  onSelectedProjectIds,
   onSelectedWorkType,
   sendData,
 }) => {
@@ -28,18 +38,16 @@ const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
     };
     const url = `${process.env.report_api_url}/dashboard/billingstatusgraph`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: Response,
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        const chartData = ResponseData.List.map(
-          (item: { Percentage: any; Key: any; Value: any }) => ({
-            name: item.Key,
-            y: item.Value,
-            percentage: item.Percentage,
-          })
-        );
+        const chartData = ResponseData.List.map((item: List) => ({
+          name: item.Key,
+          y: item.Value,
+          percentage: item.Percentage,
+        }));
 
         setData(chartData);
         setTotalCount(ResponseData.TotalCount);
@@ -92,7 +100,7 @@ const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
         cursor: "pointer",
         point: {
           events: {
-            click: (event: { point: { name: any } }) => {
+            click: (event: { point: { name: string } }) => {
               const selectedPointData = {
                 name: (event.point && event.point.name) || "",
               };

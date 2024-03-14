@@ -17,12 +17,32 @@ interface TotalHoursInfoProps {
   onSelectedWorkType: number;
 }
 
+interface ClientDetail {
+  ClientName: string;
+  ContractedAccountingHrs: number;
+  ContractedAuditHrs: number;
+  ContractedTaxHrs: number;
+  ContractedTotalHours: number;
+  ActualAccountingHrs: number;
+  ActualAuditHrs: number;
+  ActualTaxHrs: number;
+  ActualTotalHours: number;
+}
+
+interface List {
+  ProjectName: string;
+  TaskName: string;
+  ActualAccountingHrs: number | null;
+  ActualAuditHrs: number | null;
+  ActualTaxHrs: number | null;
+}
+
 const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
   onSelectedProjectIds,
   onSelectedWorkType,
 }) => {
-  const [clientDetails, setClientDetails] = useState<any | any[]>([]);
-  const [clientProjectDetails, setClientProjectDetails] = useState<any | any[]>(
+  const [clientDetails, setClientDetails] = useState<ClientDetail | null>(null);
+  const [clientProjectDetails, setClientProjectDetails] = useState<List[] | []>(
     []
   );
   const [page, setPage] = useState(0);
@@ -41,7 +61,11 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
       };
       const url = `${process.env.report_api_url}/clientdashboard/clienttotalhoursinformationlist`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: {
+          ClientDetail: ClientDetail;
+          List: List[];
+          TotalCount: number;
+        },
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -59,7 +83,7 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
 
   const tableData = [];
 
-  if (clientDetails) {
+  if (clientDetails !== null) {
     tableData.push({
       ProjectName: <span className="font-extrabold">Project List</span>,
       TaskName: <span className="font-extrabold">Task List</span>,

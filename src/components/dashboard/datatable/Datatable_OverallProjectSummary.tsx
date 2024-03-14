@@ -10,6 +10,7 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { dashboardOverallProjectSumCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
+import { ListClientDashboard } from "@/utils/Types/dashboardTypes";
 
 interface OverallProjectSummaryProps {
   onSelectedWorkType: number;
@@ -24,7 +25,7 @@ const Datatable_OverallProjectSummary: React.FC<OverallProjectSummaryProps> = ({
   onSelectedProjectIds,
   onCurrselectedtaskStatus,
 }) => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<ListClientDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
@@ -43,7 +44,7 @@ const Datatable_OverallProjectSummary: React.FC<OverallProjectSummaryProps> = ({
     };
     const url = `${process.env.report_api_url}/clientdashboard/overallprojectcompletionlist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: { List: ListClientDashboard[] | []; TotalCount: number },
       error: boolean,
       ResponseStatus: string
     ) => {

@@ -32,7 +32,7 @@ const initialReportRatingFilter = {
 
 const Datatable_Rating = ({
   currentFilterData,
-  onSearchData,
+  searchValue,
   onHandleExport,
 }: any) => {
   const [allReportRatingFields, setAllReportRatingFields] = useState<any>({
@@ -103,22 +103,9 @@ const Datatable_Rating = ({
     setFilteredOjectReportRating({
       ...filteredObjectReportRating,
       ...currentFilterData,
+      GlobalSearch: searchValue,
     });
-  }, [currentFilterData]);
-
-  useEffect(() => {
-    if (onSearchData) {
-      setAllReportRatingFields({
-        ...allReportRatingFields,
-        ratingData: onSearchData,
-      });
-    } else {
-      const timer = setTimeout(() => {
-        getReportRatingList();
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [onSearchData]);
+  }, [currentFilterData, searchValue]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

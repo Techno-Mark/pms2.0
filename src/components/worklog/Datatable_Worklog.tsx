@@ -43,7 +43,7 @@ const Datatable_Worklog = ({
   onDataFetch,
   onComment,
   currentFilterData,
-  onSearchWorkTypeData,
+  searchValue,
   onCloseDrawer,
 }: any) => {
   const [isLoadingWorklogDatatable, setIsLoadingWorklogDatatable] =
@@ -171,10 +171,10 @@ const Datatable_Worklog = ({
       ...filteredObject,
       PageNo: 1,
       PageSize: pageSize,
-      GlobalSearch: onSearchWorkTypeData,
+      GlobalSearch: searchValue,
     });
-    onSearchWorkTypeData.length > 0 && setPage(0);
-  }, [onSearchWorkTypeData]);
+    searchValue.length > 0 && setPage(0);
+  }, [searchValue]);
 
   useEffect(() => {
     const fetchData = async () => {

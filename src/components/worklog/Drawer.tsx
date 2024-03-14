@@ -1562,7 +1562,7 @@ const Drawer = ({
                                       ? null
                                       : dayjs(dueDateClientWorklog)
                                   }
-                                  disabled
+                                  minDate={dayjs(receiverDateClientWorklog)}
                                   onChange={(newDate: any) => {
                                     setDueDateClientWorklog(newDate.$d);
                                   }}

@@ -10,6 +10,10 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardSummaryCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
+import {
+  ListDashboard,
+  ResponseDashboardProjectSummary,
+} from "@/utils/Types/dashboardTypes";
 
 interface DashboardSummaryListProps {
   onSelectedWorkType: number;
@@ -22,7 +26,9 @@ const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
   onClickedSummaryTitle,
   onCurrSelectedSummaryTitle,
 }) => {
-  const [dashboardSummaryData, setDashboardSummaryData] = useState([]);
+  const [dashboardSummaryData, setDashboardSummaryData] = useState<
+    ListDashboard[] | []
+  >([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
@@ -40,7 +46,7 @@ const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
     };
     const url = `${process.env.report_api_url}/dashboard/dashboardsummarylist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: ResponseDashboardProjectSummary,
       error: boolean,
       ResponseStatus: string
     ) => {

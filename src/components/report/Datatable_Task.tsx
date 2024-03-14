@@ -30,7 +30,7 @@ const initialReportTaskFilter = {
 
 const Datatable_Task = ({
   currentFilterData,
-  onSearchData,
+  searchValue,
   onHandleExport,
 }: any) => {
   const [allReportTaskFields, setAllReportTaskFields] = useState<any>({
@@ -102,22 +102,9 @@ const Datatable_Task = ({
     setFilteredOjectReportTask({
       ...filteredObjectReportTask,
       ...currentFilterData,
+      GlobalSearch: searchValue,
     });
-  }, [currentFilterData]);
-
-  useEffect(() => {
-    if (onSearchData) {
-      setAllReportTaskFields({
-        ...allReportTaskFields,
-        taskData: onSearchData,
-      });
-    } else {
-      const timer = setTimeout(() => {
-        getReportTaskList();
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [onSearchData]);
+  }, [currentFilterData, searchValue]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

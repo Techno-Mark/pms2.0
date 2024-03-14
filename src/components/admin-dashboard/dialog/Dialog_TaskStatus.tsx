@@ -19,12 +19,7 @@ import Loading from "@/assets/icons/reports/Loading";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import axios from "axios";
 import { toast } from "react-toastify";
-
-interface Status {
-  Type: string;
-  label: string;
-  value: number;
-}
+import { LabelValueType } from "@/utils/Types/types";
 
 interface TaskStatusInfoDialogProps {
   onOpen: boolean;
@@ -39,8 +34,8 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
   onSelectedWorkType,
   onSelectedStatusName,
 }) => {
-  const [allStatus, setAllStatus] = useState<any>([]);
-  const [status, setStatus] = useState<number | any>(0);
+  const [allStatus, setAllStatus] = useState<LabelValueType[] | []>([]);
+  const [status, setStatus] = useState<number>(0);
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [searchValue, setSearchValue] = useState("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
@@ -52,9 +47,9 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
     setSearchValue("");
   };
 
-  function getValueByLabelOrType(labelOrType: any): number {
+  function getValueByLabelOrType(labelOrType: string): number {
     const status = allStatus.find(
-      (status: Status) =>
+      (status: LabelValueType) =>
         status.Type === labelOrType || status.label === labelOrType
     );
     if (status) {
@@ -64,8 +59,8 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
     }
   }
 
-  const handleChangeValue = (e: any) => {
-    setStatus(e.target.value);
+  const handleChangeValue = (e: number) => {
+    setStatus(e);
     setSearchValue("");
   };
 
@@ -184,11 +179,11 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
                   labelId="status"
                   id="status"
                   value={status ? status : 0}
-                  onChange={handleChangeValue}
+                  onChange={(e) => handleChangeValue(Number(e.target.value))}
                   sx={{ height: "36px" }}
                 >
                   <MenuItem value={0}>All</MenuItem>
-                  {allStatus.map((i: any) => (
+                  {allStatus.map((i: LabelValueType) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>

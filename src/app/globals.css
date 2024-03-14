@@ -235,7 +235,7 @@ input[type="time"]::-moz-time-text {
 .muiTableAction tbody tr td:nth-child(5) {
   /* width: 2px !important; */
   display: flex;
-  justify-content: end;
+  justify-content: start;
   height: auto;
   margin-top: 16px;
   padding-bottom: 20px;

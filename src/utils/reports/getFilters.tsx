@@ -113,7 +113,7 @@ export const customreport_InitialFilter = {
   projectIdsJSON: [],
   clientIdsJSON: [],
   processIdsJSON: [],
-  DepartmentIds: [],
+  // DepartmentIds: [],
   WorkTypeId: null,
   subProcessId: null,
   assignedById: null,

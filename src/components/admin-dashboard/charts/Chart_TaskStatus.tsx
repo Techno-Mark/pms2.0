@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { callAPI } from "@/utils/API/callAPI";
+import { KeyValueColorCode } from "@/utils/Types/types";
 
 interface TaskStatusProps {
-  onSelectedProjectIds: number[];
   onSelectedWorkType: number;
-  sendData: any;
+  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
 const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
@@ -21,18 +21,16 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
     };
     const url = `${process.env.report_api_url}/dashboard/taskstatusgraph`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: KeyValueColorCode[],
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        const chartData = ResponseData.map(
-          (item: { ColorCode: any; Key: any; Value: any }) => ({
-            name: item.Key,
-            y: item.Value,
-            color: item.ColorCode,
-          })
-        );
+        const chartData = ResponseData.map((item: KeyValueColorCode) => ({
+          name: item.Key,
+          y: item.Value,
+          color: item.ColorCode,
+        }));
 
         setData(chartData);
       }
@@ -54,7 +52,7 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
       text: undefined,
     },
     xAxis: {
-      categories: data.map((item: { name: any }) => item.name),
+      categories: data.map((item: { name: string }) => item.name),
       title: {
         text: null,
       },

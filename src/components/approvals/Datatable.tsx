@@ -86,9 +86,9 @@ const Datatable = ({
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedRowIds, setSelectedRowIds] = useState<number[]>([]);
-  const [selectedWorkItemIds, setSelectedWorkItemIds] = useState<
-    number[] | any
-  >([]);
+  const [selectedWorkItemIds, setSelectedWorkItemIds] = useState<number[] | []>(
+    []
+  );
   const [workitemId, setWorkitemId] = useState(0);
   const [id, setId] = useState(0);
   const [page, setPage] = useState(0);
@@ -100,11 +100,11 @@ const Datatable = ({
   const [stopReviewTimer, setStopReviewTimer] = useState<boolean>(false);
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
   const [reviewList, setReviewList] = useState<any>([]);
-  const [selectedRowClientId, setSelectedRowClientId] = useState<
-    any | number[]
-  >([]);
+  const [selectedRowClientId, setSelectedRowClientId] = useState<number[] | []>(
+    []
+  );
   const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<
-    any | number[]
+    number[] | []
   >([]);
   const [isWorkloadExpanded, setIsWorkloadExpanded] = useState<boolean>(false);
   const [clickedWorkloadRowId, setClickedWorkloadRowId] = useState<number>(-1);
@@ -161,7 +161,7 @@ const Datatable = ({
   };
 
   const handleRowSelect = (
-    currentRowsSelected: any,
+    currentRowsSelected: null,
     allRowsSelected: any,
     rowsSelected: any
   ) => {
@@ -1408,7 +1408,7 @@ const Datatable = ({
       {/* Approval's Action Bar */}
       <ApprovalsActionBar
         {...propsForActionBar}
-        getOverLay={(e: any) => setIsLoadingApprovalsDatatable(e)}
+        getOverLay={(e: boolean) => setIsLoadingApprovalsDatatable(e)}
       />
       {isLoadingApprovalsDatatable || isWorkloadExpanded ? <OverLay /> : ""}
     </div>

@@ -24,12 +24,21 @@ import { toHoursAndMinutes, toSeconds } from "@/utils/timerFunctions";
 interface EditModalProps {
   onOpen: boolean;
   onClose: () => void;
-  onActionClick?: () => void;
   onReviewerDataFetch?: any;
   onClearSelection?: any;
   onSelectWorkItemId: number;
   onSelectedSubmissionId: number;
-  getOverLay: any;
+  getOverLay: (e: boolean) => void;
+}
+
+interface Response {
+  EstimateTime: number;
+  Quantity: number;
+  TotalEstimateTime: number;
+  ActualTime: number;
+  ManagerTime: number;
+  Percentage: number | null;
+  IsPercent: boolean | null;
 }
 
 const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
@@ -43,23 +52,22 @@ const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
-const EditDialog: React.FC<EditModalProps> = ({
+const EditDialog = ({
   onOpen,
   onClose,
-  onActionClick,
   onSelectWorkItemId,
   onReviewerDataFetch,
   onClearSelection,
   onSelectedSubmissionId,
   getOverLay,
-}) => {
-  const [estTime, setEstTime] = useState<any>(0);
-  const [totalTime, setTotalTime] = useState<any>(0);
-  const [actualTime, setActualTime] = useState<any>(0);
-  const [quantity, setQuantity] = useState<any>(0);
-  const [editTime, setEditTime] = useState<any>("00:00:00");
-  const [percentage, setPercentage] = useState(0);
-  const [checkboxClicked, setCheckboxClicked] = useState(false);
+}: EditModalProps) => {
+  const [estTime, setEstTime] = useState<string>("00:00:00");
+  const [totalTime, setTotalTime] = useState<string>("00:00:00");
+  const [actualTime, setActualTime] = useState<string>("00:00:00");
+  const [quantity, setQuantity] = useState<number>(0);
+  const [editTime, setEditTime] = useState<string>("00:00:00");
+  const [percentage, setPercentage] = useState<number>(0);
+  const [checkboxClicked, setCheckboxClicked] = useState<boolean>(false);
   const [initialEditTime, setInitialEditTime] = useState<string>("00:00:00");
 
   const handleClose = () => {
@@ -118,7 +126,7 @@ const EditDialog: React.FC<EditModalProps> = ({
     setEditTime(formattedValue);
   };
 
-  function formatTime(seconds: any) {
+  function formatTime(seconds: number) {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
@@ -140,7 +148,7 @@ const EditDialog: React.FC<EditModalProps> = ({
         };
         const url = `${process.env.worklog_api_url}/workitem/approval/GetDataForManulTime`;
         const successCallback = (
-          ResponseData: any,
+          ResponseData: Response,
           error: boolean,
           ResponseStatus: string
         ) => {
@@ -151,8 +159,12 @@ const EditDialog: React.FC<EditModalProps> = ({
             setTotalTime(formatTime(ResponseData.ActualTime));
             setInitialEditTime(formatTime(ResponseData.ManagerTime));
             setEditTime(formatTime(ResponseData.ManagerTime));
-            setCheckboxClicked(ResponseData.IsPercent);
-            setPercentage(ResponseData.Percentage);
+            setCheckboxClicked(
+              ResponseData.IsPercent === null ? false : ResponseData.IsPercent
+            );
+            setPercentage(
+              ResponseData.Percentage === null ? 0 : ResponseData.Percentage
+            );
           }
         };
         callAPI(url, params, successCallback, "POST");
@@ -178,7 +190,7 @@ const EditDialog: React.FC<EditModalProps> = ({
 
     const url = `${process.env.worklog_api_url}/workitem/approval/updateManualTime`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -199,7 +211,7 @@ const EditDialog: React.FC<EditModalProps> = ({
     return editTime !== initialEditTime || (checkboxClicked && percentage > 0);
   };
 
-  const handleCheckboxChange = (e: any) => {
+  const handleCheckboxChange = (e: boolean) => {
     setCheckboxClicked(e);
 
     if (e === false) {
@@ -208,17 +220,23 @@ const EditDialog: React.FC<EditModalProps> = ({
     }
   };
 
-  const handleInputChange = (inputValue: any) => {
+  const handleInputChange = (inputValue: number) => {
     const digitRegex = /^\d*\.?\d*$/;
 
-    if (digitRegex.test(inputValue) && inputValue <= 99.99) {
-      const hasDecimal = inputValue.includes(".");
-      const decimalPart = hasDecimal ? inputValue.split(".")[1] || "" : "";
+    if (digitRegex.test(inputValue.toString()) && inputValue <= 99.99) {
+      const hasDecimal = inputValue.toString().includes(".");
+      const decimalPart = hasDecimal
+        ? inputValue.toString().split(".")[1] || ""
+        : "";
 
       if (!hasDecimal || (hasDecimal && decimalPart.length <= 2)) {
         setPercentage(inputValue);
-        const total: any = toSeconds(totalTime);
-        setEditTime(toHoursAndMinutes(Math.round((inputValue * total) / 100)));
+        const total: number | undefined = toSeconds(totalTime);
+        setEditTime(
+          total !== undefined && total > 0
+            ? toHoursAndMinutes(Math.round((inputValue * total) / 100))
+            : "00:00:00"
+        );
       }
     }
   };
@@ -308,7 +326,7 @@ const EditDialog: React.FC<EditModalProps> = ({
                   fullWidth
                   disabled={!checkboxClicked}
                   value={percentage <= 0 ? "-" : percentage}
-                  onChange={(e: any) => handleInputChange(e.target.value)}
+                  onChange={(e) => handleInputChange(Number(e.target.value))}
                   onFocus={(e) =>
                     e.target.addEventListener(
                       "wheel",
