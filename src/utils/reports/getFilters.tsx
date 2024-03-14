@@ -53,7 +53,7 @@ export const workLoad_InitialFilter: any = {
   sortColumn: "",
   isDesc: true,
   globalSearch: "",
-  departmentId: null,
+  departmentIds: [],
   dateFilter: null,
   isDownload: false,
 };
@@ -189,7 +189,7 @@ export const ap_InitialFilter = {
   Users: [],
   Clients: [],
   ReportingManagers: [],
-  DepartmentId: null,
+  DepartmentIds: [],
   IsDownload: false,
 };
 
@@ -200,7 +200,7 @@ export const client_InitialFilter = {
   SortColumn: "",
   IsDesc: true,
   IsDownload: false,
-  DepartmentId: null,
+  DepartmentIds: [],
   BillingTypeId: null,
   WorkTypeId: null,
   StartDate: null,
@@ -218,7 +218,7 @@ export const kra_InitialFilter = {
   EndDate: null,
   Users: [],
   Clients: [],
-  DepartmentId: null,
+  DepartmentIds: [],
   IsDownload: false,
 };
 
@@ -232,7 +232,7 @@ export const am_InitialFilter = {
   EndDate: null,
   Users: [],
   ReportingManagerId: null,
-  DepartmentId: null,
+  DepartmentIds: [],
   IsDownload: false,
 };
 

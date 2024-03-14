@@ -3363,7 +3363,8 @@ const EditDrawer = ({
                                 ? null
                                 : dayjs(dueDateWorklogs)
                             }
-                            disabled
+                            minDate={dayjs(receiverDateWorklogs)}
+                            shouldDisableDate={isWeekend}
                             onChange={(newDate: any) => {
                               setDueDateWorklogs(newDate.$d);
                             }}
@@ -3384,6 +3385,7 @@ const EditDrawer = ({
                           <DatePicker
                             label="All Info Date"
                             disabled={isIdDisabled}
+                            shouldDisableDate={isWeekend}
                             value={
                               allInfoDateWorklogs === ""
                                 ? null

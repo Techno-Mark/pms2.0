@@ -3145,10 +3145,11 @@ const EditDrawer = ({
                                 ? null
                                 : dayjs(dueDateApprovals)
                             }
-                            disabled
+                            shouldDisableDate={isWeekend}
                             onChange={(newDate: any) => {
                               setDueDateApprovals(newDate.$d);
                             }}
+                            minDate={dayjs(receiverDateApprovals)}
                             slotProps={{
                               textField: {
                                 readOnly: true,
@@ -3165,6 +3166,7 @@ const EditDrawer = ({
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
                             label="All Info Date"
+                            shouldDisableDate={isWeekend}
                             value={
                               allInfoDateApprovals === ""
                                 ? null

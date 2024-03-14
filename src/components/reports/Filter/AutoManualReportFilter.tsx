@@ -64,8 +64,8 @@ const AutoManualReportFilter = ({
 
   const handleResetAll = () => {
     setReportingManager(null);
-    setDepts([]);
     setDeptName([]);
+    setDepts([]);
     setStartDate("");
     setEndDate("");
     setError("");
@@ -85,8 +85,8 @@ const AutoManualReportFilter = ({
     setDefaultFilter(false);
 
     setReportingManager(null);
-    setDepts([]);
     setDeptName([]);
+    setDepts([]);
     setStartDate("");
     setEndDate("");
     setError("");
@@ -148,7 +148,7 @@ const AutoManualReportFilter = ({
       AppliedFilter: {
         ReportingManagerId:
           reportingManager !== null ? reportingManager.value : null,
-        DepartmentIds: deptName.length > 0 ? deptName : [],
+        DepartmentIds: deptName,
         StartDate:
           startDate.toString().trim().length <= 0
             ? endDate.toString().trim().length <= 0
@@ -220,6 +220,7 @@ const AutoManualReportFilter = ({
     };
     callAPI(url, params, successCallback, "POST");
   };
+  console.log(startDate);
 
   const handleSavedFilterEdit = async (index: number) => {
     setSaveFilter(true);
@@ -237,22 +238,26 @@ const AutoManualReportFilter = ({
         : null
     );
     setDepts(
-      savedFilters[index].AppliedFilter.DepartmentIds.length > 0
-        ? departmentDropdown.filter((dept: any) =>
-            savedFilters[index].AppliedFilter.departmentIds.includes(dept.value)
+      savedFilters[index].AppliedFilter.DepartmentIds === null
+        ? []
+        : departmentDropdown.filter((dept: any) =>
+            savedFilters[index].AppliedFilter.DepartmentIds.includes(dept.value)
           )
-        : []
     );
-    setDeptName(savedFilters[index].AppliedFilter.DepartmentIds);
+    setDeptName(
+      savedFilters[index].AppliedFilter.DepartmentIds === null
+        ? []
+        : savedFilters[index].AppliedFilter.DepartmentIds
+    );
     setStartDate(
-      savedFilters[index].AppliedFilter.startDate === null
+      savedFilters[index].AppliedFilter.StartDate === null
         ? ""
-        : savedFilters[index].AppliedFilter.startDate
+        : savedFilters[index].AppliedFilter.StartDate
     );
     setEndDate(
-      savedFilters[index].AppliedFilter.endDate === null
+      savedFilters[index].AppliedFilter.EndDate === null
         ? ""
-        : savedFilters[index].AppliedFilter.endDate
+        : savedFilters[index].AppliedFilter.EndDate
     );
   };
 
@@ -432,7 +437,7 @@ const AutoManualReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(endDate)}
                       value={startDate === "" ? null : dayjs(startDate)}
                       onChange={(newValue: any) => setStartDate(newValue)}
@@ -450,7 +455,7 @@ const AutoManualReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="End Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       minDate={dayjs(startDate)}
                       maxDate={dayjs(Date.now())}
                       value={endDate === "" ? null : dayjs(endDate)}

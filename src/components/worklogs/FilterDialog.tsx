@@ -540,7 +540,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                     label="Due Date"
                     value={dueDate === null ? null : dayjs(dueDate)}
                     onChange={(newDate: any) => setDueDate(newDate.$d)}
-                    shouldDisableDate={isWeekend}
+                    // shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
                     slotProps={{
                       textField: {
@@ -560,7 +560,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   <DatePicker
                     label="From"
                     value={startDate === null ? null : dayjs(startDate)}
-                    shouldDisableDate={isWeekend}
+                    // shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
                     onChange={(newDate: any) => setStartDate(newDate.$d)}
                     slotProps={{
@@ -578,7 +578,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   <DatePicker
                     label="To"
                     value={endDate === null ? null : dayjs(endDate)}
-                    shouldDisableDate={isWeekend}
+                    // shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
                     onChange={(newDate: any) => setEndDate(newDate.$d)}
                     slotProps={{

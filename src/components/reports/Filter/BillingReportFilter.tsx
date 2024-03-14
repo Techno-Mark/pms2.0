@@ -614,7 +614,7 @@ const BillingReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Preparation From"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(endDate)}
                       value={startDate === "" ? null : dayjs(startDate)}
                       onChange={(newValue: any) => setStartDate(newValue)}
@@ -634,7 +634,7 @@ const BillingReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Preparation To"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       minDate={dayjs(startDate)}
                       maxDate={dayjs(Date.now())}
                       value={endDate === "" ? null : dayjs(endDate)}
@@ -653,7 +653,7 @@ const BillingReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Review From"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(endDateReview)}
                       value={
                         startDateReview === "" ? null : dayjs(startDateReview)
@@ -673,7 +673,7 @@ const BillingReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Review To"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       minDate={dayjs(startDateReview)}
                       maxDate={dayjs(Date.now())}
                       value={endDateReview === "" ? null : dayjs(endDateReview)}

@@ -184,7 +184,7 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     label="From"
-                    shouldDisableDate={isWeekend}
+                    // shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
                     value={
                       startDateFilterRating === null
@@ -208,7 +208,7 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     label="To"
-                    shouldDisableDate={isWeekend}
+                    // shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
                     value={
                       endDateFilterRating === null

@@ -1084,7 +1084,7 @@ const CustomReportFilter = ({
                     <DatePicker
                       label="Due Date"
                       value={dueDate === "" ? null : dayjs(dueDate)}
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       minDate={dayjs(startDate)}
                       maxDate={dayjs(Date.now())}
                       onChange={(newValue: any) => setDueDate(newValue)}
@@ -1105,7 +1105,7 @@ const CustomReportFilter = ({
                     <DatePicker
                       label="Recieved From"
                       value={startDate === "" ? null : dayjs(startDate)}
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
                       onChange={(newValue: any) => setStartDate(newValue)}
                       slotProps={{
@@ -1123,7 +1123,7 @@ const CustomReportFilter = ({
                     <DatePicker
                       label="Recieved To"
                       value={endDate === "" ? null : dayjs(endDate)}
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
                       minDate={dayjs(startDate)}
                       onChange={(newValue: any) => setEndDate(newValue)}
@@ -1162,7 +1162,7 @@ const CustomReportFilter = ({
                       value={
                         startDateReview === "" ? null : dayjs(startDateReview)
                       }
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
                       onChange={(newValue: any) => setStartDateReview(newValue)}
                       slotProps={{
@@ -1180,7 +1180,7 @@ const CustomReportFilter = ({
                     <DatePicker
                       label="Review To"
                       value={endDateReview === "" ? null : dayjs(endDateReview)}
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
                       minDate={dayjs(startDateReview)}
                       onChange={(newValue: any) => setEndDateReview(newValue)}

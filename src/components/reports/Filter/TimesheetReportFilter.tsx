@@ -253,10 +253,14 @@ const TimesheetReportFilter = ({
       timesheetSavedFilters[index].AppliedFilter.departmentIds
     );
     setTimesheetStartDate(
-      timesheetSavedFilters[index].AppliedFilter.startDate ?? ""
+      timesheetSavedFilters[index].AppliedFilter.startDate === null
+        ? null
+        : timesheetSavedFilters[index].AppliedFilter.startDate
     );
     setTimesheetEndDate(
-      timesheetSavedFilters[index].AppliedFilter.endDate ?? ""
+      timesheetSavedFilters[index].AppliedFilter.endDate === null
+        ? null
+        : timesheetSavedFilters[index].AppliedFilter.endDate
     );
     setTimesheetDefaultFilter(true);
     setTimesheetSaveFilter(true);
@@ -440,7 +444,7 @@ const TimesheetReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(timesheetEndDate)}
                       value={
                         timesheetStartDate === ""
@@ -466,7 +470,7 @@ const TimesheetReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="End Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       minDate={dayjs(timesheetStartDate)}
                       maxDate={dayjs(Date.now())}
                       value={

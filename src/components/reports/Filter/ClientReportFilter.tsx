@@ -528,7 +528,7 @@ const ClientReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(endDate)}
                       value={startDate === "" ? null : dayjs(startDate)}
                       onChange={(newValue: any) => setStartDate(newValue)}
@@ -546,7 +546,7 @@ const ClientReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="End Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       minDate={dayjs(startDate)}
                       maxDate={dayjs(Date.now())}
                       value={endDate === "" ? null : dayjs(endDate)}
