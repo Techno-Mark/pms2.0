@@ -42,15 +42,19 @@ import FilterIcon from "@/assets/icons/FilterIcon";
 import FilterDialog_Status from "@/components/settings/FilterDialog_Status";
 import { Delete, Edit } from "@mui/icons-material";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+import {
+  LabelValue,
+  LabelValueTypeIsDefault,
+  MenuItem,
+} from "@/utils/Types/types";
 
-type Tabs = { id: string; label: string; canView: boolean };
-
-type Options = {
+interface Tabs {
+  id: string;
   label: string;
-  value: string;
-};
+  canView: boolean;
+}
 
-const filter = createFilterOptions<Options>();
+const filter = createFilterOptions<LabelValue>();
 
 const initialTabs = [
   { id: "Client", label: "Client", canView: false },
@@ -75,61 +79,52 @@ const Page = () => {
   const [isLoaded, setLoaded] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasEditId, setHasEditId] = useState("");
-  const [userData, setUserData] = useState([]);
   const [getUserDataFunction, setUserGetDataFunction] = useState<
     (() => void) | null
   >(null);
   const [groupData, setGroupData] = useState("");
-  const [projectData, setProjectData] = useState([]);
 
-  const [statusData, setStatusData] = useState("");
-  const [processData, setProcessData] = useState("");
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [currentFilterData, setCurrentFilterData] = useState<any>([]);
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
 
-  const getIdFromFilterDialog = (data: any) => {
-    setCurrentFilterData(data);
+  const handleUserDataFetch = (getData: () => void) => {
+    setUserGetDataFunction(() => getData);
   };
 
   const handleCloseFilter = () => {
     setisFilterOpen(false);
   };
 
-  const handleGroupData = (data: any) => {
-    setGroupData(data);
+  interface FilterSettings {
+    SortColumn: string;
+    IsDec: boolean;
+    globalFilter: string | null;
+    IsDefault: boolean | null;
+    Type: string;
+    Export: boolean;
+    GlobalSearch: string | null;
+    WorkTypeId: number | null;
+  }
+
+  const getIdFromFilterDialog = (data: FilterSettings) => {
+    setCurrentFilterData(data);
   };
 
-  const handleProjectData = (data: any) => {
-    setProjectData(data);
-  };
-  const handleStatusData = (data: any) => {
-    setStatusData(data);
-  };
-
-  const handleUserDataFetch = (getData: () => void) => {
-    setUserGetDataFunction(() => getData);
-  };
-
-  const handleProcessData = (data: any) => {
-    setProcessData(data);
-  };
-
-  const handleUserData = (data: any) => {
-    setUserData(data);
-  };
-  const [orgData, setOrgData] = useState([]);
-  const [clientData, setClientData] = useState([]);
   const [getDataFunction, setGetDataFunction] = useState<(() => void) | null>(
     null
   );
   const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
     (() => void) | null
   >(null);
-  const [permissionDropdownData, setPermissionDropdownData] = useState([]);
+  const [permissionDropdownData, setPermissionDropdownData] = useState<
+    LabelValueTypeIsDefault[] | []
+  >([]);
   const [isPermissionExpanded, setPermissionExpanded] =
     useState<boolean>(false);
-  const [updatedPermissionsData, setUpdatedPermissionsData] = useState([]);
+  const [updatedPermissionsData, setUpdatedPermissionsData] = useState<
+    MenuItem[] | []
+  >([]);
 
   const [permissionValueError, setPermissionValueError] = useState(false);
   const [permissionValueErrText, setPermissionValueErrText] = useState<string>(
@@ -180,14 +175,6 @@ const Page = () => {
 
   const handleDataFetch = (getData: () => void) => {
     setGetDataFunction(() => getData);
-  };
-
-  const handleOrgData = (data: any) => {
-    setOrgData(data);
-  };
-
-  const handleClientData = (data: any) => {
-    setClientData(data);
   };
 
   useEffect(() => {
@@ -256,7 +243,7 @@ const Page = () => {
     const params = {};
     const url = `${process.env.pms_api_url}/Role/GetList`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: LabelValueTypeIsDefault[],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -290,7 +277,7 @@ const Page = () => {
     };
     const url = `${process.env.pms_api_url}/Role/SavePermission`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -311,7 +298,7 @@ const Page = () => {
     arg2: string,
     arg3: string,
     arg4: string,
-    arg5: any
+    arg5: string
   ) => {
     const updatedTabs = tabs.map((tab) => {
       switch (tab.id.toLowerCase()) {
@@ -420,7 +407,7 @@ const Page = () => {
   const exportData = async (
     endpoint: string,
     filename: string,
-    searchValue: any
+    searchValue: string
   ) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -494,27 +481,30 @@ const Page = () => {
     setSearchValue("");
   };
 
-  const handlePermissionName = (e: any) => {
-    if (e.target.value === "" || e.target.value.trim().length <= 0) {
-      setPermissionName(e.target.value);
+  const handlePermissionName = (e: string) => {
+    if (e === "" || e.trim().length <= 0) {
+      setPermissionName(e);
       setPermissionNameError(true);
       setPermissionNameErrText("This is required field.");
     } else {
-      setPermissionName(e.target.value);
+      setPermissionName(e);
       setPermissionNameError(false);
       setPermissionNameErrText("This field is required.");
     }
   };
 
-  const handlePermission = (e: React.SyntheticEvent, value: any) => {
+  const handlePermission = (
+    e: React.SyntheticEvent,
+    value: LabelValueTypeIsDefault
+  ) => {
     if (value !== null) {
-      if (isNaN(parseInt(value.value))) {
+      if (isNaN(Number(value.value))) {
         toggleOpen(true);
-        setPermissionName(value.value);
+        setPermissionName(value.label);
         setPermissionValue(null);
         setPermissionValueType(0);
       }
-      if (value !== null && !isNaN(parseInt(value.value))) {
+      if (value !== null && !isNaN(Number(value.value))) {
         const selectedValue = value.value;
         setPermissionValue(selectedValue);
         setPermissionValueType(value.Type);
@@ -538,13 +528,15 @@ const Page = () => {
         RoleId: permissionValue,
         Name: permissionName,
         Type: permissionDropdownData
-          .map((i: any) => (i.value === permissionValue ? i.Type : undefined))
-          .filter((i: any) => i !== undefined)[0],
+          .map((i: LabelValueTypeIsDefault) =>
+            i.value === permissionValue ? i.Type : undefined
+          )
+          .filter((i: number | undefined) => i !== undefined)[0],
       };
 
       const url = `${process.env.pms_api_url}/Role/Save`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: null,
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -580,7 +572,7 @@ const Page = () => {
     };
     const url = `${process.env.pms_api_url}/Role/Delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -595,10 +587,10 @@ const Page = () => {
     setIsDeleteOpenProject(false);
   };
 
-  const handleSearchChange = (e: any) => {
-    setSearch(e.target.value);
+  const handleSearchChange = (e: string) => {
+    setSearch(e);
     const timer = setTimeout(() => {
-      setSearchValue(e.target.value);
+      setSearchValue(e);
     }, 500);
     return () => clearTimeout(timer);
   };
@@ -619,7 +611,7 @@ const Page = () => {
           <div className="bg-white flex justify-between items-center">
             <div className="flex items-center py-[16px]">
               {visibleTabs
-                .filter((i: any) => i.canView !== false)
+                .filter((i: Tabs) => i.canView !== false)
                 .map((tab, index, array) => (
                   <label
                     key={tab.id}
@@ -660,7 +652,7 @@ const Page = () => {
                         className="pl-1 pr-7 border-b border-b-lightSilver w-48"
                         placeholder="Search"
                         value={search}
-                        onChange={(e: any) => handleSearchChange(e)}
+                        onChange={(e) => handleSearchChange(e.target.value)}
                       />
                       <span className="absolute top-2 right-2 text-slatyGrey">
                         <SearchIcon />
@@ -730,6 +722,7 @@ const Page = () => {
                                   Project: search,
                                   Status: search,
                                   User: search,
+                                  Organization: search,
                                 };
 
                                 const selectedTab = tabMappings[tab];
@@ -762,14 +755,17 @@ const Page = () => {
                     value={
                       permissionValue !== 0
                         ? permissionDropdownData.find(
-                            (option: any) => option.value === permissionValue
+                            (option: LabelValueTypeIsDefault) =>
+                              option.value === permissionValue
                           ) || null
                         : null
                     }
                     sx={{ width: "250px" }}
-                    getOptionLabel={(option: any) => option.label}
+                    getOptionLabel={(option: LabelValueTypeIsDefault) =>
+                      option.label
+                    }
                     onChange={handlePermission}
-                    filterOptions={(options: any, params: any) => {
+                    filterOptions={(options: LabelValueTypeIsDefault[], params: any) => {
                       const filtered = filter(options, params);
                       return filtered;
                     }}
@@ -863,7 +859,7 @@ const Page = () => {
                   isLoaded &&
                   (hasPermissionWorklog(tab, "save", "settings") ||
                     tabs.filter(
-                      (i: any) => i.label.toLowerCase() === "organization"
+                      (i: Tabs) => i.label.toLowerCase() === "organization"
                     )[0].canView)
                     ? ""
                     : "cursor-not-allowed"
@@ -871,7 +867,7 @@ const Page = () => {
                 onClick={
                   hasPermissionWorklog(tab, "save", "settings") ||
                   tabs.filter(
-                    (i: any) => i.label.toLowerCase() === "organization"
+                    (i: Tabs) => i.label.toLowerCase() === "organization"
                   )[0].canView
                     ? handleDrawerOpen
                     : undefined
@@ -896,14 +892,7 @@ const Page = () => {
 
         {/*  Drawer */}
         <Drawer
-          userData={userData}
-          orgData={orgData}
-          clientData={clientData}
-          projectData={projectData}
-          processData={processData}
           onEdit={hasEditId}
-          groupData={groupData}
-          statusData={statusData}
           onOpen={openDrawer}
           tab={tab}
           onClose={handleDrawerClose}
@@ -925,7 +914,6 @@ const Page = () => {
                 : undefined
             }
             onEdit={handleEdit}
-            onHandleClientData={handleClientData}
             onDataFetch={handleDataFetch}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("client", "view", "settings")}
@@ -946,7 +934,6 @@ const Page = () => {
             }
             onEdit={handleEdit}
             onDataFetch={handleDataFetch}
-            onHandleProjectData={handleProjectData}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("project", "view", "settings")}
             canEdit={hasPermissionWorklog("project", "save", "settings")}
@@ -964,7 +951,6 @@ const Page = () => {
                 : undefined
             }
             onEdit={handleEdit}
-            onHandleUserData={handleUserData}
             onUserDataFetch={handleUserDataFetch}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("user", "view", "settings")}
@@ -988,7 +974,6 @@ const Page = () => {
             }
             onEdit={handleEdit}
             onDataFetch={handleDataFetch}
-            onHandleGroupData={handleGroupData}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("group", "view", "settings")}
             canEdit={hasPermissionWorklog("group", "save", "settings")}
@@ -1007,7 +992,6 @@ const Page = () => {
             }
             onEdit={handleEdit}
             onDataFetch={handleDataFetch}
-            onHandleProcessData={handleProcessData}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("process", "view", "settings")}
             canEdit={hasPermissionWorklog("process", "save", "settings")}
@@ -1026,7 +1010,6 @@ const Page = () => {
             }
             onEdit={handleEdit}
             onDataFetch={handleDataFetch}
-            onHandleStatusData={handleStatusData}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("status", "view", "settings")}
             canEdit={hasPermissionWorklog("status", "save", "settings")}
@@ -1049,7 +1032,9 @@ const Page = () => {
             expanded={isPermissionExpanded}
             permissionValue={permissionValue}
             permissionValueType={permissionValueType}
-            sendDataToParent={(data: any) => setUpdatedPermissionsData(data)}
+            sendDataToParent={(data: MenuItem[]) =>
+              setUpdatedPermissionsData(data)
+            }
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("permission", "view", "settings")}
             canEdit={hasPermissionWorklog("permission", "save", "settings")}
@@ -1066,7 +1051,6 @@ const Page = () => {
                 : undefined
             }
             onEdit={handleEdit}
-            onHandleOrgData={handleOrgData}
             onDataFetch={handleDataFetch}
             getOrgDetailsFunction={getOrgDetailsFunction}
             onSearchOrgData={searchValue}
@@ -1087,7 +1071,6 @@ const Page = () => {
         <FilterDialog_Status
           onOpen={isFilterOpen}
           onClose={handleCloseFilter}
-          onDataFetch={() => {}}
           currentFilterData={getIdFromFilterDialog}
         />
       )}
@@ -1122,7 +1105,7 @@ const Page = () => {
             label="Role"
             placeholder={editDialogOpen ? "Edit a Role" : "Add new Role"}
             variant="standard"
-            onChange={handlePermissionName}
+            onChange={(e) => handlePermissionName(e.target.value)}
           />
         </DialogContent>
         <DialogActions>

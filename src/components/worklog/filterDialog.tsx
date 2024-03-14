@@ -318,7 +318,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     label="From"
-                    shouldDisableDate={isWeekend}
+                    // shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
                     value={startDate === null ? null : dayjs(startDate)}
                     onChange={(newDate: any) => setStartDate(newDate.$d)}
@@ -335,7 +335,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     label="To"
-                    shouldDisableDate={isWeekend}
+                    // shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
                     value={endDate === null ? null : dayjs(endDate)}
                     onChange={(newDate: any) => setEndDate(newDate.$d)}
@@ -353,7 +353,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     label="Due Date"
-                    shouldDisableDate={isWeekend}
+                    // shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
                     value={dueDate === null ? null : dayjs(dueDate)}
                     onChange={(newDate: any) => setDueDate(newDate.$d)}

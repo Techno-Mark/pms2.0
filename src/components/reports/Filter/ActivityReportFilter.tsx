@@ -35,7 +35,8 @@ const ActivityReportFilter = ({
 }: FilterType) => {
   const [users, setUsers] = useState<any[]>([]);
   const [userName, setUserName] = useState<any[]>([]);
-  const [department, setDepartment] = useState<any>(null);
+  const [depts, setDepts] = useState<any[]>([]);
+  const [deptName, setDeptName] = useState<any[]>([]);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
 
@@ -62,7 +63,8 @@ const ActivityReportFilter = ({
   const handleResetAll = () => {
     setUserName([]);
     setUsers([]);
-    setDepartment(null);
+    setDeptName([]);
+    setDepts([]);
     setStartDate("");
     setEndDate("");
     setError("");
@@ -83,7 +85,8 @@ const ActivityReportFilter = ({
 
     setUserName([]);
     setUsers([]);
-    setDepartment(null);
+    setDeptName([]);
+    setDepts([]);
     setStartDate("");
     setEndDate("");
     setError("");
@@ -93,7 +96,7 @@ const ActivityReportFilter = ({
     sendFilterToPage({
       ...activity_InitialFilter,
       Users: userName.length > 0 ? userName : [],
-      DepartmentId: department !== null ? department.value : null,
+      DepartmentId: deptName.length > 0 ? deptName : [],
       StartDate:
         startDate.toString().trim().length <= 0
           ? endDate.toString().trim().length <= 0
@@ -117,7 +120,7 @@ const ActivityReportFilter = ({
         sendFilterToPage({
           ...activity_InitialFilter,
           Users: savedFilters[index].AppliedFilter.Users,
-          DepartmentId: savedFilters[index].AppliedFilter.DepartmentId,
+          DepartmentIds: savedFilters[index].AppliedFilter.DepartmentIds,
           StartDate: savedFilters[index].AppliedFilter.StartDate,
           EndDate: savedFilters[index].AppliedFilter.EndDate,
         });
@@ -142,7 +145,7 @@ const ActivityReportFilter = ({
       name: filterName,
       AppliedFilter: {
         Users: userName,
-        DepartmentId: department !== null ? department.value : null,
+        DepartmentIds: deptName,
         StartDate:
           startDate.toString().trim().length <= 0
             ? endDate.toString().trim().length <= 0
@@ -182,13 +185,13 @@ const ActivityReportFilter = ({
   useEffect(() => {
     const isAnyFieldSelected =
       userName.length > 0 ||
-      department !== null ||
+      deptName.length > 0 ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-  }, [userName, department, startDate, endDate]);
+  }, [userName, deptName, startDate, endDate]);
 
   useEffect(() => {
     const filterDropdowns = async () => {
@@ -233,13 +236,17 @@ const ActivityReportFilter = ({
         ? []
         : savedFilters[index].AppliedFilter.Users
     );
-    setDepartment(
-      savedFilters[index].AppliedFilter.DepartmentId !== null
-        ? departmentDropdown.filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.DepartmentId[0]
-          )[0]
-        : null
+    setDepts(
+      savedFilters[index].AppliedFilter.DepartmentIds === null
+        ? []
+        : departmentDropdown.filter((dept: any) =>
+            savedFilters[index].AppliedFilter.DepartmentIds.includes(dept.value)
+          )
+    );
+    setDeptName(
+      savedFilters[index].AppliedFilter.DepartmentIds === null
+        ? []
+        : savedFilters[index].AppliedFilter.DepartmentIds
     );
     setStartDate(
       savedFilters[index].AppliedFilter.startDate === null
@@ -408,13 +415,15 @@ const ActivityReportFilter = ({
                   sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
                     options={departmentDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setDepartment(data);
+                      setDepts(data);
+                      setDeptName(data.map((d: any) => d.value));
                     }}
-                    value={department}
+                    value={depts}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
@@ -432,7 +441,7 @@ const ActivityReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(endDate)}
                       value={startDate === "" ? null : dayjs(startDate)}
                       onChange={(newValue: any) => setStartDate(newValue)}
@@ -450,7 +459,7 @@ const ActivityReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="End Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       minDate={dayjs(startDate)}
                       maxDate={dayjs(Date.now())}
                       value={endDate === "" ? null : dayjs(endDate)}

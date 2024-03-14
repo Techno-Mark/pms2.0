@@ -108,7 +108,7 @@ const Home = () => {
       if (ResponseStatus === "Success" && error === false) {
         setLocalStorageItems(ResponseData);
 
-        if (ResponseData.Menu.length > 2) {
+        if (ResponseData.Menu.length > 0) {
           handlePermissions(ResponseData.IsClientUser);
         } else {
           router.push("/login");

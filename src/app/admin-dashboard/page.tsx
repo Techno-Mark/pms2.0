@@ -48,6 +48,55 @@ import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
 import { dashboardReport_Options } from "@/utils/datatable/TableOptions";
 import { callAPI } from "@/utils/API/callAPI";
+import { KeyValueColorCode, LabelValue } from "@/utils/Types/types";
+
+interface ClientSummaryStatus {
+  ClientName: string;
+  newchecking: number;
+  ReviewCompleted: number;
+  ReviewCompletedAWN: number;
+  Assigned: number;
+  CreateStatus1: number;
+  CreateStatus: number;
+  ErrorLogs: number;
+  InPreparation: number;
+  InReview: number;
+  InreviewwithClient: number;
+  newstatus251: number;
+  NotStarted: number;
+  OnHoldFromClient: number;
+  PartialSubmitted: number;
+  PendingfromAccounting: number;
+  Rejected: number;
+  Rework: number;
+  ReworkReviewCompleted: number;
+  ReworkReviewCompletedAWN: number;
+  ReworkInPreparation: number;
+  ReworkInReview: number;
+  ReworkPrepCompleted: number;
+  ReworkSubmitted: number;
+  SecondManagerReview: number;
+  Signedoff: number;
+  PreparationCompleted: number;
+  Submitted: number;
+  Savenewstatus1: number;
+  Withdraw: number;
+  WithdrawnbyClient: number;
+  Total: number;
+}
+
+interface DashboardSummaryReport {
+  TotalCount: number;
+  ClientSummary: ClientSummaryStatus[] | [];
+}
+
+interface InitialFilter {
+  PageSize: number;
+  PageNo: number;
+  SortColumn: string;
+  IsDesc: boolean;
+  Clients: null | number[];
+}
 
 const pageNo = 1;
 const pageSize = 10;
@@ -75,17 +124,22 @@ const Page = () => {
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [clickedBillingTypeName, setClickedBillingTypeName] =
     useState<string>("");
-  const [dashboardSummary, setDashboardSummary] = useState<any | any[]>([]);
+  const [dashboardSummary, setDashboardSummary] = useState<
+    KeyValueColorCode[] | []
+  >([]);
   const [clickedCardName, setClickedCardName] = useState<string>("");
   const [isDashboardClicked, setIsDashboardClicked] = useState(true);
   const [isReportClicked, setIsReportClicked] = useState(false);
-  const [reportData, setReportData] = useState([]);
+  const [reportData, setReportData] = useState<ClientSummaryStatus[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
-  const [filteredObject, setFilteredObject] = useState<any>(initialFilter);
-  const [clients, setClients] = useState<any[]>([]);
-  const [clientDropdownData, setClientDropdownData] = useState<any>([]);
+  const [filteredObject, setFilteredObject] =
+    useState<InitialFilter>(initialFilter);
+  const [clients, setClients] = useState<LabelValue[] | []>([]);
+  const [clientDropdownData, setClientDropdownData] = useState<
+    LabelValue[] | []
+  >([]);
   const [isExporting, setIsExporting] = useState<boolean>(false);
 
   useEffect(() => {
@@ -135,7 +189,7 @@ const Page = () => {
     const params = filteredObject;
     const url = `${process.env.report_api_url}/dashboard/dashboardclientsummary`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: DashboardSummaryReport,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -162,7 +216,7 @@ const Page = () => {
     };
     const url = `${process.env.report_api_url}/dashboard/summary`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: KeyValueColorCode[] | [],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -293,16 +347,16 @@ const Page = () => {
                   multiple
                   id="tags-standard"
                   options={clientDropdownData.filter(
-                    (option: any) =>
+                    (option: LabelValue) =>
                       !clients.find(
-                        (client: any) => client.value === option.value
+                        (client: LabelValue) => client.value === option.value
                       )
                   )}
-                  getOptionLabel={(option: any) => option.label}
+                  getOptionLabel={(option: LabelValue) => option.label}
                   onChange={(e: any, data: any) => {
                     setFilteredObject({
                       ...filteredObject,
-                      Clients: data.map((i: any) => i.value),
+                      Clients: data.map((i: LabelValue) => i.value),
                     });
                     setClients(data);
                   }}
@@ -338,7 +392,7 @@ const Page = () => {
               gap={1}
             >
               {dashboardSummary &&
-                dashboardSummary.slice(0, 4).map((item: any) => (
+                dashboardSummary.slice(0, 4).map((item: KeyValueColorCode) => (
                   <Grid xs={2.9} item key={item.Key}>
                     <Card
                       className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
@@ -377,7 +431,7 @@ const Page = () => {
               gap={1}
             >
               {dashboardSummary &&
-                dashboardSummary.slice(4, 8).map((item: any) => (
+                dashboardSummary.slice(4, 8).map((item: KeyValueColorCode) => (
                   <Grid xs={2.9} item key={item.Key}>
                     <Card
                       className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
@@ -416,7 +470,7 @@ const Page = () => {
               gap={1}
             >
               {dashboardSummary &&
-                dashboardSummary.slice(8, 12).map((item: any) => (
+                dashboardSummary.slice(8, 12).map((item: KeyValueColorCode) => (
                   <Grid xs={2.9} item key={item.Key}>
                     <Card
                       className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}

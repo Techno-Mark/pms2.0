@@ -25,9 +25,11 @@ import {
   getAllProcessDropdownData,
   getCCDropdownData,
   getClientDropdownData,
+  getDeptData,
   getProjectDropdownData,
   getStatusDropdownData,
   getSubProcessDropdownData,
+  getTypeOfWorkDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
@@ -76,6 +78,9 @@ const CustomReportFilter = ({
 
   const [clients, setClients] = useState<any[]>([]);
   const [clientName, setClientName] = useState<any[]>([]);
+  const [typeOfWorkName, setTypeOfWorkName] = useState<any>(null);
+  const [depts, setDepts] = useState<any[]>([]);
+  const [deptName, setDeptName] = useState<any[]>([]);
   const [projectName, setProjectName] = useState<any>(null);
   const [processName, setProcessName] = useState<any>(null);
   const [subProcessName, setSubProcessName] = useState<any>(null);
@@ -98,6 +103,8 @@ const CustomReportFilter = ({
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
 
   const [clientDropdown, setClientDropdown] = useState<any[]>([]);
+  const [departmentDropdown, setDepartmentDropdown] = useState<any[]>([]);
+  const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState<any[]>([]);
   const [projectDropdown, setProjectDropdown] = useState<any[]>([]);
   const [processDropdown, setProcessDropdown] = useState<any[]>([]);
   const [subProcessDropdown, setSubProcessDropdown] = useState<any[]>([]);
@@ -130,6 +137,9 @@ const CustomReportFilter = ({
   const handleResetAll = () => {
     setClientName([]);
     setClients([]);
+    setDeptName([]);
+    setDepts([]);
+    setTypeOfWorkName(null);
     setProjectName(null);
     setProcessName(null);
     setAssignByName(null);
@@ -152,6 +162,9 @@ const CustomReportFilter = ({
     setDefaultFilter(false);
     onDialogClose(false);
     setIdFilter(undefined);
+    setSubProcessDropdown([]);
+    setStatusDropdown([]);
+    setProjectDropdown([]);
 
     sendFilterToPage({
       ...customreport_InitialFilter,
@@ -164,6 +177,9 @@ const CustomReportFilter = ({
     setDefaultFilter(false);
     setClientName([]);
     setClients([]);
+    setDeptName([]);
+    setDepts([]);
+    setTypeOfWorkName(null);
     setProjectName(null);
     setProcessName(null);
     setAssignByName(null);
@@ -188,6 +204,8 @@ const CustomReportFilter = ({
     sendFilterToPage({
       ...customreport_InitialFilter,
       clientIdsJSON: clientName.length > 0 ? clientName : [],
+      DepartmentIds: deptName.length > 0 ? deptName : [],
+      WorkTypeId: typeOfWorkName === null ? null : typeOfWorkName.value,
       projectIdsJSON: projectName === null ? [] : [projectName.value],
       processIdsJSON: processName === null ? [] : [processName.value],
       assignedById: assignByName === null ? null : assignByName.value,
@@ -242,6 +260,8 @@ const CustomReportFilter = ({
         sendFilterToPage({
           ...customreport_InitialFilter,
           clientIdsJSON: savedFilters[index].AppliedFilter.clientIdsJSON,
+          WorkTypeId: savedFilters[index].AppliedFilter.WorkTypeId,
+          DepartmentIds: savedFilters[index].AppliedFilter.DepartmentIds,
           projectIdsJSON: savedFilters[index].AppliedFilter.projectIdsJSON,
           processIdsJSON: savedFilters[index].AppliedFilter.processIdsJSON,
           assignedById: savedFilters[index].AppliedFilter.assignedById,
@@ -278,6 +298,8 @@ const CustomReportFilter = ({
         name: filterName,
         AppliedFilter: {
           clientIdsJSON: clientName.length > 0 ? clientName : [],
+          DepartmentIds: deptName.length > 0 ? deptName : [],
+          WorkTypeId: typeOfWorkName === null ? null : typeOfWorkName.value,
           projectIdsJSON: projectName === null ? [] : [projectName.value],
           processIdsJSON: processName === null ? [] : [processName.value],
           assignedById: assignByName === null ? null : assignByName.value,
@@ -350,6 +372,8 @@ const CustomReportFilter = ({
   useEffect(() => {
     const isAnyFieldSelected =
       clientName.length > 0 ||
+      deptName.length > 0 ||
+      typeOfWorkName !== null ||
       projectName !== null ||
       processName !== null ||
       assignByName !== null ||
@@ -372,6 +396,8 @@ const CustomReportFilter = ({
     setSaveFilter(false);
   }, [
     clientName,
+    deptName,
+    typeOfWorkName,
     projectName,
     processName,
     assignByName,
@@ -397,14 +423,35 @@ const CustomReportFilter = ({
         { label: "Select All", value: ALL },
         ...(await getClientDropdownData()),
       ]);
+      setDepartmentDropdown(await getDeptData());
+      setTypeOfWorkDropdown(await getTypeOfWorkDropdownData(0));
+      setUserDropdown(await getCCDropdownData());
+      setProcessDropdown(await getAllProcessDropdownData());
+    };
+    customDropdowns();
+  }, []);
+
+  useEffect(() => {
+    const customDropdowns = async () => {
+      setStatusDropdown(await getStatusDropdownData(typeOfWorkName?.value));
+    };
+    typeOfWorkName?.value > 0 && customDropdowns();
+  }, [typeOfWorkName]);
+
+  useEffect(() => {
+    const customDropdowns = async () => {
       setProjectDropdown(
         await getProjectDropdownData(
           clientName.length > 0 ? clientName[0] : 0,
           null
         )
       );
-      setProcessDropdown(await getAllProcessDropdownData());
+    };
+    customDropdowns();
+  }, [clientName]);
 
+  useEffect(() => {
+    const customDropdowns = async () => {
       setSubProcessDropdown(
         await getSubProcessDropdownData(
           clientName.length > 0 ? clientName[0] : 0,
@@ -416,10 +463,8 @@ const CustomReportFilter = ({
           )
         )
       );
-      setUserDropdown(await getCCDropdownData());
-      setStatusDropdown(await getStatusDropdownData(3));
     };
-    customDropdowns();
+    clientName.length > 0 && processName?.value > 0 && customDropdowns();
   }, [clientName, processName]);
 
   const getFilterList = async () => {
@@ -455,6 +500,24 @@ const CustomReportFilter = ({
         : []
     );
     setClientName(savedFilters[index].AppliedFilter.clientIdsJSON);
+    setDepts(
+      savedFilters[index].AppliedFilter.DepartmentIds.length > 0
+        ? departmentDropdown.filter((client: any) =>
+            savedFilters[index].AppliedFilter.DepartmentIds.includes(
+              client.value
+            )
+          )
+        : []
+    );
+    setDeptName(savedFilters[index].AppliedFilter.DepartmentIds);
+    setTypeOfWorkName(
+      savedFilters[index].AppliedFilter.WorkTypeId === null
+        ? null
+        : typeOfWorkDropdown.filter(
+            (item: any) =>
+              item.value === savedFilters[index].AppliedFilter.WorkTypeId
+          )[0]
+    );
     setProjectName(
       savedFilters[index].AppliedFilter.projectIdsJSON.length > 0
         ? (
@@ -473,6 +536,26 @@ const CustomReportFilter = ({
         ? processDropdown.filter(
             (item: any) =>
               item.value === savedFilters[index].AppliedFilter.processIdsJSON[0]
+          )[0]
+        : null
+    );
+    setSubProcessName(
+      savedFilters[index].AppliedFilter.subProcessId !== null &&
+        savedFilters[index].AppliedFilter.clientIdsJSON.length > 0 &&
+        savedFilters[index].AppliedFilter.processIdsJSON.length > 0
+        ? (
+            await getSubProcessDropdownData(
+              savedFilters[index].AppliedFilter.clientIdsJSON[0],
+              null,
+              savedFilters[index].AppliedFilter.processIdsJSON[0]
+            ).then((result: any) =>
+              result.map(
+                (item: any) => new Object({ label: item.Name, value: item.Id })
+              )
+            )
+          ).filter(
+            (item: any) =>
+              item.value === savedFilters[index].AppliedFilter.subProcessId
           )[0]
         : null
     );
@@ -517,21 +600,18 @@ const CustomReportFilter = ({
               item.value === savedFilters[index].AppliedFilter.returnYear
           )
     );
-    setSubProcessName(
-      savedFilters[index].AppliedFilter.subProcessId === null
-        ? null
-        : subProcessDropdown.filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.subProcessId
-          )
-    );
     setStatus(
-      savedFilters[index].AppliedFilter.status === null
-        ? null
-        : statusDropdown.filter(
+      savedFilters[index].AppliedFilter.StatusId !== null &&
+        savedFilters[index].AppliedFilter.WorkTypeId !== null
+        ? (
+            await getStatusDropdownData(
+              savedFilters[index].AppliedFilter.WorkTypeId
+            )
+          ).filter(
             (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.status
+              item.value === savedFilters[index].AppliedFilter.StatusId
           )[0]
+        : null
     );
     setPriority(
       savedFilters[index].AppliedFilter.priority === null
@@ -702,14 +782,10 @@ const CustomReportFilter = ({
                             .map((d: any) => d.value)
                         );
                         setProjectName(null);
-                        setProcessName(null);
-                        setSubProcessName(null);
                       } else {
                         setClients(data);
                         setClientName(data.map((d: any) => d.value));
                         setProjectName(null);
-                        setProcessName(null);
-                        setSubProcessName(null);
                       }
                     }}
                     value={clients}
@@ -722,6 +798,53 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, minWidth: 200 }}
+                >
+                  <Autocomplete
+                    id="tags-standard"
+                    options={typeOfWorkDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setTypeOfWorkName(data);
+                      setStatus(null);
+                    }}
+                    value={typeOfWorkName}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Type Of Work"
+                      />
+                    )}
+                  />
+                </FormControl>
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, minWidth: 200 }}
+                >
+                  <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={departmentDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setDeptName(data.map((d: any) => d.value));
+                      setDepts(data);
+                    }}
+                    value={depts}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Department"
+                      />
+                    )}
+                  />
+                </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -754,6 +877,7 @@ const CustomReportFilter = ({
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
                       setProcessName(data);
+                      setSubProcessName(null);
                     }}
                     // disabled={clientName.length > 1}
                     value={processName}
@@ -766,8 +890,6 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -790,6 +912,8 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -832,8 +956,6 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -855,6 +977,8 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -888,8 +1012,6 @@ const CustomReportFilter = ({
                     onChange={handleNoOfPageChange}
                   />
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -911,6 +1033,8 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -953,6 +1077,25 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Due Date"
+                      value={dueDate === "" ? null : dayjs(dueDate)}
+                      // shouldDisableDate={isWeekend}
+                      minDate={dayjs(startDate)}
+                      maxDate={dayjs(Date.now())}
+                      onChange={(newValue: any) => setDueDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
               </div>
               <div className="flex gap-[20px]">
                 <div
@@ -962,7 +1105,7 @@ const CustomReportFilter = ({
                     <DatePicker
                       label="Recieved From"
                       value={startDate === "" ? null : dayjs(startDate)}
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
                       onChange={(newValue: any) => setStartDate(newValue)}
                       slotProps={{
@@ -980,7 +1123,7 @@ const CustomReportFilter = ({
                     <DatePicker
                       label="Recieved To"
                       value={endDate === "" ? null : dayjs(endDate)}
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
                       minDate={dayjs(startDate)}
                       onChange={(newValue: any) => setEndDate(newValue)}
@@ -997,12 +1140,9 @@ const CustomReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="Due Date"
-                      value={dueDate === "" ? null : dayjs(dueDate)}
-                      shouldDisableDate={isWeekend}
-                      minDate={dayjs(startDate)}
-                      maxDate={dayjs(Date.now())}
-                      onChange={(newValue: any) => setDueDate(newValue)}
+                      label="All Info Date"
+                      value={allInfoDate === "" ? null : dayjs(allInfoDate)}
+                      onChange={(newValue: any) => setAllInfoDate(newValue)}
                       slotProps={{
                         textField: {
                           readOnly: true,
@@ -1022,7 +1162,7 @@ const CustomReportFilter = ({
                       value={
                         startDateReview === "" ? null : dayjs(startDateReview)
                       }
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
                       onChange={(newValue: any) => setStartDateReview(newValue)}
                       slotProps={{
@@ -1040,26 +1180,10 @@ const CustomReportFilter = ({
                     <DatePicker
                       label="Review To"
                       value={endDateReview === "" ? null : dayjs(endDateReview)}
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
                       minDate={dayjs(startDateReview)}
                       onChange={(newValue: any) => setEndDateReview(newValue)}
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
-                >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="All Info Date"
-                      value={allInfoDate === "" ? null : dayjs(allInfoDate)}
-                      onChange={(newValue: any) => setAllInfoDate(newValue)}
                       slotProps={{
                         textField: {
                           readOnly: true,

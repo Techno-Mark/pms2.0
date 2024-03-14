@@ -30,6 +30,26 @@ import TimelineFilterDialog from "@/components/worklogs/HalfDay/TimelineFilterDi
 import TimelineHalfDay from "@/components/worklogs/HalfDay/TimelineHalfDay";
 import UnassigneeFilterDialog from "@/components/worklogs/Unassignee/UnassigneeFilterDialog";
 import TimelineDatatable from "@/components/worklogs/HalfDay/TimelineDatatable";
+import { AppliedFilterWorklogs, FilterWorklogs } from "@/utils/Types/types";
+
+interface BreakData {
+  BreakId: null | number;
+  IsStared: boolean;
+  TotalTime: null | string;
+}
+
+const initialFilter = {
+  ClientId: null,
+  TypeOfWork: null,
+  ProjectId: null,
+  StatusId: null,
+  AssignedTo: null,
+  AssignedBy: null,
+  DueDate: null,
+  StartDate: null,
+  EndDate: null,
+  ReviewStatus: null,
+};
 
 const exportBodyTask = {
   PageNo: 1,
@@ -66,9 +86,9 @@ const Page = () => {
   const router = useRouter();
   const [isLoadingWorklogsDatatable, setIsLoadingWorklogsDatatable] =
     useState(false);
-  const [timeValue, setTimeValue] = useState(null);
-  const [todayTimeValue, setTodayTimeValue] = useState(null);
-  const [breakTimeValue, setBreakTimeValue] = useState(null);
+  const [timeValue, setTimeValue] = useState<string | null>(null);
+  const [todayTimeValue, setTodayTimeValue] = useState<string | null>(null);
+  const [breakTimeValue, setBreakTimeValue] = useState<string | null>(null);
   const [isEdit, setIsEdit] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEdit, setHasEdit] = useState(0);
@@ -76,14 +96,16 @@ const Page = () => {
   const [hasComment, setHasComment] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
-  const [filterList, setFilterList] = useState([]);
+  const [filterList, setFilterList] = useState<FilterWorklogs[] | []>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
   const [currentFilterId, setCurrentFilterId] = useState<number>(0);
   const [clickedFilterId, setclickedFilterId] = useState<number>(0);
   const [searchValue, setSearchValue] = useState("");
   const [search, setSearch] = useState("");
   const [globalSearchValue, setGlobalSearchValue] = useState("");
-  const [currentFilterData, setCurrentFilterData] = useState([]);
+  const [currentFilterData, setCurrentFilterData] = useState<
+    AppliedFilterWorklogs | []
+  >([]);
   const [breakId, setBreakID] = useState<number>(0);
   const [loaded, setLoaded] = useState(false);
   const [isTimelineClicked, setIsTimelineClicked] = useState(false);
@@ -109,8 +131,8 @@ const Page = () => {
     setAnchorElFilter(null);
   };
 
-  const handleSearchChangeWorklog = (event: any) => {
-    setSearchValue(event.target.value);
+  const handleSearchChangeWorklog = (e: string) => {
+    setSearchValue(e);
   };
 
   useEffect(() => {
@@ -123,7 +145,7 @@ const Page = () => {
     }
   }, [router]);
 
-  const filteredFilters = filterList.filter((filter: any) =>
+  const filteredFilters = filterList.filter((filter: FilterWorklogs) =>
     filter.Name.toLowerCase().includes(searchValue.toLowerCase())
   );
 
@@ -139,7 +161,7 @@ const Page = () => {
     setLoaded(true);
   };
 
-  const handleIsEdit = (value: any) => {
+  const handleIsEdit = (value: boolean) => {
     setIsEdit(value);
   };
 
@@ -158,19 +180,18 @@ const Page = () => {
     setSearch("");
   };
 
-  const handleEdit = (rowData: any, Id: any) => {
+  const handleEdit = (rowData: number) => {
     setHasEdit(rowData);
     setOpenDrawer(true);
-    setHasId(Id);
   };
 
-  const handleSetRecurring = (rowData: any, selectedId: number) => {
+  const handleSetRecurring = (rowData: boolean, selectedId: number) => {
     setHasRecurring(true);
     setOpenDrawer(rowData);
     setHasEdit(selectedId);
   };
 
-  const handleSetComments = (rowData: any, selectedId: number) => {
+  const handleSetComments = (rowData: boolean, selectedId: number) => {
     setHasComment(true);
     setOpenDrawer(rowData);
     setHasEdit(selectedId);
@@ -190,7 +211,7 @@ const Page = () => {
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: FilterWorklogs[] | [],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -201,13 +222,13 @@ const Page = () => {
     callAPI(url, params, successCallback, "POST");
   };
 
-  const deleteFilter = async (FilterId: any) => {
+  const deleteFilter = async (FilterId: number) => {
     const params = {
       filterId: FilterId,
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -215,6 +236,7 @@ const Page = () => {
         toast.success("Filter has been deleted successfully.");
         setCurrentFilterId(0);
         getFilterList();
+        setCurrentFilterData(initialFilter);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -224,7 +246,7 @@ const Page = () => {
     getFilterList();
   }, []);
 
-  const getIdFromFilterDialog = (data: any) => {
+  const getIdFromFilterDialog = (data: AppliedFilterWorklogs) => {
     setCurrentFilterData(data);
   };
 
@@ -232,7 +254,7 @@ const Page = () => {
     const params = {};
     const url = `${process.env.worklog_api_url}/workitem/break/getbyuser`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: BreakData,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -254,7 +276,7 @@ const Page = () => {
     };
     const url = `${process.env.worklog_api_url}/workitem/break/setbreak`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: number,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -331,10 +353,10 @@ const Page = () => {
     }
   };
 
-  const handleSearchChange = (e: any) => {
-    setSearch(e.target.value);
+  const handleSearchChange = (e: string) => {
+    setSearch(e);
     const timer = setTimeout(() => {
-      setGlobalSearchValue(e.target.value);
+      setGlobalSearchValue(e);
     }, 500);
     return () => clearTimeout(timer);
   };
@@ -428,7 +450,7 @@ const Page = () => {
                 className="pl-1 pr-7 border-b border-b-lightSilver w-48"
                 placeholder="Search"
                 value={search}
-                onChange={(e: any) => handleSearchChange(e)}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
               <span className="absolute top-2 right-2 text-slatyGrey">
                 <SearchIcon />
@@ -478,7 +500,9 @@ const Page = () => {
                         placeholder="Search saved filters"
                         inputProps={{ "aria-label": "search" }}
                         value={searchValue}
-                        onChange={handleSearchChangeWorklog}
+                        onChange={(e) =>
+                          handleSearchChangeWorklog(e.target.value)
+                        }
                         sx={{ fontSize: 14 }}
                       />
                       <span className="absolute top-4 right-3 text-slatyGrey">
@@ -486,7 +510,7 @@ const Page = () => {
                       </span>
                     </span>
 
-                    {filteredFilters.map((i: any) => {
+                    {filteredFilters.map((i: FilterWorklogs) => {
                       return (
                         <>
                           <div
@@ -659,9 +683,9 @@ const Page = () => {
             onHandleExport={handleCanExport}
             isTaskClicked={isTaskClicked}
             isUnassigneeClicked={isUnassigneeClicked}
-            onChangeTimeLoader={(e: any) => setTimeValue(e)}
-            onChangeTodayTimeLoader={(e: any) => setTodayTimeValue(e)}
-            onChangeBreakTimeLoader={(e: any) => setBreakTimeValue(e)}
+            onChangeTimeLoader={(e: string | null) => setTimeValue(e)}
+            onChangeTodayTimeLoader={(e: string | null) => setTodayTimeValue(e)}
+            onChangeBreakTimeLoader={(e: string | null) => setBreakTimeValue(e)}
             setLoading={isLoadingWorklogsDatatable}
           />
         )}
@@ -687,7 +711,7 @@ const Page = () => {
             onDataFetch={handleDataFetch}
             searchValue={globalSearchValue.trim()}
             onHandleExport={handleCanExport}
-            onChangeLoader={(e: any) => setTimeValue(e)}
+            getTotalTime={(e: string | null) => setTimeValue(e)}
           />
         )}
 

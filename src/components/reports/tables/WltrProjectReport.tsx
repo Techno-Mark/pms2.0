@@ -13,6 +13,46 @@ import { FieldsType } from "../types/FieldsType";
 import { options } from "@/utils/datatable/TableOptions";
 import ReportLoader from "@/components/common/ReportLoader";
 import { callAPI } from "@/utils/API/callAPI";
+import { WLTRProjectInitialParmas } from "@/utils/Types/reportTypes";
+
+type WorkItem = {
+  WorkItemId: number;
+  ClientId: number;
+  ClientName: string;
+  ProjectId: number;
+  ProjectName: string;
+  ProcessId: number;
+  ProcessName: string;
+  SubProcessId: number;
+  SubProcessName: string;
+  TaskDate: string;
+  Description: string | null;
+  AssignTo: string;
+  ReportingTo: string;
+  STDTime: string;
+  TotalTime: string;
+  AutoTime: string;
+  ManualTime: string;
+  Comment: string | null;
+  Quantity: number;
+  Difference: number;
+};
+
+type WorkItemSummary = {
+  TotalQuantity: number;
+  TotalTime: string;
+  TotalSTDTime: string;
+  List: WorkItem[] | [];
+  TotalCount: number;
+};
+
+interface Props {
+  searchValue: string;
+  filteredData: null | WLTRProjectInitialParmas;
+  getTotalQuanitiy: (e: string | number | null) => void;
+  getTotalTime: (e: string | null) => void;
+  getTotalSTDTime: (e: string | null) => void;
+}
 
 const InitialFilter = {
   pageNo: 1,
@@ -31,7 +71,7 @@ const WltrProjectReport = ({
   getTotalQuanitiy,
   getTotalTime,
   getTotalSTDTime,
-}: any) => {
+}: Props) => {
   const [wltrFields, setWltrFields] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -46,13 +86,13 @@ const WltrProjectReport = ({
       const pathname = window.location.href.includes("id=");
       if (pathname) {
         const idMatch = window.location.href.match(/id=([^?&]+)/);
-        const id: any = idMatch ? idMatch[1] : null;
+        const id: number = idMatch ? Number(idMatch[1]) : 0;
         setID(id);
       }
     }
   }, []);
 
-  const getData = async (arg1: any) => {
+  const getData = async (arg1: WLTRProjectInitialParmas) => {
     setWltrFields({
       ...wltrFields,
       loaded: false,
@@ -60,7 +100,7 @@ const WltrProjectReport = ({
 
     const url = `${process.env.report_api_url}/report/getwltrprojectdetails`;
 
-    const successCallback = (data: any, error: any) => {
+    const successCallback = (data: WorkItemSummary, error: boolean) => {
       if (data !== null && error === false) {
         setWltrFields({
           ...wltrFields,
@@ -111,14 +151,14 @@ const WltrProjectReport = ({
       getData({
         ...filteredData,
         pageNo: 1,
-        pageSize: event.target.value,
+        pageSize: Number(event.target.value),
         ProjectId: Id,
       });
     } else {
       getData({
         ...InitialFilter,
         pageNo: 1,
-        pageSize: event.target.value,
+        pageSize: Number(event.target.value),
         ProjectId: Id,
       });
     }

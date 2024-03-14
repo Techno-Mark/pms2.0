@@ -25,7 +25,7 @@ export const user_InitialFilter: any = {
   sortColumn: "",
   isDesc: true,
   globalSearch: "",
-  departmentId: null,
+  departmentIds: [],
   isActive: true,
   users: [],
   startDate: getDates()[0],
@@ -38,8 +38,8 @@ export const timeSheet_InitialFilter: any = {
   pageSize: 10,
   sortColumn: "",
   isDesc: true,
-  globlaSearch: "",
-  departmentId: null,
+  globalSearch: "",
+  departmentIds: [],
   isActive: true,
   users: [],
   startDate: getDates()[0],
@@ -53,7 +53,7 @@ export const workLoad_InitialFilter: any = {
   sortColumn: "",
   isDesc: true,
   globalSearch: "",
-  departmentId: null,
+  departmentIds: [],
   dateFilter: null,
   isDownload: false,
 };
@@ -64,7 +64,7 @@ export const userLogs_InitialFilter: any = {
   sortColumn: "",
   isDesc: true,
   globalSearch: "",
-  departmentId: null,
+  departmentIds: [],
   isActive: true,
   users: [],
   dateFilter: null,
@@ -113,6 +113,8 @@ export const customreport_InitialFilter = {
   projectIdsJSON: [],
   clientIdsJSON: [],
   processIdsJSON: [],
+  DepartmentIds: [],
+  WorkTypeId: null,
   subProcessId: null,
   assignedById: null,
   assigneeId: null,
@@ -172,7 +174,7 @@ export const activity_InitialFilter = {
   StartDate: null,
   EndDate: null,
   Users: [],
-  DepartmentId: null,
+  DepartmentIds: [],
   IsDownload: false,
 };
 
@@ -187,7 +189,7 @@ export const ap_InitialFilter = {
   Users: [],
   Clients: [],
   ReportingManagers: [],
-  DepartmentId: null,
+  DepartmentIds: [],
   IsDownload: false,
 };
 
@@ -198,7 +200,7 @@ export const client_InitialFilter = {
   SortColumn: "",
   IsDesc: true,
   IsDownload: false,
-  DepartmentId: null,
+  DepartmentIds: [],
   BillingTypeId: null,
   WorkTypeId: null,
   StartDate: null,
@@ -216,7 +218,7 @@ export const kra_InitialFilter = {
   EndDate: null,
   Users: [],
   Clients: [],
-  DepartmentId: null,
+  DepartmentIds: [],
   IsDownload: false,
 };
 
@@ -230,7 +232,7 @@ export const am_InitialFilter = {
   EndDate: null,
   Users: [],
   ReportingManagerId: null,
-  DepartmentId: null,
+  DepartmentIds: [],
   IsDownload: false,
 };
 

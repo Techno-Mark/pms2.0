@@ -24,17 +24,9 @@ const Drawer = ({
   onClose,
   tab,
   onEdit,
-  userData,
-  orgData,
   onUserDataFetch,
-  projectData,
-  processData,
   onDataFetch,
-  clientData,
-  groupData,
   getPermissionDropdown,
-  onRefresh,
-  statusData,
   getOrgDetailsFunction,
 }: any) => {
   const childRef = useRef<UserContentRef>(null);
@@ -227,7 +219,6 @@ const Drawer = ({
             tab={tab}
             onEdit={onEdit}
             onClose={onClose}
-            clientData={onEdit && clientData}
             onDataFetch={onDataFetch}
             ref={clientRef}
             onChangeLoader={(e: any) => setDrawerOverlay(e)}
@@ -250,7 +241,6 @@ const Drawer = ({
             onEdit={onEdit}
             onDataFetch={onDataFetch}
             onClose={onClose}
-            projectData={projectData}
             onValuesChange={handleProjectChildValuesChange}
             onChangeLoader={(e: any) => setDrawerOverlay(e)}
           />
@@ -261,7 +251,6 @@ const Drawer = ({
             onEdit={onEdit}
             onClose={onClose}
             ref={childRefStatus}
-            statusData={onEdit && statusData}
             onDataFetch={onDataFetch}
             onChangeLoader={(e: any) => setDrawerOverlay(e)}
           />
@@ -273,7 +262,6 @@ const Drawer = ({
             onEdit={onEdit}
             onClose={onClose}
             ref={childRef}
-            userData={onEdit && userData}
             onUserDataFetch={onUserDataFetch}
             onChangeLoader={(e: any) => setDrawerOverlay(e)}
           />
@@ -286,7 +274,6 @@ const Drawer = ({
             onClose={onClose}
             ref={childRefProcess}
             onDataFetch={onDataFetch}
-            processData={onEdit && processData}
             onChangeLoader={(e: any) => setDrawerOverlay(e)}
             onValuesChange={handleProcessChildValuesChange}
           />
@@ -296,7 +283,6 @@ const Drawer = ({
             tab={tab}
             onEdit={onEdit}
             onClose={onClose}
-            orgData={orgData}
             onDataFetch={onDataFetch}
             ref={childRefOrg}
             getOrgDetailsFunction={getOrgDetailsFunction}
@@ -309,10 +295,8 @@ const Drawer = ({
             tab={tab}
             onEdit={onEdit}
             onClose={onClose}
-            orgData={orgData}
             ref={childRefGroup}
             onDataFetch={onDataFetch}
-            groupData={onEdit && groupData}
             onChangeLoader={(e: any) => setDrawerOverlay(e)}
           />
         )}

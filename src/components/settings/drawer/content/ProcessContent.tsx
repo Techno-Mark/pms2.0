@@ -44,7 +44,6 @@ const ProcessContent = forwardRef<
     onEdit: boolean;
     onOpen: any;
     onClose: any;
-    processData: any;
     onDataFetch(): any;
     onChangeLoader: any;
     onValuesChange: any;

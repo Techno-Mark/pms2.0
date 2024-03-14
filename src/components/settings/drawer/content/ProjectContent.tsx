@@ -19,7 +19,6 @@ const ProjectContent = forwardRef<
     onEdit: any;
     onOpen: boolean;
     onClose: () => void;
-    projectData: any;
     onDataFetch: any;
     onValuesChange: any;
     onChangeLoader: any;
@@ -31,7 +30,6 @@ const ProjectContent = forwardRef<
       onEdit,
       onClose,
       onOpen,
-      projectData,
       onDataFetch,
       onValuesChange,
       onChangeLoader,

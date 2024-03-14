@@ -95,7 +95,6 @@ const ProjectReportFilter = ({
     setProject_EndDate("");
     setProject_Error("");
     setProject_ProjectDropdown([]);
-    setProject_WorkTypeDropdown([]);
     setProject_FilterName("");
     setProject_DefaultFilter(false);
     onDialogClose(false);
@@ -119,7 +118,6 @@ const ProjectReportFilter = ({
     setProject_EndDate("");
     setProject_Error("");
     setProject_ProjectDropdown([]);
-    setProject_WorkTypeDropdown([]);
   };
 
   const handleProject_FilterApply = () => {
@@ -153,8 +151,8 @@ const ProjectReportFilter = ({
           ...project_filter_InitialFilter,
           clients: project_savedFilters[index].AppliedFilter.clients,
           projects: project_savedFilters[index].AppliedFilter.projects,
-          typeOfWork: project_savedFilters[index].AppliedFilter.TypeOfWork,
-          billType: project_savedFilters[index].AppliedFilter.BillingType,
+          typeOfWork: project_savedFilters[index].AppliedFilter.typeOfWork,
+          billType: project_savedFilters[index].AppliedFilter.billType,
           startDate: project_savedFilters[index].AppliedFilter.startDate,
           endDate: project_savedFilters[index].AppliedFilter.endDate,
         });
@@ -241,14 +239,11 @@ const ProjectReportFilter = ({
   useEffect(() => {
     const filterDropdowns = async () => {
       setProject_ClientDropdown(await getClientDropdownData());
-      project_clientName.length > 0 &&
-        setProject_WorkTypeDropdown(
-          await getTypeOfWorkDropdownData(project_clientName[0])
-        );
+      setProject_WorkTypeDropdown(await getTypeOfWorkDropdownData(0));
       setProject_BillingTypeDropdown(await getBillingTypeData());
     };
     filterDropdowns();
-  }, [project_clientName]);
+  }, []);
 
   useEffect(() => {
     const filterDropdowns = async () => {
@@ -300,11 +295,7 @@ const ProjectReportFilter = ({
     setProject_TypeOfWork(
       project_savedFilters[index].AppliedFilter.TypeOfWork === null
         ? null
-        : (
-            await getTypeOfWorkDropdownData(
-              project_savedFilters[index].AppliedFilter.clients[0]
-            )
-          ).filter(
+        : project_workTypeDropdown.filter(
             (item: any) =>
               item.value ===
               project_savedFilters[index].AppliedFilter.TypeOfWork
@@ -346,7 +337,7 @@ const ProjectReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -481,7 +472,6 @@ const ProjectReportFilter = ({
                     onChange={(e: any, data: any) => {
                       setProject_Clients(data);
                       setProject_ClientName(data.map((d: any) => d.value));
-                      setProject_TypeOfWork(null);
                       setProject_Projects(null);
                     }}
                     value={project_clients}
@@ -568,7 +558,7 @@ const ProjectReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(project_endDate)}
                       value={
                         project_startDate === ""
@@ -593,7 +583,7 @@ const ProjectReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="End Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       minDate={dayjs(project_startDate)}
                       maxDate={dayjs(Date.now())}
                       value={

@@ -35,7 +35,8 @@ const WorkLoadReportFilter = ({
 }: FilterType) => {
   const [workload_userNames, setWorkload_UserNames] = useState<number[]>([]);
   const [workload_users, setWorkload_Users] = useState<number[]>([]);
-  const [workload_dept, setWorkload_Dept] = useState<any>(null);
+  const [workload_deptNames, setWorkload_DeptNames] = useState<number[]>([]);
+  const [workload_depts, setWorkload_Depts] = useState<number[]>([]);
   const [workload_dateFilter, setWorkload_DateFilter] = useState<any>("");
   const [workload_filterName, setWorkload_FilterName] = useState<string>("");
   const [workload_saveFilter, setWorkload_SaveFilter] =
@@ -64,7 +65,8 @@ const WorkLoadReportFilter = ({
   const handleResetAll = () => {
     setWorkload_UserNames([]);
     setWorkload_Users([]);
-    setWorkload_Dept(null);
+    setWorkload_DeptNames([]);
+    setWorkload_Depts([]);
     setWorkload_DateFilter("");
     setWorkload_Error("");
     setWorkload_FilterName("");
@@ -81,8 +83,9 @@ const WorkLoadReportFilter = ({
     onDialogClose(false);
     setWorkload_FilterName("");
     setWorkload_DefaultFilter(false);
-    setWorkload_Dept(null);
     setWorkload_DateFilter("");
+    setWorkload_DeptNames([]);
+    setWorkload_Depts([]);
     setWorkload_UserNames([]);
     setWorkload_Users([]);
     setWorkload_Error("");
@@ -92,10 +95,7 @@ const WorkLoadReportFilter = ({
     sendFilterToPage({
       ...workLoad_InitialFilter,
       users: workload_userNames,
-      departmentId:
-        workload_dept === null || workload_dept === ""
-          ? null
-          : workload_dept.value,
+      departmentIds: workload_deptNames,
       dateFilter:
         workload_dateFilter === null ||
         workload_dateFilter.toString().trim().length <= 0
@@ -112,7 +112,8 @@ const WorkLoadReportFilter = ({
         sendFilterToPage({
           ...workLoad_InitialFilter,
           users: workload_savedFilters[index].AppliedFilter.users,
-          department: workload_savedFilters[index].AppliedFilter.Department,
+          departmentIds:
+            workload_savedFilters[index].AppliedFilter.departmentIds,
           dateFilter: workload_savedFilters[index].AppliedFilter.dateFilter,
         });
       }
@@ -133,7 +134,8 @@ const WorkLoadReportFilter = ({
         name: workload_filterName,
         AppliedFilter: {
           users: workload_userNames.length > 0 ? workload_userNames : [],
-          Department: workload_dept === null ? null : workload_dept.value,
+          departmentIds:
+            workload_deptNames.length > 0 ? workload_deptNames : [],
           dateFilter: !workload_dateFilter
             ? null
             : getFormattedDate(workload_dateFilter),
@@ -164,13 +166,13 @@ const WorkLoadReportFilter = ({
 
   useEffect(() => {
     const isAnyFieldSelected =
-      workload_dept !== null ||
+      workload_deptNames.length > 0 ||
       workload_dateFilter !== "" ||
       workload_userNames.length > 0;
 
     setWorkload_AnyFieldSelected(isAnyFieldSelected);
     setWorkload_SaveFilter(false);
-  }, [workload_dept, workload_dateFilter, workload_userNames]);
+  }, [workload_deptNames, workload_dateFilter, workload_userNames]);
 
   useEffect(() => {
     const workLoadDropdowns = async () => {
@@ -209,17 +211,20 @@ const WorkLoadReportFilter = ({
         : []
     );
     setWorkload_UserNames(workload_savedFilters[index].AppliedFilter.users);
+    setWorkload_Depts(
+      workload_savedFilters[index].AppliedFilter.departmentIds.length > 0
+        ? workload_deptDropdown.filter((user: any) =>
+            workload_savedFilters[index].AppliedFilter.departmentIds.includes(
+              user.value
+            )
+          )
+        : []
+    );
+    setWorkload_DeptNames(
+      workload_savedFilters[index].AppliedFilter.departmentIds
+    );
     setCurrentFilterId(workload_savedFilters[index].FilterId);
     setWorkload_FilterName(workload_savedFilters[index].Name);
-    setWorkload_Dept(
-      workload_savedFilters[index].AppliedFilter.Department === null
-        ? null
-        : workload_deptDropdown.filter(
-            (item: any) =>
-              item.value ===
-              workload_savedFilters[index].AppliedFilter.Department
-          )[0]
-    );
     setWorkload_DateFilter(
       workload_savedFilters[index].AppliedFilter.dateFilter ?? ""
     );
@@ -380,13 +385,15 @@ const WorkLoadReportFilter = ({
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
                     options={workload_deptDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setWorkload_Dept(data);
+                      setWorkload_DeptNames(data.map((d: any) => d.value));
+                      setWorkload_Depts(data);
                     }}
-                    value={workload_dept}
+                    value={workload_depts}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
@@ -402,7 +409,7 @@ const WorkLoadReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
                       value={
                         workload_dateFilter === ""

@@ -31,22 +31,11 @@ const GroupContent = forwardRef<
     onOpen: boolean;
     onClose: () => void;
     onDataFetch: any;
-    orgData: any;
-    groupData: any;
     onChangeLoader: any;
   }
 >(
   (
-    {
-      tab,
-      orgData,
-      groupData,
-      onEdit,
-      onOpen,
-      onClose,
-      onDataFetch,
-      onChangeLoader,
-    },
+    { tab, onEdit, onOpen, onClose, onDataFetch, onChangeLoader },
     ref
   ) => {
     const [data, setData] = useState<Options[]>([]);

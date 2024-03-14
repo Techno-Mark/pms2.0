@@ -34,7 +34,7 @@ const TimelineDatatable = ({
   currentFilterData,
   searchValue,
   onHandleExport,
-  onChangeLoader,
+  getTotalTime,
 }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [workItemData, setWorkItemData] = useState<any | any[]>([]);
@@ -78,7 +78,7 @@ const TimelineDatatable = ({
         setWorkItemData(ResponseData.List);
         setTableDataCount(ResponseData.TotalCount);
         onHandleExport(ResponseData.List.length > 0 ? true : false);
-        onChangeLoader(ResponseData.TotalTime);
+        getTotalTime(ResponseData.TotalTime);
       } else {
         setLoaded(true);
       }

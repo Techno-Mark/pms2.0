@@ -17,12 +17,11 @@ const StatusContent = forwardRef<
   {
     tab: string;
     onEdit: any;
-    statusData: any;
     onClose: () => void;
     onDataFetch: any;
     onChangeLoader: any;
   }
->(({ tab, onClose, onEdit, statusData, onDataFetch, onChangeLoader }, ref) => {
+>(({ tab, onClose, onEdit, onDataFetch, onChangeLoader }, ref) => {
   const [statusName, setStatusName] = useState("");
   const [statusNameErr, setStatusNameErr] = useState(false);
   const [type, setType] = useState("");

@@ -35,7 +35,8 @@ const UserReportFilter = ({
 }: FilterType) => {
   const [user_userNames, setUser_UserNames] = useState<number[]>([]);
   const [user_users, setUser_Users] = useState<number[]>([]);
-  const [user_dept, setUser_Dept] = useState<any>(null);
+  const [user_deptNames, setUser_DeptNames] = useState<number[]>([]);
+  const [user_depts, setUser_Depts] = useState<number[]>([]);
   const [user_filterName, setUser_FilterName] = useState<string>("");
   const [user_saveFilter, setUser_SaveFilter] = useState<boolean>(false);
   const [user_deptDropdown, setUser_DeptDropdown] = useState<any[]>([]);
@@ -61,7 +62,8 @@ const UserReportFilter = ({
   const handleResetAll = () => {
     setUser_UserNames([]);
     setUser_Users([]);
-    setUser_Dept(null);
+    setUser_DeptNames([]);
+    setUser_Depts([]);
     setUser_StartDate("");
     setUser_EndDate("");
     setUser_Error("");
@@ -81,7 +83,8 @@ const UserReportFilter = ({
     setUser_DefaultFilter(false);
     setUser_UserNames([]);
     setUser_Users([]);
-    setUser_Dept(null);
+    setUser_DeptNames([]);
+    setUser_Depts([]);
     setUser_StartDate("");
     setUser_EndDate("");
     setUser_Error("");
@@ -91,8 +94,7 @@ const UserReportFilter = ({
     sendFilterToPage({
       ...user_InitialFilter,
       users: user_userNames,
-      departmentId:
-        user_dept === null || user_dept === "" ? null : user_dept.value,
+      departmentIds: user_deptNames,
       startDate:
         user_startDate.toString().trim().length <= 0
           ? user_endDate.toString().trim().length <= 0
@@ -116,7 +118,7 @@ const UserReportFilter = ({
         sendFilterToPage({
           ...user_InitialFilter,
           users: user_savedFilters[index].AppliedFilter.users,
-          departmentId: user_savedFilters[index].AppliedFilter.Department,
+          departmentIds: user_savedFilters[index].AppliedFilter.departmentIds,
           startDate: user_savedFilters[index].AppliedFilter.startDate,
           endDate: user_savedFilters[index].AppliedFilter.endDate,
         });
@@ -138,7 +140,7 @@ const UserReportFilter = ({
         name: user_filterName,
         AppliedFilter: {
           users: user_userNames.length > 0 ? user_userNames : [],
-          departmentId: user_dept === null ? null : user_dept.value,
+          departmentIds: user_deptNames.length > 0 ? user_deptNames : [],
           startDate:
             user_startDate.toString().trim().length <= 0
               ? user_endDate.toString().trim().length <= 0
@@ -179,13 +181,13 @@ const UserReportFilter = ({
   useEffect(() => {
     const isAnyFieldSelected =
       user_userNames.length > 0 ||
-      user_dept !== null ||
+      user_deptNames.length > 0 ||
       user_startDate.toString().trim().length > 0 ||
       user_endDate.toString().trim().length > 0;
 
     setUser_AnyFieldSelected(isAnyFieldSelected);
     setUser_SaveFilter(false);
-  }, [user_dept, user_userNames, user_startDate, user_endDate]);
+  }, [user_deptNames, user_userNames, user_startDate, user_endDate]);
 
   useEffect(() => {
     const userDropdowns = async () => {
@@ -223,14 +225,16 @@ const UserReportFilter = ({
         : []
     );
     setUser_UserNames(user_savedFilters[index].AppliedFilter.users);
-    setUser_Dept(
-      user_savedFilters[index].AppliedFilter.departmentId === null
-        ? null
-        : user_deptDropdown.filter(
-            (item: any) =>
-              item.value === user_savedFilters[index].AppliedFilter.departmentId
-          )[0]
+    setUser_Depts(
+      user_savedFilters[index].AppliedFilter.departmentIds.length > 0
+        ? user_deptDropdown.filter((dept: any) =>
+            user_savedFilters[index].AppliedFilter.departmentIds.includes(
+              dept.value
+            )
+          )
+        : []
     );
+    setUser_DeptNames(user_savedFilters[index].AppliedFilter.departmentIds);
     setUser_StartDate(user_savedFilters[index].AppliedFilter.startDate ?? "");
     setUser_EndDate(user_savedFilters[index].AppliedFilter.endDate ?? "");
     setUser_DefaultFilter(true);
@@ -389,13 +393,15 @@ const UserReportFilter = ({
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
                     options={user_deptDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setUser_Dept(data);
+                      setUser_DeptNames(data.map((d: any) => d.value));
+                      setUser_Depts(data);
                     }}
-                    value={user_dept}
+                    value={user_depts}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
@@ -411,7 +417,7 @@ const UserReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(user_endDate)}
                       value={
                         user_startDate === "" ? null : dayjs(user_startDate)
@@ -433,7 +439,7 @@ const UserReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="End Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       minDate={dayjs(user_startDate)}
                       maxDate={dayjs(Date.now())}
                       value={user_endDate === "" ? null : dayjs(user_endDate)}
