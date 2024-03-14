@@ -37,7 +37,8 @@ const AutoManualReportFilter = ({
   onDialogClose,
 }: FilterType) => {
   const [reportingManager, setReportingManager] = useState<any>(null);
-  const [department, setDepartment] = useState<any>(null);
+  const [depts, setDepts] = useState<any[]>([]);
+  const [deptName, setDeptName] = useState<any[]>([]);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
 
@@ -63,7 +64,8 @@ const AutoManualReportFilter = ({
 
   const handleResetAll = () => {
     setReportingManager(null);
-    setDepartment(null);
+    setDepts([]);
+    setDeptName([]);
     setStartDate("");
     setEndDate("");
     setError("");
@@ -83,7 +85,8 @@ const AutoManualReportFilter = ({
     setDefaultFilter(false);
 
     setReportingManager(null);
-    setDepartment(null);
+    setDepts([]);
+    setDeptName([]);
     setStartDate("");
     setEndDate("");
     setError("");
@@ -94,7 +97,7 @@ const AutoManualReportFilter = ({
       ...am_InitialFilter,
       ReportingManagerId:
         reportingManager !== null ? reportingManager.value : null,
-      DepartmentId: department !== null ? department.value : null,
+      DepartmentIds: deptName.length > 0 ? deptName : [],
       StartDate:
         startDate.toString().trim().length <= 0
           ? endDate.toString().trim().length <= 0
@@ -119,7 +122,7 @@ const AutoManualReportFilter = ({
           ...am_InitialFilter,
           ReportingManagerId:
             savedFilters[index].AppliedFilter.ReportingManagerId,
-          DepartmentId: savedFilters[index].AppliedFilter.DepartmentId,
+          DepartmentIds: savedFilters[index].AppliedFilter.DepartmentIds,
           StartDate: savedFilters[index].AppliedFilter.StartDate,
           EndDate: savedFilters[index].AppliedFilter.EndDate,
         });
@@ -145,7 +148,7 @@ const AutoManualReportFilter = ({
       AppliedFilter: {
         ReportingManagerId:
           reportingManager !== null ? reportingManager.value : null,
-        DepartmentId: department !== null ? department.value : null,
+        DepartmentIds: deptName.length > 0 ? deptName : [],
         StartDate:
           startDate.toString().trim().length <= 0
             ? endDate.toString().trim().length <= 0
@@ -164,8 +167,8 @@ const AutoManualReportFilter = ({
     const url = `${process.env.worklog_api_url}/filter/savefilter`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Filter has been successully saved.");
@@ -185,13 +188,13 @@ const AutoManualReportFilter = ({
   useEffect(() => {
     const isAnyFieldSelected =
       reportingManager !== null ||
-      department !== null ||
+      deptName.length > 0 ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-  }, [reportingManager, department, startDate, endDate]);
+  }, [reportingManager, deptName, startDate, endDate]);
 
   useEffect(() => {
     const filterDropdowns = async () => {
@@ -208,8 +211,8 @@ const AutoManualReportFilter = ({
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setSavedFilters(ResponseData);
@@ -233,14 +236,14 @@ const AutoManualReportFilter = ({
           )[0]
         : null
     );
-    setDepartment(
-      savedFilters[index].AppliedFilter.DepartmentId !== null
-        ? departmentDropdown.filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.DepartmentId[0]
-          )[0]
-        : null
+    setDepts(
+      savedFilters[index].AppliedFilter.DepartmentIds.length > 0
+        ? departmentDropdown.filter((dept: any) =>
+            savedFilters[index].AppliedFilter.departmentIds.includes(dept.value)
+          )
+        : []
     );
+    setDeptName(savedFilters[index].AppliedFilter.DepartmentIds);
     setStartDate(
       savedFilters[index].AppliedFilter.startDate === null
         ? ""
@@ -260,8 +263,8 @@ const AutoManualReportFilter = ({
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Filter has been deleted successfully.");
@@ -403,13 +406,15 @@ const AutoManualReportFilter = ({
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
                     options={departmentDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setDepartment(data);
+                      setDepts(data);
+                      setDeptName(data.map((d: any) => d.value));
                     }}
-                    value={department}
+                    value={depts}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}

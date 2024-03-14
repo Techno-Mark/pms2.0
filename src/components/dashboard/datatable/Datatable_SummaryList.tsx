@@ -44,8 +44,8 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
     const url = `${process.env.report_api_url}/clientdashboard/summarylist`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setData(ResponseData.List);

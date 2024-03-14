@@ -41,7 +41,8 @@ const UserLogsReportFilter = ({
 }: FilterType) => {
   const [userlogs_users, setUserlogs_Users] = useState<any[]>([]);
   const [userlogs_userNames, setUserlogs_UserNames] = useState<number[]>([]);
-  const [userlogs_dept, setUserlogs_Dept] = useState<any>(null);
+  const [userlogs_depts, setUserlogs_Depts] = useState<any[]>([]);
+  const [userlogs_deptNames, setUserlogs_DeptNames] = useState<number[]>([]);
   const [userlogs_dateFilter, setUserlogs_DateFilter] = useState<any>("");
   const [userlogs_filterName, setUserlogs_FilterName] = useState<string>("");
   const [userlogs_isloggedIn, setUserlogs_IsloggedIn] = useState<
@@ -73,7 +74,8 @@ const UserLogsReportFilter = ({
   const handleResetAll = () => {
     setUserlogs_UserNames([]);
     setUserlogs_Users([]);
-    setUserlogs_Dept(null);
+    setUserlogs_DeptNames([]);
+    setUserlogs_Depts([]);
     setUserlogs_IsloggedIn(0);
     setUserlogs_DateFilter("");
     setUserlogs_Error("");
@@ -93,7 +95,8 @@ const UserLogsReportFilter = ({
     setUserlogs_DefaultFilter(false);
     setUserlogs_UserNames([]);
     setUserlogs_Users([]);
-    setUserlogs_Dept(null);
+    setUserlogs_DeptNames([]);
+    setUserlogs_Depts([]);
     setUserlogs_IsloggedIn(0);
     setUserlogs_DateFilter("");
     setUserlogs_Error("");
@@ -109,10 +112,7 @@ const UserLogsReportFilter = ({
     sendFilterToPage({
       ...userLogs_InitialFilter,
       users: userlogs_userNames,
-      departmentId:
-        userlogs_dept === null || userlogs_dept === ""
-          ? null
-          : userlogs_dept.value,
+      departmentIds: userlogs_deptNames,
       dateFilter:
         userlogs_dateFilter === null ||
         userlogs_dateFilter.toString().trim().length <= 0
@@ -130,7 +130,8 @@ const UserLogsReportFilter = ({
         sendFilterToPage({
           ...userLogs_InitialFilter,
           users: userlogs_savedFilters[index].AppliedFilter.users,
-          department: userlogs_savedFilters[index].AppliedFilter.Department,
+          departmentIds:
+            userlogs_savedFilters[index].AppliedFilter.departmentIds,
           isLoggedInFilter:
             userlogs_savedFilters[index].AppliedFilter.isLoggedInFilter,
         });
@@ -152,7 +153,8 @@ const UserLogsReportFilter = ({
         name: userlogs_filterName,
         AppliedFilter: {
           users: userlogs_userNames.length > 0 ? userlogs_userNames : [],
-          Department: userlogs_dept === null ? null : userlogs_dept.value,
+          departmentIds:
+            userlogs_deptNames.length > 0 ? userlogs_deptNames : [],
           dateFilter:
             userlogs_dateFilter === null || userlogs_dateFilter === ""
               ? null
@@ -164,8 +166,8 @@ const UserLogsReportFilter = ({
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success("Filter has been successully saved.");
@@ -186,14 +188,14 @@ const UserLogsReportFilter = ({
   useEffect(() => {
     const isAnyFieldSelected =
       userlogs_userNames.length > 0 ||
-      userlogs_dept !== null ||
+      userlogs_deptNames.length > 0 ||
       userlogs_dateFilter !== "" ||
       userlogs_isloggedIn !== 0;
 
     setUserlogs_AnyFieldSelected(isAnyFieldSelected);
     setUserlogs_SaveFilter(false);
   }, [
-    userlogs_dept,
+    userlogs_deptNames,
     userlogs_userNames,
     userlogs_dateFilter,
     userlogs_isloggedIn,
@@ -214,8 +216,8 @@ const UserLogsReportFilter = ({
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setUserlogs_SavedFilters(ResponseData);
@@ -237,14 +239,17 @@ const UserLogsReportFilter = ({
         : []
     );
     setUserlogs_UserNames(userlogs_savedFilters[index].AppliedFilter.users);
-    setUserlogs_Dept(
-      userlogs_savedFilters[index].AppliedFilter.Department === null
-        ? null
-        : userlogs_deptDropdown.filter(
-            (item: any) =>
-              item.value ===
-              userlogs_savedFilters[index].AppliedFilter.Department
-          )[0]
+    setUserlogs_Depts(
+      userlogs_savedFilters[index].AppliedFilter.departmentIds.length > 0
+        ? userlogs_deptDropdown.filter((user: any) =>
+            userlogs_savedFilters[index].AppliedFilter.departmentIds.includes(
+              user.value
+            )
+          )
+        : []
+    );
+    setUserlogs_DeptNames(
+      userlogs_savedFilters[index].AppliedFilter.departmentIds
     );
     setUserlogs_IsloggedIn(
       userlogs_savedFilters[index].AppliedFilter.isLoggedInFilter ?? 0
@@ -265,8 +270,8 @@ const UserLogsReportFilter = ({
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Filter has been deleted successfully.");
@@ -410,13 +415,15 @@ const UserLogsReportFilter = ({
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
                     options={userlogs_deptDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setUserlogs_Dept(data);
+                      setUserlogs_Depts(data);
+                      setUserlogs_DeptNames(data.map((d: any) => d.value));
                     }}
-                    value={userlogs_dept}
+                    value={userlogs_depts}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}

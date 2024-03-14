@@ -5,6 +5,7 @@ import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
 import WltrProjectReportFilter from "@/components/reports/Filter/WltrProjectReportFilter";
 import WltrProjectReport from "@/components/reports/tables/WltrProjectReport";
+import { WLTRProjectInitialParmas } from "@/utils/Types/reportTypes";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { InputBase } from "@mui/material";
 import React, { useState } from "react";
@@ -13,23 +14,24 @@ const Page = () => {
   const [search, setSearch] = useState<string>("");
   const [searchValue, setSearchValue] = useState<string>("");
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
-  const [filteredData, setFilteredData] = useState<any>(null);
-  const [totalQuantity, setTotalQuantity] = useState("00:00:00");
-  const [totalTime, setTotalTime] = useState("00:00:00");
-  const [totalSTDTime, setTotalSTDTime] = useState("00:00:00");
+  const [filteredData, setFilteredData] =
+    useState<WLTRProjectInitialParmas | null>(null);
+  const [totalQuantity, setTotalQuantity] = useState<string | number | null>(0);
+  const [totalTime, setTotalTime] = useState<string | null>("00:00:00");
+  const [totalSTDTime, setTotalSTDTime] = useState<string | null>("00:00:00");
 
   const handleFilter = (arg1: boolean) => {
     setIsFiltering(arg1);
   };
 
-  const handleFilterData = (arg1: any) => {
+  const handleFilterData = (arg1: WLTRProjectInitialParmas) => {
     setFilteredData(arg1);
   };
 
-  const handleSearchChange = (e: any) => {
-    setSearch(e.target.value);
+  const handleSearchChange = (e: string) => {
+    setSearch(e);
     const timer = setTimeout(() => {
-      setSearchValue(e.target.value);
+      setSearchValue(e);
     }, 500);
     return () => clearTimeout(timer);
   };
@@ -61,7 +63,7 @@ const Page = () => {
                 className="pl-1 pr-7 border-b border-b-lightSilver w-52"
                 placeholder="Search"
                 value={search}
-                onChange={(e: any) => handleSearchChange(e)}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
               <span className="absolute top-2 right-2 text-slatyGrey">
                 <SearchIcon />
@@ -83,9 +85,9 @@ const Page = () => {
         <WltrProjectReport
           searchValue={searchValue}
           filteredData={filteredData}
-          getTotalQuanitiy={(e: any) => setTotalQuantity(e)}
-          getTotalTime={(e: any) => setTotalTime(e)}
-          getTotalSTDTime={(e: any) => setTotalSTDTime(e)}
+          getTotalQuanitiy={(e: string | null | number) => setTotalQuantity(e)}
+          getTotalTime={(e: string | null) => setTotalTime(e)}
+          getTotalSTDTime={(e: string | null) => setTotalSTDTime(e)}
         />
         <WltrProjectReportFilter
           isFiltering={isFiltering}

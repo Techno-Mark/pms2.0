@@ -85,7 +85,7 @@ const Dialog_TotalHoursInfo: React.FC<TotalHoursInfoDialogProps> = ({
                 sx={{ height: "36px" }}
               >
                 <MenuItem value={0}>All</MenuItem>
-                {onWorkTypeData.map((i: any) => (
+                {onWorkTypeData?.map((i: any) => (
                   <MenuItem value={i.value} key={i.value}>
                     {i.label}
                   </MenuItem>

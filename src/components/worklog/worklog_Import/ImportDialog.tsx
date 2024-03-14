@@ -98,8 +98,8 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     const url = `${process.env.worklog_api_url}/workitem/import`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Task has been imported successfully.");

@@ -27,8 +27,8 @@ const AuditReport = ({ filteredData, searchValue, onHandleExport }: any) => {
 
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0);

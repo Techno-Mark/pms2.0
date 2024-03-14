@@ -41,8 +41,8 @@ const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
     const url = `${process.env.report_api_url}/dashboard/dashboardsummarylist`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setDashboardSummaryData(ResponseData.ProjectStatusList);

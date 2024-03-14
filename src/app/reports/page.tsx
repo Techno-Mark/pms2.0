@@ -52,6 +52,12 @@ import AutoManualReportFilter from "@/components/reports/Filter/AutoManualReport
 import KRAReportFilter from "@/components/reports/Filter/KRAReportFilter";
 import ClientReportFilter from "@/components/reports/Filter/ClientReportFilter";
 
+interface Tabs {
+  label: string;
+  value: number;
+  name: string;
+}
+
 const allTabs = [
   { label: "project", value: 1, name: "Project" },
   { label: "user", value: 2, name: "User" },
@@ -80,8 +86,8 @@ const MoreTabs = ({ moreTabs, handleMoreTabsClick }: any) => {
       className="absolute w-36 z-50 bg-slate-50 rounded flex flex-col whitespace-nowrap"
     >
       {moreTabs
-        .filter((tab: any) => tab !== false)
-        .map((tab: any, index: number) => (
+        .filter((tab: Tabs | boolean) => tab !== false)
+        .map((tab: Tabs, index: number) => (
           <div
             key={tab.value}
             className={`py-2 w-full hover:bg-[#0000000e] ${
@@ -160,25 +166,23 @@ const Page = () => {
     } else {
       setActiveTabs(
         allTabs
-          .map((tab: any) =>
+          .map((tab) =>
             hasPermissionWorklog(tab.label, "view", "report") ? tab : false
           )
-          .filter((tab: any) => tab !== false)
+          .filter((tab) => tab !== false)
           .slice(0, 6)
       );
       setActiveTab(
         allTabs
-          .map((tab: any) =>
-            hasPermissionWorklog(tab.label, "view", "report") ? tab : false
-          )
-          .filter((tab: any) => tab !== false)[0]?.value
+          .filter((tab) => hasPermissionWorklog(tab.label, "view", "report"))
+          .map((tab) => tab.value)[0]
       );
       setMoreTabs(
         allTabs
-          .map((tab: any) =>
+          .map((tab) =>
             hasPermissionWorklog(tab.label, "view", "report") ? tab : false
           )
-          .filter((tab: any) => tab !== false)
+          .filter((tab) => tab !== false)
           .slice(6)
       );
     }
@@ -299,10 +303,10 @@ const Page = () => {
     }
   };
 
-  const handleSearchChange = (e: any) => {
-    setSearch(e.target.value);
+  const handleSearchChange = (e: string) => {
+    setSearch(e);
     const timer = setTimeout(() => {
-      setSearchValue(e.target.value);
+      setSearchValue(e);
     }, 500);
     return () => clearTimeout(timer);
   };
@@ -360,7 +364,7 @@ const Page = () => {
                 className="pl-1 pr-7 border-b border-b-lightSilver w-52"
                 placeholder="Search"
                 value={search}
-                onChange={(e: any) => handleSearchChange(e)}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
               <span className="absolute top-2 right-2 text-slatyGrey">
                 <SearchIcon />

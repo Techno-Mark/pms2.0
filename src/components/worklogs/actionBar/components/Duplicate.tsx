@@ -39,8 +39,8 @@ const Duplicate = ({
       const url = `${process.env.worklog_api_url}/workitem/copyworkitem`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success("Task has been duplicated successfully");

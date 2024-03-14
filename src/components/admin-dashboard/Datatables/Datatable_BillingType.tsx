@@ -45,8 +45,8 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
     const url = `${process.env.report_api_url}/dashboard/billingstatuslist`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setData(ResponseData.BillingStatusList);

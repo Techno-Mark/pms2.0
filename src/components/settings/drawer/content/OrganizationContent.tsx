@@ -17,7 +17,6 @@ const OrganizationContent = forwardRef<
   {
     tab: string;
     onEdit: boolean;
-    orgData: any;
     onClose: () => void;
     onDataFetch: any;
     getOrgDetailsFunction: any;
@@ -28,7 +27,6 @@ const OrganizationContent = forwardRef<
     {
       tab,
       onEdit,
-      orgData,
       onClose,
       onDataFetch,
       getOrgDetailsFunction,
@@ -57,13 +55,31 @@ const OrganizationContent = forwardRef<
     }, []);
 
     useEffect(() => {
-      if (orgData && onEdit) {
-        setOrganizationId(orgData.OrganizationId);
-        setOrganizationName(orgData.OrganizationName);
-        setClientName(orgData.ClientModuleName);
-        setProjectName(orgData.ProjectModuleName);
-        setProcessName(orgData.ProcessModuleName);
-        setSubProcessName(orgData.SubProcessModuleName);
+      if (onEdit) {
+        const params = { OrganizationId: onEdit || 0 };
+        const url = `${process.env.pms_api_url}/organization/getbyid`;
+        const successCallback = (
+          ResponseData: any,
+          error: boolean,
+          ResponseStatus: string
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            setOrganizationId(ResponseData.OrganizationId);
+            setOrganizationName(ResponseData.OrganizationName);
+            setClientName(ResponseData.ClientModuleName);
+            setProjectName(ResponseData.ProjectModuleName);
+            setProcessName(ResponseData.ProcessModuleName);
+            setSubProcessName(ResponseData.SubProcessModuleName);
+          } else {
+            setOrganizationId(0);
+            setOrganizationName("");
+            setClientName("");
+            setProjectName("");
+            setProcessName("");
+            setSubProcessName("");
+          }
+        };
+        callAPI(url, params, successCallback, "POST");
       } else {
         setOrganizationId(0);
         setOrganizationName("");
@@ -72,7 +88,7 @@ const OrganizationContent = forwardRef<
         setProcessName("");
         setSubProcessName("");
       }
-    }, [orgData, onEdit]);
+    }, [onEdit]);
 
     const clear = () => {
       setResponseData([]);
@@ -132,8 +148,8 @@ const OrganizationContent = forwardRef<
         const url = `${process.env.pms_api_url}/organization/save`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             setResponseData(ResponseData);
@@ -187,8 +203,8 @@ const OrganizationContent = forwardRef<
         const url = `${process.env.pms_api_url}/organization/save`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             setResponseData(ResponseData);
@@ -360,7 +376,7 @@ const OrganizationContent = forwardRef<
           </div>
         </div>
 
-        <div className="flex justify-end fixed w-full bottom-0 gap-[20px] px-[20px] py-[15px] bg-pureWhite border-t border-lightSilver">
+        <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
           <>
             {onEdit ? (
               <Button

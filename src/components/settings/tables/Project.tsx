@@ -84,8 +84,8 @@ const Project = ({
     const url = `${process.env.pms_api_url}/project/getall`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0 ? true : false);
@@ -112,8 +112,8 @@ const Project = ({
     const url = `${process.env.pms_api_url}/Project/Delete`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Project has been deleted successfully!");
@@ -146,8 +146,8 @@ const Project = ({
     const url = `${process.env.pms_api_url}/project/activeinactive`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setIsOpenSwitchModal(false);

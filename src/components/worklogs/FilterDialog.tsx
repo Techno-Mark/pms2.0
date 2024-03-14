@@ -19,6 +19,11 @@ import {
 } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
 import { getFormattedDate } from "@/utils/timerFunctions";
+import {
+  FilterWorklogs,
+  LabelValue,
+  LabelValueType,
+} from "@/utils/Types/types";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -66,13 +71,17 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   const [worktypeDropdownData, setWorktypeDropdownData] = useState([]);
   const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [statusDropdownData, setStatusDropdownData] = useState([]);
-  const [assignedByDropdownData, setAssignedByDropdownData] = useState([]);
-  const [assignedToDropdownData, setAssignedToDropdownData] = useState([]);
+  const [assignedByDropdownData, setAssignedByDropdownData] = useState<
+    LabelValue[] | []
+  >([]);
+  const [assignedToDropdownData, setAssignedToDropdownData] = useState<
+    LabelValue[] | []
+  >([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
   const [error, setError] = useState("");
 
-  let isHaveManageAssignee: any;
+  let isHaveManageAssignee: undefined | string | boolean | null;
   if (typeof localStorage !== "undefined") {
     isHaveManageAssignee = localStorage.getItem("IsHaveManageAssignee");
   }
@@ -80,6 +89,22 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   const sendFilterToPage = () => {
     currentFilterData(currSelectedFields);
     onClose();
+  };
+
+  const clearData = () => {
+    setClientName(null);
+    setWorkType(null);
+    setProjectName(null);
+    setStatus(null);
+    setAssignedTo(0);
+    setAssignedBy(null);
+    setDueDate(null);
+    setStartDate(null);
+    setEndDate(null);
+    setReviewStatus(0);
+    setSaveFilter(false);
+    setFilterName("");
+    setError("");
   };
 
   const handleResetAll = () => {
@@ -114,7 +139,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     setProjectDropdownData(await getProjectDropdownData(clientName, workType));
   };
 
-  const getAllStatus = async (workType: any) => {
+  const getAllStatus = async (workType: number) => {
     workType > 0 &&
       setStatusDropdownData(await getStatusDropdownData(workType));
   };
@@ -123,9 +148,9 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     const params = {};
     const url = `${process.env.api_url}/user/GetAssigneeFilterDropdown`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: LabelValue[] | [],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setAssignedByDropdownData(ResponseData);
@@ -185,9 +210,9 @@ const FilterDialog: React.FC<FilterModalProps> = ({
       };
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success(
@@ -198,6 +223,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
           setSaveFilter(false);
           onDataFetch();
           sendFilterToPage();
+          clearData();
           onClose();
         }
       };
@@ -211,13 +237,13 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: FilterWorklogs[] | [],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         const filteredData = ResponseData.filter(
-          (filter: any) => filter.FilterId === filterId
+          (filter: FilterWorklogs) => filter.FilterId === filterId
         );
 
         if (filteredData.length > 0) {
@@ -280,34 +306,36 @@ const FilterDialog: React.FC<FilterModalProps> = ({
         setClientName(
           ClientId !== null && ClientId > 0
             ? clientDropdownData.filter(
-                (item: any) => item.value === ClientId
+                (item: LabelValue) => item.value === ClientId
               )[0]
             : null
         );
         setWorkType(
           TypeOfWork !== null && TypeOfWork > 0
             ? worktypeDropdownData.filter(
-                (item: any) => item.value === TypeOfWork
+                (item: LabelValue) => item.value === TypeOfWork
               )[0]
             : null
         );
         setProjectName(
           ProjectId !== null && ProjectId > 0
             ? projectDropdownData.filter(
-                (item: any) => item.value === ProjectId
+                (item: LabelValue) => item.value === ProjectId
               )[0]
             : null
         );
         setStatus(
           Status !== null && Status > 0
-            ? statusDropdownData.filter((item: any) => item.value === Status)[0]
+            ? statusDropdownData.filter(
+                (item: LabelValueType) => item.value === Status
+              )[0]
             : null
         );
         setAssignedTo(AssignedTo > 0 ? AssignedTo : "");
         setAssignedBy(
           AssignedBy !== null && AssignedBy > 0
             ? assignedByDropdownData.filter(
-                (item: any) => item.value === AssignedBy
+                (item: LabelValue) => item.value === AssignedBy
               )[0]
             : null
         );
@@ -380,7 +408,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                 <Autocomplete
                   id="tags-standard"
                   options={clientDropdownData}
-                  getOptionLabel={(option: any) => option.label}
+                  getOptionLabel={(option: LabelValue) => option.label}
                   onChange={(e: any, data: any) => {
                     setClientName(data);
                     setWorkType(null);
@@ -405,7 +433,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                 <Autocomplete
                   id="tags-standard"
                   options={worktypeDropdownData}
-                  getOptionLabel={(option: any) => option.label}
+                  getOptionLabel={(option: LabelValue) => option.label}
                   onChange={(e: any, data: any) => {
                     setWorkType(data);
                     setProjectName(null);
@@ -429,7 +457,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                 <Autocomplete
                   id="tags-standard"
                   options={projectDropdownData}
-                  getOptionLabel={(option: any) => option.label}
+                  getOptionLabel={(option: LabelValue) => option.label}
                   onChange={(e: any, data: any) => {
                     setProjectName(data);
                   }}
@@ -453,7 +481,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                 <Autocomplete
                   id="tags-standard"
                   options={statusDropdownData}
-                  getOptionLabel={(option: any) => option.label}
+                  getOptionLabel={(option: LabelValueType) => option.label}
                   onChange={(e: any, data: any) => {
                     setStatus(data);
                   }}
@@ -489,7 +517,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                 <Autocomplete
                   id="tags-standard"
                   options={assignedByDropdownData}
-                  getOptionLabel={(option: any) => option.label}
+                  getOptionLabel={(option: LabelValue) => option.label}
                   onChange={(e: any, data: any) => {
                     setAssignedBy(data);
                   }}
@@ -511,9 +539,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   <DatePicker
                     label="Due Date"
                     value={dueDate === null ? null : dayjs(dueDate)}
-                    onChange={(newDate: any) => {
-                      setDueDate(newDate.$d);
-                    }}
+                    onChange={(newDate: any) => setDueDate(newDate.$d)}
                     shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
                     slotProps={{
@@ -536,9 +562,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                     value={startDate === null ? null : dayjs(startDate)}
                     shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
-                    onChange={(newDate: any) => {
-                      setStartDate(newDate.$d);
-                    }}
+                    onChange={(newDate: any) => setStartDate(newDate.$d)}
                     slotProps={{
                       textField: {
                         readOnly: true,
@@ -556,9 +580,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                     value={endDate === null ? null : dayjs(endDate)}
                     shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
-                    onChange={(newDate: any) => {
-                      setEndDate(newDate.$d);
-                    }}
+                    onChange={(newDate: any) => setEndDate(newDate.$d)}
                     slotProps={{
                       textField: {
                         readOnly: true,

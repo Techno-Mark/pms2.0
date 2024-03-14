@@ -17,6 +17,10 @@ import Loading from "@/assets/icons/reports/Loading";
 import axios from "axios";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import {
+  AppliedFilterApprovals,
+  AppliedFilterApprovalsPage,
+} from "@/utils/Types/types";
 
 const exportBody = {
   pageNo: 1,
@@ -36,17 +40,19 @@ const exportBody = {
 
 const Page = () => {
   const router = useRouter();
-  const [timeValue, setTimeValue] = useState(null);
+  const [timeValue, setTimeValue] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<number>(1);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEditId, setHasEditId] = useState(0);
   const [iconIndex, setIconIndex] = useState<number>(0);
-  const [hasId, setHasId] = useState("");
+  const [hasId, setHasId] = useState<number | string>("");
   const [searchValue, setSearchValue] = useState("");
   const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
-  const [currentFilterData, setCurrentFilterData] = useState<any>([]);
+  const [currentFilterData, setCurrentFilterData] = useState<
+    AppliedFilterApprovals | AppliedFilterApprovalsPage | []
+  >([]);
   const [hasComment, setHasComment] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [hasManual, setHasManual] = useState(false);
@@ -57,7 +63,7 @@ const Page = () => {
     setisFilterOpen(false);
   };
 
-  const getIdFromFilterDialog = (data: any) => {
+  const getIdFromFilterDialog = (data: AppliedFilterApprovals) => {
     setCurrentFilterData(data);
   };
 
@@ -86,7 +92,7 @@ const Page = () => {
     setSearchValue("");
   };
 
-  const handleEdit = (rowId: any, Id: any, iconIndex?: number) => {
+  const handleEdit = (rowId: number, Id: number, iconIndex?: number) => {
     setIconIndex(iconIndex !== undefined ? iconIndex : 0);
     setHasEditId(rowId);
     setOpenDrawer(true);
@@ -97,19 +103,19 @@ const Page = () => {
     setDataFunction(() => getData);
   };
 
-  const handleSetComments = (rowData: any, selectedId: number) => {
+  const handleSetComments = (rowData: boolean, selectedId: number) => {
     setHasComment(true);
     setOpenDrawer(rowData);
     setHasEditId(selectedId);
   };
 
-  const handleSetError = (rowData: any, selectedId: number) => {
+  const handleSetError = (rowData: boolean, selectedId: number) => {
     setHasError(true);
     setOpenDrawer(rowData);
     setHasEditId(selectedId);
   };
 
-  const handleSetManual = (rowData: any, selectedId: number) => {
+  const handleSetManual = (rowData: boolean, selectedId: number) => {
     setHasManual(true);
     setOpenDrawer(rowData);
     setHasEditId(selectedId);
@@ -168,10 +174,10 @@ const Page = () => {
     setCanExport(arg1);
   };
 
-  const handleSearchChange = (e: any) => {
-    setSearchValue(e.target.value);
+  const handleSearchChange = (e: string) => {
+    setSearchValue(e);
     const timer = setTimeout(() => {
-      setGlobalSearchValue(e.target.value);
+      setGlobalSearchValue(e);
     }, 500);
     return () => clearTimeout(timer);
   };
@@ -226,7 +232,7 @@ const Page = () => {
                 className="pl-1 pr-7 border-b border-b-lightSilver w-52"
                 placeholder="Search"
                 value={searchValue}
-                onChange={(e: any) => handleSearchChange(e)}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
               <span className="absolute top-2 right-2 text-slatyGrey">
                 <SearchIcon />
@@ -268,7 +274,7 @@ const Page = () => {
           onErrorLog={handleSetError}
           onManualTime={handleSetManual}
           onHandleExport={handleCanExport}
-          onChangeLoader={(e: any) => setTimeValue(e)}
+          onChangeLoader={(e: string | null) => setTimeValue(e)}
         />
 
         <Drawer

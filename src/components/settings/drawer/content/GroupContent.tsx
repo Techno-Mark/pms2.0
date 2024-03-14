@@ -31,22 +31,11 @@ const GroupContent = forwardRef<
     onOpen: boolean;
     onClose: () => void;
     onDataFetch: any;
-    orgData: any;
-    groupData: any;
     onChangeLoader: any;
   }
 >(
   (
-    {
-      tab,
-      orgData,
-      groupData,
-      onEdit,
-      onOpen,
-      onClose,
-      onDataFetch,
-      onChangeLoader,
-    },
+    { tab, onEdit, onOpen, onClose, onDataFetch, onChangeLoader },
     ref
   ) => {
     const [data, setData] = useState<Options[]>([]);
@@ -61,8 +50,8 @@ const GroupContent = forwardRef<
         const url = `${process.env.pms_api_url}/group/getbyid`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             let groupuserIds = ResponseData.GroupUserIds;
@@ -139,8 +128,8 @@ const GroupContent = forwardRef<
         const url = `${process.env.pms_api_url}/group/save`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             onDataFetch();
@@ -179,8 +168,8 @@ const GroupContent = forwardRef<
         const url = `${process.env.pms_api_url}/group/save`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(

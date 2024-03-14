@@ -41,7 +41,8 @@ const ClientReportFilter = ({
   const [clients, setClients] = useState<any[]>([]);
   const [clientName, setClientName] = useState<any[]>([]);
   const [typeOfWork, setTypeOfWork] = useState<any>(null);
-  const [department, setDepartment] = useState<any>(null);
+  const [depts, setDepts] = useState<any[]>([]);
+  const [deptName, setDeptName] = useState<any[]>([]);
   const [billingType, setBillingType] = useState<any>(null);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
@@ -75,7 +76,8 @@ const ClientReportFilter = ({
     setClientName([]);
     setClients([]);
     setTypeOfWork(null);
-    setDepartment(null);
+    setDeptName([]);
+    setDepts([]);
     setBillingType(null);
     setFilterName("");
     setDefaultFilter(false);
@@ -95,7 +97,8 @@ const ClientReportFilter = ({
     setClientName([]);
     setClients([]);
     setTypeOfWork(null);
-    setDepartment(null);
+    setDeptName([]);
+    setDepts([]);
     setBillingType(null);
     setStartDate("");
     setEndDate("");
@@ -107,7 +110,7 @@ const ClientReportFilter = ({
       ...client_InitialFilter,
       Clients: clientName.length > 0 ? clientName : [],
       WorkTypeId: typeOfWork !== null ? typeOfWork.value : null,
-      DepartmentId: department !== null ? department.value : null,
+      DepartmentId: deptName.length > 0 ? deptName : [],
       BillingTypeId: billingType !== null ? billingType.value : null,
       StartDate:
         startDate.toString().trim().length <= 0
@@ -133,7 +136,7 @@ const ClientReportFilter = ({
           ...client_InitialFilter,
           Clients: savedFilters[index].AppliedFilter.Clients,
           WorkTypeId: savedFilters[index].AppliedFilter.WorkTypeId,
-          DepartmentId: savedFilters[index].AppliedFilter.DepartmentId,
+          DepartmentIds: savedFilters[index].AppliedFilter.DepartmentIds,
           BillingTypeId: savedFilters[index].AppliedFilter.BillingTypeId,
           StartDate: savedFilters[index].AppliedFilter.StartDate,
           EndDate: savedFilters[index].AppliedFilter.EndDate,
@@ -160,7 +163,7 @@ const ClientReportFilter = ({
       AppliedFilter: {
         Clients: clientName,
         WorkTypeId: typeOfWork !== null ? typeOfWork.value : null,
-        DepartmentId: department !== null ? department.value : null,
+        DepartmentIds: deptName,
         BillingTypeId: billingType !== null ? billingType.value : null,
         StartDate:
           startDate.toString().trim().length <= 0
@@ -180,8 +183,8 @@ const ClientReportFilter = ({
     const url = `${process.env.worklog_api_url}/filter/savefilter`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Filter has been successully saved.");
@@ -202,14 +205,14 @@ const ClientReportFilter = ({
     const isAnyFieldSelected =
       clientName.length > 0 ||
       typeOfWork !== null ||
-      department !== null ||
+      deptName.length > 0 ||
       billingType !== null ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-  }, [clientName, typeOfWork, department, billingType, startDate, endDate]);
+  }, [clientName, typeOfWork, deptName, billingType, startDate, endDate]);
 
   useEffect(() => {
     const filterDropdowns = async () => {
@@ -221,13 +224,6 @@ const ClientReportFilter = ({
     filterDropdowns();
   }, []);
 
-  // useEffect(() => {
-  //   const filterDropdowns = async () => {
-  //     setTypeOfWorkDropdown(await getTypeOfWorkDropdownData(clientName[0]));
-  //   };
-  //   clientName.length === 1 && filterDropdowns();
-  // }, [clientName]);
-
   const getFilterList = async () => {
     const params = {
       type: clientReport,
@@ -235,8 +231,8 @@ const ClientReportFilter = ({
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setSavedFilters(ResponseData);
@@ -276,13 +272,17 @@ const ClientReportFilter = ({
           )[0]
         : null
     );
-    setDepartment(
-      savedFilters[index].AppliedFilter.DepartmentId !== null
-        ? departmentDropdown.filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.DepartmentId[0]
-          )[0]
-        : null
+    setDepts(
+      savedFilters[index].AppliedFilter.DepartmentIds === null
+        ? []
+        : departmentDropdown.filter((dept: any) =>
+            savedFilters[index].AppliedFilter.DepartmentIds.includes(dept.value)
+          )
+    );
+    setDeptName(
+      savedFilters[index].AppliedFilter.DepartmentIds === null
+        ? []
+        : savedFilters[index].AppliedFilter.DepartmentIds
     );
     setBillingType(
       savedFilters[index].AppliedFilter.BillingTypeId !== null
@@ -311,8 +311,8 @@ const ClientReportFilter = ({
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Filter has been deleted successfully.");
@@ -443,7 +443,6 @@ const ClientReportFilter = ({
                     onChange={(e: any, data: any) => {
                       setClients(data);
                       setClientName(data.map((d: any) => d.value));
-                      // setTypeOfWork(null);
                     }}
                     value={clients}
                     renderInput={(params: any) => (
@@ -482,13 +481,15 @@ const ClientReportFilter = ({
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
                     options={departmentDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setDepartment(data);
+                      setDepts(data);
+                      setDeptName(data.map((d: any) => d.value));
                     }}
-                    value={department}
+                    value={depts}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}

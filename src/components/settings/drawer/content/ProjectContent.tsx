@@ -19,7 +19,6 @@ const ProjectContent = forwardRef<
     onEdit: any;
     onOpen: boolean;
     onClose: () => void;
-    projectData: any;
     onDataFetch: any;
     onValuesChange: any;
     onChangeLoader: any;
@@ -31,7 +30,6 @@ const ProjectContent = forwardRef<
       onEdit,
       onClose,
       onOpen,
-      projectData,
       onDataFetch,
       onValuesChange,
       onChangeLoader,
@@ -62,8 +60,8 @@ const ProjectContent = forwardRef<
         const url = `${process.env.pms_api_url}/client/getdropdown`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             setClientDrpdown(ResponseData);
@@ -86,8 +84,8 @@ const ProjectContent = forwardRef<
           const url = `${process.env.pms_api_url}/project/getbyid`;
           const successCallback = (
             ResponseData: any,
-            error: any,
-            ResponseStatus: any
+            error: boolean,
+            ResponseStatus: string
           ) => {
             if (ResponseStatus === "Success" && error === false) {
               setClient(ResponseData.ClientId);
@@ -116,8 +114,8 @@ const ProjectContent = forwardRef<
       const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           setTypeOfWorkDropdown(ResponseData);
@@ -187,8 +185,8 @@ const ProjectContent = forwardRef<
         const url = `${process.env.pms_api_url}/project/saveproject`;
         const successCallback = async (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(

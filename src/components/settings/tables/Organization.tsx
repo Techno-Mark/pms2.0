@@ -23,7 +23,6 @@ const initialFilter = {
 const Organization = ({
   onOpen,
   onEdit,
-  onHandleOrgData,
   onDataFetch,
   getOrgDetailsFunction,
   onSearchOrgData,
@@ -59,32 +58,13 @@ const Organization = ({
     fetchData();
   }, [filteredObject]);
 
-  const getUserById = async (data: any) => {
-    const params = {
-      OrganizationId: data,
-    };
-    const url = `${process.env.pms_api_url}/organization/getbyid`;
-    const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
-    ) => {
-      if (ResponseStatus === "Success" && error === false) {
-        onHandleOrgData(ResponseData);
-      } else {
-        setUserList([]);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
-  };
-
   const getAll = async () => {
     const params = filteredObject;
     const url = `${process.env.pms_api_url}/organization/getall`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.length > 0 ? true : false);
@@ -109,8 +89,8 @@ const Organization = ({
     const url = `${process.env.pms_api_url}/organization/activeinactive`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setIsOpenSwitchModal(false);
@@ -127,7 +107,6 @@ const Organization = ({
 
   const handleActionValue = async (actionId: string, id: any) => {
     if (actionId.toLowerCase() === "edit") {
-      getUserById(id);
       onEdit(id);
     }
   };
@@ -292,7 +271,7 @@ const Organization = ({
         <ReportLoader />
       ) : (
         <>
-          <div className="muiTableAction">
+          <div className="muiTableActionHeight">
             <ThemeProvider theme={getMuiTheme()}>
               <MUIDataTable
                 data={userList}

@@ -91,8 +91,8 @@ const Report = () => {
     const url = `${process.env.report_api_url}/report/client/task`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setTaskData(ResponseData.List);
@@ -131,8 +131,8 @@ const Report = () => {
     const url = `${process.env.report_api_url}/report/client/rating`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setRatingData(ResponseData.List);

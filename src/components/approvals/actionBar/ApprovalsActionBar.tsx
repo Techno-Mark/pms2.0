@@ -91,8 +91,8 @@ const ApprovalsActionBar = ({
     const url = `${process.env.worklog_api_url}/workitem/approval/acceptworkitem`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Selected tasks have been successfully approved.");
@@ -122,8 +122,8 @@ const ApprovalsActionBar = ({
     const url = `${process.env.worklog_api_url}/workitem/approval/rejectworkitem`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Selected tasks have been successfully approved.");

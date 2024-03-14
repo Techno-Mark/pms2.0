@@ -50,8 +50,8 @@ const Project = ({
     const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemproject`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Project has been updated successfully.");

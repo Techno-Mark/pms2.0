@@ -100,8 +100,8 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       const url = `${process.env.worklog_api_url}/workitem/deleteworkitem`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success("Task has been deleted successfully!");
@@ -182,7 +182,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         </span>
         {open && (
           <React.Fragment>
-            <div className="absolute top-30 right-10 z-10 flex justify-center items-center">
+            <div className="absolute top-30 right-4 z-10 flex justify-center items-center">
               <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-28">
                   {actionPermissions.map((action: any, index: any) => (
@@ -618,7 +618,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   return customReportFields.loaded ? (
     <>
       <div
-        className={`${customReportFields.data.length > 0 && "muiTableAction"}`}
+        className={`${customReportFields.data.length > 0 && "muiTableActionCustom"}`}
       >
         <ThemeProvider theme={getMuiTheme()}>
           <MUIDataTable

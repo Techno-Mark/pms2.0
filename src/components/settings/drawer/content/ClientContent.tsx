@@ -40,14 +40,13 @@ const ClientContent = forwardRef<
     tab: string;
     onEdit: boolean;
     onClose: () => void;
-    clientData: any;
     onDataFetch: any;
     onOpen: boolean;
     onChangeLoader: any;
   }
 >(
   (
-    { tab, onEdit, onClose, clientData, onOpen, onDataFetch, onChangeLoader },
+    { tab, onEdit, onClose, onOpen, onDataFetch, onChangeLoader },
     ref
   ) => {
     const [departmentData, setDepartmentData] = useState([
@@ -236,7 +235,7 @@ const ClientContent = forwardRef<
 
     useEffect(() => {
       clearClientData();
-      if (clientData && onEdit) {
+      if (onEdit) {
         const getClientById = async () => {
           const token = await localStorage.getItem("token");
           const Org_Token = await localStorage.getItem("Org_Token");
@@ -465,7 +464,7 @@ const ClientContent = forwardRef<
 
         getClientById();
       }
-    }, [clientData, onEdit, onOpen]);
+    }, [onEdit, onOpen]);
 
     const handleContHrs = (e: any, index: any) => {
       if (e.length <= 5) {

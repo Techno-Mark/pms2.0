@@ -31,8 +31,8 @@ const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
     const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setTypeOfWorkDropdown(ResponseData);
@@ -50,8 +50,8 @@ const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
     const url = `${process.env.pms_api_url}/client/GetFields`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setFieldsData(ResponseData);
@@ -71,8 +71,8 @@ const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
     const url = `${process.env.pms_api_url}/client/SaveFields`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         getFieldsByClient();

@@ -43,7 +43,8 @@ const APReportFilter = ({
   const [userName, setUserName] = useState<any[]>([]);
   const [reportingManager, setReportingManager] = useState<any[]>([]);
   const [reportingManagerName, setReportingManagerName] = useState<any[]>([]);
-  const [department, setDepartment] = useState<any>(null);
+  const [depts, setDepts] = useState<any[]>([]);
+  const [deptName, setDeptName] = useState<any[]>([]);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
 
@@ -75,7 +76,8 @@ const APReportFilter = ({
     setUsers([]);
     setReportingManager([]);
     setReportingManagerName([]);
-    setDepartment(null);
+    setDeptName([]);
+    setDepts([]);
     setStartDate("");
     setEndDate("");
     setError("");
@@ -100,7 +102,8 @@ const APReportFilter = ({
     setUsers([]);
     setReportingManager([]);
     setReportingManagerName([]);
-    setDepartment(null);
+    setDeptName([]);
+    setDepts([]);
     setStartDate("");
     setEndDate("");
     setError("");
@@ -113,7 +116,7 @@ const APReportFilter = ({
       Users: userName.length > 0 ? userName : [],
       ReportingManagers:
         reportingManagerName.length > 0 ? reportingManagerName : [],
-      DepartmentId: department !== null ? department.value : null,
+      DepartmentIds: deptName.length > 0 ? deptName : [],
       StartDate:
         startDate.toString().trim().length <= 0
           ? endDate.toString().trim().length <= 0
@@ -140,7 +143,7 @@ const APReportFilter = ({
           Users: savedFilters[index].AppliedFilter.Users,
           ReportingManagers:
             savedFilters[index].AppliedFilter.ReportingManagers,
-          DepartmentId: savedFilters[index].AppliedFilter.DepartmentId,
+          DepartmentIds: savedFilters[index].AppliedFilter.DepartmentIds,
           StartDate: savedFilters[index].AppliedFilter.StartDate,
           EndDate: savedFilters[index].AppliedFilter.EndDate,
         });
@@ -167,7 +170,7 @@ const APReportFilter = ({
         Clients: clientName,
         Users: userName,
         ReportingManagers: reportingManagerName,
-        DepartmentId: department !== null ? department.value : null,
+        DepartmentIds: deptName,
         StartDate:
           startDate.toString().trim().length <= 0
             ? endDate.toString().trim().length <= 0
@@ -186,8 +189,8 @@ const APReportFilter = ({
     const url = `${process.env.worklog_api_url}/filter/savefilter`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Filter has been successully saved.");
@@ -209,7 +212,7 @@ const APReportFilter = ({
       clientName.length > 0 ||
       userName.length > 0 ||
       reportingManagerName.length > 0 ||
-      department !== null ||
+      deptName.length > 0 ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0;
 
@@ -219,7 +222,7 @@ const APReportFilter = ({
     clientName,
     userName,
     reportingManagerName,
-    department,
+    deptName,
     startDate,
     endDate,
   ]);
@@ -240,8 +243,8 @@ const APReportFilter = ({
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setSavedFilters(ResponseData);
@@ -281,7 +284,6 @@ const APReportFilter = ({
         ? []
         : savedFilters[index].AppliedFilter.Users
     );
-
     setReportingManager(
       savedFilters[index].AppliedFilter.ReportingManagers === null
         ? []
@@ -296,14 +298,17 @@ const APReportFilter = ({
         ? []
         : savedFilters[index].AppliedFilter.ReportingManagers
     );
-
-    setDepartment(
-      savedFilters[index].AppliedFilter.DepartmentId !== null
-        ? departmentDropdown.filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.DepartmentId[0]
-          )[0]
-        : null
+    setDepts(
+      savedFilters[index].AppliedFilter.DepartmentIds === null
+        ? []
+        : departmentDropdown.filter((dept: any) =>
+            savedFilters[index].AppliedFilter.DepartmentIds.includes(dept.value)
+          )
+    );
+    setDeptName(
+      savedFilters[index].AppliedFilter.DepartmentIds === null
+        ? []
+        : savedFilters[index].AppliedFilter.DepartmentIds
     );
     setStartDate(
       savedFilters[index].AppliedFilter.startDate === null
@@ -324,8 +329,8 @@ const APReportFilter = ({
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Filter has been deleted successfully.");
@@ -528,13 +533,15 @@ const APReportFilter = ({
                   sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
                     options={departmentDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setDepartment(data);
+                      setDepts(data);
+                      setDeptName(data.map((d: any) => d.value));
                     }}
-                    value={department}
+                    value={depts}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}

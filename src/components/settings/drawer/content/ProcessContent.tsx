@@ -44,7 +44,6 @@ const ProcessContent = forwardRef<
     onEdit: boolean;
     onOpen: any;
     onClose: any;
-    processData: any;
     onDataFetch(): any;
     onChangeLoader: any;
     onValuesChange: any;
@@ -202,8 +201,8 @@ const ProcessContent = forwardRef<
         const url = `${process.env.pms_api_url}/process/GetById`;
         const successCallback = async (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             setTypeOfWork(ResponseData.WorkTypeId);
@@ -234,8 +233,8 @@ const ProcessContent = forwardRef<
       const url = `${process.env.pms_api_url}/Process/GetDropdown`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           setData(ResponseData);
@@ -261,8 +260,8 @@ const ProcessContent = forwardRef<
         const url = `${process.env.pms_api_url}/process/SaveParentProcess`;
         const successCallback = async (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(
@@ -348,8 +347,8 @@ const ProcessContent = forwardRef<
         const url = `${process.env.pms_api_url}/process/Save`;
         const successCallback = async (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             ProcessDataValue();
@@ -418,8 +417,8 @@ const ProcessContent = forwardRef<
       const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
       const successCallback = async (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           setTypeOfWorkDropdown(ResponseData);

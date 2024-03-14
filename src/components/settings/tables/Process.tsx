@@ -92,8 +92,8 @@ function Process({
     const url = `${process.env.pms_api_url}/process/GetAll`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0 ? true : false);
@@ -129,8 +129,8 @@ function Process({
     const url = `${process.env.pms_api_url}/process/Delete`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Process has been deleted successfully!");

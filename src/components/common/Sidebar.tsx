@@ -14,6 +14,7 @@ import PabsCollapse from "../../assets/icons/PabsCollaps";
 import Link from "next/link";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { callAPI } from "@/utils/API/callAPI";
+import { MenuItem, User } from "@/utils/Types/types";
 
 const DashboardItems = ({ pathname, isCollapsed, sidebarItems }: any) => {
   return (
@@ -61,20 +62,20 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
       const params = {};
       const url = `${process.env.api_url}/auth/getuserdetails`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: User,
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           localStorage.setItem(
             "IsHaveManageAssignee",
-            ResponseData.IsHaveManageAssignee
+            String(ResponseData.IsHaveManageAssignee)
           );
 
           localStorage.setItem("permission", JSON.stringify(ResponseData.Menu));
-          localStorage.setItem("roleId", ResponseData.RoleId);
-          localStorage.setItem("isClient", ResponseData.IsClientUser);
-          localStorage.setItem("UserId", ResponseData.UserId);
+          localStorage.setItem("roleId", String(ResponseData.RoleId));
+          localStorage.setItem("isClient", String(ResponseData.IsClientUser));
+          localStorage.setItem("UserId", String(ResponseData.UserId));
           if (localStorage.getItem("Org_Token") === null) {
             localStorage.setItem(
               "Org_Token",
@@ -84,7 +85,7 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
           if (localStorage.getItem("Org_Id") === null) {
             localStorage.setItem(
               "Org_Id",
-              ResponseData.Organizations[0].OrganizationId
+              String(ResponseData.Organizations[0].OrganizationId)
             );
           }
           if (localStorage.getItem("Org_Name") === null) {
@@ -99,10 +100,12 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
       callAPI(url, params, successCallback, "GET");
     };
 
-    const getSidebarData = async (isClient: any) => {
-      const permission: any = await localStorage.getItem("permission");
+    const getSidebarData = async (isClient: boolean) => {
+      const permission: MenuItem[] | string | null = await localStorage.getItem(
+        "permission"
+      );
 
-      if (permission.length > 0) {
+      if (permission !== null && permission.length > 0) {
         setSidebarItems([
           hasPermissionWorklog("", "View", "Dashboard") &&
             !isClient && {

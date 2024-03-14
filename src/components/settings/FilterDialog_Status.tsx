@@ -1,4 +1,5 @@
 import { callAPI } from "@/utils/API/callAPI";
+import { LabelValue } from "@/utils/Types/types";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import {
   Button,
@@ -13,6 +14,22 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
+interface FilterSettings {
+  SortColumn: string;
+  IsDec: boolean;
+  globalFilter: string | null;
+  IsDefault: boolean | null;
+  Type: string;
+  Export: boolean;
+  GlobalSearch: string | null;
+  WorkTypeId: number | null;
+}
+interface FilterDialogProps {
+  onOpen: boolean;
+  onClose: () => void;
+  currentFilterData: (data: FilterSettings) => void;
+}
+
 const initialFilter = {
   SortColumn: "",
   IsDec: true,
@@ -24,11 +41,18 @@ const initialFilter = {
   WorkTypeId: null,
 };
 
-const FilterDialog_Status = ({ onOpen, onClose, currentFilterData }: any) => {
-  const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
-  const [anyFieldSelected, setAnyFieldSelected] = useState<any>(false);
-  const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState([]);
-  const [typeOfWork, setTypeOfWork] = useState(0);
+const FilterDialog_Status = ({
+  onOpen,
+  onClose,
+  currentFilterData,
+}: FilterDialogProps) => {
+  const [currSelectedFields, setCurrSelectedFileds] =
+    useState<FilterSettings>(initialFilter);
+  const [anyFieldSelected, setAnyFieldSelected] = useState<boolean>(false);
+  const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState<
+    LabelValue[] | []
+  >([]);
+  const [typeOfWork, setTypeOfWork] = useState<number>(0);
 
   const getWorkTypeData = async () => {
     const params = {
@@ -37,9 +61,9 @@ const FilterDialog_Status = ({ onOpen, onClose, currentFilterData }: any) => {
     };
     const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
     const successCallback = async (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: LabelValue[] | [],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setTypeOfWorkDropdown(ResponseData);
@@ -68,7 +92,7 @@ const FilterDialog_Status = ({ onOpen, onClose, currentFilterData }: any) => {
   };
 
   useEffect(() => {
-    const isAnyFieldSelected: any = typeOfWork !== 0;
+    const isAnyFieldSelected: boolean = typeOfWork !== 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
   }, [typeOfWork]);
@@ -108,10 +132,10 @@ const FilterDialog_Status = ({ onOpen, onClose, currentFilterData }: any) => {
                 labelId="demo-simple-select-standard-label"
                 id="demo-simple-select-standard"
                 value={typeOfWork === 0 ? "" : typeOfWork}
-                onChange={(e: any) => setTypeOfWork(e.target.value)}
+                onChange={(e) => setTypeOfWork(Number(e.target.value))}
               >
                 {typeOfWorkDropdown.length > 0 &&
-                  typeOfWorkDropdown.map((i: any) => (
+                  typeOfWorkDropdown.map((i: LabelValue) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>

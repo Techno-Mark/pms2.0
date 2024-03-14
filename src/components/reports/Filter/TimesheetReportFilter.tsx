@@ -35,7 +35,8 @@ const TimesheetReportFilter = ({
 }: FilterType) => {
   const [timesheetUserNames, setTimesheetUserNames] = useState<number[]>([]);
   const [timesheetUsers, setTimesheetUsers] = useState<number[]>([]);
-  const [timesheetDept, setTimesheetDept] = useState<any>(null);
+  const [timesheetDeptNames, setTimesheetDeptNames] = useState<number[]>([]);
+  const [timesheetDepts, setTimesheetDepts] = useState<number[]>([]);
   const [timesheetFilterName, setTimesheetFilterName] = useState<string>("");
   const [timesheetSaveFilter, setTimesheetSaveFilter] =
     useState<boolean>(false);
@@ -67,7 +68,8 @@ const TimesheetReportFilter = ({
   const handleResetAll = () => {
     setTimesheetUserNames([]);
     setTimesheetUsers([]);
-    setTimesheetDept(null);
+    setTimesheetDeptNames([]);
+    setTimesheetDepts([]);
     setTimesheetStartDate("");
     setTimesheetEndDate("");
     setTimesheetError("");
@@ -87,7 +89,8 @@ const TimesheetReportFilter = ({
     setTimesheetDefaultFilter(false);
     setTimesheetUserNames([]);
     setTimesheetUsers([]);
-    setTimesheetDept(null);
+    setTimesheetDeptNames([]);
+    setTimesheetDepts([]);
     setTimesheetStartDate("");
     setTimesheetEndDate("");
     setTimesheetError("");
@@ -97,10 +100,7 @@ const TimesheetReportFilter = ({
     sendFilterToPage({
       ...timeSheet_InitialFilter,
       users: timesheetUserNames,
-      departmentId:
-        timesheetDept === null || timesheetDept === ""
-          ? null
-          : timesheetDept.value,
+      departmentIds: timesheetDeptNames,
       startDate:
         timesheetStartDate.toString().trim().length <= 0
           ? timesheetEndDate.toString().trim().length <= 0
@@ -124,7 +124,8 @@ const TimesheetReportFilter = ({
         sendFilterToPage({
           ...timeSheet_InitialFilter,
           users: timesheetSavedFilters[index].AppliedFilter.users,
-          departmentId: timesheetSavedFilters[index].AppliedFilter.Department,
+          departmentIds:
+            timesheetSavedFilters[index].AppliedFilter.departmentIds,
           startDate: timesheetSavedFilters[index].AppliedFilter.startDate,
           endDate: timesheetSavedFilters[index].AppliedFilter.endDate,
         });
@@ -146,7 +147,8 @@ const TimesheetReportFilter = ({
         name: timesheetFilterName,
         AppliedFilter: {
           users: timesheetUserNames.length > 0 ? timesheetUserNames : [],
-          departmentId: timesheetDept === null ? null : timesheetDept.value,
+          departmentIds:
+            timesheetDeptNames.length > 0 ? timesheetDeptNames : [],
           startDate:
             timesheetStartDate.toString().trim().length <= 0
               ? timesheetEndDate.toString().trim().length <= 0
@@ -165,8 +167,8 @@ const TimesheetReportFilter = ({
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success("Filter has been successully saved.");
@@ -187,13 +189,18 @@ const TimesheetReportFilter = ({
   useEffect(() => {
     const isAnyFieldSelected =
       timesheetUserNames.length > 0 ||
-      timesheetDept !== null ||
+      timesheetDeptNames.length > 0 ||
       timesheetStartDate.toString().trim().length > 0 ||
       timesheetEndDate.toString().trim().length > 0;
 
     setTimesheetAnyFieldSelected(isAnyFieldSelected);
     setTimesheetSaveFilter(false);
-  }, [timesheetDept, timesheetUserNames, timesheetStartDate, timesheetEndDate]);
+  }, [
+    timesheetDeptNames,
+    timesheetUserNames,
+    timesheetStartDate,
+    timesheetEndDate,
+  ]);
 
   useEffect(() => {
     const userDropdowns = async () => {
@@ -210,8 +217,8 @@ const TimesheetReportFilter = ({
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setTimesheetSavedFilters(ResponseData);
@@ -233,14 +240,17 @@ const TimesheetReportFilter = ({
         : []
     );
     setTimesheetUserNames(timesheetSavedFilters[index].AppliedFilter.users);
-    setTimesheetDept(
-      timesheetSavedFilters[index].AppliedFilter.departmentId === null
-        ? null
-        : timesheetDeptDropdown.filter(
-            (item: any) =>
-              item.value ===
-              timesheetSavedFilters[index].AppliedFilter.departmentId
-          )[0]
+    setTimesheetDepts(
+      timesheetSavedFilters[index].AppliedFilter.departmentIds.length > 0
+        ? timesheetDeptDropdown.filter((dept: any) =>
+            timesheetSavedFilters[index].AppliedFilter.departmentIds.includes(
+              dept.value
+            )
+          )
+        : []
+    );
+    setTimesheetDeptNames(
+      timesheetSavedFilters[index].AppliedFilter.departmentIds
     );
     setTimesheetStartDate(
       timesheetSavedFilters[index].AppliedFilter.startDate ?? ""
@@ -259,8 +269,8 @@ const TimesheetReportFilter = ({
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Filter has been deleted successfully.");
@@ -406,13 +416,15 @@ const TimesheetReportFilter = ({
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
                     options={timesheetDeptDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setTimesheetDept(data);
+                      setTimesheetDeptNames(data.map((d: any) => d.value));
+                      setTimesheetDepts(data);
                     }}
-                    value={timesheetDept}
+                    value={timesheetDepts}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}

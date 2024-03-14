@@ -212,19 +212,22 @@ input[type="time"]::-moz-time-text {
 
 .muiTableAction tbody tr,
 .muiTableActionHeight tbody tr,
-.muiTableActionHeightStatus tbody tr {
+.muiTableActionHeightStatus tbody tr,
+.muiTableActionCustom tbody tr {
   position: relative;
 }
 
 .muiTableAction thead tr th:last-child,
 .muiTableActionHeight thead tr th:last-child,
-.muiTableActionHeightStatus thead tr th:last-child {
+.muiTableActionHeightStatus thead tr th:last-child,
+.muiTableActionCustom thead tr th:last-child {
   width: 0px;
 }
 
 .muiTableAction thead tr th:last-child span,
 .muiTableActionHeight thead tr th:last-child span,
-.muiTableActionHeightStatus thead tr th:last-child span {
+.muiTableActionHeightStatus thead tr th:last-child span,
+.muiTableActionCustom thead tr th:last-child span {
   display: flex;
   justify-content: end;
 }
@@ -235,7 +238,17 @@ input[type="time"]::-moz-time-text {
   justify-content: end;
   height: auto;
   margin-top: 16px;
-  padding-bottom: 16px;
+  padding-bottom: 20px;
+  padding-right: 3rem;
+}
+
+.muiTableActionCustom tbody tr td:last-child {
+  /* width: 2px !important; */
+  display: flex;
+  justify-content: end;
+  height: auto;
+  margin-top: 16px;
+  padding-bottom: 20px;
   padding-right: 3rem;
 }
 

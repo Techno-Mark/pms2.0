@@ -44,8 +44,8 @@ const PermissionsContent = forwardRef<
     const url = `${process.env.pms_api_url}/Role/Save`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         clearAllData();

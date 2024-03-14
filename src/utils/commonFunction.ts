@@ -20,8 +20,8 @@ const handleLogoutUtil = async () => {
   const url = `${process.env.api_url}/auth/logout`;
   const successCallback = (
     ResponseData: any,
-    error: any,
-    ResponseStatus: any
+    error: boolean,
+    ResponseStatus: string
   ) => {
     if (ResponseStatus === "Success" && error === false) {
       localStorage.clear();

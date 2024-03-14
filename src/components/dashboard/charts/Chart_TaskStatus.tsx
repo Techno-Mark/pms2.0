@@ -25,8 +25,8 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
       const url = `${process.env.report_api_url}/clientdashboard/taskstatuscount`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           const chartData = ResponseData.map(

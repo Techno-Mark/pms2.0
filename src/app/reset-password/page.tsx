@@ -46,9 +46,9 @@ const Page = () => {
       const params = { Token: token, Password: password, TokenType: 2 };
       const url = `${process.env.api_url}/auth/setpassword`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           setClicked(false);

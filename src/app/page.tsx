@@ -1,8 +1,9 @@
 "use client";
 
 import ReportLoader from "@/components/common/ReportLoader";
+import { callAPI } from "@/utils/API/callAPI";
+import { User } from "@/utils/Types/types";
 import { handleLogoutUtil, hasPermissionWorklog } from "@/utils/commonFunction";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
@@ -60,79 +61,63 @@ const Home = () => {
     }
   };
 
-  const handlePermissions = (response: any) => {
-    if (response.data.ResponseData.IsClientUser) {
+  const handlePermissions = (response: boolean) => {
+    if (response) {
       handlePermissionsForClientUser();
     } else {
       handlePermissionsForNonClientUser();
     }
   };
 
-  const setLocalStorageItems = (response: any) => {
+  const setLocalStorageItems = (response: User) => {
     localStorage.setItem(
       "IsHaveManageAssignee",
-      response.data.ResponseData.IsHaveManageAssignee
+      String(response.IsHaveManageAssignee)
     );
 
-    localStorage.setItem(
-      "permission",
-      JSON.stringify(response.data.ResponseData.Menu)
-    );
-    localStorage.setItem("roleId", response.data.ResponseData.RoleId);
-    localStorage.setItem("isClient", response.data.ResponseData.IsClientUser);
-    localStorage.setItem("clientId", response.data.ResponseData.ClientId);
+    localStorage.setItem("permission", JSON.stringify(response.Menu));
+    localStorage.setItem("roleId", String(response.RoleId));
+    localStorage.setItem("isClient", String(response.IsClientUser));
+    localStorage.setItem("clientId", String(response.ClientId));
 
     if (localStorage.getItem("Org_Token") === null) {
-      localStorage.setItem(
-        "Org_Token",
-        response.data.ResponseData.Organizations[0].Token
-      );
+      localStorage.setItem("Org_Token", response.Organizations[0].Token);
     }
     if (localStorage.getItem("Org_Id") === null) {
       localStorage.setItem(
         "Org_Id",
-        response.data.ResponseData.Organizations[0].OrganizationId
+        String(response.Organizations[0].OrganizationId)
       );
     }
     if (localStorage.getItem("Org_Name") === null) {
       localStorage.setItem(
         "Org_Name",
-        response.data.ResponseData.Organizations[0].OrganizationName
+        response.Organizations[0].OrganizationName
       );
     }
   };
 
   const getUserDetails = async () => {
-    try {
-      const token = await localStorage.getItem("token");
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: token,
-      };
+    const params = {};
+    const url = `${process.env.api_url}/auth/getuserdetails`;
+    const successCallback = (
+      ResponseData: User,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setLocalStorageItems(ResponseData);
 
-      const response = await axios.get(
-        `${process.env.api_url}/auth/getuserdetails`,
-        { headers: headers }
-      );
-
-      if (response.status === 200) {
-        setLocalStorageItems(response);
-
-        const local: any = await localStorage.getItem("permission");
-
-        if (local.length > 2) {
-          handlePermissions(response);
+        if (ResponseData.Menu.length > 0) {
+          handlePermissions(ResponseData.IsClientUser);
         } else {
           router.push("/login");
+          toast.warning("You don't have required permissions.");
           localStorage.clear();
         }
       }
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
+    };
+    callAPI(url, params, successCallback, "GET");
   };
 
   useEffect(() => {

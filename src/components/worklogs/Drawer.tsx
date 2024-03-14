@@ -306,8 +306,8 @@ const EditDrawer = ({
     const url = `${process.env.worklog_api_url}/workitem/subtask/getbyworkitem`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -371,8 +371,8 @@ const EditDrawer = ({
         const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(`Sub Task Updated successfully.`);
@@ -427,8 +427,8 @@ const EditDrawer = ({
     const url = `${process.env.worklog_api_url}/workitem/recurring/getbyworkitem`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -513,8 +513,8 @@ const EditDrawer = ({
         const url = `${process.env.worklog_api_url}/workitem/recurring/savebyworkitem`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(`Recurring Updated successfully.`);
@@ -800,8 +800,8 @@ const EditDrawer = ({
     const url = `${process.env.worklog_api_url}/workitem/timelog/getManuallogByWorkitem`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -931,8 +931,8 @@ const EditDrawer = ({
         const url = `${process.env.worklog_api_url}/workitem/timelog/saveManuallogByworkitem`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(`Manual Time Updated successfully.`);
@@ -973,8 +973,8 @@ const EditDrawer = ({
     const url = `${process.env.worklog_api_url}/workitem/reminder/getbyworkitem`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -1047,8 +1047,8 @@ const EditDrawer = ({
         const url = `${process.env.worklog_api_url}/workitem/reminder/savebyworkitem`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(`Reminder Updated successfully.`);
@@ -1113,8 +1113,8 @@ const EditDrawer = ({
         const url = `${process.env.worklog_api_url}/workitem/checklist/createbyworkitem`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(`Checklist created successfully.`);
@@ -1140,8 +1140,8 @@ const EditDrawer = ({
     const url = `${process.env.worklog_api_url}/workitem/checklist/getbyworkitem`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -1173,8 +1173,8 @@ const EditDrawer = ({
       const url = `${process.env.worklog_api_url}/workitem/checklist/savebyworkitem`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success(`CheckList Updated successfully.`);
@@ -1249,8 +1249,8 @@ const EditDrawer = ({
         const url = `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(`Comment updated successfully.`);
@@ -1319,8 +1319,8 @@ const EditDrawer = ({
     const url = `${process.env.worklog_api_url}/workitem/comment/getByWorkitem`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -1360,8 +1360,8 @@ const EditDrawer = ({
         const url = `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(`Comment sent successfully.`);
@@ -1480,8 +1480,8 @@ const EditDrawer = ({
     const url = `${process.env.worklog_api_url}/workitem/errorlog/getByWorkitem`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -1618,8 +1618,8 @@ const EditDrawer = ({
         const url = `${process.env.worklog_api_url}/workitem/errorlog/saveByworkitem`;
         const successCallback = (
           ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             const params = {
@@ -1630,8 +1630,8 @@ const EditDrawer = ({
             const url = `${process.env.worklog_api_url}/workitem/errorlog/SolveByworkitem`;
             const successCallback = (
               ResponseData: any,
-              error: any,
-              ResponseStatus: any
+              error: boolean,
+              ResponseStatus: string
             ) => {
               if (ResponseStatus === "Success" && error === false) {
                 toast.success(
@@ -1666,8 +1666,8 @@ const EditDrawer = ({
     const url = `${process.env.worklog_api_url}/workitem/approval/getreviewernotelist`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -1722,8 +1722,8 @@ const EditDrawer = ({
     const url = `${process.env.report_api_url}/auditlog/getbyworkitem`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -2064,8 +2064,8 @@ const EditDrawer = ({
       const url = `${process.env.worklog_api_url}/workitem/saveworkitem`;
       const successCallback = (
         ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success(
@@ -2173,8 +2173,8 @@ const EditDrawer = ({
     const url = `${process.env.worklog_api_url}/workitem/getbyid`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         if (window.location.href.includes("id=")) {
@@ -2504,8 +2504,8 @@ const EditDrawer = ({
     const url = `${process.env.api_url}/auth/getuserdetails`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setAssigneeWorklogsDisable(ResponseData.IsHaveManageAssignee);

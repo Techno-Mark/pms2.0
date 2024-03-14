@@ -82,7 +82,7 @@ const Page = () => {
     checkToken();
   }, [Token]);
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
     const token = await Token.get("token");
@@ -114,9 +114,9 @@ const Page = () => {
       };
       const url = `${process.env.api_url}/auth/setpassword`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           setPassword("");
