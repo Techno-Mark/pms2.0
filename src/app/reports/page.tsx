@@ -77,7 +77,12 @@ const allTabs = [
   { label: "wltr", value: 16, name: "WLTR" },
 ];
 
-const MoreTabs = ({ moreTabs, handleMoreTabsClick }: any) => {
+interface MoreTabs {
+  moreTabs: Tabs[];
+  handleMoreTabsClick: (tab: Tabs, index: number) => void;
+}
+
+const MoreTabs = ({ moreTabs, handleMoreTabsClick }: MoreTabs) => {
   return (
     <div
       style={{
@@ -209,7 +214,7 @@ const Page = () => {
     setCanExport(arg1);
   };
 
-  const handleMoreTabsClick = (tab: any, index: number) => {
+  const handleMoreTabsClick = (tab: Tabs, index: number) => {
     const clickedIndex = index;
 
     const lastVisibleTab = activeTabs[activeTabs.length - 1];
@@ -219,13 +224,13 @@ const Page = () => {
     handleTabChange(tab.value);
 
     setActiveTabs((prevTabs) =>
-      prevTabs.map((tab: any, index: number) =>
+      prevTabs.map((tab: Tabs, index: number) =>
         index === activeTabs.length - 1 ? moreTabs[clickedIndex] : tab
       )
     );
 
     setMoreTabs((prevTabs) =>
-      prevTabs.map((tab: any, index: number) =>
+      prevTabs.map((tab: Tabs, index: number) =>
         index === clickedIndex ? lastVisibleTab : tab
       )
     );
@@ -306,7 +311,7 @@ const Page = () => {
   const handleSearchChange = (e: string) => {
     setSearch(e);
     const timer = setTimeout(() => {
-      setSearchValue(e);
+      setSearchValue(e.trim());
     }, 500);
     return () => clearTimeout(timer);
   };
@@ -323,8 +328,8 @@ const Page = () => {
               }`}
             >
               {activeTabs
-                .filter((tab: any) => tab !== false)
-                .map((tab: any, index: number) => (
+                .filter((tab: Tabs | boolean) => tab !== false)
+                .map((tab: Tabs, index: number) => (
                   <Fragment key={tab.value}>
                     <label
                       className={`mx-4 cursor-pointer text-base ${
@@ -482,8 +487,10 @@ const Page = () => {
           <BillingReport
             searchValue={searchValue}
             filteredData={filteredData}
-            hasBTCData={(arg1: any) => setHasBTC(arg1)}
-            hasRaisedInvoiceData={(arg1: any) => setHasRaisedInvoiceData(arg1)}
+            hasBTCData={(arg1: boolean) => setHasBTC(arg1)}
+            hasRaisedInvoiceData={(arg1: boolean) =>
+              setHasRaisedInvoiceData(arg1)
+            }
             isSavingBTCData={saveBTCData}
             onSaveBTCDataComplete={() => setSaveBTCData(false)}
             onHandleExport={handleCanExport}

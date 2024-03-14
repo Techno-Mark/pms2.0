@@ -128,20 +128,12 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
     onClose();
   };
 
-  const getProjectData = async () => {
-    const clientId = await localStorage.getItem("clientId");
-    typeOfWorkFilterTask > 0 &&
-      setProjectFilterTaskDropdownData(
-        await getProjectDropdownData(clientId, typeOfWorkFilterTask)
-      );
-  };
-
   const getWorkTypeData = async () => {
     const clientId = await localStorage.getItem("clientId");
     setTypeOfWorkFilterTaskDropdownData(
       await getTypeOfWorkDropdownData(clientId)
     );
-    getProjectData();
+    setProjectFilterTaskDropdownData(await getProjectDropdownData(clientId, null));
   };
 
   useEffect(() => {

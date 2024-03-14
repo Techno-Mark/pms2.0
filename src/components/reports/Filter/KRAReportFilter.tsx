@@ -239,30 +239,30 @@ const KRAReportFilter = ({
     setDefaultFilter(true);
     setFilterName(savedFilters[index].Name);
     setCurrentFilterId(savedFilters[index].FilterId);
-
+    
     setClients(
-      savedFilters[index].AppliedFilter.clients === null
+      savedFilters[index].AppliedFilter.Clients === null
         ? []
         : clientDropdown.filter((client: any) =>
-            savedFilters[index].AppliedFilter.clients.includes(client.value)
+            savedFilters[index].AppliedFilter.Clients.includes(client.value)
           )
     );
     setClientName(
-      savedFilters[index].AppliedFilter.clients === null
+      savedFilters[index].AppliedFilter.Clients === null
         ? []
-        : savedFilters[index].AppliedFilter.clients
+        : savedFilters[index].AppliedFilter.Clients
     );
     setUsers(
-      savedFilters[index].AppliedFilter.users === null
+      savedFilters[index].AppliedFilter.Users === null
         ? []
         : userDropdown.filter((user: any) =>
-            savedFilters[index].AppliedFilter.users.includes(user.value)
+            savedFilters[index].AppliedFilter.Users.includes(user.value)
           )
     );
     setUserName(
-      savedFilters[index].AppliedFilter.users === null
+      savedFilters[index].AppliedFilter.Users === null
         ? []
-        : savedFilters[index].AppliedFilter.users
+        : savedFilters[index].AppliedFilter.Users
     );
     setDepts(
       savedFilters[index].AppliedFilter.DepartmentIds === null
@@ -277,14 +277,14 @@ const KRAReportFilter = ({
         : savedFilters[index].AppliedFilter.DepartmentIds
     );
     setStartDate(
-      savedFilters[index].AppliedFilter.startDate === null
+      savedFilters[index].AppliedFilter.StartDate === null
         ? ""
-        : savedFilters[index].AppliedFilter.startDate
+        : savedFilters[index].AppliedFilter.StartDate
     );
     setEndDate(
-      savedFilters[index].AppliedFilter.endDate === null
+      savedFilters[index].AppliedFilter.EndDate === null
         ? ""
-        : savedFilters[index].AppliedFilter.endDate
+        : savedFilters[index].AppliedFilter.EndDate
     );
   };
 

@@ -79,8 +79,8 @@ const CustomReportFilter = ({
   const [clients, setClients] = useState<any[]>([]);
   const [clientName, setClientName] = useState<any[]>([]);
   const [typeOfWorkName, setTypeOfWorkName] = useState<any>(null);
-  const [depts, setDepts] = useState<any[]>([]);
-  const [deptName, setDeptName] = useState<any[]>([]);
+  // const [depts, setDepts] = useState<any[]>([]);
+  // const [deptName, setDeptName] = useState<any[]>([]);
   const [projectName, setProjectName] = useState<any>(null);
   const [processName, setProcessName] = useState<any>(null);
   const [subProcessName, setSubProcessName] = useState<any>(null);
@@ -137,8 +137,8 @@ const CustomReportFilter = ({
   const handleResetAll = () => {
     setClientName([]);
     setClients([]);
-    setDeptName([]);
-    setDepts([]);
+    // setDeptName([]);
+    // setDepts([]);
     setTypeOfWorkName(null);
     setProjectName(null);
     setProcessName(null);
@@ -177,8 +177,8 @@ const CustomReportFilter = ({
     setDefaultFilter(false);
     setClientName([]);
     setClients([]);
-    setDeptName([]);
-    setDepts([]);
+    // setDeptName([]);
+    // setDepts([]);
     setTypeOfWorkName(null);
     setProjectName(null);
     setProcessName(null);
@@ -204,7 +204,7 @@ const CustomReportFilter = ({
     sendFilterToPage({
       ...customreport_InitialFilter,
       clientIdsJSON: clientName.length > 0 ? clientName : [],
-      DepartmentIds: deptName.length > 0 ? deptName : [],
+      // DepartmentIds: deptName.length > 0 ? deptName : [],
       WorkTypeId: typeOfWorkName === null ? null : typeOfWorkName.value,
       projectIdsJSON: projectName === null ? [] : [projectName.value],
       processIdsJSON: processName === null ? [] : [processName.value],
@@ -298,7 +298,7 @@ const CustomReportFilter = ({
         name: filterName,
         AppliedFilter: {
           clientIdsJSON: clientName.length > 0 ? clientName : [],
-          DepartmentIds: deptName.length > 0 ? deptName : [],
+          // DepartmentIds: deptName.length > 0 ? deptName : [],
           WorkTypeId: typeOfWorkName === null ? null : typeOfWorkName.value,
           projectIdsJSON: projectName === null ? [] : [projectName.value],
           processIdsJSON: processName === null ? [] : [processName.value],
@@ -372,7 +372,7 @@ const CustomReportFilter = ({
   useEffect(() => {
     const isAnyFieldSelected =
       clientName.length > 0 ||
-      deptName.length > 0 ||
+      // deptName.length > 0 ||
       typeOfWorkName !== null ||
       projectName !== null ||
       processName !== null ||
@@ -396,7 +396,7 @@ const CustomReportFilter = ({
     setSaveFilter(false);
   }, [
     clientName,
-    deptName,
+    // deptName,
     typeOfWorkName,
     projectName,
     processName,
@@ -500,16 +500,16 @@ const CustomReportFilter = ({
         : []
     );
     setClientName(savedFilters[index].AppliedFilter.clientIdsJSON);
-    setDepts(
-      savedFilters[index].AppliedFilter.DepartmentIds.length > 0
-        ? departmentDropdown.filter((client: any) =>
-            savedFilters[index].AppliedFilter.DepartmentIds.includes(
-              client.value
-            )
-          )
-        : []
-    );
-    setDeptName(savedFilters[index].AppliedFilter.DepartmentIds);
+    // setDepts(
+    //   savedFilters[index].AppliedFilter.DepartmentIds.length > 0
+    //     ? departmentDropdown.filter((client: any) =>
+    //         savedFilters[index].AppliedFilter.DepartmentIds.includes(
+    //           client.value
+    //         )
+    //       )
+    //     : []
+    // );
+    // setDeptName(savedFilters[index].AppliedFilter.DepartmentIds);
     setTypeOfWorkName(
       savedFilters[index].AppliedFilter.WorkTypeId === null
         ? null
@@ -820,7 +820,7 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
-                <FormControl
+                {/* <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
                 >
@@ -842,9 +842,7 @@ const CustomReportFilter = ({
                       />
                     )}
                   />
-                </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
+                </FormControl> */}
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -867,6 +865,8 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -912,8 +912,6 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -935,6 +933,8 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -977,8 +977,6 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -1000,6 +998,8 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -1033,8 +1033,6 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -1056,6 +1054,8 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -1077,27 +1077,6 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
-                >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="Due Date"
-                      value={dueDate === "" ? null : dayjs(dueDate)}
-                      // shouldDisableDate={isWeekend}
-                      minDate={dayjs(startDate)}
-                      maxDate={dayjs(Date.now())}
-                      onChange={(newValue: any) => setDueDate(newValue)}
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
-              </div>
-              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
                 >
@@ -1135,14 +1114,19 @@ const CustomReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
+              </div>
+              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="All Info Date"
-                      value={allInfoDate === "" ? null : dayjs(allInfoDate)}
-                      onChange={(newValue: any) => setAllInfoDate(newValue)}
+                      label="Due Date"
+                      value={dueDate === "" ? null : dayjs(dueDate)}
+                      // shouldDisableDate={isWeekend}
+                      minDate={dayjs(startDate)}
+                      maxDate={dayjs(Date.now())}
+                      onChange={(newValue: any) => setDueDate(newValue)}
                       slotProps={{
                         textField: {
                           readOnly: true,
@@ -1151,8 +1135,6 @@ const CustomReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
-              </div>
-              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
                 >
@@ -1184,6 +1166,24 @@ const CustomReportFilter = ({
                       maxDate={dayjs(Date.now())}
                       minDate={dayjs(startDateReview)}
                       onChange={(newValue: any) => setEndDateReview(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+              </div>
+              <div className="flex gap-[20px]">
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="All Info Date"
+                      value={allInfoDate === "" ? null : dayjs(allInfoDate)}
+                      onChange={(newValue: any) => setAllInfoDate(newValue)}
                       slotProps={{
                         textField: {
                           readOnly: true,

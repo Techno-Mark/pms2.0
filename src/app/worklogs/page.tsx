@@ -356,7 +356,7 @@ const Page = () => {
   const handleSearchChange = (e: string) => {
     setSearch(e);
     const timer = setTimeout(() => {
-      setGlobalSearchValue(e);
+      setGlobalSearchValue(e.trim());
     }, 500);
     return () => clearTimeout(timer);
   };
