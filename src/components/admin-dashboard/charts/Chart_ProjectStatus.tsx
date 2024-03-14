@@ -4,6 +4,7 @@ import HighchartsReact from "highcharts-react-official";
 
 import HighchartsVariablePie from "highcharts/modules/variable-pie";
 import { callAPI } from "@/utils/API/callAPI";
+import { ListProjectStatus } from "@/utils/Types/dashboardTypes";
 
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
@@ -11,7 +12,12 @@ if (typeof Highcharts === "object") {
 interface ChartProjectStatusProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
-  sendData: any;
+  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
+}
+
+interface Response {
+  List: ListProjectStatus[] | [];
+  TotalCount: number;
 }
 
 const Chart_ProjectStatus: React.FC<ChartProjectStatusProps> = ({
@@ -30,24 +36,17 @@ const Chart_ProjectStatus: React.FC<ChartProjectStatusProps> = ({
     };
     const url = `${process.env.report_api_url}/dashboard/projectstatusgraph`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: Response,
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        const chartData = ResponseData.List.map(
-          (item: {
-            Percentage: any;
-            Key: any;
-            Value: any;
-            ColorCode: any;
-          }) => ({
-            name: item.Key,
-            y: item.Value,
-            percentage: item.Percentage,
-            ColorCode: item.ColorCode,
-          })
-        );
+        const chartData = ResponseData.List.map((item: ListProjectStatus) => ({
+          name: item.Key,
+          y: item.Value,
+          percentage: item.Percentage,
+          ColorCode: item.ColorCode,
+        }));
 
         setData(chartData);
         setTotalCount(ResponseData.TotalCount);
@@ -100,7 +99,7 @@ const Chart_ProjectStatus: React.FC<ChartProjectStatusProps> = ({
         cursor: "pointer",
         point: {
           events: {
-            click: (event: { point: { name: any } }) => {
+            click: (event: { point: { name: string } }) => {
               const selectedPointData = {
                 name: (event.point && event.point.name) || "",
               };

@@ -352,7 +352,7 @@ const Client = ({
             <ColorToolTip title={bodyValue} placement="top">
               {shortProcessName}
             </ColorToolTip>
-            <span>...</span>
+            {bodyValue.length > 50 && <span>...</span>}
           </>
         )}
       </div>
@@ -374,6 +374,11 @@ const Client = ({
       name: "Address",
       label: "Address",
       bodyRenderer: generateShortProcessNameBody,
+    },
+    {
+      name: "Department",
+      label: "Department",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "ContactNo",

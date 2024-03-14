@@ -17,11 +17,10 @@ import Loading from "@/assets/icons/reports/Loading";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { ListProjectStatus } from "@/utils/Types/dashboardTypes";
 
 interface Status {
-  Type: string;
-  label: string;
-  value: number;
+  name: string;
 }
 
 interface ProjectStatusDialogProps {
@@ -56,14 +55,16 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
     };
     const url = `${process.env.report_api_url}/dashboard/projectstatusgraph`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: { List: ListProjectStatus[]; TotalCount: number },
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        const statusName: any = ResponseData.List.map((item: { Key: any }) => ({
-          name: item.Key,
-        }));
+        const statusName: Status[] | [] = ResponseData.List.map(
+          (item: ListProjectStatus) => ({
+            name: item.Key,
+          })
+        );
 
         setAllProjectStatus(statusName);
       }
@@ -179,7 +180,7 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
                 onChange={(e) => setProjectStatus(e.target.value)}
                 sx={{ height: "36px" }}
               >
-                {allProjectStatus.map((i: any) => (
+                {allProjectStatus.map((i: Status) => (
                   <MenuItem value={i.name} key={i.name}>
                     {i.name}
                   </MenuItem>

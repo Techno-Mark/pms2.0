@@ -241,7 +241,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   id="tags-standard"
                   options={clientDropdownData}
                   getOptionLabel={(option: any) => option.label}
-                  onChange={(e: any, data: any) => {
+                  onChange={(e: React.ChangeEvent<{}>, data: any) => {
                     setClientName(data);
                     setWorkType(null);
                     setProjectName(null);
@@ -268,7 +268,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   id="tags-standard"
                   options={worktypeDropdownData}
                   getOptionLabel={(option: any) => option.label}
-                  onChange={(e: any, data: any) => {
+                  onChange={(e: React.ChangeEvent<{}>, data: any) => {
                     setWorkType(data);
                     setProjectName(null);
                     setProcessName(null);
@@ -293,7 +293,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   id="tags-standard"
                   options={userDropdownData}
                   getOptionLabel={(option: any) => option.label}
-                  onChange={(e: any, data: any) => {
+                  onChange={(e: React.ChangeEvent<{}>, data: any) => {
                     setUser(data);
                   }}
                   value={userName}
@@ -317,7 +317,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   id="tags-standard"
                   options={projectDropdownData}
                   getOptionLabel={(option: any) => option.label}
-                  onChange={(e: any, data: any) => {
+                  onChange={(e: React.ChangeEvent<{}>, data: any) => {
                     setProjectName(data);
                   }}
                   value={projectName}
@@ -339,7 +339,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   id="tags-standard"
                   options={processDropdownData}
                   getOptionLabel={(option: any) => option.label}
-                  onChange={(e: any, data: any) => {
+                  onChange={(e: React.ChangeEvent<{}>, data: any) => {
                     setProcessName(data);
                   }}
                   value={userName}
@@ -361,7 +361,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   id="tags-standard"
                   options={statusDropdownData}
                   getOptionLabel={(option: any) => option.label}
-                  onChange={(e: any, data: any) => {
+                  onChange={(e: React.ChangeEvent<{}>, data: any) => {
                     setStatus(data);
                   }}
                   value={status}

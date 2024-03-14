@@ -4,7 +4,7 @@ export interface LabelValue {
 }
 
 export interface LabelValueType {
-  Type: number;
+  Type: number | string;
   label: string;
   value: number;
 }

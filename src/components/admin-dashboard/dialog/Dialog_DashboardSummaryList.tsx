@@ -17,12 +17,7 @@ import ExportIcon from "@/assets/icons/ExportIcon";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { toast } from "react-toastify";
 import axios from "axios";
-
-interface Status {
-  Type: string;
-  label: string;
-  value: number;
-}
+import { KeyValueColorCode } from "@/utils/Types/types";
 
 interface DashboardSummaryListProps {
   onOpen: boolean;
@@ -37,7 +32,7 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
   onSelectedWorkType,
   onClickedSummaryTitle,
 }) => {
-  const [summaryList, setSummaryList] = useState<Status[]>([]);
+  const [summaryList, setSummaryList] = useState<KeyValueColorCode[]>([]);
   const [summaryName, setSummaryName] = useState<string>("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
 
@@ -52,7 +47,7 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
     };
     const url = `${process.env.report_api_url}/dashboard/summary`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: KeyValueColorCode[] | [],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -168,7 +163,7 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
                 onChange={(e) => setSummaryName(e.target.value)}
                 sx={{ height: "36px" }}
               >
-                {summaryList.map((i: any) => (
+                {summaryList.map((i: KeyValueColorCode) => (
                   <MenuItem value={i.Key} key={i.Key}>
                     {i.Key}
                   </MenuItem>
