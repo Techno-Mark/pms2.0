@@ -3,6 +3,7 @@ import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import HighchartsVariablePie from "highcharts/modules/variable-pie";
 import { callAPI } from "@/utils/API/callAPI";
+import { ListOverallProject } from "@/utils/Types/dashboardTypes";
 
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
@@ -10,13 +11,15 @@ if (typeof Highcharts === "object") {
 interface OverallProjectCompletionProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
-  sendData: any;
+  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
-const Chart_OverallProjectCompletion: React.FC<
-  OverallProjectCompletionProps
-> = ({ onSelectedProjectIds, onSelectedWorkType, sendData }) => {
-  const [data, setData] = useState<any | any[]>([]);
+const Chart_OverallProjectCompletion = ({
+  onSelectedProjectIds,
+  onSelectedWorkType,
+  sendData,
+}: OverallProjectCompletionProps) => {
+  const [data, setData] = useState<ListOverallProject[] | []>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
   useEffect(() => {
@@ -27,7 +30,7 @@ const Chart_OverallProjectCompletion: React.FC<
       };
       const url = `${process.env.report_api_url}/clientdashboard/overallprojectcompletion`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: { List: ListOverallProject[] | []; TotalCount: number },
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -108,7 +111,7 @@ const Chart_OverallProjectCompletion: React.FC<
         name: "projects",
         borderRadius: 4,
         showInLegend: true,
-        data: data.map((item: { Key: any; Percentage: any; Count: any }) => {
+        data: data.map((item: ListOverallProject) => {
           return {
             name: item.Key,
             key: item.Key,
@@ -116,7 +119,7 @@ const Chart_OverallProjectCompletion: React.FC<
             z: `${item.Percentage} %`,
           };
         }),
-        colors: data.map((item: { ColorCode: any }) => item.ColorCode),
+        colors: data.map((item: ListOverallProject) => item.ColorCode),
       },
     ],
     accessibility: {

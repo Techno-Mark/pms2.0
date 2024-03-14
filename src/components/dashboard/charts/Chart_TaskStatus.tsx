@@ -6,14 +6,14 @@ import { callAPI } from "@/utils/API/callAPI";
 interface TaskStatusProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
-  sendData: any;
+  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
-const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
+const Chart_TaskStatus = ({
   onSelectedProjectIds,
   onSelectedWorkType,
   sendData,
-}) => {
+}: TaskStatusProps) => {
   const [data, setData] = useState<any | any[]>([]);
 
   useEffect(() => {

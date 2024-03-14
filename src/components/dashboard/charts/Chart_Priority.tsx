@@ -12,14 +12,14 @@ if (typeof Highcharts === "object") {
 interface PriorityProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
-  sendData: any;
+  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
-const Chart_Priority: React.FC<PriorityProps> = ({
+const Chart_Priority = ({
   onSelectedProjectIds,
   onSelectedWorkType,
   sendData,
-}) => {
+}: PriorityProps) => {
   const [data, setData] = useState<any | any[]>([]);
   const [totalCount, setTotalCount] = useState<any | number>(0);
 

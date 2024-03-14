@@ -46,3 +46,10 @@ export interface ListProjectStatus {
   Key: string;
   Value: number;
 }
+
+export interface ListOverallProject {
+  ColorCode: string;
+  Percentage: number;
+  Key: string;
+  Count: number;
+}

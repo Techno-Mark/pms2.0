@@ -11,14 +11,14 @@ if (typeof Highcharts === "object") {
 interface ReturnTypeProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
-  sendData: any;
+  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
-const Chart_ReturnType: React.FC<ReturnTypeProps> = ({
+const Chart_ReturnType = ({
   onSelectedProjectIds,
   onSelectedWorkType,
   sendData,
-}) => {
+}: ReturnTypeProps) => {
   const [data, setData] = useState<any | any[]>([]);
 
   useEffect(() => {

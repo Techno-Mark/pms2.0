@@ -7,18 +7,18 @@ import { callAPI } from "@/utils/API/callAPI";
 interface TotalHoursProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
-  sendData: any;
+  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
 
-const Chart_TotalHours: React.FC<TotalHoursProps> = ({
+const Chart_TotalHours = ({
   onSelectedProjectIds,
   onSelectedWorkType,
   sendData,
-}) => {
+}: TotalHoursProps) => {
   const [data, setData] = useState<any | any[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
