@@ -28,6 +28,32 @@ export interface ListDashboard {
   AssignedToName: string | null;
 }
 
+export interface ListClientDashboard {
+  WorkitemId: number;
+  ProjectId: number | null;
+  ProjectName: string | null;
+  TaskName: string;
+  TypeOfWorkId: number;
+  TypeOfWorkName: string;
+  StartDate: string | null;
+  EndDate: string | null;
+  StatusId: number;
+  StatusName: string;
+  StatusColorCode: string;
+  PriorityId: number | null;
+  PriorityName: string | null;
+  AssignedToId: number | null;
+  AssignedToName: string | null;
+  ProcessId: number | null;
+  ProcessName: string | null;
+  SubProcessId: number | null;
+  SubProcessName: string | null;
+  TaxReturnTypeId: number | null;
+  TaxReturnTypeName: string | null;
+  TypeOfReturnId: number | null;
+  TypeOfReturnName: string | null;
+}
+
 export interface ResponseDashboardProjectSummary {
   TotalCount: number;
   DashboardSummaryFilters: null;

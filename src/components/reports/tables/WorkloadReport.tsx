@@ -160,6 +160,14 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       },
     },
     {
+      name: "DepartmentName",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Department"),
+      },
+    },
+    {
       name: "ReportingManager",
       options: {
         filter: true,
@@ -212,6 +220,17 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
 
   const expandableColumns: any[] = [
     {
+      name: "workitemId",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("ID"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
       name: "CreatedDate",
       options: {
         sort: true,
@@ -252,6 +271,17 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         customHeadLabelRender: () => generateCustomHeaderName("Task/Process"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "TaskStatus",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Task Status"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
         },
       },
     },

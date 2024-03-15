@@ -349,7 +349,7 @@ const reportsActivityColConfig = [
   },
   {
     header: "DepartmentName",
-    label: "Department Name",
+    label: "Department",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -407,7 +407,7 @@ const reportsAPColConfig = [
   },
   {
     header: "DepartmentName",
-    label: "Department Name",
+    label: "Department",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -500,7 +500,7 @@ const reportsKRAColConfig = [
   },
   {
     header: "DepartmentName",
-    label: "Department Name",
+    label: "Department",
     bodyRenderer: generateCommonBodyRender,
   },
   {

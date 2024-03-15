@@ -543,6 +543,14 @@ const TimeSheetReport = ({
       },
     },
     {
+      name: "DepartmentName",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateUserNameHeaderRender("Department"),
+      },
+    },
+    {
       name: "RoleType",
       options: {
         filter: true,
@@ -685,6 +693,18 @@ const TimeSheetReport = ({
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Total Idle Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "TotalBreakTime",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Total Break Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },

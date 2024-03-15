@@ -3,6 +3,7 @@ import HighchartsVariablePie from "highcharts/modules/variable-pie";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { callAPI } from "@/utils/API/callAPI";
+import { ListProjectStatus } from "@/utils/Types/dashboardTypes";
 
 interface TotalHoursProps {
   onSelectedProjectIds: number[];
@@ -19,7 +20,7 @@ const Chart_TotalHours = ({
   onSelectedWorkType,
   sendData,
 }: TotalHoursProps) => {
-  const [data, setData] = useState<any | any[]>([]);
+  const [data, setData] = useState<ListProjectStatus[] | []>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
   useEffect(() => {
@@ -30,16 +31,20 @@ const Chart_TotalHours = ({
       };
       const url = `${process.env.report_api_url}/clientdashboard/clienttotalhours`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: { List:any; TotalCount: number },
         error: boolean,
         ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           setData(ResponseData.List);
-          const totalCount = ResponseData.List.reduce(
-            (total: number, item: any) => total + item.Value,
-            0
-          );
+          const totalCount =
+            ResponseData.List?.length > 0
+              ? ResponseData.List.reduce(
+                  (total: number, item: ListProjectStatus) =>
+                    total + item.Value,
+                  0
+                )
+              : 0;
           setTotalCount(totalCount);
         }
       };
@@ -80,9 +85,9 @@ const Chart_TotalHours = ({
         cursor: "pointer",
         point: {
           events: {
-            click: (event: any) => {
+            click: (event: { point: { name: string } }) => {
               const selectedPointData = {
-                name: (event.point && event.point.key) || "",
+                name: (event.point && event.point.name) || "",
               };
 
               sendData(true, selectedPointData.name);
@@ -100,7 +105,7 @@ const Chart_TotalHours = ({
         name: "Total Hours",
         borderRadius: 4,
         showInLegend: true,
-        data: data.map((item: { Key: any; Percentage: any; Value: any }) => {
+        data: data.map((item: ListProjectStatus) => {
           return {
             name: `${item.Key} Hours`,
             key: item.Key,
@@ -108,7 +113,7 @@ const Chart_TotalHours = ({
             z: `${item.Percentage} %`,
           };
         }),
-        colors: data.map((item: { ColorCode: any }) => item.ColorCode),
+        colors: data.map((item: ListProjectStatus) => item.ColorCode),
       },
     ],
     accessibility: {

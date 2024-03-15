@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { callAPI } from "@/utils/API/callAPI";
+import { KeyValueColorCode } from "@/utils/Types/types";
 
 interface TaskStatusProps {
   onSelectedProjectIds: number[];
@@ -14,7 +15,14 @@ const Chart_TaskStatus = ({
   onSelectedWorkType,
   sendData,
 }: TaskStatusProps) => {
-  const [data, setData] = useState<any | any[]>([]);
+  const [data, setData] = useState<
+    | {
+        name: string;
+        y: number;
+        color: string;
+      }[]
+    | []
+  >([]);
 
   useEffect(() => {
     const getData = () => {
@@ -24,18 +32,16 @@ const Chart_TaskStatus = ({
       };
       const url = `${process.env.report_api_url}/clientdashboard/taskstatuscount`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: KeyValueColorCode[] | [],
         error: boolean,
         ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
-          const chartData = ResponseData.map(
-            (item: { ColorCode: any; Key: any; Value: any }) => ({
-              name: item.Key,
-              y: item.Value,
-              color: item.ColorCode,
-            })
-          );
+          const chartData = ResponseData.map((item: KeyValueColorCode) => ({
+            name: item.Key,
+            y: item.Value,
+            color: item.ColorCode,
+          }));
 
           setData(chartData);
         }
@@ -56,7 +62,7 @@ const Chart_TaskStatus = ({
       text: undefined,
     },
     xAxis: {
-      categories: data.map((item: { name: any }) => item.name),
+      categories: data.map((item: { name: string }) => item.name),
       title: {
         text: null,
       },

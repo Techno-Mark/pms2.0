@@ -10,6 +10,7 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { dashboardPriorityReturnTaskInfoCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
+import { ListClientDashboard } from "@/utils/Types/dashboardTypes";
 
 interface TaskStatusInfoProps {
   onSelectedProjectIds: number[];
@@ -22,7 +23,7 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
   onSelectedWorkType,
   onSelectedStatusId,
 }) => {
-  const [data, setData] = useState<any | any[]>([]);
+  const [data, setData] = useState<ListClientDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
@@ -42,7 +43,7 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
       };
       const url = `${process.env.report_api_url}/clientdashboard/taskstatusandprioritylist`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: { List: ListClientDashboard[] | []; TotalCount: number },
         error: boolean,
         ResponseStatus: string
       ) => {

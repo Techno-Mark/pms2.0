@@ -25,7 +25,7 @@ const Dialog_ReturnTypeData: React.FC<DialogProps> = ({
   onSelectedProjectIds,
   onSelectedReturnTypeValue,
 }) => {
-  const [returnType, setReturnType] = useState<number | any>(0);
+  const [returnType, setReturnType] = useState<number | string>(0);
 
   const handleClose = () => {
     onClose();

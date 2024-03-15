@@ -605,7 +605,7 @@ const UserContent = forwardRef<
                 setFirstName(e.target.value);
                 setFirstNameError(false);
               }}
-              onBlur={(e: any) => {
+              onBlur={(e) => {
                 if (
                   e.target.value.trim().length < 3 ||
                   e.target.value.trim().length > 50
@@ -642,7 +642,7 @@ const UserContent = forwardRef<
                 setLastName(e.target.value);
                 setLastNameError(false);
               }}
-              onBlur={(e: any) => {
+              onBlur={(e) => {
                 if (
                   e.target.value.trim().length < 3 ||
                   e.target.value.trim().length > 50
@@ -681,7 +681,7 @@ const UserContent = forwardRef<
                 setEmail(e.target.value);
                 setEmailError(false);
               }}
-              onBlur={(e: any) => {
+              onBlur={(e) => {
                 if (
                   e.target.value.trim().length < 1 ||
                   e.target.value.trim().length > 100 ||
@@ -747,7 +747,7 @@ const UserContent = forwardRef<
                     </span>
                   }
                   error={typeOfWorkError}
-                  onBlur={(e) => {
+                  onBlur={() => {
                     if (typeOfWork > 0) {
                       setTypeOfWorkError(false);
                     }
@@ -786,7 +786,7 @@ const UserContent = forwardRef<
                     </span>
                   }
                   error={roleError}
-                  onBlur={(e) => {
+                  onBlur={() => {
                     if (role > 0) {
                       setRoleError(false);
                     }
@@ -820,7 +820,7 @@ const UserContent = forwardRef<
                     </span>
                   }
                   error={departmentError}
-                  onBlur={(e) => {
+                  onBlur={() => {
                     if (role > 0) {
                       setDepartmentError(false);
                     }
@@ -858,7 +858,7 @@ const UserContent = forwardRef<
                     </span>
                   }
                   error={reportError}
-                  onBlur={(e) => {
+                  onBlur={() => {
                     if (parseInt(roleIdAdmin) > 1) {
                       if (role > 0) {
                         setReportError(false);
@@ -923,7 +923,7 @@ const UserContent = forwardRef<
                   placeholder="Please Select..."
                   variant="standard"
                   error={groupError}
-                  onBlur={(e) => {
+                  onBlur={() => {
                     if (selectGroupValue.length > 0) {
                       setReportError(false);
                     }
@@ -974,7 +974,7 @@ const UserContent = forwardRef<
                     </span>
                   }
                   error={clientNameError}
-                  onBlur={(e) => {
+                  onBlur={() => {
                     if (clientName > 0) {
                       setClientNameError(false);
                     }
@@ -998,7 +998,7 @@ const UserContent = forwardRef<
                 setClientFirstName(e.target.value);
                 setClientFirstNameError(false);
               }}
-              onBlur={(e: any) => {
+              onBlur={(e) => {
                 if (
                   e.target.value.trim().length < 3 ||
                   e.target.value.trim().length > 50
@@ -1036,7 +1036,7 @@ const UserContent = forwardRef<
                 setClientLastName(e.target.value);
                 setClientLastNameError(false);
               }}
-              onBlur={(e: any) => {
+              onBlur={(e) => {
                 if (
                   e.target.value.trim().length < 3 ||
                   e.target.value.trim().length > 50
@@ -1075,7 +1075,7 @@ const UserContent = forwardRef<
                 setClientEmail(e.target.value);
                 setClientEmailError(false);
               }}
-              onBlur={(e: any) => {
+              onBlur={(e) => {
                 if (
                   e.target.value.trim().length < 1 ||
                   e.target.value.trim().length > 100 ||
@@ -1125,7 +1125,7 @@ const UserContent = forwardRef<
                     </span>
                   }
                   error={clientRoleError}
-                  onBlur={(e) => {
+                  onBlur={() => {
                     if (clientRole > 0) {
                       setClientRoleError(false);
                     }

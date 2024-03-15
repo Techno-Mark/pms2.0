@@ -1405,7 +1405,7 @@ const Drawer = ({
                                 setClientTaskNameClientWorklog(e.target.value);
                                 setClientTaskNameClientWorklogErr(false);
                               }}
-                              onBlur={(e: any) => {
+                              onBlur={(e) => {
                                 if (e.target.value.trim().length > 4) {
                                   setClientTaskNameClientWorklogErr(false);
                                 }
@@ -1706,7 +1706,7 @@ const Drawer = ({
                               onChange={(e) =>
                                 handleSubTaskClientWorklogChange(e, index)
                               }
-                              onBlur={(e: any) => {
+                              onBlur={(e) => {
                                 if (e.target.value.trim().length > 0) {
                                   const newTaskNameClientWorklogErrors = [
                                     ...taskNameClientWorklogErr,
@@ -1758,7 +1758,7 @@ const Drawer = ({
                                   index
                                 )
                               }
-                              onBlur={(e: any) => {
+                              onBlur={(e) => {
                                 if (e.target.value.trim().length > 0) {
                                   const newSubTaskDescErrors = [
                                     ...subTaskDescriptionClientWorklogErr,
@@ -2262,7 +2262,7 @@ const Drawer = ({
                                     onChange={(e) =>
                                       handleRemarksChangeClientWorklog(e, index)
                                     }
-                                    onBlur={(e: any) => {
+                                    onBlur={(e) => {
                                       if (e.target.value.length > 0) {
                                         const newRemarkClientWorklogErrors = [
                                           ...remarkClientWorklogErr,

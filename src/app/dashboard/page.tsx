@@ -144,7 +144,7 @@ const Page = () => {
 
   const handleValueFromReturnType = (
     isDialogOpen: boolean,
-    selectedPointData: number
+    selectedPointData: string
   ) => {
     setIsReturnTypeDialogOpen(isDialogOpen);
     setClickedReturnTypeValue(selectedPointData);

@@ -519,7 +519,6 @@ const ClientContent = forwardRef<
       ]);
     }
   };
-  console.log(depts, deptName);
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -1072,7 +1071,7 @@ const ClientContent = forwardRef<
                   setClientName(e.target.value);
                   setClientNameError(false);
                 }}
-                onBlur={(e: any) => {
+                onBlur={(e) => {
                   if (
                     e.target.value.trim().length < 2 ||
                     e.target.value.trim().length > 50
@@ -1109,7 +1108,7 @@ const ClientContent = forwardRef<
                   setAddress(e.target.value);
                   setAddressError(false);
                 }}
-                onBlur={(e: any) => {
+                onBlur={(e) => {
                   if (
                     e.target.value.trim().length < 1 ||
                     e.target.value.trim().length > 300
@@ -1143,7 +1142,7 @@ const ClientContent = forwardRef<
                   setEmail(e.target.value);
                   setEmailError(false);
                 }}
-                onBlur={(e: any) => {
+                onBlur={(e) => {
                   if (
                     e.target.value.trim().length < 1 ||
                     e.target.value.trim().length > 100 ||
@@ -1177,7 +1176,7 @@ const ClientContent = forwardRef<
                   setDeptError(false);
                 }}
                 value={depts}
-                onBlur={(e: any) => {
+                onBlur={() => {
                   if (deptName.length <= 0) {
                     setDeptError(true);
                   }
@@ -1278,8 +1277,8 @@ const ClientContent = forwardRef<
                             e.target.value > 0 &&
                               setDepartmentDataObj(updatedDepartmentDataObj);
                           }}
-                          onBlur={(e: any) => {
-                            if (e.target.value > 0) {
+                          onBlur={() => {
+                            if (i.billingType > 0) {
                               const updatedDepartmentDataObj = [
                                 ...departmentDataObj,
                               ];
@@ -1346,7 +1345,7 @@ const ClientContent = forwardRef<
                             placeholder="Please Select..."
                             variant="standard"
                             error={i.groupErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (i.selectGroupValue.length > 0) {
                                 const updatedDepartmentDataObj = [
                                   ...departmentDataObj,
@@ -1389,7 +1388,7 @@ const ClientContent = forwardRef<
                         fullWidth
                         value={i.contHrs}
                         onChange={(e) => handleContHrs(e.target.value, index)}
-                        onBlur={(e: any) => {
+                        onBlur={(e) => {
                           if (
                             e.target.value.trim().length < 0 ||
                             e.target.value.trim().length > 5 ||
@@ -1452,7 +1451,7 @@ const ClientContent = forwardRef<
                         fullWidth
                         value={i.actHrs}
                         onChange={(e) => handleActualHrs(e.target.value, index)}
-                        onBlur={(e: any) => {
+                        onBlur={(e) => {
                           if (
                             e.target.value.trim().length < 0 ||
                             e.target.value.trim().length > 5 ||

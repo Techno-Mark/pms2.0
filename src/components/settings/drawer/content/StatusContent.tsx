@@ -258,7 +258,7 @@ const StatusContent = forwardRef<
             setStatusName(e.target.value);
             setStatusNameErr(false);
           }}
-          onBlur={(e: any) => {
+          onBlur={(e) => {
             if (
               e.target.value.trim().length < 1 ||
               e.target.value.trim().length > 50
@@ -289,7 +289,7 @@ const StatusContent = forwardRef<
           className="pt-1"
           value={type?.trim().length <= 0 ? "" : type}
           onChange={(e) => setType(e.target.value.trim())}
-          onBlur={(e: any) => {
+          onBlur={(e) => {
             if (
               !isDefualt &&
               (e.target.value.trim().length < 1 ||
@@ -375,7 +375,7 @@ const StatusContent = forwardRef<
                 </span>
               }
               error={typeOfWorkNameError}
-              onBlur={(e) => {
+              onBlur={() => {
                 if (typeOfWorks.length > 0) {
                   setTypeOfWorkNameError(false);
                 }

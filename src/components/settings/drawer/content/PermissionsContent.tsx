@@ -108,7 +108,7 @@ const PermissionsContent = forwardRef<
             setRole(e.target.value);
             setRoleErr(false);
           }}
-          onBlur={(e: any) => {
+          onBlur={(e) => {
             if (
               e.target.value.trim().length < 3 ||
               e.target.value.trim().length > 50

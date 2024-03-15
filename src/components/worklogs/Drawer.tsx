@@ -93,7 +93,6 @@ const EditDrawer = ({
   const [isCreatedByClientWorklogsDrawer, setIsCreatedByClientWorklogsDrawer] =
     useState(false);
   const [editDataWorklogs, setEditDataWorklogs] = useState<any>([]);
-  const [isManual, setIsManual] = useState<any>(null);
   const [isIdDisabled, setIsIdDisabled] = useState(false);
 
   useEffect(() => {
@@ -220,9 +219,7 @@ const EditDrawer = ({
     useState<string>("");
   const [estTimeDataWorklogs, setEstTimeDataWorklogs] = useState([]);
   const [userId, setUserId] = useState(0);
-  const [returnYearWorklogs, setReturnYearWorklogs] = useState<string | number>(
-    0
-  );
+  const [returnYearWorklogs, setReturnYearWorklogs] = useState<number>(0);
   const [returnYearWorklogsErr, setReturnYearWorklogsErr] = useState(false);
   const [noOfPagesWorklogs, setNoOfPagesWorklogs] = useState<any>(0);
   const [checklistWorkpaperWorklogs, setChecklistWorkpaperWorklogs] =
@@ -2190,7 +2187,6 @@ const EditDrawer = ({
         setEditDataWorklogs(ResponseData);
         setIsCreatedByClientWorklogsDrawer(ResponseData.IsCreatedByClient);
         setErrorlogSignOffPending(ResponseData.ErrorlogSignedOffPending);
-        setIsManual(ResponseData.IsManual);
         setClientNameWorklogs(ResponseData.ClientId);
         setTypeOfWorkWorklogs(ResponseData.WorkTypeId);
         setProjectNameWorklogs(
@@ -2588,7 +2584,6 @@ const EditDrawer = ({
     setRecurringMonthErr(false);
 
     // Manual
-    setIsManual(null);
     setManualSwitchWorklogs(false);
     setManualFieldsWorklogs([
       {
@@ -2823,7 +2818,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={clientNameWorklogsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (clientNameWorklogs > 0) {
                                 setClientNameWorklogsErr(false);
                               }
@@ -2877,8 +2872,8 @@ const EditDrawer = ({
                             setDepartmentWorklogs(0);
                             setDepartmentWorklogsErr(false);
                           }}
-                          onBlur={(e: any) => {
-                            if (e.target.value > 0) {
+                          onBlur={() => {
+                            if (typeOfWorkWorklogs > 0) {
                               setTypeOfWorkWorklogsErr(false);
                             }
                           }}
@@ -2928,7 +2923,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={projectNameWorklogsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (projectNameWorklogs > 0) {
                                 setProjectNameWorklogsErr(false);
                               }
@@ -2967,7 +2962,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={statusWorklogsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (subProcessWorklogs > 0) {
                                 setStatusWorklogsErr(false);
                               }
@@ -3012,7 +3007,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={processNameWorklogsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (processNameWorklogs > 0) {
                                 setProcessNameWorklogsErr(false);
                               }
@@ -3056,7 +3051,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={subProcessWorklogsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (subProcessWorklogs > 0) {
                                 setSubProcessWorklogsErr(false);
                               }
@@ -3090,7 +3085,7 @@ const EditDrawer = ({
                           setClientTaskNameWorklogs(e.target.value);
                           setClientTaskNameWorklogsErr(false);
                         }}
-                        onBlur={(e: any) => {
+                        onBlur={(e) => {
                           if (e.target.value.trim().length > 4) {
                             setClientTaskNameWorklogsErr(false);
                           }
@@ -3219,7 +3214,7 @@ const EditDrawer = ({
                           setQuantityWorklogs(e.target.value);
                           setQuantityWorklogsErr(false);
                         }}
-                        onBlur={(e: any) => {
+                        onBlur={(e) => {
                           if (
                             e.target.value.trim().length > 0 &&
                             e.target.value.trim().length < 5 &&
@@ -3426,7 +3421,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={assigneeWorklogsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (assigneeWorklogs > 0) {
                                 setAssigneeWorklogsErr(false);
                               }
@@ -3476,7 +3471,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={reviewerWorklogsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (reviewerWorklogs > 0) {
                                 setReviewerWorklogsErr(false);
                               }
@@ -3526,7 +3521,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={departmentWorklogsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (departmentWorklogs > 0) {
                                 setDepartmentWorklogsErr(false);
                               }
@@ -3576,7 +3571,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={managerWorklogsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (managerWorklogs > 0) {
                                 setManagerWorklogsErr(false);
                               }
@@ -3612,10 +3607,10 @@ const EditDrawer = ({
                                   : returnYearWorklogs
                               }
                               onChange={(e) =>
-                                setReturnYearWorklogs(e.target.value)
+                                setReturnYearWorklogs(Number(e.target.value))
                               }
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
+                              onBlur={() => {
+                                if (returnYearWorklogs > 0) {
                                   setReturnYearWorklogsErr(false);
                                 }
                               }}
@@ -3683,8 +3678,8 @@ const EditDrawer = ({
                               onChange={(e) =>
                                 setChecklistWorkpaperWorklogs(e.target.value)
                               }
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
+                              onBlur={() => {
+                                if (checklistWorkpaperWorklogs > 0) {
                                   setChecklistWorkpaperWorklogsErr(false);
                                 }
                               }}
@@ -3722,7 +3717,7 @@ const EditDrawer = ({
                             onFocus={() =>
                               setInputTypePreperationWorklogsDrawer("date")
                             }
-                            onBlur={(e: any) => {
+                            onBlur={() => {
                               setInputTypePreperationWorklogsDrawer("text");
                             }}
                             margin="normal"
@@ -3753,7 +3748,7 @@ const EditDrawer = ({
                             onFocus={() =>
                               setInputTypeReviewWorklogsDrawer("date")
                             }
-                            onBlur={(e: any) => {
+                            onBlur={() => {
                               setInputTypeReviewWorklogsDrawer("text");
                             }}
                             margin="normal"
@@ -3844,7 +3839,7 @@ const EditDrawer = ({
                           onChange={(e) =>
                             handleSubTaskChangeWorklogs(e, index)
                           }
-                          onBlur={(e: any) => {
+                          onBlur={(e) => {
                             if (e.target.value.trim().length > 0) {
                               const newTaskNameWorklogsErrors = [
                                 ...taskNameWorklogsErr,
@@ -3883,7 +3878,7 @@ const EditDrawer = ({
                           onChange={(e) =>
                             handleSubTaskDescriptionChangeWorklogs(e, index)
                           }
-                          onBlur={(e: any) => {
+                          onBlur={(e) => {
                             if (e.target.value.trim().length > 0) {
                               const newSubTaskDescErrors = [
                                 ...subTaskDescriptionWorklogsErr,
@@ -4080,7 +4075,7 @@ const EditDrawer = ({
                                     setCheckListNameWorklogs(e.target.value);
                                     setCheckListNameWorklogsError(false);
                                   }}
-                                  onBlur={(e: any) => {
+                                  onBlur={(e) => {
                                     if (e.target.value.trim().length > 5) {
                                       setCheckListNameWorklogsError(false);
                                     }
@@ -4178,7 +4173,7 @@ const EditDrawer = ({
                             {i.UserName.length > 0 ? (
                               <Avatar>
                                 {i.UserName.split(" ")
-                                  .map((word: any) =>
+                                  .map((word: string) =>
                                     word.charAt(0).toUpperCase()
                                   )
                                   .join("")}
@@ -4714,7 +4709,7 @@ const EditDrawer = ({
                               placeholder="Please Select..."
                               variant="standard"
                               error={recurringMonthErr}
-                              onBlur={(e) => {
+                              onBlur={() => {
                                 if (recurringMonth.length > 0) {
                                   setRecurringMonthErr(false);
                                 }
@@ -4920,7 +4915,7 @@ const EditDrawer = ({
                           onChange={(e) =>
                             handleStartTimeChangeWorklogs(e, index)
                           }
-                          onBlur={(e: any) => {
+                          onBlur={(e) => {
                             if (e.target.value.trim().length > 7) {
                               const newStartTimeWorklogsErrors = [
                                 ...startTimeWorklogsErrors,
@@ -4967,7 +4962,7 @@ const EditDrawer = ({
                           onChange={(e) =>
                             handleEndTimeChangeWorklogs(e, index)
                           }
-                          onBlur={(e: any) => {
+                          onBlur={(e) => {
                             if (
                               e.target.value.trim().length > 7 &&
                               field.endTime > field.startTime &&
@@ -5078,7 +5073,7 @@ const EditDrawer = ({
                           onChange={(e) =>
                             handleManualDescChangeWorklogs(e, index)
                           }
-                          onBlur={(e: any) => {
+                          onBlur={(e) => {
                             if (e.target.value.trim().length > 0) {
                               const newManualDescWorklogsErrors = [
                                 ...manualDescWorklogsErrors,
@@ -5365,8 +5360,8 @@ const EditDrawer = ({
                           id="demo-simple-select-standard"
                           value={reminderTime === 0 ? "" : reminderTime}
                           onChange={(e) => setReminderTime(e.target.value)}
-                          onBlur={(e: any) => {
-                            if (e.target.value > 0) {
+                          onBlur={() => {
+                            if (reminderTime > 0) {
                               setReminderTimeErr(false);
                             }
                           }}
@@ -5415,7 +5410,7 @@ const EditDrawer = ({
                             }
                             variant="standard"
                             error={reminderNotificationErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (reminderNotification.length > 0) {
                                 setReminderNotificationErr(false);
                               }
@@ -5526,8 +5521,8 @@ const EditDrawer = ({
                                   onChange={(e) =>
                                     handleRootCauseChangeWorklogs(e, index)
                                   }
-                                  onBlur={(e: any) => {
-                                    if (e.target.value > 0) {
+                                  onBlur={() => {
+                                    if (i.RootCause > 0) {
                                       const newRootCauseWorklogsErrors = [
                                         ...rootCauseWorklogsErr,
                                       ];
@@ -5573,8 +5568,8 @@ const EditDrawer = ({
                                   onChange={(e) =>
                                     handleNatureOfErrorChangeWorklogs(e, index)
                                   }
-                                  onBlur={(e: any) => {
-                                    if (e.target.value > 0) {
+                                  onBlur={() => {
+                                    if (i.NatureOfError > 0) {
                                       const newNatureOfErrorErrors = [
                                         ...natureOfWorklogsErr,
                                       ];
@@ -5641,8 +5636,8 @@ const EditDrawer = ({
                                   onChange={(e) =>
                                     handlePriorityChangeWorklogs(e, index)
                                   }
-                                  onBlur={(e: any) => {
-                                    if (e.target.value > 0) {
+                                  onBlur={() => {
+                                    if (i.Priority > 0) {
                                       const newPriorityErrors = [
                                         ...errorLogPriorityWorklogsErr,
                                       ];
@@ -5693,8 +5688,8 @@ const EditDrawer = ({
                                 onChange={(e) =>
                                   handleErrorCountChangeWorklogs(e, index)
                                 }
-                                onBlur={(e: any) => {
-                                  if (e.target.value.length > 0) {
+                                onBlur={() => {
+                                  if (i.ErrorCount.length > 0) {
                                     const newErrorCountWorklogsErrors = [
                                       ...errorCountWorklogsErr,
                                     ];
@@ -5891,7 +5886,7 @@ const EditDrawer = ({
                             >
                               <Avatar>
                                 {j.ReviewerName.split(" ")
-                                  .map((word: any) =>
+                                  .map((word: string) =>
                                     word.charAt(0).toUpperCase()
                                   )
                                   .join("")}

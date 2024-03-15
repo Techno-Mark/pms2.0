@@ -11,7 +11,7 @@ if (typeof Highcharts === "object") {
 interface ReturnTypeProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
-  sendData: any;
+  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
 const Chart_ReturnType = ({
@@ -19,7 +19,14 @@ const Chart_ReturnType = ({
   onSelectedWorkType,
   sendData,
 }: ReturnTypeProps) => {
-  const [data, setData] = useState<any | any[]>([]);
+  const [data, setData] = useState<
+    | {
+        name: string;
+        y: number;
+        z: number;
+      }[]
+    | []
+  >([]);
 
   useEffect(() => {
     const getData = () => {
@@ -29,13 +36,19 @@ const Chart_ReturnType = ({
       };
       const url = `${process.env.report_api_url}/clientdashboard/taxreturncount`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData:
+          | {
+              Percentage: number;
+              Key: string;
+              Value: number;
+            }[]
+          | [],
         error: boolean,
         ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           const chartData = ResponseData.map(
-            (item: { Percentage: any; Key: any; Value: any }) => ({
+            (item: { Percentage: number; Key: string; Value: number }) => ({
               name: item.Key,
               y: item.Value,
               z: item.Percentage,

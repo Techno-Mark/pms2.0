@@ -220,7 +220,6 @@ const AutoManualReportFilter = ({
     };
     callAPI(url, params, successCallback, "POST");
   };
-  console.log(startDate);
 
   const handleSavedFilterEdit = async (index: number) => {
     setSaveFilter(true);
