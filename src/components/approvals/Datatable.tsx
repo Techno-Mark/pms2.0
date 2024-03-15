@@ -39,6 +39,7 @@ import { ArrowDropDownIcon } from "@mui/x-date-pickers";
 import CloseIcon from "@/assets/icons/reports/CloseIcon";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { options } from "@/utils/datatable/TableOptions";
+import { ApprovalsPopupResponse } from "@/utils/Types/approvalsTypes";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -84,7 +85,7 @@ const Datatable = ({
   const [loadingInside, setLoadingInside] = useState<boolean>(false);
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRows, setSelectedRows] = useState<number[] | []>([]);
   const [selectedRowIds, setSelectedRowIds] = useState<number[]>([]);
   const [selectedWorkItemIds, setSelectedWorkItemIds] = useState<number[] | []>(
     []
@@ -161,9 +162,9 @@ const Datatable = ({
   };
 
   const handleRowSelect = (
-    currentRowsSelected: null,
-    allRowsSelected: any,
-    rowsSelected: any
+    currentRowsSelected: { index: number; dataIndex: number }[] | [],
+    allRowsSelected: { index: number; dataIndex: number }[] | [],
+    rowsSelected: number[] | []
   ) => {
     const selectedData = allRowsSelected.map(
       (row: any) => reviewList[row.dataIndex]
@@ -400,7 +401,7 @@ const Datatable = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/approval/getbreakandidletime`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: ApprovalsPopupResponse[] | [],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -421,7 +422,7 @@ const Datatable = ({
     isWorkloadExpanded && fetchData();
   }, [isWorkloadExpanded]);
 
-  const generateManualTimeBodyRender = (bodyValue: any) => {
+  const generateManualTimeBodyRender = (bodyValue: string | number) => {
     return <div>{bodyValue ? formatTime(bodyValue) : "00:00:00"}</div>;
   };
 
@@ -493,7 +494,7 @@ const Datatable = ({
     {
       name: "StatusName",
       label: "Status",
-      bodyRenderer: (value: any, tableMeta: any) =>
+      bodyRenderer: (value: string, tableMeta: any) =>
         generateStatusWithColor(value, tableMeta.rowData[11]),
     },
     {
@@ -508,7 +509,7 @@ const Datatable = ({
     {
       name: "TaskStatusName",
       label: "Task Status",
-      bodyRenderer: (value: any, tableMeta: any) =>
+      bodyRenderer: (value: string, tableMeta: any) =>
         generateStatusWithColor(value, tableMeta.rowData[13]),
     },
     {
@@ -524,7 +525,7 @@ const Datatable = ({
     {
       name: "Est*Qty",
       label: "Std. Time",
-      bodyRenderer: (value: any, tableMeta: any) => {
+      bodyRenderer: (value: null, tableMeta: any) => {
         return <span>{tableMeta.rowData.toString()}</span>;
       },
     },
@@ -673,7 +674,7 @@ const Datatable = ({
     {
       name: "StatusName",
       label: "Status",
-      bodyRenderer: (value: any, tableMeta: any) =>
+      bodyRenderer: (value: string, tableMeta: any) =>
         generateStatusWithColor(value, tableMeta.rowData[10]),
     },
     {
@@ -688,7 +689,7 @@ const Datatable = ({
     {
       name: "TaskStatusName",
       label: "Task Status",
-      bodyRenderer: (value: any, tableMeta: any) =>
+      bodyRenderer: (value: string, tableMeta: any) =>
         generateStatusWithColor(value, tableMeta.rowData[12]),
     },
     {
@@ -704,7 +705,7 @@ const Datatable = ({
     {
       name: "Est*Qty",
       label: "Std. Time",
-      bodyRenderer: (value: any, tableMeta: any) => {
+      bodyRenderer: (value: null, tableMeta: any) => {
         return <span>{tableMeta.rowData.toString()}</span>;
       },
     },
@@ -805,7 +806,7 @@ const Datatable = ({
           filter: true,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Review Timer"),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: number, tableMeta: any) => {
             const timerValue =
               value === 0 ? "00:00:00" : toHoursAndMinutes(value);
 
@@ -982,7 +983,7 @@ const Datatable = ({
           viewColumns: false,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName(""),
-          customBodyRender: (value: any) => {
+          customBodyRender: (value: number) => {
             return (
               <span
                 className="flex flex-col cursor-pointer"
@@ -1005,7 +1006,7 @@ const Datatable = ({
           viewColumns: false,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: number) => {
             return generateCommonBodyRender(value);
           },
         },
@@ -1038,16 +1039,13 @@ const Datatable = ({
           sort: true,
           viewColumns: false,
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: string, tableMeta: any) => {
             const statusColorCode =
               tableMeta.rowData[activeTab === 1 ? 11 : 10];
 
             return (
               <div>
-                {value === null ||
-                value === "" ||
-                value === 0 ||
-                value === "0" ? (
+                {value === null || value === "" || value === "0" ? (
                   "-"
                 ) : (
                   <div className="inline-block mr-1">
@@ -1071,16 +1069,13 @@ const Datatable = ({
           sort: true,
           viewColumns: false,
           customHeadLabelRender: () => generateCustomHeaderName("Task Status"),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: string, tableMeta: any) => {
             const statusColorCode =
               tableMeta.rowData[activeTab === 1 ? 13 : 12];
 
             return (
               <div>
-                {value === null ||
-                value === "" ||
-                value === 0 ||
-                value === "0" ? (
+                {value === null || value === "" || value === "0" ? (
                   "-"
                 ) : (
                   <div className="inline-block mr-1">
@@ -1104,7 +1099,7 @@ const Datatable = ({
           sort: true,
           viewColumns: false,
           customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: null, tableMeta: any) => {
             return (
               <span>
                 {toHoursAndMinutes(
@@ -1174,7 +1169,7 @@ const Datatable = ({
         filter: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Start Date & Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -1186,7 +1181,7 @@ const Datatable = ({
         filter: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("End Date & Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -1197,7 +1192,7 @@ const Datatable = ({
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Client"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -1208,7 +1203,7 @@ const Datatable = ({
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Project"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -1219,7 +1214,7 @@ const Datatable = ({
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Ideal / Break"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -1230,7 +1225,7 @@ const Datatable = ({
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Total Hours"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -1267,9 +1262,11 @@ const Datatable = ({
             options={{
               ...approvals_Dt_Options,
               onRowSelectionChange: (
-                currentRowsSelected: any,
-                allRowsSelected: any,
-                rowsSelected: any
+                currentRowsSelected:
+                  | { index: number; dataIndex: number }[]
+                  | [],
+                allRowsSelected: { index: number; dataIndex: number }[] | [],
+                rowsSelected: number[] | []
               ) =>
                 handleRowSelect(
                   currentRowsSelected,

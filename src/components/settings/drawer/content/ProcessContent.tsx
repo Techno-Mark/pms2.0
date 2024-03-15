@@ -282,6 +282,7 @@ const ProcessContent = forwardRef<
     const clearData = () => {
       setTypeOfWork(0);
       setTypeOfWorkDropdown([]);
+      setData([]);
       setSubProcessName("");
       setReturnType(0);
       setEstTime("");
