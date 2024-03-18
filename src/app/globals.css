@@ -211,6 +211,7 @@ input[type="time"]::-moz-time-text {
 }
 
 .muiTableAction tbody tr,
+.muiTableActionProcess tbody tr,
 .muiTableActionHeight tbody tr,
 .muiTableActionHeightStatus tbody tr,
 .muiTableActionCustom tbody tr {
@@ -218,6 +219,7 @@ input[type="time"]::-moz-time-text {
 }
 
 .muiTableAction thead tr th:last-child,
+.muiTableActionProcess thead tr th:last-child,
 .muiTableActionHeight thead tr th:last-child,
 .muiTableActionHeightStatus thead tr th:last-child,
 .muiTableActionCustom thead tr th:last-child {
@@ -225,6 +227,7 @@ input[type="time"]::-moz-time-text {
 }
 
 .muiTableAction thead tr th:last-child span,
+.muiTableActionProcess thead tr th:last-child span,
 .muiTableActionHeight thead tr th:last-child span,
 .muiTableActionHeightStatus thead tr th:last-child span,
 .muiTableActionCustom thead tr th:last-child span {
@@ -239,6 +242,16 @@ input[type="time"]::-moz-time-text {
   height: auto;
   margin-top: 16px;
   padding-bottom: 20px;
+  padding-right: 3rem;
+}
+
+.muiTableActionProcess tbody tr td:nth-child(5) {
+  /* width: 2px !important; */
+  display: flex;
+  justify-content: start;
+  height: auto;
+  margin-top: 16px;
+  padding-bottom: 28px;
   padding-right: 3rem;
 }
 

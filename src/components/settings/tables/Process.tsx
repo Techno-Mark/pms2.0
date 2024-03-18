@@ -507,7 +507,7 @@ function Process({
           <ReportLoader />
         ) : (
           <>
-            <div className="">
+            <div className="muiTableActionProcess">
               <ThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable
                   data={data}
