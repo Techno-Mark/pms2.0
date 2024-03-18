@@ -128,6 +128,11 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      header: "DepartmentName",
+      label: "Department",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       header: "InternalHrs",
       label: "Total Internal Hours",
       bodyRenderer: generateCommonBodyRender,
