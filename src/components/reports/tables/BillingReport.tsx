@@ -6,6 +6,7 @@ import {
   generateCommonBodyRender,
   generateInitialTimer,
   generateDateWithTime,
+  generateDateWithoutTime,
 } from "@/utils/datatable/CommonFunction";
 import { useEffect, useState } from "react";
 import { callAPI } from "@/utils/API/callAPI";
@@ -373,6 +374,18 @@ const BillingReport = ({
       },
     },
     {
+      name: "SubProcessName",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Sub-Process Name"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
       name: "AssigneeName",
       options: {
         filter: true,
@@ -392,6 +405,17 @@ const BillingReport = ({
         customHeadLabelRender: () => generateCustomHeaderName("Reviewer"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "TaskCreatedDate",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Date Created"),
+        customBodyRender: (value: any) => {
+          return generateDateWithoutTime(value);
         },
       },
     },

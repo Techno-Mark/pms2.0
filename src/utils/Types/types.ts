@@ -22,25 +22,6 @@ export interface LabelValueTypeIsDefault {
   value: number;
 }
 
-export interface AppliedFilterWorklogs {
-  ClientId: number | null;
-  TypeOfWork: number | null;
-  ProjectId: number | null;
-  StatusId: number | null;
-  AssignedTo: number | null;
-  AssignedBy: number | null;
-  DueDate: string | null;
-  StartDate: string | null;
-  EndDate: string | null;
-  ReviewStatus: number | null;
-}
-
-export interface FilterWorklogs {
-  FilterId: number;
-  Name: string;
-  AppliedFilter: AppliedFilterWorklogs;
-}
-
 export interface AppliedFilterApprovals {
   ClientId: number | null;
   TypeOfWork: number | null;

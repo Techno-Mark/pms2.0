@@ -282,6 +282,7 @@ const ProcessContent = forwardRef<
     const clearData = () => {
       setTypeOfWork(0);
       setTypeOfWorkDropdown([]);
+      setData([]);
       setSubProcessName("");
       setReturnType(0);
       setEstTime("");
@@ -554,8 +555,8 @@ const ProcessContent = forwardRef<
                   setReturnTypeError(false);
                   e.target.value > 0 && setTypeOfWorkError(false);
                 }}
-                onBlur={(e: any) => {
-                  if (e.target.value > 0) {
+                onBlur={() => {
+                  if (typeOfWork > 0) {
                     setTypeOfWorkError(false);
                   }
                 }}
@@ -680,7 +681,7 @@ const ProcessContent = forwardRef<
                 setSubProcessName(e.target.value);
                 setSubProcessNameError(false);
               }}
-              onBlur={(e: any) => {
+              onBlur={(e) => {
                 if (
                   e.target.value.trim().length <= 0 ||
                   e.target.value.trim().length > 50
@@ -712,8 +713,8 @@ const ProcessContent = forwardRef<
                   id="demo-simple-select-standard"
                   value={returnType === 0 ? "" : returnType}
                   onChange={(e) => setReturnType(parseInt(e.target.value))}
-                  onBlur={(e: any) => {
-                    if (e.target.value > 0) {
+                  onBlur={() => {
+                    if (returnType > 0) {
                       setReturnTypeError(false);
                     }
                   }}
@@ -743,7 +744,7 @@ const ProcessContent = forwardRef<
               fullWidth
               value={estTime}
               onChange={handleEstTimeChange}
-              onBlur={(e: any) => {
+              onBlur={(e) => {
                 if (e.target.value.trim().length < 7) {
                   setEstTimeError(true);
                 }

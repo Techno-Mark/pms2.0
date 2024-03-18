@@ -246,7 +246,7 @@ const OrganizationContent = forwardRef<
               setOrganizationName(e.target.value);
               setOrganizationNameErr(false);
             }}
-            onBlur={(e: any) => {
+            onBlur={(e) => {
               if (
                 e.target.value.trim().length < 3 ||
                 e.target.value.trim().length > 50
@@ -287,7 +287,7 @@ const OrganizationContent = forwardRef<
                   setClientName(e.target.value);
                   setClientNameErr(false);
                 }}
-                onBlur={(e: any) => {
+                onBlur={(e) => {
                   if (e.target.value.trim().length < 1) {
                     setClientNameErr(true);
                   }
@@ -311,7 +311,7 @@ const OrganizationContent = forwardRef<
                   setProjectName(e.target.value);
                   setProjectNameErr(false);
                 }}
-                onBlur={(e: any) => {
+                onBlur={(e) => {
                   if (e.target.value.trim().length < 1) {
                     setProjectNameErr(true);
                   }
@@ -335,7 +335,7 @@ const OrganizationContent = forwardRef<
                   setProcessName(e.target.value);
                   setProcessNameErr(false);
                 }}
-                onBlur={(e: any) => {
+                onBlur={(e) => {
                   if (e.target.value.trim().length < 1) {
                     setProcessNameErr(true);
                   }
@@ -359,7 +359,7 @@ const OrganizationContent = forwardRef<
                   setSubProcessName(e.target.value);
                   setSubProcessNameErr(false);
                 }}
-                onBlur={(e: any) => {
+                onBlur={(e) => {
                   if (e.target.value.trim().length < 1) {
                     setSubProcessNameErr(true);
                   }

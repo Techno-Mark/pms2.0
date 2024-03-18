@@ -233,7 +233,7 @@ const ProjectContent = forwardRef<
                     </span>
                   }
                   error={clientError}
-                  onBlur={(e) => {
+                  onBlur={() => {
                     if (client > 0) {
                       setClientError(false);
                     }
@@ -283,7 +283,7 @@ const ProjectContent = forwardRef<
                     </span>
                   }
                   error={typeOfWorkNameError}
-                  onBlur={(e) => {
+                  onBlur={() => {
                     if (typeOfWorks.length > 0) {
                       setTypeOfWorkNameError(false);
                     }
@@ -308,7 +308,7 @@ const ProjectContent = forwardRef<
                 setProjectName(e.target.value);
                 setProjectNameError(false);
               }}
-              onBlur={(e: any) => {
+              onBlur={(e) => {
                 if (
                   e.target.value.trim().length <= 0 ||
                   e.target.value.trim().length > 50

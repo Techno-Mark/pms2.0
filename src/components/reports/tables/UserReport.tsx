@@ -174,6 +174,17 @@ const UserReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         },
       },
     },
+    {
+      name: "DepartmentName",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Department"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
     ...userDates.map(
       (date: any) =>
         new Object({

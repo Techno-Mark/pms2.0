@@ -135,6 +135,7 @@ const Page = () => {
       {
         ...exportBody,
         ...currentFilterData,
+        globalSearch: searchValue,
         isDownload: true,
       },
       {

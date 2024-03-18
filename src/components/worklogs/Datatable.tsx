@@ -35,6 +35,51 @@ import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import ReportLoader from "../common/ReportLoader";
 import OverLay from "../common/OverLay";
 import { callAPI } from "@/utils/API/callAPI";
+import {
+  AppliedFilterWorklogsPage,
+  FilterData,
+  List,
+  Response,
+} from "@/utils/Types/worklogsTypes";
+
+interface DatatableProps {
+  isOnBreak: number;
+  onGetBreakData: () => void;
+  onEdit: (rowData: number) => void;
+  onRecurring: (rowData: boolean, selectedId: number) => void;
+  onIsEdit: (value: boolean) => void;
+  onDrawerOpen: () => void;
+  onDrawerClose: () => void;
+  onDataFetch: (getData: () => void) => void;
+  onCurrentFilterId: number;
+  currentFilterData: AppliedFilterWorklogsPage | [];
+  onHandleExport: (arg1: boolean) => void;
+  onComment: (rowData: boolean, selectedId: number) => void;
+  searchValue: string;
+  isUnassigneeClicked: boolean;
+  onChangeTimeLoader: (e: string | null) => void;
+  onChangeTodayTimeLoader: (e: string | null) => void;
+  onChangeBreakTimeLoader: (e: string | null) => void;
+  setLoading: boolean;
+}
+
+interface InitialFilter {
+  PageNo: number;
+  PageSize: number;
+  SortColumn: string;
+  IsDesc: boolean;
+  GlobalSearch: string;
+  ClientId: number | null;
+  TypeOfWork: number | null;
+  ProjectId: number | null;
+  StatusId: number | null;
+  AssignedTo: number | null;
+  AssignedBy: number | null;
+  DueDate: string | null;
+  StartDate: string | null;
+  EndDate: string | null;
+  ReviewStatus: number | null;
+}
 
 const pageNo = 1;
 const pageSize = 10;
@@ -60,7 +105,6 @@ const initialFilter = {
 const Datatable = ({
   isOnBreak,
   onGetBreakData,
-  onSetBreak,
   onEdit,
   onRecurring,
   onIsEdit,
@@ -77,27 +121,30 @@ const Datatable = ({
   onChangeTodayTimeLoader,
   onChangeBreakTimeLoader,
   setLoading,
-}: any) => {
+}: DatatableProps) => {
   const [isLoadingWorklogsDatatable, setIsLoadingWorklogsDatatable] =
     useState(false);
   const [loaded, setLoaded] = useState<boolean>(false);
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [workItemData, setWorkItemData] = useState<any | any[]>([]);
-  const [selectedRowIds, setSelectedRowIds] = useState<any | number[]>([]);
+  const [isPopupOpen, setIsPopupOpen] = useState<
+    { index: number; dataIndex: number }[] | []
+  >([]);
+  const [selectedRows, setSelectedRows] = useState<number[] | []>([]);
+  const [workItemData, setWorkItemData] = useState<List[] | []>([]);
+  const [selectedRowIds, setSelectedRowIds] = useState<number[] | []>([]);
   const [selectedRowStatusName, setSelectedRowStatusName] = useState<
-    any | string[]
+    string[] | []
   >([]);
-  const [selectedRowClientId, setSelectedRowClientId] = useState<
-    any | number[]
-  >([]);
+  const [selectedRowClientId, setSelectedRowClientId] = useState<number[] | []>(
+    []
+  );
   const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<
-    any | number[]
+    number[] | []
   >([]);
-  const [selectedRowsdata, setSelectedRowsData] = useState<any | number[]>([]);
-  const [selectedRowId, setSelectedRowId] = useState<any | number>(null);
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [selectedRowsdata, setSelectedRowsData] = useState<List[] | []>([]);
+  const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
+  const [filteredObject, setFilteredOject] =
+    useState<InitialFilter>(initialFilter);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
@@ -117,12 +164,12 @@ const Datatable = ({
   }, [setLoading]);
 
   const handleRowSelect = (
-    currentRowsSelected: any,
-    allRowsSelected: any,
-    rowsSelected: any
+    currentRowsSelected: { index: number; dataIndex: number }[] | [],
+    allRowsSelected: { index: number; dataIndex: number }[] | [],
+    rowsSelected: number[] | []
   ) => {
-    const selectedData = allRowsSelected.map(
-      (row: any) => workItemData[row.dataIndex]
+    const selectedData: List[] | [] = allRowsSelected.map(
+      (row: { index: number; dataIndex: number }) => workItemData[row.dataIndex]
     );
     setSelectedRowsCount(rowsSelected?.length);
     setSelectedRows(rowsSelected);
@@ -130,7 +177,7 @@ const Datatable = ({
 
     const selectedWorkItemIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow?.WorkitemId)
+        ? selectedData.map((selectedRow: List) => selectedRow?.WorkitemId)
         : [];
 
     setSelectedRowIds(selectedWorkItemIds);
@@ -143,36 +190,35 @@ const Datatable = ({
 
     const selectedWorkItemStatus =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow?.StatusName)
+        ? selectedData.map((selectedRow: List) => selectedRow?.StatusName)
         : [];
 
     setSelectedRowStatusName(selectedWorkItemStatus);
 
     const selectedWorkItemClientIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow?.ClientId)
+        ? selectedData.map((selectedRow: List) => selectedRow?.ClientId)
         : [];
 
     setSelectedRowClientId(selectedWorkItemClientIds);
 
-    const selectedWorkItemWorkTypeIds =
+    const selectedWorkItemWorkTypeIds: number[] | [] =
       selectedData.length > 0
         ? selectedData
-            .map((selectedRow: any) =>
+            .map((selectedRow: List) =>
               selectedRow?.WorkTypeId !== 0 ? selectedRow?.WorkTypeId : false
             )
-            .filter((j: any) => j !== false)
+            .filter((j: number | false): j is number => typeof j === "number")
         : [];
 
     setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
-
     setIsPopupOpen(allRowsSelected);
   };
 
   const handleClearSelection = () => {
     setSelectedRowsCount(0);
     setSelectedRows([]);
-    setIsPopupOpen(false);
+    setIsPopupOpen([]);
   };
 
   useEffect(() => {
@@ -182,14 +228,14 @@ const Datatable = ({
       if (pathnameEdit) {
         const idMatch = window.location.href.match(/id=([^?&]+)/);
         const id = idMatch ? idMatch[1] : null;
-        onEdit(id);
+        onEdit(Number(id));
         onDrawerOpen();
         onIsEdit(true);
         return;
       } else if (pathname) {
         const idMatch = window.location.href.match(/id=([^?&]+)/);
         const id = idMatch ? idMatch[1] : null;
-        onEdit(id);
+        onEdit(Number(id));
         onDrawerOpen();
         onIsEdit(false);
       }
@@ -203,20 +249,30 @@ const Datatable = ({
   useEffect(() => {
     setRunning(
       workItemData.filter(
-        (data: any) =>
+        (data: List) =>
+          data.TimelogId !== null &&
           data.TimelogId > 0 &&
-          data.AssignedToId == localStorage.getItem("UserId")
+          data.AssignedToId == Number(localStorage.getItem("UserId"))
       ).length > 0
         ? workItemData.filter(
-            (data: any) =>
+            (data: List) =>
+              data.TimelogId !== null &&
               data.TimelogId > 0 &&
-              data.AssignedToId == localStorage.getItem("UserId")
+              data.AssignedToId == Number(localStorage.getItem("UserId"))
           )[0].WorkitemId
         : -1
     );
     setWorkitemTimeId(
-      workItemData.filter((data: any) => data.TimelogId > 0).length > 0
-        ? workItemData.filter((data: any) => data.TimelogId > 0)[0].TimelogId
+      workItemData.filter(
+        (data: List) => data.TimelogId !== null && data.TimelogId > 0
+      ).length > 0
+        ? workItemData
+            .map((data: any) =>
+              typeof data.TimelogId !== null && data.TimelogId > 0
+                ? data.TimelogId
+                : false
+            )
+            .filter((j: number | boolean) => j !== false)[0]
         : -1
     );
   }, [workItemData]);
@@ -240,7 +296,7 @@ const Datatable = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/saveworkitemtimestamp`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: number,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -269,19 +325,19 @@ const Datatable = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/getworkitemsync`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: { SyncTime: number },
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         if (ResponseData !== null) {
-          setWorkItemData((prev: any) =>
-            prev.map((data: any) => {
+          setWorkItemData((prev: List[] | []) =>
+            prev.map((data: List) => {
               if (data.WorkitemId === selectedRowId) {
-                return new Object({
+                return {
                   ...data,
                   Timer: ResponseData?.SyncTime,
-                });
+                };
               } else {
                 return data;
               }
@@ -309,13 +365,13 @@ const Datatable = ({
       };
       const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: FilterData[] | [],
         error: boolean,
         ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           const filteredData = ResponseData.filter(
-            (filter: any) => filter.FilterId === filterId
+            (filter: FilterData) => filter.FilterId === filterId
           );
 
           if (filteredData.length > 0) {
@@ -353,17 +409,17 @@ const Datatable = ({
                   ? null
                   : appliedFilterData.AssignedBy,
               DueDate:
-                appliedFilterData.DueDate === 0 ||
+                appliedFilterData.DueDate === "" ||
                 appliedFilterData.DueDate === null
                   ? null
                   : appliedFilterData.DueDate,
               StartDate:
-                appliedFilterData.StartDate === 0 ||
+                appliedFilterData.StartDate === "" ||
                 appliedFilterData.StartDate === null
                   ? null
                   : appliedFilterData.StartDate,
               EndDate:
-                appliedFilterData.EndDate === 0 ||
+                appliedFilterData.EndDate === "" ||
                 appliedFilterData.EndDate === null
                   ? null
                   : appliedFilterData.EndDate,
@@ -384,7 +440,7 @@ const Datatable = ({
     const params = filteredObject;
     const url = `${process.env.worklog_api_url}/workitem/getworkitemlist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: Response,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -436,20 +492,23 @@ const Datatable = ({
     onHandleExport(workItemData.length > 0 ? true : false);
   }, [workItemData]);
 
-  const handleComment = (e: any) => {
-    setComment(e.target.value);
-    if (e.target.value.trim().length === 0) {
+  const handleComment = (e: string) => {
+    setComment(e);
+    if (e.trim().length === 0) {
       setCommentErrText("This is required field!");
-    } else if (e.target.value.trim().length < 5) {
+    } else if (e.trim().length < 5) {
       setCommentErrText("Minimum 5 characters are required!");
-    } else if (e.target.value.trim().length > 250) {
+    } else if (e.trim().length > 250) {
       setCommentErrText("Maximum limit is 250 characters!");
     } else {
       setCommentErrText("");
     }
   };
 
-  const generateCustomTaskNameBody = (bodyValue: any, tableMeta: any) => {
+  const generateCustomTaskNameBody = (
+    bodyValue: null | undefined | string,
+    tableMeta: any
+  ) => {
     const IsRecurring = tableMeta.rowData[tableMeta.rowData.length - 5];
     return (
       <div className="flex items-center gap-2">
@@ -464,21 +523,6 @@ const Datatable = ({
             )}
             {bodyValue}
           </>
-        )}
-      </div>
-    );
-  };
-
-  const generateShortProcessNameBody = (bodyValue: any) => {
-    const shortProcessName = bodyValue && bodyValue.split(" ");
-    return (
-      <div className="font-semibold">
-        {bodyValue === null || bodyValue === "" ? (
-          "-"
-        ) : (
-          <ColorToolTip title={bodyValue} placement="top">
-            {shortProcessName[0]}
-          </ColorToolTip>
         )}
       </div>
     );
@@ -508,7 +552,7 @@ const Datatable = ({
     {
       name: "ProcessName",
       label: "Process",
-      bodyRenderer: generateShortProcessNameBody,
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "SubProcessName",
@@ -550,7 +594,7 @@ const Datatable = ({
     {
       name: "StatusName",
       label: "Status",
-      bodyRenderer: (value: any, tableMeta: any) =>
+      bodyRenderer: (value: string, tableMeta: any) =>
         generateStatusWithColor(value, tableMeta.rowData[10]),
     },
     {
@@ -653,7 +697,7 @@ const Datatable = ({
           sort: true,
           viewColumns: false,
           customHeadLabelRender: () => generateCustomHeaderName("Timer"),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: number, tableMeta: any) => {
             const estimatedTime = tableMeta.rowData[14].includes(":")
               ? tableMeta.rowData[14].split(":")
               : "00:00:00".split(":");
@@ -829,7 +873,7 @@ const Datatable = ({
           viewColumns: false,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: number, tableMeta: any) => {
             return generateCustomeTaskIdwithErrorLogs(
               value,
               tableMeta,
@@ -865,15 +909,12 @@ const Datatable = ({
           sort: true,
           viewColumns: false,
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: string, tableMeta: any) => {
             const statusColorCode = tableMeta.rowData[10];
 
             return (
               <div>
-                {value === null ||
-                value === "" ||
-                value === 0 ||
-                value === "0" ? (
+                {value === null || value === "" || value === "0" ? (
                   "-"
                 ) : (
                   <div className="inline-block mr-1">
@@ -896,7 +937,7 @@ const Datatable = ({
           filter: true,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Task"),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: string, tableMeta: any) => {
             return generateCustomTaskNameBody(value, tableMeta);
           },
         },
@@ -962,8 +1003,8 @@ const Datatable = ({
     return generateConditionalColumn(col, 10);
   });
 
-  const runningTimerData: any = workItemData.filter(
-    (data: any) => data.WorkitemId === isRunning
+  const runningTimerData: List[] | [] = workItemData.filter(
+    (data: List) => data.WorkitemId === isRunning
   );
 
   const propsForActionBar = {
@@ -1018,9 +1059,11 @@ const Datatable = ({
                 },
               },
               onRowSelectionChange: (
-                currentRowsSelected: any,
-                allRowsSelected: any,
-                rowsSelected: any
+                currentRowsSelected:
+                  | { index: number; dataIndex: number }[]
+                  | [],
+                allRowsSelected: { index: number; dataIndex: number }[] | [],
+                rowsSelected: number[] | []
               ) =>
                 handleRowSelect(
                   currentRowsSelected,
@@ -1117,7 +1160,7 @@ const Datatable = ({
                 type="text"
                 fullWidth
                 variant="standard"
-                onChange={handleComment}
+                onChange={(e) => handleComment(e.target.value)}
               />
             </>
           )}
@@ -1162,7 +1205,7 @@ const Datatable = ({
       {/* Action Bar */}
       <WorklogsActionBar
         {...propsForActionBar}
-        getOverLay={(e: any) => setIsLoadingWorklogsDatatable(e)}
+        getOverLay={(e: boolean) => setIsLoadingWorklogsDatatable(e)}
       />
       {isLoadingWorklogsDatatable ? <OverLay /> : ""}
     </div>

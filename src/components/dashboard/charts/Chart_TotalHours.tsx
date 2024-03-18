@@ -31,16 +31,20 @@ const Chart_TotalHours = ({
       };
       const url = `${process.env.report_api_url}/clientdashboard/clienttotalhours`;
       const successCallback = (
-        ResponseData: { List: ListProjectStatus[] | []; TotalCount: number },
+        ResponseData: { List:any; TotalCount: number },
         error: boolean,
         ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           setData(ResponseData.List);
-          const totalCount = ResponseData.List.reduce(
-            (total: number, item: ListProjectStatus) => total + item.Value,
-            0
-          );
+          const totalCount =
+            ResponseData.List?.length > 0
+              ? ResponseData.List.reduce(
+                  (total: number, item: ListProjectStatus) =>
+                    total + item.Value,
+                  0
+                )
+              : 0;
           setTotalCount(totalCount);
         }
       };

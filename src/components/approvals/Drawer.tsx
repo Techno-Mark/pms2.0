@@ -241,9 +241,7 @@ const EditDrawer = ({
   const [assigneeDisableApprovals, setAssigneeDisableApprovals] =
     useState<any>(true);
   const [estTimeDataApprovals, setEstTimeDataApprovals] = useState([]);
-  const [returnYearApprovals, setReturnYearApprovals] = useState<
-    string | number
-  >(0);
+  const [returnYearApprovals, setReturnYearApprovals] = useState<number>(0);
   const [returnYearApprovalsErr, setReturnYearApprovalsErr] = useState(false);
   const [noOfPagesApprovals, setNoOfPagesApprovals] = useState<any>(0);
   const [checklistWorkpaperApprovals, setChecklistWorkpaperApprovals] =
@@ -2612,7 +2610,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={clientNameApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (clientNameApprovals > 0) {
                                 setClientNameApprovalsErr(false);
                               }
@@ -2664,8 +2662,8 @@ const EditDrawer = ({
                             setDepartmentApprovals(0);
                             setDepartmentApprovalsErr(false);
                           }}
-                          onBlur={(e: any) => {
-                            if (e.target.value > 0) {
+                          onBlur={() => {
+                            if (typeOfWorkApprovals > 0) {
                               setTypeOfWorkApprovalsErr(false);
                             }
                           }}
@@ -2711,7 +2709,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={projectNameApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (projectNameApprovals > 0) {
                                 setProjectNameApprovalsErr(false);
                               }
@@ -2757,7 +2755,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={statusApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (subProcessApprovals > 0) {
                                 setStatusApprovalsErr(false);
                               }
@@ -2798,7 +2796,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={processNameApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (processNameApprovals > 0) {
                                 setProcessNameApprovalsErr(false);
                               }
@@ -2840,7 +2838,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={subProcessApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (subProcessApprovals > 0) {
                                 setSubProcessApprovalsErr(false);
                               }
@@ -2873,7 +2871,7 @@ const EditDrawer = ({
                           setClientTaskNameApprovals(e.target.value);
                           setClientTaskNameApprovalsErr(false);
                         }}
-                        onBlur={(e: any) => {
+                        onBlur={(e) => {
                           if (e.target.value.trim().length > 4) {
                             setClientTaskNameApprovalsErr(false);
                           }
@@ -3003,7 +3001,7 @@ const EditDrawer = ({
                           setQuantityApprovals(e.target.value);
                           setQuantityApprovalsErr(false);
                         }}
-                        onBlur={(e: any) => {
+                        onBlur={(e) => {
                           if (
                             e.target.value.trim().length > 0 &&
                             e.target.value.trim().length < 5 &&
@@ -3207,7 +3205,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={assigneeApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (assigneeApprovals > 0) {
                                 setAssigneeApprovalsErr(false);
                               }
@@ -3256,7 +3254,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={reviewerApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (reviewerApprovals > 0) {
                                 setReviewerApprovalsErr(false);
                               }
@@ -3305,7 +3303,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={departmentApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (departmentApprovals > 0) {
                                 setDepartmentApprovalsErr(false);
                               }
@@ -3354,7 +3352,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={managerApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (managerApprovals > 0) {
                                 setManagerApprovalsErr(false);
                               }
@@ -3389,10 +3387,10 @@ const EditDrawer = ({
                                   : returnYearApprovals
                               }
                               onChange={(e) =>
-                                setReturnYearApprovals(e.target.value)
+                                setReturnYearApprovals(Number(e.target.value))
                               }
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
+                              onBlur={() => {
+                                if (returnYearApprovals > 0) {
                                   setReturnYearApprovalsErr(false);
                                 }
                               }}
@@ -3456,8 +3454,8 @@ const EditDrawer = ({
                               onChange={(e) =>
                                 setChecklistWorkpaperApprovals(e.target.value)
                               }
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
+                              onBlur={() => {
+                                if (checklistWorkpaperApprovals > 0) {
                                   setChecklistWorkpaperApprovalsErr(false);
                                 }
                               }}
@@ -3493,7 +3491,7 @@ const EditDrawer = ({
                               setDateOfPreperationApprovals(e.target.value)
                             }
                             onFocus={() => setInputTypePreperation("date")}
-                            onBlur={(e: any) => {
+                            onBlur={() => {
                               setInputTypePreperation("text");
                             }}
                             margin="normal"
@@ -3522,7 +3520,7 @@ const EditDrawer = ({
                               setDateOfReviewApprovals(e.target.value)
                             }
                             onFocus={() => setInputTypeReview("date")}
-                            onBlur={(e: any) => {
+                            onBlur={() => {
                               setInputTypeReview("text");
                             }}
                             margin="normal"
@@ -3613,7 +3611,7 @@ const EditDrawer = ({
                           onChange={(e) =>
                             handleSubTaskChangeApprovals(e, index)
                           }
-                          onBlur={(e: any) => {
+                          onBlur={(e) => {
                             if (e.target.value.trim().length > 0) {
                               const newTaskNameErrors = [
                                 ...taskNameApprovalsErr,
@@ -3652,7 +3650,7 @@ const EditDrawer = ({
                           onChange={(e) =>
                             handleSubTaskDescriptionChangeApprovals(e, index)
                           }
-                          onBlur={(e: any) => {
+                          onBlur={(e) => {
                             if (e.target.value.trim().length > 0) {
                               const newSubTaskDescErrors = [
                                 ...subTaskDescriptionApprovalsErr,
@@ -3834,7 +3832,7 @@ const EditDrawer = ({
                                   setCheckListNameApprovals(e.target.value);
                                   setCheckListNameApprovalsError(false);
                                 }}
-                                onBlur={(e: any) => {
+                                onBlur={(e) => {
                                   if (e.target.value.trim().length > 5) {
                                     setCheckListNameApprovalsError(false);
                                   }
@@ -4663,7 +4661,7 @@ const EditDrawer = ({
                           fullWidth
                           value={field.startTime}
                           onChange={(e) => handleStartTimeChange(e, index)}
-                          onBlur={(e: any) => {
+                          onBlur={(e) => {
                             if (e.target.value.trim().length > 7) {
                               const newStartTimeErrors = [...startTimeErrors];
                               newStartTimeErrors[index] = false;
@@ -4702,7 +4700,7 @@ const EditDrawer = ({
                           fullWidth
                           value={field.endTime}
                           onChange={(e) => handleEndTimeChange(e, index)}
-                          onBlur={(e: any) => {
+                          onBlur={(e) => {
                             if (
                               e.target.value.trim().length > 7 &&
                               field.endTime > field.startTime &&
@@ -4805,7 +4803,7 @@ const EditDrawer = ({
                           fullWidth
                           value={field.manualDesc}
                           onChange={(e) => handleManualDescChange(e, index)}
-                          onBlur={(e: any) => {
+                          onBlur={(e) => {
                             if (e.target.value.trim().length > 0) {
                               const newManualDescErrors = [...manualDescErrors];
                               newManualDescErrors[index] = false;
@@ -5064,8 +5062,8 @@ const EditDrawer = ({
                           onChange={(e) =>
                             setReminderTimeApprovals(e.target.value)
                           }
-                          onBlur={(e: any) => {
-                            if (e.target.value > 0) {
+                          onBlur={() => {
+                            if (reminderTimeApprovals > 0) {
                               setReminderTimeApprovalsErr(false);
                             }
                           }}
@@ -5112,7 +5110,7 @@ const EditDrawer = ({
                             }
                             variant="standard"
                             error={reminderNotificationApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (reminderNotificationApprovals.length > 0) {
                                 setReminderNotificationApprovalsErr(false);
                               }
@@ -5215,8 +5213,8 @@ const EditDrawer = ({
                               onChange={(e) =>
                                 handleErrorTypeChangeApprovals(e, index)
                               }
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
+                              onBlur={() => {
+                                if (field.ErrorType > 0) {
                                   const newErrorTypeErrors = [
                                     ...errorTypeErrApprovals,
                                   ];
@@ -5265,8 +5263,8 @@ const EditDrawer = ({
                               onChange={(e) =>
                                 handleRootCauseChangeApprovals(e, index)
                               }
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
+                              onBlur={() => {
+                                if (field.RootCause > 0) {
                                   const newRootCauseErrors = [
                                     ...rootCauseErrApprovals,
                                   ];
@@ -5317,8 +5315,8 @@ const EditDrawer = ({
                               onChange={(e) =>
                                 handleNatureOfErrorChangeApprovals(e, index)
                               }
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
+                              onBlur={() => {
+                                if (field.NatureOfError > 0) {
                                   const newNatureOfErrorErrors = [
                                     ...natureOfErrApprovals,
                                   ];
@@ -5390,8 +5388,8 @@ const EditDrawer = ({
                               onChange={(e) =>
                                 handlePriorityChangeApprovals(e, index)
                               }
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
+                              onBlur={() => {
+                                if (field.Priority > 0) {
                                   const newPriorityErrors = [
                                     ...errorLogPriorityErrApprovals,
                                   ];
@@ -5440,7 +5438,7 @@ const EditDrawer = ({
                             onChange={(e) =>
                               handleErrorCountChangeApprovals(e, index)
                             }
-                            onBlur={(e: any) => {
+                            onBlur={(e) => {
                               if (e.target.value.length > 0) {
                                 const newErrorCountErrors = [
                                   ...errorCountErrApprovals,
@@ -5542,7 +5540,7 @@ const EditDrawer = ({
                               onChange={(e) =>
                                 handleRemarksChangeApprovals(e, index)
                               }
-                              onBlur={(e: any) => {
+                              onBlur={(e) => {
                                 if (e.target.value.length > 0) {
                                   const newRemarkErrors = [
                                     ...remarkErrApprovals,

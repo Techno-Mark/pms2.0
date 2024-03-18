@@ -30,7 +30,10 @@ import TimelineFilterDialog from "@/components/worklogs/HalfDay/TimelineFilterDi
 import TimelineHalfDay from "@/components/worklogs/HalfDay/TimelineHalfDay";
 import UnassigneeFilterDialog from "@/components/worklogs/Unassignee/UnassigneeFilterDialog";
 import TimelineDatatable from "@/components/worklogs/HalfDay/TimelineDatatable";
-import { AppliedFilterWorklogs, FilterWorklogs } from "@/utils/Types/types";
+import {
+  AppliedFilterWorklogsPage,
+  FilterWorklogsPage,
+} from "@/utils/Types/worklogsTypes";
 
 interface BreakData {
   BreakId: null | number;
@@ -96,7 +99,7 @@ const Page = () => {
   const [hasComment, setHasComment] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
-  const [filterList, setFilterList] = useState<FilterWorklogs[] | []>([]);
+  const [filterList, setFilterList] = useState<FilterWorklogsPage[] | []>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
   const [currentFilterId, setCurrentFilterId] = useState<number>(0);
   const [clickedFilterId, setclickedFilterId] = useState<number>(0);
@@ -104,7 +107,7 @@ const Page = () => {
   const [search, setSearch] = useState("");
   const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [currentFilterData, setCurrentFilterData] = useState<
-    AppliedFilterWorklogs | []
+    AppliedFilterWorklogsPage | []
   >([]);
   const [breakId, setBreakID] = useState<number>(0);
   const [loaded, setLoaded] = useState(false);
@@ -145,7 +148,7 @@ const Page = () => {
     }
   }, [router]);
 
-  const filteredFilters = filterList.filter((filter: FilterWorklogs) =>
+  const filteredFilters = filterList.filter((filter: FilterWorklogsPage) =>
     filter.Name.toLowerCase().includes(searchValue.toLowerCase())
   );
 
@@ -211,7 +214,7 @@ const Page = () => {
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
-      ResponseData: FilterWorklogs[] | [],
+      ResponseData: FilterWorklogsPage[] | [],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -246,7 +249,7 @@ const Page = () => {
     getFilterList();
   }, []);
 
-  const getIdFromFilterDialog = (data: AppliedFilterWorklogs) => {
+  const getIdFromFilterDialog = (data: AppliedFilterWorklogsPage) => {
     setCurrentFilterData(data);
   };
 
@@ -510,7 +513,7 @@ const Page = () => {
                       </span>
                     </span>
 
-                    {filteredFilters.map((i: FilterWorklogs) => {
+                    {filteredFilters.map((i: FilterWorklogsPage) => {
                       return (
                         <>
                           <div
@@ -670,7 +673,6 @@ const Page = () => {
             searchValue={globalSearchValue}
             isOnBreak={breakId}
             onGetBreakData={getBreakData}
-            onSetBreak={setBreak}
             currentFilterData={currentFilterData}
             onCurrentFilterId={clickedFilterId}
             onDataFetch={handleDataFetch}
@@ -681,7 +683,6 @@ const Page = () => {
             onDrawerClose={handleDrawerClose}
             onComment={handleSetComments}
             onHandleExport={handleCanExport}
-            isTaskClicked={isTaskClicked}
             isUnassigneeClicked={isUnassigneeClicked}
             onChangeTimeLoader={(e: string | null) => setTimeValue(e)}
             onChangeTodayTimeLoader={(e: string | null) => setTodayTimeValue(e)}

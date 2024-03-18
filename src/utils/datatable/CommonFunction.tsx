@@ -86,12 +86,12 @@ export const generatePriorityWithColor = (value: any) => {
   );
 };
 
-export const generateStatusWithColor = (value: any, rowIndex: any) => {
+export const generateStatusWithColor = (value: string, rowIndex: any) => {
   const statusColorCode = rowIndex;
 
   return (
     <div>
-      {value === null || value === "" || value === 0 || value === "0" ? (
+      {value === null || value === "" || value === "0" ? (
         "-"
       ) : (
         <div className="inline-block mr-1">
@@ -191,7 +191,7 @@ export const generateIsLoggedInBodyRender = (bodyValue: any) => {
 };
 
 export const generateCustomeTaskIdwithErrorLogs = (
-  bodyValue: any,
+  bodyValue: number,
   TableMeta: any,
   RowIndex: number
 ) => {
@@ -206,7 +206,7 @@ export const generateCustomeTaskIdwithErrorLogs = (
           }
         ></div>
       )}
-      {bodyValue === null || bodyValue === "" ? "-" : bodyValue}
+      {bodyValue === null ? "-" : bodyValue}
     </div>
   );
 };
