@@ -4,13 +4,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import {
-  Autocomplete,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  TextField,
-} from "@mui/material";
+import { Autocomplete, FormControl, TextField } from "@mui/material";
 import {
   getCCDropdownData,
   getClientDropdownData,
@@ -25,6 +19,11 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { isWeekend } from "@/utils/commonFunction";
 import { getFormattedDate } from "@/utils/timerFunctions";
+import {
+  IdNameEstimatedHour,
+  LabelValue,
+  LabelValueType,
+} from "@/utils/Types/types";
 
 interface FilterModalProps {
   activeTab: number;
@@ -33,6 +32,19 @@ interface FilterModalProps {
   onActionClick?: () => void;
   onDataFetch: () => void;
   currentFilterData?: any;
+}
+
+interface InitialFilter {
+  ClientId: number | null;
+  TypeOfWork: number | null;
+  userId: number | null;
+  ProjectId: number | null;
+  StatusId: number | null;
+  ProcessId: number | null;
+  DateFilter: string | null | undefined;
+  dueDate: string | null | undefined;
+  startDate: string | null | undefined;
+  endDate: string | null | undefined;
 }
 
 const initialFilter = {
@@ -46,32 +58,38 @@ const initialFilter = {
   startDate: null,
   endDate: null,
   DateFilter: null,
+  startDateReview: null,
+  endDateReview: null,
 };
 
-const FilterDialog_Approval: React.FC<FilterModalProps> = ({
+const FilterDialogApproval: React.FC<FilterModalProps> = ({
   activeTab,
   onOpen,
   onClose,
   currentFilterData,
 }) => {
-  const [clientName, setClientName] = useState<any>(null);
-  const [workType, setWorkType] = useState<any>(null);
-  const [userName, setUser] = useState<any>(null);
-  const [projectName, setProjectName] = useState<any>(null);
-  const [status, setStatus] = useState<any>(null);
-  const [processName, setProcessName] = useState<any>(null);
+  const [clientName, setClientName] = useState<LabelValue | null>(null);
+  const [workType, setWorkType] = useState<LabelValue | null>(null);
+  const [userName, setUser] = useState<LabelValue | null>(null);
+  const [projectName, setProjectName] = useState<LabelValue | null>(null);
+  const [status, setStatus] = useState<LabelValueType | null>(null);
+  const [processName, setProcessName] = useState<LabelValue | null>(null);
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [worktypeDropdownData, setWorktypeDropdownData] = useState([]);
   const [userDropdownData, setUserData] = useState([]);
   const [projectDropdownData, setProjectDropdownData] = useState([]);
-  const [anyFieldSelected, setAnyFieldSelected] = useState<any>(false);
-  const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
   const [statusDropdownData, setStatusDropdownData] = useState([]);
   const [processDropdownData, setProcessDropdownData] = useState([]);
   const [date, setDate] = useState<null | string>(null);
   const [dueDate, setDueDate] = useState<null | string>(null);
   const [startDate, setStartDate] = useState<null | string>(null);
   const [endDate, setEndDate] = useState<null | string>(null);
+  const [startDateReview, setStartDateReview] = useState<null | string>(null);
+  const [endDateReview, setEndDateReview] = useState<null | string>(null);
+  const [anyFieldSelected, setAnyFieldSelected] = useState<boolean>(false);
+  const [currSelectedFields, setCurrSelectedFileds] = useState<
+    InitialFilter | []
+  >([]);
 
   const sendFilterToPage = () => {
     currentFilterData(currSelectedFields);
@@ -89,40 +107,42 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     setDueDate(null);
     setStartDate(null);
     setEndDate(null);
-    setWorktypeDropdownData([]);
+    setStartDateReview(null);
+    setEndDateReview(null);
     setProjectDropdownData([]);
     setProcessDropdownData([]);
     setStatusDropdownData([]);
     currentFilterData(initialFilter);
   };
+
   const getDropdownData = async () => {
     setClientDropdownData(await getClientDropdownData());
     setUserData(await getCCDropdownData());
+    setWorktypeDropdownData(await getTypeOfWorkDropdownData(0));
   };
 
-  const getClientData = async (clientName: any) => {
-    setWorktypeDropdownData(await getTypeOfWorkDropdownData(clientName));
-  };
-
-  const getAllData = async (clientName: any, workType: any) => {
+  const getAllData = async (clientName: number, workType: number) => {
     setProjectDropdownData(await getProjectDropdownData(clientName, workType));
 
     const processData = await getProcessDropdownData(clientName, workType);
     processData.length > 0
       ? setProcessDropdownData(
           processData?.map(
-            (i: any) => new Object({ label: i.Name, value: i.Id })
+            (i: IdNameEstimatedHour) =>
+              new Object({ label: i.Name, value: i.Id })
           )
         )
       : setProcessDropdownData([]);
+  };
 
+  const getAllStatusData = async (workType: number) => {
     const statusData = await getStatusDropdownData(workType);
 
     statusData.length > 0
       ? setStatusDropdownData(
           activeTab === 1
             ? statusData.filter(
-                (item: any) =>
+                (item: LabelValueType) =>
                   item.Type === "InReview" ||
                   item.Type === "ReworkInReview" ||
                   item.Type === "PartialSubmitted" ||
@@ -142,17 +162,17 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   }, [onOpen]);
 
   useEffect(() => {
-    clientName !== null && getClientData(clientName?.value);
-  }, [clientName]);
-
-  useEffect(() => {
     clientName !== null &&
       workType !== null &&
       getAllData(clientName?.value, workType?.value);
   }, [clientName, workType]);
 
   useEffect(() => {
-    const isAnyFieldSelected: any =
+    workType !== null && getAllStatusData(workType?.value);
+  }, [workType]);
+
+  useEffect(() => {
+    const isAnyFieldSelected: boolean =
       clientName !== null ||
       workType !== null ||
       userName !== null ||
@@ -162,7 +182,9 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
       date !== null ||
       dueDate !== null ||
       startDate !== null ||
-      endDate !== null;
+      endDate !== null ||
+      startDateReview !== null ||
+      endDateReview !== null;
 
     setAnyFieldSelected(isAnyFieldSelected);
   }, [
@@ -176,6 +198,8 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     dueDate,
     startDate,
     endDate,
+    startDateReview,
+    endDateReview,
   ]);
 
   useEffect(() => {
@@ -188,13 +212,30 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
       ProcessId: processName !== null ? processName.value : null,
       DateFilter: date !== null ? getFormattedDate(date) : null,
       dueDate: dueDate !== null ? getFormattedDate(dueDate) : null,
-      startDate: startDate !== null ? getFormattedDate(startDate) : null,
+      startDate:
+        startDate === null
+          ? endDate === null
+            ? null
+            : getFormattedDate(endDate)
+          : getFormattedDate(startDate),
       endDate:
         endDate === null
           ? startDate === null
             ? null
             : getFormattedDate(startDate)
           : getFormattedDate(endDate),
+      startDateReview:
+        startDateReview === null
+          ? endDateReview === null
+            ? null
+            : getFormattedDate(endDateReview)
+          : getFormattedDate(startDateReview),
+      endDateReview:
+        endDateReview === null
+          ? startDateReview === null
+            ? null
+            : getFormattedDate(startDateReview)
+          : getFormattedDate(endDateReview),
     };
     setCurrSelectedFileds(selectedFields);
   }, [
@@ -208,6 +249,8 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     dueDate,
     startDate,
     endDate,
+    startDateReview,
+    endDateReview,
   ]);
 
   useEffect(() => {
@@ -240,13 +283,14 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                 <Autocomplete
                   id="tags-standard"
                   options={clientDropdownData}
-                  getOptionLabel={(option: any) => option.label}
-                  onChange={(e: React.ChangeEvent<{}>, data: any) => {
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(
+                    e: React.ChangeEvent<{}>,
+                    data: LabelValue | null
+                  ) => {
                     setClientName(data);
-                    setWorkType(null);
                     setProjectName(null);
                     setProcessName(null);
-                    setStatus(null);
                     setProcessName(null);
                   }}
                   value={clientName}
@@ -267,8 +311,11 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                 <Autocomplete
                   id="tags-standard"
                   options={worktypeDropdownData}
-                  getOptionLabel={(option: any) => option.label}
-                  onChange={(e: React.ChangeEvent<{}>, data: any) => {
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(
+                    e: React.ChangeEvent<{}>,
+                    data: LabelValue | null
+                  ) => {
                     setWorkType(data);
                     setProjectName(null);
                     setProcessName(null);
@@ -292,8 +339,11 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                 <Autocomplete
                   id="tags-standard"
                   options={userDropdownData}
-                  getOptionLabel={(option: any) => option.label}
-                  onChange={(e: React.ChangeEvent<{}>, data: any) => {
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(
+                    e: React.ChangeEvent<{}>,
+                    data: LabelValue | null
+                  ) => {
                     setUser(data);
                   }}
                   value={userName}
@@ -316,8 +366,11 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                 <Autocomplete
                   id="tags-standard"
                   options={projectDropdownData}
-                  getOptionLabel={(option: any) => option.label}
-                  onChange={(e: React.ChangeEvent<{}>, data: any) => {
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(
+                    e: React.ChangeEvent<{}>,
+                    data: LabelValue | null
+                  ) => {
                     setProjectName(data);
                   }}
                   value={projectName}
@@ -338,8 +391,11 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                 <Autocomplete
                   id="tags-standard"
                   options={processDropdownData}
-                  getOptionLabel={(option: any) => option.label}
-                  onChange={(e: React.ChangeEvent<{}>, data: any) => {
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(
+                    e: React.ChangeEvent<{}>,
+                    data: LabelValue | null
+                  ) => {
                     setProcessName(data);
                   }}
                   value={userName}
@@ -360,8 +416,11 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                 <Autocomplete
                   id="tags-standard"
                   options={statusDropdownData}
-                  getOptionLabel={(option: any) => option.label}
-                  onChange={(e: React.ChangeEvent<{}>, data: any) => {
+                  getOptionLabel={(option: LabelValueType) => option.label}
+                  onChange={(
+                    e: React.ChangeEvent<{}>,
+                    data: LabelValueType | null
+                  ) => {
                     setStatus(data);
                   }}
                   value={status}
@@ -395,35 +454,13 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                 </div>
               )}
               {activeTab === 2 && (
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
-                >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="Due Date"
-                      value={dueDate === null ? null : dayjs(dueDate)}
-                      onChange={(newDate: any) => {
-                        setDueDate(newDate.$d);
-                      }}
-                      // shouldDisableDate={isWeekend}
-                      maxDate={dayjs(Date.now())}
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
-              )}
-              {activeTab === 2 && (
                 <>
                   <div
                     className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
                   >
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
-                        label="From"
+                        label="Preparation From"
                         value={startDate === null ? null : dayjs(startDate)}
                         // shouldDisableDate={isWeekend}
                         maxDate={dayjs(Date.now())}
@@ -443,7 +480,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   >
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
-                        label="To"
+                        label="Preparation To"
                         value={endDate === null ? null : dayjs(endDate)}
                         // shouldDisableDate={isWeekend}
                         maxDate={dayjs(Date.now())}
@@ -458,9 +495,74 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                       />
                     </LocalizationProvider>
                   </div>
+                  <div
+                    className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+                  >
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        label="Due Date"
+                        value={dueDate === null ? null : dayjs(dueDate)}
+                        onChange={(newDate: any) => {
+                          setDueDate(newDate.$d);
+                        }}
+                        // shouldDisableDate={isWeekend}
+                        maxDate={dayjs(Date.now())}
+                        slotProps={{
+                          textField: {
+                            readOnly: true,
+                          } as Record<string, any>,
+                        }}
+                      />
+                    </LocalizationProvider>
+                  </div>
                 </>
               )}
             </div>
+            {activeTab === 2 && (
+              <div className="flex gap-[20px]">
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Review From"
+                      // shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now()) || dayjs(endDateReview)}
+                      value={
+                        startDateReview === null ? null : dayjs(startDateReview)
+                      }
+                      onChange={(newValue: any) => setStartDateReview(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Review To"
+                      // shouldDisableDate={isWeekend}
+                      minDate={dayjs(startDateReview)}
+                      maxDate={dayjs(Date.now())}
+                      value={
+                        endDateReview === null ? null : dayjs(endDateReview)
+                      }
+                      onChange={(newValue: any) => setEndDateReview(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+              </div>
+            )}
           </div>
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">
@@ -483,4 +585,4 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   );
 };
 
-export default FilterDialog_Approval;
+export default FilterDialogApproval;

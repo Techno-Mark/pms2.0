@@ -15,7 +15,7 @@ interface RejectDialogModalProps {
   onActionClick?: () => void;
   onSetNote?: string;
   rejectWorkItem: (note: string, id: number[]) => void;
-  selectedWorkItemIds: number[] | any;
+  selectedWorkItemIds: number[] | [];
 }
 
 const Transition = React.forwardRef(function Transition(

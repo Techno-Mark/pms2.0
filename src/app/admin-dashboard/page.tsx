@@ -5,14 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
-import {
-  Autocomplete,
-  Card,
-  FormControl,
-  Grid,
-  TextField,
-  ThemeProvider,
-} from "@mui/material";
+import { Card, Grid, ThemeProvider } from "@mui/material";
 import { toast } from "react-toastify";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import Chart_BillingType from "@/components/admin-dashboard/charts/Chart_BillingType";
@@ -37,7 +30,6 @@ import Dialog_DashboardSummaryList from "@/components/admin-dashboard/dialog/Dia
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import MUIDataTable from "mui-datatables";
 import TablePagination from "@mui/material/TablePagination";
-import { getClientDropdownData } from "@/utils/commonDropdownApiCall";
 import {
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
@@ -48,7 +40,10 @@ import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
 import { dashboardReport_Options } from "@/utils/datatable/TableOptions";
 import { callAPI } from "@/utils/API/callAPI";
-import { KeyValueColorCode, LabelValue } from "@/utils/Types/types";
+import { KeyValueColorCodeSequence } from "@/utils/Types/types";
+import FilterIcon from "@/assets/icons/FilterIcon";
+import FilterDialogDashboard from "@/components/admin-dashboard/FilterDialogDashboard";
+import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 
 interface ClientSummaryStatus {
   ClientName: string;
@@ -95,7 +90,6 @@ interface InitialFilter {
   PageNo: number;
   SortColumn: string;
   IsDesc: boolean;
-  Clients: null | number[];
 }
 
 const pageNo = 1;
@@ -106,11 +100,11 @@ const initialFilter = {
   PageNo: pageNo,
   SortColumn: "",
   IsDesc: true,
-  Clients: null,
 };
 
 const Page = () => {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<number>(1);
   const [isBillingTypeDialogOpen, setIsBillingTypeDialogOpen] =
     useState<boolean>(false);
   const [isTaskStatusDialogOpen, setIsTaskStatusDialogOpen] =
@@ -120,27 +114,37 @@ const Page = () => {
   const [isSummaryDialogOpen, setIsSummaryDialogOpen] =
     useState<boolean>(false);
   const [clickedProjectStatusName, setClickedProjectStatusName] =
-    useState<string>("");
+    useState<number>(0);
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [clickedBillingTypeName, setClickedBillingTypeName] =
     useState<string>("");
   const [dashboardSummary, setDashboardSummary] = useState<
-    KeyValueColorCode[] | []
+    KeyValueColorCodeSequence[] | []
   >([]);
-  const [clickedCardName, setClickedCardName] = useState<string>("");
-  const [isDashboardClicked, setIsDashboardClicked] = useState(true);
-  const [isReportClicked, setIsReportClicked] = useState(false);
+  const [clickedCardName, setClickedCardName] = useState<number>(0);
   const [reportData, setReportData] = useState<ClientSummaryStatus[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
   const [filteredObject, setFilteredObject] =
     useState<InitialFilter>(initialFilter);
-  const [clients, setClients] = useState<LabelValue[] | []>([]);
-  const [clientDropdownData, setClientDropdownData] = useState<
-    LabelValue[] | []
-  >([]);
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
+  const [currentFilterData, setCurrentFilterData] =
+    useState<DashboardInitialFilter>({
+      Clients: [],
+      TypeOfWork: 3,
+      StartDate: null,
+      EndDate: null,
+    });
+
+  const handleCloseFilter = () => {
+    setisFilterOpen(false);
+  };
+
+  const getIdFromFilterDialog = (data: DashboardInitialFilter) => {
+    setCurrentFilterData(data);
+  };
 
   useEffect(() => {
     if (localStorage.getItem("isClient") === "false") {
@@ -170,7 +174,7 @@ const Page = () => {
 
   const handleValueFromProjectStatus = (
     isDialogOpen: boolean,
-    selectedPointData: string
+    selectedPointData: number
   ) => {
     setIsProjectStatusDialogOpen(isDialogOpen);
     setClickedProjectStatusName(selectedPointData);
@@ -186,7 +190,7 @@ const Page = () => {
   }, [router]);
 
   const getReportData = async () => {
-    const params = filteredObject;
+    const params = { ...filteredObject, ...currentFilterData };
     const url = `${process.env.report_api_url}/dashboard/dashboardclientsummary`;
     const successCallback = (
       ResponseData: DashboardSummaryReport,
@@ -202,21 +206,22 @@ const Page = () => {
   };
 
   useEffect(() => {
-    const getData = async () => {
-      setClientDropdownData(await getClientDropdownData());
-    };
-
-    isReportClicked && getReportData();
-    isReportClicked && getData();
-  }, [isDashboardClicked, isReportClicked, filteredObject]);
+    activeTab === 2 && getReportData();
+  }, [activeTab, filteredObject, currentFilterData]);
 
   const getProjectSummary = async () => {
     const params = {
-      WorkTypeId: null,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.TypeOfWork === null
+          ? 0
+          : currentFilterData.TypeOfWork,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
     };
     const url = `${process.env.report_api_url}/dashboard/summary`;
     const successCallback = (
-      ResponseData: KeyValueColorCode[] | [],
+      ResponseData: KeyValueColorCodeSequence[] | [],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -228,23 +233,29 @@ const Page = () => {
   };
 
   useEffect(() => {
-    getProjectSummary();
-  }, []);
+    const fetchData = async () => {
+      await getProjectSummary();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentFilterData]);
 
   const statusIconMapping: any = {
-    Assigned: <Person4OutlinedIcon />,
-    Accepted: <CheckCircleOutlineOutlinedIcon />,
-    "In Preparation": <InPreparation />,
-    "In Review": <InReview />,
-    "Error Logs": <ErrorOutlineIcon />,
-    "Not Started": <PendingActionsOutlinedIcon />,
-    "Overdue Task": <RunningWithErrorsOutlinedIcon />,
-    Rejected: <CancelOutlinedIcon />,
-    "On Hold": <PauseCircleOutlineOutlinedIcon />,
-    Withdraw: <Withdraw_Outlined />,
-    Rework: <RestorePageOutlinedIcon />,
+    2: <Person4OutlinedIcon />,
+    8: <CheckCircleOutlineOutlinedIcon />,
+    3: <InPreparation />,
+    5: <InReview />,
+    4: <ErrorOutlineIcon />,
+    1: <PendingActionsOutlinedIcon />,
+    11: <RunningWithErrorsOutlinedIcon />,
+    12: <CancelOutlinedIcon />,
+    10: <PauseCircleOutlineOutlinedIcon />,
+    9: <Withdraw_Outlined />,
+    7: <RestorePageOutlinedIcon />,
     "Total Received": <PlaylistAddCheckOutlinedIcon />,
-    "Review Completed": <TaskOutlinedIcon />,
+    6: <TaskOutlinedIcon />,
   };
 
   const exportSummaryReport = async () => {
@@ -258,6 +269,7 @@ const Page = () => {
         `${process.env.report_api_url}/dashboard/dashboardclientsummary/export`,
         {
           ...filteredObject,
+          ...currentFilterData,
           IsDownload: true,
         },
         {
@@ -300,314 +312,297 @@ const Page = () => {
 
   return (
     <Wrapper className="min-h-screen overflow-y-auto">
-      <div>
-        <Navbar />
+      <Navbar />
 
-        <div className="flex items-center justify-between w-full px-6">
-          <div className="flex gap-[16px] items-center py-[6.5px]">
-            <label
-              onClick={() => {
-                setIsDashboardClicked(true);
-                setIsReportClicked(false);
-                setClients([]);
-              }}
-              className={`py-[10px] text-[16px] cursor-pointer select-none ${
-                isDashboardClicked
-                  ? "text-secondary font-semibold"
-                  : "text-slatyGrey"
-              }`}
-            >
-              Dashboard
-            </label>
-            <span className="text-lightSilver">|</span>
-            <label
-              onClick={() => {
-                setIsReportClicked(true);
-                setIsDashboardClicked(false);
-                setClients([]);
-                setFilteredObject({ ...filteredObject, Clients: null });
-              }}
-              className={`py-[10px] text-[16px] cursor-pointer select-none ${
-                isReportClicked
-                  ? "text-secondary font-semibold"
-                  : "text-slatyGrey"
-              }`}
-            >
-              Report
-            </label>
-          </div>
-
-          {isReportClicked && (
-            <div className="flex items-center justify-center gap-2">
-              <FormControl
-                variant="standard"
-                sx={{ mx: 0.75, my: 0.4, minWidth: 210 }}
-              >
-                <Autocomplete
-                  multiple
-                  id="tags-standard"
-                  options={clientDropdownData.filter(
-                    (option: LabelValue) =>
-                      !clients.find(
-                        (client: LabelValue) => client.value === option.value
-                      )
-                  )}
-                  getOptionLabel={(option: LabelValue) => option.label}
-                  onChange={(e: React.ChangeEvent<{}>, data: any) => {
-                    setFilteredObject({
-                      ...filteredObject,
-                      Clients: data.map((i: LabelValue) => i.value),
-                    });
-                    setClients(data);
-                  }}
-                  value={clients}
-                  renderInput={(params: any) => (
-                    <TextField
-                      {...params}
-                      variant="standard"
-                      label="Client Name"
-                    />
-                  )}
-                />
-              </FormControl>
-              <ColorToolTip title="Export" placement="top" arrow>
-                <span
-                  className={`${
-                    isExporting ? "cursor-default" : "cursor-pointer"
-                  } mt-7`}
-                  onClick={exportSummaryReport}
-                >
-                  {isExporting ? <Loading /> : <ExportIcon />}
-                </span>
-              </ColorToolTip>
-            </div>
-          )}
+      <div className="flex items-center justify-between w-full px-6">
+        <div className="flex gap-[16px] items-center py-[6.5px]">
+          <label
+            onClick={() => {
+              setActiveTab(1);
+            }}
+            className={`py-[10px] text-[16px] cursor-pointer select-none ${
+              activeTab === 1
+                ? "text-secondary font-semibold"
+                : "text-slatyGrey"
+            }`}
+          >
+            Dashboard
+          </label>
+          <span className="text-lightSilver">|</span>
+          <label
+            onClick={() => {
+              setActiveTab(2);
+            }}
+            className={`py-[10px] text-[16px] cursor-pointer select-none ${
+              activeTab === 2
+                ? "text-secondary font-semibold"
+                : "text-slatyGrey"
+            }`}
+          >
+            Report
+          </label>
         </div>
 
-        {isDashboardClicked && (
-          <div className="py-[10px]">
-            <Grid
-              container
-              className="flex items-center px-[20px] py-[10px]"
-              gap={1}
+        <div className="flex items-center justify-center gap-2">
+          <ColorToolTip title="Filter" placement="top" arrow>
+            <span
+              className="cursor-pointer"
+              onClick={() => setisFilterOpen(true)}
             >
-              {dashboardSummary &&
-                dashboardSummary.slice(0, 4).map((item: KeyValueColorCode) => (
-                  <Grid xs={2.9} item key={item.Key}>
-                    <Card
-                      className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
-                      style={{ borderColor: item.ColorCode }}
-                    >
-                      <div
-                        className="flex p-[20px] items-center"
-                        onClick={() => {
-                          setClickedCardName(item.Key);
-                          setIsSummaryDialogOpen(true);
-                        }}
-                      >
-                        <span
-                          style={{ color: item.ColorCode }}
-                          className={`border-r border-lightSilver pr-[20px]`}
-                        >
-                          {statusIconMapping[item.Key]}
-                        </span>
-                        <div className="inline-flex flex-col items-start pl-[20px]">
-                          <span className="text-[14px] font-normal text-darkCharcoal">
-                            {item.Key}
-                          </span>
-                          <span className="text-[20px] text-slatyGrey font-semibold">
-                            {item.Value}
-                          </span>
-                        </div>
-                      </div>
-                    </Card>
-                  </Grid>
-                ))}
-            </Grid>
-
-            <Grid
-              container
-              className="flex items-center px-[20px] py-[10px]"
-              gap={1}
-            >
-              {dashboardSummary &&
-                dashboardSummary.slice(4, 8).map((item: KeyValueColorCode) => (
-                  <Grid xs={2.9} item key={item.Key}>
-                    <Card
-                      className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
-                      style={{ borderColor: item.ColorCode }}
-                    >
-                      <div
-                        className="flex p-[20px] items-center"
-                        onClick={() => {
-                          setClickedCardName(item.Key);
-                          setIsSummaryDialogOpen(true);
-                        }}
-                      >
-                        <span
-                          style={{ color: item.ColorCode }}
-                          className={`border-r border-lightSilver pr-[20px]`}
-                        >
-                          {statusIconMapping[item.Key]}
-                        </span>
-                        <div className="inline-flex flex-col items-start pl-[20px]">
-                          <span className="text-[14px] font-normal text-darkCharcoal">
-                            {item.Key}
-                          </span>
-                          <span className="text-[20px] text-slatyGrey font-semibold">
-                            {item.Value}
-                          </span>
-                        </div>
-                      </div>
-                    </Card>
-                  </Grid>
-                ))}
-            </Grid>
-
-            <Grid
-              container
-              className="flex items-center px-[20px] py-[10px]"
-              gap={1}
-            >
-              {dashboardSummary &&
-                dashboardSummary.slice(8, 12).map((item: KeyValueColorCode) => (
-                  <Grid xs={2.9} item key={item.Key}>
-                    <Card
-                      className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
-                      style={{ borderColor: item.ColorCode }}
-                    >
-                      <div
-                        className="flex p-[20px] items-center"
-                        onClick={() => {
-                          setClickedCardName(item.Key);
-                          setIsSummaryDialogOpen(true);
-                        }}
-                      >
-                        <span
-                          style={{ color: item.ColorCode }}
-                          className={`border-r border-lightSilver pr-[20px]`}
-                        >
-                          {statusIconMapping[item.Key]}
-                        </span>
-                        <div className="inline-flex flex-col items-start pl-[20px]">
-                          <span className="text-[14px] font-normal text-darkCharcoal">
-                            {item.Key}
-                          </span>
-                          <span className="text-[20px] text-slatyGrey font-semibold">
-                            {item.Value}
-                          </span>
-                        </div>
-                      </div>
-                    </Card>
-                  </Grid>
-                ))}
-            </Grid>
-
-            {/* Task Status Chart */}
-            <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
-              <Card className="w-full border border-lightSilver rounded-lg">
-                <Chart_TaskStatus
-                  sendData={handleValueFromTaskStatus}
-                  onSelectedWorkType={0}
-                />
-              </Card>
-            </section>
-
-            {/* Project Status and Billing Type Charts */}
-            <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
-              <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
-                <Chart_ProjectStatus
-                  sendData={handleValueFromProjectStatus}
-                  onSelectedProjectIds={[]}
-                  onSelectedWorkType={0}
-                />
-              </Card>
-
-              <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
-                <Chart_BillingType
-                  sendData={handleValueFromBillingType}
-                  onSelectedWorkType={0}
-                />
-              </Card>
-            </section>
-          </div>
-        )}
-
-        {/* Dashboard Summary Dialog & Datatable */}
-        {isDashboardClicked && (
-          <Dialog_DashboardSummaryList
-            onOpen={isSummaryDialogOpen}
-            onClose={() => setIsSummaryDialogOpen(false)}
-            onSelectedWorkType={0}
-            onClickedSummaryTitle={clickedCardName}
-          />
-        )}
-
-        {/* Task Status Dialog & Datatable */}
-        {isDashboardClicked && (
-          <Dialog_TaskStatus
-            onOpen={isTaskStatusDialogOpen}
-            onClose={() => setIsTaskStatusDialogOpen(false)}
-            onSelectedWorkType={0}
-            onSelectedStatusName={clickedStatusName}
-          />
-        )}
-
-        {/* Billing Type Dialog & Datatable */}
-        {isDashboardClicked && (
-          <Dialog_BillingType
-            onOpen={isBillingTypeDialogOpen}
-            onClose={() => setIsBillingTypeDialogOpen(false)}
-            onSelectedWorkType={0}
-            onSelectedStatusName={clickedBillingTypeName}
-          />
-        )}
-
-        {/* Project Status Dialog & Datatable */}
-        {isDashboardClicked && (
-          <Dialog_ProjectStatus
-            onOpen={isProjectStatusDialogOpen}
-            onClose={() => setIsProjectStatusDialogOpen(false)}
-            onSelectedWorkType={0}
-            onSelectedProjectStatus={clickedProjectStatusName}
-            onSelectedProjectIds={[]}
-          />
-        )}
-
-        {isReportClicked && (
-          <ThemeProvider theme={getMuiTheme()}>
-            <MUIDataTable
-              data={reportData}
-              columns={adminDashboardReportCols}
-              title={undefined}
-              options={dashboardReport_Options}
-              data-tableid="Datatable"
-            />
-            <TablePagination
-              component="div"
-              count={tableDataCount}
-              page={page}
-              onPageChange={(
-                event: React.MouseEvent<HTMLButtonElement> | null,
-                newPage: number
-              ) => {
-                handlePageChangeWithFilter(newPage, setPage, setFilteredObject);
-              }}
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={(
-                event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-              ) => {
-                handleChangeRowsPerPageWithFilter(
-                  event,
-                  setRowsPerPage,
-                  setPage,
-                  setFilteredObject
-                );
-              }}
-            />
-          </ThemeProvider>
-        )}
+              <FilterIcon />
+            </span>
+          </ColorToolTip>
+          {activeTab === 2 && (
+            <ColorToolTip title="Export" placement="top" arrow>
+              <span
+                className={`${
+                  isExporting ? "cursor-default" : "cursor-pointer"
+                }`}
+                onClick={exportSummaryReport}
+              >
+                {isExporting ? <Loading /> : <ExportIcon />}
+              </span>
+            </ColorToolTip>
+          )}
+        </div>
       </div>
+
+      {activeTab === 1 && (
+        <div className="py-[10px]">
+          <Grid
+            container
+            className="flex items-center px-[20px] py-[10px]"
+            gap={1}
+          >
+            {dashboardSummary &&
+              dashboardSummary
+                .slice(0, 4)
+                .map((item: KeyValueColorCodeSequence) => (
+                  <Grid xs={2.9} item key={item.Key}>
+                    <Card
+                      className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
+                      style={{ borderColor: item.ColorCode }}
+                    >
+                      <div
+                        className="flex p-[20px] items-center"
+                        onClick={() => {
+                          setClickedCardName(item.Sequence);
+                          setIsSummaryDialogOpen(true);
+                        }}
+                      >
+                        <span
+                          style={{ color: item.ColorCode }}
+                          className={`border-r border-lightSilver pr-[20px]`}
+                        >
+                          {statusIconMapping[item.Sequence]}
+                        </span>
+                        <div className="inline-flex flex-col items-start pl-[20px]">
+                          <span className="text-[14px] font-normal text-darkCharcoal">
+                            {item.Key}
+                          </span>
+                          <span className="text-[20px] text-slatyGrey font-semibold">
+                            {item.Value}
+                          </span>
+                        </div>
+                      </div>
+                    </Card>
+                  </Grid>
+                ))}
+          </Grid>
+
+          <Grid
+            container
+            className="flex items-center px-[20px] py-[10px]"
+            gap={1}
+          >
+            {dashboardSummary &&
+              dashboardSummary
+                .slice(4, 8)
+                .map((item: KeyValueColorCodeSequence) => (
+                  <Grid xs={2.9} item key={item.Key}>
+                    <Card
+                      className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
+                      style={{ borderColor: item.ColorCode }}
+                    >
+                      <div
+                        className="flex p-[20px] items-center"
+                        onClick={() => {
+                          setClickedCardName(item.Sequence);
+                          setIsSummaryDialogOpen(true);
+                        }}
+                      >
+                        <span
+                          style={{ color: item.ColorCode }}
+                          className={`border-r border-lightSilver pr-[20px]`}
+                        >
+                          {statusIconMapping[item.Sequence]}
+                        </span>
+                        <div className="inline-flex flex-col items-start pl-[20px]">
+                          <span className="text-[14px] font-normal text-darkCharcoal">
+                            {item.Key}
+                          </span>
+                          <span className="text-[20px] text-slatyGrey font-semibold">
+                            {item.Value}
+                          </span>
+                        </div>
+                      </div>
+                    </Card>
+                  </Grid>
+                ))}
+          </Grid>
+
+          <Grid
+            container
+            className="flex items-center px-[20px] py-[10px]"
+            gap={1}
+          >
+            {dashboardSummary &&
+              dashboardSummary
+                .slice(8, 12)
+                .map((item: KeyValueColorCodeSequence) => (
+                  <Grid xs={2.9} item key={item.Key}>
+                    <Card
+                      className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
+                      style={{ borderColor: item.ColorCode }}
+                    >
+                      <div
+                        className="flex p-[20px] items-center"
+                        onClick={() => {
+                          setClickedCardName(item.Sequence);
+                          setIsSummaryDialogOpen(true);
+                        }}
+                      >
+                        <span
+                          style={{ color: item.ColorCode }}
+                          className={`border-r border-lightSilver pr-[20px]`}
+                        >
+                          {statusIconMapping[item.Sequence]}
+                        </span>
+                        <div className="inline-flex flex-col items-start pl-[20px]">
+                          <span className="text-[14px] font-normal text-darkCharcoal">
+                            {item.Key}
+                          </span>
+                          <span className="text-[20px] text-slatyGrey font-semibold">
+                            {item.Value}
+                          </span>
+                        </div>
+                      </div>
+                    </Card>
+                  </Grid>
+                ))}
+          </Grid>
+
+          {/* Task Status Chart */}
+          <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
+            <Card className="w-full border border-lightSilver rounded-lg">
+              <Chart_TaskStatus
+                sendData={handleValueFromTaskStatus}
+                currentFilterData={currentFilterData}
+              />
+            </Card>
+          </section>
+
+          {/* Project Status and Billing Type Charts */}
+          <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
+            <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
+              <Chart_ProjectStatus
+                sendData={handleValueFromProjectStatus}
+                onSelectedProjectIds={[]}
+                currentFilterData={currentFilterData}
+              />
+            </Card>
+
+            <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
+              <Chart_BillingType
+                sendData={handleValueFromBillingType}
+                currentFilterData={currentFilterData}
+              />
+            </Card>
+          </section>
+        </div>
+      )}
+
+      {/* Dashboard Summary Dialog & Datatable */}
+      {activeTab === 1 && (
+        <Dialog_DashboardSummaryList
+          onOpen={isSummaryDialogOpen}
+          onClose={() => setIsSummaryDialogOpen(false)}
+          currentFilterData={currentFilterData}
+          onClickedSummaryTitle={clickedCardName}
+        />
+      )}
+
+      {/* Task Status Dialog & Datatable */}
+      {activeTab === 1 && (
+        <Dialog_TaskStatus
+          onOpen={isTaskStatusDialogOpen}
+          onClose={() => setIsTaskStatusDialogOpen(false)}
+          currentFilterData={currentFilterData}
+          onSelectedStatusName={clickedStatusName}
+        />
+      )}
+
+      {/* Billing Type Dialog & Datatable */}
+      {activeTab === 1 && (
+        <Dialog_BillingType
+          onOpen={isBillingTypeDialogOpen}
+          onClose={() => setIsBillingTypeDialogOpen(false)}
+          currentFilterData={currentFilterData}
+          onSelectedStatusName={clickedBillingTypeName}
+        />
+      )}
+
+      {/* Project Status Dialog & Datatable */}
+      {activeTab === 1 && (
+        <Dialog_ProjectStatus
+          onOpen={isProjectStatusDialogOpen}
+          onClose={() => setIsProjectStatusDialogOpen(false)}
+          currentFilterData={currentFilterData}
+          onSelectedProjectStatus={clickedProjectStatusName}
+          onSelectedProjectIds={[]}
+        />
+      )}
+
+      {activeTab === 2 && (
+        <ThemeProvider theme={getMuiTheme()}>
+          <MUIDataTable
+            data={reportData}
+            columns={adminDashboardReportCols}
+            title={undefined}
+            options={dashboardReport_Options}
+            data-tableid="Datatable"
+          />
+          <TablePagination
+            component="div"
+            count={tableDataCount}
+            page={page}
+            onPageChange={(
+              event: React.MouseEvent<HTMLButtonElement> | null,
+              newPage: number
+            ) => {
+              handlePageChangeWithFilter(newPage, setPage, setFilteredObject);
+            }}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={(
+              event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            ) => {
+              handleChangeRowsPerPageWithFilter(
+                event,
+                setRowsPerPage,
+                setPage,
+                setFilteredObject
+              );
+            }}
+          />
+        </ThemeProvider>
+      )}
+
+      <FilterDialogDashboard
+        activeTab={activeTab}
+        onOpen={isFilterOpen}
+        onClose={handleCloseFilter}
+        currentFilterData={getIdFromFilterDialog}
+      />
     </Wrapper>
   );
 };

@@ -234,7 +234,7 @@ const GroupContent = forwardRef<
           }
           margin="normal"
           variant="standard"
-          sx={{ width: 570 }}
+          sx={{ width: 500 }}
         />
         <Autocomplete
           multiple
@@ -257,7 +257,7 @@ const GroupContent = forwardRef<
               {option.label}
             </li>
           )}
-          style={{ width: 570 }}
+          style={{ width: 500 }}
           renderInput={(params) => (
             <TextField
               {...params}

@@ -66,6 +66,14 @@ export interface ResponseDashboardTask {
   TaskStatusList: ListDashboard[] | [];
 }
 
+export interface ListProjectStatusSequence {
+  ColorCode: string;
+  Percentage: number;
+  Key: string;
+  Value: number;
+  Sequence: number;
+}
+
 export interface ListProjectStatus {
   ColorCode: string;
   Percentage: number;
@@ -78,4 +86,11 @@ export interface ListOverallProject {
   Percentage: number;
   Key: string;
   Count: number;
+}
+
+export interface DashboardInitialFilter {
+  Clients: number[] | [];
+  TypeOfWork: number | null;
+  StartDate: string | null | undefined;
+  EndDate: string | null | undefined;
 }

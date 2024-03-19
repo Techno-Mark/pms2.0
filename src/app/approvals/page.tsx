@@ -11,7 +11,7 @@ import Drawer from "@/components/approvals/Drawer";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
-import FilterDialog_Approval from "@/components/approvals/FilterDialog_Approval";
+import FilterDialogApproval from "@/components/approvals/FilterDialogApproval";
 import IdleTimer from "@/components/common/IdleTimer";
 import Loading from "@/assets/icons/reports/Loading";
 import axios from "axios";
@@ -19,7 +19,6 @@ import SearchIcon from "@/assets/icons/SearchIcon";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import {
   AppliedFilterApprovals,
-  AppliedFilterApprovalsPage,
 } from "@/utils/Types/types";
 
 const exportBody = {
@@ -45,13 +44,13 @@ const Page = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEditId, setHasEditId] = useState(0);
   const [iconIndex, setIconIndex] = useState<number>(0);
-  const [hasId, setHasId] = useState<number | string>("");
+  const [hasId, setHasId] = useState<number>(0);
   const [searchValue, setSearchValue] = useState("");
   const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
   const [currentFilterData, setCurrentFilterData] = useState<
-    AppliedFilterApprovals | AppliedFilterApprovalsPage | []
+    AppliedFilterApprovals | []
   >([]);
   const [hasComment, setHasComment] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -87,7 +86,7 @@ const Page = () => {
     setHasComment(false);
     setHasError(false);
     setHasManual(false);
-    setHasId("");
+    setHasId(0);
     setGlobalSearchValue("");
     setSearchValue("");
   };
@@ -198,7 +197,7 @@ const Page = () => {
               }`}
               onClick={() => {
                 setActiveTab(1);
-                setCurrentFilterData({ PageNo: 1, PageSize: 10 });
+                // setCurrentFilterData({ PageNo: 1, PageSize: 10 });
                 setGlobalSearchValue("");
                 setSearchValue("");
               }}
@@ -214,7 +213,7 @@ const Page = () => {
               }`}
               onClick={() => {
                 setActiveTab(2);
-                setCurrentFilterData({ PageNo: 1, PageSize: 10 });
+                // setCurrentFilterData({ PageNo: 1, PageSize: 10 });
                 setGlobalSearchValue("");
                 setSearchValue("");
               }}
@@ -267,7 +266,7 @@ const Page = () => {
           searchValue={globalSearchValue}
           onDataFetch={handleDataFetch}
           onEdit={handleEdit}
-          onDrawerOpen={handleDrawerOpen}
+          // onDrawerOpen={handleDrawerOpen}
           currentFilterData={currentFilterData}
           onFilterOpen={isFilterOpen}
           onCloseDrawer={openDrawer}
@@ -284,14 +283,14 @@ const Page = () => {
           onOpen={openDrawer}
           onClose={handleDrawerClose}
           onEdit={hasEditId}
-          hasIconIndex={iconIndex > 0 ? iconIndex : 0}
+          // hasIconIndex={iconIndex > 0 ? iconIndex : 0}
           onHasId={hasId}
           onComment={hasComment}
           onErrorLog={hasError}
           onManualTime={hasManual}
         />
 
-        <FilterDialog_Approval
+        <FilterDialogApproval
           activeTab={activeTab}
           onOpen={isFilterOpen}
           onClose={handleCloseFilter}

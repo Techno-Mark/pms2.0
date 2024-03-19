@@ -349,10 +349,16 @@ const Client = ({
           "-"
         ) : (
           <>
-            <ColorToolTip title={bodyValue} placement="top">
-              {shortProcessName}
-            </ColorToolTip>
-            {bodyValue.length > 50 && <span>...</span>}
+            {bodyValue.length > 50 ? (
+              <>
+                <ColorToolTip title={bodyValue} placement="top">
+                  {shortProcessName}
+                </ColorToolTip>
+                <span>...</span>
+              </>
+            ) : (
+              shortProcessName
+            )}
           </>
         )}
       </div>

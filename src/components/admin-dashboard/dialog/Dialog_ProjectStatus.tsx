@@ -17,52 +17,63 @@ import Loading from "@/assets/icons/reports/Loading";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { ListProjectStatus } from "@/utils/Types/dashboardTypes";
+import {
+  DashboardInitialFilter,
+  ListProjectStatusSequence,
+} from "@/utils/Types/dashboardTypes";
 
 interface Status {
   name: string;
+  Sequence: number;
 }
 
 interface ProjectStatusDialogProps {
   onOpen: boolean;
   onClose: () => void;
-  onSelectedWorkType: number;
-  onSelectedProjectStatus: string;
+  currentFilterData: DashboardInitialFilter;
+  onSelectedProjectStatus: number;
   onSelectedProjectIds: number[];
 }
 
 const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
   onOpen,
   onClose,
-  onSelectedWorkType,
+  currentFilterData,
   onSelectedProjectStatus,
   onSelectedProjectIds,
 }) => {
   const [allProjectStatus, setAllProjectStatus] = useState<Status[]>([]);
-  const [projectStatus, setProjectStatus] = useState<string>("");
+  const [projectStatus, setProjectStatus] = useState<number>(0);
   const [isExporting, setIsExporting] = useState<boolean>(false);
 
   const handleClose = () => {
     onClose();
-    setProjectStatus("");
+    setProjectStatus(0);
   };
 
   const getProjectStatusList = async () => {
     const params = {
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.TypeOfWork === null
+          ? 0
+          : currentFilterData.TypeOfWork,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
       ProjectId:
         onSelectedProjectIds.length === 0 ? null : onSelectedProjectIds,
     };
     const url = `${process.env.report_api_url}/dashboard/projectstatusgraph`;
     const successCallback = (
-      ResponseData: { List: ListProjectStatus[]; TotalCount: number },
+      ResponseData: { List: ListProjectStatusSequence[]; TotalCount: number },
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         const statusName: Status[] | [] = ResponseData.List.map(
-          (item: ListProjectStatus) => ({
+          (item: ListProjectStatusSequence) => ({
             name: item.Key,
+            Sequence: item.Sequence,
           })
         );
 
@@ -73,10 +84,16 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
   };
 
   useEffect(() => {
-    if (onOpen === true) {
-      getProjectStatusList();
-    }
-  }, [onSelectedWorkType, onSelectedProjectIds, onOpen]);
+    const fetchData = async () => {
+      if (onOpen === true) {
+        await getProjectStatusList();
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentFilterData, onSelectedProjectIds, onOpen]);
 
   const exportTaskStatusListReport = async () => {
     try {
@@ -92,9 +109,15 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
           PageSize: 50000,
           SortColumn: null,
           IsDesc: true,
-          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+          Clients: currentFilterData.Clients,
+          WorkTypeId:
+            currentFilterData.TypeOfWork === null
+              ? 0
+              : currentFilterData.TypeOfWork,
+          StartDate: currentFilterData.StartDate,
+          EndDate: currentFilterData.EndDate,
           ProjectId: null,
-          Key: projectStatus ? projectStatus : onSelectedProjectStatus,
+          Key: projectStatus > 0 ? projectStatus : onSelectedProjectStatus,
           IsDownload: true,
         },
         {
@@ -176,12 +199,14 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
               <Select
                 labelId="Project Staus"
                 id="Project Staus"
-                value={projectStatus ? projectStatus : onSelectedProjectStatus}
-                onChange={(e) => setProjectStatus(e.target.value)}
+                value={
+                  projectStatus > 0 ? projectStatus : onSelectedProjectStatus
+                }
+                onChange={(e) => setProjectStatus(Number(e.target.value))}
                 sx={{ height: "36px" }}
               >
                 {allProjectStatus.map((i: Status) => (
-                  <MenuItem value={i.name} key={i.name}>
+                  <MenuItem value={i.Sequence} key={i.name}>
                     {i.name}
                   </MenuItem>
                 ))}
@@ -199,7 +224,7 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
             </ColorToolTip>
           </div>
           <Datatable_ProjectStatus
-            onSelectedWorkType={onSelectedWorkType}
+            currentFilterData={currentFilterData}
             onSelectedProjectStatus={onSelectedProjectStatus}
             onSelectedProjectIds={onSelectedProjectIds}
             onCurrSelectedProjectStatus={projectStatus}

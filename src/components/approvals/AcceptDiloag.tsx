@@ -13,7 +13,7 @@ interface AcceptDiloagModalProps {
   onActionClick?: () => void;
   onSetNote?: string;
   acceptWorkitem: (note: string, id: number[]) => void;
-  selectedWorkItemIds: number[] | any;
+  selectedWorkItemIds: number[] | [];
 }
 
 const AcceptDiloag: React.FC<AcceptDiloagModalProps> = ({
@@ -22,7 +22,7 @@ const AcceptDiloag: React.FC<AcceptDiloagModalProps> = ({
   acceptWorkitem,
   selectedWorkItemIds,
 }) => {
-  const [note, setNote] = useState<string | any>("");
+  const [note, setNote] = useState<string>("");
   const [noteErr, setNoteErr] = useState(false);
 
   const validateNote = () => {

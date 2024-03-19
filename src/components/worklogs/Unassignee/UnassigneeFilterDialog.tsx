@@ -17,11 +17,17 @@ import {
   getClientDropdownData,
   getTypeOfWorkDropdownData,
 } from "@/utils/commonDropdownApiCall";
+import { LabelValue } from "@/utils/Types/types";
 
 interface FilterModalProps {
   onOpen: boolean;
   onClose: () => void;
   currentFilterData?: any;
+}
+
+interface InitialFilter {
+  ClientId: number | null;
+  TypeOfWork: number | null;
 }
 
 const initialFilter = {
@@ -37,10 +43,12 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [typeOfWorkDropdownData, setTypeOfWorkDropdownData] = useState([]);
 
-  const [clientName, setClientName] = useState<any>(null);
-  const [typeOfWork, setTypeOfWork] = useState<any>(null);
+  const [clientName, setClientName] = useState<LabelValue | null>(null);
+  const [typeOfWork, setTypeOfWork] = useState<LabelValue | null>(null);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
+  const [currSelectedFields, setCurrSelectedFileds] = useState<
+    InitialFilter | []
+  >([]);
 
   const handleResetAll = () => {
     setClientName(null);
@@ -56,7 +64,7 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
   }, [clientName, typeOfWork]);
 
   useEffect(() => {
-    const selectedFields = {
+    const selectedFields: InitialFilter = {
       ClientId: clientName !== null ? clientName.value : null,
       TypeOfWork: typeOfWork !== null ? typeOfWork.value : null,
     };
@@ -108,8 +116,11 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
                 <Autocomplete
                   id="tags-standard"
                   options={clientDropdownData}
-                  getOptionLabel={(option: any) => option.label}
-                  onChange={(e: any, data: any) => {
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(
+                    e: React.ChangeEvent<{}>,
+                    data: LabelValue | null
+                  ) => {
                     setClientName(data);
                     setTypeOfWork(null);
                   }}
@@ -128,8 +139,11 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
                 <Autocomplete
                   id="tags-standard"
                   options={typeOfWorkDropdownData}
-                  getOptionLabel={(option: any) => option.label}
-                  onChange={(e: any, data: any) => {
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(
+                    e: React.ChangeEvent<{}>,
+                    data: LabelValue | null
+                  ) => {
                     setTypeOfWork(data);
                   }}
                   value={typeOfWork}

@@ -11,19 +11,20 @@ import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardTaskStatusCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
 import {
+  DashboardInitialFilter,
   ListDashboard,
   ResponseDashboardTask,
 } from "@/utils/Types/dashboardTypes";
 
 interface TaskStatusProps {
-  onSelectedWorkType: number;
+  currentFilterData: DashboardInitialFilter;
   onSelectedStatusName: string;
   onCurrSelectedStatus: any;
   onSearchValue: string;
 }
 
 const Datatable_TaskStatus: React.FC<TaskStatusProps> = ({
-  onSelectedWorkType,
+  currentFilterData,
   onSelectedStatusName,
   onCurrSelectedStatus,
   onSearchValue,
@@ -39,7 +40,13 @@ const Datatable_TaskStatus: React.FC<TaskStatusProps> = ({
       PageSize: rowsPerPage,
       SortColumn: null,
       IsDesc: true,
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.TypeOfWork === null
+          ? 0
+          : currentFilterData.TypeOfWork,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
       GlobalSearch: value,
       StatusId: onCurrSelectedStatus === 0 ? null : onCurrSelectedStatus,
     };
@@ -62,15 +69,21 @@ const Datatable_TaskStatus: React.FC<TaskStatusProps> = ({
   }, [onCurrSelectedStatus]);
 
   useEffect(() => {
-    if (onSearchValue.length >= 3) {
-      getTaskStatusData(onSearchValue);
-    } else {
-      getTaskStatusData("");
-    }
+    const fetchData = async () => {
+      if (onSearchValue.trim().length > 0) {
+        await getTaskStatusData(onSearchValue);
+      } else {
+        await getTaskStatusData("");
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
     onSearchValue,
     onCurrSelectedStatus,
-    onSelectedWorkType,
+    currentFilterData,
     onSelectedStatusName,
     page,
     rowsPerPage,

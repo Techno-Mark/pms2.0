@@ -20,18 +20,19 @@ import ExportIcon from "@/assets/icons/ExportIcon";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { LabelValueType } from "@/utils/Types/types";
+import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 
 interface TaskStatusInfoDialogProps {
   onOpen: boolean;
   onClose: () => void;
-  onSelectedWorkType: number;
+  currentFilterData: DashboardInitialFilter;
   onSelectedStatusName: string;
 }
 
 const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
   onOpen,
   onClose,
-  onSelectedWorkType,
+  currentFilterData,
   onSelectedStatusName,
 }) => {
   const [allStatus, setAllStatus] = useState<LabelValueType[] | []>([]);
@@ -71,13 +72,15 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
   }, [clickedStatusName, onSelectedStatusName]);
 
   const getAllStatus = async () => {
-    const statusData = await getStatusDropdownData(3);
+    const statusData = await getStatusDropdownData(
+      currentFilterData.TypeOfWork === null ? 3 : currentFilterData.TypeOfWork
+    );
     setAllStatus(statusData);
   };
 
   useEffect(() => {
     getAllStatus();
-  }, []);
+  }, [currentFilterData.TypeOfWork]);
 
   const exportTaskStatusListReport = async () => {
     try {
@@ -93,7 +96,13 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
           PageSize: 50000,
           SortColumn: null,
           IsDesc: true,
-          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+          Clients: currentFilterData.Clients,
+          WorkTypeId:
+            currentFilterData.TypeOfWork === null
+              ? 0
+              : currentFilterData.TypeOfWork,
+          StartDate: currentFilterData.StartDate,
+          EndDate: currentFilterData.EndDate,
           GlobalSearch: searchValue,
           StatusId: status === 0 ? null : status,
           IsDownload: true,
@@ -203,7 +212,7 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
             </div>
           </div>
           <Datatable_TaskStatus
-            onSelectedWorkType={onSelectedWorkType}
+            currentFilterData={currentFilterData}
             onSelectedStatusName={onSelectedStatusName}
             onCurrSelectedStatus={status}
             onSearchValue={searchValue}

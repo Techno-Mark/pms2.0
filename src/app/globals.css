@@ -240,8 +240,8 @@ input[type="time"]::-moz-time-text {
   display: flex;
   justify-content: start;
   height: auto;
-  margin-top: 16px;
-  padding-bottom: 20px;
+  margin-top: 12px;
+  padding-bottom: 24px;
   padding-right: 3rem;
 }
 

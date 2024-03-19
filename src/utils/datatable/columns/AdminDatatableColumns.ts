@@ -13,6 +13,7 @@ import {
 
 const adminDashboardReportCols = [
   { header: "ClientName", label: "Client Name" },
+  { header: "Total", label: "Total" },
   { header: "NotStarted", label: "Not Started" },
   { header: "InPreparation", label: "In Preparation" },
   { header: "PreparationCompleted", label: "Preparation Completed" },
@@ -38,7 +39,6 @@ const adminDashboardReportCols = [
   { header: "Withdraw", label: "WithDraw" },
   { header: "WithdrawnbyClient", label: "Withdrawn by Client" },
   { header: "OnHoldFromClient", label: "On Hold From Client" },
-  { header: "Total", label: "Total" },
 ].map((i: any) =>
   generateCustomColumn(i.header, i.label, generateDashboardReportBodyRender)
 );
