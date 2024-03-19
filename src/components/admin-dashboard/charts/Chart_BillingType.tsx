@@ -4,13 +4,14 @@ import HighchartsReact from "highcharts-react-official";
 
 import HighchartsVariablePie from "highcharts/modules/variable-pie";
 import { callAPI } from "@/utils/API/callAPI";
+import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
 
 interface ChartBillingTypeProps {
-  onSelectedWorkType: number;
+  currentFilterData: DashboardInitialFilter;
   sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
@@ -26,7 +27,7 @@ interface Response {
 }
 
 const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
-  onSelectedWorkType,
+  currentFilterData,
   sendData,
 }) => {
   const [data, setData] = useState<any | any[]>([]);
@@ -34,7 +35,13 @@ const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
 
   const getBillingTypeData = async () => {
     const params = {
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.TypeOfWork === null
+          ? 0
+          : currentFilterData.TypeOfWork,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
     };
     const url = `${process.env.report_api_url}/dashboard/billingstatusgraph`;
     const successCallback = (
@@ -57,8 +64,14 @@ const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
   };
 
   useEffect(() => {
-    getBillingTypeData();
-  }, [onSelectedWorkType]);
+    const fetchData = async () => {
+      await getBillingTypeData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentFilterData]);
 
   const chartOptions = {
     chart: {

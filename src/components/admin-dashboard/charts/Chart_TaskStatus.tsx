@@ -3,21 +3,28 @@ import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { callAPI } from "@/utils/API/callAPI";
 import { KeyValueColorCode } from "@/utils/Types/types";
+import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 
 interface TaskStatusProps {
-  onSelectedWorkType: number;
+  currentFilterData: DashboardInitialFilter;
   sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
 const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
   sendData,
-  onSelectedWorkType,
+  currentFilterData,
 }) => {
   const [data, setData] = useState<any[]>([]);
 
   const getTaskStatusData = async () => {
     const params = {
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.TypeOfWork === null
+          ? 0
+          : currentFilterData.TypeOfWork,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
     };
     const url = `${process.env.report_api_url}/dashboard/taskstatusgraph`;
     const successCallback = (
@@ -39,8 +46,14 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
   };
 
   useEffect(() => {
-    getTaskStatusData();
-  }, [onSelectedWorkType]);
+    const fetchData = async () => {
+      await getTaskStatusData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentFilterData]);
 
   const chartOptions: Highcharts.Options = {
     chart: {

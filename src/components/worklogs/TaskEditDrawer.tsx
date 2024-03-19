@@ -42,7 +42,19 @@ import { useRouter } from "next/navigation";
 import { LabelValue, LabelValueType, User } from "@/utils/Types/types";
 import { WorkitemGetbyid } from "@/utils/Types/worklogsTypes";
 
-const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
+interface TaskEditDrawer {
+  onOpen: boolean;
+  onClose: () => void;
+  onEdit: number;
+  onDataFetch: (() => void) | null;
+}
+
+const TaskEditDrawer = ({
+  onOpen,
+  onClose,
+  onEdit,
+  onDataFetch,
+}: TaskEditDrawer) => {
   const router = useRouter();
   const yearWorklogsDrawerDropdown = getYears();
   const [isLoadingWorklogs, setIsLoadingWorklogs] = useState(false);
@@ -92,7 +104,7 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
   const [allInfoDateWorklogs, setAllInfoDateWorklogs] = useState<string>("");
   const [assigneeWorklogsDropdownData, setAssigneeWorklogsDropdownData] =
     useState<LabelValue[] | []>([]);
-  const [assigneeWorklogs, setAssigneeWorklogs] = useState<any>([]);
+  const [assigneeWorklogs, setAssigneeWorklogs] = useState<number>(0);
   const [assigneeWorklogsDisable, setAssigneeWorklogsDisable] =
     useState<boolean>(true);
   const [reviewerWorklogsDropdownData, setReviewerWorklogsDropdownData] =
@@ -100,7 +112,7 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
   const [departmentWorklogs, setDepartmentWorklogs] = useState(0);
   const [departmentWorklogsDropdownData, setDepartmentWorklogsDropdownData] =
     useState<LabelValue[] | []>([]);
-  const [reviewerWorklogs, setReviewerWorklogs] = useState<any>([]);
+  const [reviewerWorklogs, setReviewerWorklogs] = useState<number>(0);
   const [dateOfReviewWorklogs, setDateOfReviewWorklogs] = useState<string>("");
   const [dateOfPreperationWorklogs, setDateOfPreperationWorklogs] =
     useState<string>("");
@@ -166,13 +178,13 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
   const [dueDateWorklogsEdit, setDueDateWorklogsEdit] = useState<string>("");
   const [allInfoDateWorklogsEdit, setAllInfoDateWorklogsEdit] =
     useState<string>("");
-  const [assigneeWorklogsEdit, setAssigneeWorklogsEdit] = useState<any>([]);
+  const [assigneeWorklogsEdit, setAssigneeWorklogsEdit] = useState<number>(0);
   const [assigneeWorklogsEditErr, setAssigneeWorklogsEditErr] = useState(false);
   const [
     assigneeWorklogsDropdownDataEdit,
     setAssigneeWorklogsDropdownDataEdit,
   ] = useState<LabelValue[] | []>([]);
-  const [reviewerWorklogsEdit, setReviewerWorklogsEdit] = useState<any>([]);
+  const [reviewerWorklogsEdit, setReviewerWorklogsEdit] = useState<number>(0);
   const [reviewerWorklogsEditErr, setReviewerWorklogsEditErr] = useState(false);
   const [
     reviewerWorklogsDropdownDataEdit,
@@ -896,7 +908,7 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
     setAssigneeWorklogsDropdownDataEdit([]);
     setReviewerWorklogsDropdownDataEdit([]);
 
-    onDataFetch();
+    onDataFetch?.();
 
     if (typeof window !== "undefined") {
       const pathname = window.location.href.includes("id=");

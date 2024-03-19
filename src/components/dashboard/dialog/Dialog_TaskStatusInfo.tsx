@@ -34,6 +34,7 @@ const Dialog_TaskStatusInfo: React.FC<TaskStatusInfoDialogProps> = ({
   onWorkTypeData,
   onSelectedProjectIds,
   onSelectedStatusName,
+  onSelectedWorkType,
 }) => {
   const [workType, setWorkType] = useState<number | any>(0);
   const [allStatus, setAllStatus] = useState<Status[]>([]);
@@ -66,12 +67,12 @@ const Dialog_TaskStatusInfo: React.FC<TaskStatusInfoDialogProps> = ({
   }, [clickedStatusName, onSelectedStatusName]);
 
   const getAllStatus = async () => {
-    setAllStatus(await getStatusDropdownData(3));
+    setAllStatus(await getStatusDropdownData(onSelectedWorkType));
   };
 
   useEffect(() => {
     getAllStatus();
-  }, []);
+  }, [onSelectedWorkType]);
 
   return (
     <div>

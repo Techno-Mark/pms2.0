@@ -17,37 +17,46 @@ import ExportIcon from "@/assets/icons/ExportIcon";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { KeyValueColorCode } from "@/utils/Types/types";
+import { KeyValueColorCodeSequence } from "@/utils/Types/types";
+import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 
 interface DashboardSummaryListProps {
   onOpen: boolean;
   onClose: () => void;
-  onSelectedWorkType: number;
-  onClickedSummaryTitle: string;
+  currentFilterData: DashboardInitialFilter;
+  onClickedSummaryTitle: number;
 }
 
 const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
   onOpen,
   onClose,
-  onSelectedWorkType,
+  currentFilterData,
   onClickedSummaryTitle,
 }) => {
-  const [summaryList, setSummaryList] = useState<KeyValueColorCode[]>([]);
-  const [summaryName, setSummaryName] = useState<string>("");
+  const [summaryList, setSummaryList] = useState<KeyValueColorCodeSequence[]>(
+    []
+  );
+  const [summaryName, setSummaryName] = useState<number>(0);
   const [isExporting, setIsExporting] = useState<boolean>(false);
 
   const handleClose = () => {
     onClose();
-    setSummaryName("");
+    setSummaryName(0);
   };
 
   const getProjectSummary = async () => {
     const params = {
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.TypeOfWork === null
+          ? 0
+          : currentFilterData.TypeOfWork,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
     };
     const url = `${process.env.report_api_url}/dashboard/summary`;
     const successCallback = (
-      ResponseData: KeyValueColorCode[] | [],
+      ResponseData: KeyValueColorCodeSequence[] | [],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -59,8 +68,14 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
   };
 
   useEffect(() => {
-    getProjectSummary();
-  }, [onSelectedWorkType]);
+    const fetchData = async () => {
+      await getProjectSummary();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentFilterData]);
 
   const exportTaskStatusReport = async () => {
     try {
@@ -76,7 +91,13 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
           PageSize: 50000,
           SortColumn: null,
           IsDesc: true,
-          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+          Clients: currentFilterData.Clients,
+          WorkTypeId:
+            currentFilterData.TypeOfWork === null
+              ? 0
+              : currentFilterData.TypeOfWork,
+          StartDate: currentFilterData.StartDate,
+          EndDate: currentFilterData.EndDate,
           Key: summaryName ? summaryName : onClickedSummaryTitle,
           IsDownload: true,
         },
@@ -159,12 +180,12 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
               <Select
                 labelId="summary list"
                 id="summary list"
-                value={summaryName ? summaryName : onClickedSummaryTitle}
-                onChange={(e) => setSummaryName(e.target.value)}
+                value={summaryName > 0 ? summaryName : onClickedSummaryTitle}
+                onChange={(e) => setSummaryName(Number(e.target.value))}
                 sx={{ height: "36px" }}
               >
-                {summaryList.map((i: KeyValueColorCode) => (
-                  <MenuItem value={i.Key} key={i.Key}>
+                {summaryList.map((i: KeyValueColorCodeSequence) => (
+                  <MenuItem value={i.Sequence} key={i.Sequence}>
                     {i.Key}
                   </MenuItem>
                 ))}
@@ -182,7 +203,7 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
             </ColorToolTip>
           </div>
           <Datatable_DashboardSummaryList
-            onSelectedWorkType={onSelectedWorkType}
+            currentFilterData={currentFilterData}
             onClickedSummaryTitle={onClickedSummaryTitle}
             onCurrSelectedSummaryTitle={summaryName}
           />

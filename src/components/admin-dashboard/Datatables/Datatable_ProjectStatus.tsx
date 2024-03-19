@@ -11,19 +11,20 @@ import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardProjectStatusCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
 import {
+  DashboardInitialFilter,
   ListDashboard,
   ResponseDashboardProjectSummary,
 } from "@/utils/Types/dashboardTypes";
 
 interface ProjectStatusProps {
-  onSelectedWorkType: number;
-  onSelectedProjectStatus: string;
+  currentFilterData: DashboardInitialFilter;
+  onSelectedProjectStatus: number;
   onSelectedProjectIds: number[];
-  onCurrSelectedProjectStatus: string;
+  onCurrSelectedProjectStatus: number;
 }
 
 const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
-  onSelectedWorkType,
+  currentFilterData,
   onSelectedProjectStatus,
   onCurrSelectedProjectStatus,
 }) => {
@@ -38,7 +39,13 @@ const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
       PageSize: rowsPerPage,
       SortColumn: null,
       IsDesc: true,
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.TypeOfWork === null
+          ? 0
+          : currentFilterData.TypeOfWork,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
       ProjectId: null,
       Key: onCurrSelectedProjectStatus
         ? onCurrSelectedProjectStatus
@@ -63,11 +70,17 @@ const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
   }, [onCurrSelectedProjectStatus]);
 
   useEffect(() => {
-    if (onCurrSelectedProjectStatus !== "" || onSelectedProjectStatus !== "") {
-      getProjectStatusData();
-    }
+    const fetchData = async () => {
+      if (onCurrSelectedProjectStatus > 0 || onSelectedProjectStatus > 0) {
+        await getProjectStatusData();
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
-    onSelectedWorkType,
+    currentFilterData,
     onSelectedProjectStatus,
     onCurrSelectedProjectStatus,
     page,

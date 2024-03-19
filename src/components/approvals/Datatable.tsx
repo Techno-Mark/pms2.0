@@ -39,7 +39,29 @@ import { ArrowDropDownIcon } from "@mui/x-date-pickers";
 import CloseIcon from "@/assets/icons/reports/CloseIcon";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { options } from "@/utils/datatable/TableOptions";
-import { ApprovalsPopupResponse } from "@/utils/Types/approvalsTypes";
+import {
+  ApprovalsPopupResponse,
+  InitialFilterApprovals,
+  List,
+} from "@/utils/Types/approvalsTypes";
+import {
+  AppliedFilterApprovals,
+} from "@/utils/Types/types";
+
+interface DatatableProps {
+  activeTab: number;
+  onEdit: (rowId: number, Id: number, iconIndex?: number) => void;
+  onDataFetch: (getData: () => void) => void;
+  currentFilterData: AppliedFilterApprovals | [];
+  onFilterOpen: boolean;
+  onCloseDrawer: boolean;
+  onComment: (rowData: boolean, selectedId: number) => void;
+  onErrorLog: (rowData: boolean, selectedId: number) => void;
+  onManualTime: (rowData: boolean, selectedId: number) => void;
+  onHandleExport: (arg1: boolean) => void;
+  searchValue: string;
+  onChangeLoader: (e: string | null) => void;
+}
 
 const pageNo = 1;
 const pageSize = 10;
@@ -75,7 +97,7 @@ const Datatable = ({
   onHandleExport,
   searchValue,
   onChangeLoader,
-}: any) => {
+}: DatatableProps) => {
   const workloadAnchorElFilter: HTMLButtonElement | null = null;
   const openWorkloadFilter = Boolean(workloadAnchorElFilter);
   const workloadIdFilter = openWorkloadFilter ? "simple-popover" : undefined;
@@ -99,8 +121,9 @@ const Datatable = ({
   const [workitemTimeId, setWorkitemTimeId] = useState<number>(-1);
   const [submissionId, setSubmissionId] = useState<number>(-1);
   const [stopReviewTimer, setStopReviewTimer] = useState<boolean>(false);
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
-  const [reviewList, setReviewList] = useState<any>([]);
+  const [filteredObject, setFilteredOject] =
+    useState<InitialFilterApprovals>(initialFilter);
+  const [reviewList, setReviewList] = useState<List[] | []>([]);
   const [selectedRowClientId, setSelectedRowClientId] = useState<number[] | []>(
     []
   );
@@ -109,7 +132,9 @@ const Datatable = ({
   >([]);
   const [isWorkloadExpanded, setIsWorkloadExpanded] = useState<boolean>(false);
   const [clickedWorkloadRowId, setClickedWorkloadRowId] = useState<number>(-1);
-  const [reviewListInsideData, setReviewListInsideData] = useState<any>([]);
+  const [reviewListInsideData, setReviewListInsideData] = useState<
+    ApprovalsPopupResponse[] | []
+  >([]);
 
   const getInitialPagePerRows = () => {
     setRowsPerPage(10);
@@ -144,13 +169,19 @@ const Datatable = ({
     }
     `;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: {
+        reviewerExportFilter: boolean;
+        List: List[];
+        TotalTime?: string;
+        TotalCount: number;
+      },
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        onChangeLoader(ResponseData.TotalTime);
-        onHandleExport(ResponseData.List > 0 ? true : false);
+        const totalTime = ResponseData.TotalTime || "00:00:00";
+        onChangeLoader(totalTime);
+        onHandleExport(ResponseData.List.length > 0 ? true : false);
         setLoaded(true);
         setReviewList(ResponseData.List);
         setTableDataCount(ResponseData.TotalCount);
@@ -167,16 +198,16 @@ const Datatable = ({
     rowsSelected: number[] | []
   ) => {
     const selectedData = allRowsSelected.map(
-      (row: any) => reviewList[row.dataIndex]
+      (row: { index: number; dataIndex: number }) => reviewList[row.dataIndex]
     );
 
     setSelectedRowsCount(rowsSelected.length);
     setSelectedRows(rowsSelected);
 
     // adding all selected Ids in an array
-    const selectedWorkItemIds: any =
+    const selectedWorkItemIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow?.WorkitemId)
+        ? selectedData.map((selectedRow: List) => selectedRow?.WorkitemId)
         : [];
 
     setSelectedWorkItemIds(selectedWorkItemIds);
@@ -185,20 +216,20 @@ const Datatable = ({
     const workitem =
       selectedData.length > 0
         ? selectedData[selectedData.length - 1]?.WorkitemId
-        : null;
+        : 0;
     setWorkitemId(workitem);
 
     // adding selected workItem Id
     const Id =
       selectedData.length > 0
         ? selectedData[selectedData.length - 1]?.SubmissionId
-        : null;
+        : 0;
     setId(Id);
 
     // adding all selected Ids in an array
     const selectedSubmissionIds =
       selectedData.length > 0
-        ? selectedData?.map((selectedRow: any) => selectedRow?.SubmissionId)
+        ? selectedData?.map((selectedRow: List) => selectedRow?.SubmissionId)
         : [];
 
     setSelectedRowIds(selectedSubmissionIds);
@@ -206,7 +237,7 @@ const Datatable = ({
     // adding all selected row's Client Ids in an array
     const selectedWorkItemClientIds =
       selectedData.length > 0
-        ? selectedData?.map((selectedRow: any) => selectedRow?.ClientId)
+        ? selectedData?.map((selectedRow: List) => selectedRow?.ClientId)
         : [];
 
     setSelectedRowClientId(selectedWorkItemClientIds);
@@ -214,7 +245,7 @@ const Datatable = ({
     // adding all selected row's WorkType Ids in an array
     const selectedWorkItemWorkTypeIds =
       selectedData.length > 0
-        ? selectedData?.map((selectedRow: any) => selectedRow?.WorkTypeId)
+        ? selectedData?.map((selectedRow: List) => selectedRow?.WorkTypeId)
         : [];
 
     setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
@@ -241,7 +272,7 @@ const Datatable = ({
   }, [activeTab]);
 
   useEffect(() => {
-    if (onFilterOpen || onFilterOpen === true) {
+    if (onFilterOpen) {
       handleClearSelection();
     }
   }, [onFilterOpen]);
@@ -252,13 +283,13 @@ const Datatable = ({
     handleClearSelection();
   };
 
-  const handleReviewerManualTime = (id1: any, id2: any) => {
+  const handleReviewerManualTime = (id1: number, id2: number) => {
     onEdit(id1, id2, 2);
     onManualTime(true, id1);
     handleClearSelection();
   };
 
-  function formatTime(seconds: any) {
+  function formatTime(seconds: number) {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
@@ -283,7 +314,7 @@ const Datatable = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/approval/saveworkitemreviewertimestamp`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: number,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -308,24 +339,31 @@ const Datatable = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/approval/getreviewerworkitemsync`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: {
+        SyncTime: number;
+      },
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setReviewList((prev: any) =>
-          prev.map((data: any) => {
-            if (data.SubmissionId === submissionId) {
-              return new Object({
-                ...data,
-                Timer: ResponseData.SyncTime,
-              });
-            } else {
-              return data;
-            }
-          })
-        );
-        setIsLoadingApprovalsDatatable(false);
+        if (ResponseData !== null) {
+          setReviewList((prev: List[] | []) =>
+            prev.map((data: List) => {
+              if (data.SubmissionId === submissionId) {
+                return {
+                  ...data,
+                  Timer: ResponseData?.SyncTime,
+                };
+              } else {
+                return data;
+              }
+            })
+          );
+          setIsLoadingApprovalsDatatable(false);
+        } else {
+          getReviewList();
+          setIsLoadingApprovalsDatatable(false);
+        }
       } else {
         setIsLoadingApprovalsDatatable(false);
       }
@@ -336,29 +374,41 @@ const Datatable = ({
   useEffect(() => {
     setRunning(
       reviewList.filter(
-        (data: any) => data.TimelogId > 0 || data.TimelogId !== null
+        (data: List) => data.TimelogId !== null && data.TimelogId > 0
       ).length > 0
-        ? reviewList.filter(
-            (data: any) => data.TimelogId > 0 || data.TimelogId !== null
-          )[0].WorkitemId
+        ? reviewList
+            .map((data: any) =>
+              typeof data.TimelogId !== null && data.TimelogId > 0
+                ? data.WorkitemId
+                : false
+            )
+            .filter((j: number | boolean) => j !== false)[0]
         : -1
     );
     setWorkitemTimeId(
       reviewList.filter(
-        (data: any) => data.TimelogId > 0 || data.TimelogId !== null
+        (data: List) => data.TimelogId !== null && data.TimelogId > 0
       ).length > 0
-        ? reviewList.filter(
-            (data: any) => data.TimelogId > 0 || data.TimelogId !== null
-          )[0].TimelogId
+        ? reviewList
+            .map((data: any) =>
+              typeof data.TimelogId !== null && data.TimelogId > 0
+                ? data.TimelogId
+                : false
+            )
+            .filter((j: number | boolean) => j !== false)[0]
         : -1
     );
     setSubmissionId(
       reviewList.filter(
-        (data: any) => data.TimelogId > 0 || data.TimelogId !== null
+        (data: List) => data.TimelogId !== null && data.TimelogId > 0
       ).length > 0
-        ? reviewList.filter(
-            (data: any) => data.TimelogId > 0 || data.TimelogId !== null
-          )[0].SubmissionId
+        ? reviewList
+            .map((data: any) =>
+              typeof data.TimelogId !== null && data.TimelogId > 0
+                ? data.SubmissionId
+                : false
+            )
+            .filter((j: number | boolean) => j !== false)[0]
         : -1
     );
   }, [reviewList]);
@@ -368,7 +418,16 @@ const Datatable = ({
       ...filteredObject,
       ...currentFilterData,
     });
-  }, [currentFilterData, activeTab]);
+  }, [currentFilterData]);
+
+  useEffect(() => {
+    setFilteredOject({
+      ...filteredObject,
+      ...currentFilterData,
+      PageNo: pageNo,
+      PageSize: pageSize,
+    });
+  }, [activeTab]);
 
   useEffect(() => {
     setFilteredOject({
@@ -422,7 +481,7 @@ const Datatable = ({
     isWorkloadExpanded && fetchData();
   }, [isWorkloadExpanded]);
 
-  const generateManualTimeBodyRender = (bodyValue: string | number) => {
+  const generateManualTimeBodyRender = (bodyValue: number) => {
     return <div>{bodyValue ? formatTime(bodyValue) : "00:00:00"}</div>;
   };
 
@@ -735,6 +794,11 @@ const Datatable = ({
       bodyRenderer: generateCustomFormatDate,
     },
     {
+      name: "ReviewDate",
+      label: "Review Date",
+      bodyRenderer: generateCustomFormatDate,
+    },
+    {
       name: "EmpolyeeName",
       label: "Employee",
       bodyRenderer: generateCommonBodyRender,
@@ -831,7 +895,7 @@ const Datatable = ({
                   </span>
                 </ColorToolTip>
                 {reviewList[tableMeta.rowIndex].ReviewerId ==
-                  localStorage.getItem("UserId") &&
+                  Number(localStorage.getItem("UserId")) &&
                   reviewList.length > 0 &&
                   (reviewList[tableMeta.rowIndex].StatusType ===
                     "InReviewWithClients" ||
@@ -889,7 +953,7 @@ const Datatable = ({
                     )
                   ))}
                 {reviewList[tableMeta.rowIndex].ReviewerId ==
-                  localStorage.getItem("UserId") &&
+                  Number(localStorage.getItem("UserId")) &&
                   (tableMeta.rowData[tableMeta.rowData.length - 2] === 1 ||
                     tableMeta.rowData[tableMeta.rowData.length - 1] ===
                       isRunning) && (
@@ -949,7 +1013,7 @@ const Datatable = ({
                   reviewList[tableMeta.rowIndex].StatusType ===
                     "ReworkSubmitted") &&
                   reviewList[tableMeta.rowIndex].ReviewerId ==
-                    localStorage.getItem("UserId") &&
+                    Number(localStorage.getItem("UserId")) &&
                   tableMeta.rowData[tableMeta.rowData.length - 4] !== false && (
                     <ColorToolTip
                       title="Reviewer Manual Time"

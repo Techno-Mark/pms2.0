@@ -4,25 +4,28 @@ import HighchartsReact from "highcharts-react-official";
 
 import HighchartsVariablePie from "highcharts/modules/variable-pie";
 import { callAPI } from "@/utils/API/callAPI";
-import { ListProjectStatus } from "@/utils/Types/dashboardTypes";
+import {
+  DashboardInitialFilter,
+  ListProjectStatusSequence,
+} from "@/utils/Types/dashboardTypes";
 
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
 interface ChartProjectStatusProps {
   onSelectedProjectIds: number[];
-  onSelectedWorkType: number;
-  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
+  currentFilterData: DashboardInitialFilter;
+  sendData: (isDialogOpen: boolean, selectedPointData: number) => void;
 }
 
 interface Response {
-  List: ListProjectStatus[] | [];
+  List: ListProjectStatusSequence[] | [];
   TotalCount: number;
 }
 
 const Chart_ProjectStatus: React.FC<ChartProjectStatusProps> = ({
   onSelectedProjectIds,
-  onSelectedWorkType,
+  currentFilterData,
   sendData,
 }) => {
   const [data, setData] = useState<any | any[]>([]);
@@ -30,7 +33,13 @@ const Chart_ProjectStatus: React.FC<ChartProjectStatusProps> = ({
 
   const getProjectStatusData = async () => {
     const params = {
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.TypeOfWork === null
+          ? 0
+          : currentFilterData.TypeOfWork,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
       ProjectId:
         onSelectedProjectIds.length === 0 ? null : onSelectedProjectIds,
     };
@@ -41,12 +50,15 @@ const Chart_ProjectStatus: React.FC<ChartProjectStatusProps> = ({
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        const chartData = ResponseData.List.map((item: ListProjectStatus) => ({
-          name: item.Key,
-          y: item.Value,
-          percentage: item.Percentage,
-          ColorCode: item.ColorCode,
-        }));
+        const chartData = ResponseData.List.map(
+          (item: ListProjectStatusSequence) => ({
+            name: item.Key,
+            y: item.Value,
+            percentage: item.Percentage,
+            ColorCode: item.ColorCode,
+            Sequence: item.Sequence,
+          })
+        );
 
         setData(chartData);
         setTotalCount(ResponseData.TotalCount);
@@ -56,8 +68,14 @@ const Chart_ProjectStatus: React.FC<ChartProjectStatusProps> = ({
   };
 
   useEffect(() => {
-    getProjectStatusData();
-  }, [onSelectedWorkType]);
+    const fetchData = async () => {
+      await getProjectStatusData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentFilterData]);
 
   const chartOptions = {
     chart: {
@@ -99,11 +117,11 @@ const Chart_ProjectStatus: React.FC<ChartProjectStatusProps> = ({
         cursor: "pointer",
         point: {
           events: {
-            click: (event: { point: { name: string } }) => {
+            click: (event: { point: { Sequence: number } }) => {
               const selectedPointData = {
-                name: (event.point && event.point.name) || "",
+                Sequence: (event.point && event.point.Sequence) || 0,
               };
-              sendData(true, selectedPointData.name);
+              sendData(true, selectedPointData.Sequence);
             },
           },
         },

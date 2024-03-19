@@ -203,7 +203,7 @@ const ApprovalsActionBar = ({
         />
         <ConditionalComponent
           condition={
-            hasPermissionWorklog("", "Approve", "Approvals") &&
+            hasPermissionWorklog("", "Reject", "Approvals") &&
             selectedRowsCount === 1 &&
             isNotReviewer.length === 0 &&
             isReviewer.length > 0 &&

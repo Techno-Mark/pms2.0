@@ -129,16 +129,22 @@ const Navbar = (props: NavbarPropsType) => {
     callAPI(url, params, successCallback, "GET");
   };
 
-  const fetchData = async () => {
+  const fetchDataUser = async () => {
     await getUserDetails();
     if (props.onUserDetailsFetch) {
-      props.onUserDetailsFetch(() => fetchData());
+      props.onUserDetailsFetch(() => fetchDataUser());
     }
   };
 
   useEffect(() => {
-    fetchData();
-    getUserDetails();
+    const fetchData = async () => {
+      await fetchDataUser();
+      await getUserDetails();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [token]);
 
   orgDataNavbar.map(({ Token, OrganizationName, OrganizationId }) => {

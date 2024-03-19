@@ -48,6 +48,7 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import mentionsInputStyle from "@/utils/worklog/mentionsInputStyle";
 import { callAPI } from "@/utils/API/callAPI";
 import OverLay from "../common/OverLay";
+import { SubtaskGetByWorkitem } from "@/utils/Types/worklogsTypes";
 
 const Drawer = ({
   onOpen,
@@ -246,7 +247,7 @@ const Drawer = ({
       WorkitemId: onEdit,
     };
     const url = `${process.env.worklog_api_url}/workitem/subtask/getbyworkitem`;
-    const successCallback = (ResponseData: any, error: any) => {
+    const successCallback = (ResponseData: SubtaskGetByWorkitem[] | [], error: any) => {
       if (ResponseData !== null && ResponseData.length > 0 && error === false) {
         setSubTaskClientWorklogSwitch(
           hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")
@@ -733,7 +734,7 @@ const Drawer = ({
                 ErrorCount: 0,
                 NatureOfError: 0,
                 CC: [],
-                Remark: i.Remark,
+                Remark: i.Remark.trim(),
                 Attachments:
                   i.Attachments[0].SystemFileName.length > 0
                     ? i.Attachments

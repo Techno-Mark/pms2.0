@@ -1,3 +1,5 @@
+import { LabelValueProfileImage } from "./types";
+
 export interface List {
   WorkitemId: number;
   TaskName: string;
@@ -135,4 +137,124 @@ export interface WorkitemGetbyid {
   IsHasErrorlogAddedByClient: boolean;
   ErrorlogSignedOffPending: boolean;
   WorkItemId: number;
+}
+
+export interface SubtaskGetByWorkitem {
+  SubtaskId: number;
+  Title: string;
+  Description: string;
+}
+
+export interface RecurringGetByWorkitem {
+  WorkItemId: number;
+  StartDate: string;
+  EndDate: string;
+  Type: number;
+  Triggers: number[] | [];
+  IsActive: boolean;
+}
+
+export interface ManualTimeFields {
+  AssigneeId: number;
+  Id: number;
+  inputDate: string;
+  startTime: string;
+  endTime: string;
+  totalTime: string;
+  manualDesc: string;
+  IsApproved: boolean;
+}
+
+export interface GetManualLogByWorkitem {
+  Id: number;
+  Date: string;
+  StartTime: string;
+  EndTime: string;
+  AssigneeId: number;
+  Comment: string;
+  IsApproved: boolean;
+  totalTime?: string;
+}
+
+export interface ManualFieldsWorklogs {
+  AssigneeId: number;
+  Id: number;
+  inputDate: string;
+  startTime: string;
+  endTime: string;
+  totalTime: string;
+  manualDesc: string;
+  IsApproved: boolean;
+}
+
+export interface ReminderGetByWorkitem {
+  ReminderId: number;
+  ReminderType: number;
+  ReminderDate: string | null;
+  ReminderTime: number;
+  ReminderUserIds: number[];
+  IsActive: boolean;
+}
+
+export interface CommentAttachment {
+  AttachmentId: number;
+  UserFileName: string;
+  SystemFileName: string;
+  AttachmentPath: string;
+}
+
+export interface CommentGetByWorkitem {
+  UserId: number;
+  Message: string;
+  Type: number;
+  TaggedUsers: number[] | [];
+  SubmitedDate: string;
+  SubmitedTime: string;
+  UserName: string;
+  Attachment: CommentAttachment[] | [];
+  CommentId: number;
+}
+
+export interface ErrorlogGetByWorkitem {
+  ErrorLogId: number;
+  SubmitedBy: string;
+  SubmitedOn: string;
+  ErrorType: number;
+  RootCause: number;
+  NatureOfError: number;
+  Priority: number;
+  ErrorCount: number;
+  CC: any;
+  Remark: string;
+  Attachment?: CommentAttachment[] | [];
+  Attachments?: CommentAttachment[] | [];
+  IsSolved?: boolean;
+  isSolved?: boolean;
+  DisableErrorLog: boolean;
+}
+
+export interface ReviewerNoteDetails {
+  ReviewerId: number;
+  ReviewerName: string;
+  ProfileImage: string;
+  ReviewedDateTime: string;
+  Comment: string;
+  Status: string;
+  ReviewedDate: string;
+}
+
+export interface GetReviewerNoteList {
+  ReviewedDate: string;
+  Details: ReviewerNoteDetails[];
+}
+
+export interface AuditlogGetByWorkitem {
+  UpdatedFieldsList: {
+    Field: string;
+    NewValue: string;
+    OldValue: string;
+  }[];
+  UpdatedOn: string;
+  UpdatedById: number;
+  UpdatedBy: string;
 }

@@ -20,18 +20,19 @@ import ExportIcon from "@/assets/icons/ExportIcon";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { LabelValue } from "@/utils/Types/types";
+import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 
 interface BillingTypeDialogProps {
   onOpen: boolean;
   onClose: () => void;
-  onSelectedWorkType: number;
+  currentFilterData: DashboardInitialFilter;
   onSelectedStatusName: string;
 }
 
 const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
   onOpen,
   onClose,
-  onSelectedWorkType,
+  currentFilterData,
   onSelectedStatusName,
 }) => {
   const [allBillingType, setAllBillingType] = useState<LabelValue[]>([]);
@@ -91,7 +92,13 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
           PageSize: 50000,
           SortColumn: null,
           IsDesc: true,
-          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+          Clients: currentFilterData.Clients,
+          WorkTypeId:
+            currentFilterData.TypeOfWork === null
+              ? 0
+              : currentFilterData.TypeOfWork,
+          StartDate: currentFilterData.StartDate,
+          EndDate: currentFilterData.EndDate,
           GlobalSearch: searchValue,
           BillingTypeId: billingType === 0 ? null : billingType,
           IsDownload: true,
@@ -200,7 +207,7 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
             </div>
           </div>
           <Datatable_BillingType
-            onSelectedWorkType={onSelectedWorkType}
+            currentFilterData={currentFilterData}
             onSelectedStatusName={onSelectedStatusName}
             onCurrentSelectedBillingType={billingType}
             onSearchValue={searchValue}

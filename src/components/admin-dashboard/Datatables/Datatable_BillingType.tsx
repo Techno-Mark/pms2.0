@@ -10,9 +10,10 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardBillingTypeCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
+import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 
 interface BillingTypeProps {
-  onSelectedWorkType: number;
+  currentFilterData: DashboardInitialFilter;
   onSelectedStatusName: string;
   onCurrentSelectedBillingType: number | null;
   onSearchValue: string;
@@ -37,7 +38,7 @@ interface Response {
 }
 
 const Datatable_BillingType: React.FC<BillingTypeProps> = ({
-  onSelectedWorkType,
+  currentFilterData,
   onSelectedStatusName,
   onCurrentSelectedBillingType,
   onSearchValue,
@@ -53,7 +54,13 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
       PageSize: rowsPerPage,
       SortColumn: null,
       IsDesc: true,
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.TypeOfWork === null
+          ? 0
+          : currentFilterData.TypeOfWork,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
       GlobalSearch: value,
       BillingTypeId:
         onCurrentSelectedBillingType === 0
@@ -79,13 +86,19 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
   }, [onCurrentSelectedBillingType]);
 
   useEffect(() => {
-    if (onSearchValue.length >= 3) {
-      getBillingTypeData(onSearchValue);
-    } else {
-      getBillingTypeData("");
-    }
+    const fetchData = async () => {
+      if (onSearchValue.trim().length > 0) {
+        await getBillingTypeData(onSearchValue);
+      } else {
+        await getBillingTypeData("");
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
-    onSelectedWorkType,
+    currentFilterData,
     onSelectedStatusName,
     onCurrentSelectedBillingType,
     onSearchValue,

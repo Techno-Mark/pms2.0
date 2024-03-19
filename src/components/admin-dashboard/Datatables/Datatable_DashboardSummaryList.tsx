@@ -11,18 +11,19 @@ import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardSummaryCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
 import {
+  DashboardInitialFilter,
   ListDashboard,
   ResponseDashboardProjectSummary,
 } from "@/utils/Types/dashboardTypes";
 
 interface DashboardSummaryListProps {
-  onSelectedWorkType: number;
-  onClickedSummaryTitle: string;
-  onCurrSelectedSummaryTitle: string;
+  currentFilterData: DashboardInitialFilter;
+  onClickedSummaryTitle: number;
+  onCurrSelectedSummaryTitle: number;
 }
 
 const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
-  onSelectedWorkType,
+  currentFilterData,
   onClickedSummaryTitle,
   onCurrSelectedSummaryTitle,
 }) => {
@@ -39,10 +40,17 @@ const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
       PageSize: rowsPerPage,
       SortColumn: null,
       IsDesc: true,
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-      Key: onCurrSelectedSummaryTitle
-        ? onCurrSelectedSummaryTitle
-        : onClickedSummaryTitle,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.TypeOfWork === null
+          ? 0
+          : currentFilterData.TypeOfWork,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
+      Key:
+        onCurrSelectedSummaryTitle > 0
+          ? onCurrSelectedSummaryTitle
+          : onClickedSummaryTitle,
     };
     const url = `${process.env.report_api_url}/dashboard/dashboardsummarylist`;
     const successCallback = (
@@ -63,11 +71,17 @@ const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
   }, [onCurrSelectedSummaryTitle]);
 
   useEffect(() => {
-    if (onCurrSelectedSummaryTitle !== "" || onClickedSummaryTitle !== "") {
-      getProjectSummaryData();
-    }
+    const fetchData = async () => {
+      if (onCurrSelectedSummaryTitle > 0 || onClickedSummaryTitle > 0) {
+        await getProjectSummaryData();
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
-    onSelectedWorkType,
+    currentFilterData,
     onClickedSummaryTitle,
     onCurrSelectedSummaryTitle,
     page,

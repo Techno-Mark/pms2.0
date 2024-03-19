@@ -15,11 +15,30 @@ export interface KeyValueColorCode {
   Value: number;
 }
 
+export interface KeyValueColorCodeSequence {
+  ColorCode: string;
+  Key: string;
+  Value: number;
+  Sequence: number;
+}
+
 export interface LabelValueTypeIsDefault {
   Type: number;
   IsDefault: boolean;
   label: string;
   value: number;
+}
+
+export interface LabelValueProfileImage {
+  ProfileImage: string;
+  label: string;
+  value: number;
+}
+
+export interface IdNameEstimatedHour {
+  Id: number;
+  Name: string;
+  EstimatedHour: null | string;
 }
 
 export interface AppliedFilterApprovals {
@@ -33,11 +52,6 @@ export interface AppliedFilterApprovals {
   startDate: string | null;
   endDate: string | null;
   DateFilter: string | null;
-}
-
-export interface AppliedFilterApprovalsPage {
-  PageNo: number | null;
-  PageSize: number | null;
 }
 
 export interface ActionList {

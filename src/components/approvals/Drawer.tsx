@@ -71,6 +71,11 @@ import { callAPI } from "@/utils/API/callAPI";
 import { generateCommonBodyRender } from "@/utils/datatable/CommonFunction";
 import MUIDataTable from "mui-datatables";
 import OverLay from "../common/OverLay";
+import {
+  ManualTimeFields,
+  RecurringGetByWorkitem,
+  SubtaskGetByWorkitem,
+} from "@/utils/Types/worklogsTypes";
 
 const EditDrawer = ({
   onOpen,
@@ -78,7 +83,6 @@ const EditDrawer = ({
   onEdit,
   onDataFetch,
   onHasId,
-  hasIconIndex,
   onComment,
   onErrorLog,
   onManualTime,
@@ -327,7 +331,7 @@ const EditDrawer = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/subtask/getbyworkitem`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: SubtaskGetByWorkitem[] | [],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -392,7 +396,7 @@ const EditDrawer = ({
         };
         const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
         const successCallback = (
-          ResponseData: any,
+          ResponseData: null,
           error: boolean,
           ResponseStatus: string
         ) => {
@@ -436,7 +440,7 @@ const EditDrawer = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/recurring/getbyworkitem`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: RecurringGetByWorkitem | null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -445,15 +449,9 @@ const EditDrawer = ({
         ResponseData !== null &&
         error === false
       ) {
-        setRecurringStartDateApprovals(
-          ResponseData.length <= 0 ? "" : ResponseData.StartDate
-        );
-        setRecurringEndDateApprovals(
-          ResponseData.length <= 0 ? "" : ResponseData.EndDate
-        );
-        setRecurringTimeApprovals(
-          ResponseData.length <= 0 ? 0 : ResponseData.Type
-        );
+        setRecurringStartDateApprovals(ResponseData.StartDate);
+        setRecurringEndDateApprovals(ResponseData.EndDate);
+        setRecurringTimeApprovals(ResponseData.Type);
         ResponseData.Type === 2
           ? setSelectedDays(ResponseData.Triggers)
           : ResponseData.Type === 3
@@ -698,7 +696,7 @@ const EditDrawer = ({
         };
         const url = `${process.env.worklog_api_url}/workitem/checklist/createbyworkitem`;
         const successCallback = (
-          ResponseData: any,
+          ResponseData: null,
           error: boolean,
           ResponseStatus: string
         ) => {
@@ -758,7 +756,7 @@ const EditDrawer = ({
       setIsLoadingApprovals(true);
       const url = `${process.env.worklog_api_url}/workitem/checklist/savebyworkitem`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: null,
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -834,7 +832,7 @@ const EditDrawer = ({
         };
         const url = `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`;
         const successCallback = (
-          ResponseData: any,
+          ResponseData: null,
           error: boolean,
           ResponseStatus: string
         ) => {
@@ -945,7 +943,7 @@ const EditDrawer = ({
         };
         const url = `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`;
         const successCallback = (
-          ResponseData: any,
+          ResponseData: null,
           error: boolean,
           ResponseStatus: string
         ) => {
@@ -1511,7 +1509,7 @@ const EditDrawer = ({
         };
         const url = `${process.env.worklog_api_url}/workitem/approval/savereviewermanualtimelog`;
         const successCallback = (
-          ResponseData: any,
+          ResponseData: null,
           error: boolean,
           ResponseStatus: string
         ) => {
@@ -1801,10 +1799,10 @@ const EditDrawer = ({
     setInputDateErrors(newInputDateErrors);
   };
 
-  const setManualDisableData = (manualField: any) => {
+  const setManualDisableData = (manualField: ManualTimeFields[]) => {
     setManualSubmitDisable(
       manualField
-        .map((i: any) => (i.IsApproved === false ? false : true))
+        .map((i: ManualTimeFields) => (i.IsApproved === false ? false : true))
         .includes(false)
         ? false
         : true
