@@ -5,14 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
-import {
-  Autocomplete,
-  Card,
-  FormControl,
-  Grid,
-  TextField,
-  ThemeProvider,
-} from "@mui/material";
+import { Card, Grid, ThemeProvider } from "@mui/material";
 import { toast } from "react-toastify";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import Chart_BillingType from "@/components/admin-dashboard/charts/Chart_BillingType";
@@ -97,7 +90,6 @@ interface InitialFilter {
   PageNo: number;
   SortColumn: string;
   IsDesc: boolean;
-  Clients: null | number[];
 }
 
 const pageNo = 1;
@@ -108,7 +100,6 @@ const initialFilter = {
   PageNo: pageNo,
   SortColumn: "",
   IsDesc: true,
-  Clients: null,
 };
 
 const Page = () => {
@@ -199,7 +190,7 @@ const Page = () => {
   }, [router]);
 
   const getReportData = async () => {
-    const params = filteredObject;
+    const params = { ...filteredObject, ...currentFilterData };
     const url = `${process.env.report_api_url}/dashboard/dashboardclientsummary`;
     const successCallback = (
       ResponseData: DashboardSummaryReport,
@@ -216,7 +207,7 @@ const Page = () => {
 
   useEffect(() => {
     activeTab === 2 && getReportData();
-  }, [activeTab, filteredObject]);
+  }, [activeTab, filteredObject, currentFilterData]);
 
   const getProjectSummary = async () => {
     const params = {
@@ -278,6 +269,7 @@ const Page = () => {
         `${process.env.report_api_url}/dashboard/dashboardclientsummary/export`,
         {
           ...filteredObject,
+          ...currentFilterData,
           IsDownload: true,
         },
         {
@@ -340,7 +332,6 @@ const Page = () => {
           <label
             onClick={() => {
               setActiveTab(2);
-              setFilteredObject({ ...filteredObject, Clients: null });
             }}
             className={`py-[10px] text-[16px] cursor-pointer select-none ${
               activeTab === 2

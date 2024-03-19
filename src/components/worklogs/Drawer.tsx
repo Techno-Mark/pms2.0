@@ -986,7 +986,7 @@ const EditDrawer = ({
             setIsLoadingWorklogs(false);
           }
         };
-        // callAPI(url, params, successCallback, "POST");
+        callAPI(url, params, successCallback, "POST");
       }
     } else {
       toast.warning("Only Assingnee can Edit Manual time.");
@@ -1562,7 +1562,7 @@ const EditDrawer = ({
                     AttachmentId: 0,
                     UserFileName: "",
                     SystemFileName: "",
-                    AttachmentPath: "",
+                    AttachmentPath: process.env.attachment || "",
                   },
                 ],
             isSolved: i.IsSolved,

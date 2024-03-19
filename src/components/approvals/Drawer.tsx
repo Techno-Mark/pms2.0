@@ -72,10 +72,40 @@ import { generateCommonBodyRender } from "@/utils/datatable/CommonFunction";
 import MUIDataTable from "mui-datatables";
 import OverLay from "../common/OverLay";
 import {
+  AuditlogGetByWorkitem,
+  CommentAttachment,
+  CommentGetByWorkitem,
+  ErrorlogGetByWorkitem,
+  GetManualLogByWorkitem,
+  GetManualLogByWorkitemReviewer,
+  GetReviewerNoteList,
+  ManualFieldsWorklogs,
   ManualTimeFields,
   RecurringGetByWorkitem,
+  ReminderGetByWorkitem,
+  ReviewerNoteDetails,
   SubtaskGetByWorkitem,
+  WorkitemGetbyid,
 } from "@/utils/Types/worklogsTypes";
+import {
+  IdNameEstimatedHour,
+  LabelValue,
+  LabelValueProfileImage,
+  LabelValueType,
+  User,
+} from "@/utils/Types/types";
+
+interface EditDrawer {
+  onOpen: boolean;
+  onClose: () => void;
+  onEdit: number;
+  onDataFetch: (() => void) | null;
+  onHasId: number;
+  onComment: boolean;
+  onErrorLog: boolean;
+  onManualTime: boolean;
+  activeTab: number;
+}
 
 const EditDrawer = ({
   onOpen,
@@ -87,7 +117,7 @@ const EditDrawer = ({
   onErrorLog,
   onManualTime,
   activeTab,
-}: any) => {
+}: EditDrawer) => {
   const router = useRouter();
   const yearDropdown = getYears();
   const [userId, setUserId] = useState(0);
@@ -105,10 +135,10 @@ const EditDrawer = ({
   const [inputTypeStartTime, setInputTypeStartTime] = useState(["text"]);
   const [inputTypeEndTime, setInputTypeEndTime] = useState(["text"]);
 
-  const toggleColor = (index: any) => {
+  const toggleColor = (index: number) => {
     if (selectedDays.includes(index)) {
       setSelectedDays(
-        selectedDays.filter((dayIndex: any) => dayIndex !== index)
+        selectedDays.filter((dayIndex: number) => dayIndex !== index)
       );
     } else {
       setSelectedDays([...selectedDays, index]);
@@ -146,7 +176,7 @@ const EditDrawer = ({
     }
   };
 
-  const handleMultiSelect = (e: React.SyntheticEvent, value: any) => {
+  const handleMultiSelect = (e: React.SyntheticEvent, value: LabelValue[]) => {
     if (value !== undefined) {
       setReminderNotificationApprovals(value);
     } else {
@@ -154,7 +184,10 @@ const EditDrawer = ({
     }
   };
 
-  const handleMultiSelectMonth = (e: React.SyntheticEvent, value: any) => {
+  const handleMultiSelectMonth = (
+    e: React.SyntheticEvent,
+    value: LabelValue[]
+  ) => {
     if (value !== undefined) {
       setRecurringMonthApprovals(value);
     } else {
@@ -305,23 +338,26 @@ const EditDrawer = ({
     setSubTaskDescriptionApprovalsErr(newSubTaskDescriptionErrors);
   };
 
-  const handleSubTaskChangeApprovals = (e: any, index: number) => {
+  const handleSubTaskChangeApprovals = (e: string, index: number) => {
     const newTaskFields = [...subTaskFieldsApprovals];
-    newTaskFields[index].Title = e.target.value;
+    newTaskFields[index].Title = e;
     setSubTaskFieldsApprovals(newTaskFields);
 
     const newTaskErrors = [...taskNameApprovalsErr];
-    newTaskErrors[index] = e.target.value.trim().length === 0;
+    newTaskErrors[index] = e.trim().length === 0;
     setTaskNameApprovalsErr(newTaskErrors);
   };
 
-  const handleSubTaskDescriptionChangeApprovals = (e: any, index: number) => {
+  const handleSubTaskDescriptionChangeApprovals = (
+    e: string,
+    index: number
+  ) => {
     const newTaskFields = [...subTaskFieldsApprovals];
-    newTaskFields[index].Description = e.target.value;
+    newTaskFields[index].Description = e;
     setSubTaskFieldsApprovals(newTaskFields);
 
     const newSubTaskDescErrors = [...subTaskDescriptionApprovalsErr];
-    newSubTaskDescErrors[index] = e.target.value.trim().length === 0;
+    newSubTaskDescErrors[index] = e.trim().length === 0;
     setSubTaskDescriptionApprovalsErr(newSubTaskDescErrors);
   };
 
@@ -384,7 +420,7 @@ const EditDrawer = ({
           workitemId: onEdit,
           subtasks: subTaskSwitchApprovals
             ? subTaskFieldsApprovals.map(
-                (i: any) =>
+                (i: SubtaskGetByWorkitem) =>
                   new Object({
                     SubtaskId: i.SubtaskId,
                     Title: i.Title.trim(),
@@ -456,7 +492,7 @@ const EditDrawer = ({
           ? setSelectedDays(ResponseData.Triggers)
           : ResponseData.Type === 3
           ? setRecurringMonthApprovals(
-              ResponseData.Triggers.map((trigger: any) =>
+              ResponseData.Triggers.map((trigger: number) =>
                 months.find((month) => month.value === trigger)
               ).filter(Boolean)
             )
@@ -473,7 +509,9 @@ const EditDrawer = ({
   };
 
   // ManualTime
-  const [manualFieldsApprovals, setManualFieldsApprovals] = useState([
+  const [manualFieldsApprovals, setManualFieldsApprovals] = useState<
+    ManualFieldsWorklogs[]
+  >([
     {
       AssigneeId: 0,
       Id: 0,
@@ -482,6 +520,7 @@ const EditDrawer = ({
       endTime: "",
       totalTime: "",
       manualDesc: "",
+      IsApproved: false,
     },
   ]);
 
@@ -491,7 +530,7 @@ const EditDrawer = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/timelog/getManuallogByWorkitem`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: GetManualLogByWorkitem[] | [],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -501,18 +540,16 @@ const EditDrawer = ({
         error === false
       ) {
         setManualFieldsApprovals(
-          ResponseData.map(
-            (i: any) =>
-              new Object({
-                AssigneeId: i.AssigneeId,
-                Id: i.Id,
-                inputDate: i.Date,
-                startTime: i.StartTime,
-                endTime: i.EndTime,
-                totalTime: getTimeDifference(i.StartTime, i.EndTime),
-                manualDesc: i.Comment,
-              })
-          )
+          ResponseData.map((i: GetManualLogByWorkitem) => ({
+            AssigneeId: i.AssigneeId,
+            Id: i.Id,
+            inputDate: i.Date,
+            startTime: i.StartTime,
+            endTime: i.EndTime,
+            totalTime: getTimeDifference(i.StartTime, i.EndTime),
+            manualDesc: i.Comment,
+            IsApproved: i.IsApproved,
+          }))
         );
       } else {
         setManualFieldsApprovals([
@@ -524,6 +561,7 @@ const EditDrawer = ({
             endTime: "",
             totalTime: "",
             manualDesc: "",
+            IsApproved: false,
           },
         ]);
       }
@@ -556,7 +594,7 @@ const EditDrawer = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/reminder/getbyworkitem`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: ReminderGetByWorkitem | null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -573,12 +611,14 @@ const EditDrawer = ({
             : true
         );
         setReminderCheckboxValueApprovals(ResponseData.ReminderType);
-        setReminderDateApprovals(ResponseData.ReminderDate);
+        setReminderDateApprovals(
+          ResponseData.ReminderDate === null ? "" : ResponseData.ReminderDate
+        );
         setReminderTimeApprovals(ResponseData.ReminderTime);
         setReminderNotificationApprovals(
-          ResponseData.ReminderUserIds.map((reminderUserId: any) =>
+          ResponseData.ReminderUserIds.map((reminderUserId: number) =>
             assigneeApprovalsDropdownData.find(
-              (assignee: { value: any }) => assignee.value === reminderUserId
+              (assignee: { value: number }) => assignee.value === reminderUserId
             )
           ).filter(Boolean)
         );
@@ -624,7 +664,7 @@ const EditDrawer = ({
               : null,
           ReminderTime: reminderTimeApprovals,
           ReminderUserIds: reminderNotificationApprovals.map(
-            (i: any) => i.value
+            (i: LabelValue) => i.value
           ),
         };
         const url = `${process.env.worklog_api_url}/workitem/reminder/savebyworkitem`;
@@ -658,14 +698,14 @@ const EditDrawer = ({
   const [checkListDataApprovals, setCheckListDataApprovals] = useState([]);
   const [itemStatesApprovals, setItemStatesApprovals] = useState<any>({});
 
-  const toggleGeneralOpen = (index: any) => {
+  const toggleGeneralOpen = (index: number) => {
     setItemStatesApprovals((prevStates: any) => ({
       ...prevStates,
       [index]: !prevStates[index],
     }));
   };
 
-  const toggleAddChecklistField = (index: any) => {
+  const toggleAddChecklistField = (index: number) => {
     setItemStatesApprovals((prevStates: any) => ({
       ...prevStates,
       [`addChecklistField_${index}`]: !prevStates[`addChecklistField_${index}`],
@@ -776,10 +816,11 @@ const EditDrawer = ({
 
   // Comments
   const [commentsApprovalsDrawer, setCommentsApprovalsDrawer] = useState(true);
-  const [commentSelectApprovals, setCommentSelectApprovals] = useState<
-    number | string
-  >(1);
-  const [commentDataApprovals, setCommentDataApprovals] = useState([]);
+  const [commentSelectApprovals, setCommentSelectApprovals] =
+    useState<number>(1);
+  const [commentDataApprovals, setCommentDataApprovals] = useState<
+    CommentGetByWorkitem[] | []
+  >([]);
   const [value, setValue] = useState("");
   const [valueError, setValueError] = useState(false);
   const [valueEdit, setValueEdit] = useState("");
@@ -787,32 +828,36 @@ const EditDrawer = ({
   const [mention, setMention] = useState<any>([]);
   const [editingCommentIndexApprovals, setEditingCommentIndexApprovals] =
     useState(-1);
-  const [commentAttachmentApprovals, setCommentAttachmentApprovals] = useState([
+  const [commentAttachmentApprovals, setCommentAttachmentApprovals] = useState<
+    CommentAttachment[]
+  >([
     {
       AttachmentId: 0,
       UserFileName: "",
       SystemFileName: "",
-      AttachmentPath: process.env.attachment,
+      AttachmentPath: process.env.attachment || "",
     },
   ]);
   const [commentUserDataApprovals, setCommentUserDataApprovals] = useState([]);
 
-  const users: any =
-    commentUserDataApprovals?.length > 0 &&
-    commentUserDataApprovals.map(
-      (i: any) =>
-        new Object({
+  const users: { id: number; display: string }[] =
+    commentUserDataApprovals?.length > 0
+      ? commentUserDataApprovals.map((i: LabelValue) => ({
           id: i.value,
           display: i.label,
-        })
-    );
+        }))
+      : [];
 
-  const handleEditClick = (index: any, message: any) => {
+  const handleEditClick = (index: number, message: string) => {
     setEditingCommentIndexApprovals(index);
     setValueEdit(message);
   };
 
-  const handleSaveClickApprovals = async (e: any, i: any, type: any) => {
+  const handleSaveClickApprovals = async (
+    e: any,
+    i: CommentGetByWorkitem,
+    type: number
+  ) => {
     e.preventDefault();
     setValueEditError(valueEdit.trim().length < 1);
 
@@ -844,7 +889,7 @@ const EditDrawer = ({
                 AttachmentId: 0,
                 UserFileName: "",
                 SystemFileName: "",
-                AttachmentPath: process.env.attachment,
+                AttachmentPath: process.env.attachment || "",
               },
             ]);
             setValueEditError(false);
@@ -864,11 +909,11 @@ const EditDrawer = ({
     }
   };
 
-  const handleCommentChange = (e: any) => {
+  const handleCommentChange = (e: string) => {
     setMention(
       e
         .split("(")
-        .map((i: any, index: number) => {
+        .map((i: string) => {
           if (i.includes(")")) {
             const parsedValue = parseInt(i.split(")")[0]);
             return isNaN(parsedValue) ? null : parsedValue;
@@ -880,29 +925,29 @@ const EditDrawer = ({
   };
 
   const handleCommentAttachmentsChange = (
-    data1: any,
-    data2: any,
-    commentAttachment: any
+    data1: string,
+    data2: string,
+    commentAttachment: CommentAttachment[]
   ) => {
     const Attachment = [
       {
         AttachmentId: commentAttachment[0].AttachmentId,
         UserFileName: data1,
         SystemFileName: data2,
-        AttachmentPath: process.env.attachment,
+        AttachmentPath: process.env.attachment || "",
       },
     ];
     setCommentAttachmentApprovals(Attachment);
   };
 
-  const getCommentDataApprovals = async (type: any) => {
+  const getCommentDataApprovals = async (type: number) => {
     const params = {
       WorkitemId: onEdit,
       type: type,
     };
     const url = `${process.env.worklog_api_url}/workitem/comment/getByWorkitem`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: CommentGetByWorkitem[] | [],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -922,7 +967,7 @@ const EditDrawer = ({
 
   const handleSubmitComment = async (
     e: { preventDefault: () => void },
-    type: any
+    type: number
   ) => {
     e.preventDefault();
     setValueError(value.trim().length < 5);
@@ -955,7 +1000,7 @@ const EditDrawer = ({
                 AttachmentId: 0,
                 UserFileName: "",
                 SystemFileName: "",
-                AttachmentPath: process.env.attachment,
+                AttachmentPath: process.env.attachment || "",
               },
             ]);
             setValueEditError(false);
@@ -980,7 +1025,9 @@ const EditDrawer = ({
   const [cCDropdownDataApprovals, setCCDropdownDataApprovals] = useState<any>(
     []
   );
-  const [errorLogFieldsApprovals, setErrorLogFieldsApprovals] = useState([
+  const [errorLogFieldsApprovals, setErrorLogFieldsApprovals] = useState<
+    ErrorlogGetByWorkitem[]
+  >([
     {
       SubmitedBy: "",
       SubmitedOn: "",
@@ -997,10 +1044,11 @@ const EditDrawer = ({
           AttachmentId: 0,
           UserFileName: "",
           SystemFileName: "",
-          AttachmentPath: process.env.attachment,
+          AttachmentPath: process.env.attachment || "",
         },
       ],
       isSolved: false,
+      DisableErrorLog: false,
     },
   ]);
   const [errorTypeErrApprovals, setErrorTypeErrApprovals] = useState([false]);
@@ -1033,10 +1081,11 @@ const EditDrawer = ({
             AttachmentId: 0,
             UserFileName: "",
             SystemFileName: "",
-            AttachmentPath: process.env.attachment,
+            AttachmentPath: process.env.attachment || "",
           },
         ],
         isSolved: false,
+        DisableErrorLog: false,
       },
     ]);
     setErrorTypeErrApprovals([...errorTypeErrApprovals, false]);
@@ -1082,77 +1131,79 @@ const EditDrawer = ({
     setRemarkErrApprovals(newRemarkErrors);
   };
 
-  const handleErrorTypeChangeApprovals = (e: any, index: number) => {
+  const handleErrorTypeChangeApprovals = (e: number, index: number) => {
     const newFields = [...errorLogFieldsApprovals];
-    newFields[index].ErrorType = e.target.value;
+    newFields[index].ErrorType = e;
     setErrorLogFieldsApprovals(newFields);
 
     const newErrors = [...errorTypeErrApprovals];
-    newErrors[index] = e.target.value === 0;
+    newErrors[index] = e === 0;
     setErrorTypeErrApprovals(newErrors);
   };
 
-  const handleRootCauseChangeApprovals = (e: any, index: number) => {
+  const handleRootCauseChangeApprovals = (e: number, index: number) => {
     const newFields = [...errorLogFieldsApprovals];
-    newFields[index].RootCause = e.target.value;
+    newFields[index].RootCause = e;
     setErrorLogFieldsApprovals(newFields);
 
     const newErrors = [...rootCauseErrApprovals];
-    newErrors[index] = e.target.value === 0;
+    newErrors[index] = e === 0;
     setRootCauseErrApprovals(newErrors);
   };
 
-  const handleNatureOfErrorChangeApprovals = (e: any, index: number) => {
+  const handleNatureOfErrorChangeApprovals = (e: number, index: number) => {
     const newFields = [...errorLogFieldsApprovals];
-    newFields[index].NatureOfError = e.target.value;
+    newFields[index].NatureOfError = e;
     setErrorLogFieldsApprovals(newFields);
 
     const newErrors = [...natureOfErrApprovals];
-    newErrors[index] = e.target.value === 0;
+    newErrors[index] = e === 0;
     setNatureOfErrApprovals(newErrors);
   };
 
-  const handlePriorityChangeApprovals = (e: any, index: number) => {
+  const handlePriorityChangeApprovals = (e: number, index: number) => {
     const newFields = [...errorLogFieldsApprovals];
-    newFields[index].Priority = e.target.value;
+    newFields[index].Priority = e;
     setErrorLogFieldsApprovals(newFields);
 
     const newErrors = [...errorLogPriorityErrApprovals];
-    newErrors[index] = e.target.value === 0;
+    newErrors[index] = e === 0;
     setErrorLogPriorityErrApprovals(newErrors);
   };
 
-  const handleErrorCountChangeApprovals = (e: any, index: number) => {
+  const handleErrorCountChangeApprovals = (e: number, index: number) => {
     const newFields = [...errorLogFieldsApprovals];
-    newFields[index].ErrorCount = e.target.value;
+    newFields[index].ErrorCount = e;
     setErrorLogFieldsApprovals(newFields);
 
     const newErrors = [...errorCountErrApprovals];
-    newErrors[index] =
-      e.target.value < 0 || e.target.value.toString().length > 4;
+    newErrors[index] = e < 0 || e.toString().length > 4;
     setErrorCountErrApprovals(newErrors);
   };
 
-  const handleCCChangeApprovals = (newValue: any, index: any) => {
+  const handleCCChangeApprovals = (
+    newValue: LabelValueProfileImage[] | [],
+    index: number
+  ) => {
     const newFields = [...errorLogFieldsApprovals];
     newFields[index].CC = newValue;
     setErrorLogFieldsApprovals(newFields);
   };
 
-  const handleRemarksChangeApprovals = (e: any, index: number) => {
+  const handleRemarksChangeApprovals = (e: string, index: number) => {
     const newFields = [...errorLogFieldsApprovals];
-    newFields[index].Remark = e.target.value;
+    newFields[index].Remark = e;
     setErrorLogFieldsApprovals(newFields);
 
     const newErrors = [...remarkErrApprovals];
-    newErrors[index] = e.target.value.trim().length <= 0;
+    newErrors[index] = e.trim().length <= 0;
     setRemarkErrApprovals(newErrors);
   };
 
   const handleAttachmentsChangeApprovals = (
-    data1: any,
-    data2: any,
-    Attachments: any,
+    data1: string,
+    data2: string,
+    Attachments: CommentAttachment[],
     index: number
   ) => {
     const newFields = [...errorLogFieldsApprovals];
@@ -1161,7 +1212,7 @@ const EditDrawer = ({
         AttachmentId: Attachments[0].AttachmentId,
         UserFileName: data1,
         SystemFileName: data2,
-        AttachmentPath: process.env.attachment,
+        AttachmentPath: process.env.attachment || "",
       },
     ];
     setErrorLogFieldsApprovals(newFields);
@@ -1173,7 +1224,7 @@ const EditDrawer = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/errorlog/getByWorkitem`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: ErrorlogGetByWorkitem[] | [],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -1196,45 +1247,42 @@ const EditDrawer = ({
                     AttachmentId: 0,
                     UserFileName: "",
                     SystemFileName: "",
-                    AttachmentPath: process.env.attachment,
+                    AttachmentPath: process.env.attachment || "",
                   },
                 ],
                 isSolved: false,
+                DisableErrorLog: false,
               },
             ])
           : setErrorLogFieldsApprovals(
-              ResponseData.map(
-                (i: any) =>
-                  new Object({
-                    SubmitedBy: i.SubmitedBy,
-                    SubmitedOn: i.SubmitedOn,
-                    ErrorLogId: i.ErrorLogId,
-                    ErrorType: i.ErrorType,
-                    RootCause: i.RootCause,
-                    Priority: i.Priority,
-                    ErrorCount: i.ErrorCount,
-                    NatureOfError: i.NatureOfError,
-                    CC: i.CC.map((i: any) =>
-                      cCDropdownDataApprovals.find(
-                        (j: { value: any }) => j.value === i
-                      )
-                    ).filter(Boolean),
-                    Remark: i.Remark,
-                    Attachments:
-                      i.Attachment.length > 0 &&
-                      i.Attachment[0].SystemFileName.length > 0
-                        ? i.Attachment
-                        : [
-                            {
-                              AttachmentId: 0,
-                              UserFileName: "",
-                              SystemFileName: "",
-                              AttachmentPath: process.env.attachment,
-                            },
-                          ],
-                    isSolved: i.IsSolved,
-                  })
-              )
+              ResponseData.map((i: ErrorlogGetByWorkitem) => ({
+                SubmitedBy: i.SubmitedBy,
+                SubmitedOn: i.SubmitedOn,
+                ErrorLogId: i.ErrorLogId,
+                ErrorType: i.ErrorType,
+                RootCause: i.RootCause,
+                Priority: i.Priority,
+                ErrorCount: i.ErrorCount,
+                NatureOfError: i.NatureOfError,
+                CC: i.CC.map((cc: number) =>
+                  cCDropdownDataApprovals.find(
+                    (j: { value: number }) => j.value === cc
+                  )
+                ).filter(Boolean),
+                Remark: i.Remark,
+                Attachments: i.Attachment?.length
+                  ? i.Attachment
+                  : [
+                      {
+                        AttachmentId: 0,
+                        UserFileName: "",
+                        SystemFileName: "",
+                        AttachmentPath: process.env.attachment || "",
+                      },
+                    ],
+                isSolved: i.IsSolved,
+                DisableErrorLog: i.DisableErrorLog,
+              }))
             );
       }
     };
@@ -1285,7 +1333,7 @@ const EditDrawer = ({
         const params = {
           WorkItemId: onEdit,
           Errors: errorLogFieldsApprovals.map(
-            (i: any) =>
+            (i: ErrorlogGetByWorkitem) =>
               new Object({
                 ErrorLogId: i.ErrorLogId,
                 ErrorType: i.ErrorType,
@@ -1293,10 +1341,10 @@ const EditDrawer = ({
                 Priority: i.Priority,
                 ErrorCount: i.ErrorCount,
                 NatureOfError: i.NatureOfError,
-                CC: i.CC.map((j: any) => j.value),
+                CC: i.CC.map((j: LabelValueProfileImage) => j.value),
                 Remark: i.Remark,
                 Attachments:
-                  i.Attachments[0].SystemFileName.length > 0
+                  i.Attachments?.[0]?.SystemFileName?.length ?? 0 > 0
                     ? i.Attachments
                     : null,
               })
@@ -1307,7 +1355,7 @@ const EditDrawer = ({
         };
         const url = `${process.env.worklog_api_url}/workitem/errorlog/saveByworkitem`;
         const successCallback = (
-          ResponseData: any,
+          ResponseData: null,
           error: boolean,
           ResponseStatus: string
         ) => {
@@ -1316,7 +1364,7 @@ const EditDrawer = ({
             setDeletedErrorLogApprovals([]);
             getEditData();
             getErrorLogDataApprpvals();
-            onDataFetch();
+            onDataFetch?.();
             setIsLoadingApprovals(false);
           }
           setIsLoadingApprovals(false);
@@ -1340,7 +1388,7 @@ const EditDrawer = ({
       name: "Filed",
       label: "Filed Name",
       options: {
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -1349,7 +1397,7 @@ const EditDrawer = ({
       name: "OldValue",
       label: "Old Value",
       options: {
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -1358,7 +1406,7 @@ const EditDrawer = ({
       name: "NewValue",
       label: "New Value",
       options: {
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -1371,7 +1419,7 @@ const EditDrawer = ({
     };
     const url = `${process.env.report_api_url}/auditlog/getbyworkitem`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: { List: AuditlogGetByWorkitem[] | []; TotalCount: number },
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -1389,9 +1437,9 @@ const EditDrawer = ({
 
   // Reviewer's Note
   const [reasonDrawerApprovals, setReasonDrawerApprovals] = useState(true);
-  const [reviewerNoteDataApprovals, setReviewerNoteDataApprovals] = useState(
-    []
-  );
+  const [reviewerNoteDataApprovals, setReviewerNoteDataApprovals] = useState<
+    GetReviewerNoteList[] | []
+  >([]);
 
   const getReviewerNoteDataApprovals = async () => {
     const params = {
@@ -1399,7 +1447,7 @@ const EditDrawer = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/approval/getreviewernotelist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: GetReviewerNoteList[] | [],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -1417,7 +1465,9 @@ const EditDrawer = ({
 
   // Manuals
   const [deletedManualTime, setDeletedManualTime] = useState<any>([]);
-  const [reviewermanualFields, setReviewerManualFields] = useState([
+  const [reviewermanualFields, setReviewerManualFields] = useState<
+    ManualFieldsWorklogs[]
+  >([
     {
       AssigneeId: 0,
       Id: 0,
@@ -1493,7 +1543,7 @@ const EditDrawer = ({
         const params = {
           submissionId: onHasId,
           timelogs: reviewermanualFields.map(
-            (i: any) =>
+            (i: ManualFieldsWorklogs) =>
               new Object({
                 id: i.Id,
                 startTime:
@@ -1531,11 +1581,11 @@ const EditDrawer = ({
     }
   };
 
-  const getManualTimeLogForReviewer = async (workItemId: any) => {
+  const getManualTimeLogForReviewer = async (workItemId: number) => {
     const params = { workItemId: workItemId };
     const url = `${process.env.worklog_api_url}/workitem/approval/getmanuallogbyworkitem`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: GetManualLogByWorkitemReviewer[] | [],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -1543,7 +1593,8 @@ const EditDrawer = ({
         setManualSwitch(ResponseData.length <= 0 ? false : true);
         setManualSubmitDisable(
           ResponseData.map(
-            (i: any) => i.IsApproved === false && i.assignee !== userId
+            (i: GetManualLogByWorkitemReviewer) =>
+              i.IsApproved === false && i.AssigneeId !== userId
           ).includes(true)
             ? false
             : true
@@ -1562,19 +1613,16 @@ const EditDrawer = ({
                   IsApproved: false,
                 },
               ]
-            : ResponseData.map(
-                (i: any) =>
-                  new Object({
-                    AssigneeId: i.AssigneeId,
-                    Id: i.TimeId,
-                    inputDate: i.Date,
-                    startTime: i.StartTime,
-                    endTime: i.EndTime,
-                    totalTime: getTimeDifference(i.StartTime, i.EndTime),
-                    manualDesc: i.Comment,
-                    IsApproved: i.IsApproved,
-                  })
-              )
+            : ResponseData.map((i: GetManualLogByWorkitemReviewer) => ({
+                AssigneeId: i.AssigneeId,
+                Id: i.TimeId,
+                inputDate: i.Date,
+                startTime: i.StartTime,
+                endTime: i.EndTime,
+                totalTime: getTimeDifference(i.StartTime, i.EndTime),
+                manualDesc: i.Comment,
+                IsApproved: i.IsApproved,
+              }))
         );
       }
     };
@@ -1656,8 +1704,8 @@ const EditDrawer = ({
     ]);
   };
 
-  const handleEstTimeChange = (e: any) => {
-    let newValue = e.target.value;
+  const handleEstTimeChange = (e: string) => {
+    let newValue = e;
     newValue = newValue.replace(/\D/g, "");
     if (newValue.length > 8) {
       return;
@@ -1693,9 +1741,9 @@ const EditDrawer = ({
     return formattedValue;
   };
 
-  const handleStartTimeChange = (e: any, index: number) => {
-    const newManualFields: any = [...reviewermanualFields];
-    newManualFields[index].startTime = handleEstTimeChange(e);
+  const handleStartTimeChange = (e: string, index: number) => {
+    const newManualFields: ManualTimeFields[] = [...reviewermanualFields];
+    newManualFields[index].startTime = handleEstTimeChange(e) || "";
     setReviewerManualFields(newManualFields);
 
     const startDate = newManualFields[index].startTime;
@@ -1736,9 +1784,9 @@ const EditDrawer = ({
     }
   };
 
-  const handleEndTimeChange = (e: any, index: number) => {
-    const newManualFields: any = [...reviewermanualFields];
-    newManualFields[index].endTime = handleEstTimeChange(e);
+  const handleEndTimeChange = (e: string, index: number) => {
+    const newManualFields: ManualTimeFields[] = [...reviewermanualFields];
+    newManualFields[index].endTime = handleEstTimeChange(e) || "";
     setReviewerManualFields(newManualFields);
 
     const startDate = newManualFields[index].startTime;
@@ -1779,13 +1827,13 @@ const EditDrawer = ({
     }
   };
 
-  const handleManualDescChange = (e: any, index: number) => {
+  const handleManualDescChange = (e: string, index: number) => {
     const newManualFields = [...reviewermanualFields];
-    newManualFields[index].manualDesc = e.target.value;
+    newManualFields[index].manualDesc = e;
     setReviewerManualFields(newManualFields);
 
     const newManualDescErrors = [...manualDescErrors];
-    newManualDescErrors[index] = e.target.value.trim().length === 0;
+    newManualDescErrors[index] = e.trim().length === 0;
     setManualDescErrors(newManualDescErrors);
   };
 
@@ -1959,7 +2007,7 @@ const EditDrawer = ({
       const params = data;
       const url = `${process.env.worklog_api_url}/workitem/saveworkitem`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: number | string,
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -2011,7 +2059,7 @@ const EditDrawer = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/getbyid`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: WorkitemGetbyid,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -2021,7 +2069,6 @@ const EditDrawer = ({
         );
         setEditData(ResponseData);
         setIsCreatedByClient(ResponseData.IsCreatedByClient);
-        setIsManual(ResponseData.IsManual);
         setClientNameApprovals(ResponseData.ClientId);
         setTypeOfWorkApprovals(ResponseData.WorkTypeId);
         setProjectNameApprovals(ResponseData.ProjectId);
@@ -2035,15 +2082,23 @@ const EditDrawer = ({
         setAllInfoDateApprovals(
           ResponseData.AllInfoDate === null ? "" : ResponseData.AllInfoDate
         );
-        setPriorityApprovals(ResponseData.Priority);
+        setPriorityApprovals(
+          ResponseData.Priority === null ? 0 : ResponseData.Priority
+        );
         setQuantityApprovals(ResponseData.Quantity);
         setDescriptionApprovals(
           ResponseData.Description === null ? "" : ResponseData.Description
         );
         setReceiverDateApprovals(ResponseData.ReceiverDate);
         setDueDateApprovals(ResponseData.DueDate);
-        setDateOfReviewApprovals(ResponseData.ReviewerDate);
-        setDateOfPreperationApprovals(ResponseData.PreparationDate);
+        setDateOfReviewApprovals(
+          ResponseData.ReviewerDate === null ? "" : ResponseData.ReviewerDate
+        );
+        setDateOfPreperationApprovals(
+          ResponseData.PreparationDate === null
+            ? ""
+            : ResponseData.PreparationDate
+        );
         setAssigneeApprovals(ResponseData.AssignedId);
         setReviewerApprovals(ResponseData.ReviewerId);
         setDepartmentApprovals(ResponseData.DepartmentId);
@@ -2052,12 +2107,16 @@ const EditDrawer = ({
         );
         setReturnYearApprovals(
           ResponseData.TypeOfReturnId === 0
-            ? null
+            ? 0
+            : ResponseData.TaxCustomFields === null
+            ? 0
             : ResponseData.TaxCustomFields.ReturnYear
         );
         setNoOfPagesApprovals(
           ResponseData.TypeOfReturnId === 0
-            ? null
+            ? 0
+            : ResponseData.TaxCustomFields === null
+            ? 0
             : ResponseData.TaxCustomFields.NoOfPages
         );
         setChecklistWorkpaperApprovals(
@@ -2079,13 +2138,13 @@ const EditDrawer = ({
       await setStatusApprovalsDropdownData(statusData);
 
       const getType = statusData.filter(
-        (item: any) => item.value === editStatusApprovals
+        (item: LabelValueType) => item.value === editStatusApprovals
       )[0].Type;
 
       !errorlogSignedOffPendingApprovals &&
         setStatusApprovalsDropdownDataUse(
           statusData.filter(
-            (item: any) =>
+            (item: LabelValueType) =>
               item.Type === "InReviewWithClients" ||
               item.Type === "Rework" ||
               item.Type === "OnHoldFromClient" ||
@@ -2106,7 +2165,7 @@ const EditDrawer = ({
       errorlogSignedOffPendingApprovals &&
         setStatusApprovalsDropdownDataUse(
           statusData.filter(
-            (item: any) =>
+            (item: LabelValueType) =>
               item.Type === "InReviewWithClients" ||
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
@@ -2130,7 +2189,7 @@ const EditDrawer = ({
         getType === "Reject" &&
         setStatusApprovalsDropdownDataUse(
           statusData.filter(
-            (item: any) =>
+            (item: LabelValueType) =>
               item.Type === "InReviewWithClients" ||
               item.Type === "Rework" ||
               item.Type === "OnHoldFromClient" ||
@@ -2182,7 +2241,7 @@ const EditDrawer = ({
     const params = {};
     const url = `${process.env.api_url}/auth/getuserdetails`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: User,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -2229,7 +2288,7 @@ const EditDrawer = ({
         setProjectApprovalsDropdownData(
           await getProjectDropdownData(clientNameApprovals, typeOfWorkApprovals)
         );
-      const processData: any =
+      const processData =
         clientNameApprovals > 0 &&
         typeOfWorkApprovals > 0 &&
         (await getProcessDropdownData(
@@ -2239,11 +2298,12 @@ const EditDrawer = ({
       processData.length > 0
         ? setProcessApprovalsDropdownData(
             processData?.map(
-              (i: any) => new Object({ label: i.Name, value: i.Id })
+              (i: IdNameEstimatedHour) =>
+                new Object({ label: i.Name, value: i.Id })
             )
           )
         : setProcessApprovalsDropdownData([]);
-      const data: any =
+      const data =
         processNameApprovals !== 0 &&
         (await getSubProcessDropdownData(
           clientNameApprovals,
@@ -2253,7 +2313,10 @@ const EditDrawer = ({
       data.length > 0 && setEstTimeDataApprovals(data);
       data.length > 0
         ? setSubProcessApprovalsDropdownData(
-            data.map((i: any) => new Object({ label: i.Name, value: i.Id }))
+            data.map(
+              (i: IdNameEstimatedHour) =>
+                new Object({ label: i.Name, value: i.Id })
+            )
           )
         : setSubProcessApprovalsDropdownData([]);
     };
@@ -2301,7 +2364,7 @@ const EditDrawer = ({
     setIsCreatedByClient(false);
     setUserId(0);
     scrollToPanel(0);
-    onDataFetch();
+    onDataFetch?.();
 
     // Task
     setClientApprovalsDropdownData([]);
@@ -2386,6 +2449,7 @@ const EditDrawer = ({
         endTime: "",
         totalTime: "",
         manualDesc: "",
+        IsApproved: false,
       },
     ]);
 
@@ -2439,7 +2503,7 @@ const EditDrawer = ({
         AttachmentId: 0,
         UserFileName: "",
         SystemFileName: "",
-        AttachmentPath: process.env.attachment,
+        AttachmentPath: process.env.attachment || "",
       },
     ]);
     setCommentUserDataApprovals([]);
@@ -2465,10 +2529,11 @@ const EditDrawer = ({
             AttachmentId: 0,
             UserFileName: "",
             SystemFileName: "",
-            AttachmentPath: process.env.attachment,
+            AttachmentPath: process.env.attachment || "",
           },
         ],
         isSolved: false,
+        DisableErrorLog: false,
       },
     ]);
     setErrorTypeErrApprovals([false]);
@@ -2504,9 +2569,9 @@ const EditDrawer = ({
         <div className="sticky top-0 !h-[9%] bg-whiteSmoke border-b z-30 border-lightSilver">
           <div className="flex p-[6px] justify-between items-center">
             <div className="flex items-center py-[6.5px] pl-[5px]">
-              {Task.map((task) => task)
-                .filter((i: any) => i !== false)
-                .map((task: any, index: number) => (
+              {Task.map((task: string) => task)
+                .filter((i: string | boolean) => i !== false)
+                .map((task: string, index: number) => (
                   <div
                     key={task + index}
                     className={`my-2 px-3 text-[14px] ${
@@ -2560,10 +2625,10 @@ const EditDrawer = ({
                         options={clientApprovalsDropdownData}
                         value={
                           clientApprovalsDropdownData.find(
-                            (i: any) => i.value === clientNameApprovals
+                            (i: LabelValue) => i.value === clientNameApprovals
                           ) || null
                         }
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValue | null) => {
                           value && setClientNameApprovals(value.value);
                           setTypeOfWorkApprovals(0);
                           setTypeOfWorkApprovalsErr(false);
@@ -2667,7 +2732,7 @@ const EditDrawer = ({
                           }}
                         >
                           {workTypeApprovalsDropdownData.map(
-                            (i: any, index: number) => (
+                            (i: LabelValue, index: number) => (
                               <MenuItem value={i.value} key={i.value}>
                                 {i.label}
                               </MenuItem>
@@ -2688,11 +2753,11 @@ const EditDrawer = ({
                         options={projectApprovalsDropdownData}
                         value={
                           projectApprovalsDropdownData.find(
-                            (i: any) => i.value === projectNameApprovals
+                            (i: LabelValue) => i.value === projectNameApprovals
                           ) || null
                         }
                         disabled={isCreatedByClient && editData.ProjectId > 0}
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValue | null) => {
                           value && setProjectNameApprovals(value.value);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
@@ -2732,13 +2797,15 @@ const EditDrawer = ({
                         value={
                           onEdit === 0
                             ? statusApprovalsDropdownData.find(
-                                (i: any) => i.value === statusApprovals
+                                (i: LabelValueType) =>
+                                  i.value === statusApprovals
                               ) || null
                             : statusApprovalsDropdownDataUse.find(
-                                (i: any) => i.value === statusApprovals
+                                (i: LabelValueType) =>
+                                  i.value === statusApprovals
                               ) || null
                         }
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValueType | null) => {
                           value && setStatusApprovals(value.value);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
@@ -2774,11 +2841,11 @@ const EditDrawer = ({
                         options={processApprovalsDropdownData}
                         value={
                           processApprovalsDropdownData.find(
-                            (i: any) => i.value === processNameApprovals
+                            (i: LabelValue) => i.value === processNameApprovals
                           ) || null
                         }
                         disabled={isCreatedByClient && editData.ProcessId > 0}
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValue | null) => {
                           value && setProcessNameApprovals(value.value);
                           value && setSubProcessApprovals(0);
                         }}
@@ -2815,13 +2882,13 @@ const EditDrawer = ({
                         options={subProcessApprovalsDropdownData}
                         value={
                           subProcessApprovalsDropdownData.find(
-                            (i: any) => i.value === subProcessApprovals
+                            (i: LabelValue) => i.value === subProcessApprovals
                           ) || null
                         }
                         disabled={
                           isCreatedByClient && editData.SubProcessId > 0
                         }
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValue | null) => {
                           value && setSubProcessApprovals(value.value);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
@@ -3183,10 +3250,10 @@ const EditDrawer = ({
                         disabled={!assigneeDisableApprovals}
                         value={
                           assigneeApprovalsDropdownData.find(
-                            (i: any) => i.value === assigneeApprovals
+                            (i: LabelValue) => i.value === assigneeApprovals
                           ) || null
                         }
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValue | null) => {
                           value && setAssigneeApprovals(value.value);
                           setDepartmentApprovals(0);
                           setDepartmentApprovalsErr(false);
@@ -3230,10 +3297,10 @@ const EditDrawer = ({
                         options={reviewerApprovalsDropdownData}
                         value={
                           reviewerApprovalsDropdownData.find(
-                            (i: any) => i.value === reviewerApprovals
+                            (i: LabelValue) => i.value === reviewerApprovals
                           ) || null
                         }
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValue | null) => {
                           value && setReviewerApprovals(value.value);
                         }}
                         sx={{
@@ -3279,10 +3346,10 @@ const EditDrawer = ({
                         options={departmentApprovalsDropdownData}
                         value={
                           departmentApprovalsDropdownData.find(
-                            (i: any) => i.value === departmentApprovals
+                            (i: LabelValue) => i.value === departmentApprovals
                           ) || null
                         }
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValue | null) => {
                           value && setDepartmentApprovals(value.value);
                         }}
                         sx={{
@@ -3328,10 +3395,10 @@ const EditDrawer = ({
                         options={managerApprovalsDropdownData}
                         value={
                           managerApprovalsDropdownData.find(
-                            (i: any) => i.value === managerApprovals
+                            (i: LabelValue) => i.value === managerApprovals
                           ) || null
                         }
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValue | null) => {
                           value && setManagerApprovals(value.value);
                         }}
                         sx={{
@@ -3393,11 +3460,13 @@ const EditDrawer = ({
                                 }
                               }}
                             >
-                              {yearDropdown.map((i: any, index: number) => (
-                                <MenuItem value={i.value} key={i.value}>
-                                  {i.label}
-                                </MenuItem>
-                              ))}
+                              {yearDropdown.map(
+                                (i: LabelValue, index: number) => (
+                                  <MenuItem value={i.value} key={i.value}>
+                                    {i.label}
+                                  </MenuItem>
+                                )
+                              )}
                             </Select>
                             {returnYearApprovalsErr && (
                               <FormHelperText>
@@ -3607,7 +3676,7 @@ const EditDrawer = ({
                           disabled={!subTaskSwitchApprovals}
                           value={field.Title}
                           onChange={(e) =>
-                            handleSubTaskChangeApprovals(e, index)
+                            handleSubTaskChangeApprovals(e.target.value, index)
                           }
                           onBlur={(e) => {
                             if (e.target.value.trim().length > 0) {
@@ -3646,7 +3715,10 @@ const EditDrawer = ({
                           disabled={!subTaskSwitchApprovals}
                           value={field.Description}
                           onChange={(e) =>
-                            handleSubTaskDescriptionChangeApprovals(e, index)
+                            handleSubTaskDescriptionChangeApprovals(
+                              e.target.value,
+                              index
+                            )
                           }
                           onBlur={(e) => {
                             if (e.target.value.trim().length > 0) {
@@ -3896,8 +3968,8 @@ const EditDrawer = ({
                         id="demo-simple-select-standard"
                         value={commentSelectApprovals}
                         onChange={(e) => {
-                          setCommentSelectApprovals(e.target.value);
-                          getCommentDataApprovals(e.target.value);
+                          setCommentSelectApprovals(Number(e.target.value));
+                          getCommentDataApprovals(Number(e.target.value));
                         }}
                       >
                         <MenuItem value={1}>Internal</MenuItem>
@@ -3920,200 +3992,208 @@ const EditDrawer = ({
                   <div className="flex flex-col gap-4">
                     {commentsApprovalsDrawer &&
                       commentDataApprovals.length > 0 &&
-                      commentDataApprovals.map((i: any, index: number) => (
-                        <div className="flex gap-4" key={i.UserName + index}>
-                          {i.UserName.length > 0 ? (
-                            <Avatar>
-                              {i.UserName.split(" ")
-                                .map((word: any) =>
-                                  word.charAt(0).toUpperCase()
-                                )
-                                .join("")}
-                            </Avatar>
-                          ) : (
-                            <Avatar sx={{ width: 32, height: 32 }} />
-                          )}
-                          <div>
-                            <Typography>{i.UserName}</Typography>
-                            <Typography>
-                              {i.SubmitedDate},&nbsp;
-                              {new Date(
-                                `1970-01-01T${i.SubmitedTime}:00Z`
-                              ).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </Typography>
-                            <div className="flex items-center gap-2">
-                              {editingCommentIndexApprovals === index ? (
-                                <div className="flex items-start justify-center gap-8">
-                                  <div className="flex flex-col">
-                                    <div className="flex items-start justify-start w-[70vw]">
-                                      <MentionsInput
-                                        style={mentionsInputStyle}
-                                        className="!w-[100%] textareaOutlineNoneEdit max-w-[60vw]"
-                                        value={valueEdit}
-                                        onChange={(e) => {
-                                          setValueEdit(e.target.value);
-                                          setValueEditError(false);
-                                          handleCommentChange(e.target.value);
-                                        }}
-                                        placeholder="Type a next message OR type @ if you want to mention anyone in the message."
-                                      >
-                                        <Mention
-                                          data={users}
-                                          style={{
-                                            backgroundColor: "#cee4e5",
+                      commentDataApprovals.map(
+                        (i: CommentGetByWorkitem, index: number) => (
+                          <div className="flex gap-4" key={i.UserName + index}>
+                            {i.UserName.length > 0 ? (
+                              <Avatar>
+                                {i.UserName.split(" ")
+                                  .map((word: string) =>
+                                    word.charAt(0).toUpperCase()
+                                  )
+                                  .join("")}
+                              </Avatar>
+                            ) : (
+                              <Avatar sx={{ width: 32, height: 32 }} />
+                            )}
+                            <div>
+                              <Typography>{i.UserName}</Typography>
+                              <Typography>
+                                {i.SubmitedDate},&nbsp;
+                                {new Date(
+                                  `1970-01-01T${i.SubmitedTime}:00Z`
+                                ).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </Typography>
+                              <div className="flex items-center gap-2">
+                                {editingCommentIndexApprovals === index ? (
+                                  <div className="flex items-start justify-center gap-8">
+                                    <div className="flex flex-col">
+                                      <div className="flex items-start justify-start w-[70vw]">
+                                        <MentionsInput
+                                          style={mentionsInputStyle}
+                                          className="!w-[100%] textareaOutlineNoneEdit max-w-[60vw]"
+                                          value={valueEdit}
+                                          onChange={(e) => {
+                                            setValueEdit(e.target.value);
+                                            setValueEditError(false);
+                                            handleCommentChange(e.target.value);
                                           }}
-                                          trigger="@"
-                                        />
-                                      </MentionsInput>
-                                      <div className="flex flex-col">
-                                        <div className="flex">
-                                          <ImageUploader
-                                            className="!mt-0"
-                                            getData={(data1: any, data2: any) =>
-                                              handleCommentAttachmentsChange(
-                                                data1,
-                                                data2,
-                                                commentAttachmentApprovals
-                                              )
-                                            }
-                                            isDisable={false}
+                                          placeholder="Type a next message OR type @ if you want to mention anyone in the message."
+                                        >
+                                          <Mention
+                                            data={users}
+                                            style={{
+                                              backgroundColor: "#cee4e5",
+                                            }}
+                                            trigger="@"
                                           />
+                                        </MentionsInput>
+                                        <div className="flex flex-col">
+                                          <div className="flex">
+                                            <ImageUploader
+                                              className="!mt-0"
+                                              getData={(
+                                                data1: string,
+                                                data2: string
+                                              ) =>
+                                                handleCommentAttachmentsChange(
+                                                  data1,
+                                                  data2,
+                                                  commentAttachmentApprovals
+                                                )
+                                              }
+                                              isDisable={false}
+                                            />
+                                          </div>
                                         </div>
-                                      </div>
-                                      {commentAttachmentApprovals[0]
-                                        ?.SystemFileName.length > 0 && (
-                                        <div className="flex items-start justify-center">
-                                          <span className="cursor-pointer">
-                                            {
-                                              commentAttachmentApprovals[0]
-                                                ?.UserFileName
-                                            }
-                                          </span>
-                                          <span
-                                            onClick={() =>
-                                              getFileFromBlob(
-                                                commentAttachmentApprovals[0]
-                                                  ?.SystemFileName,
+                                        {commentAttachmentApprovals[0]
+                                          ?.SystemFileName.length > 0 && (
+                                          <div className="flex items-start justify-center">
+                                            <span className="cursor-pointer">
+                                              {
                                                 commentAttachmentApprovals[0]
                                                   ?.UserFileName
-                                              )
-                                            }
-                                          >
-                                            <ColorToolTip
-                                              title="Download"
-                                              placement="top"
-                                              arrow
+                                              }
+                                            </span>
+                                            <span
+                                              onClick={() =>
+                                                getFileFromBlob(
+                                                  commentAttachmentApprovals[0]
+                                                    ?.SystemFileName,
+                                                  commentAttachmentApprovals[0]
+                                                    ?.UserFileName
+                                                )
+                                              }
                                             >
-                                              <Download />
-                                            </ColorToolTip>
+                                              <ColorToolTip
+                                                title="Download"
+                                                placement="top"
+                                                arrow
+                                              >
+                                                <Download />
+                                              </ColorToolTip>
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div className="flex flex-col">
+                                        {valueEditError && (
+                                          <span className="text-defaultRed text-[14px]">
+                                            This is a required field.
                                           </span>
-                                        </div>
-                                      )}
+                                        )}
+                                      </div>
                                     </div>
-                                    <div className="flex flex-col">
-                                      {valueEditError && (
-                                        <span className="text-defaultRed text-[14px]">
-                                          This is a required field.
-                                        </span>
-                                      )}
-                                    </div>
+                                    <button
+                                      type="button"
+                                      className="!bg-secondary text-white border rounded-md px-[4px]"
+                                      onClick={(e) =>
+                                        handleSaveClickApprovals(
+                                          e,
+                                          i,
+                                          commentSelectApprovals
+                                        )
+                                      }
+                                    >
+                                      <Save className="w-4 h-4" />
+                                    </button>
                                   </div>
-                                  <button
-                                    type="button"
-                                    className="!bg-secondary text-white border rounded-md px-[4px]"
-                                    onClick={(e) =>
-                                      handleSaveClickApprovals(
-                                        e,
-                                        i,
-                                        commentSelectApprovals
-                                      )
-                                    }
-                                  >
-                                    <Save className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              ) : (
-                                <div className="flex items-start justify-start gap-8 w-[70vw]">
-                                  <span className="hidden"></span>
-                                  <div className="max-w-[60vw]">
-                                    {extractText(i.Message).map((i: any) => {
-                                      const assignee =
-                                        commentUserDataApprovals.map(
-                                          (j: any) => j.label
-                                        );
-                                      return assignee.includes(i) ? (
-                                        <span
-                                          className="text-secondary"
-                                          key={i + index}
-                                        >
-                                          &nbsp; {i} &nbsp;
-                                        </span>
-                                      ) : (
-                                        i
-                                      );
-                                    })}
-                                  </div>
-                                  {i.Attachment[0]?.SystemFileName.length >
-                                    0 && (
-                                    <div className="flex items-start justify-center">
-                                      <span className="cursor-pointer">
-                                        {i.Attachment[0]?.UserFileName}
-                                      </span>
-                                      <span
-                                        onClick={() =>
-                                          getFileFromBlob(
-                                            i.Attachment[0]?.SystemFileName,
-                                            i.Attachment[0]?.UserFileName
-                                          )
+                                ) : (
+                                  <div className="flex items-start justify-start gap-8 w-[70vw]">
+                                    <span className="hidden"></span>
+                                    <div className="max-w-[60vw]">
+                                      {extractText(i.Message).map(
+                                        (i: string) => {
+                                          const assignee =
+                                            commentUserDataApprovals.map(
+                                              (j: LabelValue) => j.label
+                                            );
+                                          return assignee.includes(i) ? (
+                                            <span
+                                              className="text-secondary"
+                                              key={i + index}
+                                            >
+                                              &nbsp; {i} &nbsp;
+                                            </span>
+                                          ) : (
+                                            i
+                                          );
                                         }
-                                      >
-                                        <ColorToolTip
-                                          title="Download"
-                                          placement="top"
-                                          arrow
-                                        >
-                                          <Download />
-                                        </ColorToolTip>
-                                      </span>
+                                      )}
                                     </div>
-                                  )}
-                                  {userId === i.UserId &&
-                                    hasPermissionWorklog(
-                                      "Comment",
-                                      "save",
-                                      "WorkLogs"
-                                    ) && (
-                                      <button
-                                        type="button"
-                                        className="flex items-start !bg-secondary text-white border rounded-md p-[4px]"
-                                        onClick={() => {
-                                          handleEditClick(index, i.Message);
-                                          setCommentAttachmentApprovals([
-                                            {
-                                              AttachmentId:
-                                                i.Attachment[0].AttachmentId,
-                                              UserFileName:
-                                                i.Attachment[0].UserFileName,
-                                              SystemFileName:
-                                                i.Attachment[0].SystemFileName,
-                                              AttachmentPath:
-                                                process.env.attachment,
-                                            },
-                                          ]);
-                                        }}
-                                      >
-                                        <EditIcon className="h-4 w-4" />
-                                      </button>
+                                    {i.Attachment[0]?.SystemFileName.length >
+                                      0 && (
+                                      <div className="flex items-start justify-center">
+                                        <span className="cursor-pointer">
+                                          {i.Attachment[0]?.UserFileName}
+                                        </span>
+                                        <span
+                                          onClick={() =>
+                                            getFileFromBlob(
+                                              i.Attachment[0]?.SystemFileName,
+                                              i.Attachment[0]?.UserFileName
+                                            )
+                                          }
+                                        >
+                                          <ColorToolTip
+                                            title="Download"
+                                            placement="top"
+                                            arrow
+                                          >
+                                            <Download />
+                                          </ColorToolTip>
+                                        </span>
+                                      </div>
                                     )}
-                                </div>
-                              )}
+                                    {userId === i.UserId &&
+                                      hasPermissionWorklog(
+                                        "Comment",
+                                        "save",
+                                        "WorkLogs"
+                                      ) && (
+                                        <button
+                                          type="button"
+                                          className="flex items-start !bg-secondary text-white border rounded-md p-[4px]"
+                                          onClick={() => {
+                                            handleEditClick(index, i.Message);
+                                            setCommentAttachmentApprovals([
+                                              {
+                                                AttachmentId:
+                                                  i.Attachment[0].AttachmentId,
+                                                UserFileName:
+                                                  i.Attachment[0].UserFileName,
+                                                SystemFileName:
+                                                  i.Attachment[0]
+                                                    .SystemFileName,
+                                                AttachmentPath:
+                                                  process.env.attachment || "",
+                                              },
+                                            ]);
+                                          }}
+                                        >
+                                          <EditIcon className="h-4 w-4" />
+                                        </button>
+                                      )}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      )}
                   </div>
                 </div>
                 {commentsApprovalsDrawer &&
@@ -4141,7 +4221,7 @@ const EditDrawer = ({
                           <div className="flex">
                             <ImageUploader
                               className="!mt-0"
-                              getData={(data1: any, data2: any) =>
+                              getData={(data1: string, data2: string) =>
                                 handleCommentAttachmentsChange(
                                   data1,
                                   data2,
@@ -4383,7 +4463,7 @@ const EditDrawer = ({
                           ? `Occurs every ${selectedDays
                               .sort()
                               .map(
-                                (day: any) => " " + days[day]
+                                (day: number) => " " + days[day]
                               )} starting from today`
                           : recurringTimeApprovals === 3 &&
                             "Occurs every month starting from today"}
@@ -4658,7 +4738,9 @@ const EditDrawer = ({
                           }
                           fullWidth
                           value={field.startTime}
-                          onChange={(e) => handleStartTimeChange(e, index)}
+                          onChange={(e) =>
+                            handleStartTimeChange(e.target.value, index)
+                          }
                           onBlur={(e) => {
                             if (e.target.value.trim().length > 7) {
                               const newStartTimeErrors = [...startTimeErrors];
@@ -4697,7 +4779,9 @@ const EditDrawer = ({
                           }
                           fullWidth
                           value={field.endTime}
-                          onChange={(e) => handleEndTimeChange(e, index)}
+                          onChange={(e) =>
+                            handleEndTimeChange(e.target.value, index)
+                          }
                           onBlur={(e) => {
                             if (
                               e.target.value.trim().length > 7 &&
@@ -4800,7 +4884,9 @@ const EditDrawer = ({
                           }
                           fullWidth
                           value={field.manualDesc}
-                          onChange={(e) => handleManualDescChange(e, index)}
+                          onChange={(e) =>
+                            handleManualDescChange(e.target.value, index)
+                          }
                           onBlur={(e) => {
                             if (e.target.value.trim().length > 0) {
                               const newManualDescErrors = [...manualDescErrors];
@@ -5066,7 +5152,7 @@ const EditDrawer = ({
                             }
                           }}
                         >
-                          {hours.map((i: any, index: number) => (
+                          {hours.map((i: LabelValue) => (
                             <MenuItem value={i.value} key={i.value}>
                               {i.label}
                             </MenuItem>
@@ -5209,7 +5295,10 @@ const EditDrawer = ({
                                 field.ErrorType === 0 ? "" : field.ErrorType
                               }
                               onChange={(e) =>
-                                handleErrorTypeChangeApprovals(e, index)
+                                handleErrorTypeChangeApprovals(
+                                  Number(e.target.value),
+                                  index
+                                )
                               }
                               onBlur={() => {
                                 if (field.ErrorType > 0) {
@@ -5259,7 +5348,10 @@ const EditDrawer = ({
                                 field.RootCause === 0 ? "" : field.RootCause
                               }
                               onChange={(e) =>
-                                handleRootCauseChangeApprovals(e, index)
+                                handleRootCauseChangeApprovals(
+                                  Number(e.target.value),
+                                  index
+                                )
                               }
                               onBlur={() => {
                                 if (field.RootCause > 0) {
@@ -5311,7 +5403,10 @@ const EditDrawer = ({
                                   : field.NatureOfError
                               }
                               onChange={(e) =>
-                                handleNatureOfErrorChangeApprovals(e, index)
+                                handleNatureOfErrorChangeApprovals(
+                                  Number(e.target.value),
+                                  index
+                                )
                               }
                               onBlur={() => {
                                 if (field.NatureOfError > 0) {
@@ -5384,7 +5479,10 @@ const EditDrawer = ({
                               }
                               value={field.Priority === 0 ? "" : field.Priority}
                               onChange={(e) =>
-                                handlePriorityChangeApprovals(e, index)
+                                handlePriorityChangeApprovals(
+                                  Number(e.target.value),
+                                  index
+                                )
                               }
                               onBlur={() => {
                                 if (field.Priority > 0) {
@@ -5434,7 +5532,10 @@ const EditDrawer = ({
                               field.ErrorCount === 0 ? "" : field.ErrorCount
                             }
                             onChange={(e) =>
-                              handleErrorCountChangeApprovals(e, index)
+                              handleErrorCountChangeApprovals(
+                                Number(e.target.value),
+                                index
+                              )
                             }
                             onBlur={(e) => {
                               if (e.target.value.length > 0) {
@@ -5536,7 +5637,10 @@ const EditDrawer = ({
                                   : field.Remark
                               }
                               onChange={(e) =>
-                                handleRemarksChangeApprovals(e, index)
+                                handleRemarksChangeApprovals(
+                                  e.target.value,
+                                  index
+                                )
                               }
                               onBlur={(e) => {
                                 if (e.target.value.length > 0) {
@@ -5567,41 +5671,49 @@ const EditDrawer = ({
                             <div className="flex flex-col">
                               <div className="flex">
                                 <ImageUploader
-                                  getData={(data1: any, data2: any) =>
-                                    handleAttachmentsChangeApprovals(
-                                      data1,
-                                      data2,
-                                      field.Attachments,
-                                      index
-                                    )
+                                  getData={(data1: string, data2: string) =>
+                                    field.Attachments
+                                      ? handleAttachmentsChangeApprovals(
+                                          data1,
+                                          data2,
+                                          field.Attachments,
+                                          index
+                                        )
+                                      : undefined
                                   }
                                   isDisable={field.isSolved}
                                 />
-                                {field.Attachments[0]?.SystemFileName.length >
-                                  0 && (
-                                  <div className="flex items-center justify-center gap-2">
-                                    <span className="mt-6 ml-2 cursor-pointer">
-                                      {field.Attachments[0]?.UserFileName}
-                                    </span>
-                                    <span
-                                      className="mt-6"
-                                      onClick={() =>
-                                        getFileFromBlob(
-                                          field.Attachments[0]?.SystemFileName,
-                                          field.Attachments[0]?.UserFileName
-                                        )
-                                      }
-                                    >
-                                      <ColorToolTip
-                                        title="Download"
-                                        placement="top"
-                                        arrow
+                                {field.Attachments &&
+                                  field.Attachments.length > 0 &&
+                                  field.Attachments[0]?.SystemFileName.length >
+                                    0 && (
+                                    <div className="flex items-center justify-center gap-2">
+                                      <span className="mt-6 ml-2 cursor-pointer">
+                                        {field.Attachments[0]?.UserFileName}
+                                      </span>
+                                      <span
+                                        className="mt-6"
+                                        onClick={() =>
+                                          field.Attachments
+                                            ? getFileFromBlob(
+                                                field.Attachments[0]
+                                                  ?.SystemFileName,
+                                                field.Attachments[0]
+                                                  ?.UserFileName
+                                              )
+                                            : undefined
+                                        }
                                       >
-                                        <Download />
-                                      </ColorToolTip>
-                                    </span>
-                                  </div>
-                                )}
+                                        <ColorToolTip
+                                          title="Download"
+                                          placement="top"
+                                          arrow
+                                        >
+                                          <Download />
+                                        </ColorToolTip>
+                                      </span>
+                                    </div>
+                                  )}
                               </div>
                             </div>
                             {field.isSolved && (
@@ -5695,57 +5807,69 @@ const EditDrawer = ({
               </div>
               {reasonDrawerApprovals &&
                 reviewerNoteDataApprovals.length > 0 &&
-                reviewerNoteDataApprovals.map((i: any, index: number) => (
-                  <div
-                    className="mt-5 pl-[70px] text-sm"
-                    key={i.ReviewedDate + index}
-                  >
-                    <span className="font-semibold">
-                      {i.ReviewedDate.split("-")
-                        .slice(1)
-                        .concat(i.ReviewedDate.split("-")[0])
-                        .join("-")}
-                    </span>
-                    {i.Details.map((j: any, index: number) => (
-                      <div
-                        className="flex gap-3 mt-4"
-                        key={j.ReviewerName + index}
-                      >
-                        <span className="mt-2">{index + 1}</span>
-                        {j.ReviewerName.length > 0 ? (
-                          <Tooltip title={j.ReviewerName} placement="top" arrow>
-                            <Avatar>
-                              {j.ReviewerName.split(" ")
-                                .map((word: any) =>
-                                  word.charAt(0).toUpperCase()
-                                )
-                                .join("")}
-                            </Avatar>
-                          </Tooltip>
-                        ) : (
-                          <Tooltip title={j.ReviewerName} placement="top" arrow>
-                            <Avatar sx={{ width: 32, height: 32 }} />
-                          </Tooltip>
-                        )}
-                        <div className="flex flex-col items-start">
-                          <span>{j.Comment}</span>
-                          <span>{j.Status}</span>
-                          <span>
-                            at&nbsp;
-                            {new Date(
-                              j.ReviewedDateTime + "Z"
-                            ).toLocaleTimeString("en-US", {
-                              hour: "numeric",
-                              minute: "numeric",
-                              hour12: true,
-                              timeZone: "Asia/Kolkata",
-                            })}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ))}
+                reviewerNoteDataApprovals.map(
+                  (i: GetReviewerNoteList, index: number) => (
+                    <div
+                      className="mt-5 pl-[70px] text-sm"
+                      key={i.ReviewedDate + index}
+                    >
+                      <span className="font-semibold">
+                        {i.ReviewedDate.split("-")
+                          .slice(1)
+                          .concat(i.ReviewedDate.split("-")[0])
+                          .join("-")}
+                      </span>
+                      {i.Details.map(
+                        (j: ReviewerNoteDetails, index: number) => (
+                          <div
+                            className="flex gap-3 mt-4"
+                            key={j.ReviewerName + index}
+                          >
+                            <span className="mt-2">{index + 1}</span>
+                            {j.ReviewerName.length > 0 ? (
+                              <Tooltip
+                                title={j.ReviewerName}
+                                placement="top"
+                                arrow
+                              >
+                                <Avatar>
+                                  {j.ReviewerName.split(" ")
+                                    .map((word: string) =>
+                                      word.charAt(0).toUpperCase()
+                                    )
+                                    .join("")}
+                                </Avatar>
+                              </Tooltip>
+                            ) : (
+                              <Tooltip
+                                title={j.ReviewerName}
+                                placement="top"
+                                arrow
+                              >
+                                <Avatar sx={{ width: 32, height: 32 }} />
+                              </Tooltip>
+                            )}
+                            <div className="flex flex-col items-start">
+                              <span>{j.Comment}</span>
+                              <span>{j.Status}</span>
+                              <span>
+                                at&nbsp;
+                                {new Date(
+                                  j.ReviewedDateTime + "Z"
+                                ).toLocaleTimeString("en-US", {
+                                  hour: "numeric",
+                                  minute: "numeric",
+                                  hour12: true,
+                                  timeZone: "Asia/Kolkata",
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )
+                )}
             </div>
 
             {/* Logs */}
@@ -5767,51 +5891,53 @@ const EditDrawer = ({
                 </div>
                 {logsWorklogsDrawer &&
                   logsDataWorklogs.length > 0 &&
-                  logsDataWorklogs.map((i: any, index: number) => (
-                    <div
-                      className="mt-5 pl-[70px] text-sm"
-                      key={i.UpdatedBy + Math.random()}
-                    >
-                      <div className="flex gap-3 mt-4">
-                        <b className="mt-2">{index + 1}</b>
-                        <div className="flex flex-col items-start">
-                          <b>Modify By: {i.UpdatedBy}</b>
-                          <b>
-                            Date & Time:&nbsp;
-                            {i.UpdatedOn.split("T")[0]
-                              .split("-")
-                              .slice(1)
-                              .concat(i.UpdatedOn.split("T")[0].split("-")[0])
-                              .join("-")}
-                            &nbsp;&&nbsp;
-                            {i.UpdatedOn.split("T")[1]}
-                          </b>
-                          <br />
-                          <ThemeProvider theme={getMuiTheme()}>
-                            <MUIDataTable
-                              data={i.UpdatedFieldsList}
-                              columns={logsDatatableTaskCols}
-                              title={undefined}
-                              options={{
-                                responsive: "standard",
-                                viewColumns: false,
-                                filter: false,
-                                print: false,
-                                download: false,
-                                search: false,
-                                selectToolbarPlacement: "none",
-                                selectableRows: "none",
-                                elevation: 0,
-                                pagination: false,
-                              }}
-                              data-tableid="task_Report_Datatable"
-                            />
-                          </ThemeProvider>
-                          <br />
+                  logsDataWorklogs.map(
+                    (i: AuditlogGetByWorkitem, index: number) => (
+                      <div
+                        className="mt-5 pl-[70px] text-sm"
+                        key={i.UpdatedBy + Math.random()}
+                      >
+                        <div className="flex gap-3 mt-4">
+                          <b className="mt-2">{index + 1}</b>
+                          <div className="flex flex-col items-start">
+                            <b>Modify By: {i.UpdatedBy}</b>
+                            <b>
+                              Date & Time:&nbsp;
+                              {i.UpdatedOn.split("T")[0]
+                                .split("-")
+                                .slice(1)
+                                .concat(i.UpdatedOn.split("T")[0].split("-")[0])
+                                .join("-")}
+                              &nbsp;&&nbsp;
+                              {i.UpdatedOn.split("T")[1]}
+                            </b>
+                            <br />
+                            <ThemeProvider theme={getMuiTheme()}>
+                              <MUIDataTable
+                                data={i.UpdatedFieldsList}
+                                columns={logsDatatableTaskCols}
+                                title={undefined}
+                                options={{
+                                  responsive: "standard",
+                                  viewColumns: false,
+                                  filter: false,
+                                  print: false,
+                                  download: false,
+                                  search: false,
+                                  selectToolbarPlacement: "none",
+                                  selectableRows: "none",
+                                  elevation: 0,
+                                  pagination: false,
+                                }}
+                                data-tableid="task_Report_Datatable"
+                              />
+                            </ThemeProvider>
+                            <br />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
               </div>
             )}
 

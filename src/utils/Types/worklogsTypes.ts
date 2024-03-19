@@ -176,6 +176,17 @@ export interface GetManualLogByWorkitem {
   totalTime?: string;
 }
 
+export interface GetManualLogByWorkitemReviewer {
+  TimeId: number;
+  Date: string;
+  StartTime: string;
+  EndTime: string;
+  AssigneeId: number;
+  Comment: string;
+  IsApproved: boolean;
+  totalTime?: string;
+}
+
 export interface ManualFieldsWorklogs {
   AssigneeId: number;
   Id: number;

@@ -44,7 +44,7 @@ const Page = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEditId, setHasEditId] = useState(0);
   const [iconIndex, setIconIndex] = useState<number>(0);
-  const [hasId, setHasId] = useState<number | string>("");
+  const [hasId, setHasId] = useState<number>(0);
   const [searchValue, setSearchValue] = useState("");
   const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
@@ -86,7 +86,7 @@ const Page = () => {
     setHasComment(false);
     setHasError(false);
     setHasManual(false);
-    setHasId("");
+    setHasId(0);
     setGlobalSearchValue("");
     setSearchValue("");
   };
@@ -283,7 +283,7 @@ const Page = () => {
           onOpen={openDrawer}
           onClose={handleDrawerClose}
           onEdit={hasEditId}
-          hasIconIndex={iconIndex > 0 ? iconIndex : 0}
+          // hasIconIndex={iconIndex > 0 ? iconIndex : 0}
           onHasId={hasId}
           onComment={hasComment}
           onErrorLog={hasError}

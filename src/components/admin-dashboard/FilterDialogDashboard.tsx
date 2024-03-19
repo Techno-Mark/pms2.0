@@ -263,7 +263,7 @@ const FilterDialogDashboard = ({
                       label="From"
                       value={startDate === null ? null : dayjs(startDate)}
                       // shouldDisableDate={isWeekend}
-                      maxDate={dayjs(Date.now())}
+                      maxDate={dayjs(endDate) || dayjs(Date.now())}
                       onChange={(newDate: any) => {
                         setStartDate(newDate.$d);
                       }}
@@ -283,6 +283,7 @@ const FilterDialogDashboard = ({
                       label="To"
                       value={endDate === null ? null : dayjs(endDate)}
                       // shouldDisableDate={isWeekend}
+                      minDate={dayjs(startDate)}
                       maxDate={dayjs(Date.now())}
                       onChange={(newDate: any) => {
                         setEndDate(newDate.$d);
