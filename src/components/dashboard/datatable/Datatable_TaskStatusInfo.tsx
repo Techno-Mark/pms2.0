@@ -16,17 +16,24 @@ interface TaskStatusInfoProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
   onSelectedStatusId: number;
+  onOpen: boolean;
 }
 
-const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
+const Datatable_TaskStatusInfo = ({
   onSelectedProjectIds,
   onSelectedWorkType,
   onSelectedStatusId,
-}) => {
+  onOpen,
+}: TaskStatusInfoProps) => {
   const [data, setData] = useState<ListClientDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+
+  useEffect(() => {
+    onOpen && setPage(0);
+    onOpen && setRowsPerPage(10);
+  }, [onOpen]);
 
   useEffect(() => {
     const getData = () => {
@@ -38,7 +45,7 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
         projectIds: onSelectedProjectIds,
         typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
         priorityId: null,
-        statusId: onSelectedStatusId,
+        statusId: onSelectedStatusId === 0 ? null : onSelectedStatusId,
         ReturnTypeId: null,
       };
       const url = `${process.env.report_api_url}/clientdashboard/taskstatusandprioritylist`;
@@ -55,7 +62,13 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
       callAPI(url, params, successCallback, "POST");
     };
 
-    getData();
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
     onSelectedProjectIds,
     onSelectedWorkType,

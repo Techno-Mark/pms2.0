@@ -26,10 +26,10 @@ interface List {
   DueFrom: number | null;
 }
 
-const Datatable_OnHold: React.FC<OnHoldProps> = ({
+const Datatable_OnHold = ({
   onSelectedProjectIds,
   onSelectedWorkType,
-}) => {
+}: OnHoldProps) => {
   const [data, setData] = useState<List[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -107,7 +107,13 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
   };
 
   useEffect(() => {
-    getData();
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [onSelectedProjectIds, onSelectedWorkType, page, rowsPerPage]);
 
   return (

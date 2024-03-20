@@ -61,7 +61,13 @@ const Chart_ReturnType = ({
       callAPI(url, params, successCallback, "POST");
     };
 
-    getData();
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [onSelectedProjectIds, onSelectedWorkType]);
 
   const drilldownData = data;

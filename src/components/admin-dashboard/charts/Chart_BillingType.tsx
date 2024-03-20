@@ -26,10 +26,10 @@ interface Response {
   TotalCount: number;
 }
 
-const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
+const Chart_BillingType = ({
   currentFilterData,
   sendData,
-}) => {
+}: ChartBillingTypeProps) => {
   const [data, setData] = useState<any | any[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 

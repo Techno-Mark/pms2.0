@@ -24,16 +24,31 @@ import {
 } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
 import { getFormattedDate } from "@/utils/timerFunctions";
+import { TaskFilter } from "@/utils/Types/clientWorklog";
+import { LabelValue, LabelValueType } from "@/utils/Types/types";
 
 interface FilterModalProps {
   onOpen: boolean;
   onClose: () => void;
-  currentFilterData?: any;
-  isCompletedTaskClicked?: any;
+  currentFilterData?: (data: TaskFilter) => void;
+  isCompletedTaskClicked?: boolean;
+}
+
+interface FilterFields {
+  ProjectIds: number[] | [];
+  PriorityId: number | null;
+  StatusId: number | null;
+  WorkTypeId: number | null;
+  DueDate: string | null;
+  StartDate: string | null;
+  EndDate: string | null;
+  AssignedTo: number | null;
+  OverdueBy: number | null;
+  IsSignedOff: boolean;
 }
 
 const initialFilter = {
-  ProjectIds: null,
+  ProjectIds: [],
   PriorityId: null,
   StatusId: null,
   WorkTypeId: null,
@@ -45,12 +60,12 @@ const initialFilter = {
   IsSignedOff: false,
 };
 
-const FilterDialog: React.FC<FilterModalProps> = ({
+const FilterDialog = ({
   onOpen,
   onClose,
   currentFilterData,
   isCompletedTaskClicked,
-}) => {
+}: FilterModalProps) => {
   const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [statusDropdownWorklogData, setStatusDropdownWorklogData] = useState(
     []
@@ -58,23 +73,26 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   const [statusDropdownCompletedData, setStatusDropdownCompletedData] =
     useState([]);
   const [typeOfWorkDropdownData, setTypeOfWorkDropdownData] = useState([]);
-  const [assigneeDropdownData, setAssigneeDropdownData] = useState([]);
+  const [assigneeDropdownData, setAssigneeDropdownData] = useState<
+    LabelValue[] | []
+  >([]);
 
-  const [project, setProject] = useState<null | number>(0);
-  const [priority, setPriority] = useState<null | number>(0);
-  const [status, setStatus] = useState<null | number>(0);
-  const [typeOfWork, setTypeOfWork] = useState<any>(0);
-  const [startDate, setStartDate] = useState<null | string>(null);
-  const [endDate, setEndDate] = useState<null | string>(null);
-  const [dueDate, setDueDate] = useState<null | string>(null);
-  const [assignee, setAssignee] = useState<null | number>(0);
-  const [overDue, setOverDue] = useState<null | number>(0);
+  const [project, setProject] = useState<number>(0);
+  const [priority, setPriority] = useState<number>(0);
+  const [status, setStatus] = useState<number>(0);
+  const [typeOfWork, setTypeOfWork] = useState<number>(0);
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
+  const [dueDate, setDueDate] = useState<string | null>(null);
+  const [assignee, setAssignee] = useState<number>(0);
+  const [overDue, setOverDue] = useState<number>(0);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
+  const [currSelectedFields, setCurrSelectedFileds] =
+    useState<FilterFields>(initialFilter);
   const [isChecked, setIsChecked] = useState(false);
 
   useEffect(() => {
-    currentFilterData(initialFilter);
+    currentFilterData?.(initialFilter);
     handleResetAll();
   }, [isCompletedTaskClicked]);
 
@@ -92,7 +110,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     setProjectDropdownData([]);
     setStatusDropdownWorklogData([]);
     setStatusDropdownCompletedData([]);
-    currentFilterData(initialFilter);
+    currentFilterData?.(initialFilter);
   };
 
   useEffect(() => {
@@ -128,9 +146,9 @@ const FilterDialog: React.FC<FilterModalProps> = ({
       PriorityId: priority || null,
       StatusId: status || null,
       WorkTypeId: typeOfWork || null,
-      DueDate: dueDate !== null ? getFormattedDate(dueDate) : null,
-      StartDate: startDate !== null ? getFormattedDate(startDate) : null,
-      EndDate: endDate !== null ? getFormattedDate(endDate) : null,
+      DueDate: dueDate !== null ? getFormattedDate(dueDate) || "" : null,
+      StartDate: startDate !== null ? getFormattedDate(startDate) || "" : null,
+      EndDate: endDate !== null ? getFormattedDate(endDate) || "" : null,
       AssignedTo: assignee || null,
       OverdueBy: overDue || null,
       IsSignedOff: isChecked,
@@ -150,7 +168,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   ]);
 
   const sendFilterToPage = () => {
-    currentFilterData(currSelectedFields);
+    currentFilterData?.(currSelectedFields);
     onClose();
   };
 
@@ -172,7 +190,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     data.length > 0 &&
       setStatusDropdownWorklogData(
         data.filter(
-          (i: any) =>
+          (i: LabelValueType) =>
             i.Type !== "Accept" &&
             i.Type !== "AcceptWithNotes" &&
             i.Type !== "ReworkSubmitted" &&
@@ -184,7 +202,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     data.length > 0 &&
       setStatusDropdownCompletedData(
         data
-          .map((i: any) =>
+          .map((i: LabelValueType) =>
             i.Type === "Accept" ||
             i.Type === "AcceptWithNotes" ||
             i.Type === "ReworkSubmitted" ||
@@ -193,7 +211,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
               ? i
               : false
           )
-          .filter((j: any) => j !== false)
+          .filter((j: LabelValueType | boolean) => j !== false)
       );
   };
 
@@ -201,7 +219,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     const params = {};
     const url = `${process.env.api_url}/user/GetAssigneeFilterDropdown`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: LabelValue[] | [],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -246,9 +264,9 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   labelId="workTypes-label"
                   id="workTypes-select"
                   value={typeOfWork === 0 ? "" : typeOfWork}
-                  onChange={(e: any) => setTypeOfWork(e.target.value)}
+                  onChange={(e) => setTypeOfWork(Number(e.target.value))}
                 >
-                  {typeOfWorkDropdownData.map((i: any) => (
+                  {typeOfWorkDropdownData.map((i: LabelValue) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
@@ -262,9 +280,9 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   labelId="project"
                   id="project"
                   value={project === 0 ? "" : project}
-                  onChange={(e: any) => setProject(e.target.value)}
+                  onChange={(e) => setProject(Number(e.target.value))}
                 >
-                  {projectDropdownData.map((i: any) => (
+                  {projectDropdownData.map((i: LabelValue) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
@@ -278,20 +296,20 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   labelId="status"
                   id="status"
                   value={status === 0 ? "" : status}
-                  onChange={(e: any) => {
-                    setStatus(e.target.value);
+                  onChange={(e) => {
+                    setStatus(Number(e.target.value));
                     e.target.value === 13
                       ? setIsChecked(true)
                       : setIsChecked(false);
                   }}
                 >
                   {isCompletedTaskClicked
-                    ? statusDropdownCompletedData.map((i: any) => (
+                    ? statusDropdownCompletedData.map((i: LabelValueType) => (
                         <MenuItem value={i.value} key={i.value}>
                           {i.label}
                         </MenuItem>
                       ))
-                    : statusDropdownWorklogData.map((i: any) => (
+                    : statusDropdownWorklogData.map((i: LabelValueType) => (
                         <MenuItem value={i.value} key={i.value}>
                           {i.label}
                         </MenuItem>
@@ -306,7 +324,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   labelId="priority"
                   id="priority"
                   value={priority === 0 ? "" : priority}
-                  onChange={(e: any) => setPriority(e.target.value)}
+                  onChange={(e) => setPriority(Number(e.target.value))}
                 >
                   <MenuItem value={1}>High</MenuItem>
                   <MenuItem value={2}>Medium</MenuItem>
@@ -372,9 +390,9 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   labelId="assignee-label"
                   id="assignee-select"
                   value={assignee === 0 ? "" : assignee}
-                  onChange={(e: any) => setAssignee(e.target.value)}
+                  onChange={(e) => setAssignee(Number(e.target.value))}
                 >
-                  {assigneeDropdownData.map((i: any) => (
+                  {assigneeDropdownData.map((i: LabelValue) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
@@ -388,7 +406,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   labelId="overdueBy-label"
                   id="overdueBy-select"
                   value={overDue === 0 ? "" : overDue}
-                  onChange={(e: any) => setOverDue(e.target.value)}
+                  onChange={(e) => setOverDue(Number(e.target.value))}
                 >
                   <MenuItem value={1}>All</MenuItem>
                   <MenuItem value={2}>Yesterday</MenuItem>

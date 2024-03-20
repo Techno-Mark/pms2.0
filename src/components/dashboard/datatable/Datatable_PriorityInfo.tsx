@@ -15,16 +15,25 @@ import { ListClientDashboard } from "@/utils/Types/dashboardTypes";
 interface PriorityInfoProps {
   onSelectedProjectIds: number[];
   onSelectedPriorityId: number;
+  onSelectedWorkType: number;
+  onOpen: boolean;
 }
 
-const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
+const Datatable_PriorityInfo = ({
   onSelectedProjectIds,
   onSelectedPriorityId,
-}) => {
+  onSelectedWorkType,
+  onOpen,
+}: PriorityInfoProps) => {
   const [data, setData] = useState<ListClientDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+
+  useEffect(() => {
+    onOpen && setPage(0);
+    onOpen && setRowsPerPage(10);
+  }, [onOpen]);
 
   useEffect(() => {
     const getData = () => {
@@ -34,7 +43,7 @@ const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
         SortColumn: null,
         IsDesc: true,
         projectIds: onSelectedProjectIds,
-        typeOfWork: null,
+        typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
         priorityId: onSelectedPriorityId,
         statusId: null,
         ReturnTypeId: null,
@@ -53,8 +62,20 @@ const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
       callAPI(url, params, successCallback, "POST");
     };
 
-    getData();
-  }, [onSelectedProjectIds, onSelectedPriorityId, page, rowsPerPage]);
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [
+    onSelectedProjectIds,
+    onSelectedPriorityId,
+    onSelectedWorkType,
+    page,
+    rowsPerPage,
+  ]);
 
   return (
     <div>

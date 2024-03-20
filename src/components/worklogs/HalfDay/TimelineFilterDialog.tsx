@@ -36,11 +36,11 @@ const initialFilter = {
   EndDate: null,
 };
 
-const TimelineFilterDialog: React.FC<FilterModalProps> = ({
+const TimelineFilterDialog = ({
   onOpen,
   onClose,
   currentFilterData,
-}) => {
+}: FilterModalProps) => {
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [projectDropdownData, setProjectDropdownData] = useState([]);
 

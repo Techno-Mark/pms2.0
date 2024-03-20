@@ -21,21 +21,21 @@ import { callAPI } from "@/utils/API/callAPI";
 interface RatingModalProps {
   onOpen: boolean;
   onClose: () => void;
-  ratingId: any;
-  noRatingId: any;
+  ratingId: number[] | [];
+  noRatingId: number[] | [];
   onActionClick?: () => void;
   onDataFetch: () => void;
   handleClearSelection: () => void;
 }
 
-const RatingDialog: React.FC<RatingModalProps> = ({
+const RatingDialog = ({
   onOpen,
   onClose,
   ratingId,
   noRatingId,
   onDataFetch,
   handleClearSelection,
-}) => {
+}: RatingModalProps) => {
   const [ratingValue, setRatingValue] = React.useState<any>(0);
   const [ratingErr, setRatingErr] = React.useState(false);
   const [comment, setComment] = React.useState<string>("");
@@ -69,7 +69,7 @@ const RatingDialog: React.FC<RatingModalProps> = ({
         };
         const url = `${process.env.worklog_api_url}/ClientWorkitem/workitemrating`;
         const successCallback = (
-          ResponseData: any,
+          ResponseData: null,
           error: boolean,
           ResponseStatus: string
         ) => {

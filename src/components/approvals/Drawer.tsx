@@ -2106,16 +2106,16 @@ const EditDrawer = ({
           ResponseData.ManagerId === null ? 0 : ResponseData.ManagerId
         );
         setReturnYearApprovals(
-          ResponseData.TypeOfReturnId === 0
+          ResponseData.TaxCustomFields === null
             ? 0
-            : ResponseData.TaxCustomFields === null
+            : ResponseData.TypeOfReturnId === 0
             ? 0
             : ResponseData.TaxCustomFields.ReturnYear
         );
         setNoOfPagesApprovals(
-          ResponseData.TypeOfReturnId === 0
+          ResponseData.TaxCustomFields === null
             ? 0
-            : ResponseData.TaxCustomFields === null
+            : ResponseData.TypeOfReturnId === 0
             ? 0
             : ResponseData.TaxCustomFields.NoOfPages
         );

@@ -24,11 +24,11 @@ import { toHoursAndMinutes, toSeconds } from "@/utils/timerFunctions";
 interface EditModalProps {
   onOpen: boolean;
   onClose: () => void;
-  onReviewerDataFetch?: any;
-  onClearSelection?: any;
+  onReviewerDataFetch?: () => void;
+  onClearSelection?: () => void;
   onSelectWorkItemId: number;
   onSelectedSubmissionId: number;
-  getOverLay: (e: boolean) => void;
+  getOverLay?: (e: boolean) => void;
 }
 
 interface Response {
@@ -73,7 +73,7 @@ const EditDialog = ({
   const handleClose = () => {
     setEditTime("00:00:00");
     onClose();
-    onReviewerDataFetch();
+    onReviewerDataFetch?.();
     setCheckboxClicked(false);
     setPercentage(0);
   };
@@ -179,7 +179,7 @@ const EditDialog = ({
     const convertedEditTime =
       parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
 
-    getOverLay(true);
+    getOverLay?.(true);
     const params = {
       WorkItemId: onSelectWorkItemId,
       managerTime: convertedEditTime,
@@ -197,11 +197,11 @@ const EditDialog = ({
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Time has been updated successfully.");
         onClose();
-        onClearSelection();
-        onReviewerDataFetch();
-        getOverLay(false);
+        onClearSelection?.();
+        onReviewerDataFetch?.();
+        getOverLay?.(false);
       } else {
-        getOverLay(false);
+        getOverLay?.(false);
       }
     };
     callAPI(url, params, successCallback, "POST");

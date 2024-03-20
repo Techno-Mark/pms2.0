@@ -16,17 +16,26 @@ interface ReturnTypeDataProps {
   onSelectedProjectIds: number[];
   onSelectedReturnTypeValue: number;
   onCurrSelectedReturnType: string | number;
+  onSelectedWorkType: number;
+  onOpen: boolean;
 }
 
-const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
+const Datatable_ReturnTypeData = ({
   onSelectedProjectIds,
   onSelectedReturnTypeValue,
   onCurrSelectedReturnType,
-}) => {
+  onSelectedWorkType,
+  onOpen,
+}: ReturnTypeDataProps) => {
   const [data, setData] = useState<ListClientDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+
+  useEffect(() => {
+    onOpen && setPage(0);
+    onOpen && setRowsPerPage(10);
+  }, [onOpen]);
 
   useEffect(() => {
     const getData = async () => {
@@ -36,7 +45,7 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
         SortColumn: null,
         IsDesc: true,
         projectIds: onSelectedProjectIds,
-        typeOfWork: null,
+        typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
         priorityId: null,
         statusId: null,
         ReturnTypeId: onCurrSelectedReturnType
@@ -57,11 +66,18 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
       callAPI(url, params, successCallback, "POST");
     };
 
-    getData();
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
     onSelectedProjectIds,
     onSelectedReturnTypeValue,
     onCurrSelectedReturnType,
+    onSelectedWorkType,
     page,
     rowsPerPage,
   ]);

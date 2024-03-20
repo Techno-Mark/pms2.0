@@ -50,7 +50,7 @@ const initialFilter = {
   Users: [],
 };
 
-const TimelineHalfDay: React.FC<HalfDayModalProps> = ({ onOpen, onClose }) => {
+const TimelineHalfDay = ({ onOpen, onClose }: HalfDayModalProps) => {
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
   const [loaded, setLoaded] = useState<boolean>(false);
   const [workItemData, setWorkItemData] = useState<any | any[]>([]);

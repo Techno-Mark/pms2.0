@@ -32,11 +32,11 @@ const initialRatingFilter = {
   Ratings: null,
 };
 
-const FilterDialog_Rating: React.FC<FilterModalProps> = ({
+const FilterDialog_Rating = ({
   onOpen,
   onClose,
   currentFilterData,
-}) => {
+}: FilterModalProps) => {
   const [anyRatingFieldSelected, setAnyRatingFieldSelected] =
     useState<any>(false);
   const [currSelectedRatingFields, setCurrSelectedRatingFileds] = useState<

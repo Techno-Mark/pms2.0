@@ -35,20 +35,26 @@ interface ProjectStatusDialogProps {
   onSelectedProjectIds: number[];
 }
 
-const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
+const Dialog_ProjectStatus = ({
   onOpen,
   onClose,
   currentFilterData,
   onSelectedProjectStatus,
   onSelectedProjectIds,
-}) => {
+}: ProjectStatusDialogProps) => {
   const [allProjectStatus, setAllProjectStatus] = useState<Status[]>([]);
   const [projectStatus, setProjectStatus] = useState<number>(0);
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [isClose, setIsClose] = useState<boolean>(false);
+
+  useEffect(() => {
+    onOpen && setIsClose(false);
+  }, [onOpen]);
 
   const handleClose = () => {
     onClose();
     setProjectStatus(0);
+    setIsClose(false);
   };
 
   const getProjectStatusList = async () => {
@@ -168,7 +174,7 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogTitle className="flex justify-between p-5 bg-whiteSmoke">
+        <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">Project Status</span>
           <IconButton onClick={handleClose}>
             <Close />
@@ -228,6 +234,8 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
             onSelectedProjectStatus={onSelectedProjectStatus}
             onSelectedProjectIds={onSelectedProjectIds}
             onCurrSelectedProjectStatus={projectStatus}
+            onOpen={onOpen}
+            isClose={isClose}
           />
         </DialogContent>
       </Dialog>

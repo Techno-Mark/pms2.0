@@ -21,15 +21,13 @@ interface OverallProjectSummaryDialogProps {
   onSelectedProjectIds: number[];
 }
 
-const Dialog_OverallProjectSummary: React.FC<
-  OverallProjectSummaryDialogProps
-> = ({
+const Dialog_OverallProjectSummary = ({
   onOpen,
   onClose,
   onSelectedWorkType,
   onSelectedTaskStatus,
   onSelectedProjectIds,
-}) => {
+}: OverallProjectSummaryDialogProps) => {
   const [allTaskList, setAllTaskList] = useState<string[] | any>([]);
   const [taskStatusName, setTaskStatusName] = useState<string>("");
 
@@ -61,9 +59,15 @@ const Dialog_OverallProjectSummary: React.FC<
   };
 
   useEffect(() => {
-    if (onOpen === true) {
-      getTaskStatusList();
-    }
+    const fetchData = async () => {
+      if (onOpen === true) {
+        getTaskStatusList();
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [onSelectedWorkType, onSelectedProjectIds, onSelectedProjectIds, onOpen]);
 
   return (
@@ -76,7 +80,7 @@ const Dialog_OverallProjectSummary: React.FC<
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogTitle className="flex justify-between p-5 bg-whiteSmoke">
+        <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">Task Status</span>
           <IconButton onClick={handleClose}>
             <Close />
@@ -106,6 +110,7 @@ const Dialog_OverallProjectSummary: React.FC<
             onSelectedWorkType={onSelectedWorkType}
             onSelectedTaskStatus={onSelectedTaskStatus}
             onCurrselectedtaskStatus={taskStatusName}
+            onOpen={onOpen}
           />
         </DialogContent>
       </Dialog>

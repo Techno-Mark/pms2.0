@@ -17,6 +17,7 @@ interface BillingTypeProps {
   onSelectedStatusName: string;
   onCurrentSelectedBillingType: number | null;
   onSearchValue: string;
+  isClose: boolean;
 }
 
 interface List {
@@ -37,16 +38,22 @@ interface Response {
   BillingStatusList: List[] | [];
 }
 
-const Datatable_BillingType: React.FC<BillingTypeProps> = ({
+const Datatable_BillingType = ({
   currentFilterData,
   onSelectedStatusName,
   onCurrentSelectedBillingType,
   onSearchValue,
-}) => {
+  isClose,
+}: BillingTypeProps) => {
   const [data, setData] = useState<any | any[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+
+  useEffect(() => {
+    isClose && setPage(0);
+    isClose && setRowsPerPage(10);
+  }, [isClose]);
 
   const getBillingTypeData = async (value: string) => {
     const params = {
@@ -88,6 +95,8 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       if (onSearchValue.trim().length > 0) {
+        setPage(0);
+        setRowsPerPage(10);
         await getBillingTypeData(onSearchValue);
       } else {
         await getBillingTypeData("");

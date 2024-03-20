@@ -37,10 +37,10 @@ interface List {
   ActualTaxHrs: number | null;
 }
 
-const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
+const Datatable_TotalHoursInfo = ({
   onSelectedProjectIds,
   onSelectedWorkType,
-}) => {
+}: TotalHoursInfoProps) => {
   const [clientDetails, setClientDetails] = useState<ClientDetail | null>(null);
   const [clientProjectDetails, setClientProjectDetails] = useState<List[] | []>(
     []
@@ -78,7 +78,13 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
       callAPI(url, params, successCallback, "POST");
     };
 
-    getData();
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [onSelectedProjectIds, onSelectedWorkType, page, rowsPerPage]);
 
   const tableData = [];

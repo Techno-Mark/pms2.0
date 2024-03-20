@@ -227,14 +227,14 @@ const Datatable = ({
       const pathname = window.location.href.includes("id=");
       if (pathnameEdit) {
         const idMatch = window.location.href.match(/id=([^?&]+)/);
-        const id = idMatch ? idMatch[1] : null;
+        const id = idMatch ? idMatch[1] : 0;
         onEdit(Number(id));
         onDrawerOpen();
         onIsEdit(true);
         return;
       } else if (pathname) {
         const idMatch = window.location.href.match(/id=([^?&]+)/);
-        const id = idMatch ? idMatch[1] : null;
+        const id = idMatch ? idMatch[1] : 0;
         onEdit(Number(id));
         onDrawerOpen();
         onIsEdit(false);

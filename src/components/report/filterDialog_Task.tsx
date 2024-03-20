@@ -35,11 +35,11 @@ const initialTaskFilter = {
   EndDate: null,
 };
 
-const FilterDialog_Task: React.FC<FilterModalProps> = ({
+const FilterDialog_Task = ({
   onOpen,
   onClose,
   currentFilterData,
-}) => {
+}: FilterModalProps) => {
   const [anyTaskFieldSelected, setAnyTaskFieldSelected] = useState<any>(false);
   const [currSelectedTaskFields, setCurrSelectedTaskFileds] = useState<
     any | any[]
@@ -133,7 +133,9 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
     setTypeOfWorkFilterTaskDropdownData(
       await getTypeOfWorkDropdownData(clientId)
     );
-    setProjectFilterTaskDropdownData(await getProjectDropdownData(clientId, null));
+    setProjectFilterTaskDropdownData(
+      await getProjectDropdownData(clientId, null)
+    );
   };
 
   useEffect(() => {

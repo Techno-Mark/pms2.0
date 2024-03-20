@@ -2285,16 +2285,16 @@ const EditDrawer = ({
           ResponseData.ManagerId === null ? 0 : ResponseData.ManagerId
         );
         setReturnYearWorklogs(
-          ResponseData.TypeOfReturnId === 0
+          ResponseData.TaxCustomFields === null
             ? 0
-            : ResponseData.TaxCustomFields === null
+            : ResponseData.TypeOfReturnId === 0
             ? 0
             : ResponseData.TaxCustomFields.ReturnYear
         );
         setNoOfPagesWorklogs(
-          ResponseData.TypeOfReturnId === 0
+          ResponseData.TaxCustomFields === null
             ? 0
-            : ResponseData.TaxCustomFields === null
+            : ResponseData.TypeOfReturnId === 0
             ? 0
             : ResponseData.TaxCustomFields.NoOfPages
         );

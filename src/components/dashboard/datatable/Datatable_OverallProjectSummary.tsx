@@ -17,18 +17,25 @@ interface OverallProjectSummaryProps {
   onSelectedTaskStatus: string;
   onSelectedProjectIds: number[];
   onCurrselectedtaskStatus: string;
+  onOpen: boolean;
 }
 
-const Datatable_OverallProjectSummary: React.FC<OverallProjectSummaryProps> = ({
+const Datatable_OverallProjectSummary = ({
   onSelectedWorkType,
   onSelectedTaskStatus,
   onSelectedProjectIds,
   onCurrselectedtaskStatus,
-}) => {
+  onOpen,
+}: OverallProjectSummaryProps) => {
   const [data, setData] = useState<ListClientDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+
+  useEffect(() => {
+    onOpen && setPage(0);
+    onOpen && setRowsPerPage(10);
+  }, [onOpen]);
 
   const getOverallProjectSummaryData = () => {
     const params = {
@@ -57,9 +64,15 @@ const Datatable_OverallProjectSummary: React.FC<OverallProjectSummaryProps> = ({
   };
 
   useEffect(() => {
-    if (onCurrselectedtaskStatus !== "" || onSelectedTaskStatus !== "") {
-      getOverallProjectSummaryData();
-    }
+    const fetchData = async () => {
+      if (onCurrselectedtaskStatus !== "" || onSelectedTaskStatus !== "") {
+        getOverallProjectSummaryData();
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
     onSelectedWorkType,
     onSelectedTaskStatus,

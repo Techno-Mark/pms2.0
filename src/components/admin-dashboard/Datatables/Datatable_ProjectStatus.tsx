@@ -21,17 +21,26 @@ interface ProjectStatusProps {
   onSelectedProjectStatus: number;
   onSelectedProjectIds: number[];
   onCurrSelectedProjectStatus: number;
+  onOpen: boolean;
+  isClose: boolean;
 }
 
-const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
+const Datatable_ProjectStatus = ({
   currentFilterData,
   onSelectedProjectStatus,
   onCurrSelectedProjectStatus,
-}) => {
+  onOpen,
+  isClose,
+}: ProjectStatusProps) => {
   const [data, setData] = useState<ListDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+
+  useEffect(() => {
+    (isClose || onOpen) && setPage(0);
+    (isClose || onOpen) && setRowsPerPage(10);
+  }, [onOpen, isClose]);
 
   const getProjectStatusData = async () => {
     const params = {

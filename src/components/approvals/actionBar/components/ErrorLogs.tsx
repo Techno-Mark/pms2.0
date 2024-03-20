@@ -2,7 +2,11 @@ import React from "react";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import ErrorLogsIcon from "@/assets/icons/worklogs/ErrorLogs";
 
-const ErrorLogs = ({ settingSelectedId }: any) => {
+interface ErrorLogs {
+  settingSelectedId: () => void;
+}
+
+const ErrorLogs = ({ settingSelectedId }: ErrorLogs) => {
   return (
     <div>
       <ColorToolTip title="Error logs" arrow>

@@ -35,11 +35,11 @@ const initialFilter = {
   TypeOfWork: null,
 };
 
-const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
+const UnassigneeFilterDialog = ({
   onOpen,
   onClose,
   currentFilterData,
-}) => {
+}: FilterModalProps) => {
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [typeOfWorkDropdownData, setTypeOfWorkDropdownData] = useState([]);
 

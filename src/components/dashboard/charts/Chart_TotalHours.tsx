@@ -31,7 +31,7 @@ const Chart_TotalHours = ({
       };
       const url = `${process.env.report_api_url}/clientdashboard/clienttotalhours`;
       const successCallback = (
-        ResponseData: { List:any; TotalCount: number },
+        ResponseData: { List: any; TotalCount: number },
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -51,7 +51,13 @@ const Chart_TotalHours = ({
       callAPI(url, params, successCallback, "POST");
     };
 
-    getData();
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [onSelectedProjectIds, onSelectedWorkType]);
 
   const chartOptions = {

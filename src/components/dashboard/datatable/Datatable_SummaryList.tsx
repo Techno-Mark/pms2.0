@@ -15,20 +15,27 @@ import { ListClientDashboard } from "@/utils/Types/dashboardTypes";
 interface SummaryListProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
-  onSelectedSummaryStatus: string;
-  onCurrSelectedSummaryStatus: string;
+  onSelectedSummaryStatus: number;
+  onCurrSelectedSummaryStatus: number;
+  onOpen: boolean;
 }
 
-const Datatable_SummaryList: React.FC<SummaryListProps> = ({
+const Datatable_SummaryList = ({
   onSelectedProjectIds,
   onSelectedWorkType,
   onSelectedSummaryStatus,
   onCurrSelectedSummaryStatus,
-}) => {
+  onOpen,
+}: SummaryListProps) => {
   const [data, setData] = useState<ListClientDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+
+  useEffect(() => {
+    onOpen && setPage(0);
+    onOpen && setRowsPerPage(10);
+  }, [onOpen]);
 
   const getSummaryData = () => {
     const params = {
@@ -38,9 +45,10 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
       IsDesc: true,
       TypeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
       ProjectIds: onSelectedProjectIds ? onSelectedProjectIds : [],
-      Key: onCurrSelectedSummaryStatus
-        ? onCurrSelectedSummaryStatus
-        : onSelectedSummaryStatus,
+      Key:
+        onCurrSelectedSummaryStatus > 0
+          ? onCurrSelectedSummaryStatus
+          : onSelectedSummaryStatus,
     };
     const url = `${process.env.report_api_url}/clientdashboard/summarylist`;
     const successCallback = (
@@ -57,9 +65,15 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
   };
 
   useEffect(() => {
-    if (onSelectedSummaryStatus !== "") {
-      getSummaryData();
-    }
+    const fetchData = async () => {
+      if (onSelectedSummaryStatus > 0) {
+        getSummaryData();
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
     onSelectedWorkType,
     onSelectedSummaryStatus,

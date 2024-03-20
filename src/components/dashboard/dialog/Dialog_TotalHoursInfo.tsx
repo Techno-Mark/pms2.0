@@ -24,13 +24,13 @@ interface WorkType {
   value: number | any;
 }
 
-const Dialog_TotalHoursInfo: React.FC<TotalHoursInfoDialogProps> = ({
+const Dialog_TotalHoursInfo = ({
   onOpen,
   onClose,
   onWorkTypeData,
   onSelectedProjectIds,
   onSelectedWorkTypeName,
-}) => {
+}: TotalHoursInfoDialogProps) => {
   const [workType, setWorkType] = useState<number | any>(0);
   const [clickedWorkTypeName, setClickedWorkTypeName] = useState<string>("");
 
@@ -67,7 +67,7 @@ const Dialog_TotalHoursInfo: React.FC<TotalHoursInfoDialogProps> = ({
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogTitle className="flex justify-between p-5 bg-whiteSmoke">
+        <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">Total Hours</span>
           <IconButton onClick={handleClose}>
             <Close />

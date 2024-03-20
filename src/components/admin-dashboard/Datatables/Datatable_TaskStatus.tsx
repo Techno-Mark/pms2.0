@@ -21,18 +21,25 @@ interface TaskStatusProps {
   onSelectedStatusName: string;
   onCurrSelectedStatus: any;
   onSearchValue: string;
+  isClose: boolean;
 }
 
-const Datatable_TaskStatus: React.FC<TaskStatusProps> = ({
+const Datatable_TaskStatus = ({
   currentFilterData,
   onSelectedStatusName,
   onCurrSelectedStatus,
   onSearchValue,
-}) => {
+  isClose,
+}: TaskStatusProps) => {
   const [data, setData] = useState<ListDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+
+  useEffect(() => {
+    isClose && setPage(0);
+    isClose && setRowsPerPage(10);
+  }, [isClose]);
 
   const getTaskStatusData = async (value: string) => {
     const params = {
@@ -71,6 +78,8 @@ const Datatable_TaskStatus: React.FC<TaskStatusProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       if (onSearchValue.trim().length > 0) {
+        setPage(0);
+        setRowsPerPage(10);
         await getTaskStatusData(onSearchValue);
       } else {
         await getTaskStatusData("");

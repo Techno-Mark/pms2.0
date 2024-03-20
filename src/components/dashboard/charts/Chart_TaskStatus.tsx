@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { callAPI } from "@/utils/API/callAPI";
-import { KeyValueColorCode } from "@/utils/Types/types";
+import { KeyValueColorCodeSequenceStatusId } from "@/utils/Types/types";
 
 interface TaskStatusProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
-  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
+  sendData: (isDialogOpen: boolean, selectedPointData: number) => void;
 }
 
 const Chart_TaskStatus = ({
@@ -20,6 +20,7 @@ const Chart_TaskStatus = ({
         name: string;
         y: number;
         color: string;
+        StatusId: number;
       }[]
     | []
   >([]);
@@ -32,16 +33,19 @@ const Chart_TaskStatus = ({
       };
       const url = `${process.env.report_api_url}/clientdashboard/taskstatuscount`;
       const successCallback = (
-        ResponseData: KeyValueColorCode[] | [],
+        ResponseData: KeyValueColorCodeSequenceStatusId[] | [],
         error: boolean,
         ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
-          const chartData = ResponseData.map((item: KeyValueColorCode) => ({
-            name: item.Key,
-            y: item.Value,
-            color: item.ColorCode,
-          }));
+          const chartData = ResponseData.map(
+            (item: KeyValueColorCodeSequenceStatusId) => ({
+              name: item.Key,
+              y: item.Value,
+              color: item.ColorCode,
+              StatusId: item.StatusId,
+            })
+          );
 
           setData(chartData);
         }
@@ -49,7 +53,13 @@ const Chart_TaskStatus = ({
       callAPI(url, params, successCallback, "POST");
     };
 
-    getData();
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [onSelectedProjectIds, onSelectedWorkType]);
 
   const chartOptions: Highcharts.Options = {
@@ -86,11 +96,11 @@ const Chart_TaskStatus = ({
         cursor: "pointer",
         point: {
           events: {
-            click: (event) => {
+            click: (event: any) => {
               const selectedPointData = {
-                name: (event.point && event.point.name) || "",
+                StatusId: (event.point && event.point.StatusId) || "",
               };
-              sendData(true, selectedPointData.name);
+              sendData(true, selectedPointData.StatusId);
             },
           },
         },

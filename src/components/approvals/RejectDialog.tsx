@@ -27,12 +27,12 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="left" ref={ref} {...props} />;
 });
 
-const RejectDialog: React.FC<RejectDialogModalProps> = ({
+const RejectDialog = ({
   onOpen,
   onClose,
   rejectWorkItem,
   selectedWorkItemIds,
-}) => {
+}: RejectDialogModalProps) => {
   const [note, setNote] = useState("");
   const [noteErr, setNoteErr] = useState(false);
 
