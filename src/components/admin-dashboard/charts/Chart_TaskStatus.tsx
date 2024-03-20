@@ -10,10 +10,7 @@ interface TaskStatusProps {
   sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
-const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
-  sendData,
-  currentFilterData,
-}) => {
+const Chart_TaskStatus = ({ sendData, currentFilterData }: TaskStatusProps) => {
   const [data, setData] = useState<any[]>([]);
 
   const getTaskStatusData = async () => {

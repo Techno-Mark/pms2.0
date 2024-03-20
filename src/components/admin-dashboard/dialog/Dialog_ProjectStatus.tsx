@@ -35,13 +35,13 @@ interface ProjectStatusDialogProps {
   onSelectedProjectIds: number[];
 }
 
-const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
+const Dialog_ProjectStatus = ({
   onOpen,
   onClose,
   currentFilterData,
   onSelectedProjectStatus,
   onSelectedProjectIds,
-}) => {
+}: ProjectStatusDialogProps) => {
   const [allProjectStatus, setAllProjectStatus] = useState<Status[]>([]);
   const [projectStatus, setProjectStatus] = useState<number>(0);
   const [isExporting, setIsExporting] = useState<boolean>(false);

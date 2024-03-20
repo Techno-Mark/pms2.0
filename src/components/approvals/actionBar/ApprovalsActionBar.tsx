@@ -19,16 +19,32 @@ import {
 } from "@/components/common/actionBar/components/ActionBarComponents";
 import { callAPI } from "@/utils/API/callAPI";
 import Reject from "./components/Reject";
+import { ApprovalsActionBar, List } from "@/utils/Types/approvalsTypes";
+
+interface ConditionalComponentWithoutConditions {
+  Component: any;
+  propsForActionBar: {
+    selectedRowIds: number[] | [];
+    selectedRowsCount: number;
+    getData: () => void;
+  };
+  getOverLay?: (e: boolean) => void;
+}
+
+interface ConditionalComponent {
+  condition?: any;
+  className?: string;
+  Component?: any;
+  propsForActionBar?: any;
+  getOverLay?: (e: boolean) => void;
+}
 
 const ConditionalComponentWithoutConditions = ({
   Component,
   propsForActionBar,
-  className,
   getOverLay,
-}: any) => (
-  <span
-    className={`pl-2 pr-2 cursor-pointer border-l-[1.5px] border-gray-300 ${className}`}
-  >
+}: ConditionalComponentWithoutConditions) => (
+  <span className={`pl-2 pr-2 cursor-pointer border-l-[1.5px] border-gray-300`}>
     <Component {...propsForActionBar} getOverLay={getOverLay} />
   </span>
 );
@@ -38,12 +54,11 @@ const ConditionalComponent = ({
   className,
   Component,
   propsForActionBar,
-  additionalBorderClass = "",
   getOverLay,
-}: any) =>
+}: ConditionalComponent) =>
   condition ? (
     <span
-      className={`pl-2 pr-2 cursor-pointer border-l-[1.5px] border-gray-300 ${additionalBorderClass} ${className}`}
+      className={`pl-2 pr-2 cursor-pointer border-l-[1.5px] border-gray-300 ${className}`}
     >
       <Component {...propsForActionBar} getOverLay={getOverLay} />
     </span>
@@ -65,32 +80,32 @@ const ApprovalsActionBar = ({
   getInitialPagePerRows,
   handleClearSelection,
   getOverLay,
-}: any) => {
+}: ApprovalsActionBar) => {
   const isReviewer = reviewList
     .filter(
-      (i: any) =>
+      (i: List) =>
         selectedWorkItemIds.includes(i.WorkitemId) &&
-        i.ReviewerId == localStorage.getItem("UserId")
+        i.ReviewerId == Number(localStorage.getItem("UserId"))
     )
-    .map((i: any) => i.WorkitemId);
+    .map((i: List) => i.WorkitemId);
 
   const isNotReviewer = reviewList
     .filter(
-      (i: any) =>
+      (i: List) =>
         selectedWorkItemIds.includes(i.WorkitemId) &&
-        i.ReviewerId != localStorage.getItem("UserId")
+        i.ReviewerId != Number(localStorage.getItem("UserId"))
     )
-    .map((i: any) => i.WorkitemId);
+    .map((i: List) => i.WorkitemId);
 
   const acceptWorkitem = async (note: string, id: number[]) => {
-    getOverLay(true);
+    getOverLay?.(true);
     const params = {
       workitemSubmissionIds: id,
       comment: note ? note : null,
     };
     const url = `${process.env.worklog_api_url}/workitem/approval/acceptworkitem`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: number | string,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -99,14 +114,14 @@ const ApprovalsActionBar = ({
         handleClearSelection();
         getReviewList();
         getInitialPagePerRows();
-        getOverLay(false);
+        getOverLay?.(false);
       } else if (ResponseStatus === "Warning" && error === false) {
         toast.warning(ResponseData);
         handleClearSelection();
         getReviewList();
-        getOverLay(false);
+        getOverLay?.(false);
       } else {
-        getOverLay(false);
+        getOverLay?.(false);
         getReviewList();
       }
     };
@@ -114,14 +129,14 @@ const ApprovalsActionBar = ({
   };
 
   const rejectWorkitem = async (note: string, id: number[]) => {
-    getOverLay(true);
+    getOverLay?.(true);
     const params = {
       workitemSubmissionIds: id,
       comment: note ? note : null,
     };
     const url = `${process.env.worklog_api_url}/workitem/approval/rejectworkitem`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: number | string,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -130,21 +145,21 @@ const ApprovalsActionBar = ({
         handleClearSelection();
         getReviewList();
         getInitialPagePerRows();
-        getOverLay(false);
+        getOverLay?.(false);
       } else if (ResponseStatus === "Warning" && error === false) {
         toast.warning(ResponseData);
         handleClearSelection();
         getReviewList();
-        getOverLay(false);
+        getOverLay?.(false);
       } else {
-        getOverLay(false);
+        getOverLay?.(false);
         getReviewList();
       }
     };
     callAPI(url, params, successCallback, "POST");
   };
 
-  function areAllValuesSame(arr: any[]) {
+  function areAllValuesSame(arr: number[] | []) {
     return arr.every((value, index, array) => value === array[0]);
   }
 
@@ -209,7 +224,7 @@ const ApprovalsActionBar = ({
             isReviewer.length > 0 &&
             !Array.from(new Set(selectedRowWorkTypeId)).includes(3) &&
             reviewList.filter(
-              (i: any) =>
+              (i: List) =>
                 i.WorkitemId === workitemId &&
                 i.StatusType !== "PartialSubmitted"
             ).length > 0
@@ -293,7 +308,7 @@ const ApprovalsActionBar = ({
             selectedRowsCount === 1 &&
             isNotReviewer.length === 0 &&
             isReviewer.length > 0 &&
-            reviewList.filter((i: any) => i.WorkitemId === workitemId)[0]
+            reviewList.filter((i: List) => i.WorkitemId === workitemId)[0]
               .IsFinalSubmited
           }
           className=""

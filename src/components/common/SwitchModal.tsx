@@ -21,14 +21,14 @@ interface SwitchModalProps {
   onActionClick: () => void;
 }
 
-const SwitchModal: React.FC<SwitchModalProps> = ({
+const SwitchModal = ({
   isOpen,
   onClose,
   title,
   firstContent,
   actionText,
   onActionClick,
-}) => {
+}: SwitchModalProps) => {
   return (
     <>
       <Dialog

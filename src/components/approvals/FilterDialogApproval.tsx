@@ -62,12 +62,12 @@ const initialFilter = {
   endDateReview: null,
 };
 
-const FilterDialogApproval: React.FC<FilterModalProps> = ({
+const FilterDialogApproval = ({
   activeTab,
   onOpen,
   onClose,
   currentFilterData,
-}) => {
+}: FilterModalProps) => {
   const [clientName, setClientName] = useState<LabelValue | null>(null);
   const [workType, setWorkType] = useState<LabelValue | null>(null);
   const [userName, setUser] = useState<LabelValue | null>(null);

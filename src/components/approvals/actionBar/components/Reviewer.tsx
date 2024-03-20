@@ -6,6 +6,16 @@ import EditUserIcon from "@/assets/icons/EditUserIcon";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { getReviewerDropdownData } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
+import { LabelValue } from "@/utils/Types/types";
+
+interface Reviewer {
+  selectedWorkItemIds: number[];
+  selectedRowClientId: number[] | [];
+  selectedRowWorkTypeId: number[] | [];
+  handleClearSelection: () => void;
+  getReviewList: () => void;
+  getOverLay?: (e: boolean) => void;
+}
 
 const Reviewer = ({
   selectedWorkItemIds,
@@ -14,9 +24,9 @@ const Reviewer = ({
   handleClearSelection,
   getReviewList,
   getOverLay,
-}: any) => {
+}: Reviewer) => {
   const [searchQueryRW, setSearchQueryRW] = useState("");
-  const [reviewer, setReviewer] = useState<any | any[]>([]);
+  const [reviewer, setReviewer] = useState<LabelValue[] | []>([]);
 
   const [anchorElReviewer, setAnchorElReviewer] =
     React.useState<HTMLButtonElement | null>(null);
@@ -40,28 +50,28 @@ const Reviewer = ({
   const openReviewer = Boolean(anchorElReviewer);
   const idReviewer = openReviewer ? "simple-popover" : undefined;
 
-  const handleSearchChangeRW = (event: any) => {
-    setSearchQueryRW(event.target.value);
+  const handleSearchChangeRW = (e: string) => {
+    setSearchQueryRW(e);
   };
 
-  const filteredReviewer = reviewer.filter((reviewer: any) =>
+  const filteredReviewer = reviewer.filter((reviewer: LabelValue) =>
     reviewer.label.toLowerCase().includes(searchQueryRW.toLowerCase())
   );
 
-  const handleOptionReviewer = (id: any) => {
+  const handleOptionReviewer = (id: number) => {
     updateReviewer(selectedWorkItemIds, id);
     handleCloseReviewer();
   };
 
   const updateReviewer = async (id: number[], reviewerId: number) => {
-    getOverLay(true);
+    getOverLay?.(true);
     const params = {
       workitemIds: id,
       ReviewerId: reviewerId,
     };
     const url = `${process.env.worklog_api_url}/workitem/UpdateReviewer`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: boolean | string,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -69,15 +79,15 @@ const Reviewer = ({
         toast.success("Reviewer has been updated successfully.");
         handleClearSelection();
         getReviewList();
-        getOverLay(false);
+        getOverLay?.(false);
       } else if (ResponseStatus === "Warning" && error === false) {
         toast.warning(ResponseData);
         handleClearSelection();
         getReviewList();
-        getOverLay(false);
+        getOverLay?.(false);
       } else {
         getReviewList();
-        getOverLay(false);
+        getOverLay?.(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -122,7 +132,7 @@ const Reviewer = ({
                   placeholder="Search"
                   inputProps={{ "aria-label": "search" }}
                   value={searchQueryRW}
-                  onChange={handleSearchChangeRW}
+                  onChange={(e) => handleSearchChangeRW(e.target.value)}
                   style={{ fontSize: "13px" }}
                 />
               </span>
@@ -134,7 +144,7 @@ const Reviewer = ({
                 No Data Available
               </span>
             ) : (
-              filteredReviewer.map((reviewer: any) => {
+              filteredReviewer.map((reviewer: LabelValue) => {
                 return (
                   <span
                     key={reviewer.value}
@@ -147,7 +157,7 @@ const Reviewer = ({
                       <Avatar sx={{ width: 32, height: 32, fontSize: 14 }}>
                         {reviewer.label
                           ?.split(" ")
-                          .map((word: any) => word.charAt(0).toUpperCase())
+                          .map((word: string) => word.charAt(0).toUpperCase())
                           .join("")}
                       </Avatar>
 

@@ -23,11 +23,11 @@ interface Response {
   TotalCount: number;
 }
 
-const Chart_ProjectStatus: React.FC<ChartProjectStatusProps> = ({
+const Chart_ProjectStatus = ({
   onSelectedProjectIds,
   currentFilterData,
   sendData,
-}) => {
+}: ChartProjectStatusProps) => {
   const [data, setData] = useState<any | any[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 

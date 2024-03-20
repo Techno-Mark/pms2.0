@@ -40,11 +40,11 @@ const initialFilter = {
   Users: [],
 };
 
-const FilterDialogHalfDay: React.FC<FilterModalProps> = ({
+const FilterDialogHalfDay = ({
   onOpen,
   onClose,
   currentFilterData,
-}) => {
+}: FilterModalProps) => {
   const yearDropdown = getYears();
   const [userDropdownData, setUserDropdownData] = useState([]);
   const [userName, setUserName] = useState<any>([]);

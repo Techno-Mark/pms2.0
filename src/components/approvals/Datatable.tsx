@@ -44,9 +44,7 @@ import {
   InitialFilterApprovals,
   List,
 } from "@/utils/Types/approvalsTypes";
-import {
-  AppliedFilterApprovals,
-} from "@/utils/Types/types";
+import { AppliedFilterApprovals } from "@/utils/Types/types";
 
 interface DatatableProps {
   activeTab: number;
@@ -108,12 +106,12 @@ const Datatable = ({
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState<number[] | []>([]);
-  const [selectedRowIds, setSelectedRowIds] = useState<number[]>([]);
+  const [selectedRowIds, setSelectedRowIds] = useState<number[] | []>([]);
   const [selectedWorkItemIds, setSelectedWorkItemIds] = useState<number[] | []>(
     []
   );
-  const [workitemId, setWorkitemId] = useState(0);
-  const [id, setId] = useState(0);
+  const [workitemId, setWorkitemId] = useState<number>(0);
+  const [id, setId] = useState<number>(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
@@ -217,14 +215,14 @@ const Datatable = ({
       selectedData.length > 0
         ? selectedData[selectedData.length - 1]?.WorkitemId
         : 0;
-    setWorkitemId(workitem);
+    setWorkitemId(Number(workitem));
 
     // adding selected workItem Id
     const Id =
       selectedData.length > 0
         ? selectedData[selectedData.length - 1]?.SubmissionId
         : 0;
-    setId(Id);
+    setId(Number(Id));
 
     // adding all selected Ids in an array
     const selectedSubmissionIds =

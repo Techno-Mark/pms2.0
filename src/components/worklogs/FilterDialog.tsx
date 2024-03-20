@@ -31,7 +31,7 @@ interface FilterModalProps {
   onActionClick?: () => void;
   onDataFetch: () => void;
   onCurrentFilterId: number;
-  currentFilterData?: any;
+  currentFilterData?: (data: AppliedFilterWorklogsPage) => void;
 }
 
 const initialFilter = {
@@ -47,13 +47,13 @@ const initialFilter = {
   ReviewStatus: null,
 };
 
-const FilterDialog: React.FC<FilterModalProps> = ({
+const FilterDialog = ({
   onOpen,
   onClose,
   onDataFetch,
   onCurrentFilterId,
   currentFilterData,
-}) => {
+}: FilterModalProps) => {
   const [saveFilter, setSaveFilter] = useState(false);
   const [clientName, setClientName] = useState<LabelValue | null>(null);
   const [workType, setWorkType] = useState<LabelValue | null>(null);
@@ -64,7 +64,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   const [dueDate, setDueDate] = useState<null | string>(null);
   const [startDate, setStartDate] = useState<null | string>(null);
   const [endDate, setEndDate] = useState<null | string>(null);
-  const [ReviewStatus, setReviewStatus] = useState<number | string>(0);
+  const [ReviewStatus, setReviewStatus] = useState<number>(0);
   const [filterName, setFilterName] = useState("");
   const [appliedFilterData, setAppliedFilterData] = useState<
     FilterWorklogsPage[] | []
@@ -80,7 +80,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     LabelValue[] | []
   >([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currSelectedFields, setCurrSelectedFileds] = useState<any>([]);
+  const [currSelectedFields, setCurrSelectedFileds] =
+    useState<AppliedFilterWorklogsPage>(initialFilter);
   const [error, setError] = useState("");
   let isHaveManageAssignee: undefined | string | boolean | null;
   if (typeof localStorage !== "undefined") {
@@ -88,7 +89,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   }
 
   const sendFilterToPage = () => {
-    currentFilterData(currSelectedFields);
+    currentFilterData?.(currSelectedFields);
     onClose();
   };
 
@@ -121,7 +122,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     setReviewStatus(0);
     setSaveFilter(false);
     setFilterName("");
-    currentFilterData(initialFilter);
+    currentFilterData?.(initialFilter);
     setStatusDropdownData([]);
     setError("");
   };
@@ -344,7 +345,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
         setStartDate(StartDate ?? null);
         setEndDate(EndDate ?? null);
         setReviewStatus(
-          ReviewStatus !== null && ReviewStatus > 0 ? ReviewStatus : ""
+          ReviewStatus !== null && ReviewStatus > 0 ? ReviewStatus : 0
         );
         onCurrentFilterId > 0
           ? setFilterName(appliedFilterData[0].Name)
@@ -366,14 +367,14 @@ const FilterDialog: React.FC<FilterModalProps> = ({
       StatusId: status !== null ? status?.value : null,
       AssignedTo: null,
       AssignedBy: assignedBy !== null ? assignedBy.value : null,
-      DueDate: dueDate !== null ? getFormattedDate(dueDate) : null,
-      StartDate: startDate !== null ? getFormattedDate(startDate) : null,
+      DueDate: dueDate !== null ? getFormattedDate(dueDate) || "" : null,
+      StartDate: startDate !== null ? getFormattedDate(startDate) || "" : null,
       EndDate:
         endDate === null
           ? startDate === null
             ? null
-            : getFormattedDate(startDate)
-          : getFormattedDate(endDate),
+            : getFormattedDate(startDate) || ""
+          : getFormattedDate(endDate) || "",
       ReviewStatus: ReviewStatus || null,
     };
     setCurrSelectedFileds(selectedFields);

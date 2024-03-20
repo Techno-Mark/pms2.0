@@ -22,6 +22,14 @@ export interface KeyValueColorCodeSequence {
   Sequence: number;
 }
 
+export interface KeyValueColorCodeSequenceStatusId {
+  ColorCode: string;
+  Key: string;
+  Value: number;
+  Sequence: number;
+  StatusId: number;
+}
+
 export interface LabelValueTypeIsDefault {
   Type: number;
   IsDefault: boolean;

@@ -11,29 +11,30 @@ import {
 import { Close } from "@mui/icons-material";
 import Datatable_SummaryList from "../datatable/Datatable_SummaryList";
 import { DialogTransition } from "@/utils/style/DialogTransition";
+import { KeyValueColorCodeSequence } from "@/utils/Types/types";
 
 interface SummaryListProps {
   onOpen: boolean;
   onClose: () => void;
   onSelectedWorkType: number;
   onSelectedProjectIds: number[];
-  onSelectedSummaryStatus: string;
-  onCurrProjectSummary: string[];
+  onSelectedSummaryStatus: number;
+  onCurrProjectSummary: KeyValueColorCodeSequence[] | [];
 }
 
-const Dialog_SummaryList: React.FC<SummaryListProps> = ({
+const Dialog_SummaryList = ({
   onOpen,
   onClose,
   onSelectedWorkType,
   onSelectedProjectIds,
   onSelectedSummaryStatus,
   onCurrProjectSummary,
-}) => {
-  const [taskStatusName, setTaskStatusName] = useState<string>("");
+}: SummaryListProps) => {
+  const [taskStatusName, setTaskStatusName] = useState<number>(0);
 
   const handleClose = () => {
     onClose();
-    setTaskStatusName("");
+    setTaskStatusName(0);
   };
 
   return (
@@ -60,13 +61,13 @@ const Dialog_SummaryList: React.FC<SummaryListProps> = ({
                 labelId="Project Staus"
                 id="Project Staus"
                 value={
-                  taskStatusName ? taskStatusName : onSelectedSummaryStatus
+                  taskStatusName > 0 ? taskStatusName : onSelectedSummaryStatus
                 }
-                onChange={(e) => setTaskStatusName(e.target.value)}
+                onChange={(e) => setTaskStatusName(Number(e.target.value))}
                 sx={{ height: "36px" }}
               >
                 {onCurrProjectSummary.map((i: any) => (
-                  <MenuItem value={i.Key} key={i.Key}>
+                  <MenuItem value={i.Sequence} key={i.Key}>
                     {i.Key}
                   </MenuItem>
                 ))}
@@ -78,6 +79,7 @@ const Dialog_SummaryList: React.FC<SummaryListProps> = ({
             onSelectedWorkType={onSelectedWorkType}
             onSelectedSummaryStatus={onSelectedSummaryStatus}
             onCurrSelectedSummaryStatus={taskStatusName}
+            onOpen={onOpen}
           />
         </DialogContent>
       </Dialog>

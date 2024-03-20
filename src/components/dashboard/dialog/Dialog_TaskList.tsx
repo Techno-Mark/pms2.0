@@ -10,12 +10,12 @@ interface TaskListDialogProps {
   onSelectedWorkType: number;
 }
 
-const Dialog_TaskList: React.FC<TaskListDialogProps> = ({
+const Dialog_TaskList = ({
   onOpen,
   onClose,
   onSelectedProjectIds,
   onSelectedWorkType,
-}) => {
+}: TaskListDialogProps) => {
   const handleClose = () => {
     onClose();
   };

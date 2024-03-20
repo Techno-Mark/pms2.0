@@ -38,13 +38,13 @@ interface Response {
   BillingStatusList: List[] | [];
 }
 
-const Datatable_BillingType: React.FC<BillingTypeProps> = ({
+const Datatable_BillingType = ({
   currentFilterData,
   onSelectedStatusName,
   onCurrentSelectedBillingType,
   onSearchValue,
   isClose,
-}) => {
+}: BillingTypeProps) => {
   const [data, setData] = useState<any | any[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);

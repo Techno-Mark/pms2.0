@@ -29,12 +29,12 @@ interface TaskStatusInfoDialogProps {
   onSelectedStatusName: string;
 }
 
-const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
+const Dialog_TaskStatus = ({
   onOpen,
   onClose,
   currentFilterData,
   onSelectedStatusName,
-}) => {
+}: TaskStatusInfoDialogProps) => {
   const [allStatus, setAllStatus] = useState<LabelValueType[] | []>([]);
   const [status, setStatus] = useState<number>(0);
   const [clickedStatusName, setClickedStatusName] = useState<string>("");

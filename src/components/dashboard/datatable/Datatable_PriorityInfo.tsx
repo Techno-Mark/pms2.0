@@ -16,17 +16,24 @@ interface PriorityInfoProps {
   onSelectedProjectIds: number[];
   onSelectedPriorityId: number;
   onSelectedWorkType: number;
+  onOpen: boolean;
 }
 
-const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
+const Datatable_PriorityInfo = ({
   onSelectedProjectIds,
   onSelectedPriorityId,
   onSelectedWorkType,
-}) => {
+  onOpen,
+}: PriorityInfoProps) => {
   const [data, setData] = useState<ListClientDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+
+  useEffect(() => {
+    onOpen && setPage(0);
+    onOpen && setRowsPerPage(10);
+  }, [onOpen]);
 
   useEffect(() => {
     const getData = () => {

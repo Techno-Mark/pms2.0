@@ -20,13 +20,13 @@ interface DialogProps {
   onSelectedWorkType: number;
 }
 
-const Dialog_ReturnTypeData: React.FC<DialogProps> = ({
+const Dialog_ReturnTypeData = ({
   onOpen,
   onClose,
   onSelectedProjectIds,
   onSelectedReturnTypeValue,
   onSelectedWorkType,
-}) => {
+}: DialogProps) => {
   const [returnType, setReturnType] = useState<number | string>(0);
 
   const handleClose = () => {
@@ -72,6 +72,7 @@ const Dialog_ReturnTypeData: React.FC<DialogProps> = ({
             onSelectedReturnTypeValue={onSelectedReturnTypeValue}
             onCurrSelectedReturnType={returnType}
             onSelectedWorkType={onSelectedWorkType}
+            onOpen={onOpen}
           />
         </DialogContent>
       </Dialog>

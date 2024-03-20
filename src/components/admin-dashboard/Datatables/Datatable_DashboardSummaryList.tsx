@@ -23,12 +23,12 @@ interface DashboardSummaryListProps {
   isClose: boolean;
 }
 
-const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
+const Datatable_DashboardSummaryList = ({
   currentFilterData,
   onClickedSummaryTitle,
   onCurrSelectedSummaryTitle,
   isClose,
-}) => {
+}: DashboardSummaryListProps) => {
   const [dashboardSummaryData, setDashboardSummaryData] = useState<
     ListDashboard[] | []
   >([]);

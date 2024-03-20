@@ -10,7 +10,7 @@ export interface ApprovalsPopupResponse {
 
 export interface List {
   SubmissionId: number;
-  WorkitemId: number;
+  WorkitemId: any;
   TaskName: string;
   EmpolyeeId: number;
   EmpolyeeName: string;
@@ -81,4 +81,22 @@ export interface InitialFilterApprovals {
   StatusId: number | null;
   ProcessId: number | null;
   DateFilter: string | null;
+}
+
+export interface ApprovalsActionBar {
+  selectedRowsCount: number;
+  selectedRowIds: number[] | [];
+  selectedWorkItemIds: number[];
+  selectedRowClientId: number[] | [];
+  selectedRowWorkTypeId: number[] | [];
+  settingSelectedId: () => void;
+  id: number;
+  workitemId: number;
+  onEdit: (rowId: number, Id: number, iconIndex?: number) => void;
+  onComment: (rowData: boolean, selectedId: number) => void;
+  reviewList: List[] | [];
+  getReviewList: () => void;
+  getInitialPagePerRows: () => void;
+  handleClearSelection: () => void;
+  getOverLay?: (e: boolean) => void;
 }

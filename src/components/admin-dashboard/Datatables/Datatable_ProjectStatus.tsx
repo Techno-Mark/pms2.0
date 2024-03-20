@@ -25,13 +25,13 @@ interface ProjectStatusProps {
   isClose: boolean;
 }
 
-const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
+const Datatable_ProjectStatus = ({
   currentFilterData,
   onSelectedProjectStatus,
   onCurrSelectedProjectStatus,
   onOpen,
   isClose,
-}) => {
+}: ProjectStatusProps) => {
   const [data, setData] = useState<ListDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);

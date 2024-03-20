@@ -17,18 +17,25 @@ interface ReturnTypeDataProps {
   onSelectedReturnTypeValue: number;
   onCurrSelectedReturnType: string | number;
   onSelectedWorkType: number;
+  onOpen: boolean;
 }
 
-const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
+const Datatable_ReturnTypeData = ({
   onSelectedProjectIds,
   onSelectedReturnTypeValue,
   onCurrSelectedReturnType,
   onSelectedWorkType,
-}) => {
+  onOpen,
+}: ReturnTypeDataProps) => {
   const [data, setData] = useState<ListClientDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+
+  useEffect(() => {
+    onOpen && setPage(0);
+    onOpen && setRowsPerPage(10);
+  }, [onOpen]);
 
   useEffect(() => {
     const getData = async () => {

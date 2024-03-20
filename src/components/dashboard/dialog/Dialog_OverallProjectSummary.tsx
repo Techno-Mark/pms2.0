@@ -21,15 +21,13 @@ interface OverallProjectSummaryDialogProps {
   onSelectedProjectIds: number[];
 }
 
-const Dialog_OverallProjectSummary: React.FC<
-  OverallProjectSummaryDialogProps
-> = ({
+const Dialog_OverallProjectSummary = ({
   onOpen,
   onClose,
   onSelectedWorkType,
   onSelectedTaskStatus,
   onSelectedProjectIds,
-}) => {
+}: OverallProjectSummaryDialogProps) => {
   const [allTaskList, setAllTaskList] = useState<string[] | any>([]);
   const [taskStatusName, setTaskStatusName] = useState<string>("");
 
@@ -112,6 +110,7 @@ const Dialog_OverallProjectSummary: React.FC<
             onSelectedWorkType={onSelectedWorkType}
             onSelectedTaskStatus={onSelectedTaskStatus}
             onCurrselectedtaskStatus={taskStatusName}
+            onOpen={onOpen}
           />
         </DialogContent>
       </Dialog>

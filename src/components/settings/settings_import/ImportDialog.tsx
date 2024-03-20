@@ -22,12 +22,12 @@ interface ImportDialogProp {
   tab: any;
 }
 
-const ImportDialog: React.FC<ImportDialogProp> = ({
+const ImportDialog = ({
   onOpen,
   onClose,
   onDataFetch,
   tab,
-}) => {
+}: ImportDialogProp) => {
   const [fileInputKey, setFileInputKey] = useState(0);
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [isUploading, setIsUplaoding] = useState<boolean>(false);

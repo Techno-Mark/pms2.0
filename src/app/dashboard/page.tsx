@@ -39,7 +39,11 @@ import Dialog_SummaryList from "@/components/dashboard/dialog/Dialog_SummaryList
 import Dialog_ReturnTypeData from "@/components/dashboard/dialog/Dialog_ReturnTypeData";
 import { callAPI } from "@/utils/API/callAPI";
 import { getTypeOfWorkDropdownData } from "@/utils/commonDropdownApiCall";
-import { KeyValueColorCode, LabelValue } from "@/utils/Types/types";
+import {
+  KeyValueColorCode,
+  KeyValueColorCodeSequence,
+  LabelValue,
+} from "@/utils/Types/types";
 
 interface Project {
   Childrens: Project[];
@@ -64,7 +68,7 @@ const Page = () => {
   const [isProjectStatusDialogOpen, setIsProjectStatusDialogOpen] =
     useState<boolean>(false);
   const [clickedPriorityName, setClickedPriorityName] = useState<string>("");
-  const [clickedStatusName, setClickedStatusName] = useState<string>("");
+  const [clickedStatusName, setClickedStatusName] = useState<number>(0);
   const [clickedWorkTypeName, setClickedWorkTypeName] = useState<string>("");
   const [clickedProjectStatusName, setClickedProjectStatusName] =
     useState<string>("");
@@ -78,11 +82,13 @@ const Page = () => {
   const [currentProjectId, setCurrentProjectId] = useState<number[]>([]);
   const [currentProjectName, setCurrentProjectName] = useState<any>("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [projectSummary, setProjectSummary] = useState<any>([]);
+  const [projectSummary, setProjectSummary] = useState<
+    KeyValueColorCodeSequence[] | []
+  >([]);
   const [anchorElProjects, setAnchorElProjects] = React.useState<
     HTMLButtonElement | null | any
   >(null);
-  const [summaryLabel, setSummaryLabel] = useState<string>("");
+  const [summaryLabel, setSummaryLabel] = useState<number>(0);
   const [isSummaryListDialogOpen, setIsSummaryListDialogOpen] =
     useState<boolean>(false);
   const [isReturnTypeDialogOpen, setIsReturnTypeDialogOpen] =
@@ -152,7 +158,7 @@ const Page = () => {
 
   const handleValueFromTaskStatus = (
     isDialogOpen: boolean,
-    selectedPointData: string
+    selectedPointData: number
   ) => {
     setIsTaskStatusDialogOpen(isDialogOpen);
     setClickedStatusName(selectedPointData);
@@ -205,7 +211,7 @@ const Page = () => {
     };
     const url = `${process.env.report_api_url}/clientdashboard/summarybyproject`;
     const successCallback = (
-      ResponseData: KeyValueColorCode | [],
+      ResponseData: KeyValueColorCodeSequence[] | [],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -229,10 +235,10 @@ const Page = () => {
   }, [isAllProject]);
 
   const statusIconMapping: any = {
-    "Total Task Created": <TotalTaskCreated />,
-    "Pending Task": <PendingTask />,
-    "In Preparation Task": <InProgressWork />,
-    "Completed Task": <CompletedTask />,
+    1: <TotalTaskCreated />,
+    2: <InProgressWork />,
+    3: <PendingTask />,
+    4: <CompletedTask />,
   };
 
   return (
@@ -405,7 +411,7 @@ const Page = () => {
 
           <section className="flex gap-[25px] items-center px-[20px] py-[10px]">
             {projectSummary &&
-              projectSummary?.map((item: KeyValueColorCode) => (
+              projectSummary?.map((item: KeyValueColorCodeSequence) => (
                 <Card
                   key={item.Key}
                   className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
@@ -414,7 +420,7 @@ const Page = () => {
                   <div
                     className="flex p-[20px] items-center"
                     onClick={() => {
-                      setSummaryLabel(item.Key);
+                      setSummaryLabel(item.Sequence);
                       setIsSummaryListDialogOpen(true);
                     }}
                   >
@@ -422,7 +428,7 @@ const Page = () => {
                       style={{ color: item.ColorCode }}
                       className={`border-r border-lightSilver pr-[20px]`}
                     >
-                      {statusIconMapping[item.Key]}
+                      {statusIconMapping[item.Sequence]}
                     </span>
                     <div className="inline-flex flex-col items-start pl-[20px]">
                       <span className="text-[14px] font-normal text-darkCharcoal">

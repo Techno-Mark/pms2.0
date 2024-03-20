@@ -26,13 +26,13 @@ interface DialogProps {
   onSelectedWorkType: number;
 }
 
-const Dialog_PriorityInfo: React.FC<DialogProps> = ({
+const Dialog_PriorityInfo = ({
   onOpen,
   onClose,
   onSelectedProjectIds,
   onSelectedPriorityName,
   onSelectedWorkType,
-}) => {
+}: DialogProps) => {
   const [priority, setPriority] = useState<number | any>(0);
   const [clickedPriorityName, setClickedPriorityName] = useState<string>("");
 
@@ -119,6 +119,7 @@ const Dialog_PriorityInfo: React.FC<DialogProps> = ({
             onSelectedProjectIds={onSelectedProjectIds}
             onSelectedPriorityId={priority}
             onSelectedWorkType={onSelectedWorkType}
+            onOpen={onOpen}
           />
         </DialogContent>
       </Dialog>

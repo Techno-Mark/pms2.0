@@ -24,13 +24,13 @@ interface TaskStatusProps {
   isClose: boolean;
 }
 
-const Datatable_TaskStatus: React.FC<TaskStatusProps> = ({
+const Datatable_TaskStatus = ({
   currentFilterData,
   onSelectedStatusName,
   onCurrSelectedStatus,
   onSearchValue,
   isClose,
-}) => {
+}: TaskStatusProps) => {
   const [data, setData] = useState<ListDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);

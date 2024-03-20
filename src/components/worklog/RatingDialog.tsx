@@ -28,14 +28,14 @@ interface RatingModalProps {
   handleClearSelection: () => void;
 }
 
-const RatingDialog: React.FC<RatingModalProps> = ({
+const RatingDialog = ({
   onOpen,
   onClose,
   ratingId,
   noRatingId,
   onDataFetch,
   handleClearSelection,
-}) => {
+}: RatingModalProps) => {
   const [ratingValue, setRatingValue] = React.useState<any>(0);
   const [ratingErr, setRatingErr] = React.useState(false);
   const [comment, setComment] = React.useState<string>("");

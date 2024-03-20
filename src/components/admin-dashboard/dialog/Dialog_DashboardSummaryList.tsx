@@ -27,12 +27,12 @@ interface DashboardSummaryListProps {
   onClickedSummaryTitle: number;
 }
 
-const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
+const Dialog_DashboardSummaryList = ({
   onOpen,
   onClose,
   currentFilterData,
   onClickedSummaryTitle,
-}) => {
+}: DashboardSummaryListProps) => {
   const [summaryList, setSummaryList] = useState<KeyValueColorCodeSequence[]>(
     []
   );

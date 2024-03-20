@@ -21,11 +21,7 @@ interface ImportDialogProp {
   onDataFetch: any;
 }
 
-const ImportDialog: React.FC<ImportDialogProp> = ({
-  onOpen,
-  onClose,
-  onDataFetch,
-}) => {
+const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
   const [error, setError] = useState("");
   const [importText, setImportText] = useState("");
   const [importFields, setImportFields] = useState<any[]>([]);

@@ -26,10 +26,10 @@ interface List {
   DueFrom: number | null;
 }
 
-const Datatable_Overdue: React.FC<OverdueProps> = ({
+const Datatable_Overdue = ({
   onSelectedProjectIds,
   onSelectedWorkType,
-}) => {
+}: OverdueProps) => {
   const [data, setData] = useState<List[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);

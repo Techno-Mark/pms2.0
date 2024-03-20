@@ -29,12 +29,12 @@ interface BillingTypeDialogProps {
   onSelectedStatusName: string;
 }
 
-const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
+const Dialog_BillingType = ({
   onOpen,
   onClose,
   currentFilterData,
   onSelectedStatusName,
-}) => {
+}: BillingTypeDialogProps) => {
   const [allBillingType, setAllBillingType] = useState<LabelValue[]>([]);
   const [billingType, setBillingType] = useState<number>(0);
   const [clickedStatusName, setClickedStatusName] = useState<string>("");

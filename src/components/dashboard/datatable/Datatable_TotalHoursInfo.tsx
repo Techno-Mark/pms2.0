@@ -37,10 +37,10 @@ interface List {
   ActualTaxHrs: number | null;
 }
 
-const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
+const Datatable_TotalHoursInfo = ({
   onSelectedProjectIds,
   onSelectedWorkType,
-}) => {
+}: TotalHoursInfoProps) => {
   const [clientDetails, setClientDetails] = useState<ClientDetail | null>(null);
   const [clientProjectDetails, setClientProjectDetails] = useState<List[] | []>(
     []
