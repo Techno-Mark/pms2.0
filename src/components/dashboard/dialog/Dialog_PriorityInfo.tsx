@@ -23,6 +23,7 @@ interface DialogProps {
   onClose: () => void;
   onSelectedProjectIds: number[];
   onSelectedPriorityName: string;
+  onSelectedWorkType: number;
 }
 
 const Dialog_PriorityInfo: React.FC<DialogProps> = ({
@@ -30,6 +31,7 @@ const Dialog_PriorityInfo: React.FC<DialogProps> = ({
   onClose,
   onSelectedProjectIds,
   onSelectedPriorityName,
+  onSelectedWorkType,
 }) => {
   const [priority, setPriority] = useState<number | any>(0);
   const [clickedPriorityName, setClickedPriorityName] = useState<string>("");
@@ -86,7 +88,7 @@ const Dialog_PriorityInfo: React.FC<DialogProps> = ({
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogTitle className="flex justify-between p-5 bg-whiteSmoke">
+        <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">Task Status</span>
           <IconButton onClick={handleClose}>
             <Close />
@@ -116,6 +118,7 @@ const Dialog_PriorityInfo: React.FC<DialogProps> = ({
           <Datatable_PriorityInfo
             onSelectedProjectIds={onSelectedProjectIds}
             onSelectedPriorityId={priority}
+            onSelectedWorkType={onSelectedWorkType}
           />
         </DialogContent>
       </Dialog>

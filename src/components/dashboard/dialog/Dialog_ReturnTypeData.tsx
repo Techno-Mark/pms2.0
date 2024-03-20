@@ -17,6 +17,7 @@ interface DialogProps {
   onClose: () => void;
   onSelectedProjectIds: number[];
   onSelectedReturnTypeValue: any;
+  onSelectedWorkType: number;
 }
 
 const Dialog_ReturnTypeData: React.FC<DialogProps> = ({
@@ -24,6 +25,7 @@ const Dialog_ReturnTypeData: React.FC<DialogProps> = ({
   onClose,
   onSelectedProjectIds,
   onSelectedReturnTypeValue,
+  onSelectedWorkType,
 }) => {
   const [returnType, setReturnType] = useState<number | string>(0);
 
@@ -42,7 +44,7 @@ const Dialog_ReturnTypeData: React.FC<DialogProps> = ({
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogTitle className="flex justify-between p-5 bg-whiteSmoke">
+        <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">Task Status</span>
           <IconButton onClick={handleClose}>
             <Close />
@@ -69,6 +71,7 @@ const Dialog_ReturnTypeData: React.FC<DialogProps> = ({
             onSelectedProjectIds={onSelectedProjectIds}
             onSelectedReturnTypeValue={onSelectedReturnTypeValue}
             onCurrSelectedReturnType={returnType}
+            onSelectedWorkType={onSelectedWorkType}
           />
         </DialogContent>
       </Dialog>

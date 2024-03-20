@@ -107,7 +107,13 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
   };
 
   useEffect(() => {
-    getData();
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [onSelectedProjectIds, onSelectedWorkType, page, rowsPerPage]);
 
   return (

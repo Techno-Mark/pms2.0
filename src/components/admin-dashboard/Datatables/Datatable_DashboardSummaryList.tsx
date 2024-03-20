@@ -20,12 +20,14 @@ interface DashboardSummaryListProps {
   currentFilterData: DashboardInitialFilter;
   onClickedSummaryTitle: number;
   onCurrSelectedSummaryTitle: number;
+  isClose: boolean;
 }
 
 const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
   currentFilterData,
   onClickedSummaryTitle,
   onCurrSelectedSummaryTitle,
+  isClose,
 }) => {
   const [dashboardSummaryData, setDashboardSummaryData] = useState<
     ListDashboard[] | []
@@ -33,6 +35,11 @@ const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+
+  useEffect(() => {
+    isClose && setPage(0);
+    isClose && setRowsPerPage(10);
+  }, [isClose]);
 
   const getProjectSummaryData = async () => {
     const params = {

@@ -57,9 +57,15 @@ const Datatable_OverallProjectSummary: React.FC<OverallProjectSummaryProps> = ({
   };
 
   useEffect(() => {
-    if (onCurrselectedtaskStatus !== "" || onSelectedTaskStatus !== "") {
-      getOverallProjectSummaryData();
-    }
+    const fetchData = async () => {
+      if (onCurrselectedtaskStatus !== "" || onSelectedTaskStatus !== "") {
+        getOverallProjectSummaryData();
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
     onSelectedWorkType,
     onSelectedTaskStatus,

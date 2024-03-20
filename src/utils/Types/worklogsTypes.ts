@@ -1,5 +1,3 @@
-import { LabelValueProfileImage } from "./types";
-
 export interface List {
   WorkitemId: number;
   TaskName: string;
@@ -241,7 +239,7 @@ export interface ErrorlogGetByWorkitem {
   Attachments?: CommentAttachment[] | [];
   IsSolved?: boolean;
   isSolved?: boolean;
-  DisableErrorLog: boolean;
+  DisableErrorLog?: boolean;
 }
 
 export interface ReviewerNoteDetails {

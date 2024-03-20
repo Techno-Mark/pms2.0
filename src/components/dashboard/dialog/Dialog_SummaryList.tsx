@@ -46,7 +46,7 @@ const Dialog_SummaryList: React.FC<SummaryListProps> = ({
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogTitle className="flex justify-between p-5 bg-whiteSmoke">
+        <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">Task Status</span>
           <IconButton onClick={handleClose}>
             <Close />

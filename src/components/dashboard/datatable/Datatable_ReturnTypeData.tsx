@@ -16,12 +16,14 @@ interface ReturnTypeDataProps {
   onSelectedProjectIds: number[];
   onSelectedReturnTypeValue: number;
   onCurrSelectedReturnType: string | number;
+  onSelectedWorkType: number;
 }
 
 const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
   onSelectedProjectIds,
   onSelectedReturnTypeValue,
   onCurrSelectedReturnType,
+  onSelectedWorkType,
 }) => {
   const [data, setData] = useState<ListClientDashboard[] | []>([]);
   const [page, setPage] = useState(0);
@@ -36,7 +38,7 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
         SortColumn: null,
         IsDesc: true,
         projectIds: onSelectedProjectIds,
-        typeOfWork: null,
+        typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
         priorityId: null,
         statusId: null,
         ReturnTypeId: onCurrSelectedReturnType
@@ -57,11 +59,18 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
       callAPI(url, params, successCallback, "POST");
     };
 
-    getData();
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
     onSelectedProjectIds,
     onSelectedReturnTypeValue,
     onCurrSelectedReturnType,
+    onSelectedWorkType,
     page,
     rowsPerPage,
   ]);

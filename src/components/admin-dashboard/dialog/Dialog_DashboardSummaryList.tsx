@@ -38,10 +38,16 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
   );
   const [summaryName, setSummaryName] = useState<number>(0);
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [isClose, setIsClose] = useState<boolean>(false);
+
+  useEffect(() => {
+    onOpen && setIsClose(false);
+  }, [onOpen]);
 
   const handleClose = () => {
     onClose();
     setSummaryName(0);
+    setIsClose(true);
   };
 
   const getProjectSummary = async () => {
@@ -149,7 +155,7 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogTitle className="flex justify-between p-5 bg-whiteSmoke">
+        <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">Task Status</span>
           <IconButton onClick={handleClose}>
             <Close />
@@ -206,6 +212,7 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
             currentFilterData={currentFilterData}
             onClickedSummaryTitle={onClickedSummaryTitle}
             onCurrSelectedSummaryTitle={summaryName}
+            isClose={isClose}
           />
         </DialogContent>
       </Dialog>

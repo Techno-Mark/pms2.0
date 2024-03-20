@@ -42,7 +42,13 @@ const Chart_OverallProjectCompletion = ({
       callAPI(url, params, successCallback, "POST");
     };
 
-    getData();
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [onSelectedProjectIds, onSelectedWorkType]);
 
   const chartOptions = {

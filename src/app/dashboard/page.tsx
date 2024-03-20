@@ -565,13 +565,13 @@ const Page = () => {
           onSelectedProjectIds={currentProjectId}
         />
 
-        <Dialog_TotalHoursInfo
+        {/* <Dialog_TotalHoursInfo
           onOpen={isTotalHrsDialogOpen}
           onClose={() => setIsTotalHrsDialogOpen(false)}
           onWorkTypeData={workTypeData}
           onSelectedProjectIds={currentProjectId}
           onSelectedWorkTypeName={clickedWorkTypeName}
-        />
+        /> */}
 
         <Dialog_TaskStatusInfo
           onOpen={isTaskStatusDialogOpen}
@@ -587,6 +587,7 @@ const Page = () => {
           onClose={() => setIsPriorityInfoDialogOpen(false)}
           onSelectedProjectIds={currentProjectId}
           onSelectedPriorityName={clickedPriorityName}
+          onSelectedWorkType={workType}
         />
 
         <Dialog_OverallProjectSummary
@@ -613,6 +614,7 @@ const Page = () => {
           onSelectedReturnTypeValue={
             clickedReturnTypeValue === "Individual Return" ? 1 : 2
           }
+          onSelectedWorkType={workType}
         />
       </div>
     </Wrapper>

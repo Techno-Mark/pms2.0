@@ -21,8 +21,8 @@ import { callAPI } from "@/utils/API/callAPI";
 interface RatingModalProps {
   onOpen: boolean;
   onClose: () => void;
-  ratingId: any;
-  noRatingId: any;
+  ratingId: number[] | [];
+  noRatingId: number[] | [];
   onActionClick?: () => void;
   onDataFetch: () => void;
   handleClearSelection: () => void;
@@ -69,7 +69,7 @@ const RatingDialog: React.FC<RatingModalProps> = ({
         };
         const url = `${process.env.worklog_api_url}/ClientWorkitem/workitemrating`;
         const successCallback = (
-          ResponseData: any,
+          ResponseData: null,
           error: boolean,
           ResponseStatus: string
         ) => {

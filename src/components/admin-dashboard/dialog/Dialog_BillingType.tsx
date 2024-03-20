@@ -40,12 +40,18 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [searchValue, setSearchValue] = useState("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [isClose, setIsClose] = useState<boolean>(false);
+
+  useEffect(() => {
+    onOpen && setIsClose(false);
+  }, [onOpen]);
 
   const handleClose = () => {
     onClose();
     setBillingType(0);
     setClickedStatusName("");
     setSearchValue("");
+    setIsClose(false);
   };
 
   function getValueByLabelOrType(labelOrType: string): number {
@@ -151,7 +157,7 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogTitle className="flex justify-between p-5 bg-whiteSmoke">
+        <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">Billing Type</span>
           <IconButton onClick={handleClose}>
             <Close />
@@ -211,6 +217,7 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
             onSelectedStatusName={onSelectedStatusName}
             onCurrentSelectedBillingType={billingType}
             onSearchValue={searchValue}
+            isClose={isClose}
           />
         </DialogContent>
       </Dialog>

@@ -218,7 +218,7 @@ const WorklogColsConfig = [
   {
     name: "StatusName",
     label: "Status",
-    bodyRenderer: (value: any, tableMeta: any) =>
+    bodyRenderer: (value: string, tableMeta: any) =>
       generateStatusWithColor(value, tableMeta.rowData[9]),
   },
   {

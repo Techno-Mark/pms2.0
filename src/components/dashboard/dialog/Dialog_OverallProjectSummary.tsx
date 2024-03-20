@@ -61,9 +61,15 @@ const Dialog_OverallProjectSummary: React.FC<
   };
 
   useEffect(() => {
-    if (onOpen === true) {
-      getTaskStatusList();
-    }
+    const fetchData = async () => {
+      if (onOpen === true) {
+        getTaskStatusList();
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [onSelectedWorkType, onSelectedProjectIds, onSelectedProjectIds, onOpen]);
 
   return (
@@ -76,7 +82,7 @@ const Dialog_OverallProjectSummary: React.FC<
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogTitle className="flex justify-between p-5 bg-whiteSmoke">
+        <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">Task Status</span>
           <IconButton onClick={handleClose}>
             <Close />

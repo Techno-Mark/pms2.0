@@ -78,7 +78,13 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
       callAPI(url, params, successCallback, "POST");
     };
 
-    getData();
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [onSelectedProjectIds, onSelectedWorkType, page, rowsPerPage]);
 
   const tableData = [];

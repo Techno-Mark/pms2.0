@@ -71,7 +71,13 @@ const Dialog_TaskStatusInfo: React.FC<TaskStatusInfoDialogProps> = ({
   };
 
   useEffect(() => {
-    getAllStatus();
+    const fetchData = async () => {
+      getAllStatus();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [onSelectedWorkType]);
 
   return (
@@ -84,7 +90,7 @@ const Dialog_TaskStatusInfo: React.FC<TaskStatusInfoDialogProps> = ({
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogTitle className="flex justify-between p-5 bg-whiteSmoke">
+        <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">Task Status</span>
           <IconButton onClick={handleClose}>
             <Close />
@@ -110,7 +116,7 @@ const Dialog_TaskStatusInfo: React.FC<TaskStatusInfoDialogProps> = ({
               </Select>
             </FormControl>
 
-            <FormControl sx={{ mx: 0.75, minWidth: 150, marginTop: 1 }}>
+            {/* <FormControl sx={{ mx: 0.75, minWidth: 150, marginTop: 1 }}>
               <Select
                 labelId="workType"
                 id="workType"
@@ -125,11 +131,11 @@ const Dialog_TaskStatusInfo: React.FC<TaskStatusInfoDialogProps> = ({
                   </MenuItem>
                 ))}
               </Select>
-            </FormControl>
+            </FormControl> */}
           </div>
           <Datatable_TaskStatusInfo
             onSelectedProjectIds={onSelectedProjectIds}
-            onSelectedWorkType={workType}
+            onSelectedWorkType={onSelectedWorkType}
             onSelectedStatusId={status}
           />
         </DialogContent>

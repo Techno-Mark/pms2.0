@@ -17,34 +17,23 @@ import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { useRouter } from "next/navigation";
 import ImportDialog from "@/components/worklog/worklog_Import/ImportDialog";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
-
-interface TaskFilter {
-  ProjectIds: number[] | null;
-  PriorityId: number | null;
-  StatusId: number | null;
-  WorkTypeId: number | null;
-  StartDate: string | null;
-  EndDate: string | null;
-  DueDate: string | null;
-  AssignedTo: number | null;
-  OverdueBy: number | null;
-  IsSignedOff: boolean;
-}
+import { TaskFilter } from "@/utils/Types/clientWorklog";
 
 const Worklog = () => {
   const router = useRouter();
-  const [openDrawer, setOpenDrawer] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const [hasEdit, setHasEdit] = useState(0);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
   const [isWorklogClicked, setIsWorklogClicked] = useState(true);
-  const [isCompletedTaskClicked, setIsCompletedTaskClicked] = useState(false);
+  const [isCompletedTaskClicked, setIsCompletedTaskClicked] =
+    useState<boolean>(false);
   const [hasComment, setHasComment] = useState(false);
   const [hasErrorLog, setHasErrorLog] = useState(false);
   const [currentFilterData, setCurrentFilterData] = useState<TaskFilter | []>(
     []
   );
-  const [errorLog, setErrorLog] = useState(false);
+  const [errorLog, setErrorLog] = useState<boolean>(false);
   const [search, setSearch] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [isImportOpen, setIsImportOpen] = useState(false);
@@ -231,6 +220,7 @@ const Worklog = () => {
           currentFilterData={currentFilterData}
           searchValue={searchValue}
           onCloseDrawer={openDrawer}
+          onEdit={handleEdit}
         />
       )}
 

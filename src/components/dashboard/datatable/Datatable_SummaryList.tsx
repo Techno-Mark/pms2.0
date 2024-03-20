@@ -57,9 +57,15 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
   };
 
   useEffect(() => {
-    if (onSelectedSummaryStatus !== "") {
-      getSummaryData();
-    }
+    const fetchData = async () => {
+      if (onSelectedSummaryStatus !== "") {
+        getSummaryData();
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
     onSelectedWorkType,
     onSelectedSummaryStatus,

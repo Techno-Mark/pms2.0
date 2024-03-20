@@ -15,11 +15,13 @@ import { ListClientDashboard } from "@/utils/Types/dashboardTypes";
 interface PriorityInfoProps {
   onSelectedProjectIds: number[];
   onSelectedPriorityId: number;
+  onSelectedWorkType: number;
 }
 
 const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
   onSelectedProjectIds,
   onSelectedPriorityId,
+  onSelectedWorkType,
 }) => {
   const [data, setData] = useState<ListClientDashboard[] | []>([]);
   const [page, setPage] = useState(0);
@@ -34,7 +36,7 @@ const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
         SortColumn: null,
         IsDesc: true,
         projectIds: onSelectedProjectIds,
-        typeOfWork: null,
+        typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
         priorityId: onSelectedPriorityId,
         statusId: null,
         ReturnTypeId: null,
@@ -53,8 +55,20 @@ const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
       callAPI(url, params, successCallback, "POST");
     };
 
-    getData();
-  }, [onSelectedProjectIds, onSelectedPriorityId, page, rowsPerPage]);
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [
+    onSelectedProjectIds,
+    onSelectedPriorityId,
+    onSelectedWorkType,
+    page,
+    rowsPerPage,
+  ]);
 
   return (
     <div>
