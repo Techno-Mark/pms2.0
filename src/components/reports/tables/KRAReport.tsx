@@ -8,8 +8,46 @@ import { FieldsType } from "../types/FieldsType";
 import { kra_InitialFilter } from "@/utils/reports/getFilters";
 import { reportsKRACols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
+import { ReportProps } from "@/utils/Types/reports";
 
-const KRAReport = ({ filteredData, searchValue, onHandleExport }: any) => {
+interface FilteredData {
+  PageNo: number;
+  PageSize: number;
+  sortColumn: string;
+  IsDesc: boolean;
+  GlobalSearch: string;
+  StartDate: string | null;
+  EndDate: string | null;
+  Users: number[] | [];
+  Clients: number[] | [];
+  DepartmentIds: number[] | [];
+  IsDownload: boolean;
+}
+
+interface Response {
+  AutoManualReportFilters: any | null;
+  List:
+    | {
+        UserId: number | null;
+        UserName: string | null;
+        DepartmentId: number | null;
+        DepartmentName: string | null;
+        RmId: number | null;
+        ReportingTo: string | null;
+        StdTime: string | null;
+        ManualTime: string | null;
+        AutoTime: string | null;
+        TotalTime: string | null;
+      }[]
+    | [];
+  TotalCount: number;
+}
+
+const KRAReport = ({
+  filteredData,
+  searchValue,
+  onHandleExport,
+}: ReportProps) => {
   const [kraFields, setKraFields] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -18,7 +56,7 @@ const KRAReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [kraCurrentPage, setKraCurrentPage] = useState<number>(0);
   const [kraRowsPerPage, setKraRowsPerPage] = useState<number>(10);
 
-  const getData = async (arg1: any) => {
+  const getData = async (arg1: FilteredData) => {
     setKraFields({
       ...kraFields,
       loaded: false,
@@ -26,14 +64,18 @@ const KRAReport = ({ filteredData, searchValue, onHandleExport }: any) => {
 
     const url = `${process.env.report_api_url}/report/kra`;
 
-    const successCallback = (data: any, error: any) => {
-      if (data !== null && error === false) {
-        onHandleExport(data.List.length > 0);
+    const successCallback = (
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        onHandleExport(ResponseData.List.length > 0);
         setKraFields({
           ...kraFields,
           loaded: true,
-          data: data.List,
-          dataCount: data.TotalCount,
+          data: ResponseData.List,
+          dataCount: ResponseData.TotalCount,
         });
       } else {
         setKraFields({ ...kraFields, data: [], dataCount: 0, loaded: true });
@@ -51,14 +93,14 @@ const KRAReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     if (filteredData !== null) {
       getData({
         ...filteredData,
-        pageNo: newPage + 1,
-        pageSize: kraRowsPerPage,
+        PageNo: newPage + 1,
+        PageSize: kraRowsPerPage,
       });
     } else {
       getData({
         ...kra_InitialFilter,
-        pageNo: newPage + 1,
-        pageSize: kraRowsPerPage,
+        PageNo: newPage + 1,
+        PageSize: kraRowsPerPage,
       });
     }
   };
@@ -72,14 +114,14 @@ const KRAReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     if (filteredData !== null) {
       getData({
         ...filteredData,
-        pageNo: 1,
-        pageSize: event.target.value,
+        PageNo: 1,
+        PageSize: Number(event.target.value),
       });
     } else {
       getData({
         ...kra_InitialFilter,
-        pageNo: 1,
-        pageSize: event.target.value,
+        PageNo: 1,
+        PageSize: Number(event.target.value),
       });
     }
   };

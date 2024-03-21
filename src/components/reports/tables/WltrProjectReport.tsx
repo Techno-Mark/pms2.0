@@ -100,17 +100,21 @@ const WltrProjectReport = ({
 
     const url = `${process.env.report_api_url}/report/getwltrprojectdetails`;
 
-    const successCallback = (data: WorkItemSummary, error: boolean) => {
-      if (data !== null && error === false) {
+    const successCallback = (
+      ResponseData: WorkItemSummary,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
         setWltrFields({
           ...wltrFields,
           loaded: true,
-          data: data.List,
-          dataCount: data.TotalCount,
+          data: ResponseData.List,
+          dataCount: ResponseData.TotalCount,
         });
-        getTotalQuanitiy(data.TotalQuantity);
-        getTotalTime(data.TotalTime);
-        getTotalSTDTime(data.TotalSTDTime);
+        getTotalQuanitiy(ResponseData.TotalQuantity);
+        getTotalTime(ResponseData.TotalTime);
+        getTotalSTDTime(ResponseData.TotalSTDTime);
       } else {
         setWltrFields({ ...wltrFields, data: [], dataCount: 0, loaded: true });
       }

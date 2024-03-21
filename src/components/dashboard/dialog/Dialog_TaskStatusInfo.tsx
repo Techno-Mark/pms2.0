@@ -48,6 +48,44 @@ const Dialog_TaskStatusInfo = ({
     setClickedStatusName(0);
   };
 
+  const getData = () => {
+    const params = {
+      projectIds: onSelectedProjectIds,
+      typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+    };
+    const url = `${process.env.report_api_url}/clientdashboard/taskstatuscount`;
+    const successCallback = (
+      ResponseData: KeyValueColorCodeSequenceStatusId[] | [],
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setAllStatus(ResponseData);
+        // setAllStatus([
+        //   {
+        //     Key: "All",
+        //     ColorCode: "#000000",
+        //     Value: 2,
+        //     Sequence: 0,
+        //     StatusId: 0,
+        //   },
+        //   ...ResponseData,
+        // ]);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [onSelectedProjectIds, onSelectedWorkType]);
+
   function getValueByLabelOrType(labelOrType: any): number {
     const status = allStatus.find(
       (status: KeyValueColorCodeSequenceStatusId) =>
@@ -66,43 +104,6 @@ const Dialog_TaskStatusInfo = ({
     const statusValue: number = getValueByLabelOrType(clickedStatusName);
     setStatus(statusValue);
   }, [clickedStatusName, onSelectedStatusName]);
-
-  const getData = () => {
-    const params = {
-      projectIds: onSelectedProjectIds,
-      typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-    };
-    const url = `${process.env.report_api_url}/clientdashboard/taskstatuscount`;
-    const successCallback = (
-      ResponseData: KeyValueColorCodeSequenceStatusId[] | [],
-      error: boolean,
-      ResponseStatus: string
-    ) => {
-      if (ResponseStatus === "Success" && error === false) {
-        setAllStatus([
-          {
-            Key: "All",
-            ColorCode: "#000000",
-            Value: 2,
-            Sequence: 0,
-            StatusId: 0,
-          },
-          ...ResponseData,
-        ]);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      onOpen && getData();
-    };
-    const timer = setTimeout(() => {
-      fetchData();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [onOpen]);
 
   return (
     <div>

@@ -17,9 +17,62 @@ import ReportLoader from "@/components/common/ReportLoader";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { TablePagination, ThemeProvider } from "@mui/material";
 import { user_InitialFilter } from "@/utils/reports/getFilters";
+import { ReportProps } from "@/utils/Types/reports";
 
-const UserReport = ({ filteredData, searchValue, onHandleExport }: any) => {
-  const [userDates, setUserDates] = useState<any>([]);
+interface FilteredData {
+  pageNo: number;
+  pageSize: number;
+  sortColumn: string;
+  isDesc: boolean;
+  globalSearch: string;
+  departmentIds: number[] | [];
+  isActive: boolean;
+  users: number[] | [];
+  startDate: string | null;
+  endDate: string | null;
+  isDownload: boolean;
+}
+
+interface DateTimeLog {
+  UserId: number;
+  LogDate: string;
+  AttendanceStatus: string;
+  AttendanceColor: string;
+}
+
+interface Response {
+  UserReportFilters: any | null;
+  List:
+    | {
+        DateTimeLogs: DateTimeLog[] | [];
+        PresentDays: number | null;
+        TotalTimeSpentByUser: string;
+        TotalStdTimeOfUser: string | null;
+        TotalBreakTime: string | null;
+        TotalIdleTime: string | null;
+        AvgTotalTime: string | null;
+        AvgBreakTime: string | null;
+        AvgIdleTime: string | null;
+        UserId: number | null;
+        UserName: string | null;
+        DepartmentId: number | null;
+        DepartmentName: string | null;
+        RoleType: string | null;
+        ReportingManagerId: number | null;
+        ReportingManager: string | null;
+        IsActive: boolean | null;
+        OrganizationId: number | null;
+      }[]
+    | [];
+  TotalCount: number;
+}
+
+const UserReport = ({
+  filteredData,
+  searchValue,
+  onHandleExport,
+}: ReportProps) => {
+  const [userDates, setUserDates] = useState<string[] | []>([]);
   const [userFields, setUserFields] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -28,21 +81,25 @@ const UserReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [userCurrentPage, setUserCurrentPage] = useState<number>(0);
   const [userRowsPerPage, setUserRowsPerPage] = useState<number>(10);
 
-  const getData = async (arg1: any) => {
+  const getData = async (arg1: FilteredData) => {
     setUserFields({
       ...userFields,
       loaded: false,
     });
     const url = `${process.env.report_api_url}/report/user`;
 
-    const successCallBack = (data: any, error: any) => {
-      if (data !== null && error === false) {
-        onHandleExport(data.List.length > 0);
+    const successCallBack = (
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        onHandleExport(ResponseData.List.length > 0);
         setUserFields({
           ...userFields,
           loaded: true,
-          data: data.List,
-          dataCount: data.TotalCount,
+          data: ResponseData.List,
+          dataCount: ResponseData.TotalCount,
         });
       } else {
         setUserFields({ ...userFields, loaded: true });
@@ -122,13 +179,13 @@ const UserReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     }
   }, [filteredData, searchValue]);
 
-  const isWeekend = (date: any) => {
+  const isWeekend = (date: string) => {
     const day = dayjs(date).day();
     // return day === 6 || day === 0;
     return day === 0;
   };
 
-  const generateUserNameBodyRender = (bodyValue: any, TableMeta: any) => {
+  const generateUserNameBodyRender = (bodyValue: string, TableMeta: any) => {
     return (
       <div className="flex flex-col">
         {bodyValue === null || "" ? (
@@ -150,7 +207,7 @@ const UserReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("User Name"),
-        customBodyRender: (value: any, tableMeta: any) => {
+        customBodyRender: (value: string, tableMeta: any) => {
           return generateUserNameBodyRender(value, tableMeta);
         },
       },
@@ -169,7 +226,7 @@ const UserReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Designation"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | number) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -180,13 +237,13 @@ const UserReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Department"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
     },
     ...userDates.map(
-      (date: any) =>
+      (date: string) =>
         new Object({
           name: "DateTimeLogs",
           options: {
@@ -204,18 +261,19 @@ const UserReport = ({ filteredData, searchValue, onHandleExport }: any) => {
                 </span>
               );
             },
-            customBodyRender: (value: any) => {
+            customBodyRender: (value: DateTimeLog[] | []) => {
               return isWeekend(date) ? (
                 <span className="text-[#2323434D] text-xl">-</span>
               ) : (
                 value !== undefined &&
-                  (value.filter((v: any) => v.LogDate.split("T")[0] === date)
-                    .length > 0 ? (
+                  (value.filter(
+                    (v: DateTimeLog) => v.LogDate.split("T")[0] === date
+                  ).length > 0 ? (
                     <span
                       style={{
                         color: getColor(
                           value.filter(
-                            (v: any) => v.LogDate.split("T")[0] === date
+                            (v: DateTimeLog) => v.LogDate.split("T")[0] === date
                           )[0].AttendanceColor,
                           true
                         ),
@@ -223,7 +281,7 @@ const UserReport = ({ filteredData, searchValue, onHandleExport }: any) => {
                     >
                       {
                         value.filter(
-                          (v: any) => v.LogDate.split("T")[0] === date
+                          (v: DateTimeLog) => v.LogDate.split("T")[0] === date
                         )[0].AttendanceStatus
                       }
                     </span>
@@ -249,7 +307,7 @@ const UserReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("STd. Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },
       },
@@ -260,7 +318,7 @@ const UserReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },
       },
@@ -272,7 +330,7 @@ const UserReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Total Break Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },
       },
@@ -284,7 +342,7 @@ const UserReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Total Idle Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },
       },

@@ -29,7 +29,7 @@ export const dashboard_Options: any = {
 
 export const dashboardReport_Options: any = {
   responsive: "standard",
-  tableBodyHeight: "73vh",
+  tableBodyHeight: "71vh",
   viewColumns: false,
   filter: false,
   print: false,

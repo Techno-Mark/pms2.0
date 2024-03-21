@@ -50,15 +50,6 @@ const rating_InitialFilter = {
   isDownload: true,
 };
 
-interface FilterOptions {
-  ProjectIdsForFilter: number[] | [];
-  WorkType: number | null;
-  Priority: number | null;
-  DueDate: string | null;
-  StartDate: string | null;
-  EndDate: string | null;
-}
-
 const Report = () => {
   const router = useRouter();
   const [canExport, setCanExport] = useState<boolean>(false);
@@ -88,7 +79,7 @@ const Report = () => {
     setIsFilterOpen(false);
   };
 
-  const getIdFromFilterDialog = (data: FilterOptions) => {
+  const getIdFromFilterDialog = (data: any) => {
     setCurrentFilterData(data);
   };
 

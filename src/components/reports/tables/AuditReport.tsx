@@ -9,7 +9,61 @@ import { TablePagination, ThemeProvider } from "@mui/material";
 import { audit_InitialFilter } from "@/utils/reports/getFilters";
 import { reportsAuditCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 
-const AuditReport = ({ filteredData, searchValue, onHandleExport }: any) => {
+interface FilteredData {
+  PageNo: number;
+  PageSize: number;
+  sortColumn: string;
+  IsDesc: boolean;
+  GlobalSearch: string;
+  StartDate: string | null;
+  EndDate: string | null;
+  Users: number[] | [];
+  Clients: number[] | [];
+  ReportingManagers: number[] | [];
+  DepartmentIds: number[] | [];
+  IsDownload: boolean;
+}
+
+interface Response {
+  ActualPlannedReportFilters: any | null;
+  List:
+    | {
+        ClientName: string;
+        ProjectName: string | null;
+        TaskDate: string | null;
+        WorkItemId: number;
+        TaskName: string;
+        Description: string | null;
+        ProcessId: number | null;
+        ProcessName: string | null;
+        SubProcessId: number | null;
+        SubProcessName: string | null;
+        AssignedToId: number | null;
+        AssignedTo: string | null;
+        ReportingToId: number | null;
+        ReportingTo: string | null;
+        TaskManagerId: number | null;
+        TaskManager: string | null;
+        Quantity: string | null;
+        StdTime: string | null;
+        Comment: string | null;
+        TotalTime: string | null;
+        AutoTime: string | null;
+        ManualTime: string | null;
+        Difference: number | null;
+        DepartmentId: number | null;
+        DepartmentName: string | null;
+      }[]
+    | [];
+  TotalCount: number;
+}
+import { ReportProps } from "@/utils/Types/reports";
+
+const AuditReport = ({
+  filteredData,
+  searchValue,
+  onHandleExport,
+}: ReportProps) => {
   const [auditFields, setAuditFields] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -18,7 +72,7 @@ const AuditReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [auditCurrentPage, setAuditCurrentPage] = useState<number>(0);
   const [auditRowsPerPage, setAuditRowsPerPage] = useState<number>(10);
 
-  const getData = async (arg1: any) => {
+  const getData = async (arg1: FilteredData) => {
     setAuditFields({
       ...auditFields,
       loaded: false,
@@ -26,7 +80,7 @@ const AuditReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     const url = `${process.env.report_api_url}/report/audit`;
 
     const successCallback = (
-      ResponseData: any,
+      ResponseData: Response,
       error: boolean,
       ResponseStatus: string
     ) => {

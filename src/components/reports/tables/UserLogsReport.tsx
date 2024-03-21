@@ -8,8 +8,51 @@ import ReportLoader from "@/components/common/ReportLoader";
 import { TablePagination, ThemeProvider } from "@mui/material";
 import { userLogs_InitialFilter } from "@/utils/reports/getFilters";
 import { reportsUserLogsCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
+import { ReportProps } from "@/utils/Types/reports";
 
-const UserLogsReport = ({ filteredData, searchValue, onHandleExport }: any) => {
+interface FilteredData {
+  pageNo: number;
+  pageSize: number;
+  sortColumn: string;
+  isDesc: boolean;
+  globalSearch: string;
+  departmentIds: number[] | [];
+  isActive: boolean;
+  users: any[] | [];
+  dateFilter: string | null;
+  isLoggedInFilter: boolean | null;
+  isDownload: boolean;
+}
+
+interface Response {
+  UserLogReportFilters: any | null;
+  List:
+    | {
+        LoginTime: string | null;
+        LogoutTime: string | null;
+        TotalBreakTime: string | null;
+        TotalIdleTime: string | null;
+        TotalProductiveTime: string | null;
+        IsLoggedIn: number | null;
+        UserId: number;
+        UserName: string;
+        DepartmentId: number | null;
+        DepartmentName: string | null;
+        RoleType: string | null;
+        ReportingManagerId: number | null;
+        ReportingManager: string | null;
+        IsActive: boolean;
+        OrganizationId: number;
+      }[]
+    | [];
+  TotalCount: number;
+}
+
+const UserLogsReport = ({
+  filteredData,
+  searchValue,
+  onHandleExport,
+}: ReportProps) => {
   const [userlogFields, setUserlogFields] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -18,21 +61,25 @@ const UserLogsReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [userCurrentPage, setUserCurrentPage] = useState<number>(0);
   const [userRowsPerPage, setUserRowsPerPage] = useState<number>(10);
 
-  const getData = async (arg1: any) => {
+  const getData = async (arg1: FilteredData) => {
     setUserlogFields({
       ...userlogFields,
       loaded: false,
     });
     const url = `${process.env.report_api_url}/report/userLog`;
 
-    const successCallBack = (data: any, error: any) => {
-      if (data !== null && error === false) {
-        onHandleExport(data.List.length > 0);
+    const successCallBack = (
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        onHandleExport(ResponseData.List.length > 0);
         setUserlogFields({
           ...userlogFields,
           loaded: true,
-          data: data.List,
-          dataCount: data.TotalCount,
+          data: ResponseData.List,
+          dataCount: ResponseData.TotalCount,
         });
       } else {
         setUserlogFields({ ...userlogFields, loaded: true });

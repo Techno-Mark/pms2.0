@@ -8,8 +8,44 @@ import { callAPI } from "@/utils/API/callAPI";
 import { activity_InitialFilter } from "@/utils/reports/getFilters";
 import { reportsActivityCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 import { options } from "@/utils/datatable/TableOptions";
+import { ReportProps } from "@/utils/Types/reports";
 
-const ActivityReport = ({ filteredData, searchValue, onHandleExport }: any) => {
+interface FilteredData {
+  PageNo: number;
+  PageSize: number;
+  sortColumn: string;
+  IsDesc: boolean;
+  GlobalSearch: string;
+  StartDate: string | null;
+  EndDate: string | null;
+  Users: number[] | [];
+  DepartmentIds: number[] | [];
+  IsDownload: boolean;
+}
+
+interface Response {
+  ActivityReportFilters: any | null;
+  List:
+    | {
+        UserId: number;
+        UserName: string;
+        TotalProductive: string;
+        TotalHours: string;
+        TotalBillable: string;
+        TotalNonBillable: string;
+        TotalNonProductive: string;
+        DepartmentId: number;
+        DepartmentName: string;
+      }[]
+    | [];
+  TotalCount: number;
+}
+
+const ActivityReport = ({
+  filteredData,
+  searchValue,
+  onHandleExport,
+}: ReportProps) => {
   const [activityFields, setActivityFields] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -18,7 +54,7 @@ const ActivityReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [activityCurrentPage, setActivityCurrentPage] = useState<number>(0);
   const [activityRowsPerPage, setActivityRowsPerPage] = useState<number>(10);
 
-  const getData = async (arg1: any) => {
+  const getData = async (arg1: FilteredData) => {
     setActivityFields({
       ...activityFields,
       loaded: false,
@@ -26,14 +62,18 @@ const ActivityReport = ({ filteredData, searchValue, onHandleExport }: any) => {
 
     const url = `${process.env.report_api_url}/report/activity`;
 
-    const successCallback = (data: any, error: any) => {
-      if (data !== null && error === false) {
-        onHandleExport(data.List.length > 0);
+    const successCallback = (
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        onHandleExport(ResponseData.List.length > 0);
         setActivityFields({
           ...activityFields,
           loaded: true,
-          data: data.List,
-          dataCount: data.TotalCount,
+          data: ResponseData.List,
+          dataCount: ResponseData.TotalCount,
         });
       } else {
         setActivityFields({
@@ -56,14 +96,14 @@ const ActivityReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     if (filteredData !== null) {
       getData({
         ...filteredData,
-        pageNo: newPage + 1,
-        pageSize: activityRowsPerPage,
+        PageNo: newPage + 1,
+        PageSize: activityRowsPerPage,
       });
     } else {
       getData({
         ...activity_InitialFilter,
-        pageNo: newPage + 1,
-        pageSize: activityRowsPerPage,
+        PageNo: newPage + 1,
+        PageSize: activityRowsPerPage,
       });
     }
   };
@@ -77,14 +117,14 @@ const ActivityReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     if (filteredData !== null) {
       getData({
         ...filteredData,
-        pageNo: 1,
-        pageSize: event.target.value,
+        PageNo: 1,
+        PageSize: Number(event.target.value),
       });
     } else {
       getData({
         ...activity_InitialFilter,
-        pageNo: 1,
-        pageSize: event.target.value,
+        PageNo: 1,
+        PageSize: Number(event.target.value),
       });
     }
   };

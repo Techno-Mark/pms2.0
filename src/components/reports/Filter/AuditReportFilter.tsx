@@ -30,32 +30,46 @@ import {
   getClientDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
+import { LabelValue, LabelValueProfileImage } from "@/utils/Types/types";
+
+interface SavedFilter {
+  FilterId: number;
+  Name: string;
+  AppliedFilter: {
+    clients: number[];
+    users: number[];
+    startDate: string | null;
+    endDate: string | null;
+  };
+}
 
 const AuditReportFilter = ({
   isFiltering,
   onDialogClose,
   sendFilterToPage,
 }: FilterType) => {
-  const [auditClients, setAuditClients] = useState<any[]>([]);
-  const [auditClientName, setAuditClientName] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
-  const [userName, setUserName] = useState<any[]>([]);
+  const [auditClients, setAuditClients] = useState<LabelValue[]>([]);
+  const [auditClientName, setAuditClientName] = useState<number[]>([]);
+  const [users, setUsers] = useState<LabelValueProfileImage[]>([]);
+  const [userName, setUserName] = useState<number[]>([]);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
 
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
-  const [userDropdown, setUserDropdown] = useState<any[]>([]);
-  const [clientDropdown, setClientDropdown] = useState<any[]>([]);
+  const [userDropdown, setUserDropdown] = useState<LabelValueProfileImage[]>(
+    []
+  );
+  const [clientDropdown, setClientDropdown] = useState<LabelValue[]>([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>("");
-  const [savedFilters, setSavedFilters] = useState<any[]>([]);
+  const [currentFilterId, setCurrentFilterId] = useState<number>(0);
+  const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [error, setError] = useState("");
-  const [idFilter, setIdFilter] = useState<any>(undefined);
-
+  const [idFilter, setIdFilter] = useState<string | undefined>(undefined);
+  console.log(savedFilters);
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
 
@@ -144,7 +158,7 @@ const AuditReportFilter = ({
     }
     setError("");
     const params = {
-      filterId: currentFilterId !== "" ? currentFilterId : null,
+      filterId: currentFilterId > 0 ? currentFilterId : null,
       name: filterName,
       AppliedFilter: {
         clients: auditClientName,
@@ -166,7 +180,7 @@ const AuditReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/savefilter`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -210,7 +224,7 @@ const AuditReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: SavedFilter[],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -224,44 +238,33 @@ const AuditReportFilter = ({
   const handleSavedFilterEdit = (index: number) => {
     setSaveFilter(true);
     setDefaultFilter(true);
-    setFilterName(savedFilters[index].Name);
-    setCurrentFilterId(savedFilters[index].FilterId);
 
+    const { Name, FilterId, AppliedFilter } = savedFilters[index];
+    setFilterName(Name);
+    setCurrentFilterId(FilterId);
+
+    const clients = AppliedFilter?.clients || [];
     setAuditClients(
-      savedFilters[index].AppliedFilter.clients === null
-        ? []
-        : clientDropdown.filter((client: any) =>
-            savedFilters[index].AppliedFilter.clients.includes(client.value)
+      clients.length > 0
+        ? clientDropdown.filter((client: LabelValue) =>
+            clients.includes(client.value)
           )
+        : []
     );
-    setAuditClientName(
-      savedFilters[index].AppliedFilter.clients === null
-        ? []
-        : savedFilters[index].AppliedFilter.clients
-    );
+    setAuditClientName(clients);
 
+    const users = AppliedFilter?.users || [];
     setUsers(
-      savedFilters[index].AppliedFilter.clients === null
-        ? []
-        : userDropdown.filter((user: any) =>
-            savedFilters[index].AppliedFilter.users.includes(user.value)
+      users.length > 0
+        ? userDropdown.filter((user: LabelValueProfileImage) =>
+            users.includes(user.value)
           )
+        : []
     );
-    setUserName(
-      savedFilters[index].AppliedFilter.users === null
-        ? []
-        : savedFilters[index].AppliedFilter.users
-    );
-    setStartDate(
-      savedFilters[index].AppliedFilter.startDate === null
-        ? ""
-        : savedFilters[index].AppliedFilter.startDate
-    );
-    setEndDate(
-      savedFilters[index].AppliedFilter.endDate === null
-        ? ""
-        : savedFilters[index].AppliedFilter.endDate
-    );
+    setUserName(users);
+
+    setStartDate(AppliedFilter?.startDate || "");
+    setEndDate(AppliedFilter?.endDate || "");
   };
 
   const handleSavedFilterDelete = async () => {
@@ -270,7 +273,7 @@ const AuditReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -278,7 +281,7 @@ const AuditReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleClose();
         getFilterList();
-        setCurrentFilterId("");
+        setCurrentFilterId(0);
         sendFilterToPage({ ...audit_InitialFilter });
       }
     };
@@ -320,14 +323,14 @@ const AuditReportFilter = ({
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={searchValue}
-                onChange={(e: any) => setSearchValue(e.target.value)}
+                onChange={(e) => setSearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {savedFilters.map((i: any, index: number) => {
+            {savedFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div
@@ -401,10 +404,10 @@ const AuditReportFilter = ({
                           (client) => client.value === option.value
                         )
                     )}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
                       setAuditClients(data);
-                      setAuditClientName(data.map((d: any) => d.value));
+                      setAuditClientName(data.map((d: LabelValue) => d.value));
                     }}
                     value={auditClients}
                     renderInput={(params: any) => (
@@ -424,10 +427,14 @@ const AuditReportFilter = ({
                     multiple
                     id="tags-standard"
                     options={userDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValueProfileImage) =>
+                      option.label
+                    }
+                    onChange={(e, data: LabelValueProfileImage[]) => {
                       setUsers(data);
-                      setUserName(data.map((d: any) => d.value));
+                      setUserName(
+                        data.map((d: LabelValueProfileImage) => d.value)
+                      );
                     }}
                     value={users}
                     renderInput={(params: any) => (

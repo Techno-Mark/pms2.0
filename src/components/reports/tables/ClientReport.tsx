@@ -22,8 +22,64 @@ import {
   generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
 import { options } from "@/utils/datatable/TableOptions";
+import { ReportProps } from "@/utils/Types/reports";
 
-const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
+interface FilteredData {
+  PageNo: number;
+  PageSize: number;
+  GlobalSearch: string;
+  SortColumn: string;
+  IsDesc: boolean;
+  IsDownload: boolean;
+  DepartmentIds: number[] | [];
+  BillingTypeId: number | null;
+  WorkTypeId: number | null;
+  StartDate: string | null;
+  EndDate: string | null;
+  Clients: number[] | [];
+}
+
+interface ClientWorkTypeData {
+  ClientId: number;
+  ClientName: string;
+  ContractHrs: string;
+  InternalHrs: string;
+  STDTime: string | null;
+  EditHours: string | null;
+  TotalTime: string | null;
+  DifferenceTime: string | null;
+  contracteddiff: string | null;
+  WorkTypeId: number;
+  WorkTypeName: string;
+  BillingTypeId: number;
+  BillingTypeName: string;
+}
+
+interface Response {
+  ClientReportFilters: any | null;
+  List:
+    | {
+        ClientId: number;
+        ClientName: string;
+        DepartmentName: string | null;
+        ContractHrs: string;
+        InternalHrs: string;
+        STDTime: string | null;
+        EditHours: string | null;
+        TotalTime: string | null;
+        DifferenceTime: string | null;
+        contracteddiff: string | null;
+        ClientWorkTypeData: ClientWorkTypeData[] | [];
+      }[]
+    | [];
+  TotalCount: number;
+}
+
+const ClientReport = ({
+  filteredData,
+  searchValue,
+  onHandleExport,
+}: ReportProps) => {
   const [clientFields, setClientFields] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -32,7 +88,7 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [clientCurrentPage, setClientCurrentPage] = useState<number>(0);
   const [clientRowsPerPage, setClientRowsPerPage] = useState<number>(10);
 
-  const getData = async (arg1: any) => {
+  const getData = async (arg1: FilteredData) => {
     setClientFields({
       ...clientFields,
       loaded: false,
@@ -40,14 +96,18 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
 
     const url = `${process.env.report_api_url}/report/client`;
 
-    const successCallback = (data: any, error: any) => {
-      if (data !== null && error === false) {
-        onHandleExport(data.List.length > 0);
+    const successCallback = (
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        onHandleExport(ResponseData.List.length > 0);
         setClientFields({
           ...clientFields,
           loaded: true,
-          data: data.List,
-          dataCount: data.TotalCount,
+          data: ResponseData.List,
+          dataCount: ResponseData.TotalCount,
         });
       } else {
         setClientFields({
@@ -70,14 +130,14 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     if (filteredData !== null) {
       getData({
         ...filteredData,
-        pageNo: newPage + 1,
-        pageSize: clientRowsPerPage,
+        PageNo: newPage + 1,
+        PageSize: clientRowsPerPage,
       });
     } else {
       getData({
         ...client_InitialFilter,
-        pageNo: newPage + 1,
-        pageSize: clientRowsPerPage,
+        PageNo: newPage + 1,
+        PageSize: clientRowsPerPage,
       });
     }
   };
@@ -91,14 +151,14 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     if (filteredData !== null) {
       getData({
         ...filteredData,
-        pageNo: 1,
-        pageSize: event.target.value,
+        PageNo: 1,
+        PageSize: Number(event.target.value),
       });
     } else {
       getData({
         ...client_InitialFilter,
-        pageNo: 1,
-        pageSize: event.target.value,
+        PageNo: 1,
+        PageSize: Number(event.target.value),
       });
     }
   };
@@ -169,13 +229,13 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     },
   ];
 
-  const reportsClientCols: any = reportsClientColConfig.map((col: any) =>
+  const reportsClientCols = reportsClientColConfig.map((col) =>
     generateCustomColumnSortFalse(col.header, col.label, col.bodyRenderer)
   );
 
-  const optionsExpand: any = {
+  const optionsExpand = {
     expandableRows: true,
-    renderExpandableRow: (rowData: any, rowMeta: any) => {
+    renderExpandableRow: (rowData: null, rowMeta: any) => {
       return (
         <React.Fragment>
           <tr>
@@ -216,37 +276,39 @@ const ClientReport = ({ filteredData, searchValue, onHandleExport }: any) => {
                       .length > 0 ? (
                       clientFields.data[
                         rowMeta.rowIndex
-                      ].ClientWorkTypeData.map((i: any, index: any) => (
-                        <TableRow key={index}>
-                          <TableCell className="!pl-[4.5rem] w-[15rem]">
-                            {i.WorkTypeName}
-                          </TableCell>
-                          <TableCell className="w-[17.5rem]">
-                            {i.BillingTypeName}
-                          </TableCell>
-                          <TableCell className="w-[18.5rem]">
-                            {i.InternalHrs}
-                          </TableCell>
-                          <TableCell className="w-[18.5rem]">
-                            {i.ContractHrs}
-                          </TableCell>
-                          <TableCell className="w-[18.5rem]">
-                            {i.STDTime}
-                          </TableCell>
-                          <TableCell className="w-[18.5rem]">
-                            {i.EditHours}
-                          </TableCell>
-                          <TableCell className="w-[18.5rem]">
-                            {i.TotalTime}
-                          </TableCell>
-                          <TableCell className="w-[18.5rem]">
-                            {i.DifferenceTime}
-                          </TableCell>
-                          <TableCell className="w-[18.5rem]">
-                            {i.contracteddiff}
-                          </TableCell>
-                        </TableRow>
-                      ))
+                      ].ClientWorkTypeData.map(
+                        (i: ClientWorkTypeData, index: number) => (
+                          <TableRow key={index}>
+                            <TableCell className="!pl-[4.5rem] w-[15rem]">
+                              {i.WorkTypeName}
+                            </TableCell>
+                            <TableCell className="w-[17.5rem]">
+                              {i.BillingTypeName}
+                            </TableCell>
+                            <TableCell className="w-[18.5rem]">
+                              {i.InternalHrs}
+                            </TableCell>
+                            <TableCell className="w-[18.5rem]">
+                              {i.ContractHrs}
+                            </TableCell>
+                            <TableCell className="w-[18.5rem]">
+                              {i.STDTime}
+                            </TableCell>
+                            <TableCell className="w-[18.5rem]">
+                              {i.EditHours}
+                            </TableCell>
+                            <TableCell className="w-[18.5rem]">
+                              {i.TotalTime}
+                            </TableCell>
+                            <TableCell className="w-[18.5rem]">
+                              {i.DifferenceTime}
+                            </TableCell>
+                            <TableCell className="w-[18.5rem]">
+                              {i.contracteddiff}
+                            </TableCell>
+                          </TableRow>
+                        )
+                      )
                     ) : (
                       <TableRow className="h-16">
                         <span className="flex items-center justify-start ml-16 pt-5">

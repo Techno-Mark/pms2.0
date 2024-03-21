@@ -63,7 +63,7 @@ const Datatable_PriorityInfo = ({
     };
 
     const fetchData = async () => {
-      getData();
+      onOpen && getData();
     };
     const timer = setTimeout(() => {
       fetchData();

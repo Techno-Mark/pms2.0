@@ -8,8 +8,44 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { TablePagination, ThemeProvider } from "@mui/material";
 import { logReport_InitialFilter } from "@/utils/reports/getFilters";
 import { reportsLogCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
+import { ReportProps } from "@/utils/Types/reports";
 
-const LogReport = ({ filteredData, searchValue, onHandleExport }: any) => {
+interface FilteredData {
+  GlobalSearch: string;
+  PageNo: number;
+  PageSize: number;
+  SortColumn: string | null;
+  IsDesc: number | boolean;
+  ClientFilter: number[] | [];
+  ProjectFilter: number[] | [];
+  ProcessFilter: number[] | [];
+  UpdatedByFilter: number[] | [];
+  StartDate: string | null;
+  EndDate: string | null;
+}
+
+interface Response {
+  AuditlogReportFilters: any | null;
+  List:
+    | {
+        WorkItemId: number;
+        WorkItemTaskName: string;
+        UpdatedOn: string;
+        UpdatedById: number;
+        UpdatedBy: string;
+        Filed: string;
+        NewValue: string | null;
+        OldValue: string | null;
+      }[]
+    | [];
+  TotalCount: number;
+}
+
+const LogReport = ({
+  filteredData,
+  searchValue,
+  onHandleExport,
+}: ReportProps) => {
   const [logReportFields, setLogReportFields] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -18,21 +54,25 @@ const LogReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [logReportCurrentPage, setLogReportCurrentPage] = useState<number>(0);
   const [logReportRowsPerPage, setLogReportRowsPerPage] = useState<number>(10);
 
-  const getData = async (arg1: any) => {
+  const getData = async (arg1: FilteredData) => {
     setLogReportFields({
       ...logReportFields,
       loaded: false,
     });
     const url = `${process.env.report_api_url}/report/auditlog`;
 
-    const successCallback = (data: any, error: any) => {
-      if (data !== null && error === false) {
-        onHandleExport(data.List.length > 0);
+    const successCallback = (
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        onHandleExport(ResponseData.List.length > 0);
         setLogReportFields({
           ...logReportFields,
           loaded: true,
-          data: data.List,
-          dataCount: data.TotalCount,
+          data: ResponseData.List,
+          dataCount: ResponseData.TotalCount,
         });
       } else {
         setLogReportFields({ ...logReportFields, loaded: true });
@@ -72,13 +112,13 @@ const LogReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       getData({
         ...filteredData,
         PageNo: 1,
-        PageSize: event.target.value,
+        PageSize: Number(event.target.value),
       });
     } else {
       getData({
         ...logReport_InitialFilter,
         PageNo: 1,
-        PageSize: event.target.value,
+        PageSize: Number(event.target.value),
       });
     }
   };
@@ -100,8 +140,6 @@ const LogReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       return () => clearTimeout(timer);
     }
   }, [filteredData, searchValue]);
-
-  const columns: any = [];
 
   return logReportFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>

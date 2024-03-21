@@ -46,7 +46,7 @@ export interface LabelValueProfileImage {
 export interface IdNameEstimatedHour {
   Id: number;
   Name: string;
-  EstimatedHour: null | string;
+  EstimatedHour: number | string;
 }
 
 export interface AppliedFilterApprovals {
