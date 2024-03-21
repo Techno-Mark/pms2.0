@@ -18,9 +18,98 @@ import TableActionIcon from "@/assets/icons/TableActionIcon";
 import React from "react";
 import { toast } from "react-toastify";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+import { ReportProps } from "@/utils/Types/reports";
 
-const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
-  const [customReportFields, setCustomReportFields] = useState({
+interface FilteredData {
+  pageNo: number;
+  pageSize: number;
+  sortColumn: string;
+  isDesc: boolean;
+  globalSearch: string;
+  projectIdsJSON: number[] | [];
+  clientIdsJSON: number[] | [];
+  processIdsJSON: number[] | [];
+  WorkTypeId: number | null;
+  subProcessId: number | null;
+  assignedById: number | null;
+  assigneeId: number | null;
+  returnTypeId: number | null;
+  numberOfPages: number | null;
+  returnYear: number | null;
+  currentYear: number | null;
+  StatusId: number | null;
+  reviewerId: number | null;
+  complexity: number | null;
+  priority: number | null;
+  receivedDate: string | null;
+  dueDate: string | null;
+  allInfoDate: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  startDateReview: string | null;
+  endDateReview: string | null;
+  isDownload: boolean;
+}
+
+interface Response {
+  CustomReportFilters: any | null;
+  List:
+    | {
+        WorkItemId: number;
+        TaskName: string;
+        Description: string | null;
+        ClientId: number;
+        ClientName: string;
+        ProjectId: number;
+        ProjectName: string;
+        ProcessId: number;
+        ProcessName: string;
+        SubProcessId: number;
+        SubProcessName: string;
+        Status: string;
+        AssignedById: number;
+        AssignedBy: string;
+        AssigneeId: number;
+        AssigneeName: string;
+        ReviewerId: number;
+        ReviewerName: string;
+        TaxReturnType: any;
+        TypeOfReturnId: any;
+        TypeOfReturnName: any;
+        NoOfPages: number | null;
+        ReturnYear: number | null;
+        CurrentYear: number | null;
+        Complexity: number | null;
+        priority: string;
+        DateCreated: string;
+        DateOfPreparation: string | null;
+        DateOfReview: string | null;
+        ReceiverDate: string;
+        DueDate: string;
+        AllInfoDate: string | null;
+        TotalEstimatedHours: string;
+        TotalSTDHours: string;
+        AssigneeTimeTracked: string;
+        ReviewerTimeTracked: string;
+        BTC: any;
+        IsBTC: string;
+        TotalTime: string;
+        TotalTimeInMinutes: number | null;
+        EditedHours: any;
+        StatusColorCode: string;
+        Errors: number;
+        Quantity: number;
+      }[]
+    | [];
+  TotalCount: number;
+}
+
+const CustomReport = ({
+  filteredData,
+  searchValue,
+  onHandleExport,
+}: ReportProps) => {
+  const [customReportFields, setCustomReportFields] = useState<any>({
     loaded: true,
     data: [],
     dataCount: 0,
@@ -32,21 +121,25 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
 
-  const getData = async (arg1: any) => {
+  const getData = async (arg1: FilteredData) => {
     setCustomReportFields({
       ...customReportFields,
       loaded: false,
     });
     const url = `${process.env.report_api_url}/report/custom`;
 
-    const successCallback = (data: any, error: any) => {
-      if (data !== null && error === false) {
-        onHandleExport(data.List.length > 0);
+    const successCallback = (
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        onHandleExport(ResponseData.List.length > 0);
         setCustomReportFields({
           ...customReportFields,
           loaded: true,
-          data: data.List,
-          dataCount: data.TotalCount,
+          data: ResponseData.List,
+          dataCount: ResponseData.TotalCount,
         });
       } else {
         setCustomReportFields({
@@ -99,7 +192,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       };
       const url = `${process.env.worklog_api_url}/workitem/deleteworkitem`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: null,
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -135,7 +228,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     }
   }, [filteredData, searchValue]);
 
-  const handleActionValue = async (actionId: string, id: any) => {
+  const handleActionValue = async (actionId: string, id: number) => {
     if (actionId.toLowerCase() === "edit") {
       window.open(`${process.env.redirectEditURL}${id}`, "_blank");
     }
@@ -145,7 +238,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     }
   };
 
-  const Actions = ({ actions, id }: any) => {
+  const Actions = ({ actions, id }: { actions: string[]; id: number }) => {
     const actionsRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
 
@@ -166,7 +259,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     }, []);
 
     const actionPermissions = actions.filter(
-      (action: any) =>
+      (action: string) =>
         action.toLowerCase() === "edit" || action.toLowerCase() === "delete"
     );
 
@@ -185,7 +278,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
             <div className="absolute top-30 right-4 z-10 flex justify-center items-center">
               <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-28">
-                  {actionPermissions.map((action: any, index: any) => (
+                  {actionPermissions.map((action: string, index: number) => (
                     <li
                       key={index}
                       onClick={() => handleActionValue(action, id)}
@@ -215,7 +308,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     );
   };
 
-  const columns: any[] = [
+  const columns = [
     {
       name: "WorkItemId",
       options: {
@@ -230,7 +323,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -241,7 +334,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -252,7 +345,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-        customBodyRender: (value: any, tableMeta: any) => {
+        customBodyRender: (value: string, tableMeta: any) => {
           return (
             <div className="ml-2">
               {!value || value === "0" ? (
@@ -277,7 +370,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Process Name"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -288,7 +381,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Status"),
-        customBodyRender: (value: any, tableMeta: any) => {
+        customBodyRender: (value: string, tableMeta: any) => {
           return generateStatusWithColor(
             value,
             tableMeta.rowData[tableMeta.rowData.length - 1]
@@ -302,7 +395,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Assignee"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -313,7 +406,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Reviewer"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -324,7 +417,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Assigned By"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -335,7 +428,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Return Type"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -346,7 +439,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("No. of Pages"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -357,7 +450,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Qty."),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | number) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -368,7 +461,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Return Year"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | number | null) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -379,7 +472,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Current Year"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | number | null) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -390,7 +483,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Complexity"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | number | null) => {
           switch (value) {
             case 1:
               return "Moderate";
@@ -410,7 +503,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -421,7 +514,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Recieved Date"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateDateWithoutTime(value);
         },
       },
@@ -432,7 +525,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateDateWithoutTime(value);
         },
       },
@@ -443,7 +536,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("All Info Date"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateDateWithoutTime(value);
         },
       },
@@ -455,7 +548,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Total Est. Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },
       },
@@ -467,7 +560,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Total Std. Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },
       },
@@ -478,7 +571,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Actual Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },
       },
@@ -489,7 +582,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Edited Hours"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },
       },
@@ -508,7 +601,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Date Created"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateDateWithoutTime(value);
         },
       },
@@ -520,7 +613,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Date of Preparation"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateDateWithoutTime(value);
         },
       },
@@ -531,7 +624,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Date of Review"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateDateWithoutTime(value);
         },
       },
@@ -543,7 +636,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Assignee Time Tracked"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },
       },
@@ -555,7 +648,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Reviewer Time Tracked"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },
       },
@@ -575,7 +668,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("BTC Hours"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | number | null) => {
           return generateInitialTimer(value);
         },
       },
@@ -594,13 +687,13 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Change Request"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: number | string) => {
           return (
             <div>
               {!value || value === "0" ? (
                 <span className="ml-[-30px]">-</span>
               ) : (
-                <Actions actions={["Edit", "Delete"]} id={value} />
+                <Actions actions={["Edit", "Delete"]} id={Number(value)} />
               )}
             </div>
           );
@@ -618,7 +711,9 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   return customReportFields.loaded ? (
     <>
       <div
-        className={`${customReportFields.data.length > 0 && "muiTableActionCustom"}`}
+        className={`${
+          customReportFields.data.length > 0 && "muiTableActionCustom"
+        }`}
       >
         <ThemeProvider theme={getMuiTheme()}>
           <MUIDataTable

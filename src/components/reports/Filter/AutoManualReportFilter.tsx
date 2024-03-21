@@ -30,30 +30,45 @@ import {
   getDeptData,
   getRMWiseUserDropdownData,
 } from "@/utils/commonDropdownApiCall";
+import { LabelValue, LabelValueProfileImage } from "@/utils/Types/types";
+
+interface SavedFilter {
+  FilterId: number;
+  Name: string;
+  AppliedFilter: {
+    ReportingManagerId: number | null;
+    DepartmentIds: number[];
+    StartDate: string | null;
+    EndDate: string | null;
+  };
+}
 
 const AutoManualReportFilter = ({
   isFiltering,
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
-  const [reportingManager, setReportingManager] = useState<any>(null);
-  const [depts, setDepts] = useState<any[]>([]);
-  const [deptName, setDeptName] = useState<any[]>([]);
+  const [reportingManager, setReportingManager] =
+    useState<LabelValueProfileImage | null>(null);
+  const [depts, setDepts] = useState<LabelValue[]>([]);
+  const [deptName, setDeptName] = useState<number[]>([]);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
 
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
-  const [rmDropdown, setRMDropdown] = useState<any[]>([]);
-  const [departmentDropdown, setDepartmentDropdown] = useState<any[]>([]);
+  const [rmDropdown, setRMDropdown] = useState<LabelValueProfileImage[]>([]);
+  const [departmentDropdown, setDepartmentDropdown] = useState<LabelValue[]>(
+    []
+  );
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>("");
-  const [savedFilters, setSavedFilters] = useState<any[]>([]);
+  const [currentFilterId, setCurrentFilterId] = useState<number>(0);
+  const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [error, setError] = useState("");
-  const [idFilter, setIdFilter] = useState<any>(undefined);
+  const [idFilter, setIdFilter] = useState<string | undefined>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
@@ -143,7 +158,7 @@ const AutoManualReportFilter = ({
     }
     setError("");
     const params = {
-      filterId: currentFilterId !== "" ? currentFilterId : null,
+      filterId: currentFilterId > 0 ? currentFilterId : null,
       name: filterName,
       AppliedFilter: {
         ReportingManagerId:
@@ -166,7 +181,7 @@ const AutoManualReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/savefilter`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -210,7 +225,7 @@ const AutoManualReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: SavedFilter[],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -230,16 +245,16 @@ const AutoManualReportFilter = ({
     setReportingManager(
       savedFilters[index].AppliedFilter.ReportingManagerId !== null
         ? rmDropdown.filter(
-            (item: any) =>
+            (item: LabelValueProfileImage) =>
               item.value ===
-              savedFilters[index].AppliedFilter.ReportingManagerId[0]
+              savedFilters[index].AppliedFilter.ReportingManagerId
           )[0]
         : null
     );
     setDepts(
       savedFilters[index].AppliedFilter.DepartmentIds === null
         ? []
-        : departmentDropdown.filter((dept: any) =>
+        : departmentDropdown.filter((dept: LabelValue) =>
             savedFilters[index].AppliedFilter.DepartmentIds.includes(dept.value)
           )
     );
@@ -248,16 +263,8 @@ const AutoManualReportFilter = ({
         ? []
         : savedFilters[index].AppliedFilter.DepartmentIds
     );
-    setStartDate(
-      savedFilters[index].AppliedFilter.StartDate === null
-        ? ""
-        : savedFilters[index].AppliedFilter.StartDate
-    );
-    setEndDate(
-      savedFilters[index].AppliedFilter.EndDate === null
-        ? ""
-        : savedFilters[index].AppliedFilter.EndDate
-    );
+    setStartDate(savedFilters[index].AppliedFilter.StartDate ?? "");
+    setEndDate(savedFilters[index].AppliedFilter.EndDate ?? "");
   };
 
   const handleSavedFilterDelete = async () => {
@@ -266,7 +273,7 @@ const AutoManualReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -274,7 +281,7 @@ const AutoManualReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleClose();
         getFilterList();
-        setCurrentFilterId("");
+        setCurrentFilterId(0);
         sendFilterToPage({ ...am_InitialFilter });
       }
     };
@@ -316,14 +323,14 @@ const AutoManualReportFilter = ({
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={searchValue}
-                onChange={(e: any) => setSearchValue(e.target.value)}
+                onChange={(e) => setSearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {savedFilters.map((i: any, index: number) => {
+            {savedFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div
@@ -391,8 +398,10 @@ const AutoManualReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={rmDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValueProfileImage) =>
+                      option.label
+                    }
+                    onChange={(e, data: LabelValueProfileImage | null) => {
                       setReportingManager(data);
                     }}
                     value={reportingManager}
@@ -413,10 +422,10 @@ const AutoManualReportFilter = ({
                     multiple
                     id="tags-standard"
                     options={departmentDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
                       setDepts(data);
-                      setDeptName(data.map((d: any) => d.value));
+                      setDeptName(data.map((d: LabelValue) => d.value));
                     }}
                     value={depts}
                     renderInput={(params: any) => (

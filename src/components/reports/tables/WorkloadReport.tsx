@@ -17,8 +17,50 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { workLoad_InitialFilter } from "@/utils/reports/getFilters";
 import { Popover, TablePagination, ThemeProvider } from "@mui/material";
+import { ReportProps } from "@/utils/Types/reports";
 
-const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
+interface FilteredData {
+  pageNo: number;
+  pageSize: number;
+  sortColumn: string;
+  isDesc: boolean;
+  globalSearch: string;
+  departmentIds: number[] | [];
+  dateFilter: string | null;
+  isDownload: boolean;
+}
+
+interface Response {
+  List:
+    | {
+        UserId: number;
+        CreatedDate: string;
+        workitemId: number;
+        TaskName: string;
+        ClientId: number;
+        ClientName: string;
+        ProjectId: number;
+        ProjectName: string;
+        ProcessId: number;
+        ProcessName: string;
+        ChildProcessId: number | null;
+        ChildProcessName: string | null;
+        IsManual: string | null;
+        Quantity: number;
+        StandardTime: string | null;
+        EstimateTime: string | null;
+        TotalTime: string | null;
+        TaskStatus: string;
+      }[]
+    | [];
+  TotalCount: number;
+}
+
+const WorkloadReport = ({
+  filteredData,
+  searchValue,
+  onHandleExport,
+}: ReportProps) => {
   const workloadAnchorElFilter: HTMLButtonElement | null = null;
   const openWorkloadFilter = Boolean(workloadAnchorElFilter);
   const workloadIdFilter = openWorkloadFilter ? "simple-popover" : undefined;
@@ -34,21 +76,25 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     dataCount: 0,
   });
 
-  const getData = async (arg1: any) => {
+  const getData = async (arg1: FilteredData) => {
     setWorkloadFields({
       ...workloadFields,
       loaded: false,
     });
     const url = `${process.env.report_api_url}/report/workLoad`;
 
-    const successCallBack = (data: any, error: any) => {
-      if (data !== null && error === false) {
-        onHandleExport(data.List.length > 0);
+    const successCallBack = (
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        onHandleExport(ResponseData.List.length > 0);
         setWorkloadFields({
           ...workloadFields,
           loaded: true,
-          data: data.List,
-          dataCount: data.TotalCount,
+          data: ResponseData.List,
+          dataCount: ResponseData.TotalCount,
         });
       } else {
         setWorkloadFields({ ...workloadFields, loaded: true });
@@ -117,7 +163,7 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     }
   }, [filteredData, searchValue]);
 
-  const generateUserNameBodyRender = (bodyValue: any, TableMeta: any) => {
+  const generateUserNameBodyRender = (bodyValue: string, TableMeta: any) => {
     return (
       <div
         className="flex flex-col cursor-pointer"
@@ -147,14 +193,14 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     );
   };
 
-  const columns: any[] = [
+  const columns = [
     {
       name: "UserName",
       options: {
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("User Name"),
-        customBodyRender: (value: any, tableMeta: any) => {
+        customBodyRender: (value: string, tableMeta: any) => {
           return generateUserNameBodyRender(value, tableMeta);
         },
       },
@@ -181,7 +227,7 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Designation"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -192,7 +238,7 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },
       },
@@ -203,7 +249,7 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },
       },
@@ -218,14 +264,14 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     },
   ];
 
-  const expandableColumns: any[] = [
+  const expandableColumns = [
     {
       name: "workitemId",
       options: {
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("ID"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: number) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -236,7 +282,7 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Created Date"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateDateWithoutTime(value);
         },
       },
@@ -247,7 +293,7 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -258,7 +304,7 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Project"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -269,7 +315,7 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Task/Process"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -280,7 +326,7 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Task Status"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
       },
@@ -291,7 +337,7 @@ const WorkloadReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Est. Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
       },

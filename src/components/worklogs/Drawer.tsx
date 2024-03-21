@@ -190,33 +190,34 @@ const EditDrawer = ({
 
   // Task
   const [taskWorklogsDrawer, setTaskWorklogsDrawer] = useState(true);
-  const [clientWorklogsDropdownData, setClientWorklogsDropdownData] =
-    useState<any>([]);
-  const [clientNameWorklogs, setClientNameWorklogs] = useState<any>(0);
+  const [clientWorklogsDropdownData, setClientWorklogsDropdownData] = useState<
+    LabelValue[] | []
+  >([]);
+  const [clientNameWorklogs, setClientNameWorklogs] = useState<number>(0);
   const [clientNameWorklogsErr, setClientNameWorklogsErr] = useState(false);
   const [typeOfWorkWorklogsDropdownData, setTypeOfWorkWorklogsDropdownData] =
-    useState<any>([]);
-  const [typeOfWorkWorklogs, setTypeOfWorkWorklogs] = useState<any>(0);
+    useState<LabelValue[] | []>([]);
+  const [typeOfWorkWorklogs, setTypeOfWorkWorklogs] = useState<number>(0);
   const [typeOfWorkWorklogsErr, setTypeOfWorkWorklogsErr] = useState(false);
   const [projectWorklogsDropdownData, setProjectWorklogsDropdownData] =
-    useState<any>([]);
-  const [projectNameWorklogs, setProjectNameWorklogs] = useState<any>(0);
+    useState<LabelValue[] | []>([]);
+  const [projectNameWorklogs, setProjectNameWorklogs] = useState<number>(0);
   const [projectNameWorklogsErr, setProjectNameWorklogsErr] = useState(false);
   const [processWorklogsDropdownData, setProcessWorklogsDropdownData] =
-    useState<any>([]);
-  const [processNameWorklogs, setProcessNameWorklogs] = useState<any>(0);
+    useState<LabelValue[] | []>([]);
+  const [processNameWorklogs, setProcessNameWorklogs] = useState<number>(0);
   const [processNameWorklogsErr, setProcessNameWorklogsErr] = useState(false);
   const [subProcessWorklogsDropdownData, setSubProcessWorklogsDropdownData] =
     useState([]);
-  const [subProcessWorklogs, setSubProcessWorklogs] = useState<any>(0);
+  const [subProcessWorklogs, setSubProcessWorklogs] = useState<number>(0);
   const [subProcessWorklogsErr, setSubProcessWorklogsErr] = useState(false);
   const [clientTaskNameWorklogs, setClientTaskNameWorklogs] =
     useState<string>("");
   const [clientTaskNameWorklogsErr, setClientTaskNameWorklogsErr] =
     useState(false);
   const [managerWorklogsDropdownData, setManagerWorklogsDropdownData] =
-    useState<any>([]);
-  const [managerWorklogs, setManagerWorklogs] = useState<any>(0);
+    useState<LabelValue[] | []>([]);
+  const [managerWorklogs, setManagerWorklogs] = useState<number>(0);
   const [managerWorklogsErr, setManagerWorklogsErr] = useState(false);
   const [statusWorklogsDropdownData, setStatusWorklogsDropdownData] = useState(
     []
@@ -224,30 +225,30 @@ const EditDrawer = ({
   const [statusWorklogsDropdownDataUse, setStatusWorklogsDropdownDataUse] =
     useState([]);
   const [errorlogSignedOffPending, setErrorlogSignOffPending] = useState(false);
-  const [statusWorklogs, setStatusWorklogs] = useState<any>(0);
-  const [editStatusWorklogs, setEditStatusWorklogs] = useState<any>(0);
+  const [statusWorklogs, setStatusWorklogs] = useState<number>(0);
+  const [editStatusWorklogs, setEditStatusWorklogs] = useState<number>(0);
   const [statusWorklogsErr, setStatusWorklogsErr] = useState(false);
   const [descriptionWorklogs, setDescriptionWorklogs] = useState<string>("");
   const [priorityWorklogs, setPriorityWorklogs] = useState<string | number>(0);
-  const [quantityWorklogs, setQuantityWorklogs] = useState<any>(1);
+  const [quantityWorklogs, setQuantityWorklogs] = useState<number>(1);
   const [quantityWorklogsErr, setQuantityWorklogsErr] = useState(false);
-  const [receiverDateWorklogs, setReceiverDateWorklogs] = useState<any>("");
+  const [receiverDateWorklogs, setReceiverDateWorklogs] = useState<string>("");
   const [receiverDateWorklogsErr, setReceiverDateWorklogsErr] = useState(false);
-  const [dueDateWorklogs, setDueDateWorklogs] = useState<any>("");
-  const [allInfoDateWorklogs, setAllInfoDateWorklogs] = useState<any>("");
+  const [dueDateWorklogs, setDueDateWorklogs] = useState<string>("");
+  const [allInfoDateWorklogs, setAllInfoDateWorklogs] = useState<string>("");
   const [assigneeWorklogsDropdownData, setAssigneeWorklogsDropdownData] =
-    useState<any>([]);
-  const [assigneeWorklogs, setAssigneeWorklogs] = useState<any>(0);
+    useState<LabelValue[] | []>([]);
+  const [assigneeWorklogs, setAssigneeWorklogs] = useState<number>(0);
   const [assigneeWorklogsErr, setAssigneeWorklogsErr] = useState(false);
   const [assigneeWorklogsDisable, setAssigneeWorklogsDisable] =
-    useState<any>(true);
+    useState<boolean>(true);
   const [reviewerWorklogsDropdownData, setReviewerWorklogsDropdownData] =
     useState([]);
-  const [reviewerWorklogs, setReviewerWorklogs] = useState<any>(0);
+  const [reviewerWorklogs, setReviewerWorklogs] = useState<number>(0);
   const [reviewerWorklogsErr, setReviewerWorklogsErr] = useState(false);
   const [departmentWorklogsDropdownData, setDepartmentWorklogsDropdownData] =
     useState([]);
-  const [departmentWorklogs, setDepartmentWorklogs] = useState<any>(0);
+  const [departmentWorklogs, setDepartmentWorklogs] = useState<number>(0);
   const [departmentWorklogsErr, setDepartmentWorklogsErr] = useState(false);
   const [dateOfReviewWorklogs, setDateOfReviewWorklogs] = useState<string>("");
   const [dateOfPreperationWorklogs, setDateOfPreperationWorklogs] =
@@ -256,9 +257,9 @@ const EditDrawer = ({
   const [userId, setUserId] = useState(0);
   const [returnYearWorklogs, setReturnYearWorklogs] = useState<number>(0);
   const [returnYearWorklogsErr, setReturnYearWorklogsErr] = useState(false);
-  const [noOfPagesWorklogs, setNoOfPagesWorklogs] = useState<any>(0);
+  const [noOfPagesWorklogs, setNoOfPagesWorklogs] = useState<number>(0);
   const [checklistWorkpaperWorklogs, setChecklistWorkpaperWorklogs] =
-    useState<any>(0);
+    useState<number>(0);
   const [checklistWorkpaperWorklogsErr, setChecklistWorkpaperWorklogsErr] =
     useState(false);
 
@@ -275,7 +276,9 @@ const EditDrawer = ({
   const [taskNameWorklogsErr, setTaskNameWorklogsErr] = useState([false]);
   const [subTaskDescriptionWorklogsErr, setSubTaskDescriptionWorklogsErr] =
     useState([false]);
-  const [deletedSubTaskWorklogs, setDeletedSubTaskWorklogs] = useState<any>([]);
+  const [deletedSubTaskWorklogs, setDeletedSubTaskWorklogs] = useState<
+    number[] | []
+  >([]);
 
   const addTaskFieldWorklogs = () => {
     setSubTaskFieldsWorklogs([
@@ -436,14 +439,14 @@ const EditDrawer = ({
   const [recurringStartDateErr, setRecurringStartDateErr] = useState(false);
   const [recurringEndDate, setRecurringEndDate] = useState("");
   const [recurringEndDateErr, setRecurringEndDateErr] = useState(false);
-  const [recurringTime, setRecurringTime] = useState<any>(1);
-  const [selectedDays, setSelectedDays] = useState<any>([]);
+  const [recurringTime, setRecurringTime] = useState<number>(1);
+  const [selectedDays, setSelectedDays] = useState<number[]>([]);
   const [recurringMonth, setRecurringMonth] = useState<any>(0);
   const [recurringMonthErr, setRecurringMonthErr] = useState(false);
   const [recurringWeekErr, setRecurringWeekErr] = useState(false);
 
   const toggleColor = (index: number) => {
-    if (selectedDays.includes(index)) {
+    if (selectedDays?.includes(index)) {
       setSelectedDays(
         selectedDays.filter((dayIndex: number) => dayIndex !== index)
       );
@@ -569,8 +572,9 @@ const EditDrawer = ({
   const [manualTimeWorklogsDrawer, setManualTimeWorklogsDrawer] =
     useState(true);
   const [manualSwitchWorklogs, setManualSwitchWorklogs] = useState(false);
-  const [deletedManualTimeWorklogs, setDeletedManualTimeWorklogs] =
-    useState<any>([]);
+  const [deletedManualTimeWorklogs, setDeletedManualTimeWorklogs] = useState<
+    number[] | []
+  >([]);
   const [manualFieldsWorklogs, setManualFieldsWorklogs] = useState<
     ManualFieldsWorklogs[]
   >([
@@ -999,11 +1003,11 @@ const EditDrawer = ({
   const [reminderSwitch, setReminderSwitch] = useState(false);
   const [reminderDate, setReminderDate] = useState("");
   const [reminderDateErr, setReminderDateErr] = useState(false);
-  const [reminderTime, setReminderTime] = useState<any>(0);
+  const [reminderTime, setReminderTime] = useState<number>(0);
   const [reminderTimeErr, setReminderTimeErr] = useState(false);
   const [reminderNotification, setReminderNotification] = useState<any>([]);
   const [reminderNotificationErr, setReminderNotificationErr] = useState(false);
-  const [reminderCheckboxValue, setReminderCheckboxValue] = useState<any>(1);
+  const [reminderCheckboxValue, setReminderCheckboxValue] = useState<number>(1);
   const [reminderId, setReminderId] = useState(0);
 
   const getReminderDataWorklogs = async () => {
@@ -1882,8 +1886,8 @@ const EditDrawer = ({
         clientTaskNameWorklogs.trim().length > 50
     );
     setQuantityWorklogsErr(
-      quantityWorklogs.length <= 0 ||
-        quantityWorklogs.length > 4 ||
+      quantityWorklogs.toString().length <= 0 ||
+        quantityWorklogs.toString().length > 4 ||
         quantityWorklogs <= 0 ||
         quantityWorklogs.toString().includes(".")
     );
@@ -2245,13 +2249,13 @@ const EditDrawer = ({
         setClientNameWorklogs(ResponseData.ClientId);
         setTypeOfWorkWorklogs(ResponseData.WorkTypeId);
         setProjectNameWorklogs(
-          ResponseData.ProjectId === null ? "" : ResponseData.ProjectId
+          ResponseData.ProjectId === null ? 0 : ResponseData.ProjectId
         );
         setProcessNameWorklogs(
-          ResponseData.ProcessId === null ? "" : ResponseData.ProcessId
+          ResponseData.ProcessId === null ? 0 : ResponseData.ProcessId
         );
         setSubProcessWorklogs(
-          ResponseData.SubProcessId === null ? "" : ResponseData.SubProcessId
+          ResponseData.SubProcessId === null ? 0 : ResponseData.SubProcessId
         );
         setClientTaskNameWorklogs(
           ResponseData.TaskName === null ? "" : ResponseData.TaskName
@@ -2937,7 +2941,7 @@ const EditDrawer = ({
                             setSubProcessWorklogsErr(false);
                             assigneeWorklogsDisable && setAssigneeWorklogs(0);
                             setReviewerWorklogs(0);
-                            setTypeOfWorkWorklogs(e.target.value);
+                            setTypeOfWorkWorklogs(Number(e.target.value));
                             onEdit === 0 && setDateOfReviewWorklogs("");
                             onEdit === 0 && setDateOfPreperationWorklogs("");
                             setReturnYearWorklogs(0);
@@ -3284,7 +3288,7 @@ const EditDrawer = ({
                         disabled={isIdDisabled}
                         value={quantityWorklogs}
                         onChange={(e) => {
-                          setQuantityWorklogs(e.target.value);
+                          setQuantityWorklogs(Number(e.target.value));
                           setQuantityWorklogsErr(false);
                         }}
                         onBlur={(e) => {
@@ -3301,11 +3305,13 @@ const EditDrawer = ({
                           quantityWorklogsErr &&
                           quantityWorklogs.toString().includes(".")
                             ? "Only intiger value allowed."
-                            : quantityWorklogsErr && quantityWorklogs === ""
+                            : quantityWorklogsErr &&
+                              quantityWorklogs.toString() === ""
                             ? "This is a required field."
                             : quantityWorklogsErr && quantityWorklogs <= 0
                             ? "Enter valid number."
-                            : quantityWorklogsErr && quantityWorklogs.length > 4
+                            : quantityWorklogsErr &&
+                              quantityWorklogs.toString().length > 4
                             ? "Maximum 4 numbers allowed."
                             : ""
                         }
@@ -3713,7 +3719,7 @@ const EditDrawer = ({
                               noOfPagesWorklogs === 0 ? "" : noOfPagesWorklogs
                             }
                             onChange={(e) =>
-                              setNoOfPagesWorklogs(e.target.value)
+                              setNoOfPagesWorklogs(Number(e.target.value))
                             }
                             onFocus={(e) =>
                               e.target.addEventListener(
@@ -3749,7 +3755,9 @@ const EditDrawer = ({
                                   : checklistWorkpaperWorklogs
                               }
                               onChange={(e) =>
-                                setChecklistWorkpaperWorklogs(e.target.value)
+                                setChecklistWorkpaperWorklogs(
+                                  Number(e.target.value)
+                                )
                               }
                               onBlur={() => {
                                 if (checklistWorkpaperWorklogs > 0) {
@@ -4737,7 +4745,7 @@ const EditDrawer = ({
                           id="demo-simple-select-standard"
                           value={recurringTime === 0 ? "" : recurringTime}
                           onChange={(e) => {
-                            setRecurringTime(e.target.value);
+                            setRecurringTime(Number(e.target.value));
                             setRecurringMonth(0);
                             setSelectedDays([]);
                             setRecurringWeekErr(false);
@@ -5448,7 +5456,9 @@ const EditDrawer = ({
                           labelId="demo-simple-select-standard-label"
                           id="demo-simple-select-standard"
                           value={reminderTime === 0 ? "" : reminderTime}
-                          onChange={(e) => setReminderTime(e.target.value)}
+                          onChange={(e) =>
+                            setReminderTime(Number(e.target.value))
+                          }
                           onBlur={() => {
                             if (reminderTime > 0) {
                               setReminderTimeErr(false);

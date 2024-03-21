@@ -9,12 +9,46 @@ import ReportLoader from "@/components/common/ReportLoader";
 import { callAPI } from "@/utils/API/callAPI";
 import { am_InitialFilter } from "@/utils/reports/getFilters";
 import { reportsAMCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
+import { ReportProps } from "@/utils/Types/reports";
+
+interface FilteredData {
+  PageNo: number;
+  PageSize: number;
+  sortColumn: string;
+  IsDesc: boolean;
+  GlobalSearch: string;
+  StartDate: string | null;
+  EndDate: string | null;
+  Users: number[] | [];
+  ReportingManagerId: number | null;
+  DepartmentIds: number[] | [];
+  IsDownload: boolean;
+}
+
+interface Response {
+  AutoManualReportFilters: any | null;
+  List:
+    | {
+        UserId: number | null;
+        UserName: string | null;
+        DepartmentId: number | null;
+        DepartmentName: string | null;
+        RmId: number | null;
+        ReportingTo: string | null;
+        StdTime: string | null;
+        ManualTime: string | null;
+        AutoTime: string | null;
+        TotalTime: string | null;
+      }[]
+    | [];
+  TotalCount: number;
+}
 
 const AutoManualReport = ({
   filteredData,
   searchValue,
   onHandleExport,
-}: any) => {
+}: ReportProps) => {
   const [autoManualFields, setAutoManualFields] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -24,7 +58,7 @@ const AutoManualReport = ({
   const [autoManualRowsPerPage, setAutoManualRowsPerPage] =
     useState<number>(10);
 
-  const getData = async (arg1: any) => {
+  const getData = async (arg1: FilteredData) => {
     setAutoManualFields({
       ...autoManualFields,
       loaded: false,
@@ -32,14 +66,18 @@ const AutoManualReport = ({
 
     const url = `${process.env.report_api_url}/report/automanual`;
 
-    const successCallback = (data: any, error: any) => {
-      if (data !== null && error === false) {
-        onHandleExport(data.List.length > 0);
+    const successCallback = (
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        onHandleExport(ResponseData.List.length > 0);
         setAutoManualFields({
           ...autoManualFields,
           loaded: true,
-          data: data.List,
-          dataCount: data.TotalCount,
+          data: ResponseData.List,
+          dataCount: ResponseData.TotalCount,
         });
       } else {
         setAutoManualFields({ ...autoManualFields, loaded: true });
@@ -57,14 +95,14 @@ const AutoManualReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
-        pageNo: newPage + 1,
-        pageSize: autoManualRowsPerPage,
+        PageNo: newPage + 1,
+        PageSize: autoManualRowsPerPage,
       });
     } else {
       getData({
         ...am_InitialFilter,
-        pageNo: newPage + 1,
-        pageSize: autoManualRowsPerPage,
+        PageNo: newPage + 1,
+        PageSize: autoManualRowsPerPage,
       });
     }
   };
@@ -78,14 +116,14 @@ const AutoManualReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
-        pageNo: 1,
-        pageSize: event.target.value,
+        PageNo: 1,
+        PageSize: Number(event.target.value),
       });
     } else {
       getData({
         ...am_InitialFilter,
-        pageNo: 1,
-        pageSize: event.target.value,
+        PageNo: 1,
+        PageSize: Number(event.target.value),
       });
     }
   };

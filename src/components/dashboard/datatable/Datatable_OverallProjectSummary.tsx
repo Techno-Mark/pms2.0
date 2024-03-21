@@ -66,7 +66,7 @@ const Datatable_OverallProjectSummary = ({
   useEffect(() => {
     const fetchData = async () => {
       if (onCurrselectedtaskStatus !== "" || onSelectedTaskStatus !== "") {
-        getOverallProjectSummaryData();
+        onOpen && getOverallProjectSummaryData();
       }
     };
     const timer = setTimeout(() => {

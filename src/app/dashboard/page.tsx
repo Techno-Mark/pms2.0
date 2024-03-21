@@ -236,8 +236,8 @@ const Page = () => {
 
   const statusIconMapping: any = {
     1: <TotalTaskCreated />,
-    2: <InProgressWork />,
-    3: <PendingTask />,
+    2: <PendingTask />,
+    3: <InProgressWork />,
     4: <CompletedTask />,
   };
 

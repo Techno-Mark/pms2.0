@@ -31,36 +31,58 @@ import dayjs from "dayjs";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { Delete, Edit } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
+import { LabelValue, LabelValueProfileImage } from "@/utils/Types/types";
+
+interface SavedFilter {
+  FilterId: number;
+  Name: string;
+  AppliedFilter: {
+    Clients: number[];
+    Users: number[];
+    ReportingManagers: number[];
+    DepartmentIds: number[];
+    StartDate: string | null;
+    EndDate: string | null;
+  };
+}
 
 const APReportFilter = ({
   isFiltering,
   onDialogClose,
   sendFilterToPage,
 }: FilterType) => {
-  const [clients, setClients] = useState<any[]>([]);
-  const [clientName, setClientName] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
-  const [userName, setUserName] = useState<any[]>([]);
-  const [reportingManager, setReportingManager] = useState<any[]>([]);
-  const [reportingManagerName, setReportingManagerName] = useState<any[]>([]);
-  const [depts, setDepts] = useState<any[]>([]);
-  const [deptName, setDeptName] = useState<any[]>([]);
+  const [clients, setClients] = useState<LabelValue[]>([]);
+  const [clientName, setClientName] = useState<number[]>([]);
+  const [users, setUsers] = useState<LabelValueProfileImage[]>([]);
+  const [userName, setUserName] = useState<number[]>([]);
+  const [reportingManager, setReportingManager] = useState<
+    LabelValueProfileImage[]
+  >([]);
+  const [reportingManagerName, setReportingManagerName] = useState<number[]>(
+    []
+  );
+  const [depts, setDepts] = useState<LabelValue[]>([]);
+  const [deptName, setDeptName] = useState<number[]>([]);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
 
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
-  const [clientDropdown, setClientDropdown] = useState<any[]>([]);
-  const [userDropdown, setUserDropdown] = useState<any[]>([]);
-  const [departmentDropdown, setDepartmentDropdown] = useState<any[]>([]);
+  const [clientDropdown, setClientDropdown] = useState<LabelValue[]>([]);
+  const [userDropdown, setUserDropdown] = useState<LabelValueProfileImage[]>(
+    []
+  );
+  const [departmentDropdown, setDepartmentDropdown] = useState<LabelValue[]>(
+    []
+  );
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>("");
-  const [savedFilters, setSavedFilters] = useState<any[]>([]);
+  const [currentFilterId, setCurrentFilterId] = useState<number>(0);
+  const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [error, setError] = useState("");
-  const [idFilter, setIdFilter] = useState<any>(undefined);
+  const [idFilter, setIdFilter] = useState<string | undefined>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
@@ -164,7 +186,7 @@ const APReportFilter = ({
     }
     setError("");
     const params = {
-      filterId: currentFilterId !== "" ? currentFilterId : null,
+      filterId: currentFilterId > 0 ? currentFilterId : null,
       name: filterName,
       AppliedFilter: {
         Clients: clientName,
@@ -188,7 +210,7 @@ const APReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/savefilter`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -242,7 +264,7 @@ const APReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: SavedFilter[],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -256,70 +278,53 @@ const APReportFilter = ({
   const handleSavedFilterEdit = (index: number) => {
     setSaveFilter(true);
     setDefaultFilter(true);
-    setFilterName(savedFilters[index].Name);
-    setCurrentFilterId(savedFilters[index].FilterId);
 
+    const { Name, FilterId, AppliedFilter } = savedFilters[index];
+    setFilterName(Name);
+    setCurrentFilterId(FilterId);
+
+    const clients = AppliedFilter?.Clients || [];
     setClients(
-      savedFilters[index].AppliedFilter.Clients === null
-        ? []
-        : clientDropdown.filter((client: any) =>
-            savedFilters[index].AppliedFilter.Clients.includes(client.value)
+      clients.length > 0
+        ? clientDropdown.filter((client: LabelValue) =>
+            clients.includes(client.value)
           )
+        : []
     );
-    setClientName(
-      savedFilters[index].AppliedFilter.Clients === null
-        ? []
-        : savedFilters[index].AppliedFilter.Clients
-    );
+    setClientName(clients);
 
+    const users = AppliedFilter?.Users || [];
     setUsers(
-      savedFilters[index].AppliedFilter.Users === null
-        ? []
-        : userDropdown.filter((user: any) =>
-            savedFilters[index].AppliedFilter.Users.includes(user.value)
+      users.length > 0
+        ? userDropdown.filter((user: LabelValueProfileImage) =>
+            users.includes(user.value)
           )
+        : []
     );
-    setUserName(
-      savedFilters[index].AppliedFilter.Users === null
-        ? []
-        : savedFilters[index].AppliedFilter.Users
-    );
+    setUserName(users);
+
+    const reporting = AppliedFilter?.ReportingManagers || [];
     setReportingManager(
-      savedFilters[index].AppliedFilter.ReportingManagers === null
-        ? []
-        : userDropdown.filter((user: any) =>
-            savedFilters[index].AppliedFilter.ReportingManagers.includes(
-              user.value
-            )
+      reporting.length > 0
+        ? userDropdown.filter((manager: LabelValueProfileImage) =>
+            reporting.includes(manager.value)
           )
+        : []
     );
-    setReportingManagerName(
-      savedFilters[index].AppliedFilter.ReportingManagers === null
-        ? []
-        : savedFilters[index].AppliedFilter.ReportingManagers
-    );
+    setReportingManagerName(reporting);
+
+    const departments = AppliedFilter?.DepartmentIds || [];
     setDepts(
-      savedFilters[index].AppliedFilter.DepartmentIds === null
-        ? []
-        : departmentDropdown.filter((dept: any) =>
-            savedFilters[index].AppliedFilter.DepartmentIds.includes(dept.value)
+      departments.length > 0
+        ? departmentDropdown.filter((dept: LabelValue) =>
+            departments.includes(dept.value)
           )
+        : []
     );
-    setDeptName(
-      savedFilters[index].AppliedFilter.DepartmentIds === null
-        ? []
-        : savedFilters[index].AppliedFilter.DepartmentIds
-    );
-    setStartDate(
-      savedFilters[index].AppliedFilter.startDate === null
-        ? ""
-        : savedFilters[index].AppliedFilter.startDate
-    );
-    setEndDate(
-      savedFilters[index].AppliedFilter.endDate === null
-        ? ""
-        : savedFilters[index].AppliedFilter.endDate
-    );
+    setDeptName(departments);
+
+    setStartDate(AppliedFilter?.StartDate || "");
+    setEndDate(AppliedFilter?.EndDate || "");
   };
 
   const handleSavedFilterDelete = async () => {
@@ -328,7 +333,7 @@ const APReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -336,7 +341,7 @@ const APReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleClose();
         getFilterList();
-        setCurrentFilterId("");
+        setCurrentFilterId(0);
       }
       sendFilterToPage({ ...ap_InitialFilter });
     };
@@ -378,14 +383,14 @@ const APReportFilter = ({
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={searchValue}
-                onChange={(e: any) => setSearchValue(e.target.value)}
+                onChange={(e) => setSearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {savedFilters.map((i: any, index: number) => {
+            {savedFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div
@@ -457,10 +462,10 @@ const APReportFilter = ({
                       (option) =>
                         !clients.find((client) => client.value === option.value)
                     )}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
                       setClients(data);
-                      setClientName(data.map((d: any) => d.value));
+                      setClientName(data.map((d: LabelValue) => d.value));
                     }}
                     value={clients}
                     renderInput={(params: any) => (
@@ -483,10 +488,14 @@ const APReportFilter = ({
                       (option) =>
                         !users.find((user) => user.value === option.value)
                     )}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValueProfileImage) =>
+                      option.label
+                    }
+                    onChange={(e, data: LabelValueProfileImage[]) => {
                       setUsers(data);
-                      setUserName(data.map((d: any) => d.value));
+                      setUserName(
+                        data.map((d: LabelValueProfileImage) => d.value)
+                      );
                     }}
                     value={users}
                     renderInput={(params: any) => (
@@ -511,10 +520,14 @@ const APReportFilter = ({
                           (user) => user.value === option.value
                         )
                     )}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValueProfileImage) =>
+                      option.label
+                    }
+                    onChange={(e, data: LabelValueProfileImage[]) => {
                       setReportingManager(data);
-                      setReportingManagerName(data.map((d: any) => d.value));
+                      setReportingManagerName(
+                        data.map((d: LabelValueProfileImage) => d.value)
+                      );
                     }}
                     value={reportingManager}
                     renderInput={(params: any) => (
@@ -536,10 +549,10 @@ const APReportFilter = ({
                     multiple
                     id="tags-standard"
                     options={departmentDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
                       setDepts(data);
-                      setDeptName(data.map((d: any) => d.value));
+                      setDeptName(data.map((d: LabelValue) => d.value));
                     }}
                     value={depts}
                     renderInput={(params: any) => (

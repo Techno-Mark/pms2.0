@@ -63,7 +63,7 @@ const Datatable_TaskStatusInfo = ({
     };
 
     const fetchData = async () => {
-      getData();
+      onOpen && getData();
     };
     const timer = setTimeout(() => {
       fetchData();

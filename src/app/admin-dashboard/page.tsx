@@ -250,11 +250,11 @@ const Page = () => {
     4: <ErrorOutlineIcon />,
     1: <PendingActionsOutlinedIcon />,
     11: <RunningWithErrorsOutlinedIcon />,
-    12: <CancelOutlinedIcon />,
+    "total cancel": <CancelOutlinedIcon />,
     10: <PauseCircleOutlineOutlinedIcon />,
     9: <Withdraw_Outlined />,
     7: <RestorePageOutlinedIcon />,
-    "Total Received": <PlaylistAddCheckOutlinedIcon />,
+    12: <PlaylistAddCheckOutlinedIcon />,
     6: <TaskOutlinedIcon />,
   };
 

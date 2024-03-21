@@ -60,9 +60,7 @@ const Dialog_OverallProjectSummary = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      if (onOpen === true) {
-        getTaskStatusList();
-      }
+      onOpen && getTaskStatusList();
     };
     const timer = setTimeout(() => {
       fetchData();

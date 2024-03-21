@@ -23,8 +23,51 @@ import {
 } from "@/utils/datatable/CommonFunction";
 import { generateCustomColumnSortFalse } from "@/utils/datatable/ColsGenerateFunctions";
 import { options } from "@/utils/datatable/TableOptions";
+import { ReportProps } from "@/utils/Types/reports";
 
-const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
+interface FilteredData {
+  PageNo: number;
+  PageSize: number;
+  GlobalSearch: string;
+  SortColumn: string;
+  IsDesc: boolean;
+  IsDownload: boolean;
+  StartDate: string | null;
+  EndDate: string | null;
+  Clients: number[] | [];
+}
+
+interface ClientProject {
+  ProjectId: number;
+  ProjectName: string;
+  ClientId: number;
+  TotalHours: string;
+  ApprovedHours: string;
+  RejectedHours: string;
+  FTE: string | number;
+}
+
+interface Response {
+  List:
+    | {
+        ClientId: number;
+        ClientName: string;
+        ContractHrs: string;
+        TotalHours: string;
+        ApprovedHours: string;
+        RejectedHours: string;
+        FTE: string | number;
+        ClientProjectData: ClientProject[];
+      }[]
+    | [];
+  TotalCount: number;
+}
+
+const WLTRReport = ({
+  filteredData,
+  searchValue,
+  onHandleExport,
+}: ReportProps) => {
   const [wltrFields, setWltrFields] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -33,7 +76,7 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [wltrCurrentPage, setWltrCurrentPage] = useState<number>(0);
   const [wltrRowsPerPage, setWltrRowsPerPage] = useState<number>(10);
 
-  const getData = async (arg1: any) => {
+  const getData = async (arg1: FilteredData) => {
     setWltrFields({
       ...wltrFields,
       loaded: false,
@@ -41,14 +84,18 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
 
     const url = `${process.env.report_api_url}/report/wltr`;
 
-    const successCallback = (data: any, error: any) => {
-      if (data !== null && error === false) {
-        onHandleExport(data.List.length > 0);
+    const successCallback = (
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        onHandleExport(ResponseData.List.length > 0);
         setWltrFields({
           ...wltrFields,
           loaded: true,
-          data: data.List,
-          dataCount: data.TotalCount,
+          data: ResponseData.List,
+          dataCount: ResponseData.TotalCount,
         });
       } else {
         setWltrFields({ ...wltrFields, data: [], dataCount: 0, loaded: true });
@@ -66,14 +113,14 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     if (filteredData !== null) {
       getData({
         ...filteredData,
-        pageNo: newPage + 1,
-        pageSize: wltrRowsPerPage,
+        PageNo: newPage + 1,
+        PageSize: wltrRowsPerPage,
       });
     } else {
       getData({
         ...wltr_InitialFilter,
-        pageNo: newPage + 1,
-        pageSize: wltrRowsPerPage,
+        PageNo: newPage + 1,
+        PageSize: wltrRowsPerPage,
       });
     }
   };
@@ -87,14 +134,14 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     if (filteredData !== null) {
       getData({
         ...filteredData,
-        pageNo: 1,
-        pageSize: event.target.value,
+        PageNo: 1,
+        PageSize: Number(event.target.value),
       });
     } else {
       getData({
         ...wltr_InitialFilter,
-        pageNo: 1,
-        pageSize: event.target.value,
+        PageNo: 1,
+        PageSize: Number(event.target.value),
       });
     }
   };
@@ -150,13 +197,13 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     },
   ];
 
-  const reportsWLTRCols: any = reportsWLTRColConfig.map((col: any) =>
+  const reportsWLTRCols = reportsWLTRColConfig.map((col: any) =>
     generateCustomColumnSortFalse(col.header, col.label, col.bodyRenderer)
   );
 
-  const optionsExpand: any = {
+  const optionsExpand = {
     expandableRows: true,
-    renderExpandableRow: (rowData: any, rowMeta: any) => {
+    renderExpandableRow: (rowData: null, rowMeta: any) => {
       return (
         <React.Fragment>
           <tr>
@@ -184,7 +231,7 @@ const WLTRReport = ({ filteredData, searchValue, onHandleExport }: any) => {
                     {wltrFields.data[rowMeta.rowIndex].ClientProjectData
                       .length > 0 ? (
                       wltrFields.data[rowMeta.rowIndex].ClientProjectData.map(
-                        (i: any, index: any) => (
+                        (i: ClientProject, index: number) => (
                           <TableRow key={index}>
                             <TableCell className="!pl-[4.5rem] w-[20rem]">
                               {i.ProjectName === null ? (

@@ -264,7 +264,10 @@ const FilterDialog = ({
                   labelId="workTypes-label"
                   id="workTypes-select"
                   value={typeOfWork === 0 ? "" : typeOfWork}
-                  onChange={(e) => setTypeOfWork(Number(e.target.value))}
+                  onChange={(e: any) => {
+                    setTypeOfWork(Number(e.target.value));
+                    setStatus(0);
+                  }}
                 >
                   {typeOfWorkDropdownData.map((i: LabelValue) => (
                     <MenuItem value={i.value} key={i.value}>
