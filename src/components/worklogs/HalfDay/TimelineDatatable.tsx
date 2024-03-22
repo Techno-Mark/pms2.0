@@ -12,6 +12,46 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import { callAPI } from "@/utils/API/callAPI";
 import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
+import { AppliedFilterWorklogsPage } from "@/utils/Types/worklogsTypes";
+
+interface Props {
+  onDataFetch: (getData: () => void) => void;
+  currentFilterData: AppliedFilterWorklogsPage | [];
+  searchValue: string;
+  onHandleExport: (arg1: boolean) => void;
+  getTotalTime: (e: string | null) => void;
+}
+
+interface List {
+  StartDate: string | null;
+  EndDate: string | null;
+  StartTime: string | null;
+  EndTime: string | null;
+  TotalTime: string | null;
+  ClientId: number | null;
+  ClientName: string | null;
+  ProjectId: number | null;
+  ProjectName: string | null;
+  WorkItemId: number | null;
+  TaskName: string | null;
+  ProcessId: number | null;
+  ProcessName: string | null;
+  SubProcessId: number | null;
+  SubProcessName: string | null;
+}
+
+interface Interface {
+  PageNo: number;
+  PageSize: number;
+  GlobalSearch: string;
+  IsDesc: boolean;
+  SortColumn: string;
+  ClientId: number | null;
+  ProjectId: number | null;
+  StartDate: string | null;
+  EndDate: string | null;
+  IsDownload: boolean;
+}
 
 const pageNo = 1;
 const pageSize = 10;
@@ -35,10 +75,10 @@ const TimelineDatatable = ({
   searchValue,
   onHandleExport,
   getTotalTime,
-}: any) => {
+}: Props) => {
   const [loaded, setLoaded] = useState<boolean>(false);
-  const [workItemData, setWorkItemData] = useState<any | any[]>([]);
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [workItemData, setWorkItemData] = useState<List[] | []>([]);
+  const [filteredObject, setFilteredOject] = useState<Interface>(initialFilter);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
@@ -69,7 +109,7 @@ const TimelineDatatable = ({
     const params = filteredObject;
     const url = `${process.env.worklog_api_url}/workitem/timeline/getall`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: { List: List[]; TotalCount: number; TotalTime: string },
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -175,7 +215,7 @@ const TimelineDatatable = ({
           viewColumns: false,
           sort: false,
           customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: number) => {
             return generateCommonBodyRender(value);
           },
         },
@@ -189,7 +229,7 @@ const TimelineDatatable = ({
     }
   };
 
-  const TimelineTaskColumns: any = columnConfig.map((col: any) => {
+  const TimelineTaskColumns = columnConfig.map((col: any) => {
     return generateConditionalColumn(col, 9);
   });
 

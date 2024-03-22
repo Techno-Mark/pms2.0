@@ -70,7 +70,7 @@ const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
     };
     const url = `${process.env.pms_api_url}/client/SaveFields`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {

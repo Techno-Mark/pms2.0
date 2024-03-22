@@ -670,43 +670,43 @@ const generateCustomizableCols = (
   }
 };
 
-const reportDatatatbleRatingCols: any = RatingReportColsConfig.map((col: any) =>
+const reportDatatatbleRatingCols = RatingReportColsConfig.map((col: any) =>
   generateCustomColumn(col.name, col.label, col.bodyRenderer)
 );
 
-const reportDatatableTaskCols: any = reportTaskColConfig.map((col: any) =>
+const reportDatatableTaskCols = reportTaskColConfig.map((col: any) =>
   generateCustomizableCols(col, 10)
 );
 
-const reportsAuditCols: any = auditColConfig.map((col: any) =>
+const reportsAuditCols = auditColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
 
-const reportsLogCols: any = reportsLogColConfig.map((col: any) =>
+const reportsLogCols = reportsLogColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
 
-const reportsProjectsCols: any = reportsProjectsColConfig.map((col: any) =>
+const reportsProjectsCols = reportsProjectsColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
 
-const reportsRatingCols: any = reportsRatingColConfig.map((col: any) =>
+const reportsRatingCols = reportsRatingColConfig.map((col: any) =>
   generateCustomColumn(col.name, col.label, col.bodyRenderer)
 );
 
-const reportsActivityCols: any = reportsActivityColConfig.map((col: any) =>
+const reportsActivityCols = reportsActivityColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
 
-const reportsAPCols: any = reportsAPColConfig.map((col: any) =>
+const reportsAPCols = reportsAPColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
 
-const reportsKRACols: any = reportsKRAColConfig.map((col: any) =>
+const reportsKRACols = reportsKRAColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
 
-const reportsAMCols: any = reportsAMColConfig.map((col: any) =>
+const reportsAMCols = reportsAMColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
 

@@ -259,7 +259,7 @@ const ProcessContent = forwardRef<
         };
         const url = `${process.env.pms_api_url}/process/SaveParentProcess`;
         const successCallback = async (
-          ResponseData: any,
+          ResponseData: null,
           error: boolean,
           ResponseStatus: string
         ) => {
@@ -347,7 +347,7 @@ const ProcessContent = forwardRef<
         };
         const url = `${process.env.pms_api_url}/process/Save`;
         const successCallback = async (
-          ResponseData: any,
+          ResponseData: null,
           error: boolean,
           ResponseStatus: string
         ) => {

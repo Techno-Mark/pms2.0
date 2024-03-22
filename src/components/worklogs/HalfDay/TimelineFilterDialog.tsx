@@ -1,3 +1,5 @@
+import { LabelValue } from "@/utils/Types/types";
+import { AppliedFilterWorklogsPage } from "@/utils/Types/worklogsTypes";
 import {
   getClientDropdownData,
   getProjectDropdownData,
@@ -13,9 +15,6 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField,
 } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -44,12 +43,20 @@ const TimelineFilterDialog = ({
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [projectDropdownData, setProjectDropdownData] = useState([]);
 
-  const [clientName, setClientName] = useState<any>(null);
-  const [project, setProject] = useState<any>(null);
+  const [clientName, setClientName] = useState<LabelValue | null>(null);
+  const [project, setProject] = useState<LabelValue | null>(null);
   const [startDate, setStartDate] = useState<null | string>(null);
   const [endDate, setEndDate] = useState<null | string>(null);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
+  const [currSelectedFields, setCurrSelectedFileds] = useState<
+    | {
+        ClientId: number | null;
+        ProjectId: number | null;
+        StartDate: string | null;
+        EndDate: string | null;
+      }
+    | []
+  >([]);
 
   const handleClose = () => {
     handleResetAll();
@@ -61,7 +68,7 @@ const TimelineFilterDialog = ({
     setProject(null);
     setStartDate(null);
     setEndDate(null);
-    currentFilterData(initialFilter);
+    currentFilterData?.(initialFilter);
   };
 
   useEffect(() => {
@@ -78,8 +85,8 @@ const TimelineFilterDialog = ({
     const selectedFields = {
       ClientId: clientName !== null ? clientName.value : null,
       ProjectId: project !== null ? project.value : null,
-      StartDate: startDate !== null ? getFormattedDate(startDate) : null,
-      EndDate: endDate !== null ? getFormattedDate(endDate) : null,
+      StartDate: startDate !== null ? getFormattedDate(startDate) || "" : null,
+      EndDate: endDate !== null ? getFormattedDate(endDate) || "" : null,
     };
     setCurrSelectedFileds(selectedFields);
   }, [clientName, project, startDate, endDate]);
@@ -129,8 +136,8 @@ const TimelineFilterDialog = ({
                 <Autocomplete
                   id="tags-standard"
                   options={clientDropdownData}
-                  getOptionLabel={(option: any) => option.label}
-                  onChange={(e: any, data: any) => {
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(e, data: LabelValue | null) => {
                     setClientName(data);
                     setProject(null);
                   }}
@@ -149,8 +156,8 @@ const TimelineFilterDialog = ({
                 <Autocomplete
                   id="tags-standard"
                   options={projectDropdownData}
-                  getOptionLabel={(option: any) => option.label}
-                  onChange={(e: any, data: any) => {
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(e, data: LabelValue | null) => {
                     setProject(data);
                   }}
                   value={project}

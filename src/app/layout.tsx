@@ -1,10 +1,7 @@
 import MainWrapper from "@/components/common/MainWrapper";
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "PMS - Stage", 

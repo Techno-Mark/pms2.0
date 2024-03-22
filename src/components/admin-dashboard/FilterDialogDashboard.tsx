@@ -14,6 +14,9 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
 } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -47,7 +50,8 @@ const FilterDialogDashboard = ({
   const [clients, setClients] = useState<LabelValue[] | []>([]);
   const [clientName, setClientName] = useState<number[] | []>([]);
   const [clientDropdown, setClientDropdown] = useState<LabelValue[] | []>([]);
-  const [workType, setWorkType] = useState<LabelValue | null>(null);
+  const [workType, setWorkType] = useState<number>(3);
+  const [workTypeActive, setWorkTypeActive] = useState<LabelValue | null>(null);
   const [worktypeDropdownData, setWorktypeDropdownData] = useState([]);
   const [startDate, setStartDate] = useState<null | string>(null);
   const [endDate, setEndDate] = useState<null | string>(null);
@@ -63,7 +67,8 @@ const FilterDialogDashboard = ({
   const handleResetAll = () => {
     setClientName([]);
     setClients([]);
-    setWorkType(activeTab === 1 ? { label: "Tax", value: 3 } : null);
+    setWorkType(activeTab === 1 ? 3 : 0);
+    setWorkTypeActive(activeTab === 1 ? { label: "Tax", value: 3 } : null);
     setStartDate(null);
     setEndDate(null);
     currentFilterData(initialFilter);
@@ -76,10 +81,6 @@ const FilterDialogDashboard = ({
       ...(await getClientDropdownData()),
     ]);
     setWorktypeDropdownData(typeOfWorkData);
-    typeOfWorkData.length > 0 &&
-      activeTab === 1 &&
-      workType === null &&
-      setWorkType({ label: "Tax", value: 3 });
   };
 
   useEffect(() => {
@@ -91,17 +92,25 @@ const FilterDialogDashboard = ({
   useEffect(() => {
     const isAnyFieldSelected: boolean =
       clientName.length > 0 ||
-      workType !== null ||
+      workType > 0 ||
       startDate !== null ||
       endDate !== null;
 
-    setAnyFieldSelected(isAnyFieldSelected);
-  }, [clientName, workType, startDate, endDate]);
+    const isAnyFieldSelectedActive: boolean =
+      clientName.length > 0 ||
+      workTypeActive !== null ||
+      startDate !== null ||
+      endDate !== null;
+
+    setAnyFieldSelected(
+      activeTab === 1 ? isAnyFieldSelected : isAnyFieldSelectedActive
+    );
+  }, [clientName, workType, workTypeActive, startDate, endDate]);
 
   useEffect(() => {
     const selectedFields: DashboardInitialFilter = {
       Clients: clientName,
-      TypeOfWork: workType !== null ? workType.value : null,
+      TypeOfWork: workType > 0 ? workType : null,
       StartDate: startDate !== null ? getFormattedDate(startDate) : null,
       EndDate:
         endDate === null
@@ -110,8 +119,22 @@ const FilterDialogDashboard = ({
             : getFormattedDate(startDate)
           : getFormattedDate(endDate),
     };
-    setCurrSelectedFileds(selectedFields);
-  }, [clientName, workType, startDate, endDate]);
+
+    const selectedFieldsActive: DashboardInitialFilter = {
+      Clients: clientName,
+      TypeOfWork: workTypeActive !== null ? workTypeActive.value : null,
+      StartDate: startDate !== null ? getFormattedDate(startDate) : null,
+      EndDate:
+        endDate === null
+          ? startDate === null
+            ? null
+            : getFormattedDate(startDate)
+          : getFormattedDate(endDate),
+    };
+    setCurrSelectedFileds(
+      activeTab === 1 ? selectedFields : selectedFieldsActive
+    );
+  }, [clientName, workType, workTypeActive, startDate, endDate]);
 
   useEffect(() => {
     handleResetAll();
@@ -183,30 +206,56 @@ const FilterDialogDashboard = ({
                 />
               </FormControl>
 
-              <FormControl
-                variant="standard"
-                sx={{ mx: 0.75, mt: 0.5, width: 210 }}
-              >
-                <Autocomplete
-                  id="tags-standard"
-                  options={worktypeDropdownData}
-                  getOptionLabel={(option: LabelValue) => option.label}
-                  onChange={(
-                    e: React.ChangeEvent<{}>,
-                    data: LabelValue | null
-                  ) => {
-                    setWorkType(data);
-                  }}
-                  value={workType}
-                  renderInput={(params: any) => (
-                    <TextField
-                      {...params}
-                      variant="standard"
-                      label="Type Of Work"
-                    />
-                  )}
-                />
-              </FormControl>
+              {activeTab === 1 && (
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, mt: 0.5, width: 210 }}
+                >
+                  <InputLabel id="demo-simple-select-standard-label">
+                    Type of Work
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-standard-label"
+                    id="demo-simple-select-standard"
+                    value={workType === 0 ? "" : workType}
+                    onChange={(e) => setWorkType(Number(e.target.value))}
+                  >
+                    {worktypeDropdownData.map(
+                      (i: LabelValue, index: number) => (
+                        <MenuItem value={i.value} key={index}>
+                          {i.label}
+                        </MenuItem>
+                      )
+                    )}
+                  </Select>
+                </FormControl>
+              )}
+              {activeTab === 2 && (
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, mt: 0.5, width: 210 }}
+                >
+                  <Autocomplete
+                    id="tags-standard"
+                    options={worktypeDropdownData}
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(
+                      e: React.ChangeEvent<{}>,
+                      data: LabelValue | null
+                    ) => {
+                      setWorkTypeActive(data);
+                    }}
+                    value={workTypeActive}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Type Of Work"
+                      />
+                    )}
+                  />
+                </FormControl>
+              )}
             </div>
             <div className="flex gap-[20px]">
               <div

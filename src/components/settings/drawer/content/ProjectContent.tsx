@@ -256,7 +256,7 @@ const ProjectContent = forwardRef<
                     )
               }
               getOptionLabel={(option: any) => option.label}
-              onChange={(e: any, data: any) => {
+              onChange={(e, data: any) => {
                 if (data.some((d: any) => d.value === -1)) {
                   setTypeOfWorks(
                     typeOfWorkDropdown.filter((d: any) => d.value !== -1)

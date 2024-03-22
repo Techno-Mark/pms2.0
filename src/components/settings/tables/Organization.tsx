@@ -88,7 +88,7 @@ const Organization = ({
     };
     const url = `${process.env.pms_api_url}/organization/activeinactive`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {

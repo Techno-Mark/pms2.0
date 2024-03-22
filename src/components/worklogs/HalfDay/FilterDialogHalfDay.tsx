@@ -1,3 +1,4 @@
+import { LabelValue } from "@/utils/Types/types";
 import { getRMWiseUserDropdownData } from "@/utils/commonDropdownApiCall";
 import { getYears } from "@/utils/commonFunction";
 import { DialogTransition } from "@/utils/style/DialogTransition";
@@ -15,11 +16,12 @@ import React, { useEffect, useState } from "react";
 
 interface FilterModalProps {
   onOpen: boolean;
+  isOpen: boolean;
   onClose: () => void;
   currentFilterData?: any;
 }
 
-const monthsDropdownData: any = [
+const monthsDropdownData: LabelValue[] = [
   { label: "January", value: 1 },
   { label: "February", value: 2 },
   { label: "March", value: 3 },
@@ -42,22 +44,29 @@ const initialFilter = {
 
 const FilterDialogHalfDay = ({
   onOpen,
+  isOpen,
   onClose,
   currentFilterData,
 }: FilterModalProps) => {
   const yearDropdown = getYears();
   const [userDropdownData, setUserDropdownData] = useState([]);
-  const [userName, setUserName] = useState<any>([]);
-  const [userNames, setUserNames] = useState<any>([]);
-  const [month, setMonth] = useState<any>(null);
-  const [year, setYear] = useState<any>(null);
+  const [userName, setUserName] = useState<LabelValue[]>([]);
+  const [userNames, setUserNames] = useState<number[]>([]);
+  const [month, setMonth] = useState<LabelValue | null>(null);
+  const [year, setYear] = useState<LabelValue | null>(null);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
+  const [currSelectedFields, setCurrSelectedFileds] = useState<
+    | {
+        Users: number[];
+        MonthFilter: number | null;
+        YearFilter: number | null;
+      }
+    | []
+  >([]);
 
-  const handleClose = () => {
-    handleResetAll();
-    onClose();
-  };
+  useEffect(() => {
+    isOpen && handleResetAll();
+  }, [isOpen]);
 
   const handleResetAll = () => {
     setUserName([]);
@@ -105,7 +114,7 @@ const FilterDialogHalfDay = ({
         TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="md"
-        onClose={handleClose}
+        onClose={() => onClose()}
       >
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
           <span className="text-lg font-medium">Filter</span>
@@ -121,9 +130,9 @@ const FilterDialogHalfDay = ({
                   multiple
                   id="tags-standard"
                   options={userDropdownData}
-                  getOptionLabel={(option: any) => option.label}
-                  onChange={(e: any, data: any) => {
-                    setUserNames(data.map((d: any) => d.value));
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(e, data: LabelValue[]) => {
+                    setUserNames(data.map((d: LabelValue) => d.value));
                     setUserName(data);
                   }}
                   value={userName}
@@ -141,8 +150,8 @@ const FilterDialogHalfDay = ({
                 <Autocomplete
                   id="tags-standard"
                   options={monthsDropdownData}
-                  getOptionLabel={(option: any) => option.label}
-                  onChange={(e: any, data: any) => {
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(e, data: LabelValue | null) => {
                     setMonth(data);
                   }}
                   value={month}
@@ -156,8 +165,8 @@ const FilterDialogHalfDay = ({
                 <Autocomplete
                   id="tags-standard"
                   options={yearDropdown}
-                  getOptionLabel={(option: any) => option.label}
-                  onChange={(e: any, data: any) => {
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(e, data: LabelValue | null) => {
                     setYear(data);
                   }}
                   value={year}
@@ -180,7 +189,7 @@ const FilterDialogHalfDay = ({
             Apply Filter
           </Button>
 
-          <Button variant="outlined" color="info" onClick={handleClose}>
+          <Button variant="outlined" color="info" onClick={() => onClose()}>
             Cancel
           </Button>
         </DialogActions>

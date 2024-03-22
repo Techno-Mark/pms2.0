@@ -124,7 +124,7 @@ const User = ({
     };
     const url = `${process.env.api_url}/user/delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -158,7 +158,7 @@ const User = ({
     };
     const url = `${process.env.api_url}/user/activeinactive`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -199,7 +199,7 @@ const User = ({
     };
     const url = `${process.env.api_url}/user/ResendLink`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -405,7 +405,7 @@ const User = ({
                         : i.match(/\s/)
                         ? i
                             .split(" ")
-                            .map((word: any) => word.charAt(0))
+                            .map((word: string) => word.charAt(0))
                             .join("")
                         : i.charAt(0)}
                     </Avatar>

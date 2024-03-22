@@ -111,7 +111,7 @@ const Project = ({
     };
     const url = `${process.env.pms_api_url}/Project/Delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -145,7 +145,7 @@ const Project = ({
     };
     const url = `${process.env.pms_api_url}/project/activeinactive`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
