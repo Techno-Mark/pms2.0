@@ -1,6 +1,7 @@
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { isWeekend } from "@/utils/commonFunction";
 import {
+  Autocomplete,
   Button,
   Dialog,
   DialogActions,
@@ -10,6 +11,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  TextField,
 } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -17,6 +19,7 @@ import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { getProjectDropdownData } from "@/utils/commonDropdownApiCall";
 import { getFormattedDate } from "@/utils/timerFunctions";
+import { LabelValue } from "@/utils/Types/types";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -32,38 +35,43 @@ const initialRatingFilter = {
   Ratings: null,
 };
 
+type FilterData = {
+  Projects: number[];
+  ReturnTypeId: number | null;
+  Ratings: number | null;
+  StartDate: string | null;
+  EndDate: string | null;
+};
+
 const FilterDialog_Rating = ({
   onOpen,
   onClose,
   currentFilterData,
 }: FilterModalProps) => {
   const [anyRatingFieldSelected, setAnyRatingFieldSelected] =
-    useState<any>(false);
+    useState<boolean>(false);
   const [currSelectedRatingFields, setCurrSelectedRatingFileds] = useState<
-    any | any[]
+    FilterData | []
   >([]);
   const [projectFilterRatingDropdownData, setProjectFilterRatingDropdownData] =
     useState([]);
-  const [returnTypeFilterRating, setReturnTypeFilterRating] = useState<
-    null | number
-  >(0);
   const [startDateFilterRating, setStartDateFilterRating] = useState<
     null | string
   >(null);
   const [endDateFilterRating, setEndDateFilterRating] = useState<null | string>(
     null
   );
-  const [projectFilterRating, setProjectFilterRating] = useState<null | number>(
-    0
-  );
-  const [ratingsFilterRating, setRatingsFilterRating] = useState<null | number>(
-    0
-  );
+  const [projectFilterRating, setProjectFilterRating] =
+    useState<null | LabelValue>(null);
+  const [returnTypeFilterRating, setReturnTypeFilterRating] =
+    useState<null | LabelValue>(null);
+  const [ratingsFilterRating, setRatingsFilterRating] =
+    useState<null | LabelValue>(null);
 
   const handleRatingResetAll = () => {
-    setProjectFilterRating(0);
-    setReturnTypeFilterRating(0);
-    setRatingsFilterRating(0);
+    setProjectFilterRating(null);
+    setReturnTypeFilterRating(null);
+    setRatingsFilterRating(null);
     setStartDateFilterRating(null);
     setEndDateFilterRating(null);
     currentFilterData(initialRatingFilter);
@@ -71,9 +79,9 @@ const FilterDialog_Rating = ({
 
   useEffect(() => {
     const isAnyRatingFieldSelected =
-      projectFilterRating !== 0 ||
-      returnTypeFilterRating !== 0 ||
-      ratingsFilterRating !== 0 ||
+      projectFilterRating !== null ||
+      returnTypeFilterRating !== null ||
+      ratingsFilterRating !== null ||
       startDateFilterRating !== null ||
       endDateFilterRating !== null;
 
@@ -88,19 +96,22 @@ const FilterDialog_Rating = ({
 
   useEffect(() => {
     const selectedFields = {
-      Projects: projectFilterRating === 0 ? [] : [projectFilterRating] || null,
-      ReturnTypeId: returnTypeFilterRating || null,
-      Ratings: ratingsFilterRating || null,
+      Projects: projectFilterRating !== null ? [projectFilterRating.value] : [],
+      ReturnTypeId:
+        returnTypeFilterRating !== null ? returnTypeFilterRating.value : null,
+      Ratings: ratingsFilterRating !== null ? ratingsFilterRating.value : null,
       StartDate:
-        startDateFilterRating !== null
-          ? getFormattedDate(startDateFilterRating)
-          : null,
+        startDateFilterRating === null
+          ? endDateFilterRating === null
+            ? null
+            : getFormattedDate(endDateFilterRating) || ""
+          : getFormattedDate(startDateFilterRating) || "",
       EndDate:
         endDateFilterRating === null
           ? startDateFilterRating === null
             ? null
-            : getFormattedDate(startDateFilterRating)
-          : getFormattedDate(endDateFilterRating),
+            : getFormattedDate(startDateFilterRating) || ""
+          : getFormattedDate(endDateFilterRating) || "",
     };
     setCurrSelectedRatingFileds(selectedFields);
   }, [
@@ -146,41 +157,65 @@ const FilterDialog_Rating = ({
           <div className="flex flex-col gap-[20px] pt-[15px]">
             <div className="flex gap-[20px]">
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
-                <InputLabel id="project">Project</InputLabel>
-                <Select
-                  labelId="project"
-                  id="project"
-                  value={projectFilterRating === 0 ? "" : projectFilterRating}
-                  onChange={(e: any) => setProjectFilterRating(e.target.value)}
-                >
-                  {projectFilterRatingDropdownData.map(
-                    (i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    )
+                <Autocomplete
+                  id="tags-standard"
+                  options={projectFilterRatingDropdownData}
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(e, data: LabelValue | null) => {
+                    setProjectFilterRating(data);
+                  }}
+                  value={projectFilterRating}
+                  renderInput={(params: any) => (
+                    <TextField {...params} variant="standard" label="Project" />
                   )}
-                </Select>
+                />
               </FormControl>
 
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
-                <InputLabel id="workTypes-label">Return Type</InputLabel>
-                <Select
-                  labelId="workTypes-label"
-                  id="workTypes-select"
-                  value={
-                    returnTypeFilterRating === 0 ? "" : returnTypeFilterRating
-                  }
-                  onChange={(e: any) =>
-                    setReturnTypeFilterRating(e.target.value)
-                  }
-                >
-                  <MenuItem value={1}>Individual Return</MenuItem>
-                  <MenuItem value={2}>Business Return</MenuItem>
-                </Select>
+                <Autocomplete
+                  id="tags-standard"
+                  options={[
+                    { label: "Individual Return", value: 1 },
+                    { label: "Business Return", value: 2 },
+                  ]}
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(e, data: LabelValue | null) => {
+                    setReturnTypeFilterRating(data);
+                  }}
+                  value={returnTypeFilterRating}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Return Type"
+                    />
+                  )}
+                />
               </FormControl>
 
-              <div className="inline-flex mt-[0px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]">
+              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
+                <Autocomplete
+                  id="tags-standard"
+                  options={[
+                    { label: "1", value: 1 },
+                    { label: "2", value: 2 },
+                    { label: "3", value: 3 },
+                    { label: "4", value: 4 },
+                    { label: "5", value: 5 },
+                  ]}
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(e, data: LabelValue | null) => {
+                    setRatingsFilterRating(data);
+                  }}
+                  value={ratingsFilterRating}
+                  renderInput={(params: any) => (
+                    <TextField {...params} variant="standard" label="Ratings" />
+                  )}
+                />
+              </FormControl>
+            </div>
+            <div className="flex gap-[20px]">
+              <div className="inline-flex mt-[0px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     label="From"
@@ -202,8 +237,6 @@ const FilterDialog_Rating = ({
                   />
                 </LocalizationProvider>
               </div>
-            </div>
-            <div className="flex gap-[20px]">
               <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
@@ -226,22 +259,6 @@ const FilterDialog_Rating = ({
                   />
                 </LocalizationProvider>
               </div>
-
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
-                <InputLabel id="ratings">Ratings</InputLabel>
-                <Select
-                  labelId="ratings"
-                  id="ratings"
-                  value={ratingsFilterRating === 0 ? "" : ratingsFilterRating}
-                  onChange={(e: any) => setRatingsFilterRating(e.target.value)}
-                >
-                  <MenuItem value={1}>1</MenuItem>
-                  <MenuItem value={2}>2</MenuItem>
-                  <MenuItem value={3}>3</MenuItem>
-                  <MenuItem value={4}>4</MenuItem>
-                  <MenuItem value={5}>5</MenuItem>
-                </Select>
-              </FormControl>
             </div>
           </div>
         </DialogContent>

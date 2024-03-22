@@ -31,19 +31,19 @@ interface FilterModalProps {
 
 const ALL = -1;
 
-const initialFilter = {
-  Clients: [],
-  TypeOfWork: 3,
-  StartDate: null,
-  EndDate: null,
-};
-
 const FilterDialogDashboard = ({
   activeTab,
   onOpen,
   onClose,
   currentFilterData,
 }: FilterModalProps) => {
+  const initialFilter = {
+    Clients: [],
+    TypeOfWork: activeTab === 1 ? 3 : null,
+    StartDate: null,
+    EndDate: null,
+  };
+
   const [clients, setClients] = useState<LabelValue[] | []>([]);
   const [clientName, setClientName] = useState<number[] | []>([]);
   const [clientDropdown, setClientDropdown] = useState<LabelValue[] | []>([]);
@@ -63,7 +63,7 @@ const FilterDialogDashboard = ({
   const handleResetAll = () => {
     setClientName([]);
     setClients([]);
-    setWorkType({ label: "Tax", value: 3 });
+    setWorkType(activeTab === 1 ? { label: "Tax", value: 3 } : null);
     setStartDate(null);
     setEndDate(null);
     currentFilterData(initialFilter);
@@ -77,6 +77,7 @@ const FilterDialogDashboard = ({
     ]);
     setWorktypeDropdownData(typeOfWorkData);
     typeOfWorkData.length > 0 &&
+      activeTab === 1 &&
       workType === null &&
       setWorkType({ label: "Tax", value: 3 });
   };
@@ -182,122 +183,74 @@ const FilterDialogDashboard = ({
                 />
               </FormControl>
 
-              {activeTab === 1 && (
-                <FormControl
-                  variant="standard"
-                  sx={{ mx: 0.75, mt: 0.5, width: 210 }}
-                >
-                  <Autocomplete
-                    id="tags-standard"
-                    options={worktypeDropdownData}
-                    getOptionLabel={(option: LabelValue) => option.label}
-                    onChange={(
-                      e: React.ChangeEvent<{}>,
-                      data: LabelValue | null
-                    ) => {
-                      setWorkType(data);
-                    }}
-                    value={workType}
-                    renderInput={(params: any) => (
-                      <TextField
-                        {...params}
-                        variant="standard"
-                        label="Type Of Work"
-                      />
-                    )}
-                  />
-                </FormControl>
-              )}
-              {activeTab === 2 && (
-                <>
-                  <div
-                    className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
-                  >
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DatePicker
-                        label="From"
-                        value={startDate === null ? null : dayjs(startDate)}
-                        // shouldDisableDate={isWeekend}
-                        maxDate={dayjs(Date.now())}
-                        onChange={(newDate: any) => {
-                          setStartDate(newDate.$d);
-                        }}
-                        slotProps={{
-                          textField: {
-                            readOnly: true,
-                          } as Record<string, any>,
-                        }}
-                      />
-                    </LocalizationProvider>
-                  </div>
-                  <div
-                    className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
-                  >
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DatePicker
-                        label="To"
-                        value={endDate === null ? null : dayjs(endDate)}
-                        // shouldDisableDate={isWeekend}
-                        maxDate={dayjs(Date.now())}
-                        onChange={(newDate: any) => {
-                          setEndDate(newDate.$d);
-                        }}
-                        slotProps={{
-                          textField: {
-                            readOnly: true,
-                          } as Record<string, any>,
-                        }}
-                      />
-                    </LocalizationProvider>
-                  </div>
-                </>
-              )}
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, width: 210 }}
+              >
+                <Autocomplete
+                  id="tags-standard"
+                  options={worktypeDropdownData}
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(
+                    e: React.ChangeEvent<{}>,
+                    data: LabelValue | null
+                  ) => {
+                    setWorkType(data);
+                  }}
+                  value={workType}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Type Of Work"
+                    />
+                  )}
+                />
+              </FormControl>
             </div>
-            {activeTab === 1 && (
-              <div className="flex gap-[20px]">
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
-                >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="From"
-                      value={startDate === null ? null : dayjs(startDate)}
-                      // shouldDisableDate={isWeekend}
-                      maxDate={dayjs(endDate) || dayjs(Date.now())}
-                      onChange={(newDate: any) => {
-                        setStartDate(newDate.$d);
-                      }}
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
-                >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="To"
-                      value={endDate === null ? null : dayjs(endDate)}
-                      // shouldDisableDate={isWeekend}
-                      minDate={dayjs(startDate)}
-                      maxDate={dayjs(Date.now())}
-                      onChange={(newDate: any) => {
-                        setEndDate(newDate.$d);
-                      }}
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
+            <div className="flex gap-[20px]">
+              <div
+                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+              >
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="From"
+                    value={startDate === null ? null : dayjs(startDate)}
+                    // shouldDisableDate={isWeekend}
+                    maxDate={dayjs(endDate) || dayjs(Date.now())}
+                    onChange={(newDate: any) => {
+                      setStartDate(newDate.$d);
+                    }}
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      } as Record<string, any>,
+                    }}
+                  />
+                </LocalizationProvider>
               </div>
-            )}
+              <div
+                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+              >
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="To"
+                    value={endDate === null ? null : dayjs(endDate)}
+                    // shouldDisableDate={isWeekend}
+                    minDate={dayjs(startDate)}
+                    maxDate={dayjs(Date.now())}
+                    onChange={(newDate: any) => {
+                      setEndDate(newDate.$d);
+                    }}
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      } as Record<string, any>,
+                    }}
+                  />
+                </LocalizationProvider>
+              </div>
+            </div>
           </div>
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">

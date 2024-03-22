@@ -69,7 +69,7 @@ const AuditReportFilter = ({
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [error, setError] = useState("");
   const [idFilter, setIdFilter] = useState<string | undefined>(undefined);
-  console.log(savedFilters);
+
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
 

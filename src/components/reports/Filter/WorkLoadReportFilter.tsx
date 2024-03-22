@@ -27,6 +27,17 @@ import { getFormattedDate } from "@/utils/timerFunctions";
 import { isWeekend } from "@/utils/commonFunction";
 import { callAPI } from "@/utils/API/callAPI";
 import { getCCDropdownData, getDeptData } from "@/utils/commonDropdownApiCall";
+import { LabelValue, LabelValueProfileImage } from "@/utils/Types/types";
+
+interface SavedFilter {
+  FilterId: number;
+  Name: string;
+  AppliedFilter: {
+    users: number[];
+    departmentIds: number[];
+    dateFilter: string | null;
+  };
+}
 
 const WorkLoadReportFilter = ({
   isFiltering,
@@ -34,26 +45,34 @@ const WorkLoadReportFilter = ({
   onDialogClose,
 }: FilterType) => {
   const [workload_userNames, setWorkload_UserNames] = useState<number[]>([]);
-  const [workload_users, setWorkload_Users] = useState<number[]>([]);
+  const [workload_users, setWorkload_Users] = useState<
+    LabelValueProfileImage[]
+  >([]);
   const [workload_deptNames, setWorkload_DeptNames] = useState<number[]>([]);
-  const [workload_depts, setWorkload_Depts] = useState<number[]>([]);
-  const [workload_dateFilter, setWorkload_DateFilter] = useState<any>("");
+  const [workload_depts, setWorkload_Depts] = useState<LabelValue[]>([]);
+  const [workload_dateFilter, setWorkload_DateFilter] = useState<string>("");
   const [workload_filterName, setWorkload_FilterName] = useState<string>("");
   const [workload_saveFilter, setWorkload_SaveFilter] =
     useState<boolean>(false);
-  const [workload_deptDropdown, setWorkload_DeptDropdown] = useState<any[]>([]);
-  const [workload_userDropdown, setWorkload_UserDropdown] = useState<any[]>([]);
+  const [workload_userDropdown, setWorkload_UserDropdown] = useState<
+    LabelValueProfileImage[]
+  >([]);
+  const [workload_deptDropdown, setWorkload_DeptDropdown] = useState<
+    LabelValue[]
+  >([]);
   const [workload_anyFieldSelected, setWorkload_AnyFieldSelected] =
     useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>("");
-  const [workload_savedFilters, setWorkload_SavedFilters] = useState<any[]>([]);
+  const [currentFilterId, setCurrentFilterId] = useState<number>(0);
+  const [workload_savedFilters, setWorkload_SavedFilters] = useState<
+    SavedFilter[]
+  >([]);
   const [workload_defaultFilter, setWorkload_DefaultFilter] =
     useState<boolean>(false);
   const [workload_searchValue, setWorkload_SearchValue] = useState<string>("");
   const [workload_isDeleting, setWorkload_IsDeleting] =
     useState<boolean>(false);
   const [workload_error, setWorkload_Error] = useState("");
-  const [idFilter, setIdFilter] = useState<any>(undefined);
+  const [idFilter, setIdFilter] = useState<string | undefined>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
@@ -144,7 +163,7 @@ const WorkLoadReportFilter = ({
       };
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: null,
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -189,7 +208,7 @@ const WorkLoadReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: SavedFilter[],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -201,35 +220,34 @@ const WorkLoadReportFilter = ({
   };
 
   const handleSavedFilterEdit = (index: number) => {
-    setWorkload_Users(
-      workload_savedFilters[index].AppliedFilter.users.length > 0
-        ? workload_userDropdown.filter((user: any) =>
-            workload_savedFilters[index].AppliedFilter.users.includes(
-              user.value
-            )
-          )
-        : []
-    );
-    setWorkload_UserNames(workload_savedFilters[index].AppliedFilter.users);
-    setWorkload_Depts(
-      workload_savedFilters[index].AppliedFilter.departmentIds.length > 0
-        ? workload_deptDropdown.filter((user: any) =>
-            workload_savedFilters[index].AppliedFilter.departmentIds.includes(
-              user.value
-            )
-          )
-        : []
-    );
-    setWorkload_DeptNames(
-      workload_savedFilters[index].AppliedFilter.departmentIds
-    );
-    setCurrentFilterId(workload_savedFilters[index].FilterId);
-    setWorkload_FilterName(workload_savedFilters[index].Name);
-    setWorkload_DateFilter(
-      workload_savedFilters[index].AppliedFilter.dateFilter ?? ""
-    );
-    setWorkload_DefaultFilter(true);
     setWorkload_SaveFilter(true);
+    setWorkload_DefaultFilter(true);
+
+    const { Name, FilterId, AppliedFilter } = workload_savedFilters[index];
+    setWorkload_FilterName(Name);
+    setCurrentFilterId(FilterId);
+
+    const users = AppliedFilter?.users || [];
+    setWorkload_Users(
+      users.length > 0
+        ? workload_userDropdown.filter((user: LabelValueProfileImage) =>
+            users.includes(user.value)
+          )
+        : []
+    );
+    setWorkload_UserNames(users);
+
+    const department = AppliedFilter?.departmentIds || [];
+    setWorkload_Depts(
+      department.length > 0
+        ? workload_deptDropdown.filter((user: LabelValue) =>
+            department.includes(user.value)
+          )
+        : []
+    );
+    setWorkload_DeptNames(department);
+
+    setWorkload_DateFilter(AppliedFilter?.dateFilter || "");
   };
 
   const handleSavedFilterDelete = async () => {
@@ -238,7 +256,7 @@ const WorkLoadReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -246,7 +264,7 @@ const WorkLoadReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleUserClose();
         getFilterList();
-        setCurrentFilterId("");
+        setCurrentFilterId(0);
         sendFilterToPage({ ...workLoad_InitialFilter });
       }
     };
@@ -288,14 +306,14 @@ const WorkLoadReportFilter = ({
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={workload_searchValue}
-                onChange={(e: any) => setWorkload_SearchValue(e.target.value)}
+                onChange={(e) => setWorkload_SearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {workload_savedFilters.map((i: any, index: number) => {
+            {workload_savedFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div
@@ -364,9 +382,13 @@ const WorkLoadReportFilter = ({
                     multiple
                     id="tags-standard"
                     options={workload_userDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
-                      setWorkload_UserNames(data.map((d: any) => d.value));
+                    getOptionLabel={(option: LabelValueProfileImage) =>
+                      option.label
+                    }
+                    onChange={(e, data: LabelValueProfileImage[]) => {
+                      setWorkload_UserNames(
+                        data.map((d: LabelValueProfileImage) => d.value)
+                      );
                       setWorkload_Users(data);
                     }}
                     value={workload_users}
@@ -388,9 +410,11 @@ const WorkLoadReportFilter = ({
                     multiple
                     id="tags-standard"
                     options={workload_deptDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
-                      setWorkload_DeptNames(data.map((d: any) => d.value));
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
+                      setWorkload_DeptNames(
+                        data.map((d: LabelValue) => d.value)
+                      );
                       setWorkload_Depts(data);
                     }}
                     value={workload_depts}

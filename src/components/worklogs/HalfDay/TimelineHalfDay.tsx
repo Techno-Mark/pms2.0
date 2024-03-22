@@ -36,6 +36,27 @@ interface HalfDayModalProps {
   onClose: () => void;
 }
 
+interface Interface {
+  IsDownload: boolean;
+  PageNo: number;
+  PageSize: number;
+  IsDesc: boolean;
+  SortColumn: string;
+  MonthFilter: number | null;
+  YearFilter: number | null;
+  Users: number[];
+}
+
+interface HalfDayResponse {
+  LeaveId: number;
+  UserId: number;
+  UserName: string;
+  LeaveDate: string;
+  AppliedDate: string;
+  Action: string;
+  AllowDelete: boolean;
+}
+
 const pageNo = 1;
 const pageSize = 10;
 
@@ -53,8 +74,8 @@ const initialFilter = {
 const TimelineHalfDay = ({ onOpen, onClose }: HalfDayModalProps) => {
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
   const [loaded, setLoaded] = useState<boolean>(false);
-  const [workItemData, setWorkItemData] = useState<any | any[]>([]);
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [workItemData, setWorkItemData] = useState<HalfDayResponse[]>([]);
+  const [filteredObject, setFilteredOject] = useState<Interface>(initialFilter);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
@@ -89,7 +110,12 @@ const TimelineHalfDay = ({ onOpen, onClose }: HalfDayModalProps) => {
     onClose();
   };
 
-  const getIdFromFilterDialog = (data: any) => {
+  const getIdFromFilterDialog = (data: {
+    Users: number[];
+    MonthFilter: number | null;
+    YearFilter: number | null;
+  }) => {
+    console.log(data);
     setFilteredOject({
       ...filteredObject,
       ...data,
@@ -106,7 +132,7 @@ const TimelineHalfDay = ({ onOpen, onClose }: HalfDayModalProps) => {
     };
     const url = `${process.env.worklog_api_url}/workitem/timeline/savedeleteuserleave`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -126,7 +152,7 @@ const TimelineHalfDay = ({ onOpen, onClose }: HalfDayModalProps) => {
     };
     const url = `${process.env.worklog_api_url}/workitem/timeline/savedeleteuserleave`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -147,7 +173,7 @@ const TimelineHalfDay = ({ onOpen, onClose }: HalfDayModalProps) => {
     const params = filteredObject;
     const url = `${process.env.worklog_api_url}/workitem/timeline/getuserleavelist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: { List: HalfDayResponse[] | []; TotalCount: number },
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -221,7 +247,7 @@ const TimelineHalfDay = ({ onOpen, onClose }: HalfDayModalProps) => {
           viewColumns: false,
           sort: false,
           customHeadLabelRender: () => generateCustomHeaderName(""),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: boolean, tableMeta: any) => {
             return value ? (
               <ColorToolTip title="Delete" placement="top" arrow>
                 <span
@@ -259,7 +285,7 @@ const TimelineHalfDay = ({ onOpen, onClose }: HalfDayModalProps) => {
     }
   };
 
-  const HalfDayTaskColumns: any = columnConfig.map((col: any) => {
+  const HalfDayTaskColumns = columnConfig.map((col: any) => {
     return generateConditionalColumn(col, 9);
   });
 

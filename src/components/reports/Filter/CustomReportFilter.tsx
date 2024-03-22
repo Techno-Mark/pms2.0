@@ -36,11 +36,39 @@ import { Delete, Edit } from "@mui/icons-material";
 import { getFormattedDate } from "@/utils/timerFunctions";
 import { getYears, isWeekend } from "@/utils/commonFunction";
 import { callAPI } from "@/utils/API/callAPI";
+import {
+  IdNameEstimatedHour,
+  LabelValue,
+  LabelValueProfileImage,
+  LabelValueType,
+} from "@/utils/Types/types";
 
-const SIGNED_OFF = "signedoff";
-const ACCEPTED = "accept";
-const IN_REVIEW = "inreview";
-const IN_PROGRESS = "inprogress";
+interface SavedFilter {
+  FilterId: number;
+  Name: string;
+  AppliedFilter: {
+    clientIdsJSON: number[];
+    projectIdsJSON: number[];
+    processIdsJSON: number[];
+    WorkTypeId?: number | null;
+    assignedById: number | null;
+    assigneeId: number | null;
+    reviewerId: number | null;
+    returnTypeId: number | null;
+    numberOfPages: number | null;
+    returnYear: number | null;
+    subProcessId: number | null;
+    StatusId: number | null;
+    priority: number | null;
+    startDate: string | null;
+    endDate: string | null;
+    startDateReview: string | null;
+    endDateReview: string | null;
+    dueDate: string | null;
+    allInfoDate: string | null;
+  };
+}
+
 const ALL = -1;
 
 const returnTypeDropdown = [
@@ -76,48 +104,53 @@ const CustomReportFilter = ({
 }: FilterType) => {
   const yearDropdown = getYears();
 
-  const [clients, setClients] = useState<any[]>([]);
-  const [clientName, setClientName] = useState<any[]>([]);
-  const [typeOfWorkName, setTypeOfWorkName] = useState<any>(null);
-  // const [depts, setDepts] = useState<any[]>([]);
-  // const [deptName, setDeptName] = useState<any[]>([]);
-  const [projectName, setProjectName] = useState<any>(null);
-  const [processName, setProcessName] = useState<any>(null);
-  const [subProcessName, setSubProcessName] = useState<any>(null);
-  const [assignByName, setAssignByName] = useState<any>(null);
-  const [assigneeName, setAssigneeName] = useState<any>(null);
-  const [reviewerName, setReviewerName] = useState<any>(null);
-  const [returnTypeName, setReturnTypeName] = useState<any>(null);
-  const [noofPages, setNoofPages] = useState<any>("");
-  const [returnYear, setReturnYear] = useState<any>(null);
-  const [status, setStatus] = useState<any>(null);
-  const [priority, setPriority] = useState<any>(null);
+  const [clients, setClients] = useState<LabelValue[]>([]);
+  const [clientName, setClientName] = useState<number[]>([]);
+  const [typeOfWorkName, setTypeOfWorkName] = useState<LabelValue | null>(null);
+  const [projectName, setProjectName] = useState<LabelValue | null>(null);
+  const [processName, setProcessName] = useState<LabelValue | null>(null);
+  const [subProcessName, setSubProcessName] = useState<LabelValue | null>(null);
+  const [assignByName, setAssignByName] =
+    useState<LabelValueProfileImage | null>(null);
+  const [assigneeName, setAssigneeName] =
+    useState<LabelValueProfileImage | null>(null);
+  const [reviewerName, setReviewerName] =
+    useState<LabelValueProfileImage | null>(null);
+  const [returnTypeName, setReturnTypeName] = useState<LabelValue | null>(null);
+  const [noofPages, setNoofPages] = useState<string | number>("");
+  const [returnYear, setReturnYear] = useState<LabelValue | null>(null);
+  const [status, setStatus] = useState<LabelValueType | null>(null);
+  const [priority, setPriority] = useState<LabelValue | null>(null);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
   const [startDateReview, setStartDateReview] = useState<string | number>("");
   const [endDateReview, setEndDateReview] = useState<string | number>("");
   const [dueDate, setDueDate] = useState<string | number>("");
   const [allInfoDate, setAllInfoDate] = useState<string | number>("");
-
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
 
-  const [clientDropdown, setClientDropdown] = useState<any[]>([]);
-  const [departmentDropdown, setDepartmentDropdown] = useState<any[]>([]);
-  const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState<any[]>([]);
-  const [projectDropdown, setProjectDropdown] = useState<any[]>([]);
-  const [processDropdown, setProcessDropdown] = useState<any[]>([]);
-  const [subProcessDropdown, setSubProcessDropdown] = useState<any[]>([]);
-  const [userDropdown, setUserDropdown] = useState<any[]>([]);
-  const [statusDropdown, setStatusDropdown] = useState<any[]>([]);
+  const [clientDropdown, setClientDropdown] = useState<LabelValue[]>([]);
+  const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState<LabelValue[]>(
+    []
+  );
+  const [projectDropdown, setProjectDropdown] = useState<LabelValue[]>([]);
+  const [processDropdown, setProcessDropdown] = useState<LabelValue[]>([]);
+  const [subProcessDropdown, setSubProcessDropdown] = useState<LabelValue[]>(
+    []
+  );
+  const [userDropdown, setUserDropdown] = useState<LabelValueProfileImage[]>(
+    []
+  );
+  const [statusDropdown, setStatusDropdown] = useState<LabelValueType[]>([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>("");
-  const [savedFilters, setSavedFilters] = useState<any[]>([]);
+  const [currentFilterId, setCurrentFilterId] = useState<number>(0);
+  const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [error, setError] = useState("");
-  const [idFilter, setIdFilter] = useState<any>(undefined);
+  const [idFilter, setIdFilter] = useState<string | undefined>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
@@ -126,9 +159,9 @@ const CustomReportFilter = ({
     openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
   }, [openFilter]);
 
-  const handleNoOfPageChange = (e: any) => {
-    if (/^\d+$/.test(e.target.value.trim())) {
-      setNoofPages(e.target.value);
+  const handleNoOfPageChange = (e: string) => {
+    if (/^\d+$/.test(e.trim())) {
+      setNoofPages(e);
     } else {
       return;
     }
@@ -137,8 +170,6 @@ const CustomReportFilter = ({
   const handleResetAll = () => {
     setClientName([]);
     setClients([]);
-    // setDeptName([]);
-    // setDepts([]);
     setTypeOfWorkName(null);
     setProjectName(null);
     setProcessName(null);
@@ -177,8 +208,6 @@ const CustomReportFilter = ({
     setDefaultFilter(false);
     setClientName([]);
     setClients([]);
-    // setDeptName([]);
-    // setDepts([]);
     setTypeOfWorkName(null);
     setProjectName(null);
     setProcessName(null);
@@ -204,7 +233,6 @@ const CustomReportFilter = ({
     sendFilterToPage({
       ...customreport_InitialFilter,
       clientIdsJSON: clientName.length > 0 ? clientName : [],
-      // DepartmentIds: deptName.length > 0 ? deptName : [],
       WorkTypeId: typeOfWorkName === null ? null : typeOfWorkName.value,
       projectIdsJSON: projectName === null ? [] : [projectName.value],
       processIdsJSON: processName === null ? [] : [processName.value],
@@ -261,7 +289,6 @@ const CustomReportFilter = ({
           ...customreport_InitialFilter,
           clientIdsJSON: savedFilters[index].AppliedFilter.clientIdsJSON,
           WorkTypeId: savedFilters[index].AppliedFilter.WorkTypeId,
-          DepartmentIds: savedFilters[index].AppliedFilter.DepartmentIds,
           projectIdsJSON: savedFilters[index].AppliedFilter.projectIdsJSON,
           processIdsJSON: savedFilters[index].AppliedFilter.processIdsJSON,
           assignedById: savedFilters[index].AppliedFilter.assignedById,
@@ -294,11 +321,10 @@ const CustomReportFilter = ({
     } else {
       setError("");
       const params = {
-        filterId: currentFilterId !== "" ? currentFilterId : null,
+        filterId: currentFilterId > 0 ? currentFilterId : null,
         name: filterName,
         AppliedFilter: {
           clientIdsJSON: clientName.length > 0 ? clientName : [],
-          // DepartmentIds: deptName.length > 0 ? deptName : [],
           WorkTypeId: typeOfWorkName === null ? null : typeOfWorkName.value,
           projectIdsJSON: projectName === null ? [] : [projectName.value],
           processIdsJSON: processName === null ? [] : [processName.value],
@@ -349,7 +375,7 @@ const CustomReportFilter = ({
       };
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: null,
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -372,7 +398,6 @@ const CustomReportFilter = ({
   useEffect(() => {
     const isAnyFieldSelected =
       clientName.length > 0 ||
-      // deptName.length > 0 ||
       typeOfWorkName !== null ||
       projectName !== null ||
       processName !== null ||
@@ -396,7 +421,6 @@ const CustomReportFilter = ({
     setSaveFilter(false);
   }, [
     clientName,
-    // deptName,
     typeOfWorkName,
     projectName,
     processName,
@@ -423,7 +447,6 @@ const CustomReportFilter = ({
         { label: "Select All", value: ALL },
         ...(await getClientDropdownData()),
       ]);
-      setDepartmentDropdown(await getDeptData());
       setTypeOfWorkDropdown(await getTypeOfWorkDropdownData(0));
       setUserDropdown(await getCCDropdownData());
       setProcessDropdown(await getAllProcessDropdownData());
@@ -435,7 +458,7 @@ const CustomReportFilter = ({
     const customDropdowns = async () => {
       setStatusDropdown(await getStatusDropdownData(typeOfWorkName?.value));
     };
-    typeOfWorkName?.value > 0 && customDropdowns();
+    typeOfWorkName !== null && typeOfWorkName?.value > 0 && customDropdowns();
   }, [typeOfWorkName]);
 
   useEffect(() => {
@@ -452,19 +475,24 @@ const CustomReportFilter = ({
 
   useEffect(() => {
     const customDropdowns = async () => {
+      const data = await getSubProcessDropdownData(
+        clientName.length > 0 ? clientName[0] : 0,
+        null,
+        processName === null ? 0 : processName.value
+      );
       setSubProcessDropdown(
-        await getSubProcessDropdownData(
-          clientName.length > 0 ? clientName[0] : 0,
-          null,
-          processName === null ? 0 : processName.value
-        ).then((result: any) =>
-          result.map(
-            (item: any) => new Object({ label: item.Name, value: item.Id })
-          )
-        )
+        data.length > 0
+          ? data.map(
+              (item: IdNameEstimatedHour) =>
+                new Object({ label: item.Name, value: item.Id })
+            )
+          : []
       );
     };
-    clientName.length > 0 && processName?.value > 0 && customDropdowns();
+    clientName.length > 0 &&
+      processName !== null &&
+      processName?.value > 0 &&
+      customDropdowns();
   }, [clientName, processName]);
 
   const getFilterList = async () => {
@@ -473,7 +501,7 @@ const CustomReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: SavedFilter[],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -487,146 +515,141 @@ const CustomReportFilter = ({
   const handleSavedFilterEdit = async (index: number) => {
     setSaveFilter(true);
     setDefaultFilter(true);
-    setFilterName(savedFilters[index].Name);
-    setCurrentFilterId(savedFilters[index].FilterId);
 
+    const { Name, FilterId, AppliedFilter } = savedFilters[index];
+    setFilterName(Name);
+    setCurrentFilterId(FilterId);
+
+    const clients = AppliedFilter?.clientIdsJSON || [];
     setClients(
-      savedFilters[index].AppliedFilter.clientIdsJSON.length > 0
-        ? clientDropdown.filter((client: any) =>
-            savedFilters[index].AppliedFilter.clientIdsJSON.includes(
-              client.value
-            )
+      clients.length > 0
+        ? clientDropdown.filter((client: LabelValue) =>
+            clients.includes(client.value)
           )
         : []
     );
-    setClientName(savedFilters[index].AppliedFilter.clientIdsJSON);
-    // setDepts(
-    //   savedFilters[index].AppliedFilter.DepartmentIds.length > 0
-    //     ? departmentDropdown.filter((client: any) =>
-    //         savedFilters[index].AppliedFilter.DepartmentIds.includes(
-    //           client.value
-    //         )
-    //       )
-    //     : []
-    // );
-    // setDeptName(savedFilters[index].AppliedFilter.DepartmentIds);
+    setClientName(clients);
+
     setTypeOfWorkName(
-      savedFilters[index].AppliedFilter.WorkTypeId === null
-        ? null
-        : typeOfWorkDropdown.filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.WorkTypeId
-          )[0]
-    );
-    setProjectName(
-      savedFilters[index].AppliedFilter.projectIdsJSON.length > 0
+      AppliedFilter.clientIdsJSON.length === 1 &&
+        AppliedFilter.WorkTypeId !== null
         ? (
-            await getProjectDropdownData(
-              savedFilters[index].AppliedFilter.clientIdsJSON[0],
-              null
-            )
+            await getTypeOfWorkDropdownData(AppliedFilter.clientIdsJSON[0])
           ).filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.projectIdsJSON[0]
+            (item: LabelValue) => item.value === AppliedFilter.WorkTypeId
           )[0]
         : null
     );
+
+    setProjectName(
+      AppliedFilter.projectIdsJSON.length > 0
+        ? (
+            await getProjectDropdownData(AppliedFilter.clientIdsJSON[0], null)
+          ).filter(
+            (item: LabelValue) => item.value === AppliedFilter.projectIdsJSON[0]
+          )[0]
+        : null
+    );
+
     setProcessName(
-      savedFilters[index].AppliedFilter.processIdsJSON.length > 0
+      AppliedFilter.processIdsJSON.length > 0
         ? processDropdown.filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.processIdsJSON[0]
+            (item: LabelValue) => item.value === AppliedFilter.processIdsJSON[0]
           )[0]
         : null
     );
+
     setSubProcessName(
-      savedFilters[index].AppliedFilter.subProcessId !== null &&
-        savedFilters[index].AppliedFilter.clientIdsJSON.length > 0 &&
-        savedFilters[index].AppliedFilter.processIdsJSON.length > 0
+      AppliedFilter.subProcessId !== null &&
+        AppliedFilter.clientIdsJSON.length > 0 &&
+        AppliedFilter.processIdsJSON.length > 0
         ? (
             await getSubProcessDropdownData(
               savedFilters[index].AppliedFilter.clientIdsJSON[0],
               null,
               savedFilters[index].AppliedFilter.processIdsJSON[0]
-            ).then((result: any) =>
-              result.map(
-                (item: any) => new Object({ label: item.Name, value: item.Id })
-              )
+            ).then((result: IdNameEstimatedHour[]) =>
+              result.map((item: IdNameEstimatedHour) => ({
+                label: item.Name,
+                value: item.Id,
+              }))
             )
           ).filter(
-            (item: any) =>
+            (item: LabelValue) =>
               item.value === savedFilters[index].AppliedFilter.subProcessId
           )[0]
         : null
     );
+
     setAssignByName(
-      savedFilters[index].AppliedFilter.assignedById === null
-        ? null
-        : userDropdown.filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.assignedById
+      AppliedFilter.assignedById !== null
+        ? userDropdown.filter(
+            (item: LabelValue) => item.value === AppliedFilter.assignedById
           )[0]
+        : null
     );
+
     setAssigneeName(
-      savedFilters[index].AppliedFilter.assigneeId === null
-        ? null
-        : userDropdown.filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.assigneeId
+      AppliedFilter.assigneeId !== null
+        ? userDropdown.filter(
+            (item: LabelValue) => item.value === AppliedFilter.assigneeId
           )[0]
+        : null
     );
+
     setReviewerName(
-      savedFilters[index].AppliedFilter.reviewerId === null
-        ? null
-        : userDropdown.filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.reviewerId
+      AppliedFilter.reviewerId !== null
+        ? userDropdown.filter(
+            (item: LabelValue) => item.value === AppliedFilter.reviewerId
           )[0]
+        : null
     );
+
     setReturnTypeName(
-      savedFilters[index].AppliedFilter.returnTypeId === null
-        ? null
-        : returnTypeDropdown.filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.returnTypeId
+      AppliedFilter.returnTypeId !== null
+        ? returnTypeDropdown.filter(
+            (item: LabelValue) => item.value === AppliedFilter.returnTypeId
           )[0]
+        : null
     );
-    setNoofPages(savedFilters[index].AppliedFilter.numberOfPages ?? "");
+
+    setNoofPages(AppliedFilter.numberOfPages ?? "");
+
     setReturnYear(
-      savedFilters[index].AppliedFilter.returnYear === null
-        ? null
-        : yearDropdown.filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.returnYear
-          )
+      AppliedFilter.returnYear !== null
+        ? yearDropdown.filter(
+            (item: LabelValue) => item.value === AppliedFilter.returnYear
+          )[0]
+        : null
     );
+
     setStatus(
-      savedFilters[index].AppliedFilter.StatusId !== null &&
-        savedFilters[index].AppliedFilter.WorkTypeId !== null
+      AppliedFilter.StatusId !== null && AppliedFilter.WorkTypeId !== null
         ? (
             await getStatusDropdownData(
               savedFilters[index].AppliedFilter.WorkTypeId
             )
           ).filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.StatusId
+            (item: LabelValue) => item.value === AppliedFilter.StatusId
           )[0]
         : null
     );
+
     setPriority(
-      savedFilters[index].AppliedFilter.priority === null
-        ? null
-        : priorityDropdown.filter(
-            (item: any) =>
+      AppliedFilter.priority !== null
+        ? priorityDropdown.filter(
+            (item: LabelValue) =>
               item.value === savedFilters[index].AppliedFilter.priority
           )[0]
+        : null
     );
-    setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
-    setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
-    setStartDateReview(savedFilters[index].AppliedFilter.startDateReview ?? "");
-    setEndDateReview(savedFilters[index].AppliedFilter.endDateReview ?? "");
-    setDueDate(savedFilters[index].AppliedFilter.dueDate ?? "");
-    setAllInfoDate(savedFilters[index].AppliedFilter.allInfoDate ?? "");
+
+    setStartDate(AppliedFilter?.startDate || "");
+    setEndDate(AppliedFilter?.endDate || "");
+    setStartDateReview(AppliedFilter?.startDateReview || "");
+    setEndDateReview(AppliedFilter?.endDateReview || "");
+    setDueDate(AppliedFilter?.dueDate || "");
+    setAllInfoDate(AppliedFilter?.allInfoDate || "");
   };
 
   const handleSavedFilterDelete = async () => {
@@ -635,7 +658,7 @@ const CustomReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -643,7 +666,7 @@ const CustomReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleClose();
         getFilterList();
-        setCurrentFilterId("");
+        setCurrentFilterId(0);
         sendFilterToPage({ ...customreport_InitialFilter });
       }
     };
@@ -685,14 +708,14 @@ const CustomReportFilter = ({
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={searchValue}
-                onChange={(e: any) => setSearchValue(e.target.value)}
+                onChange={(e) => setSearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {savedFilters.map((i: any, index: number) => {
+            {savedFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div
@@ -770,21 +793,23 @@ const CustomReportFilter = ({
                               )
                           )
                     }
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
-                      if (data.some((d: any) => d.value === -1)) {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
+                      if (data.some((d: LabelValue) => d.value === -1)) {
                         setClients(
-                          clientDropdown.filter((d: any) => d.value !== -1)
+                          clientDropdown.filter(
+                            (d: LabelValue) => d.value !== -1
+                          )
                         );
                         setClientName(
                           clientDropdown
-                            .filter((d: any) => d.value !== -1)
-                            .map((d: any) => d.value)
+                            .filter((d: LabelValue) => d.value !== -1)
+                            .map((d: LabelValue) => d.value)
                         );
                         setProjectName(null);
                       } else {
                         setClients(data);
-                        setClientName(data.map((d: any) => d.value));
+                        setClientName(data.map((d: LabelValue) => d.value));
                         setProjectName(null);
                       }
                     }}
@@ -805,8 +830,8 @@ const CustomReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={typeOfWorkDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue | null) => {
                       setTypeOfWorkName(data);
                       setStatus(null);
                     }}
@@ -820,29 +845,6 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
-                {/* <FormControl
-                  variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
-                >
-                  <Autocomplete
-                    multiple
-                    id="tags-standard"
-                    options={departmentDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
-                      setDeptName(data.map((d: any) => d.value));
-                      setDepts(data);
-                    }}
-                    value={depts}
-                    renderInput={(params: any) => (
-                      <TextField
-                        {...params}
-                        variant="standard"
-                        label="Department"
-                      />
-                    )}
-                  />
-                </FormControl> */}
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -850,8 +852,8 @@ const CustomReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={projectDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue | null) => {
                       setProjectName(data);
                     }}
                     disabled={clientName.length > 1}
@@ -874,8 +876,8 @@ const CustomReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={processDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue | null) => {
                       setProcessName(data);
                       setSubProcessName(null);
                     }}
@@ -897,8 +899,8 @@ const CustomReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={subProcessDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue | null) => {
                       setSubProcessName(data);
                     }}
                     // disabled={clientName.length > 1}
@@ -919,8 +921,10 @@ const CustomReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={userDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValueProfileImage) =>
+                      option.label
+                    }
+                    onChange={(e, data: LabelValueProfileImage | null) => {
                       setAssignByName(data);
                     }}
                     value={assignByName}
@@ -942,8 +946,10 @@ const CustomReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={userDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValueProfileImage) =>
+                      option.label
+                    }
+                    onChange={(e, data: LabelValueProfileImage | null) => {
                       setAssigneeName(data);
                     }}
                     value={assigneeName}
@@ -963,8 +969,10 @@ const CustomReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={userDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValueProfileImage) =>
+                      option.label
+                    }
+                    onChange={(e, data: LabelValueProfileImage | null) => {
                       setReviewerName(data);
                     }}
                     value={reviewerName}
@@ -984,8 +992,8 @@ const CustomReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={returnTypeDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue | null) => {
                       setReturnTypeName(data);
                     }}
                     value={returnTypeName}
@@ -1009,7 +1017,7 @@ const CustomReportFilter = ({
                     label="Number of Pages"
                     variant="standard"
                     value={noofPages}
-                    onChange={handleNoOfPageChange}
+                    onChange={(e) => handleNoOfPageChange(e.target.value)}
                   />
                 </FormControl>
                 <FormControl
@@ -1019,8 +1027,8 @@ const CustomReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={yearDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue | null) => {
                       setReturnYear(data);
                     }}
                     value={returnYear}
@@ -1040,8 +1048,8 @@ const CustomReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={statusDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValueType) => option.label}
+                    onChange={(e, data: LabelValueType | null) => {
                       setStatus(data);
                     }}
                     value={status}
@@ -1063,8 +1071,8 @@ const CustomReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={priorityDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue | null) => {
                       setPriority(data);
                     }}
                     value={priority}

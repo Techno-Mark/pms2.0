@@ -205,6 +205,7 @@ const Worklog = () => {
           onEdit={handleEdit}
           onDrawerOpen={handleDrawerOpen}
           onComment={handleSetComments}
+          onErrorLog={handleSetErrorLog}
           currentFilterData={currentFilterData}
           searchValue={searchValue}
           onCloseDrawer={openDrawer}

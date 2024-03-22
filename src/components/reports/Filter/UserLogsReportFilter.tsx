@@ -22,7 +22,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { FilterType } from "../types/ReportsFilterType";
-import { user } from "../Enum/Filtertype";
+import { userlog } from "../Enum/Filtertype";
 import { userLogs_InitialFilter } from "@/utils/reports/getFilters";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
@@ -30,6 +30,18 @@ import { getFormattedDate } from "@/utils/timerFunctions";
 import { isWeekend } from "@/utils/commonFunction";
 import { callAPI } from "@/utils/API/callAPI";
 import { getCCDropdownData, getDeptData } from "@/utils/commonDropdownApiCall";
+import { LabelValue, LabelValueProfileImage } from "@/utils/Types/types";
+
+interface SavedFilter {
+  FilterId: number;
+  Name: string;
+  AppliedFilter: {
+    users: number[];
+    departmentIds: number[];
+    dateFilter: string | null;
+    isLoggedInFilter: number | null;
+  };
+}
 
 const isLoggedIn = 2;
 const isLoggedOut = 3;
@@ -39,30 +51,38 @@ const UserLogsReportFilter = ({
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
-  const [userlogs_users, setUserlogs_Users] = useState<any[]>([]);
+  const [userlogs_users, setUserlogs_Users] = useState<
+    LabelValueProfileImage[]
+  >([]);
   const [userlogs_userNames, setUserlogs_UserNames] = useState<number[]>([]);
-  const [userlogs_depts, setUserlogs_Depts] = useState<any[]>([]);
+  const [userlogs_depts, setUserlogs_Depts] = useState<LabelValue[]>([]);
   const [userlogs_deptNames, setUserlogs_DeptNames] = useState<number[]>([]);
-  const [userlogs_dateFilter, setUserlogs_DateFilter] = useState<any>("");
+  const [userlogs_dateFilter, setUserlogs_DateFilter] = useState<string>("");
   const [userlogs_filterName, setUserlogs_FilterName] = useState<string>("");
   const [userlogs_isloggedIn, setUserlogs_IsloggedIn] = useState<
     number | string
   >(0);
   const [userlogs_saveFilter, setUserlogs_SaveFilter] =
     useState<boolean>(false);
-  const [userlogs_deptDropdown, setUserlogs_DeptDropdown] = useState<any[]>([]);
-  const [userlogs_userDropdown, setUserlogs_UserDropdown] = useState<any[]>([]);
+  const [userlogs_userDropdown, setUserlogs_UserDropdown] = useState<
+    LabelValueProfileImage[]
+  >([]);
+  const [userlogs_deptDropdown, setUserlogs_DeptDropdown] = useState<
+    LabelValue[]
+  >([]);
   const [userlogs_anyFieldSelected, setUserlogs_AnyFieldSelected] =
     useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>("");
-  const [userlogs_savedFilters, setUserlogs_SavedFilters] = useState<any[]>([]);
+  const [currentFilterId, setCurrentFilterId] = useState<number>(0);
+  const [userlogs_savedFilters, setUserlogs_SavedFilters] = useState<
+    SavedFilter[]
+  >([]);
   const [userlogs_defaultFilter, setUserlogs_DefaultFilter] =
     useState<boolean>(false);
   const [userlogs_searchValue, setUserlogs_SearchValue] = useState<string>("");
   const [userlogs_isDeleting, setUserlogs_IsDeleting] =
     useState<boolean>(false);
   const [userlogs_error, setUserlogs_Error] = useState("");
-  const [idFilter, setIdFilter] = useState<any>(undefined);
+  const [idFilter, setIdFilter] = useState<string | undefined>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
@@ -149,7 +169,7 @@ const UserLogsReportFilter = ({
     } else {
       setUserlogs_Error("");
       const params = {
-        filterId: currentFilterId !== "" ? currentFilterId : null,
+        filterId: currentFilterId > 0 ? currentFilterId : null,
         name: userlogs_filterName,
         AppliedFilter: {
           users: userlogs_userNames.length > 0 ? userlogs_userNames : [],
@@ -161,11 +181,11 @@ const UserLogsReportFilter = ({
               : userlogs_dateFilter,
           isLoggedInFilter: getLoggedInFilterValue(),
         },
-        type: user,
+        type: userlog,
       };
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: null,
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -211,11 +231,11 @@ const UserLogsReportFilter = ({
 
   const getFilterList = async () => {
     const params = {
-      type: user,
+      type: userlog,
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: SavedFilter[],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -227,40 +247,41 @@ const UserLogsReportFilter = ({
   };
 
   const handleSavedFilterEdit = (index: number) => {
-    setCurrentFilterId(userlogs_savedFilters[index].FilterId);
-    setUserlogs_FilterName(userlogs_savedFilters[index].Name);
-    setUserlogs_Users(
-      userlogs_savedFilters[index].AppliedFilter.users.length > 0
-        ? userlogs_userDropdown.filter((user: any) =>
-            userlogs_savedFilters[index].AppliedFilter.users.includes(
-              user.value
-            )
-          )
-        : []
-    );
-    setUserlogs_UserNames(userlogs_savedFilters[index].AppliedFilter.users);
-    setUserlogs_Depts(
-      userlogs_savedFilters[index].AppliedFilter.departmentIds.length > 0
-        ? userlogs_deptDropdown.filter((user: any) =>
-            userlogs_savedFilters[index].AppliedFilter.departmentIds.includes(
-              user.value
-            )
-          )
-        : []
-    );
-    setUserlogs_DeptNames(
-      userlogs_savedFilters[index].AppliedFilter.departmentIds
-    );
-    setUserlogs_IsloggedIn(
-      userlogs_savedFilters[index].AppliedFilter.isLoggedInFilter ?? 0
-    );
-    setUserlogs_DefaultFilter(true);
     setUserlogs_SaveFilter(true);
-    setUserlogs_DateFilter(
-      userlogs_savedFilters[index].AppliedFilter.dateFilter === null
-        ? ""
-        : userlogs_savedFilters[index].AppliedFilter.dateFilter
+    setUserlogs_DefaultFilter(true);
+
+    const { Name, FilterId, AppliedFilter } = userlogs_savedFilters[index];
+    setUserlogs_FilterName(Name);
+    setCurrentFilterId(FilterId);
+
+    const users = AppliedFilter?.users || [];
+    setUserlogs_Users(
+      users.length > 0
+        ? userlogs_userDropdown.filter((user: LabelValue) =>
+            users.includes(user.value)
+          )
+        : []
     );
+    setUserlogs_UserNames(users);
+
+    const department = AppliedFilter?.departmentIds || [];
+    setUserlogs_Depts(
+      department.length > 0
+        ? userlogs_deptDropdown.filter((dept: LabelValue) =>
+            department.includes(dept.value)
+          )
+        : []
+    );
+    setUserlogs_DeptNames(department);
+
+    setUserlogs_IsloggedIn(
+      AppliedFilter.isLoggedInFilter === null
+        ? 1
+        : AppliedFilter.isLoggedInFilter === 1
+        ? 2
+        : 3
+    );
+    setUserlogs_DateFilter(AppliedFilter?.dateFilter || "");
   };
 
   const handleSavedFilterDelete = async () => {
@@ -269,7 +290,7 @@ const UserLogsReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -277,7 +298,7 @@ const UserLogsReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleClose();
         getFilterList();
-        setCurrentFilterId("");
+        setCurrentFilterId(0);
         sendFilterToPage({ ...userLogs_InitialFilter });
       }
     };
@@ -319,14 +340,14 @@ const UserLogsReportFilter = ({
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={userlogs_searchValue}
-                onChange={(e: any) => setUserlogs_SearchValue(e.target.value)}
+                onChange={(e) => setUserlogs_SearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {userlogs_savedFilters.map((i: any, index: number) => {
+            {userlogs_savedFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div
@@ -395,10 +416,14 @@ const UserLogsReportFilter = ({
                     multiple
                     id="tags-standard"
                     options={userlogs_userDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValueProfileImage) =>
+                      option.label
+                    }
+                    onChange={(e, data: LabelValueProfileImage[]) => {
                       setUserlogs_Users(data);
-                      setUserlogs_UserNames(data.map((d: any) => d.value));
+                      setUserlogs_UserNames(
+                        data.map((d: LabelValueProfileImage) => d.value)
+                      );
                     }}
                     value={userlogs_users}
                     renderInput={(params: any) => (
@@ -418,10 +443,12 @@ const UserLogsReportFilter = ({
                     multiple
                     id="tags-standard"
                     options={userlogs_deptDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
                       setUserlogs_Depts(data);
-                      setUserlogs_DeptNames(data.map((d: any) => d.value));
+                      setUserlogs_DeptNames(
+                        data.map((d: LabelValue) => d.value)
+                      );
                     }}
                     value={userlogs_depts}
                     renderInput={(params: any) => (
@@ -433,6 +460,8 @@ const UserLogsReportFilter = ({
                     )}
                   />
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
@@ -457,8 +486,6 @@ const UserLogsReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}

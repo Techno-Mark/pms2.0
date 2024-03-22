@@ -16,6 +16,7 @@ import { callAPI } from "@/utils/API/callAPI";
 import {
   DatatableWorklog,
   DatatableWorklogProps,
+  InitialFilter,
 } from "@/utils/Types/clientWorklog";
 
 const pageNo = 1;
@@ -26,7 +27,7 @@ const initialFilter = {
   PageSize: pageSize,
   SortColumn: "",
   IsDesc: true,
-  GlobalSearch: null,
+  GlobalSearch: "",
   ProjectIds: null,
   OverdueBy: null,
   PriorityId: null,
@@ -61,19 +62,17 @@ const Datatable_Worklog = ({
     { index: number; dataIndex: number }[] | []
   >([]);
   const [selectedRows, setSelectedRows] = useState<number[] | []>([]);
-  const [workItemData, setWorkItemData] = useState<any | any[]>([]);
-  const [selectedRowIds, setSelectedRowIds] = useState<any | number[]>([]);
-  const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<
-    any | number[]
-  >([]);
-  const [selectedRowStatusId, setSelectedRowStatusId] = useState<
-    any | number[]
-  >([]);
-  const [selectedRowId, setSelectedRowId] = useState<any | number>(null);
-  const [isCreatedByClient, setIsCreatedByClient] = useState<any | number>(
+  const [workItemData, setWorkItemData] = useState<DatatableWorklog[]>([]);
+  const [selectedRowIds, setSelectedRowIds] = useState<number[]>([]);
+  const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<number[]>(
+    []
+  );
+  const [selectedRowId, setSelectedRowId] = useState<null | number>(null);
+  const [isCreatedByClient, setIsCreatedByClient] = useState<null | boolean>(
     null
   );
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [filteredObject, setFilteredOject] =
+    useState<InitialFilter>(initialFilter);
 
   const handleRowSelect = (
     currentRowsSelected: { index: number; dataIndex: number }[] | [],
@@ -119,15 +118,6 @@ const Datatable_Worklog = ({
         ? selectedData[selectedData.length - 1].IsCreatedByClient
         : null;
     setIsCreatedByClient(IsCreatedByClient);
-
-    // adding all selected row's status Ids in an array
-    const selectedWorkItemStatusIds =
-      selectedData.length > 0
-        ? selectedData.map(
-            (selectedRow: DatatableWorklog) => selectedRow.StatusId
-          )
-        : [];
-    setSelectedRowStatusId(selectedWorkItemStatusIds);
 
     setIsPopupOpen(allRowsSelected);
   };
@@ -203,7 +193,6 @@ const Datatable_Worklog = ({
   const propsForActionBar = {
     selectedRowsCount,
     selectedRows,
-    selectedRowStatusId,
     selectedRowId,
     selectedRowIds,
     selectedRowWorkTypeId,

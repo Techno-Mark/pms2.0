@@ -16,7 +16,11 @@ import {
 } from "@mui/material";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import {
+  DatePicker,
+  LocalizationProvider,
+  clockNumberClasses,
+} from "@mui/x-date-pickers";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { FilterType } from "../types/ReportsFilterType";
 import { AdminRatingsReports } from "../Enum/Filtertype";
@@ -30,40 +34,61 @@ import {
 } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
 import { getFormattedDate } from "@/utils/timerFunctions";
+import { LabelValue } from "@/utils/Types/types";
+
+interface SavedFilter {
+  FilterId: number;
+  Name: string;
+  AppliedFilter: {
+    Clients: number[];
+    Projects: number[];
+    ReturnTypeId: number | null;
+    Ratings: number | null;
+    StartDate: string | null;
+    EndDate: string | null;
+  };
+}
 
 const RatingReportFilter = ({
   isFiltering,
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
-  const [ratingreport_clients, setRatingReport_Clients] = useState<any[]>([]);
-  const [ratingreport_clientName, setRatingReport_ClientName] = useState<any[]>(
-    []
-  );
+  const [ratingreport_clients, setRatingReport_Clients] = useState<
+    LabelValue[]
+  >([]);
+  const [ratingreport_clientName, setRatingReport_ClientName] = useState<
+    number[]
+  >([]);
   const [ratingreport_projectName, setRatingReport_ProjectName] =
-    useState<any>(null);
-  const [ratingreport_returnType, setRatingReport_ReturnType] =
-    useState<any>(null);
+    useState<LabelValue | null>(null);
+  const [ratingreport_returnType, setRatingReport_ReturnType] = useState<{
+    label: string;
+    value: string;
+  } | null>(null);
   const [ratingreport_startDate, setRatingReport_StartDate] = useState<
     null | string
   >(null);
   const [ratingreport_endDate, setRatingReport_EndDate] = useState<
     null | string
   >(null);
-  const [ratingreport_ratings, setRatingReport_Ratings] = useState<any>(null);
+  const [ratingreport_ratings, setRatingReport_Ratings] = useState<{
+    label: string;
+    value: string;
+  } | null>(null);
   const [ratingreport_filterName, setRatingReport_FilterName] =
     useState<string>("");
   const [ratingreport_saveFilter, setRatingReport_SaveFilter] =
     useState<boolean>(false);
   const [ratingreport_clientDropdown, setRatingReport_ClientDropdown] =
-    useState<any[]>([]);
+    useState<LabelValue[]>([]);
   const [ratingreport_projectDropdown, setRatingReport_ProjectDropdown] =
-    useState<any[]>([]);
+    useState<LabelValue[]>([]);
   const [ratingreport_anyFieldSelected, setRatingReport_AnyFieldSelected] =
     useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>("");
+  const [currentFilterId, setCurrentFilterId] = useState<number>(0);
   const [ratingreport_savedFilters, setRatingReport_SavedFilters] = useState<
-    any[]
+    SavedFilter[]
   >([]);
   const [ratingreport_defaultFilter, setRatingReport_DefaultFilter] =
     useState<boolean>(false);
@@ -72,7 +97,7 @@ const RatingReportFilter = ({
   const [ratingreport_isDeleting, setRatingReport_IsDeleting] =
     useState<boolean>(false);
   const [ratingreport_error, setRatingReport_Error] = useState("");
-  const [idFilter, setIdFilter] = useState<any>(undefined);
+  const [idFilter, setIdFilter] = useState<string | undefined>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
@@ -137,7 +162,7 @@ const RatingReportFilter = ({
       ...rating_InitialFilter,
       Clients: ratingreport_clientName,
       Projects:
-        ratingreport_projectName === null || ratingreport_projectName === ""
+        ratingreport_projectName === null
           ? []
           : [ratingreport_projectName.value],
       ReturnTypeId:
@@ -191,13 +216,13 @@ const RatingReportFilter = ({
     } else {
       setRatingReport_Error("");
       const params = {
-        filterId: currentFilterId !== "" ? currentFilterId : null,
+        filterId: currentFilterId > 0 ? currentFilterId : null,
         name: ratingreport_filterName,
         AppliedFilter: {
           Clients:
             ratingreport_clientName.length > 0 ? ratingreport_clientName : [],
           Projects:
-            ratingreport_projectName === null || ratingreport_projectName === ""
+            ratingreport_projectName === null
               ? []
               : [ratingreport_projectName.value],
           ReturnTypeId:
@@ -223,7 +248,7 @@ const RatingReportFilter = ({
       };
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: null,
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -245,7 +270,7 @@ const RatingReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: SavedFilter[],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -259,59 +284,49 @@ const RatingReportFilter = ({
   const handleRatingReport_SavedFilterEdit = async (index: number) => {
     setRatingReport_SaveFilter(true);
     setRatingReport_DefaultFilter(true);
-    setRatingReport_FilterName(ratingreport_savedFilters[index].Name);
-    setCurrentFilterId(ratingreport_savedFilters[index].FilterId);
 
+    const { Name, FilterId, AppliedFilter } = ratingreport_savedFilters[index];
+    setRatingReport_FilterName(Name);
+    setCurrentFilterId(FilterId);
+
+    const clients = AppliedFilter?.Clients || [];
     setRatingReport_Clients(
-      ratingreport_savedFilters[index].AppliedFilter.Clients.length > 0
-        ? ratingreport_clientDropdown.filter((client: any) =>
-            ratingreport_savedFilters[index].AppliedFilter.Clients.includes(
-              client.value
-            )
+      clients.length > 0
+        ? ratingreport_clientDropdown.filter((client: LabelValue) =>
+            clients.includes(client.value)
           )
         : []
     );
-    setRatingReport_ClientName(
-      ratingreport_savedFilters[index].AppliedFilter.Clients
-    );
+    setRatingReport_ClientName(clients);
+
     setRatingReport_ProjectName(
-      ratingreport_savedFilters[index].AppliedFilter.Projects.length > 0
-        ? (
-            await getProjectDropdownData(
-              ratingreport_savedFilters[index].AppliedFilter.Clients[0],
-              null
-            )
-          ).filter(
-            (item: any) =>
-              item.value ===
-              ratingreport_savedFilters[index].AppliedFilter.Projects[0]
+      clients.length > 0 && AppliedFilter.Projects.length > 0
+        ? (await getProjectDropdownData(AppliedFilter.Clients[0], null)).filter(
+            (item: LabelValue) => item.value === AppliedFilter.Projects[0]
           )[0]
         : null
     );
+
     setRatingReport_ReturnType(
-      ratingreport_savedFilters[index].AppliedFilter.ReturnTypeId === null
-        ? null
-        : ratingReport_Dropdown.filter(
-            (item: any) =>
-              item.value ===
-              ratingreport_savedFilters[index].AppliedFilter.ReturnTypeId
+      AppliedFilter.ReturnTypeId !== null
+        ? ratingReport_Dropdown.filter(
+            (item: { label: string; value: string }) =>
+              item.value === AppliedFilter.ReturnTypeId?.toString()
           )[0]
+        : null
     );
-    setRatingReport_StartDate(
-      ratingreport_savedFilters[index].AppliedFilter.StartDate ?? null
-    );
-    setRatingReport_EndDate(
-      ratingreport_savedFilters[index].AppliedFilter.EndDate ?? null
-    );
+
     setRatingReport_Ratings(
-      ratingreport_savedFilters[index].AppliedFilter.Ratings === null
-        ? null
-        : ratingReportRating_Dropdown.filter(
-            (item: any) =>
-              item.value ===
-              ratingreport_savedFilters[index].AppliedFilter.Ratings
+      AppliedFilter.Ratings !== null
+        ? ratingReportRating_Dropdown.filter(
+            (item: { label: string; value: string }) =>
+              item.value === AppliedFilter.Ratings?.toString()
           )[0]
+        : null
     );
+
+    setRatingReport_StartDate(AppliedFilter.StartDate ?? null);
+    setRatingReport_EndDate(AppliedFilter.EndDate ?? null);
   };
 
   const handleRatingReport_SavedFilterDelete = async () => {
@@ -320,7 +335,7 @@ const RatingReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -328,7 +343,7 @@ const RatingReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleRatingReport_Close();
         getRatingReport_FilterList();
-        setCurrentFilterId("");
+        setCurrentFilterId(0);
         sendFilterToPage({ ...rating_InitialFilter });
       }
     };
@@ -407,16 +422,14 @@ const RatingReportFilter = ({
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={ratingreport_searchValue}
-                onChange={(e: any) =>
-                  setRatingReport_SearchValue(e.target.value)
-                }
+                onChange={(e) => setRatingReport_SearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {ratingreport_savedFilters.map((i: any, index: number) => {
+            {ratingreport_savedFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div
@@ -494,10 +507,12 @@ const RatingReportFilter = ({
                           (client) => client.value === option.value
                         )
                     )}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
                       setRatingReport_Clients(data);
-                      setRatingReport_ClientName(data.map((d: any) => d.value));
+                      setRatingReport_ClientName(
+                        data.map((d: LabelValue) => d.value)
+                      );
                       setRatingReport_ProjectName(null);
                     }}
                     value={ratingreport_clients}
@@ -517,8 +532,8 @@ const RatingReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={ratingreport_projectDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue | null) => {
                       setRatingReport_ProjectName(data);
                     }}
                     value={ratingreport_projectName}
@@ -539,8 +554,14 @@ const RatingReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={ratingReport_Dropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: {
+                      label: string;
+                      value: string;
+                    }) => option.label}
+                    onChange={(
+                      e,
+                      data: { label: string; value: string } | null
+                    ) => {
                       setRatingReport_ReturnType(data);
                     }}
                     value={ratingreport_returnType}
@@ -607,8 +628,14 @@ const RatingReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={ratingReportRating_Dropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: {
+                      label: string;
+                      value: string;
+                    }) => option.label}
+                    onChange={(
+                      e,
+                      data: { label: string; value: string } | null
+                    ) => {
                       setRatingReport_Ratings(data);
                     }}
                     value={ratingreport_ratings}
