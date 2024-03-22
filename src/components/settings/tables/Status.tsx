@@ -126,7 +126,7 @@ const Status = ({
     };
     const url = `${process.env.pms_api_url}/status/delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {

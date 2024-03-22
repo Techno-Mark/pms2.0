@@ -128,7 +128,7 @@ function Process({
     };
     const url = `${process.env.pms_api_url}/process/Delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {

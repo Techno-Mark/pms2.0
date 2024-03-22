@@ -290,7 +290,7 @@ const UnassigneeDatatable = ({
     // },
     {
       name: "STDTime",
-      label: "Total Time",
+      label: "Std. Time",
       bodyRenderer: generateCommonBodyRender,
     },
     {

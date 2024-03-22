@@ -131,7 +131,7 @@ const WorklogActionbar = ({
     };
     callAPI(url, params, successCallback, "POST");
   };
-  console.log(workItemData);
+
   const deleteWorkItem = async () => {
     const deletedId = workItemData
       .map((item: DatatableWorklog) =>

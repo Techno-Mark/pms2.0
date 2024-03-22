@@ -43,7 +43,7 @@ const PermissionsContent = forwardRef<
     };
     const url = `${process.env.pms_api_url}/Role/Save`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {

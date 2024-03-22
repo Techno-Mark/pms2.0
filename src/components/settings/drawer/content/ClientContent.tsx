@@ -1170,7 +1170,7 @@ const ClientContent = forwardRef<
                 sx={{ mt: "-10px" }}
                 options={departmentDropdown}
                 getOptionLabel={(option: any) => option.label}
-                onChange={(e: any, data: any) => {
+                onChange={(e, data: any) => {
                   setDepts(data);
                   setDeptName(data.map((d: any) => d.value));
                   setDeptError(false);

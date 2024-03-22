@@ -30,6 +30,7 @@ import SwitchModal from "@/components/common/SwitchModal";
 import ReportLoader from "@/components/common/ReportLoader";
 import { toast } from "react-toastify";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+import { sep } from "path";
 
 interface HalfDayModalProps {
   onOpen: boolean;
@@ -97,6 +98,8 @@ const TimelineHalfDay = ({ onOpen, onClose }: HalfDayModalProps) => {
 
   const handleCloseFilter = () => {
     setisFilterOpen(false);
+    setPage(0);
+    setRowsPerPage(pageSize);
   };
 
   const handleClose = () => {
@@ -107,6 +110,8 @@ const TimelineHalfDay = ({ onOpen, onClose }: HalfDayModalProps) => {
     setIsOpenSwitchModal(false);
     setIsDeleteOpenProject(false);
     setLeaveDate(null);
+    setPage(0);
+    setRowsPerPage(pageSize);
     onClose();
   };
 
@@ -115,9 +120,10 @@ const TimelineHalfDay = ({ onOpen, onClose }: HalfDayModalProps) => {
     MonthFilter: number | null;
     YearFilter: number | null;
   }) => {
-    console.log(data);
     setFilteredOject({
       ...filteredObject,
+      PageNo: pageNo,
+      PageSize: pageSize,
       ...data,
     });
   };
@@ -422,6 +428,7 @@ const TimelineHalfDay = ({ onOpen, onClose }: HalfDayModalProps) => {
 
       <FilterDialogHalfDay
         onOpen={isFilterOpen}
+        isOpen={onOpen}
         onClose={handleCloseFilter}
         currentFilterData={getIdFromFilterDialog}
       />

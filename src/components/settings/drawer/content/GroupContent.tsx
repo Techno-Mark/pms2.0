@@ -123,7 +123,7 @@ const GroupContent = forwardRef<
       };
       const url = `${process.env.pms_api_url}/group/save`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: null,
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -163,7 +163,7 @@ const GroupContent = forwardRef<
       };
       const url = `${process.env.pms_api_url}/group/save`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: null,
         error: boolean,
         ResponseStatus: string
       ) => {

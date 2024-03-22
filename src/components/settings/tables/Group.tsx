@@ -112,7 +112,7 @@ const Group = ({
     };
     const url = `${process.env.pms_api_url}/group/delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {

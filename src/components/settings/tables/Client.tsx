@@ -122,7 +122,7 @@ const Client = ({
       };
       const url = `${process.env.pms_api_url}/client/delete`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: null,
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -152,7 +152,7 @@ const Client = ({
     };
     const url = `${process.env.pms_api_url}/client/activeinactive`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {

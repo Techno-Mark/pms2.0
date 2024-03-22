@@ -40,7 +40,7 @@ const adminDashboardReportCols = [
   { header: "Withdraw", label: "WithDraw" },
   { header: "WithdrawnbyClient", label: "Withdrawn by Client" },
   { header: "OnHoldFromClient", label: "On Hold From Client" },
-].map((i: any) =>
+].map((i: { header: string; label: string }) =>
   generateCustomColumn(i.header, i.label, generateDashboardReportBodyRender)
 );
 
@@ -51,7 +51,7 @@ const adminDashboardBillingTypeCols = [
   { header: "Status", label: "Status" },
   { header: "ContractedHours", label: "Contracted Hours" },
   { header: "InternalHours", label: "Internal Hours" },
-].map((i: any) =>
+].map((i: { header: string; label: string }) =>
   generateCustomColumn(
     i.header,
     i.label,
