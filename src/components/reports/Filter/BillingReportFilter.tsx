@@ -33,7 +33,25 @@ import {
   getProjectDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
+import { LabelValue, LabelValueProfileImage } from "@/utils/Types/types";
 const ALL = -1;
+
+interface SavedFilter {
+  FilterId: number;
+  Name: string;
+  AppliedFilter: {
+    clients: number[];
+    projects: number[];
+    assigneeId: number | null;
+    reviewerId: number | null;
+    numberOfPages: number | null;
+    IsBTC: boolean;
+    startDate: string | null;
+    endDate: string | null;
+    startDateReview: string | null;
+    endDateReview: string | null;
+  };
+}
 
 const BillingReportFilter = ({
   isFiltering,
@@ -41,11 +59,11 @@ const BillingReportFilter = ({
   onDialogClose,
 }: FilterType) => {
   const isBTCRef_ForPreviousValue = useRef<boolean>(false);
-  const [clients, setClients] = useState<any[]>([]);
-  const [clientName, setClientName] = useState<any[]>([]);
-  const [projectName, setProjectName] = useState<any>(null);
-  const [assignee, setAssignee] = useState<any>(null);
-  const [reviewer, setReviewer] = useState<any>(null);
+  const [clients, setClients] = useState<LabelValue[]>([]);
+  const [clientName, setClientName] = useState<number[]>([]);
+  const [projectName, setProjectName] = useState<LabelValue | null>(null);
+  const [assignee, setAssignee] = useState<LabelValueProfileImage | null>(null);
+  const [reviewer, setReviewer] = useState<LabelValueProfileImage | null>(null);
   const [noOfPages, setNoOfPages] = useState<number | string>("");
   const [isBTC, setIsBTC] = useState<boolean>(false);
   const [startDate, setStartDate] = useState<string | number>("");
@@ -53,21 +71,25 @@ const BillingReportFilter = ({
   const [startDateReview, setStartDateReview] = useState<string | number>("");
   const [endDateReview, setEndDateReview] = useState<string | number>("");
 
-  const [clientDropdown, setClientDropdown] = useState<any[]>([]);
-  const [projectDropdown, setProjectDropdown] = useState<any[]>([]);
-  const [assigneeDropdown, setAssigneeDropdown] = useState<any[]>([]);
-  const [reviewerDropdown, setReviewerDropdown] = useState<any[]>([]);
+  const [clientDropdown, setClientDropdown] = useState<LabelValue[]>([]);
+  const [projectDropdown, setProjectDropdown] = useState<LabelValue[]>([]);
+  const [assigneeDropdown, setAssigneeDropdown] = useState<
+    LabelValueProfileImage[]
+  >([]);
+  const [reviewerDropdown, setReviewerDropdown] = useState<
+    LabelValueProfileImage[]
+  >([]);
 
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>("");
-  const [savedFilters, setSavedFilters] = useState<any[]>([]);
+  const [currentFilterId, setCurrentFilterId] = useState<number>(0);
+  const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [error, setError] = useState("");
-  const [idFilter, setIdFilter] = useState<any>(undefined);
+  const [idFilter, setIdFilter] = useState<string | undefined>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
@@ -76,17 +98,17 @@ const BillingReportFilter = ({
     openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
   }, [openFilter]);
 
-  const handleNoOfPageChange = (e: any) => {
-    if (/^\d+$/.test(e.target.value.trim())) {
-      setNoOfPages(e.target.value);
+  const handleNoOfPageChange = (e: string) => {
+    if (/^\d+$/.test(e.trim())) {
+      setNoOfPages(e);
     } else {
       return;
     }
   };
 
-  const handleIsBTCChange = (e: any) => {
+  const handleIsBTCChange = (e: boolean) => {
     isBTCRef_ForPreviousValue.current = isBTC;
-    setIsBTC(e.target.checked);
+    setIsBTC(e);
   };
 
   const handleResetAll = () => {
@@ -203,7 +225,7 @@ const BillingReportFilter = ({
 
     setError("");
     const params = {
-      filterId: currentFilterId !== "" ? currentFilterId : null,
+      filterId: currentFilterId > 0 ? currentFilterId : null,
       name: filterName,
       AppliedFilter: {
         clients: clientName,
@@ -242,7 +264,7 @@ const BillingReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/savefilter`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -318,7 +340,7 @@ const BillingReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: SavedFilter[],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -333,7 +355,7 @@ const BillingReportFilter = ({
     setClients(
       savedFilters[index].AppliedFilter.clients === null
         ? []
-        : clientDropdown.filter((client: any) =>
+        : clientDropdown.filter((client: LabelValue) =>
             savedFilters[index].AppliedFilter.clients.includes(client.value)
           )
     );
@@ -346,7 +368,7 @@ const BillingReportFilter = ({
               null
             )
           ).filter(
-            (item: any) =>
+            (item: LabelValue) =>
               item.value === savedFilters[index].AppliedFilter.projects[0]
           )[0]
         : null
@@ -356,7 +378,7 @@ const BillingReportFilter = ({
       savedFilters[index].AppliedFilter.assigneeId === null
         ? null
         : assigneeDropdown.filter(
-            (item: any) =>
+            (item: LabelValueProfileImage) =>
               item.value === savedFilters[index].AppliedFilter.assigneeId
           )[0]
     );
@@ -364,7 +386,7 @@ const BillingReportFilter = ({
       savedFilters[index].AppliedFilter.reviewerId === null
         ? null
         : reviewerDropdown.filter(
-            (item: any) =>
+            (item: LabelValueProfileImage) =>
               item.value === savedFilters[index].AppliedFilter.reviewerId
           )[0]
     );
@@ -373,6 +395,7 @@ const BillingReportFilter = ({
     setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
     setStartDateReview(savedFilters[index].AppliedFilter.startDateReview ?? "");
     setEndDateReview(savedFilters[index].AppliedFilter.endDateReview ?? "");
+    setIsBTC(savedFilters[index].AppliedFilter.IsBTC ?? false);
 
     setCurrentFilterId(savedFilters[index].FilterId);
     setFilterName(savedFilters[index].Name);
@@ -386,7 +409,7 @@ const BillingReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -394,7 +417,7 @@ const BillingReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleClose();
         getFilterList();
-        setCurrentFilterId("");
+        setCurrentFilterId(0);
         sendFilterToPage({
           ...billingreport_InitialFilter,
         });
@@ -438,14 +461,14 @@ const BillingReportFilter = ({
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={searchValue}
-                onChange={(e: any) => setSearchValue(e.target.value)}
+                onChange={(e) => setSearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {savedFilters.map((i: any, index: number) => {
+            {savedFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div
@@ -523,21 +546,23 @@ const BillingReportFilter = ({
                               )
                           )
                     }
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
-                      if (data.some((d: any) => d.value === -1)) {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
+                      if (data.some((d: LabelValue) => d.value === -1)) {
                         setClients(
-                          clientDropdown.filter((d: any) => d.value !== -1)
+                          clientDropdown.filter(
+                            (d: LabelValue) => d.value !== -1
+                          )
                         );
                         setClientName(
                           clientDropdown
-                            .filter((d: any) => d.value !== -1)
-                            .map((d: any) => d.value)
+                            .filter((d: LabelValue) => d.value !== -1)
+                            .map((d: LabelValue) => d.value)
                         );
                         setProjectName(null);
                       } else {
                         setClients(data);
-                        setClientName(data.map((d: any) => d.value));
+                        setClientName(data.map((d: LabelValue) => d.value));
                         setProjectName(null);
                       }
                     }}
@@ -558,8 +583,8 @@ const BillingReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={projectDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue | null) => {
                       setProjectName(data);
                     }}
                     disabled={clientName.length > 1}
@@ -580,8 +605,10 @@ const BillingReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={assigneeDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValueProfileImage) =>
+                      option.label
+                    }
+                    onChange={(e, data: LabelValueProfileImage | null) => {
                       setAssignee(data);
                     }}
                     value={assignee}
@@ -603,8 +630,10 @@ const BillingReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={reviewerDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValueProfileImage) =>
+                      option.label
+                    }
+                    onChange={(e, data: LabelValueProfileImage | null) => {
                       setReviewer(data);
                     }}
                     value={reviewer}
@@ -627,7 +656,7 @@ const BillingReportFilter = ({
                     label="Number of Pages"
                     variant="standard"
                     value={noOfPages}
-                    onChange={handleNoOfPageChange}
+                    onChange={(e) => handleNoOfPageChange(e.target.value)}
                   />
                 </FormControl>
                 <div
@@ -720,7 +749,10 @@ const BillingReportFilter = ({
                   <FormControlLabel
                     sx={{ color: "#818181" }}
                     control={
-                      <Checkbox checked={isBTC} onChange={handleIsBTCChange} />
+                      <Checkbox
+                        checked={isBTC}
+                        onChange={(e) => handleIsBTCChange(e.target.checked)}
+                      />
                     }
                     label="Is Invoice Raised"
                   />

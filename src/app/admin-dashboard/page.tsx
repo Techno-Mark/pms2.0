@@ -206,7 +206,23 @@ const Page = () => {
   };
 
   useEffect(() => {
-    activeTab === 2 && getReportData();
+    setPage(0);
+    setRowsPerPage(pageSize);
+    setFilteredObject({
+      ...filteredObject,
+      PageSize: pageSize,
+      PageNo: pageNo,
+    });
+  }, [currentFilterData, activeTab]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      activeTab === 2 && (await getReportData());
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [activeTab, filteredObject, currentFilterData]);
 
   const getProjectSummary = async () => {

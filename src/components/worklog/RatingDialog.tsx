@@ -21,10 +21,11 @@ import { callAPI } from "@/utils/API/callAPI";
 interface RatingModalProps {
   onOpen: boolean;
   onClose: () => void;
-  ratingId: number[] | [];
+  ratingId: number[];
   noRatingId: number[] | [];
   onActionClick?: () => void;
-  onDataFetch: () => void;
+  getWorkItemList: () => void;
+  onDataFetch: (getData: () => void) => void;
   handleClearSelection: () => void;
 }
 
@@ -33,6 +34,7 @@ const RatingDialog = ({
   onClose,
   ratingId,
   noRatingId,
+  getWorkItemList,
   onDataFetch,
   handleClearSelection,
 }: RatingModalProps) => {
@@ -75,7 +77,11 @@ const RatingDialog = ({
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success("Rating successfully submitted.");
-            onDataFetch();
+            const fetchData = async () => {
+              await getWorkItemList();
+              onDataFetch(() => fetchData());
+            };
+            fetchData();
             handleClose();
             setLoaded(false);
           } else {

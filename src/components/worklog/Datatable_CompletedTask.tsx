@@ -3,11 +3,6 @@ import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
 import TablePagination from "@mui/material/TablePagination";
 import {
-  generateCustomHeaderName,
-  generateCommonBodyRender,
-  generateCustomFormatDate,
-  generatePriorityWithColor,
-  generateStatusWithColor,
   handlePageChangeWithFilter,
   handleChangeRowsPerPageWithFilter,
 } from "@/utils/datatable/CommonFunction";
@@ -20,6 +15,7 @@ import { callAPI } from "@/utils/API/callAPI";
 import {
   DatatableWorklog,
   DatatableWorklogProps,
+  InitialFilter,
 } from "@/utils/Types/clientWorklog";
 import { datatableWorklogCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 
@@ -31,7 +27,7 @@ const initialFilter = {
   PageSize: pageSize,
   SortColumn: "",
   IsDesc: true,
-  GlobalSearch: null,
+  GlobalSearch: "",
   ProjectIds: null,
   OverdueBy: null,
   PriorityId: null,
@@ -69,13 +65,11 @@ const Datatable_CompletedTask = ({
     { index: number; dataIndex: number }[] | []
   >([]);
   const [selectedRows, setSelectedRows] = useState<number[] | []>([]);
-  const [workItemData, setWorkItemData] = useState<any | any[]>([]);
-  const [selectedRowIds, setSelectedRowIds] = useState<any | number[]>([]);
-  const [selectedRowStatusId, setSelectedRowStatusId] = useState<
-    any | number[]
-  >([]);
-  const [selectedRowId, setSelectedRowId] = useState<any | number>(null);
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [workItemData, setWorkItemData] = useState<DatatableWorklog[]>([]);
+  const [selectedRowIds, setSelectedRowIds] = useState<number[]>([]);
+  const [selectedRowId, setSelectedRowId] = useState<null | number>(null);
+  const [filteredObject, setFilteredOject] =
+    useState<InitialFilter>(initialFilter);
 
   useEffect(() => {
     if (!onCloseDrawer || !onCloseDrawer) {
@@ -110,16 +104,6 @@ const Datatable_CompletedTask = ({
         ? selectedData[selectedData.length - 1].WorkitemId
         : null;
     setSelectedRowId(lastSelectedWorkItemId);
-
-    // adding all selected row's status Ids in an array
-    const selectedWorkItemStatusIds =
-      selectedData.length > 0
-        ? selectedData.map(
-            (selectedRow: DatatableWorklog) => selectedRow.StatusId
-          )
-        : [];
-
-    setSelectedRowStatusId(selectedWorkItemStatusIds);
 
     setIsPopupOpen(allRowsSelected);
   };
@@ -169,7 +153,7 @@ const Datatable_CompletedTask = ({
     setFilteredOject({
       ...filteredObject,
       PageNo: 1,
-      pageSize: pageSize,
+      PageSize: pageSize,
       GlobalSearch: searchValue,
     });
     searchValue.length > 0 && setPage(0);
@@ -195,7 +179,6 @@ const Datatable_CompletedTask = ({
     onErrorLog,
     getWorkItemList,
     selectedRowIds,
-    selectedRowStatusId,
     workItemData,
     onDataFetch,
   };

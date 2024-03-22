@@ -32,6 +32,20 @@ import {
   getTypeOfWorkDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
+import { LabelValue } from "@/utils/Types/types";
+
+interface SavedFilter {
+  FilterId: number;
+  Name: string;
+  AppliedFilter: {
+    clients: number[];
+    projects: number[];
+    TypeOfWork: number | null;
+    BillingType: number | null;
+    startDate: string | null;
+    endDate: string | null;
+  };
+}
 
 const project_filter_InitialFilter = {
   ...client_project_InitialFilter,
@@ -43,11 +57,15 @@ const ProjectReportFilter = ({
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
-  const [project_clients, setProject_Clients] = useState<any[]>([]);
-  const [project_clientName, setProject_ClientName] = useState<any[]>([]);
-  const [project_projects, setProject_Projects] = useState<any>(null);
-  const [project_typeOfWork, setProject_TypeOfWork] = useState<any>(null);
-  const [project_billingType, setProject_BillingType] = useState<any>(null);
+  const [project_clients, setProject_Clients] = useState<LabelValue[]>([]);
+  const [project_clientName, setProject_ClientName] = useState<number[]>([]);
+  const [project_projects, setProject_Projects] = useState<LabelValue | null>(
+    null
+  );
+  const [project_typeOfWork, setProject_TypeOfWork] =
+    useState<LabelValue | null>(null);
+  const [project_billingType, setProject_BillingType] =
+    useState<LabelValue | null>(null);
 
   const [project_filterName, setProject_FilterName] = useState<string>("");
   const [project_saveFilter, setProject_SaveFilter] = useState<boolean>(false);
@@ -57,26 +75,28 @@ const ProjectReportFilter = ({
   const [project_endDate, setProject_EndDate] = useState<string | number>("");
 
   const [project_workTypeDropdown, setProject_WorkTypeDropdown] = useState<
-    any[]
+    LabelValue[]
   >([]);
   const [project_billingTypeDropdown, setProject_BillingTypeDropdown] =
-    useState<any[]>([]);
-  const [project_clientDropdown, setProject_ClientDropdown] = useState<any[]>(
-    []
-  );
-  const [project_projectDropdown, setProject_ProjectDropdown] = useState<any[]>(
-    []
-  );
+    useState<LabelValue[]>([]);
+  const [project_clientDropdown, setProject_ClientDropdown] = useState<
+    LabelValue[]
+  >([]);
+  const [project_projectDropdown, setProject_ProjectDropdown] = useState<
+    LabelValue[]
+  >([]);
   const [project_anyFieldSelected, setProject_AnyFieldSelected] =
     useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>("");
-  const [project_savedFilters, setProject_SavedFilters] = useState<any[]>([]);
+  const [currentFilterId, setCurrentFilterId] = useState<number>(0);
+  const [project_savedFilters, setProject_SavedFilters] = useState<
+    SavedFilter[]
+  >([]);
   const [project_defaultFilter, setProject_DefaultFilter] =
     useState<boolean>(false);
   const [project_searchValue, setProject_SearchValue] = useState<string>("");
   const [project_isDeleting, setProject_IsDeleting] = useState<boolean>(false);
   const [project_error, setProject_Error] = useState("");
-  const [idFilter, setIdFilter] = useState<any>(undefined);
+  const [idFilter, setIdFilter] = useState<string | undefined>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
@@ -151,8 +171,8 @@ const ProjectReportFilter = ({
           ...project_filter_InitialFilter,
           clients: project_savedFilters[index].AppliedFilter.clients,
           projects: project_savedFilters[index].AppliedFilter.projects,
-          typeOfWork: project_savedFilters[index].AppliedFilter.typeOfWork,
-          billType: project_savedFilters[index].AppliedFilter.billType,
+          typeOfWork: project_savedFilters[index].AppliedFilter.TypeOfWork,
+          billType: project_savedFilters[index].AppliedFilter.BillingType,
           startDate: project_savedFilters[index].AppliedFilter.startDate,
           endDate: project_savedFilters[index].AppliedFilter.endDate,
         });
@@ -170,7 +190,7 @@ const ProjectReportFilter = ({
     } else {
       setProject_Error("");
       const params = {
-        filterId: currentFilterId !== "" ? currentFilterId : null,
+        filterId: currentFilterId > 0 ? currentFilterId : null,
         name: project_filterName,
         AppliedFilter: {
           clients: project_clientName.length > 0 ? project_clientName : [],
@@ -196,7 +216,7 @@ const ProjectReportFilter = ({
       };
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: null,
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -248,6 +268,7 @@ const ProjectReportFilter = ({
   useEffect(() => {
     const filterDropdowns = async () => {
       project_clientName.length > 0 &&
+        project_typeOfWork !== null &&
         project_typeOfWork?.value > 0 &&
         setProject_ProjectDropdown(
           await getProjectDropdownData(
@@ -265,7 +286,7 @@ const ProjectReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: SavedFilter[],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -279,56 +300,52 @@ const ProjectReportFilter = ({
   const handleProject_SavedFilterEdit = async (index: number) => {
     setProject_SaveFilter(true);
     setProject_DefaultFilter(true);
-    setProject_FilterName(project_savedFilters[index].Name);
-    setCurrentFilterId(project_savedFilters[index].FilterId);
 
+    const { Name, FilterId, AppliedFilter } = project_savedFilters[index];
+    setProject_FilterName(Name);
+    setCurrentFilterId(FilterId);
+
+    const clients = AppliedFilter?.clients || [];
     setProject_Clients(
-      project_savedFilters[index].AppliedFilter.clients.length > 0
-        ? project_clientDropdown.filter((client: any) =>
-            project_savedFilters[index].AppliedFilter.clients.includes(
-              client.value
-            )
+      clients.length > 0
+        ? project_clientDropdown.filter((client: LabelValue) =>
+            clients.includes(client.value)
           )
         : []
     );
-    setProject_ClientName(project_savedFilters[index].AppliedFilter.clients);
+    setProject_ClientName(clients);
+
     setProject_TypeOfWork(
-      project_savedFilters[index].AppliedFilter.TypeOfWork === null
-        ? null
-        : project_workTypeDropdown.filter(
-            (item: any) =>
-              item.value ===
-              project_savedFilters[index].AppliedFilter.TypeOfWork
+      AppliedFilter.TypeOfWork !== null
+        ? project_workTypeDropdown.filter(
+            (item: LabelValue) => item.value === AppliedFilter.TypeOfWork
           )[0]
+        : null
     );
+
     setProject_Projects(
-      project_savedFilters[index].AppliedFilter.projects.length > 0 &&
-        project_savedFilters[index].AppliedFilter.TypeOfWork > 0
+      AppliedFilter.projects.length > 0 && AppliedFilter.TypeOfWork !== null
         ? (
             await getProjectDropdownData(
               project_savedFilters[index].AppliedFilter.clients[0],
               project_savedFilters[index].AppliedFilter.TypeOfWork
             )
           ).filter(
-            (item: any) =>
-              item.value ===
-              project_savedFilters[index].AppliedFilter.projects[0]
+            (item: LabelValue) => item.value === AppliedFilter.projects[0]
           )[0]
         : null
     );
+
     setProject_BillingType(
-      project_savedFilters[index].AppliedFilter.BillingType === null
-        ? null
-        : project_billingTypeDropdown.filter(
-            (item: any) =>
-              item.value ===
-              project_savedFilters[index].AppliedFilter.BillingType
+      AppliedFilter.BillingType !== null
+        ? project_billingTypeDropdown.filter(
+            (item: LabelValue) => item.value === AppliedFilter.BillingType
           )[0]
+        : null
     );
-    setProject_StartDate(
-      project_savedFilters[index].AppliedFilter.startDate ?? ""
-    );
-    setProject_EndDate(project_savedFilters[index].AppliedFilter.endDate ?? "");
+
+    setProject_StartDate(AppliedFilter.startDate ?? "");
+    setProject_EndDate(AppliedFilter.endDate ?? "");
   };
 
   const handleProject_SavedFilterDelete = async () => {
@@ -345,7 +362,7 @@ const ProjectReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleProject_Close();
         getProject_FilterList();
-        setCurrentFilterId("");
+        setCurrentFilterId(0);
         sendFilterToPage({
           ...project_filter_InitialFilter,
         });
@@ -389,14 +406,14 @@ const ProjectReportFilter = ({
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={project_searchValue}
-                onChange={(e: any) => setProject_SearchValue(e.target.value)}
+                onChange={(e) => setProject_SearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {project_savedFilters.map((i: any, index: number) => {
+            {project_savedFilters.map((i: SavedFilter, index: number) => {
               return (
                 <div
                   key={i.FilterId}
@@ -468,11 +485,14 @@ const ProjectReportFilter = ({
                           (client) => client.value === option.value
                         )
                     )}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
                       setProject_Clients(data);
-                      setProject_ClientName(data.map((d: any) => d.value));
+                      setProject_ClientName(
+                        data.map((d: LabelValue) => d.value)
+                      );
                       setProject_Projects(null);
+                      setProject_ProjectDropdown([]);
                     }}
                     value={project_clients}
                     renderInput={(params: any) => (
@@ -491,12 +511,11 @@ const ProjectReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={project_workTypeDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue | null) => {
                       setProject_TypeOfWork(data);
                       setProject_Projects(null);
                     }}
-                    disabled={project_clientName.length > 1}
                     value={project_typeOfWork}
                     renderInput={(params: any) => (
                       <TextField
@@ -514,8 +533,8 @@ const ProjectReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={project_projectDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue | null) => {
                       setProject_Projects(data);
                     }}
                     disabled={project_clientName.length > 1}
@@ -538,8 +557,8 @@ const ProjectReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={project_billingTypeDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue | null) => {
                       setProject_BillingType(data);
                     }}
                     value={project_billingType}

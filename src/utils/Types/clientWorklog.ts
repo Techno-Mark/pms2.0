@@ -1,3 +1,23 @@
+export interface InitialFilter {
+  PageNo: number;
+  PageSize: number;
+  SortColumn: string;
+  IsDesc: boolean;
+  GlobalSearch: string;
+  ProjectIds: number[] | null;
+  OverdueBy: string | number | null;
+  PriorityId: number | null;
+  StatusId: number | null;
+  WorkTypeId: number | null;
+  AssignedTo: number | null;
+  StartDate: string | null;
+  EndDate: string | null;
+  DueDate: string | null;
+  IsCreatedByClient: boolean | null;
+  IsCompletedTaskPage: boolean;
+  IsSignedOff: boolean;
+}
+
 export interface TaskFilter {
   ProjectIds: number[] | null;
   PriorityId: number | null;
@@ -16,7 +36,7 @@ export interface DatatableWorklogProps {
   onDrawerOpen: () => void;
   onDataFetch: (getData: () => void) => void;
   onComment: (rowData: boolean, selectedId: number) => void;
-  onErrorLog?: (rowData: boolean, selectedId: number) => void;
+  onErrorLog: (rowData: boolean, selectedId: number) => void;
   currentFilterData: TaskFilter | [];
   searchValue: string;
   onCloseDrawer: boolean;

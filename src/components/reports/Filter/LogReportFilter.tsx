@@ -32,37 +32,51 @@ import {
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
 import { DialogTransition } from "@/utils/style/DialogTransition";
+import { LabelValue } from "@/utils/Types/types";
+
+interface SavedFilter {
+  FilterId: number;
+  Name: string;
+  AppliedFilter: {
+    ClientFilter: number[];
+    ProjectFilter: number[];
+    ProcessFilter: number[];
+    UpdatedByFilter: number[];
+    StartDate: string | null;
+    EndDate: string | null;
+  };
+}
 
 const LogReportFilter = ({
   isFiltering,
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
-  const [clients, setClients] = useState<any[]>([]);
-  const [clientName, setClientName] = useState<any[]>([]);
-  const [project, setProject] = useState<any[]>([]);
-  const [projectName, setProjectName] = useState<any[]>([]);
-  const [processLog, setProcessLog] = useState<any[]>([]);
-  const [processName, setProcessName] = useState<any[]>([]);
-  const [updatedBy, setUpdatedBy] = useState<any[]>([]);
-  const [updatedByName, setUpdatedByName] = useState<any[]>([]);
+  const [clients, setClients] = useState<LabelValue[]>([]);
+  const [clientName, setClientName] = useState<number[]>([]);
+  const [project, setProject] = useState<LabelValue[]>([]);
+  const [projectName, setProjectName] = useState<number[]>([]);
+  const [processLog, setProcessLog] = useState<LabelValue[]>([]);
+  const [processName, setProcessName] = useState<number[]>([]);
+  const [updatedBy, setUpdatedBy] = useState<LabelValue[]>([]);
+  const [updatedByName, setUpdatedByName] = useState<number[]>([]);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
 
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
-  const [clientDropdown, setClientDropdown] = useState<any[]>([]);
-  const [projectDropdown, setProjectDropdown] = useState<any[]>([]);
-  const [processDropdown, setProcessDropdown] = useState<any[]>([]);
-  const [updatedByDropdown, setUpdatedByDropdown] = useState<any[]>([]);
+  const [clientDropdown, setClientDropdown] = useState<LabelValue[]>([]);
+  const [projectDropdown, setProjectDropdown] = useState<LabelValue[]>([]);
+  const [processDropdown, setProcessDropdown] = useState<LabelValue[]>([]);
+  const [updatedByDropdown, setUpdatedByDropdown] = useState<LabelValue[]>([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>("");
-  const [savedFilters, setSavedFilters] = useState<any[]>([]);
+  const [currentFilterId, setCurrentFilterId] = useState<number>(0);
+  const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [error, setError] = useState("");
-  const [idFilter, setIdFilter] = useState<any>(undefined);
+  const [idFilter, setIdFilter] = useState<string | undefined>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
@@ -164,7 +178,7 @@ const LogReportFilter = ({
     }
     setError("");
     const params = {
-      filterId: currentFilterId !== "" ? currentFilterId : null,
+      filterId: currentFilterId > 0 ? currentFilterId : null,
       name: filterName,
       AppliedFilter: {
         ClientFilter: clientName,
@@ -188,7 +202,7 @@ const LogReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/savefilter`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -252,7 +266,7 @@ const LogReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: SavedFilter[],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -266,80 +280,56 @@ const LogReportFilter = ({
   const handleSavedFilterEdit = async (index: number) => {
     setSaveFilter(true);
     setDefaultFilter(true);
-    setFilterName(savedFilters[index].Name);
-    setCurrentFilterId(savedFilters[index].FilterId);
 
+    const { Name, FilterId, AppliedFilter } = savedFilters[index];
+    setFilterName(Name);
+    setCurrentFilterId(FilterId);
+
+    const clients = AppliedFilter?.ClientFilter || [];
     setClients(
-      savedFilters[index].AppliedFilter.ClientFilter.length === 0
-        ? []
-        : clientDropdown.filter((client: any) =>
-            savedFilters[index].AppliedFilter.ClientFilter.includes(
-              client.value
-            )
+      clients.length > 0
+        ? clientDropdown.filter((client: LabelValue) =>
+            clients.includes(client.value)
           )
+        : []
     );
-    setClientName(
-      savedFilters[index].AppliedFilter.ClientFilter.length === 0
-        ? []
-        : savedFilters[index].AppliedFilter.ClientFilter
-    );
+    setClientName(clients);
 
+    const project = AppliedFilter?.ProjectFilter || [];
     setProject(
-      savedFilters[index].AppliedFilter.ProjectFilter.length === 0
-        ? []
-        : (
+      clients.length > 0 && project.length > 0
+        ? (
             await getProjectDropdownData(
               savedFilters[index].AppliedFilter.ClientFilter[0],
               null
             )
-          ).filter(
-            (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.ProjectFilter
-          )[0]
+          ).filter((proj: LabelValue) => project.includes(proj.value))
+        : []
     );
-    setProjectName(
-      savedFilters[index].AppliedFilter.ProjectFilter.length === 0
-        ? []
-        : savedFilters[index].AppliedFilter.ProjectFilter
-    );
+    setProjectName(project);
 
+    const process = AppliedFilter?.ProcessFilter || [];
     setProcessLog(
-      savedFilters[index].AppliedFilter.ProcessFilter.length === 0
-        ? []
-        : processDropdown.filter((user: any) =>
-            savedFilters[index].AppliedFilter.ProcessFilter.includes(user.value)
+      process.length > 0
+        ? processDropdown.filter((proc: LabelValue) =>
+            process.includes(proc.value)
           )
+        : []
     );
-    setProcessName(
-      savedFilters[index].AppliedFilter.ProcessFilter.length === 0
-        ? []
-        : savedFilters[index].AppliedFilter.ProcessFilter
-    );
+    setProcessName(process);
 
+    const users = AppliedFilter?.UpdatedByFilter || [];
     setUpdatedBy(
-      savedFilters[index].AppliedFilter.UpdatedByFilter.length === 0
-        ? []
-        : updatedByDropdown.filter((user: any) =>
-            savedFilters[index].AppliedFilter.UpdatedByFilter.includes(
-              user.value
-            )
+      users.length > 0
+        ? updatedByDropdown.filter((user: LabelValue) =>
+            users.includes(user.value)
           )
+        : []
     );
-    setUpdatedByName(
-      savedFilters[index].AppliedFilter.UpdatedByFilter.length === 0
-        ? []
-        : savedFilters[index].AppliedFilter.UpdatedByFilter
-    );
-    setStartDate(
-      savedFilters[index].AppliedFilter.StartDate === null
-        ? ""
-        : savedFilters[index].AppliedFilter.StartDate
-    );
-    setEndDate(
-      savedFilters[index].AppliedFilter.EndDate === null
-        ? ""
-        : savedFilters[index].AppliedFilter.EndDate
-    );
+    setUpdatedByName(users);
+
+    setStartDate(AppliedFilter?.StartDate || "");
+    setEndDate(AppliedFilter?.EndDate || "");
   };
 
   const handleSavedFilterDelete = async () => {
@@ -348,7 +338,7 @@ const LogReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -356,7 +346,7 @@ const LogReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleClose();
         getFilterList();
-        setCurrentFilterId("");
+        setCurrentFilterId(0);
         sendFilterToPage({ ...logReport_InitialFilter });
       }
     };
@@ -398,14 +388,14 @@ const LogReportFilter = ({
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={searchValue}
-                onChange={(e: any) => setSearchValue(e.target.value)}
+                onChange={(e) => setSearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {savedFilters.map((i: any, index: number) => {
+            {savedFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div
@@ -477,10 +467,10 @@ const LogReportFilter = ({
                       (option) =>
                         !clients.find((client) => client.value === option.value)
                     )}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
                       setClients(data);
-                      setClientName(data.map((d: any) => d.value));
+                      setClientName(data.map((d: LabelValue) => d.value));
                       setProject([]);
                       setProcessName([]);
                     }}
@@ -505,10 +495,10 @@ const LogReportFilter = ({
                       (option) => !project.find((p) => p.value === option.value)
                     )}
                     disabled={clientName.length > 1}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
                       setProject(data);
-                      setProjectName(data.map((d: any) => d.value));
+                      setProjectName(data.map((d: LabelValue) => d.value));
                     }}
                     value={project}
                     renderInput={(params: any) => (
@@ -531,10 +521,10 @@ const LogReportFilter = ({
                       (option) =>
                         !processLog.find((user) => user.value === option.value)
                     )}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
                       setProcessLog(data);
-                      setProcessName(data.map((d: any) => d.value));
+                      setProcessName(data.map((d: LabelValue) => d.value));
                     }}
                     value={processLog}
                     renderInput={(params: any) => (
@@ -559,10 +549,10 @@ const LogReportFilter = ({
                       (option) =>
                         !updatedBy.find((user) => user.value === option.value)
                     )}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
                       setUpdatedBy(data);
-                      setUpdatedByName(data.map((d: any) => d.value));
+                      setUpdatedByName(data.map((d: LabelValue) => d.value));
                     }}
                     value={updatedBy}
                     renderInput={(params: any) => (

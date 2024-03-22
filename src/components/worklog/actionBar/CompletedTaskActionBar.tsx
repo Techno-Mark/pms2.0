@@ -6,6 +6,20 @@ import Comments from "@/assets/icons/worklogs/Comments";
 import ErrorLogs from "@/assets/icons/worklogs/ErrorLogs";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import RatingDialog from "../RatingDialog";
+import { DatatableWorklog } from "@/utils/Types/clientWorklog";
+
+interface Props {
+  selectedRowsCount: number;
+  selectedRows: number[];
+  selectedRowId: null | number;
+  handleClearSelection: () => void;
+  onComment: (rowData: boolean, selectedId: number) => void;
+  onErrorLog?: (rowData: boolean, selectedId: number) => void;
+  getWorkItemList: () => void;
+  selectedRowIds: number[];
+  workItemData: DatatableWorklog[];
+  onDataFetch: (getData: () => void) => void;
+}
 
 const CompletedTaskActionBar = ({
   selectedRowsCount,
@@ -16,10 +30,9 @@ const CompletedTaskActionBar = ({
   onErrorLog,
   getWorkItemList,
   selectedRowIds,
-  selectedRowStatusId,
   workItemData,
   onDataFetch,
-}: any) => {
+}: Props) => {
   const [isRatingOpen, setIsRatingOpen] = useState(false);
 
   useEffect(() => {
@@ -68,7 +81,12 @@ const CompletedTaskActionBar = ({
                   <ColorToolTip title="Comments" arrow>
                     <span
                       className="pl-2 pr-2 pt-1 cursor-pointer border-l border-lightSilver"
-                      onClick={() => onComment(true, selectedRowId)}
+                      onClick={() =>
+                        onComment(
+                          true,
+                          selectedRowId !== null ? selectedRowId : 0
+                        )
+                      }
                     >
                       <Comments />
                     </span>
@@ -79,7 +97,12 @@ const CompletedTaskActionBar = ({
                   <ColorToolTip title="Error logs" arrow>
                     <span
                       className="pl-2 pr-2 pt-1 cursor-pointer border-l border-r border-lightSilver"
-                      onClick={() => onErrorLog(true, selectedRowId)}
+                      onClick={() =>
+                        onErrorLog?.(
+                          true,
+                          selectedRowId !== null ? selectedRowId : 0
+                        )
+                      }
                     >
                       <ErrorLogs />
                     </span>
@@ -101,19 +124,20 @@ const CompletedTaskActionBar = ({
         onOpen={isRatingOpen}
         onClose={closeRatingDialog}
         ratingId={workItemData
-          .map((item: any) =>
+          .map((item: DatatableWorklog) =>
             selectedRowIds.includes(item.WorkitemId) && item.StatusId !== 13
               ? item.WorkitemId
-              : undefined
+              : 0
           )
-          .filter((i: any) => i !== undefined)}
+          .filter((i: number) => i !== 0)}
         noRatingId={workItemData
-          .map((item: any) =>
+          .map((item: DatatableWorklog) =>
             selectedRowIds.includes(item.WorkitemId) && item.StatusId === 13
               ? item.WorkitemId
-              : undefined
+              : 0
           )
-          .filter((i: any) => i !== undefined)}
+          .filter((i: number) => i !== 0)}
+        getWorkItemList={getWorkItemList}
         onDataFetch={onDataFetch}
         handleClearSelection={handleClearSelection}
       />

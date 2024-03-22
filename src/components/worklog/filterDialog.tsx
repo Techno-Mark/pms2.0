@@ -5,12 +5,14 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import {
+  Autocomplete,
   Checkbox,
   FormControl,
   FormControlLabel,
   InputLabel,
   MenuItem,
   Select,
+  TextField,
 } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -77,15 +79,15 @@ const FilterDialog = ({
     LabelValue[] | []
   >([]);
 
-  const [project, setProject] = useState<number>(0);
-  const [priority, setPriority] = useState<number>(0);
-  const [status, setStatus] = useState<number>(0);
-  const [typeOfWork, setTypeOfWork] = useState<number>(0);
+  const [typeOfWork, setTypeOfWork] = useState<LabelValue | null>(null);
+  const [project, setProject] = useState<LabelValue | null>(null);
+  const [status, setStatus] = useState<LabelValue | null>(null);
+  const [priority, setPriority] = useState<LabelValue | null>(null);
+  const [assignee, setAssignee] = useState<LabelValue | null>(null);
+  const [overDue, setOverDue] = useState<LabelValue | null>(null);
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
   const [dueDate, setDueDate] = useState<string | null>(null);
-  const [assignee, setAssignee] = useState<number>(0);
-  const [overDue, setOverDue] = useState<number>(0);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currSelectedFields, setCurrSelectedFileds] =
     useState<FilterFields>(initialFilter);
@@ -97,17 +99,16 @@ const FilterDialog = ({
   }, [isCompletedTaskClicked]);
 
   const handleResetAll = () => {
-    setProject(0);
-    setPriority(0);
-    setStatus(0);
-    setTypeOfWork(0);
+    setTypeOfWork(null);
+    setProject(null);
+    setStatus(null);
+    setPriority(null);
     setDueDate(null);
     setStartDate(null);
     setEndDate(null);
-    setAssignee(0);
-    setOverDue(0);
+    setAssignee(null);
+    setOverDue(null);
     setIsChecked(false);
-    setProjectDropdownData([]);
     setStatusDropdownWorklogData([]);
     setStatusDropdownCompletedData([]);
     currentFilterData?.(initialFilter);
@@ -115,15 +116,15 @@ const FilterDialog = ({
 
   useEffect(() => {
     const isAnyFieldSelected =
-      project !== 0 ||
-      priority !== 0 ||
-      status !== 0 ||
-      typeOfWork !== 0 ||
+      project !== null ||
+      priority !== null ||
+      status !== null ||
+      typeOfWork !== null ||
       dueDate !== null ||
       startDate !== null ||
       endDate !== null ||
-      assignee !== 0 ||
-      overDue !== 0 ||
+      assignee !== null ||
+      overDue !== null ||
       isChecked !== false;
 
     setAnyFieldSelected(isAnyFieldSelected);
@@ -142,15 +143,15 @@ const FilterDialog = ({
 
   useEffect(() => {
     const selectedFields = {
-      ProjectIds: project === 0 ? [] : [project] || null,
-      PriorityId: priority || null,
-      StatusId: status || null,
-      WorkTypeId: typeOfWork || null,
+      ProjectIds: project !== null ? [project?.value] : [],
+      PriorityId: priority !== null ? priority.value : null,
+      StatusId: status !== null ? status.value : null,
+      WorkTypeId: typeOfWork !== null ? typeOfWork.value : null,
       DueDate: dueDate !== null ? getFormattedDate(dueDate) || "" : null,
       StartDate: startDate !== null ? getFormattedDate(startDate) || "" : null,
       EndDate: endDate !== null ? getFormattedDate(endDate) || "" : null,
-      AssignedTo: assignee || null,
-      OverdueBy: overDue || null,
+      AssignedTo: assignee !== null ? assignee.value : null,
+      OverdueBy: overDue !== null ? overDue.value : null,
       IsSignedOff: isChecked,
     };
     setCurrSelectedFileds(selectedFields);
@@ -173,20 +174,13 @@ const FilterDialog = ({
   };
 
   useEffect(() => {
-    typeOfWork > 0 && getProjectData();
-    typeOfWork > 0 && getAllStatus();
+    typeOfWork !== null && typeOfWork.value > 0 && getAllStatus();
+    typeOfWork === null && setStatusDropdownWorklogData([]);
+    typeOfWork === null && setStatusDropdownCompletedData([]);
   }, [typeOfWork]);
 
-  const getProjectData = async () => {
-    const clientId = await localStorage.getItem("clientId");
-    typeOfWork > 0 &&
-      setProjectDropdownData(
-        await getProjectDropdownData(clientId, typeOfWork)
-      );
-  };
-
   const getAllStatus = async () => {
-    const data = typeOfWork > 0 && (await getStatusDropdownData(typeOfWork));
+    const data = await getStatusDropdownData(typeOfWork?.value);
     data.length > 0 &&
       setStatusDropdownWorklogData(
         data.filter(
@@ -233,6 +227,7 @@ const FilterDialog = ({
   const getWorkTypeData = async () => {
     const clientId = await localStorage.getItem("clientId");
     setTypeOfWorkDropdownData(await getTypeOfWorkDropdownData(clientId));
+    setProjectDropdownData(await getProjectDropdownData(clientId, null));
   };
 
   useEffect(() => {
@@ -259,82 +254,128 @@ const FilterDialog = ({
           <div className="flex flex-col gap-[20px] pt-[15px]">
             <div className="flex gap-[20px]">
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
-                <InputLabel id="workTypes-label">Types of Work</InputLabel>
-                <Select
-                  labelId="workTypes-label"
-                  id="workTypes-select"
-                  value={typeOfWork === 0 ? "" : typeOfWork}
-                  onChange={(e: any) => {
-                    setTypeOfWork(Number(e.target.value));
-                    setStatus(0);
+                <Autocomplete
+                  id="tags-standard"
+                  options={typeOfWorkDropdownData}
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(e, data: LabelValue | null) => {
+                    setTypeOfWork(data);
+                    setStatus(null);
                   }}
-                >
-                  {typeOfWorkDropdownData.map((i: LabelValue) => (
-                    <MenuItem value={i.value} key={i.value}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+                  value={typeOfWork}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Type Of Work"
+                    />
+                  )}
+                />
               </FormControl>
 
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
-                <InputLabel id="project">Project</InputLabel>
-                <Select
-                  labelId="project"
-                  id="project"
-                  value={project === 0 ? "" : project}
-                  onChange={(e) => setProject(Number(e.target.value))}
-                >
-                  {projectDropdownData.map((i: LabelValue) => (
-                    <MenuItem value={i.value} key={i.value}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+                <Autocomplete
+                  id="tags-standard"
+                  options={projectDropdownData}
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(e, data: LabelValue | null) => {
+                    setProject(data);
+                  }}
+                  value={project}
+                  renderInput={(params: any) => (
+                    <TextField {...params} variant="standard" label="Project" />
+                  )}
+                />
               </FormControl>
 
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
-                <InputLabel id="status">Status</InputLabel>
-                <Select
-                  labelId="status"
-                  id="status"
-                  value={status === 0 ? "" : status}
-                  onChange={(e) => {
-                    setStatus(Number(e.target.value));
-                    e.target.value === 13
-                      ? setIsChecked(true)
-                      : setIsChecked(false);
+                <Autocomplete
+                  id="tags-standard"
+                  options={
+                    isCompletedTaskClicked
+                      ? statusDropdownCompletedData
+                      : statusDropdownWorklogData
+                  }
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(e, data: LabelValue | null) => {
+                    setStatus(data);
+                    data !== null && data.value === 13 && setIsChecked(true);
+                    data !== null && data.value !== 13 && setIsChecked(false);
                   }}
-                >
-                  {isCompletedTaskClicked
-                    ? statusDropdownCompletedData.map((i: LabelValueType) => (
-                        <MenuItem value={i.value} key={i.value}>
-                          {i.label}
-                        </MenuItem>
-                      ))
-                    : statusDropdownWorklogData.map((i: LabelValueType) => (
-                        <MenuItem value={i.value} key={i.value}>
-                          {i.label}
-                        </MenuItem>
-                      ))}
-                </Select>
+                  value={status}
+                  renderInput={(params: any) => (
+                    <TextField {...params} variant="standard" label="Status" />
+                  )}
+                />
               </FormControl>
             </div>
             <div className="flex gap-[20px]">
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
-                <InputLabel id="priority">Priority</InputLabel>
-                <Select
-                  labelId="priority"
-                  id="priority"
-                  value={priority === 0 ? "" : priority}
-                  onChange={(e) => setPriority(Number(e.target.value))}
-                >
-                  <MenuItem value={1}>High</MenuItem>
-                  <MenuItem value={2}>Medium</MenuItem>
-                  <MenuItem value={3}>Low</MenuItem>
-                </Select>
+                <Autocomplete
+                  id="tags-standard"
+                  options={[
+                    { label: "High", value: 1 },
+                    { label: "Medium", value: 2 },
+                    { label: "Low", value: 3 },
+                  ]}
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(e, data: LabelValue | null) => {
+                    setPriority(data);
+                  }}
+                  value={priority}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Priority"
+                    />
+                  )}
+                />
               </FormControl>
 
+              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
+                <Autocomplete
+                  id="tags-standard"
+                  options={assigneeDropdownData}
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(e, data: LabelValue | null) => {
+                    setAssignee(data);
+                  }}
+                  value={assignee}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Assignee"
+                    />
+                  )}
+                />
+              </FormControl>
+
+              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
+                <Autocomplete
+                  id="tags-standard"
+                  options={[
+                    { label: "All", value: 1 },
+                    { label: "Yesterday", value: 2 },
+                    { label: "LastWeek", value: 3 },
+                  ]}
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(e, data: LabelValue | null) => {
+                    setOverDue(data);
+                  }}
+                  value={overDue}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Overdue By"
+                    />
+                  )}
+                />
+              </FormControl>
+            </div>
+            <div className="flex gap-[20px]">
               <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
@@ -368,8 +409,6 @@ const FilterDialog = ({
                   />
                 </LocalizationProvider>
               </div>
-            </div>
-            <div className="flex gap-[20px]">
               <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
@@ -386,36 +425,6 @@ const FilterDialog = ({
                   />
                 </LocalizationProvider>
               </div>
-
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
-                <InputLabel id="assignee-label">Assignee</InputLabel>
-                <Select
-                  labelId="assignee-label"
-                  id="assignee-select"
-                  value={assignee === 0 ? "" : assignee}
-                  onChange={(e) => setAssignee(Number(e.target.value))}
-                >
-                  {assigneeDropdownData.map((i: LabelValue) => (
-                    <MenuItem value={i.value} key={i.value}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
-                <InputLabel id="overdueBy-label">Overdue By</InputLabel>
-                <Select
-                  labelId="overdueBy-label"
-                  id="overdueBy-select"
-                  value={overDue === 0 ? "" : overDue}
-                  onChange={(e) => setOverDue(Number(e.target.value))}
-                >
-                  <MenuItem value={1}>All</MenuItem>
-                  <MenuItem value={2}>Yesterday</MenuItem>
-                  <MenuItem value={3}>LastWeek</MenuItem>
-                </Select>
-              </FormControl>
             </div>
             <div className="flex gap-[20px]">
               {isCompletedTaskClicked && (

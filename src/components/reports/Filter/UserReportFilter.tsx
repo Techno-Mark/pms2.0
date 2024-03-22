@@ -27,6 +27,18 @@ import { Delete, Edit } from "@mui/icons-material";
 import { isWeekend } from "@/utils/commonFunction";
 import { callAPI } from "@/utils/API/callAPI";
 import { getCCDropdownData, getDeptData } from "@/utils/commonDropdownApiCall";
+import { LabelValue, LabelValueProfileImage } from "@/utils/Types/types";
+
+interface SavedFilter {
+  FilterId: number;
+  Name: string;
+  AppliedFilter: {
+    users: number[];
+    departmentIds: number[];
+    startDate: string | null;
+    endDate: string | null;
+  };
+}
 
 const UserReportFilter = ({
   isFiltering,
@@ -34,23 +46,25 @@ const UserReportFilter = ({
   onDialogClose,
 }: FilterType) => {
   const [user_userNames, setUser_UserNames] = useState<number[]>([]);
-  const [user_users, setUser_Users] = useState<number[]>([]);
+  const [user_users, setUser_Users] = useState<LabelValueProfileImage[]>([]);
   const [user_deptNames, setUser_DeptNames] = useState<number[]>([]);
-  const [user_depts, setUser_Depts] = useState<number[]>([]);
+  const [user_depts, setUser_Depts] = useState<LabelValue[]>([]);
   const [user_filterName, setUser_FilterName] = useState<string>("");
   const [user_saveFilter, setUser_SaveFilter] = useState<boolean>(false);
-  const [user_deptDropdown, setUser_DeptDropdown] = useState<any[]>([]);
-  const [user_userDropdown, setUser_UserDropdown] = useState<any[]>([]);
+  const [user_userDropdown, setUser_UserDropdown] = useState<
+    LabelValueProfileImage[]
+  >([]);
+  const [user_deptDropdown, setUser_DeptDropdown] = useState<LabelValue[]>([]);
   const [user_anyFieldSelected, setUser_AnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>("");
-  const [user_savedFilters, setUser_SavedFilters] = useState<any[]>([]);
+  const [currentFilterId, setCurrentFilterId] = useState<number>(0);
+  const [user_savedFilters, setUser_SavedFilters] = useState<SavedFilter[]>([]);
   const [user_defaultFilter, setUser_DefaultFilter] = useState<boolean>(false);
   const [user_searchValue, setUser_SearchValue] = useState<string>("");
   const [user_isDeleting, setUser_IsDeleting] = useState<boolean>(false);
   const [user_startDate, setUser_StartDate] = useState<string | number>("");
   const [user_endDate, setUser_EndDate] = useState<string | number>("");
   const [user_error, setUser_Error] = useState("");
-  const [idFilter, setIdFilter] = useState<any>(undefined);
+  const [idFilter, setIdFilter] = useState<string | undefined>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
@@ -136,7 +150,7 @@ const UserReportFilter = ({
     } else {
       setUser_Error("");
       const params = {
-        filterId: currentFilterId !== "" ? currentFilterId : null,
+        filterId: currentFilterId > 0 ? currentFilterId : null,
         name: user_filterName,
         AppliedFilter: {
           users: user_userNames.length > 0 ? user_userNames : [],
@@ -158,7 +172,7 @@ const UserReportFilter = ({
       };
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: null,
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -203,7 +217,7 @@ const UserReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: SavedFilter[],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -215,30 +229,35 @@ const UserReportFilter = ({
   };
 
   const handleUserSavedFilterEdit = (index: number) => {
-    setCurrentFilterId(user_savedFilters[index].FilterId);
-    setUser_FilterName(user_savedFilters[index].Name);
-    setUser_Users(
-      user_savedFilters[index].AppliedFilter.users.length > 0
-        ? user_userDropdown.filter((user: any) =>
-            user_savedFilters[index].AppliedFilter.users.includes(user.value)
-          )
-        : []
-    );
-    setUser_UserNames(user_savedFilters[index].AppliedFilter.users);
-    setUser_Depts(
-      user_savedFilters[index].AppliedFilter.departmentIds.length > 0
-        ? user_deptDropdown.filter((dept: any) =>
-            user_savedFilters[index].AppliedFilter.departmentIds.includes(
-              dept.value
-            )
-          )
-        : []
-    );
-    setUser_DeptNames(user_savedFilters[index].AppliedFilter.departmentIds);
-    setUser_StartDate(user_savedFilters[index].AppliedFilter.startDate ?? "");
-    setUser_EndDate(user_savedFilters[index].AppliedFilter.endDate ?? "");
-    setUser_DefaultFilter(true);
     setUser_SaveFilter(true);
+    setUser_DefaultFilter(true);
+
+    const { Name, FilterId, AppliedFilter } = user_savedFilters[index];
+    setUser_FilterName(Name);
+    setCurrentFilterId(FilterId);
+
+    const users = AppliedFilter?.users || [];
+    setUser_Users(
+      users.length > 0
+        ? user_userDropdown.filter((user: LabelValue) =>
+            users.includes(user.value)
+          )
+        : []
+    );
+    setUser_UserNames(users);
+
+    const department = AppliedFilter?.departmentIds || [];
+    setUser_Depts(
+      department.length > 0
+        ? user_deptDropdown.filter((dept: LabelValue) =>
+            department.includes(dept.value)
+          )
+        : []
+    );
+    setUser_DeptNames(department);
+
+    setUser_StartDate(AppliedFilter?.startDate || "");
+    setUser_EndDate(AppliedFilter?.endDate || "");
   };
 
   const handleUserSavedFilterDelete = async () => {
@@ -247,7 +266,7 @@ const UserReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -255,7 +274,7 @@ const UserReportFilter = ({
         toast.success("Filter has been deleted successfully.");
         handleUserClose();
         getUserFilterList();
-        setCurrentFilterId("");
+        setCurrentFilterId(0);
         sendFilterToPage({ ...user_InitialFilter });
       }
     };
@@ -297,14 +316,14 @@ const UserReportFilter = ({
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={user_searchValue}
-                onChange={(e: any) => setUser_SearchValue(e.target.value)}
+                onChange={(e) => setUser_SearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {user_savedFilters.map((i: any, index: number) => {
+            {user_savedFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div
@@ -373,9 +392,13 @@ const UserReportFilter = ({
                     multiple
                     id="tags-standard"
                     options={user_userDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
-                      setUser_UserNames(data.map((d: any) => d.value));
+                    getOptionLabel={(option: LabelValueProfileImage) =>
+                      option.label
+                    }
+                    onChange={(e, data: LabelValueProfileImage[]) => {
+                      setUser_UserNames(
+                        data.map((d: LabelValueProfileImage) => d.value)
+                      );
                       setUser_Users(data);
                     }}
                     value={user_users}
@@ -396,9 +419,9 @@ const UserReportFilter = ({
                     multiple
                     id="tags-standard"
                     options={user_deptDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
-                      setUser_DeptNames(data.map((d: any) => d.value));
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
+                      setUser_DeptNames(data.map((d: LabelValue) => d.value));
                       setUser_Depts(data);
                     }}
                     value={user_depts}
@@ -411,6 +434,8 @@ const UserReportFilter = ({
                     )}
                   />
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] -mt-[1px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
@@ -431,8 +456,6 @@ const UserReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
-              </div>
-              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
