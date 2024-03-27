@@ -26,6 +26,8 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getFormattedDate } from "@/utils/timerFunctions";
 import { getBillingTypeData, getDeptData } from "@/utils/commonDropdownApiCall";
+import { DepartmentDataObj } from "@/utils/Types/settingTypes";
+import { LabelValue } from "@/utils/Types/types";
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -37,43 +39,42 @@ export interface ClientContentRef {
 const ClientContent = forwardRef<
   ClientContentRef,
   {
-    tab: string;
-    onEdit: boolean;
+    onEdit: number;
     onClose: () => void;
-    onDataFetch: any;
+    onDataFetch: (() => void) | null;
     onOpen: boolean;
-    onChangeLoader: any;
+    onChangeLoader: (e: boolean) => void;
   }
->(({ tab, onEdit, onClose, onOpen, onDataFetch, onChangeLoader }, ref) => {
+>(({ onEdit, onClose, onOpen, onDataFetch, onChangeLoader }, ref) => {
   const [departmentData, setDepartmentData] = useState([
     "Tax",
     "Acounting",
     "Audit",
   ]);
-  const [departmentDataObj, setDepartmentDataObj] = useState<any>([]);
+  const [departmentDataObj, setDepartmentDataObj] = useState<
+    DepartmentDataObj[]
+  >([]);
+
   const handleClose = () => {
     setDepartmentDataObj([
-      ...departmentData.map(
-        (i: any, index: any) =>
-          new Object({
-            id: 0,
-            apiId: i === "Acounting" ? 1 : i === "Audit" ? 2 : i === "Tax" && 3,
-            index: index,
-            label: i,
-            checkbox: false,
-            isOpen: false,
-            billingType: 0,
-            billingErr: false,
-            group: [],
-            groupErr: false,
-            selectGroupValue: [],
-            contHrs: 0,
-            contHrsErr: false,
-            actHrs: 0,
-            actHrsErr: false,
-            allFields: false,
-          })
-      ),
+      ...departmentData.map((i: string, index: number) => ({
+        id: 0,
+        apiId: i === "Acounting" ? 1 : i === "Audit" ? 2 : i === "Tax" ? 3 : 0,
+        index: index,
+        label: i,
+        checkbox: false,
+        isOpen: false,
+        billingType: 0,
+        billingErr: false,
+        group: [],
+        groupErr: false,
+        selectGroupValue: [],
+        contHrs: 0,
+        contHrsErr: false,
+        actHrs: 0,
+        actHrsErr: false,
+        allFields: false,
+      })),
     ]);
   };
 
@@ -82,28 +83,25 @@ const ClientContent = forwardRef<
       departmentDataObj.length < 3 &&
       setDepartmentDataObj([
         ...departmentDataObj,
-        ...departmentData.map(
-          (i: any, index: any) =>
-            new Object({
-              id: 0,
-              apiId:
-                i === "Acounting" ? 1 : i === "Audit" ? 2 : i === "Tax" && 3,
-              index: index,
-              label: i,
-              checkbox: false,
-              isOpen: false,
-              billingType: 0,
-              billingErr: false,
-              group: [],
-              groupErr: false,
-              selectGroupValue: [],
-              contHrs: 0,
-              contHrsErr: false,
-              actHrs: 0,
-              actHrsErr: false,
-              allFields: false,
-            })
-        ),
+        ...departmentData.map((i: string, index: number) => ({
+          id: 0,
+          apiId:
+            i === "Acounting" ? 1 : i === "Audit" ? 2 : i === "Tax" ? 3 : 0,
+          index: index,
+          label: i,
+          checkbox: false,
+          isOpen: false,
+          billingType: 0,
+          billingErr: false,
+          group: [],
+          groupErr: false,
+          selectGroupValue: [],
+          contHrs: 0,
+          contHrsErr: false,
+          actHrs: 0,
+          actHrsErr: false,
+          allFields: false,
+        })),
       ]);
   }, [onOpen]);
 
@@ -113,10 +111,12 @@ const ClientContent = forwardRef<
   const [Id, setId] = useState(0);
   const [clientName, setClientName] = useState("");
   const [clientNameError, setClientNameError] = useState(false);
-  const [depts, setDepts] = useState<any[]>([]);
-  const [deptName, setDeptName] = useState<any[]>([]);
+  const [depts, setDepts] = useState<LabelValue[]>([]);
+  const [deptName, setDeptName] = useState<number[]>([]);
   const [deptError, setDeptError] = useState(false);
-  const [departmentDropdown, setDepartmentDropdown] = useState<any[]>([]);
+  const [departmentDropdown, setDepartmentDropdown] = useState<LabelValue[]>(
+    []
+  );
   const [address, setAddress] = useState("");
   const [addressError, setAddressError] = useState(false);
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -128,14 +128,18 @@ const ClientContent = forwardRef<
   const [isAddClientClicked, setIsAddClientClicked] = useState(true);
   const [isAdditionalFieldsClicked, setIsAdditionalFieldsClicked] =
     useState(false);
-  const [deletedPocFields, setDeletedPocFields] = useState<any>([]);
-  const [pocFields, setPocFields] = useState<any>([
+  const [deletedPocFields, setDeletedPocFields] = useState<
+    { Name: string | null; Email: string | null }[]
+  >([]);
+  const [pocFields, setPocFields] = useState<
+    { Name: string | null; Email: string | null }[]
+  >([
     {
       Name: null,
       Email: null,
     },
   ]);
-  const [stateList, setStateList] = useState<string[] | any>([]);
+  const [stateList, setStateList] = useState<LabelValue[]>([]);
   const [cpaName, setCpaName] = useState<string>("");
   const [cpaEmail, setCpaEmail] = useState<string>("");
   const [cpaMobileNo, setCpaMobileNo] = useState<string>("");
@@ -149,8 +153,8 @@ const ClientContent = forwardRef<
   const [pabsManagerAssigned, setPabsManagerAssigned] = useState<string>("");
   const [groupEmail, setGroupEmail] = useState<string>("");
   const [sopStatus, setSOPStatus] = useState<string>("");
-  const [dateOfImplementation, setDateofImplementation] = useState<any>("");
-  const [agreementStartDate, setAgreementStartDate] = useState<any>("");
+  const [dateOfImplementation, setDateofImplementation] = useState<string>("");
+  const [agreementStartDate, setAgreementStartDate] = useState<string>("");
   const [fteAgreement, setFteAgreement] = useState<string>("");
   const [estimationWorkflow, setEstimationWorkFlow] = useState<string>("");
   const [vpnRequirement, setVpnRequirement] = useState<string>("");
@@ -183,13 +187,13 @@ const ClientContent = forwardRef<
     setPocFields(newTaskFields);
   };
 
-  const handleClientPOCNameChange = (e: any, index: number) => {
+  const handleClientPOCNameChange = (e: string, index: number) => {
     const newPOCFields = [...pocFields];
     newPOCFields[index].Name = e;
     setPocFields(newPOCFields);
   };
 
-  const handleClientPOCEmailChange = (e: any, index: number) => {
+  const handleClientPOCEmailChange = (e: string, index: number) => {
     const newPOCFields = [...pocFields];
     newPOCFields[index].Email = e;
     setPocFields(newPOCFields);
@@ -197,26 +201,26 @@ const ClientContent = forwardRef<
 
   const toggleAccordion = (
     e: React.ChangeEvent<HTMLInputElement>,
-    index: any
+    index: number
   ) => {
     const checked = e.target.checked;
     checked
       ? setDepartmentDataObj([
-          ...departmentDataObj.map((i: any) =>
+          ...departmentDataObj.map((i: DepartmentDataObj) =>
             i.index === index
-              ? new Object({
+              ? {
                   ...i,
                   checkbox: checked,
                   isOpen: checked,
                   allFields: true,
-                })
+                }
               : i
           ),
         ])
       : setDepartmentDataObj([
-          ...departmentDataObj.map((i: any) =>
+          ...departmentDataObj.map((i: DepartmentDataObj) =>
             i.index === index
-              ? new Object({
+              ? {
                   ...i,
                   checkbox: checked,
                   isOpen: checked,
@@ -225,7 +229,7 @@ const ClientContent = forwardRef<
                   contHrsErr: checked,
                   actHrsErr: checked,
                   allFields: false,
-                })
+                }
               : i
           ),
         ]);
@@ -233,7 +237,7 @@ const ClientContent = forwardRef<
 
   useEffect(() => {
     clearClientData();
-    if (onEdit) {
+    if (onEdit > 0) {
       const getClientById = async () => {
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
@@ -260,7 +264,7 @@ const ClientContent = forwardRef<
                 response.data.ResponseData.DepartmentIds.length <= 0 ||
                   response.data.ResponseData.DepartmentIds.length === null
                   ? []
-                  : departmentDropdown.filter((dept: any) =>
+                  : departmentDropdown.filter((dept: LabelValue) =>
                       response.data.ResponseData.DepartmentIds.includes(
                         dept.value
                       )
@@ -269,35 +273,48 @@ const ClientContent = forwardRef<
               setDeptName(response.data.ResponseData.DepartmentIds);
               setTel(response.data.ResponseData.ContactNo);
               setId(response.data.ResponseData.Id);
-              const updatedFirstArray = departmentDataObj.map((item: any) => {
-                const matchingItem = response.data.ResponseData.WorkTypes.find(
-                  (secondItem: any) =>
-                    secondItem.WorkTypeId === item.apiId ? true : false
-                );
+              const updatedFirstArray = departmentDataObj.map(
+                (item: DepartmentDataObj) => {
+                  const matchingItem =
+                    response.data.ResponseData.WorkTypes.find(
+                      (secondItem: {
+                        ClientWorkTypeId: number;
+                        WorkTypeId: number;
+                        BillingTypeId: number;
+                        GroupIds: number[];
+                        LayoutId: number;
+                        InternalHrs: number;
+                        ContractHrs: number;
+                      }) =>
+                        secondItem.WorkTypeId === item.apiId ? true : false
+                    );
 
-                if (matchingItem) {
-                  const filteredOptionsData = groupTypeData.filter((d: any) => {
-                    return matchingItem.GroupIds.some((id: number) => {
-                      return id === parseInt(d.value);
-                    });
-                  });
-                  return {
-                    ...item,
-                    apiId: matchingItem.WorkTypeId,
-                    id: matchingItem.ClientWorkTypeId,
-                    checkbox: true,
-                    isOpen: true,
-                    billingType: matchingItem.BillingTypeId,
-                    group: filteredOptionsData,
-                    selectGroupValue: matchingItem.GroupIds,
-                    contHrs: matchingItem.ContractHrs,
-                    actHrs: matchingItem.InternalHrs,
-                    allFields: false,
-                  };
+                  if (matchingItem) {
+                    const filteredOptionsData = groupTypeData.filter(
+                      (d: LabelValue) => {
+                        return matchingItem.GroupIds.some((id: number) => {
+                          return id === Number(d.value);
+                        });
+                      }
+                    );
+                    return {
+                      ...item,
+                      apiId: matchingItem.WorkTypeId,
+                      id: matchingItem.ClientWorkTypeId,
+                      checkbox: true,
+                      isOpen: true,
+                      billingType: matchingItem.BillingTypeId,
+                      group: filteredOptionsData,
+                      selectGroupValue: matchingItem.GroupIds,
+                      contHrs: matchingItem.ContractHrs,
+                      actHrs: matchingItem.InternalHrs,
+                      allFields: false,
+                    };
+                  }
+
+                  return item;
                 }
-
-                return item;
-              });
+              );
               setDepartmentDataObj(updatedFirstArray);
 
               setCpaName(
@@ -472,48 +489,48 @@ const ClientContent = forwardRef<
     }
   }, [onEdit, onOpen]);
 
-  const handleContHrs = (e: any, index: any) => {
-    if (e.length <= 5) {
+  const handleContHrs = (e: number, index: number) => {
+    if (e.toString().length <= 5) {
       setDepartmentDataObj([
-        ...departmentDataObj.map((i: any) =>
+        ...departmentDataObj.map((i: DepartmentDataObj) =>
           i.index === index
-            ? new Object({
+            ? {
                 ...i,
                 contHrs: e,
-                contHrsErr: e.length > 0 ? false : true,
+                contHrsErr: e.toString().length > 0 ? false : true,
                 allFields:
                   i.billingType > 0 &&
                   i.selectGroupValue.length > 0 &&
-                  i.actHrs > 0 &&
-                  e.length > 0 &&
-                  e.length <= 5
+                  Number(i.actHrs) > 0 &&
+                  e.toString().length > 0 &&
+                  e.toString().length <= 5
                     ? false
                     : true,
-              })
+              }
             : i
         ),
       ]);
     }
   };
 
-  const handleActualHrs = (e: any, index: any) => {
-    if (e.length <= 5) {
+  const handleActualHrs = (e: number, index: number) => {
+    if (e.toString().length <= 5) {
       setDepartmentDataObj([
-        ...departmentDataObj.map((i: any) =>
+        ...departmentDataObj.map((i: DepartmentDataObj) =>
           i.index === index
-            ? new Object({
+            ? {
                 ...i,
                 actHrs: e,
-                actHrsErr: e.length > 0 ? false : true,
+                actHrsErr: e.toString().length > 0 ? false : true,
                 allFields:
                   i.billingType > 0 &&
                   i.selectGroupValue.length > 0 &&
-                  i.contHrs > 0 &&
-                  e.length > 0 &&
-                  e.length <= 5
+                  Number(i.contHrs) > 0 &&
+                  e.toString().length > 0 &&
+                  e.toString().length <= 5
                     ? false
                     : true,
-              })
+              }
             : i
         ),
       ]);
@@ -533,14 +550,14 @@ const ClientContent = forwardRef<
     setDeptError(deptName.length <= 0);
 
     setDepartmentDataObj([
-      ...departmentDataObj.map((i: any) =>
+      ...departmentDataObj.map((i: DepartmentDataObj) =>
         i.checkbox === true
-          ? new Object({
+          ? {
               ...i,
               billingErr: i.billingType <= 0 ? true : false,
               groupErr: i.selectGroupValue.length <= 0 ? true : false,
               contHrsErr:
-                i.contHrs <= 0
+                Number(i.contHrs) <= 0
                   ? true
                   : i.contHrs === "0" ||
                     i.contHrs === "00" ||
@@ -558,7 +575,7 @@ const ClientContent = forwardRef<
                   ? true
                   : false,
               actHrsErr:
-                i.actHrs <= 0
+                Number(i.actHrs) <= 0
                   ? true
                   : Number(i.actHrs) > Number(i.contHrs)
                   ? true
@@ -584,24 +601,24 @@ const ClientContent = forwardRef<
                 Number(i.actHrs) > 0
                   ? false
                   : true,
-            })
+            }
           : i
       ),
     ]);
 
     const allFieldsCheck = departmentDataObj
-      .map((i: any) => i.allFields)
+      .map((i: DepartmentDataObj) => i.allFields)
       .includes(true);
 
     const timeGrater = departmentDataObj
-      .map((i: any) => Number(i.actHrs) > Number(i.contHrs))
+      .map((i: DepartmentDataObj) => Number(i.actHrs) > Number(i.contHrs))
       .includes(true);
 
     const isChecked = departmentDataObj
-      .map((i: any) => (i.checkbox === true ? i.index : false))
-      .filter((j: any) => j !== false);
+      .map((i: DepartmentDataObj) => (i.checkbox === true ? i.index : false))
+      .filter((j: number | boolean) => j !== false);
 
-    const hasError = departmentDataObj.map((i: any) =>
+    const hasError = departmentDataObj.map((i: DepartmentDataObj) =>
       !i.billingErr && !i.groupErr && !i.contHrsErr && !i.actHrsErr
         ? i.index
         : false
@@ -650,33 +667,31 @@ const ClientContent = forwardRef<
     departmentDataObj.length < 3 &&
       setDepartmentDataObj([
         ...departmentDataObj,
-        ...departmentData.map(
-          (i: any, index: any) =>
-            new Object({
-              id: 0,
-              apiId:
-                i === "Acounting" ? 1 : i === "Audit" ? 2 : i === "Tax" && 3,
-              index: index,
-              label: i,
-              checkbox: false,
-              isOpen: false,
-              billingType: 0,
-              billingErr: false,
-              group: [],
-              groupErr: false,
-              selectGroupValue: [],
-              contHrs: 0,
-              contHrsErr: false,
-              actHrs: 0,
-              actHrsErr: false,
-            })
-        ),
+        ...departmentData.map((i: string, index: number) => ({
+          id: 0,
+          apiId:
+            i === "Acounting" ? 1 : i === "Audit" ? 2 : i === "Tax" ? 3 : 0,
+          index: index,
+          label: i,
+          checkbox: false,
+          isOpen: false,
+          billingType: 0,
+          billingErr: false,
+          group: [],
+          groupErr: false,
+          selectGroupValue: [],
+          contHrs: 0,
+          contHrsErr: false,
+          actHrs: 0,
+          actHrsErr: false,
+          allFields: false,
+        })),
       ]);
 
     setPocFields([
       {
         Name: null,
-        email: null,
+        Email: null,
       },
     ]);
     setCpaName("");
@@ -715,15 +730,17 @@ const ClientContent = forwardRef<
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
 
-    const getFieldValue = (condition: any, value: any) => {
-      return condition && value.trim() !== "" ? value.trim() : null;
+    const getFieldValue = (condition: boolean, value: any) => {
+      return condition && value !== null && value?.toString().trim() !== ""
+        ? value?.toString().trim()
+        : null;
     };
 
     try {
       const workTypes = departmentDataObj
-        .map((i: any) =>
+        .map((i: DepartmentDataObj) =>
           i.checkbox === true
-            ? new Object({
+            ? {
                 ClientWorkTypeId: i.id,
                 workTypeId: i.apiId,
                 billingTypeId: i.billingType,
@@ -731,10 +748,24 @@ const ClientContent = forwardRef<
                 layoutId: 1,
                 internalHrs: i.actHrs,
                 contractHrs: i.contHrs,
-              })
+              }
             : false
         )
-        .filter((j: any) => j !== false);
+        .filter(
+          (
+            j:
+              | {
+                  ClientWorkTypeId: number;
+                  workTypeId: number;
+                  billingTypeId: number;
+                  groupIds: number[];
+                  layoutId: number;
+                  internalHrs: number | string;
+                  contractHrs: number | string;
+                }
+              | boolean
+          ) => j !== false
+        );
 
       // const response = await axios.get(
       //   `${process.env.pms_api_url}/client/getdropdownforgroup`,
@@ -872,11 +903,11 @@ const ClientContent = forwardRef<
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success(
-            `Client ${onEdit ? "Updated" : "created"} successfully.`
+            `Client ${onEdit > 0 ? "Updated" : "created"} successfully.`
           );
           clearClientData();
           handleClose();
-          onDataFetch();
+          onDataFetch?.();
           onChangeLoader(false);
           {
             !addMoreClicked && onClose();
@@ -994,15 +1025,15 @@ const ClientContent = forwardRef<
 
   const handleMultiSelect = (
     e: React.SyntheticEvent,
-    value: any,
-    index: any
+    value: LabelValue[],
+    index: number
   ) => {
     if (value !== undefined) {
-      const selectedValue = value.map((v: any) => v.value);
+      const selectedValue = value.map((v: LabelValue) => v.value);
       setDepartmentDataObj([
-        ...departmentDataObj.map((i: any) =>
+        ...departmentDataObj.map((i: DepartmentDataObj) =>
           i.index === index
-            ? new Object({
+            ? {
                 ...i,
                 group: value,
                 groupErr: value.length > 0 ? false : true,
@@ -1010,13 +1041,13 @@ const ClientContent = forwardRef<
                 allFields:
                   i.billingType > 0 &&
                   selectedValue.length > 0 &&
-                  i.actHrs > 0 &&
-                  i.actHrs <= 5 &&
-                  i.contHrs > 0 &&
-                  i.contHrs <= 5
+                  Number(i.actHrs) > 0 &&
+                  Number(i.actHrs) <= 5 &&
+                  Number(i.contHrs) > 0 &&
+                  Number(i.contHrs) <= 5
                     ? false
                     : true,
-              })
+              }
             : i
         ),
       ]);
@@ -1169,10 +1200,10 @@ const ClientContent = forwardRef<
                 id="tags-standard"
                 sx={{ mt: "-10px" }}
                 options={departmentDropdown}
-                getOptionLabel={(option: any) => option.label}
-                onChange={(e, data: any) => {
+                getOptionLabel={(option: LabelValue) => option.label}
+                onChange={(e, data: LabelValue[]) => {
                   setDepts(data);
-                  setDeptName(data.map((d: any) => d.value));
+                  setDeptName(data.map((d: LabelValue) => d.value));
                   setDeptError(false);
                 }}
                 value={depts}
@@ -1217,7 +1248,7 @@ const ClientContent = forwardRef<
               />
 
               {/* Checkbox selection */}
-              {departmentDataObj.map((i: any, index: any) => (
+              {departmentDataObj.map((i: DepartmentDataObj, index: number) => (
                 <div key={i.index}>
                   <label
                     className={`flex items-center justify-between cursor-pointer`}
@@ -1228,11 +1259,11 @@ const ClientContent = forwardRef<
                         control={
                           <Checkbox
                             checked={i.checkbox}
-                            onChange={(e: any) => toggleAccordion(e, index)}
+                            onChange={(e) => toggleAccordion(e, index)}
                           />
                         }
                         label={i.label}
-                        id={i.index}
+                        id={i.index.toString()}
                       />
                     </span>
                     {i.isOpen ? (
@@ -1271,10 +1302,10 @@ const ClientContent = forwardRef<
                               ...departmentDataObj,
                             ];
                             updatedDepartmentDataObj[index].billingType =
-                              e.target.value;
+                              Number(e.target.value);
                             updatedDepartmentDataObj[index].billingErr =
-                              e.target.value <= 0;
-                            e.target.value > 0 &&
+                              Number(e.target.value) <= 0;
+                            Number(e.target.value) > 0 &&
                               setDepartmentDataObj(updatedDepartmentDataObj);
                           }}
                           onBlur={() => {
@@ -1294,11 +1325,13 @@ const ClientContent = forwardRef<
                             }
                           }}
                         >
-                          {billingTypeData.map((i: any, index: number) => (
-                            <MenuItem value={i.value} key={i.value + index}>
-                              {i.label}
-                            </MenuItem>
-                          ))}
+                          {billingTypeData.map(
+                            (i: LabelValue, index: number) => (
+                              <MenuItem value={i.value} key={i.value + index}>
+                                {i.label}
+                              </MenuItem>
+                            )
+                          )}
                         </Select>
                         {i.billingErr && (
                           <FormHelperText>
@@ -1312,12 +1345,12 @@ const ClientContent = forwardRef<
                         id="checkboxes-tags-demo"
                         options={groupTypeData}
                         value={i.group}
-                        getOptionLabel={(option: any) => option.label}
-                        getOptionDisabled={(option: any) =>
+                        getOptionLabel={(option: LabelValue) => option.label}
+                        getOptionDisabled={(option: LabelValue) =>
                           i.selectGroupValue.includes(option.value)
                         }
                         disableCloseOnSelect
-                        onChange={(e, value: any) =>
+                        onChange={(e, value: LabelValue[]) =>
                           handleMultiSelect(e, value, index)
                         }
                         renderOption={(props, option, { selected }) => (
@@ -1387,9 +1420,13 @@ const ClientContent = forwardRef<
                         type="number"
                         fullWidth
                         value={i.contHrs}
-                        onChange={(e) => handleContHrs(e.target.value, index)}
+                        onChange={(e) =>
+                          handleContHrs(Number(e.target.value), index)
+                        }
                         onBlur={(e) => {
                           if (
+                            Number(e.target.value) <= 0 ||
+                            Number(e.target.value) >= 10000 ||
                             e.target.value.trim().length < 0 ||
                             e.target.value.trim().length > 5 ||
                             e.target.value.trim().includes(".")
@@ -1409,21 +1446,24 @@ const ClientContent = forwardRef<
                         }}
                         error={i.contHrsErr}
                         helperText={
-                          i.contHrs === "0" ||
-                          i.contHrs === "00" ||
-                          i.contHrs === "000" ||
-                          i.contHrs === "0000" ||
-                          i.contHrs === "00000" ||
-                          i.contHrs === "-0" ||
-                          i.contHrs === "-00" ||
-                          i.contHrs === "-000" ||
-                          i.contHrs === "-0000" ||
-                          i.contHrs === "-00000"
+                          i.contHrsErr &&
+                          (i.contHrs === "0" ||
+                            i.contHrs === "00" ||
+                            i.contHrs === "000" ||
+                            i.contHrs === "0000" ||
+                            i.contHrs === "00000" ||
+                            i.contHrs === "-0" ||
+                            i.contHrs === "-00" ||
+                            i.contHrs === "-000" ||
+                            i.contHrs === "-0000" ||
+                            i.contHrs === "-00000")
                             ? `Contracted Hours should not be ${i.contHrs}.`
-                            : i.contHrs <= 0
+                            : i.contHrsErr && Number(i.contHrs) <= 0
                             ? "Contracted Hours must be greater than 0."
-                            : i.contHrs.toString().includes(".") ||
-                              i.contHrs.toString().includes(",")
+                            : (i.contHrsErr &&
+                                i.contHrs.toString().includes(".")) ||
+                              (i.contHrsErr &&
+                                i.contHrs.toString().includes(","))
                             ? "Contracted Hours must be a valid value."
                             : ""
                         }
@@ -1450,10 +1490,13 @@ const ClientContent = forwardRef<
                         type="number"
                         fullWidth
                         value={i.actHrs}
-                        onChange={(e) => handleActualHrs(e.target.value, index)}
+                        onChange={(e) =>
+                          handleActualHrs(Number(e.target.value), index)
+                        }
                         onBlur={(e) => {
                           if (
-                            e.target.value.trim().length < 0 ||
+                            Number(e.target.value) <= 0 ||
+                            Number(e.target.value) >= 10000 ||
                             e.target.value.trim().length > 5 ||
                             e.target.value.trim().includes(".")
                           ) {
@@ -1472,23 +1515,25 @@ const ClientContent = forwardRef<
                         }}
                         error={i.actHrsErr}
                         helperText={
-                          Number(i.actHrs) > Number(i.contHrs)
+                          Number(i.actHrs) > Number(i.contHrs) && i.actHrsErr
                             ? "Internal Hours should be less than or equal to contracted hours."
-                            : i.actHrs === "0" ||
-                              i.actHrs === "00" ||
-                              i.actHrs === "000" ||
-                              i.actHrs === "0000" ||
-                              i.actHrs === "00000" ||
-                              i.actHrs === "-0" ||
-                              i.actHrs === "-00" ||
-                              i.actHrs === "-000" ||
-                              i.actHrs === "-0000" ||
-                              i.actHrs === "-00000"
+                            : i.actHrsErr &&
+                              (i.actHrs === "0" ||
+                                i.actHrs === "00" ||
+                                i.actHrs === "000" ||
+                                i.actHrs === "0000" ||
+                                i.actHrs === "00000" ||
+                                i.actHrs === "-0" ||
+                                i.actHrs === "-00" ||
+                                i.actHrs === "-000" ||
+                                i.actHrs === "-0000" ||
+                                i.actHrs === "-00000")
                             ? `Internal Hours should not be ${i.actHrs}.`
-                            : i.actHrs <= 0
+                            : i.actHrsErr && Number(i.actHrs) <= 0
                             ? "Internal Hours must be greater than 0."
-                            : i.actHrs.toString().includes(".") ||
-                              i.actHrs.toString().includes(",")
+                            : i.actHrsErr &&
+                              (i.actHrs.toString().includes(".") ||
+                                i.actHrs.toString().includes(","))
                             ? "Internal Hours must be a valid value."
                             : ""
                         }
@@ -1588,17 +1633,21 @@ const ClientContent = forwardRef<
               {pocFields.map(
                 (
                   field: {
-                    Name: any;
-                    Email: any;
+                    Name: string | null;
+                    Email: string | null;
                   },
-                  index: any
+                  index: number
                 ) => (
                   <div className="flex flex-row mt-[-2rem]" key={index}>
                     <div className="flex gap-5 w-full">
                       <TextField
                         label="Client POC Name"
                         fullWidth
-                        value={field.Name?.trim().length <= 0 ? "" : field.Name}
+                        value={
+                          field.Name !== null && field.Name?.trim().length <= 0
+                            ? ""
+                            : field.Name
+                        }
                         onChange={(e) =>
                           handleClientPOCNameChange(e.target.value, index)
                         }
@@ -1611,7 +1660,10 @@ const ClientContent = forwardRef<
                         type="email"
                         fullWidth
                         value={
-                          field.Email?.trim().length <= 0 ? "" : field.Email
+                          field.Email !== null &&
+                          field.Email?.trim().length <= 0
+                            ? ""
+                            : field.Email
                         }
                         onChange={(e) =>
                           handleClientPOCEmailChange(e.target.value, index)
@@ -1949,7 +2001,7 @@ const ClientContent = forwardRef<
         </div>
 
         <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
-          {onEdit ? (
+          {onEdit > 0 ? (
             <Button
               variant="outlined"
               className="rounded-[4px] !h-[36px] !text-secondary"
@@ -1974,7 +2026,9 @@ const ClientContent = forwardRef<
             className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary cursor-pointer"
             type="submit"
           >
-            {onEdit ? "Save" : `Create ${tab === "Permissions" ? "Role" : tab}`}
+            {onEdit > 0
+              ? "Save"
+              : `Create Client`}
           </Button>
         </div>
       </form>

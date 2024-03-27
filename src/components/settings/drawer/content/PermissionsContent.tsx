@@ -10,14 +10,13 @@ export interface PermissionContentRef {
 const PermissionsContent = forwardRef<
   PermissionContentRef,
   {
-    tab: string;
     onClose: () => void;
-    getPermissionDropdown: any;
-    onChangeLoader: any;
+    getPermissionDropdown: () => void;
+    onChangeLoader: (e: boolean) => void;
   }
->(({ tab, onClose, getPermissionDropdown, onChangeLoader }, ref) => {
+>(({ onClose, getPermissionDropdown, onChangeLoader }, ref) => {
   const [role, setRole] = useState("");
-  const [type, setType] = useState<any>("1");
+  const [type, setType] = useState<string>("1");
   const [roleErr, setRoleErr] = useState(false);
 
   const clearData = () => {
@@ -75,7 +74,7 @@ const PermissionsContent = forwardRef<
       <div className="flex flex-col p-[20px]">
         <div className="flex items-center -ml-4">
           <Radio
-            checked={type == 1}
+            checked={Number(type) == 1}
             onChange={(e) => setType(e.target.value)}
             value="1"
             name="radio-buttons"
@@ -84,7 +83,7 @@ const PermissionsContent = forwardRef<
             Employee
           </span>
           <Radio
-            checked={type == 2}
+            checked={Number(type) == 2}
             onChange={(e) => setType(e.target.value)}
             value="2"
             name="radio-buttons"

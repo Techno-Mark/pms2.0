@@ -3437,6 +3437,7 @@ const EditDrawer = ({
                                 ? null
                                 : dayjs(dueDateWorklogs)
                             }
+                            disabled={isIdDisabled}
                             minDate={dayjs(receiverDateWorklogs)}
                             shouldDisableDate={isWeekend}
                             onChange={(newDate: any) => {

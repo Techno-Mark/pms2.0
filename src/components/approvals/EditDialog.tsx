@@ -249,7 +249,7 @@ const EditDialog = ({
         keepMounted
         maxWidth="md"
         onClose={handleClose}
-        className="ml-80"
+        // className="ml-80"
       >
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
           <span className="text-lg font-medium">Edit Time</span>
@@ -317,7 +317,7 @@ const EditDialog = ({
                 sx={{ mx: 0.75, maxWidth: 100 }}
               />
             </FormControl>
-            <span>
+            <span className="flex flex-col items-start justify-center">
               <FormControl variant="standard">
                 <TextField
                   type="number"

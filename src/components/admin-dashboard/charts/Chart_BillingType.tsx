@@ -37,9 +37,9 @@ const Chart_BillingType = ({
     const params = {
       Clients: currentFilterData.Clients,
       WorkTypeId:
-        currentFilterData.TypeOfWork === null
+        currentFilterData.WorkTypeId === null
           ? 0
-          : currentFilterData.TypeOfWork,
+          : currentFilterData.WorkTypeId,
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,
     };

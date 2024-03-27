@@ -1,6 +1,5 @@
 import { callAPI } from "@/utils/API/callAPI";
 import React, { useEffect, useRef, useState } from "react";
-import { GROUP } from "./Constants/Tabname";
 import { toast } from "react-toastify";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
@@ -20,6 +19,12 @@ import {
 import MUIDataTable from "mui-datatables";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+import {
+  GroupInitialFilter,
+  GroupList,
+  GroupProps,
+  SettingAction,
+} from "@/utils/Types/settingTypes";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -38,34 +43,34 @@ const Group = ({
   onOpen,
   onEdit,
   onDataFetch,
-  onHandleGroupData,
   getOrgDetailsFunction,
   canView,
   canEdit,
   canDelete,
-  onSearchGroupData,
+  onSearchData,
   onSearchClear,
   onHandleExport,
-}: any) => {
+}: GroupProps) => {
   const [loader, setLoader] = useState(true);
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<GroupList[]>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [totalCount, setTotalCount] = useState(0);
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [filteredObject, setFilteredOject] =
+    useState<GroupInitialFilter>(initialFilter);
 
   useEffect(() => {
-    if (onSearchGroupData.trim().length >= 0) {
+    if (onSearchData.trim().length >= 0) {
       setFilteredOject({
         ...filteredObject,
-        GlobalSearch: onSearchGroupData.trim(),
+        GlobalSearch: onSearchData.trim(),
         PageNo: 1,
       });
       setPage(0);
     }
-  }, [onSearchGroupData]);
+  }, [onSearchData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -77,14 +82,21 @@ const Group = ({
         setTimeout(fetchData, 1000);
       }
     };
-    fetchData();
+
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [filteredObject]);
 
   const getAll = async () => {
     const params = filteredObject;
     const url = `${process.env.pms_api_url}/group/getall`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: {
+        List: GroupList[];
+        TotalCount: number;
+      },
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -93,7 +105,7 @@ const Group = ({
         setLoader(false);
         setData(ResponseData.List);
         setTotalCount(ResponseData.TotalCount);
-        getOrgDetailsFunction();
+        getOrgDetailsFunction?.();
       } else {
         setLoader(false);
         setData([]);
@@ -119,7 +131,7 @@ const Group = ({
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Group has been deleted successfully!");
         setIsDeleteOpen(false);
-        onSearchClear(GROUP);
+        onSearchClear();
         setFilteredOject({
           ...filteredObject,
           GlobalSearch: "",
@@ -129,13 +141,13 @@ const Group = ({
     };
     callAPI(url, params, successCallback, "POST");
     setIsDeleteOpen(false);
-    onSearchClear(GROUP);
+    onSearchClear();
     setSelectedRowId(null);
     setPage(0);
     setRowsPerPage(10);
   };
 
-  const handleActionValue = async (actionId: string, id: any) => {
+  const handleActionValue = async (actionId: string, id: number) => {
     setSelectedRowId(id);
     if (actionId.toLowerCase() === "edit") {
       onEdit(id);
@@ -145,7 +157,7 @@ const Group = ({
     }
   };
 
-  const Actions = ({ actions, id }: any) => {
+  const Actions = ({ actions, id }: SettingAction) => {
     const actionsRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
 
@@ -166,7 +178,7 @@ const Group = ({
     }, []);
 
     const actionPermissions = actions.filter(
-      (action: any) =>
+      (action: string) =>
         (action.toLowerCase() === "edit" && canEdit) ||
         (action.toLowerCase() === "delete" && canDelete)
     );
@@ -185,7 +197,7 @@ const Group = ({
             <div className="absolute top-30 right-3 z-10 flex justify-center items-center">
               <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-28">
-                  {actionPermissions.map((action: any, index: any) => (
+                  {actionPermissions.map((action: string, index: number) => (
                     <li
                       key={index}
                       onClick={() => handleActionValue(action, id)}
@@ -227,7 +239,7 @@ const Group = ({
           viewColumns: false,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Actions"),
-          customBodyRender: (value: any) => {
+          customBodyRender: (value: number) => {
             return <Actions actions={["Edit", "Delete"]} id={value} />;
           },
         },
@@ -240,7 +252,7 @@ const Group = ({
           viewColumns: false,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("User"),
-          customBodyRender: (value: any) => {
+          customBodyRender: (value: { Id: number; Name: string }[]) => {
             const Red = ["A", "F", "K", "P", "U", "Z"];
             const Blue = ["B", "G", "L", "Q", "V"];
             const Green = ["C", "H", "M", "R", "W"];
@@ -249,7 +261,7 @@ const Group = ({
             return (
               <div className="flex items-start justify-start">
                 <AvatarGroup max={3}>
-                  {value.map((i: any) => (
+                  {value.map((i: { Id: number; Name: string }) => (
                     <Avatar
                       alt=""
                       src=""
@@ -266,11 +278,11 @@ const Group = ({
                       }}
                       key={i.Id}
                     >
-                      {i.length <= 2
+                      {i.Name.length <= 2
                         ? i.Name.slice(0, 2)
                         : i.Name.match(/\s/)
                         ? i.Name.split(" ")
-                            .map((word: any) => word.charAt(0))
+                            .map((word: string) => word.charAt(0))
                             .join("")
                         : i.Name.charAt(0)}
                     </Avatar>
@@ -308,7 +320,7 @@ const Group = ({
     },
   ];
 
-  const groupColumns: any = column.map((col: any) => {
+  const groupColumns = column.map((col: any) => {
     return generateConditionalColumn(col, 10);
   });
 

@@ -10,6 +10,7 @@ import React, {
 import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
 import { getCCDropdownData } from "@/utils/commonDropdownApiCall";
+import { GroupGetByIdList } from "@/utils/Types/settingTypes";
 
 export interface GroupContentRef {
   groupDataValue: () => void;
@@ -21,41 +22,44 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 type Options = {
   label: string;
   value: string;
+  ProfileImage: string;
 };
 
 const GroupContent = forwardRef<
   GroupContentRef,
   {
-    tab: any;
-    onEdit: boolean;
+    onEdit: number;
     onOpen: boolean;
     onClose: () => void;
-    onDataFetch: any;
-    onChangeLoader: any;
+    onDataFetch: (() => void) | null;
+    onChangeLoader: (e: boolean) => void;
   }
->(({ tab, onEdit, onOpen, onClose, onDataFetch, onChangeLoader }, ref) => {
+>(({ onEdit, onOpen, onClose, onDataFetch, onChangeLoader }, ref) => {
   const [data, setData] = useState<Options[]>([]);
   const [groupName, setGroupName] = useState("");
   const [groupNameErr, setGroupNameErr] = useState(false);
-  const [selectValue, setSelectValue] = useState<any[]>([]);
+  const [selectValue, setSelectValue] = useState<number[]>([]);
   const [selectedOptions, setSelectOptions] = useState<Options[]>([]);
 
   const fetchEditData = async () => {
-    if (onEdit) {
+    if (onEdit > 0) {
       const params = { groupId: onEdit || 0 };
       const url = `${process.env.pms_api_url}/group/getbyid`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: GroupGetByIdList,
         error: boolean,
         ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
-          let groupuserIds = ResponseData.GroupUserIds;
+          let groupuserIds: number[] | null = ResponseData.GroupUserIds;
 
           const filteredOptionsData = data.filter((d) => {
-            return groupuserIds.some((id: number) => {
-              return id === parseInt(d.value);
-            });
+            return (
+              groupuserIds !== null &&
+              groupuserIds.some((id: number) => {
+                return id === parseInt(d.value);
+              })
+            );
           });
 
           setGroupName(ResponseData.Name);
@@ -117,7 +121,7 @@ const GroupContent = forwardRef<
     ) {
       onChangeLoader(true);
       const params = {
-        id: onEdit || 0,
+        id: onEdit > 0 ? onEdit : 0,
         name: groupName.trim(),
         groupUserIds: selectValue,
       };
@@ -128,13 +132,13 @@ const GroupContent = forwardRef<
         ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
-          onDataFetch();
+          onDataFetch?.();
           onChangeLoader(false);
           onClose();
           groupDataValue();
           toast.success(
-            `${onEdit ? "" : "New"} Group ${
-              onEdit ? "Updated" : "added"
+            `${onEdit > 0 ? "" : "New"} Group ${
+              onEdit > 0 ? "Updated" : "added"
             }  successfully.`
           );
         } else {
@@ -157,7 +161,7 @@ const GroupContent = forwardRef<
       groupName.trim().length < 20
     ) {
       const params = {
-        id: onEdit || 0,
+        id: onEdit > 0 ? onEdit : 0,
         name: groupName.trim(),
         groupUserIds: selectValue,
       };
@@ -169,11 +173,11 @@ const GroupContent = forwardRef<
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success(
-            `${onEdit ? "" : "New"} Group ${
-              onEdit ? "Updated" : "added"
+            `${onEdit > 0 ? "" : "New"} Group ${
+              onEdit > 0 ? "Updated" : "added"
             }  successfully.`
           );
-          onDataFetch();
+          onDataFetch?.();
           groupDataValue();
           setGroupName("");
           setGroupNameErr(false);
@@ -191,7 +195,7 @@ const GroupContent = forwardRef<
 
   const handleMultiSelect = (e: React.SyntheticEvent, value: any) => {
     if (value !== undefined) {
-      const selectedValue = value.map((v: any) => v.value);
+      const selectedValue = value.map((v: Options) => v.value);
       setSelectOptions(value);
       setSelectValue(selectedValue);
     } else {
@@ -243,7 +247,9 @@ const GroupContent = forwardRef<
           options={data}
           value={selectedOptions}
           getOptionLabel={(option) => option.label}
-          getOptionDisabled={(option) => selectValue.includes(option.value)}
+          getOptionDisabled={(option) =>
+            selectValue.includes(Number(option.value))
+          }
           disableCloseOnSelect
           onChange={handleMultiSelect}
           renderOption={(props, option, { selected }) => (
@@ -252,7 +258,7 @@ const GroupContent = forwardRef<
                 icon={icon}
                 checkedIcon={checkedIcon}
                 style={{ marginRight: 8 }}
-                checked={selectValue.includes(option.value)}
+                checked={selectValue.includes(Number(option.value))}
               />
               {option.label}
             </li>
@@ -271,7 +277,7 @@ const GroupContent = forwardRef<
 
       <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
         <>
-          {onEdit ? (
+          {onEdit > 0 ? (
             <Button
               variant="outlined"
               className="rounded-[4px] !h-[36px] !text-secondary"
@@ -294,7 +300,7 @@ const GroupContent = forwardRef<
             type="submit"
             onClick={handleSubmit}
           >
-            {onEdit ? "Save" : "Create Group"}
+            {onEdit > 0 ? "Save" : "Create Group"}
           </Button>
         </>
       </div>

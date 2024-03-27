@@ -90,7 +90,7 @@ export interface ListOverallProject {
 
 export interface DashboardInitialFilter {
   Clients: number[] | [];
-  TypeOfWork: number | null;
+  WorkTypeId: number | null;
   StartDate: string | null | undefined;
   EndDate: string | null | undefined;
 }

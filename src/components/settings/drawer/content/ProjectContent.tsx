@@ -1,4 +1,6 @@
 import { callAPI } from "@/utils/API/callAPI";
+import { ProjectGetByIdList } from "@/utils/Types/settingTypes";
+import { LabelValue } from "@/utils/Types/types";
 import { Autocomplete, Button, TextField } from "@mui/material";
 import React, {
   forwardRef,
@@ -15,322 +17,308 @@ export interface ProjectContentRef {
 const ProjectContent = forwardRef<
   ProjectContentRef,
   {
-    tab: string;
-    onEdit: any;
+    onEdit: number;
     onOpen: boolean;
     onClose: () => void;
-    onDataFetch: any;
-    onValuesChange: any;
-    onChangeLoader: any;
+    onDataFetch: (() => void) | null;
   }
->(
-  (
-    {
-      tab,
-      onEdit,
-      onClose,
-      onOpen,
-      onDataFetch,
-      onValuesChange,
-      onChangeLoader,
-    },
-    ref
-  ) => {
-    const [addMoreClicked, setAddMoreClicked] = useState(false);
+>(({ onEdit, onClose, onOpen, onDataFetch }, ref) => {
+  const [addMoreClicked, setAddMoreClicked] = useState(false);
 
-    const [client, setClient] = useState(0);
-    const [clientError, setClientError] = useState(false);
-    const [clientDrpdown, setClientDrpdown] = useState([]);
+  const [client, setClient] = useState(0);
+  const [clientError, setClientError] = useState(false);
+  const [clientDrpdown, setClientDrpdown] = useState<LabelValue[]>([]);
 
-    const [typeOfWorks, setTypeOfWorks] = useState<any[]>([]);
-    const [typeOfWorkName, setTypeOfWorkName] = useState<any[]>([]);
-    const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState<any[]>([]);
-    const [typeOfWorkNameError, setTypeOfWorkNameError] = useState(false);
+  const [typeOfWorks, setTypeOfWorks] = useState<LabelValue[]>([]);
+  const [typeOfWorkName, setTypeOfWorkName] = useState<number[]>([]);
+  const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState<LabelValue[]>(
+    []
+  );
+  const [typeOfWorkNameError, setTypeOfWorkNameError] = useState(false);
 
-    const [subProject, setSubProject] = useState("");
-    const [subProjectId, setSubProjectId] = useState(null);
+  const [subProject, setSubProject] = useState("");
+  const [subProjectId, setSubProjectId] = useState<number | null>(null);
 
-    const [projectValue, setProjectValue] = useState<any>(0);
-    const [projectName, setProjectName] = useState("");
-    const [projectNameError, setProjectNameError] = useState(false);
+  const [projectValue, setProjectValue] = useState<number>(0);
+  const [projectName, setProjectName] = useState("");
+  const [projectNameError, setProjectNameError] = useState(false);
 
-    useEffect(() => {
-      const getData = async () => {
-        const params = {};
-        const url = `${process.env.pms_api_url}/client/getdropdown`;
-        const successCallback = (
-          ResponseData: any,
-          error: boolean,
-          ResponseStatus: string
-        ) => {
-          if (ResponseStatus === "Success" && error === false) {
-            setClientDrpdown(ResponseData);
-          } else {
-            setClientDrpdown([]);
-          }
-        };
-        callAPI(url, params, successCallback, "GET");
-      };
-
-      onOpen && getData();
-    }, [onOpen]);
-
-    useEffect(() => {
-      if (onEdit) {
-        const getData = async () => {
-          const params = {
-            ProjectId: onEdit,
-          };
-          const url = `${process.env.pms_api_url}/project/getbyid`;
-          const successCallback = (
-            ResponseData: any,
-            error: boolean,
-            ResponseStatus: string
-          ) => {
-            if (ResponseStatus === "Success" && error === false) {
-              setClient(ResponseData.ClientId);
-              setTypeOfWorkName(
-                ResponseData.WorkTypeIds === null
-                  ? []
-                  : ResponseData.WorkTypeIds
-              );
-              setProjectValue(ResponseData.ProjectId);
-              setProjectName(ResponseData.ProjectName);
-              setSubProject(ResponseData.SubProjectName);
-              setSubProjectId(ResponseData.SubProjectId);
-            }
-          };
-          callAPI(url, params, successCallback, "POST");
-        };
-
-        getData();
-      }
-    }, [onEdit]);
-
-    const getWorktypeData = async () => {
-      const params = {
-        clientId: client,
-      };
-      const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
+  useEffect(() => {
+    const getData = async () => {
+      const params = {};
+      const url = `${process.env.pms_api_url}/client/getdropdown`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: LabelValue[],
         error: boolean,
         ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
-          setTypeOfWorkDropdown(ResponseData);
-          onEdit > 0 &&
-            typeOfWorkName.length > 0 &&
-            setTypeOfWorks(
-              typeOfWorkName.length > 0
-                ? ResponseData.filter((client: any) =>
-                    typeOfWorkName.includes(client.value)
-                  )
-                : []
-            );
+          setClientDrpdown(ResponseData);
+        } else {
+          setClientDrpdown([]);
         }
       };
-      callAPI(url, params, successCallback, "POST");
+      callAPI(url, params, successCallback, "GET");
     };
 
-    useEffect(() => {
-      onOpen && client > 0 && getWorktypeData();
-    }, [client, onOpen, typeOfWorkName]);
+    onOpen && getData();
+  }, [onOpen]);
 
-    const clearAllFields = () => {
-      setClient(0);
-      setClientError(false);
-      setTypeOfWorkDropdown([]);
-      setTypeOfWorkName([]);
-      setTypeOfWorks([]);
-      setTypeOfWorkNameError(false);
-      setSubProject("");
-
-      setProjectName("");
-      setProjectNameError(false);
-      setProjectValue(0);
-    };
-
-    const clearAllData = async () => {
-      onClose();
-      setAddMoreClicked(false);
-      await clearAllFields();
-    };
-
-    useImperativeHandle(ref, () => ({
-      clearAllData,
-    }));
-
-    const handleSubmit = async (e: { preventDefault: () => void }) => {
-      e.preventDefault();
-
-      client <= 0 && setClientError(true);
-      typeOfWorks.length <= 0 && setTypeOfWorkNameError(true);
-      projectName.toString().trim().length <= 0 && setProjectNameError(true);
-
-      if (
-        !clientError &&
-        client !== 0 &&
-        !typeOfWorkNameError &&
-        typeOfWorkName.length > 0 &&
-        !projectNameError &&
-        projectName.trim().length > 0
-      ) {
+  useEffect(() => {
+    if (onEdit > 0) {
+      const getData = async () => {
         const params = {
-          ClientId: client,
-          WorkTypeIds: typeOfWorkName,
-          ProjectId: projectValue !== 0 ? projectValue : null,
-          ProjectName: projectName.toString().trim(),
+          ProjectId: onEdit,
         };
-        const url = `${process.env.pms_api_url}/project/saveproject`;
-        const successCallback = async (
-          ResponseData: any,
+        const url = `${process.env.pms_api_url}/project/getbyid`;
+        const successCallback = (
+          ResponseData: ProjectGetByIdList,
           error: boolean,
           ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
-            toast.success(
-              `Project ${
-                projectValue === 0 ||
-                projectValue === null ||
-                projectValue === "" ||
-                projectValue === undefined
-                  ? "created"
-                  : "Updated"
-              } successfully.`
+            setClient(ResponseData.ClientId);
+            setTypeOfWorkName(
+              ResponseData.WorkTypeIds === null ? [] : ResponseData.WorkTypeIds
             );
-            clearAllFields();
-            onDataFetch();
-            onClose();
+            setProjectValue(ResponseData.ProjectId);
+            setProjectName(ResponseData.ProjectName);
+            setSubProject(ResponseData.SubProjectName);
+            setSubProjectId(ResponseData.SubProjectId);
           }
         };
         callAPI(url, params, successCallback, "POST");
+      };
+
+      getData();
+    }
+  }, [onEdit]);
+
+  const getWorktypeData = async () => {
+    const params = {
+      clientId: client,
+    };
+    const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
+    const successCallback = (
+      ResponseData: LabelValue[],
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setTypeOfWorkDropdown(ResponseData);
+        onEdit > 0 &&
+          typeOfWorkName.length > 0 &&
+          setTypeOfWorks(
+            typeOfWorkName.length > 0
+              ? ResponseData.filter((tfw: LabelValue) =>
+                  typeOfWorkName.includes(tfw.value)
+                )
+              : []
+          );
       }
     };
+    callAPI(url, params, successCallback, "POST");
+  };
 
-    return (
-      <>
-        <form onSubmit={handleSubmit}>
-          <div className="flex gap-[18px] flex-col p-[20px] max-h-[78.5vh]">
-            <Autocomplete
-              disablePortal
-              id="combo-box-demo"
-              options={clientDrpdown}
-              value={clientDrpdown.find((i: any) => i.value === client) || null}
-              onChange={(e, value: any) => {
-                value && setClient(value.value);
-                value && setTypeOfWorks([]);
-                value && setTypeOfWorkName([]);
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="standard"
-                  label={
-                    <span>
-                      Client Name
-                      <span className="text-defaultRed">&nbsp;*</span>
-                    </span>
-                  }
-                  error={clientError}
-                  onBlur={() => {
-                    if (client > 0) {
-                      setClientError(false);
-                    }
-                  }}
-                  helperText={clientError ? "This is a required field." : ""}
-                />
-              )}
-            />
-            <Autocomplete
-              multiple
-              id="tags-standard"
-              options={
-                typeOfWorkDropdown.length === typeOfWorks.length
-                  ? []
-                  : typeOfWorkDropdown.filter(
-                      (option) =>
-                        !typeOfWorks.find(
-                          (typeOfWork) => typeOfWork.value === option.value
-                        )
-                    )
-              }
-              getOptionLabel={(option: any) => option.label}
-              onChange={(e, data: any) => {
-                if (data.some((d: any) => d.value === -1)) {
-                  setTypeOfWorks(
-                    typeOfWorkDropdown.filter((d: any) => d.value !== -1)
-                  );
-                  setTypeOfWorkName(
-                    typeOfWorkDropdown
-                      .filter((d: any) => d.value !== -1)
-                      .map((d: any) => d.value)
-                  );
-                } else {
-                  setTypeOfWorks(data);
-                  setTypeOfWorkName(data.map((d: any) => d.value));
+  useEffect(() => {
+    onOpen && client > 0 && getWorktypeData();
+  }, [client, onOpen, typeOfWorkName]);
+
+  const clearAllFields = () => {
+    setClient(0);
+    setClientError(false);
+    setTypeOfWorkDropdown([]);
+    setTypeOfWorkName([]);
+    setTypeOfWorks([]);
+    setTypeOfWorkNameError(false);
+    setSubProject("");
+
+    setProjectName("");
+    setProjectNameError(false);
+    setProjectValue(0);
+  };
+
+  const clearAllData = async () => {
+    onClose();
+    setAddMoreClicked(false);
+    await clearAllFields();
+  };
+
+  useImperativeHandle(ref, () => ({
+    clearAllData,
+  }));
+
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+
+    client <= 0 && setClientError(true);
+    typeOfWorks.length <= 0 && setTypeOfWorkNameError(true);
+    projectName.toString().trim().length <= 0 && setProjectNameError(true);
+
+    if (
+      !clientError &&
+      client !== 0 &&
+      !typeOfWorkNameError &&
+      typeOfWorkName.length > 0 &&
+      !projectNameError &&
+      projectName.trim().length > 0
+    ) {
+      const params = {
+        ClientId: client,
+        WorkTypeIds: typeOfWorkName,
+        ProjectId: projectValue !== 0 ? projectValue : null,
+        ProjectName: projectName.toString().trim(),
+      };
+      const url = `${process.env.pms_api_url}/project/saveproject`;
+      const successCallback = async (
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success(
+            `Project ${
+              projectValue === 0 ||
+              projectValue === null ||
+              projectValue === undefined
+                ? "created"
+                : "Updated"
+            } successfully.`
+          );
+          clearAllFields();
+          onDataFetch?.();
+          onClose();
+        }
+      };
+      callAPI(url, params, successCallback, "POST");
+    }
+  };
+
+  return (
+    <>
+      <form onSubmit={handleSubmit}>
+        <div className="flex gap-[18px] flex-col p-[20px] max-h-[78.5vh]">
+          <Autocomplete
+            disablePortal
+            id="combo-box-demo"
+            options={clientDrpdown}
+            value={
+              clientDrpdown.find((i: LabelValue) => i.value === client) || null
+            }
+            onChange={(e, value: LabelValue | null) => {
+              value && setClient(value.value);
+              value && setTypeOfWorks([]);
+              value && setTypeOfWorkName([]);
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                variant="standard"
+                label={
+                  <span>
+                    Client Name
+                    <span className="text-defaultRed">&nbsp;*</span>
+                  </span>
                 }
-              }}
-              value={typeOfWorks}
-              renderInput={(params: any) => (
-                <TextField
-                  {...params}
-                  variant="standard"
-                  label={
-                    <span>
-                      Type Of Work
-                      <span className="text-defaultRed">&nbsp;*</span>
-                    </span>
+                error={clientError}
+                onBlur={() => {
+                  if (client > 0) {
+                    setClientError(false);
                   }
-                  error={typeOfWorkNameError}
-                  onBlur={() => {
-                    if (typeOfWorks.length > 0) {
-                      setTypeOfWorkNameError(false);
-                    }
-                  }}
-                  helperText={
-                    typeOfWorkNameError ? "This is a required field." : ""
-                  }
-                />
-              )}
-            />
-
-            <TextField
-              label={
-                <span>
-                  Project
-                  <span className="!text-defaultRed">&nbsp;*</span>
-                </span>
+                }}
+                helperText={clientError ? "This is a required field." : ""}
+              />
+            )}
+          />
+          <Autocomplete
+            multiple
+            id="tags-standard"
+            options={
+              typeOfWorkDropdown.length === typeOfWorks.length
+                ? []
+                : typeOfWorkDropdown.filter(
+                    (option) =>
+                      !typeOfWorks.find(
+                        (typeOfWork) => typeOfWork.value === option.value
+                      )
+                  )
+            }
+            getOptionLabel={(option: LabelValue) => option.label}
+            onChange={(e, data: LabelValue[]) => {
+              if (data.some((d: LabelValue) => d.value === -1)) {
+                setTypeOfWorks(
+                  typeOfWorkDropdown.filter((d: LabelValue) => d.value !== -1)
+                );
+                setTypeOfWorkName(
+                  typeOfWorkDropdown
+                    .filter((d: LabelValue) => d.value !== -1)
+                    .map((d: LabelValue) => d.value)
+                );
+              } else {
+                setTypeOfWorks(data);
+                setTypeOfWorkName(data.map((d: LabelValue) => d.value));
               }
-              fullWidth
-              value={projectName?.trim().length <= 0 ? "" : projectName}
-              onChange={(e) => {
-                setProjectName(e.target.value);
-                setProjectNameError(false);
-              }}
-              onBlur={(e) => {
-                if (
-                  e.target.value.trim().length <= 0 ||
-                  e.target.value.trim().length > 50
-                ) {
-                  setProjectNameError(true);
+            }}
+            value={typeOfWorks}
+            renderInput={(params: any) => (
+              <TextField
+                {...params}
+                variant="standard"
+                label={
+                  <span>
+                    Type Of Work
+                    <span className="text-defaultRed">&nbsp;*</span>
+                  </span>
                 }
-              }}
-              error={projectNameError}
-              helperText={
-                projectNameError && projectName?.trim().length > 50
-                  ? "Maximum 50 characters allowed."
-                  : projectNameError
-                  ? "This is a required field."
-                  : ""
-              }
-              margin="normal"
-              variant="standard"
-              autoComplete="off"
-              sx={{ marginTop: "-3px" }}
-            />
+                error={typeOfWorkNameError}
+                onBlur={() => {
+                  if (typeOfWorks.length > 0) {
+                    setTypeOfWorkNameError(false);
+                  }
+                }}
+                helperText={
+                  typeOfWorkNameError ? "This is a required field." : ""
+                }
+              />
+            )}
+          />
 
-            {/* {!textFieldOpen && (
+          <TextField
+            label={
+              <span>
+                Project
+                <span className="!text-defaultRed">&nbsp;*</span>
+              </span>
+            }
+            fullWidth
+            value={projectName?.trim().length <= 0 ? "" : projectName}
+            onChange={(e) => {
+              setProjectName(e.target.value);
+              setProjectNameError(false);
+            }}
+            onBlur={(e) => {
+              if (
+                e.target.value.trim().length <= 0 ||
+                e.target.value.trim().length > 50
+              ) {
+                setProjectNameError(true);
+              }
+            }}
+            error={projectNameError}
+            helperText={
+              projectNameError && projectName?.trim().length > 50
+                ? "Maximum 50 characters allowed."
+                : projectNameError
+                ? "This is a required field."
+                : ""
+            }
+            margin="normal"
+            variant="standard"
+            autoComplete="off"
+            sx={{ marginTop: "-3px" }}
+          />
+
+          {/* {!textFieldOpen && (
               <TextField
                 value={subProject}
                 id="standard-basic"
@@ -340,38 +328,37 @@ const ProjectContent = forwardRef<
                 onChange={(e) => setSubProject(e.target.value)}
               />
             )} */}
-          </div>
+        </div>
 
-          <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
-            {onEdit ? (
-              <Button
-                variant="outlined"
-                className="rounded-[4px] !h-[36px] !text-secondary"
-                onClick={clearAllData}
-              >
-                Close
-              </Button>
-            ) : (
-              <Button
-                variant="outlined"
-                className="rounded-[4px] !h-[36px] !text-secondary cursor-pointer"
-                onClick={() => setAddMoreClicked(true)}
-              >
-                Add More
-              </Button>
-            )}
+        <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
+          {onEdit > 0 ? (
             <Button
-              variant="contained"
-              className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary cursor-pointer"
-              type="submit"
+              variant="outlined"
+              className="rounded-[4px] !h-[36px] !text-secondary"
+              onClick={clearAllData}
             >
-              {onEdit ? "Save" : `Create Project`}
+              Close
             </Button>
-          </div>
-        </form>
-      </>
-    );
-  }
-);
+          ) : (
+            <Button
+              variant="outlined"
+              className="rounded-[4px] !h-[36px] !text-secondary cursor-pointer"
+              onClick={() => setAddMoreClicked(true)}
+            >
+              Add More
+            </Button>
+          )}
+          <Button
+            variant="contained"
+            className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary cursor-pointer"
+            type="submit"
+          >
+            {onEdit > 0 ? "Save" : `Create Project`}
+          </Button>
+        </div>
+      </form>
+    </>
+  );
+});
 
 export default ProjectContent;

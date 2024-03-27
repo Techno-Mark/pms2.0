@@ -1,6 +1,4 @@
 import ExcelIcon from "@/assets/icons/Import/ExcelIcon";
-import FileIcon from "@/assets/icons/worklogs/FileIcon";
-import ReportLoader from "@/components/common/ReportLoader";
 import { TransitionDown } from "@/utils/style/DialogTransition";
 import { Download } from "@mui/icons-material";
 import {
@@ -18,8 +16,8 @@ import { toast } from "react-toastify";
 interface ImportDialogProp {
   onOpen: boolean;
   onClose: () => void;
-  onDataFetch: any;
-  tab: any;
+  onDataFetch: (() => void) | null;
+  tab: string;
 }
 
 const ImportDialog = ({
@@ -70,7 +68,7 @@ const ImportDialog = ({
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
             toast.success("Task has been imported successfully.");
-            onDataFetch();
+            onDataFetch?.();
             setIsUplaoding(false);
             handleClose();
           } else if (response.data.ResponseStatus === "Warning") {
@@ -103,7 +101,7 @@ const ImportDialog = ({
             document.body.removeChild(downloadLink);
             URL.revokeObjectURL(fileURL);
 
-            onDataFetch();
+            onDataFetch?.();
             setIsUplaoding(false);
             handleClose();
           } else {

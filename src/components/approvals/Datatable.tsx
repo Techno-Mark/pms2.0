@@ -1275,7 +1275,7 @@ const Datatable = ({
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Ideal / Break"),
+        customHeadLabelRender: () => generateCustomHeaderName("Idle / Break"),
         customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },

@@ -20,7 +20,6 @@ import {
 import MUIDataTable from "mui-datatables";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
-import { CLIENT } from "./Constants/Tabname";
 import ReportLoader from "@/components/common/ReportLoader";
 import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import SwitchModal from "@/components/common/SwitchModal";
@@ -30,12 +29,19 @@ import ClientProcessDrawer from "../drawer/ClientProcessDrawer";
 import { callAPI } from "@/utils/API/callAPI";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+import {
+  ClientInitialFilter,
+  ClientList,
+  ClientWorkType,
+  SettingAction,
+  SettingProps,
+} from "@/utils/Types/settingTypes";
 
 const pageNo = 1;
 const pageSize = 10;
 
 const initialFilter = {
-  GlobalSearch: null,
+  GlobalSearch: "",
   SortColumn: null,
   IsDesc: true,
   PageNo: pageNo,
@@ -51,15 +57,16 @@ const Client = ({
   canEdit,
   canDelete,
   canProcess,
-  onSearchClientData,
+  onSearchData,
   onSearchClear,
   onHandleExport,
-}: any) => {
+}: SettingProps) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [totalCount, setTotalCount] = useState(0);
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
-  const [clientData, setClientData] = useState<any | any[]>([]);
+  const [filteredObject, setFilteredOject] =
+    useState<ClientInitialFilter>(initialFilter);
+  const [clientData, setClientData] = useState<ClientList[]>([]);
   const [isOpenSwitchModal, setIsOpenSwitchModal] = useState(false);
   const [switchId, setSwitchId] = useState(0);
   const [switchActive, setSwitchActive] = useState(false);
@@ -70,15 +77,15 @@ const Client = ({
   const [openFieldsDrawer, setOpenFieldsDrawer] = useState(false);
 
   useEffect(() => {
-    if (onSearchClientData.trim().length >= 0) {
+    if (onSearchData.trim().length >= 0) {
       setFilteredOject({
         ...filteredObject,
-        GlobalSearch: onSearchClientData.trim(),
+        GlobalSearch: onSearchData.trim(),
         PageNo: 1,
       });
       setPage(0);
     }
-  }, [onSearchClientData]);
+  }, [onSearchData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,7 +97,11 @@ const Client = ({
         setTimeout(fetchData, 1000);
       }
     };
-    fetchData();
+
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [filteredObject]);
 
   const getData = async () => {
@@ -98,7 +109,7 @@ const Client = ({
     const params = filteredObject;
     const url = `${process.env.pms_api_url}/client/GetAll`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: { List: ClientList[]; TotalCount: number },
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -107,7 +118,7 @@ const Client = ({
         setLoader(false);
         setClientData(ResponseData.List);
         setTotalCount(ResponseData.TotalCount);
-        getOrgDetailsFunction();
+        getOrgDetailsFunction?.();
       } else {
         setLoader(false);
       }
@@ -128,7 +139,7 @@ const Client = ({
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success("Client has been deleted successfully!");
-          onSearchClear(CLIENT);
+          onSearchClear();
           setFilteredOject({
             ...filteredObject,
             GlobalSearch: "",
@@ -139,7 +150,7 @@ const Client = ({
       callAPI(url, params, successCallback, "POST");
       setSelectedRowId(null);
       setIsDeleteOpen(false);
-      onSearchClear(CLIENT);
+      onSearchClear();
       setPage(0);
       setRowsPerPage(10);
     }
@@ -159,10 +170,10 @@ const Client = ({
       if (ResponseStatus === "Success" && error === false) {
         setIsOpenSwitchModal(false);
         toast.success("Status Updated Successfully.");
-        onSearchClear(CLIENT);
+        onSearchClear();
         setFilteredOject({
           ...filteredObject,
-          GlobalSearch: onSearchClientData.trim(),
+          GlobalSearch: onSearchData.trim(),
           PageNo: 1,
         });
       }
@@ -186,7 +197,7 @@ const Client = ({
     setOpenFieldsDrawer(false);
   };
 
-  const handleActionValue = async (actionId: string, id: any) => {
+  const handleActionValue = async (actionId: string, id: number) => {
     setSelectedRowId(id);
     if (actionId.toLowerCase() === "edit") {
       onEdit(id);
@@ -202,7 +213,7 @@ const Client = ({
     }
   };
 
-  const Actions = ({ actions, id }: any) => {
+  const Actions = ({ actions, id }: SettingAction) => {
     const actionsRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
 
@@ -223,7 +234,7 @@ const Client = ({
     }, []);
 
     const actionPermissions = actions.filter(
-      (action: any) =>
+      (action: string) =>
         (action.toLowerCase() === "edit" && canEdit) ||
         (action.toLowerCase() === "delete" && canDelete) ||
         (action.toLowerCase() === "process" && canProcess) ||
@@ -244,7 +255,7 @@ const Client = ({
             <div className="absolute top-30 right-[0.5rem] z-10 flex justify-center items-center">
               <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-28">
-                  {actionPermissions.map((action: any, index: any) => (
+                  {actionPermissions.map((action: string, index: number) => (
                     <li
                       key={index}
                       onClick={() => handleActionValue(action, id)}
@@ -286,8 +297,8 @@ const Client = ({
           viewColumns: false,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
-          customBodyRender: (value: any, tableMeta: any) => {
-            const activeUser = async (e: any) => {
+          customBodyRender: (value: boolean, tableMeta: any) => {
+            const activeUser = async () => {
               await setIsOpenSwitchModal(true);
               await setSwitchId(
                 tableMeta.rowData[tableMeta.rowData.length - 1]
@@ -296,10 +307,7 @@ const Client = ({
             };
             return (
               <div>
-                <Switch
-                  checked={value}
-                  onChange={(e) => activeUser(e.target.value)}
-                />
+                <Switch checked={value} onChange={() => activeUser()} />
               </div>
             );
           },
@@ -313,7 +321,7 @@ const Client = ({
           viewColumns: false,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Actions"),
-          customBodyRender: (value: any) => {
+          customBodyRender: (value: number) => {
             return (
               <Actions
                 actions={["Edit", "Process", "Fields", "Delete"]}
@@ -340,26 +348,27 @@ const Client = ({
     }
   };
 
-  const generateShortProcessNameBody = (bodyValue: any) => {
+  const generateShortProcessNameBody = (
+    bodyValue: string | null | undefined
+  ) => {
+    if (bodyValue === null || bodyValue === undefined || bodyValue === "") {
+      return "-";
+    }
+
     const shortProcessName =
       bodyValue.length > 50 ? bodyValue.slice(0, 50) : bodyValue;
+
     return (
       <div>
-        {bodyValue === null || bodyValue === "" ? (
-          "-"
-        ) : (
+        {bodyValue.length > 50 ? (
           <>
-            {bodyValue.length > 50 ? (
-              <>
-                <ColorToolTip title={bodyValue} placement="top">
-                  {shortProcessName}
-                </ColorToolTip>
-                <span>...</span>
-              </>
-            ) : (
-              shortProcessName
-            )}
+            <ColorToolTip title={bodyValue} placement="top">
+              <span>{shortProcessName}</span>
+            </ColorToolTip>
+            <span>...</span>
           </>
+        ) : (
+          shortProcessName
         )}
       </div>
     );
@@ -410,14 +419,14 @@ const Client = ({
     },
   ];
 
-  const clientColumns: any = column.map((col: any) => {
+  const clientColumns = column.map((col: any) => {
     return generateConditionalColumn(col, 10);
   });
 
   const options: any = {
     filterType: "checkbox",
     responsive: "standard",
-    tableBodyHeight: "70vh",
+    tableBodyHeight: "71vh",
     viewColumns: false,
     filter: false,
     print: false,
@@ -430,7 +439,7 @@ const Client = ({
       transitionTime: 300,
     },
     expandableRows: true,
-    renderExpandableRow: (rowData: any, rowMeta: any) => {
+    renderExpandableRow: (rowData: null, rowMeta: any) => {
       return (
         <React.Fragment>
           <tr>
@@ -456,7 +465,7 @@ const Client = ({
                   <TableBody>
                     {clientData[rowMeta.rowIndex].WorkTypes.length > 0 ? (
                       clientData[rowMeta.rowIndex].WorkTypes.map(
-                        (i: any, index: any) => (
+                        (i: ClientWorkType, index: number) => (
                           <TableRow key={index}>
                             <TableCell className="!pl-[4.5rem] w-[15rem]">
                               {i.WorkTypeName}
@@ -600,7 +609,6 @@ const Client = ({
               onOpen={openFieldsDrawer}
               onClose={handleCloseFieldsDrawer}
               selectedRowId={selectedRowId}
-              onDataFetch={getData}
             />
 
             <DrawerOverlay

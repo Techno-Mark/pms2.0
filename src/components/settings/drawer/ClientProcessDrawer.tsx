@@ -17,34 +17,45 @@ import OverLay from "@/components/common/OverLay";
 import { callAPI } from "@/utils/API/callAPI";
 import { Close, Save } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
+import { LabelValue } from "@/utils/Types/types";
+
+interface List {
+  Id: number;
+  Process: string;
+  SubProcess: string;
+  EstimatedHour: number;
+  IsProductive: boolean;
+  IsBillable: boolean;
+  IsClientProcess: boolean;
+}
 
 const ClientProcessDrawer = ({
   onOpen,
   onClose,
   selectedRowId,
   onDataFetch,
-}: any) => {
+}: {
+  onOpen: boolean;
+  onClose: () => void;
+  selectedRowId: number | null;
+  onDataFetch: () => void;
+}) => {
   const [searchValue, setSearchValue] = useState("");
   const [isLoadingClientProcess, setIsLoadingClientProcess] = useState(false);
-  const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState([]);
+  const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState<LabelValue[]>(
+    []
+  );
   const [typeOfWork, setTypeOfWork] = useState(0);
   const [clientProcessData, setClientProcessData] = useState([]);
   const [thisclientProcess, setThisClientProcess] = useState([]);
   const [stndrdTime, setStndrdTime] = useState<any>([]);
   const [processType, setProcessType] = useState<any>([]);
   const [billableType, setBillableType] = useState<any>([]);
-  const [type, setType] = useState<string>("text");
-  const [convertedSec, setConvertedSec] = useState<number>(0);
-
-  const [estTimeError, setEstTimeError] = useState(false);
-  const [estTimeHasError, setEstTimeHasError] = useState(false);
-  const [estErrMsg, setEstErrMsg] = useState("");
 
   const [selectedRowsData, setSelectedRowsData] = useState<any[]>([]);
   const [editingRows, setEditingRows] = useState<{ [key: number]: boolean }>(
     {}
   );
-  const [selectAllChecked, setSelectAllChecked] = useState<boolean>(false);
   const checkAllCheked = Object.values(thisclientProcess).every(
     (value) => value === true
   );
@@ -58,10 +69,9 @@ const ClientProcessDrawer = ({
     }
 
     setThisClientProcess(updatedClientProcess);
-    setSelectAllChecked(!checkAllCheked);
 
     if (!checkAllCheked) {
-      clientProcessData.forEach((item: any) => {
+      clientProcessData.forEach((item: List) => {
         if (!updatedRowsData.some((data) => data.id === item.Id)) {
           const estimatedTime = stndrdTime[item.Id] || "00:00:00";
           const [hours, minutes, seconds] = estimatedTime.split(":");
@@ -84,7 +94,7 @@ const ClientProcessDrawer = ({
     setSelectedRowsData(updatedRowsData);
   };
 
-  function secondsToHHMMSS(seconds: any) {
+  function secondsToHHMMSS(seconds: number) {
     const hours = Math.floor(seconds / 3600);
     const remainingSeconds = seconds % 3600;
     const minutes = Math.floor(remainingSeconds / 60);
@@ -144,7 +154,6 @@ const ClientProcessDrawer = ({
       const seconds = parseInt(timeComponents[2]);
       totalSeconds = hours * 3600 + minutes * 60 + seconds;
     }
-    setConvertedSec(totalSeconds);
     setStndrdTime((prevStndrdTime: any) => ({
       ...prevStndrdTime,
       [dId]: formattedValue,
@@ -268,7 +277,7 @@ const ClientProcessDrawer = ({
     };
     const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: LabelValue[],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -307,7 +316,7 @@ const ClientProcessDrawer = ({
           const processTypeData: any = {};
           const billableTypeData: any = {};
           const isClientProcess: any = {};
-          response.data.ResponseData.forEach((item: any) => {
+          response.data.ResponseData.forEach((item: List) => {
             stndrdTimeData[item.Id] = secondsToHHMMSS(item.EstimatedHour);
             processTypeData[item.Id] = item.IsProductive;
             billableTypeData[item.Id] = item.IsBillable;
@@ -350,14 +359,14 @@ const ClientProcessDrawer = ({
     }
   }, [typeOfWork, onOpen, searchValue]);
 
-  const handleActionValue = (id: any) => {
+  const handleActionValue = (id: number) => {
     setEditingRows((prevEditingRows) => ({
       ...prevEditingRows,
       [id]: !prevEditingRows[id],
     }));
   };
 
-  const handleAddProcessData = (id: any) => {
+  const handleAddProcessData = (id: number) => {
     const existingIndex = selectedRowsData.findIndex(
       (data: any) => data.id === id
     );
@@ -390,7 +399,7 @@ const ClientProcessDrawer = ({
     }));
   };
 
-  const handleUpdateProcessData = (id: any) => {
+  const handleUpdateProcessData = (id: number) => {
     const existingIndex = selectedRowsData.findIndex(
       (data: any) => data.id === id
     );
@@ -424,14 +433,14 @@ const ClientProcessDrawer = ({
   };
 
   const table_Data = clientProcessData.map(
-    (d: any) =>
+    (d: List) =>
       new Object({
         ...d,
         Check: (
           <div>
             <CheckBox
               className="checkboxCssChange"
-              id={d.Id}
+              id={d.Id.toString()}
               checked={thisclientProcess[d.Id]}
               onChange={() => handleAddProcessData(d.Id)}
             />
@@ -443,12 +452,11 @@ const ClientProcessDrawer = ({
             <Text
               value={stndrdTime[d.Id] || ""}
               getValue={(e) => setStndrdTime({ ...stndrdTime, [d.Id]: e })}
-              getError={(e: any) => setEstTimeHasError(e)}
-              errorMessage={estErrMsg}
-              hasError={estTimeError}
-              type={type}
+              getError={() => {}}
+              errorMessage={""}
+              hasError={false}
               disabled={!editingRows[d.Id]}
-              onChange={(event) => handleEstTimeChange(event, d.Id)}
+              onChange={(event) => handleEstTimeChange(event, d.Id.toString())}
               className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
@@ -530,7 +538,7 @@ const ClientProcessDrawer = ({
                 className="pl-1 pr-7 border-b border-b-lightSilver w-56"
                 placeholder="Search"
                 value={searchValue}
-                onChange={(e: any) => setSearchValue(e.target.value)}
+                onChange={(e) => setSearchValue(e.target.value)}
               />
               <span className="absolute top-2 right-2 text-slatyGrey">
                 <SearchIcon />
@@ -548,12 +556,12 @@ const ClientProcessDrawer = ({
                 labelId="demo-simple-select-standard-label"
                 id="demo-simple-select-standard"
                 value={typeOfWork === 0 ? "" : typeOfWork}
-                onChange={(e: any) => {
-                  setTypeOfWork(parseInt(e.target.value));
+                onChange={(e) => {
+                  setTypeOfWork(Number(e.target.value));
                   setSearchValue("");
                 }}
               >
-                {typeOfWorkDropdown.map((i: any, index: number) => (
+                {typeOfWorkDropdown.map((i: LabelValue, index: number) => (
                   <MenuItem value={i.value} key={index}>
                     {i.label}
                   </MenuItem>

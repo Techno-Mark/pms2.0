@@ -78,11 +78,10 @@ const Page = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [isLoaded, setLoaded] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasEditId, setHasEditId] = useState("");
+  const [hasEditId, setHasEditId] = useState(0);
   const [getUserDataFunction, setUserGetDataFunction] = useState<
     (() => void) | null
   >(null);
-  const [groupData, setGroupData] = useState("");
 
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [currentFilterData, setCurrentFilterData] = useState<any>([]);
@@ -130,8 +129,8 @@ const Page = () => {
   const [permissionValueErrText, setPermissionValueErrText] = useState<string>(
     "This field is required."
   );
-  const [permissionValueType, setPermissionValueType] = useState<any>(0);
-  const [permissionValue, setPermissionValue] = useState<any>(0);
+  const [permissionValueType, setPermissionValueType] = useState<number>(0);
+  const [permissionValue, setPermissionValue] = useState<number>(0);
   const [permissionName, setPermissionName] = useState("");
   const [permissionNameError, setPermissionNameError] = useState(false);
   const [permissionNameErrText, setPermissionNameErrText] = useState<string>(
@@ -191,10 +190,10 @@ const Page = () => {
 
   const handleDrawerClose = () => {
     setOpenDrawer(false);
-    setHasEditId("");
+    setHasEditId(0);
   };
 
-  const handleEdit = (rowId: string) => {
+  const handleEdit = (rowId: number) => {
     setHasEditId(rowId);
     setOpenDrawer(true);
   };
@@ -476,7 +475,7 @@ const Page = () => {
     }
   };
 
-  const clearSearchValue = (tab: string) => {
+  const clearSearchValue = () => {
     setSearch("");
     setSearchValue("");
   };
@@ -501,7 +500,7 @@ const Page = () => {
       if (isNaN(Number(value.value))) {
         toggleOpen(true);
         setPermissionName(value.label);
-        setPermissionValue(null);
+        setPermissionValue(0);
         setPermissionValueType(0);
       }
       if (value !== null && !isNaN(Number(value.value))) {
@@ -705,7 +704,9 @@ const Page = () => {
                         onClick={
                           canExport
                             ? () => {
-                                const tabMappings: any = {
+                                const tabMappings: {
+                                  [key: string]: string;
+                                } = {
                                   Client: "client",
                                   Group: "group",
                                   Process: "process",
@@ -715,23 +716,13 @@ const Page = () => {
                                   Organization: "organization",
                                 };
 
-                                const searchData: any = {
-                                  Client: search,
-                                  Group: search,
-                                  Process: search,
-                                  Project: search,
-                                  Status: search,
-                                  User: search,
-                                  Organization: search,
-                                };
-
                                 const selectedTab = tabMappings[tab];
 
                                 if (selectedTab) {
                                   exportData(
                                     selectedTab,
                                     `${tab}_data`,
-                                    searchData[tab]
+                                    search.trim()
                                   );
                                 }
                               }
@@ -765,7 +756,10 @@ const Page = () => {
                       option.label
                     }
                     onChange={handlePermission}
-                    filterOptions={(options: LabelValueTypeIsDefault[], params: any) => {
+                    filterOptions={(
+                      options: LabelValueTypeIsDefault[],
+                      params: any
+                    ) => {
                       const filtered = filter(options, params);
                       return filtered;
                     }}
@@ -789,18 +783,30 @@ const Page = () => {
                           {option.label}
                           {isItemHovered && (
                             <div className="flex justify-center items-center">
-                              <span
-                                className="absolute right-3"
-                                onClick={handleDeleteClick}
-                              >
-                                <Delete />
-                              </span>
-                              <span
-                                className="absolute right-10 pt-1"
-                                onClick={handleEditClick}
-                              >
-                                <Edit />
-                              </span>
+                              {hasPermissionWorklog(
+                                "permission",
+                                "delete",
+                                "settings"
+                              ) && (
+                                <span
+                                  className="absolute right-3"
+                                  onClick={handleDeleteClick}
+                                >
+                                  <Delete />
+                                </span>
+                              )}
+                              {hasPermissionWorklog(
+                                "permission",
+                                "save",
+                                "settings"
+                              ) && (
+                                <span
+                                  className="absolute right-10 pt-1"
+                                  onClick={handleEditClick}
+                                >
+                                  <Edit />
+                                </span>
+                              )}
                             </div>
                           )}
                         </li>
@@ -898,7 +904,6 @@ const Page = () => {
           onClose={handleDrawerClose}
           onDataFetch={getDataFunction}
           onUserDataFetch={getUserDataFunction}
-          onRefresh={handleRefresh}
           getPermissionDropdown={getPermissionDropdown}
           getOrgDetailsFunction={getOrgDetailsFunction}
         />
@@ -920,7 +925,7 @@ const Page = () => {
             canEdit={hasPermissionWorklog("client", "save", "settings")}
             canDelete={hasPermissionWorklog("client", "delete", "settings")}
             canProcess={hasPermissionWorklog("client", "save", "settings")}
-            onSearchClientData={searchValue}
+            onSearchData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
           />
@@ -938,7 +943,7 @@ const Page = () => {
             canView={hasPermissionWorklog("project", "view", "settings")}
             canEdit={hasPermissionWorklog("project", "save", "settings")}
             canDelete={hasPermissionWorklog("project", "delete", "settings")}
-            onSearchProjectData={searchValue}
+            onSearchData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
           />
@@ -951,12 +956,12 @@ const Page = () => {
                 : undefined
             }
             onEdit={handleEdit}
-            onUserDataFetch={handleUserDataFetch}
+            onDataFetch={handleUserDataFetch}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("user", "view", "settings")}
             canEdit={hasPermissionWorklog("user", "save", "settings")}
             canDelete={hasPermissionWorklog("user", "delete", "settings")}
-            onSearchUserData={searchValue}
+            onSearchData={searchValue}
             canPermission={
               hasPermissionWorklog("permission", "view", "settings") &&
               hasPermissionWorklog("permission", "save", "settings")
@@ -978,7 +983,7 @@ const Page = () => {
             canView={hasPermissionWorklog("group", "view", "settings")}
             canEdit={hasPermissionWorklog("group", "save", "settings")}
             canDelete={hasPermissionWorklog("group", "delete", "settings")}
-            onSearchGroupData={searchValue}
+            onSearchData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
           />
@@ -996,7 +1001,7 @@ const Page = () => {
             canView={hasPermissionWorklog("process", "view", "settings")}
             canEdit={hasPermissionWorklog("process", "save", "settings")}
             canDelete={hasPermissionWorklog("process", "delete", "settings")}
-            onSearchProcessData={searchValue}
+            onSearchData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
           />
@@ -1014,11 +1019,10 @@ const Page = () => {
             canView={hasPermissionWorklog("status", "view", "settings")}
             canEdit={hasPermissionWorklog("status", "save", "settings")}
             canDelete={hasPermissionWorklog("status", "delete", "settings")}
-            onSearchStatusData={searchValue}
+            onSearchData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
             currentFilterData={currentFilterData}
-            onFilterOpen={isFilterOpen}
           />
         )}
         {tab === "Permission" && (
@@ -1028,19 +1032,16 @@ const Page = () => {
                 ? handleDrawerOpen
                 : undefined
             }
-            onEdit={handleEdit}
-            expanded={isPermissionExpanded}
             permissionValue={permissionValue}
             permissionValueType={permissionValueType}
-            sendDataToParent={(data: MenuItem[]) =>
-              setUpdatedPermissionsData(data)
-            }
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("permission", "view", "settings")}
             canEdit={hasPermissionWorklog("permission", "save", "settings")}
-            canDelete={hasPermissionWorklog("permission", "delete", "settings")}
-            onSearchClear={clearSearchValue}
-            onHandleExport={handleCanExport}
+            sendDataToParent={(data: MenuItem[]) =>
+              setUpdatedPermissionsData(data)
+            }
+            expanded={isPermissionExpanded}
+            loading={isLoading}
           />
         )}
         {tab === "Organization" && (
@@ -1052,8 +1053,7 @@ const Page = () => {
             }
             onEdit={handleEdit}
             onDataFetch={handleDataFetch}
-            getOrgDetailsFunction={getOrgDetailsFunction}
-            onSearchOrgData={searchValue}
+            onSearchData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
           />
