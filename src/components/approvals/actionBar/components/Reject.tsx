@@ -8,7 +8,13 @@ interface Reject {
   rejectWorkitem: (note: string, id: number[]) => void;
 }
 
-const Reject = ({ selectedRowIds, rejectWorkitem }: any) => {
+const Reject = ({
+  selectedRowIds,
+  rejectWorkitem,
+}: {
+  selectedRowIds: number[];
+  rejectWorkitem: (note: string, id: number[]) => void;
+}) => {
   const [isRejectOpen, setisRejectOpen] = useState<boolean>(false);
 
   const closeModal = () => {

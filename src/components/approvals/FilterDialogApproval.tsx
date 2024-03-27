@@ -20,6 +20,7 @@ import dayjs from "dayjs";
 import { isWeekend } from "@/utils/commonFunction";
 import { getFormattedDate } from "@/utils/timerFunctions";
 import {
+  AppliedFilterApprovals,
   IdNameEstimatedHour,
   LabelValue,
   LabelValueType,
@@ -31,20 +32,7 @@ interface FilterModalProps {
   onClose: () => void;
   onActionClick?: () => void;
   onDataFetch: () => void;
-  currentFilterData?: any;
-}
-
-interface InitialFilter {
-  ClientId: number | null;
-  TypeOfWork: number | null;
-  userId: number | null;
-  ProjectId: number | null;
-  StatusId: number | null;
-  ProcessId: number | null;
-  DateFilter: string | null | undefined;
-  dueDate: string | null | undefined;
-  startDate: string | null | undefined;
-  endDate: string | null | undefined;
+  currentFilterData?: (data: AppliedFilterApprovals) => void;
 }
 
 const initialFilter = {
@@ -87,12 +75,11 @@ const FilterDialogApproval = ({
   const [startDateReview, setStartDateReview] = useState<null | string>(null);
   const [endDateReview, setEndDateReview] = useState<null | string>(null);
   const [anyFieldSelected, setAnyFieldSelected] = useState<boolean>(false);
-  const [currSelectedFields, setCurrSelectedFileds] = useState<
-    InitialFilter | []
-  >([]);
+  const [currSelectedFields, setCurrSelectedFileds] =
+    useState<AppliedFilterApprovals>(initialFilter);
 
   const sendFilterToPage = () => {
-    currentFilterData(currSelectedFields);
+    currentFilterData?.(currSelectedFields);
     onClose();
   };
 
@@ -112,7 +99,7 @@ const FilterDialogApproval = ({
     setProjectDropdownData([]);
     setProcessDropdownData([]);
     setStatusDropdownData([]);
-    currentFilterData(initialFilter);
+    currentFilterData?.(initialFilter);
   };
 
   const getDropdownData = async () => {

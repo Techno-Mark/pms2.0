@@ -20,6 +20,21 @@ import ReportLoader from "../../common/ReportLoader";
 import OverLay from "../../common/OverLay";
 import { callAPI } from "@/utils/API/callAPI";
 
+interface InitialFilter {
+  PageNo: number;
+  PageSize: number;
+  SortColumn: string;
+  IsDesc: boolean;
+  GlobalSearch: string;
+  ClientId: number | null;
+  TypeOfWork: number | null;
+  ProjectId: number | null;
+  StartDate: string | null;
+  EndDate: string | null;
+  DueDate: string | null;
+  Priority: number | null;
+}
+
 const pageNo = 1;
 const pageSize = 10;
 
@@ -42,34 +57,44 @@ const UnassigneeDatatable = ({
   onEdit,
   onRecurring,
   onDrawerOpen,
+  onDrawerClose,
   onDataFetch,
   onComment,
   currentFilterData,
-  onDrawerClose,
   searchValue,
   isUnassigneeClicked,
-}: any) => {
+}: {
+  onEdit: (rowData: number) => void;
+  onRecurring: (rowData: boolean, selectedId: number) => void;
+  onDrawerOpen: () => void;
+  onDrawerClose: () => void;
+  onDataFetch: (getData: () => void) => void;
+  onComment: (rowData: boolean, selectedId: number) => void;
+  currentFilterData: any;
+  searchValue: string;
+  isUnassigneeClicked: boolean;
+}) => {
+  console.log(currentFilterData);
   const [
     isLoadingWorklogsUnassigneeDatatable,
     setIsLoadingWorklogsUnassigneeDatatable,
   ] = useState(false);
   const [loaded, setLoaded] = useState<boolean>(false);
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [isPopupOpen, setIsPopupOpen] = useState<
+    { index: number; dataIndex: number }[] | []
+  >([]);
+  const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [workItemData, setWorkItemData] = useState<any | any[]>([]);
-  const [selectedRowIds, setSelectedRowIds] = useState<any | number[]>([]);
-  const [selectedRowStatusId, setSelectedRowStatusId] = useState<
-    any | number[]
-  >([]);
-  const [selectedRowClientId, setSelectedRowClientId] = useState<
-    any | number[]
-  >([]);
-  const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<
-    any | number[]
-  >([]);
-  const [selectedRowId, setSelectedRowId] = useState<any | number>(null);
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [selectedRowIds, setSelectedRowIds] = useState<number[]>([]);
+  const [selectedRowStatusId, setSelectedRowStatusId] = useState<number[]>([]);
+  const [selectedRowClientId, setSelectedRowClientId] = useState<number[]>([]);
+  const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<number[]>(
+    []
+  );
+  const [selectedRowId, setSelectedRowId] = useState<null | number>(null);
+  const [filteredObject, setFilteredOject] =
+    useState<InitialFilter>(initialFilter);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
@@ -81,12 +106,12 @@ const UnassigneeDatatable = ({
   }, [onDrawerClose]);
 
   const handleRowSelect = (
-    currentRowsSelected: any,
-    allRowsSelected: any,
-    rowsSelected: any
+    currentRowsSelected: { index: number; dataIndex: number }[] | [],
+    allRowsSelected: { index: number; dataIndex: number }[] | [],
+    rowsSelected: number[] | []
   ) => {
     const selectedData = allRowsSelected.map(
-      (row: any) => workItemData[row.dataIndex]
+      (row: { index: number; dataIndex: number }) => workItemData[row.dataIndex]
     );
     setSelectedRowsCount(rowsSelected.length);
     setSelectedRows(rowsSelected);
@@ -127,7 +152,7 @@ const UnassigneeDatatable = ({
   const handleClearSelection = () => {
     setSelectedRowsCount(0);
     setSelectedRows([]);
-    setIsPopupOpen(false);
+    setIsPopupOpen([]);
   };
 
   useEffect(() => {
@@ -143,8 +168,8 @@ const UnassigneeDatatable = ({
       const pathname = window.location.href.includes("id=");
       if (pathname) {
         const idMatch = window.location.href.match(/id=([^?&]+)/);
-        const id = idMatch ? idMatch[1] : null;
-        onEdit(id);
+        const id = idMatch ? idMatch[1] : 0;
+        onEdit(Number(id));
         onDrawerOpen();
       }
     }
@@ -270,7 +295,7 @@ const UnassigneeDatatable = ({
     {
       name: "StatusName",
       label: "Status",
-      bodyRenderer: (value: any, tableMeta: any) =>
+      bodyRenderer: (value: string, tableMeta: any) =>
         generateStatusWithColor(value, tableMeta.rowData[9]),
     },
     {
@@ -356,7 +381,7 @@ const UnassigneeDatatable = ({
           viewColumns: false,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: number) => {
             return generateCommonBodyRender(value);
           },
         },
@@ -384,7 +409,7 @@ const UnassigneeDatatable = ({
           filter: true,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
-          customBodyRender: (value: any, tableMeta: any) =>
+          customBodyRender: (value: string, tableMeta: any) =>
             generateStatusWithColor(value, tableMeta.rowData[rowDataIndex]),
         },
       };
@@ -395,7 +420,7 @@ const UnassigneeDatatable = ({
           filter: true,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Task"),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: string, tableMeta: any) => {
             return generateCustomTaskNameBody(value, tableMeta);
           },
         },
@@ -444,7 +469,7 @@ const UnassigneeDatatable = ({
     }
   };
 
-  const UnassigneeTaskColumns: any = columnConfig.map((col: any) => {
+  const UnassigneeTaskColumns = columnConfig.map((col: any) => {
     return generateConditionalColumn(col, 9);
   });
 
@@ -497,9 +522,11 @@ const UnassigneeDatatable = ({
                 },
               },
               onRowSelectionChange: (
-                currentRowsSelected: any,
-                allRowsSelected: any,
-                rowsSelected: any
+                currentRowsSelected:
+                  | { index: number; dataIndex: number }[]
+                  | [],
+                allRowsSelected: { index: number; dataIndex: number }[] | [],
+                rowsSelected: number[] | []
               ) =>
                 handleRowSelect(
                   currentRowsSelected,
@@ -538,8 +565,9 @@ const UnassigneeDatatable = ({
 
       {/* Action Bar */}
       <WorklogsActionBar
+        selectedRowsdata={[]}
         {...propsForActionBar}
-        getOverLay={(e: any) => setIsLoadingWorklogsUnassigneeDatatable(e)}
+        getOverLay={(e: boolean) => setIsLoadingWorklogsUnassigneeDatatable(e)}
       />
       {isLoadingWorklogsUnassigneeDatatable ? <OverLay /> : ""}
     </div>

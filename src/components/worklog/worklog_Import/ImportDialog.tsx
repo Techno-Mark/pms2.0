@@ -104,7 +104,7 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
     };
     const url = `${process.env.worklog_api_url}/workitem/import`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {

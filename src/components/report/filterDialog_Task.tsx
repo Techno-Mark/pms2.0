@@ -27,7 +27,7 @@ import { LabelValue } from "@/utils/Types/types";
 interface FilterModalProps {
   onOpen: boolean;
   onClose: () => void;
-  currentFilterData?: any;
+  currentFilterData?: (data: any) => void;
 }
 
 interface FilterData {
@@ -87,7 +87,7 @@ const FilterDialog_Task = ({
     setDueDateFilterTask(null);
     setStartDateFilterTask(null);
     setEndDateFilterTask(null);
-    currentFilterData(initialTaskFilter);
+    currentFilterData?.(initialTaskFilter);
   };
 
   useEffect(() => {
@@ -144,7 +144,7 @@ const FilterDialog_Task = ({
   ]);
 
   const sendTaskFilterToPage = () => {
-    currentFilterData(currSelectedTaskFields);
+    currentFilterData?.(currSelectedTaskFields);
     onClose();
   };
 

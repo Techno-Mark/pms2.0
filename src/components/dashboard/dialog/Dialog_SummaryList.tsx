@@ -66,7 +66,7 @@ const Dialog_SummaryList = ({
                 onChange={(e) => setTaskStatusName(Number(e.target.value))}
                 sx={{ height: "36px" }}
               >
-                {onCurrProjectSummary.map((i: any) => (
+                {onCurrProjectSummary.map((i: KeyValueColorCodeSequence) => (
                   <MenuItem value={i.Sequence} key={i.Key}>
                     {i.Key}
                   </MenuItem>

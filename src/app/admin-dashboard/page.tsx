@@ -32,6 +32,7 @@ import MUIDataTable from "mui-datatables";
 import TablePagination from "@mui/material/TablePagination";
 import {
   generateDashboardReportBodyRender,
+  generateDashboardReportBodyRenderRight,
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
@@ -45,6 +46,7 @@ import FilterIcon from "@/assets/icons/FilterIcon";
 import FilterDialogDashboard from "@/components/admin-dashboard/FilterDialogDashboard";
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
+import ReportLoader from "@/components/common/ReportLoader";
 
 interface ClientSummaryStatus {
   ClientName: string;
@@ -124,6 +126,7 @@ const Page = () => {
     KeyValueColorCodeSequence[] | []
   >([]);
   const [clickedCardName, setClickedCardName] = useState<number>(0);
+  const [reportLoader, setReportLoader] = useState<boolean>(true);
   const [reportData, setReportData] = useState<ClientSummaryStatus[] | []>([]);
   const [reportDataHeader, setReportDataHeader] = useState<
     { header: string; label: string }[] | []
@@ -195,6 +198,7 @@ const Page = () => {
   }, [router]);
 
   const getReportData = async () => {
+    setReportLoader(true);
     const params = { ...filteredObject, ...currentFilterData };
     const url = `${process.env.report_api_url}/dashboard/dashboardclientsummary`;
     const successCallback = (
@@ -206,6 +210,9 @@ const Page = () => {
         setReportData(ResponseData.ClientSummary);
         setReportDataHeader(ResponseData.StatusSummary);
         setTableDataCount(ResponseData.TotalCount);
+        setReportLoader(false);
+      } else {
+        setReportLoader(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -585,23 +592,33 @@ const Page = () => {
         />
       )}
 
-      {activeTab === 2 && (
+      {activeTab === 2 && reportLoader && <ReportLoader />}
+      {activeTab === 2 && !reportLoader && (
         <ThemeProvider theme={getMuiTheme()}>
           <MUIDataTable
             data={reportData}
             columns={
               reportDataHeader.length > 0
                 ? [
-                    { header: "ClientName", label: "Client Name" },
-                    { header: "Total", label: "Total" },
-                    ...reportDataHeader,
-                  ].map((i: { header: string; label: string }) =>
-                    generateCustomColumn(
-                      i.header,
-                      i.label,
-                      generateDashboardReportBodyRender
-                    )
-                  )
+                    ...[{ header: "ClientName", label: "Client Name" }].map(
+                      (i: { header: string; label: string }) =>
+                        generateCustomColumn(
+                          i.header,
+                          i.label,
+                          generateDashboardReportBodyRender
+                        )
+                    ),
+                    ...[
+                      { header: "Total", label: "Total" },
+                      ...reportDataHeader,
+                    ].map((i: { header: string; label: string }) =>
+                      generateCustomColumn(
+                        i.header,
+                        i.label,
+                        generateDashboardReportBodyRenderRight
+                      )
+                    ),
+                  ]
                 : [
                     { header: "ClientName", label: "Client Name" },
                     { header: "Total", label: "Total" },

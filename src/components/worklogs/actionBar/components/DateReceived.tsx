@@ -9,7 +9,15 @@ import { isWeekend } from "@/utils/commonFunction";
 import DateIcon from "@/assets/icons/worklogs/DateIcon";
 import { callAPI } from "@/utils/API/callAPI";
 
-const DateReceived = ({ getWorkItemList, selectedRowIds, getOverLay }: any) => {
+const DateReceived = ({
+  getWorkItemList,
+  selectedRowIds,
+  getOverLay,
+}: {
+  getWorkItemList: () => void;
+  selectedRowIds: number[];
+  getOverLay: (e: boolean) => void;
+}) => {
   const [anchorElDateReceived, setAnchorElDateReceived] =
     React.useState<HTMLButtonElement | null>(null);
 
@@ -42,7 +50,7 @@ const DateReceived = ({ getWorkItemList, selectedRowIds, getOverLay }: any) => {
     };
     const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemreceiverdate`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: boolean | string,
       error: boolean,
       ResponseStatus: string
     ) => {

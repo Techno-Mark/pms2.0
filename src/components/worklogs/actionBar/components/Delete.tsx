@@ -4,6 +4,7 @@ import DeleteIcon from "@/assets/icons/worklogs/Delete";
 import { toast } from "react-toastify";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { callAPI } from "@/utils/API/callAPI";
+import { WorkitemList } from "@/utils/Types/worklogsTypes";
 
 const Delete = ({
   workItemData,
@@ -11,7 +12,13 @@ const Delete = ({
   handleClearSelection,
   getWorkItemList,
   getOverLay,
-}: any) => {
+}: {
+  workItemData: WorkitemList[];
+  selectedRowIds: number[];
+  handleClearSelection: () => void;
+  getWorkItemList: () => void;
+  getOverLay?: (e: boolean) => void;
+}) => {
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
 
   const closeDeleteModal = () => {
@@ -20,30 +27,30 @@ const Delete = ({
 
   const deleteWorkItem = async () => {
     const deletedId = workItemData
-      .map((item: any) =>
+      .map((item: WorkitemList) =>
         selectedRowIds.includes(item.WorkitemId) && !item.IsCreatedByClient
           ? item.WorkitemId
           : undefined
       )
-      .filter((i: any) => i !== undefined);
+      .filter((i: number | undefined) => i !== undefined);
 
     if (selectedRowIds.length > 0) {
       if (
         workItemData.some(
-          (item: any) =>
+          (item: WorkitemList) =>
             selectedRowIds.includes(item.WorkitemId) && item.IsCreatedByClient
         )
       ) {
         toast.warning("You can not delete task which is created by Client.");
       }
       if (deletedId.length > 0) {
-        getOverLay(true);
+        getOverLay?.(true);
         const params = {
           workitemIds: deletedId,
         };
         const url = `${process.env.worklog_api_url}/workitem/deleteworkitem`;
         const successCallback = (
-          ResponseData: any,
+          ResponseData: boolean | string,
           error: boolean,
           ResponseStatus: string
         ) => {
@@ -51,16 +58,16 @@ const Delete = ({
             toast.success("Task has been deleted successfully.");
             handleClearSelection();
             getWorkItemList();
-            getOverLay(false);
+            getOverLay?.(false);
           } else if (ResponseStatus === "Warning" && error === false) {
             toast.warning(ResponseData);
             handleClearSelection();
             getWorkItemList();
-            getOverLay(false);
+            getOverLay?.(false);
           } else {
             handleClearSelection();
             getWorkItemList();
-            getOverLay(false);
+            getOverLay?.(false);
           }
         };
         callAPI(url, params, successCallback, "POST");

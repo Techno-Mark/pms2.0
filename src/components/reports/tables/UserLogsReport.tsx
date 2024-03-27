@@ -18,7 +18,7 @@ interface FilteredData {
   globalSearch: string;
   departmentIds: number[] | [];
   isActive: boolean;
-  users: any[] | [];
+  users: number[];
   dateFilter: string | null;
   isLoggedInFilter: boolean | null;
   isDownload: boolean;

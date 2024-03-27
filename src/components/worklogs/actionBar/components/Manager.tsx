@@ -6,8 +6,17 @@ import { getManagerDropdownData } from "@/utils/commonDropdownApiCall";
 import ManagerIcon from "@/assets/icons/worklogs/ManagerIcon";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { callAPI } from "@/utils/API/callAPI";
+import { LabelValue } from "@/utils/Types/types";
 
-const Manager = ({ selectedRowIds, getWorkItemList, getOverLay }: any) => {
+const Manager = ({
+  selectedRowIds,
+  getWorkItemList,
+  getOverLay,
+}: {
+  selectedRowIds: number[];
+  getWorkItemList: () => void;
+  getOverLay: (e: boolean) => void;
+}) => {
   const [managerSearchQuery, setManagerSearchQuery] = useState("");
   const [managerDropdownData, setManagerDropdownData] = useState([]);
 
@@ -26,15 +35,15 @@ const Manager = ({ selectedRowIds, getWorkItemList, getOverLay }: any) => {
   const openManager = Boolean(anchorElManager);
   const idManager = openManager ? "simple-popover" : undefined;
 
-  const handleManagerSearchChange = (event: any) => {
-    setManagerSearchQuery(event.target.value);
+  const handleManagerSearchChange = (e: string) => {
+    setManagerSearchQuery(e);
   };
 
-  const filteredManager = managerDropdownData?.filter((manager: any) =>
+  const filteredManager = managerDropdownData?.filter((manager: LabelValue) =>
     manager.label.toLowerCase().includes(managerSearchQuery.toLowerCase())
   );
 
-  const handleOptionManager = (id: any) => {
+  const handleOptionManager = (id: number) => {
     updateManager(selectedRowIds, id);
     handleCloseManager();
   };
@@ -51,7 +60,7 @@ const Manager = ({ selectedRowIds, getWorkItemList, getOverLay }: any) => {
     };
     const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemmanager`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: boolean | string,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -109,7 +118,7 @@ const Manager = ({ selectedRowIds, getWorkItemList, getOverLay }: any) => {
                   placeholder="Search"
                   inputProps={{ "aria-label": "search" }}
                   value={managerSearchQuery}
-                  onChange={handleManagerSearchChange}
+                  onChange={(e) => handleManagerSearchChange(e.target.value)}
                   style={{ fontSize: "13px" }}
                 />
               </span>
@@ -121,7 +130,7 @@ const Manager = ({ selectedRowIds, getWorkItemList, getOverLay }: any) => {
                 No Data Available
               </span>
             ) : (
-              filteredManager.map((manager: any) => {
+              filteredManager.map((manager: LabelValue) => {
                 return (
                   <span
                     key={manager.value}

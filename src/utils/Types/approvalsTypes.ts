@@ -75,12 +75,12 @@ export interface InitialFilterApprovals {
   ClientId: number | null;
   TypeOfWork: number | null;
   projectId: number | null;
-  startDate: string | null;
-  endDate: string | null;
-  dueDate: string | null;
   StatusId: number | null;
   ProcessId: number | null;
-  DateFilter: string | null;
+  startDate: string | null | undefined;
+  endDate: string | null | undefined;
+  dueDate: string | null | undefined;
+  DateFilter: string | null | undefined;
 }
 
 export interface ApprovalsActionBar {

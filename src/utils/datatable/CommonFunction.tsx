@@ -32,6 +32,17 @@ export const generateDashboardReportBodyRender = (bodyValue: any) => {
   return <div className="ml-2">{bodyValue === "" ? "-" : bodyValue}</div>;
 };
 
+export const generateDashboardReportBodyRenderRight = (bodyValue: any) => {
+  return (
+    <div
+      className="flex justify-end w-full items-center"
+      style={{ paddingRight: "14px" }}
+    >
+      {bodyValue === "" ? "-" : bodyValue}
+    </div>
+  );
+};
+
 export const generateCustomFormatDate = (
   value: string | number | Date | null
 ) => {

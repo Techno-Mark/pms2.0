@@ -19,7 +19,7 @@ import {
 interface TaskStatusProps {
   currentFilterData: DashboardInitialFilter;
   onSelectedStatusName: string;
-  onCurrSelectedStatus: any;
+  onCurrSelectedStatus: number;
   onSearchValue: string;
   isClose: boolean;
 }

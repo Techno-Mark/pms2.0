@@ -107,7 +107,7 @@ const Page = () => {
   const [search, setSearch] = useState("");
   const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [currentFilterData, setCurrentFilterData] = useState<
-    AppliedFilterWorklogsPage | []
+    AppliedFilterWorklogsPage | any
   >([]);
   const [breakId, setBreakID] = useState<number>(0);
   const [loaded, setLoaded] = useState(false);
@@ -695,7 +695,6 @@ const Page = () => {
           <UnassigneeDatatable
             searchValue={globalSearchValue}
             currentFilterData={currentFilterData}
-            onCurrentFilterId={clickedFilterId}
             onDataFetch={handleDataFetch}
             onEdit={handleEdit}
             onRecurring={handleSetRecurring}

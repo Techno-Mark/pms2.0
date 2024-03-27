@@ -5,6 +5,7 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import TypeOfWorkIcon from "@/assets/icons/worklogs/TypeOfWork";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { callAPI } from "@/utils/API/callAPI";
+import { LabelValue } from "@/utils/Types/types";
 
 const TypeOfWork = ({
   selectedRowIds,
@@ -12,7 +13,13 @@ const TypeOfWork = ({
   typeOfWorkDropdownData,
   handleClearSelection,
   getOverLay,
-}: any) => {
+}: {
+  selectedRowIds: number[];
+  getWorkItemList: () => void;
+  typeOfWorkDropdownData: LabelValue[];
+  handleClearSelection: () => void;
+  getOverLay: (e: boolean) => void;
+}) => {
   const [typeOfWorkSearchQuery, setTypeOfWorkSearchQuery] = useState("");
 
   const [anchorElTypeOfWork, setAnchorElTypeOfWork] =
@@ -31,15 +38,18 @@ const TypeOfWork = ({
   const openTypeOfWork = Boolean(anchorElTypeOfWork);
   const idTypeOfWork = openTypeOfWork ? "simple-popover" : undefined;
 
-  const handleTypeOfWorkSearchChange = (event: any) => {
-    setTypeOfWorkSearchQuery(event.target.value);
+  const handleTypeOfWorkSearchChange = (e: string) => {
+    setTypeOfWorkSearchQuery(e);
   };
 
-  const filteredTypeOfWork = typeOfWorkDropdownData?.filter((TypeOfWork: any) =>
-    TypeOfWork.label.toLowerCase().includes(typeOfWorkSearchQuery.toLowerCase())
+  const filteredTypeOfWork = typeOfWorkDropdownData?.filter(
+    (TypeOfWork: LabelValue) =>
+      TypeOfWork.label
+        .toLowerCase()
+        .includes(typeOfWorkSearchQuery.toLowerCase())
   );
 
-  const handleOptionTypeOfWork = (id: any) => {
+  const handleOptionTypeOfWork = (id: number) => {
     updateTypeOfWork(selectedRowIds, id);
     handleCloseTypeOfWork();
   };
@@ -52,7 +62,7 @@ const TypeOfWork = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemtypeofwork`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: boolean | string,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -112,7 +122,7 @@ const TypeOfWork = ({
                   placeholder="Search"
                   inputProps={{ "aria-label": "search" }}
                   value={typeOfWorkSearchQuery}
-                  onChange={handleTypeOfWorkSearchChange}
+                  onChange={(e) => handleTypeOfWorkSearchChange(e.target.value)}
                   style={{ fontSize: "13px" }}
                 />
               </span>
@@ -124,7 +134,7 @@ const TypeOfWork = ({
                 No Data Available
               </span>
             ) : (
-              filteredTypeOfWork.map((TypeOfWork: any) => {
+              filteredTypeOfWork.map((TypeOfWork: LabelValue) => {
                 return (
                   <span
                     key={TypeOfWork.value}

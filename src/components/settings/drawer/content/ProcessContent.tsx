@@ -469,13 +469,14 @@ const ProcessContent = forwardRef<
     };
 
     const handleProcess = (e: React.SyntheticEvent, value: any) => {
+      console.log(value);
       if (value !== null) {
-        if (isNaN(parseInt(value.value))) {
+        if (typeof value.value == "string") {
           toggleOpen(true);
           setProcessName(value.value);
           setProcessValue(0);
         }
-        if (value !== null && !isNaN(parseInt(value.value))) {
+        if (value !== null && typeof value.value == "number") {
           const selectedValue = value.value;
           setProcessValue(selectedValue);
           setProcessValueError(false);
@@ -485,13 +486,13 @@ const ProcessContent = forwardRef<
       }
     };
 
-    const handleProcessName = (e: any) => {
-      if (e.target.value === "" || e.target.value.trim().length <= 0) {
-        setProcessName(e.target.value);
+    const handleProcessName = (e: string) => {
+      if (e.trim() === "" || e.trim().length <= 0) {
+        setProcessName(e);
         setProcessNameError(true);
         setProcessNameErrText("This is required field.");
       } else {
-        setProcessName(e.target.value);
+        setProcessName(e);
         setProcessNameError(false);
         setProcessNameErrText("");
       }
@@ -905,7 +906,7 @@ const ProcessContent = forwardRef<
                 editDialogOpen ? "Edit a process" : "Add new process"
               }
               variant="standard"
-              onChange={handleProcessName}
+              onChange={(e) => handleProcessName(e.target.value)}
             />
           </DialogContent>
           <DialogActions>

@@ -6,6 +6,7 @@ import ReviewerIcon from "@/assets/icons/worklogs/Reviewer";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { callAPI } from "@/utils/API/callAPI";
 import { getReviewerDropdownData } from "@/utils/commonDropdownApiCall";
+import { LabelValue } from "@/utils/Types/types";
 
 const Reviewer = ({
   selectedRowIds,
@@ -14,9 +15,16 @@ const Reviewer = ({
   selectedRowWorkTypeId,
   areAllValuesSame,
   getOverLay,
-}: any) => {
+}: {
+  selectedRowIds: number[];
+  selectedRowClientId: number[];
+  selectedRowWorkTypeId: number[];
+  areAllValuesSame: any;
+  getWorkItemList: () => void;
+  getOverLay: (e: boolean) => void;
+}) => {
   const [reviewerSearchQuery, setReviewerSearchQuery] = useState("");
-  const [reviewer, setReviewer] = useState<any | any[]>([]);
+  const [reviewer, setReviewer] = useState<LabelValue[]>([]);
 
   const [anchorElReviewer, setAnchorElReviewer] =
     React.useState<HTMLButtonElement | null>(null);
@@ -51,15 +59,15 @@ const Reviewer = ({
   const openReviewer = Boolean(anchorElReviewer);
   const idReviewer = openReviewer ? "simple-popover" : undefined;
 
-  const handleReviewerSearchChange = (event: any) => {
-    setReviewerSearchQuery(event.target.value);
+  const handleReviewerSearchChange = (e: string) => {
+    setReviewerSearchQuery(e);
   };
 
-  const filteredReviewer = reviewer?.filter((Reviewer: any) =>
+  const filteredReviewer = reviewer?.filter((Reviewer: LabelValue) =>
     Reviewer.label.toLowerCase().includes(reviewerSearchQuery.toLowerCase())
   );
 
-  const handleOptionReviewer = (id: any) => {
+  const handleOptionReviewer = (id: number) => {
     updateReviewer(selectedRowIds, id);
     handleCloseReviewer();
   };
@@ -72,7 +80,7 @@ const Reviewer = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemreviewer`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: boolean | string,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -130,7 +138,7 @@ const Reviewer = ({
                   placeholder="Search"
                   inputProps={{ "aria-label": "search" }}
                   value={reviewerSearchQuery}
-                  onChange={handleReviewerSearchChange}
+                  onChange={(e) => handleReviewerSearchChange(e.target.value)}
                   style={{ fontSize: "13px" }}
                 />
               </span>
@@ -142,7 +150,7 @@ const Reviewer = ({
                 No Data Available
               </span>
             ) : (
-              filteredReviewer?.map((Reviewer: any) => {
+              filteredReviewer?.map((Reviewer: LabelValue) => {
                 return (
                   <span
                     key={Reviewer.value}

@@ -33,7 +33,7 @@ const Dialog_PriorityInfo = ({
   onSelectedPriorityName,
   onSelectedWorkType,
 }: DialogProps) => {
-  const [priority, setPriority] = useState<number | any>(0);
+  const [priority, setPriority] = useState<number>(0);
   const [clickedPriorityName, setClickedPriorityName] = useState<string>("");
 
   const priority_Data = [
@@ -60,7 +60,7 @@ const Dialog_PriorityInfo = ({
     setClickedPriorityName("");
   };
 
-  function getValueByLabelOrType(labelOrType: any): number {
+  function getValueByLabelOrType(labelOrType: string | undefined): number {
     const priority = priority_Data.find(
       (priority: Priority) =>
         priority.Type === labelOrType || priority.label === labelOrType
@@ -102,15 +102,17 @@ const Dialog_PriorityInfo = ({
                 labelId="status"
                 id="status"
                 value={priority ? priority : 0}
-                onChange={(e) => setPriority(e.target.value)}
+                onChange={(e) => setPriority(Number(e.target.value))}
                 sx={{ height: "36px" }}
               >
                 <MenuItem value={0}>All</MenuItem>
-                {priority_Data.map((i: any) => (
-                  <MenuItem value={i.value} key={i.value}>
-                    {i.label}
-                  </MenuItem>
-                ))}
+                {priority_Data.map(
+                  (i: { Type: string; label: string; value: number }) => (
+                    <MenuItem value={i.value} key={i.value}>
+                      {i.label}
+                    </MenuItem>
+                  )
+                )}
               </Select>
             </FormControl>
           </div>

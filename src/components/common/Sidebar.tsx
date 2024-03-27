@@ -50,7 +50,15 @@ const DashboardItems = ({ pathname, isCollapsed, sidebarItems }: any) => {
   );
 };
 
-const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
+const Sidebar = ({
+  setOpen,
+  setSetting,
+  toggleDrawer,
+}: {
+  setOpen: (arg: boolean) => void;
+  setSetting: (arg: boolean) => void;
+  toggleDrawer: boolean;
+}) => {
   const pathname = usePathname();
   const [isCollapsed, setCollapse] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
