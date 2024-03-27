@@ -2,7 +2,6 @@ import ReportLoader from "@/components/common/ReportLoader";
 import { callAPI } from "@/utils/API/callAPI";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
-import { STATUS } from "./Constants/Tabname";
 import {
   Paper,
   Table,
@@ -25,61 +24,64 @@ import {
 import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+import {
+  SettingAction,
+  SettingProps,
+  StatusDetail,
+  StatusInitialFilter,
+  StatusList,
+} from "@/utils/Types/settingTypes";
 
 const pageNo = 1;
 const pageSize = 10;
 
 const initialFilter = {
-  pageNo: pageNo,
-  pageSize: pageSize,
+  PageNo: pageNo,
+  PageSize: pageSize,
   SortColumn: "",
   IsDec: true,
   globalFilter: null,
   IsDefault: null,
   Type: "",
   Export: false,
-  GlobalSearch: null,
+  GlobalSearch: "",
   WorkTypeId: null,
 };
 
 const Status = ({
   onOpen,
   onEdit,
-  onHandleOrgData,
   onDataFetch,
   getOrgDetailsFunction,
   canView,
   canEdit,
   canDelete,
-  onSearchStatusData,
+  onSearchData,
   onSearchClear,
   onHandleExport,
   currentFilterData,
-  onFilterOpen,
-}: any) => {
+}: SettingProps) => {
   const [loader, setLoader] = useState(true);
-  const [statusList, setStatusList] = useState<any>([]);
+  const [statusList, setStatusList] = useState<StatusList[]>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [totalCount, setTotalCount] = useState(0);
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [filteredObject, setFilteredOject] =
+    useState<StatusInitialFilter>(initialFilter);
 
   useEffect(() => {
-    if (
-      onSearchStatusData.trim().length >= 0 ||
-      currentFilterData.WorkTypeId > 0
-    ) {
+    if (onSearchData.trim().length >= 0 || currentFilterData) {
       setFilteredOject({
         ...filteredObject,
-        WorkTypeId: currentFilterData.WorkTypeId,
-        GlobalSearch: onSearchStatusData.trim(),
+        WorkTypeId: currentFilterData?.WorkTypeId || null,
+        GlobalSearch: onSearchData.trim(),
         PageNo: 1,
       });
       setPage(0);
     }
-  }, [onSearchStatusData, currentFilterData]);
+  }, [onSearchData, currentFilterData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,14 +93,18 @@ const Status = ({
         setTimeout(fetchData, 1000);
       }
     };
-    fetchData();
+
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [filteredObject]);
 
   const getStatusList = async () => {
     const params = filteredObject;
     const url = `${process.env.pms_api_url}/status/GetAll`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: { List: StatusList[]; TotalCount: number },
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -107,7 +113,7 @@ const Status = ({
         setLoader(false);
         setStatusList(ResponseData.List);
         setTotalCount(ResponseData.TotalCount);
-        getOrgDetailsFunction();
+        getOrgDetailsFunction?.();
       } else {
         setLoader(false);
         setStatusList([]);
@@ -132,7 +138,7 @@ const Status = ({
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Status has been deleted successfully!");
-        onSearchClear(STATUS);
+        onSearchClear();
         setFilteredOject({
           ...filteredObject,
           GlobalSearch: "",
@@ -143,13 +149,13 @@ const Status = ({
     };
     callAPI(url, params, successCallback, "POST");
     setIsDeleteOpen(false);
-    onSearchClear(STATUS);
+    onSearchClear();
     setSelectedRowId(null);
     setPage(0);
     setRowsPerPage(10);
   };
 
-  const handleActionValue = async (actionId: string, id: any) => {
+  const handleActionValue = async (actionId: string, id: number) => {
     setSelectedRowId(id);
     if (actionId.toLowerCase() === "edit") {
       onEdit(id);
@@ -159,7 +165,7 @@ const Status = ({
     }
   };
 
-  const Actions = ({ actions, id }: any) => {
+  const Actions = ({ actions, id }: SettingAction) => {
     const actionsRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
 
@@ -180,7 +186,7 @@ const Status = ({
     }, []);
 
     const actionPermissions = actions.filter(
-      (action: any) =>
+      (action: string) =>
         (action.toLowerCase() === "edit" && canEdit) ||
         (action.toLowerCase() === "delete" && canDelete)
     );
@@ -199,7 +205,7 @@ const Status = ({
             <div className="absolute top-30 right-[14rem] z-10 flex justify-center items-center">
               <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-28">
-                  {actionPermissions.map((action: any, index: any) => (
+                  {actionPermissions.map((action: string, index: number) => (
                     <li
                       key={index}
                       onClick={() => handleActionValue(action, id)}
@@ -241,7 +247,7 @@ const Status = ({
           viewColumns: false,
           sort: false,
           customHeadLabelRender: () => generateCustomHeaderName("Actions"),
-          customBodyRender: (value: any) => {
+          customBodyRender: (value: number) => {
             return <Actions actions={["Edit", "Delete"]} id={value} />;
           },
         },
@@ -254,7 +260,7 @@ const Status = ({
           viewColumns: false,
           sort: false,
           customHeadLabelRender: () => generateCustomHeaderName("Color"),
-          customBodyRender: (value: any) => {
+          customBodyRender: (value: string) => {
             return (
               <div
                 style={{
@@ -278,7 +284,7 @@ const Status = ({
           viewColumns: false,
           sort: false,
           customHeadLabelRender: () => generateCustomHeaderName("Name"),
-          customBodyRender: (value: any) => {
+          customBodyRender: (value: string) => {
             return <div>{value}</div>;
           },
         },
@@ -310,7 +316,7 @@ const Status = ({
     },
   ];
 
-  const statusColumns: any = column.map((col: any) => {
+  const statusColumns = column.map((col: any) => {
     return generateConditionalColumn(col, 10);
   });
 
@@ -330,7 +336,7 @@ const Status = ({
       transitionTime: 300,
     },
     expandableRows: true,
-    renderExpandableRow: (rowData: any, rowMeta: any) => {
+    renderExpandableRow: (rowData: null, rowMeta: any) => {
       return (
         <React.Fragment>
           <tr>
@@ -350,7 +356,7 @@ const Status = ({
                   <TableBody>
                     {statusList[rowMeta.rowIndex].WorkTypeDetails.length > 0 ? (
                       statusList[rowMeta.rowIndex].WorkTypeDetails.map(
-                        (i: any, index: any) => (
+                        (i: StatusDetail, index: number) => (
                           <TableRow key={index}>
                             <TableCell className="!pl-[4.5rem]">
                               {i.WorkTypeName}

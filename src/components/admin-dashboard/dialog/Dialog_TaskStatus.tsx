@@ -79,14 +79,14 @@ const Dialog_TaskStatus = ({
 
   const getAllStatus = async () => {
     const statusData = await getStatusDropdownData(
-      currentFilterData.TypeOfWork === null ? 3 : currentFilterData.TypeOfWork
+      currentFilterData.WorkTypeId === null ? 3 : currentFilterData.WorkTypeId
     );
     setAllStatus(statusData);
   };
 
   useEffect(() => {
     getAllStatus();
-  }, [currentFilterData.TypeOfWork]);
+  }, [currentFilterData.WorkTypeId]);
 
   const exportTaskStatusListReport = async () => {
     try {
@@ -104,9 +104,9 @@ const Dialog_TaskStatus = ({
           IsDesc: true,
           Clients: currentFilterData.Clients,
           WorkTypeId:
-            currentFilterData.TypeOfWork === null
+            currentFilterData.WorkTypeId === null
               ? 0
-              : currentFilterData.TypeOfWork,
+              : currentFilterData.WorkTypeId,
           StartDate: currentFilterData.StartDate,
           EndDate: currentFilterData.EndDate,
           GlobalSearch: searchValue,

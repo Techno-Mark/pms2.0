@@ -11,6 +11,7 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
 import { Radio } from "next-ts-lib";
+import { LabelValue, LabelValueType } from "@/utils/Types/types";
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -22,14 +23,13 @@ export interface UserContentRef {
 const UserContent = forwardRef<
   UserContentRef,
   {
-    tab: string;
-    onEdit: boolean;
+    onEdit: number;
     onOpen: boolean;
     onClose: () => void;
-    onUserDataFetch: any;
-    onChangeLoader: any;
+    onUserDataFetch: (() => void) | null;
+    onChangeLoader: (e: boolean) => void;
   }
->(({ tab, onEdit, onOpen, onClose, onUserDataFetch, onChangeLoader }, ref) => {
+>(({ onEdit, onOpen, onClose, onUserDataFetch, onChangeLoader }, ref) => {
   const [value, setValue] = useState("Employee");
   const [emailConfirmed, setEmailConfirmed] = useState(false);
   const [addMoreClicked, setAddMoreClicked] = useState(false);
@@ -53,10 +53,14 @@ const UserContent = forwardRef<
   const [departmentError, setDepartmentError] = useState(false);
   const [report, setReport] = useState(0);
   const [reportError, setReportError] = useState(false);
-  const [selectGroupValue, setSelectGroupValue] = useState<any>([]);
-  const [selectedGroupOptions, setSelectGroupOptions] = useState<any>([]);
+  const [selectGroupValue, setSelectGroupValue] = useState<number[]>([]);
+  const [selectedGroupOptions, setSelectGroupOptions] = useState<LabelValue[]>(
+    []
+  );
   const [groupError, setGroupError] = useState(false);
-  const [typeOfWorkDropdownData, setTypeOfWorkDropdownData] = useState([]);
+  const [typeOfWorkDropdownData, setTypeOfWorkDropdownData] = useState<
+    LabelValue[]
+  >([]);
   const [roleDropdownData, setRoleDropdownData] = useState([]);
   const [departmentDropdownData, setDepartmentDropdownData] = useState([]);
   const [groupDropdownData, setGroupDropdownData] = useState([]);
@@ -80,7 +84,7 @@ const UserContent = forwardRef<
   const [clientDropdownData, setClientDropdownData] = useState([]);
 
   useEffect(() => {
-    if (onEdit) {
+    if (onEdit > 0) {
       const getData = async () => {
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
@@ -164,7 +168,7 @@ const UserContent = forwardRef<
   }, [onEdit, onClose]);
 
   useEffect(() => {
-    const getData = async (api: any) => {
+    const getData = async (api: string) => {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
       try {
@@ -207,9 +211,9 @@ const UserContent = forwardRef<
             if (api === "/group/getdropdown") {
               setGroupDropdownData(response.data.ResponseData);
               const filteredOptionsData = response.data.ResponseData.filter(
-                (d: any) => {
+                (d: LabelValue) => {
                   return selectGroupValue.some((id: number) => {
-                    return id === parseInt(d.value);
+                    return id === Number(d.value);
                   });
                 }
               );
@@ -245,7 +249,7 @@ const UserContent = forwardRef<
       };
       const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
       const successCallback = async (
-        ResponseData: any,
+        ResponseData: LabelValue[],
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -321,8 +325,10 @@ const UserContent = forwardRef<
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          toast.success(`User ${onEdit ? "Updated" : "created"} successfully.`);
-          await onUserDataFetch();
+          toast.success(
+            `User ${onEdit > 0 ? "Updated" : "created"} successfully.`
+          );
+          await onUserDataFetch?.();
           await clearDataEmployee();
           onChangeLoader(false);
           {
@@ -402,12 +408,14 @@ const UserContent = forwardRef<
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           onChangeLoader(false);
-          onUserDataFetch();
+          onUserDataFetch?.();
           clearDataClient();
           {
             !addMoreClicked && onClose();
           }
-          toast.success(`User ${onEdit ? "Updated" : "created"} successfully.`);
+          toast.success(
+            `User ${onEdit > 0 ? "Updated" : "created"} successfully.`
+          );
         } else {
           onChangeLoader(false);
           const data = response.data.Message;
@@ -511,9 +519,9 @@ const UserContent = forwardRef<
     }
   };
 
-  const handleMultiSelect = (e: React.SyntheticEvent, value: any) => {
+  const handleMultiSelect = (e: React.SyntheticEvent, value: LabelValue[]) => {
     if (value !== undefined) {
-      const selectedValue = value.map((v: any) => v.value);
+      const selectedValue = value.map((v: LabelValue) => v.value);
       setSelectGroupOptions(value);
       setSelectGroupValue(selectedValue);
       setGroupError(false);
@@ -525,7 +533,7 @@ const UserContent = forwardRef<
   return (
     <form onSubmit={handleSubmit}>
       <span className="flex flex-row items-center my-[20px] w-28 gap-5 pl-2">
-        {onEdit ? (
+        {onEdit > 0 ? (
           <>
             {value === "Employee" ? (
               <>
@@ -729,10 +737,10 @@ const UserContent = forwardRef<
               options={typeOfWorkDropdownData}
               value={
                 typeOfWorkDropdownData.find(
-                  (i: any) => i.value === typeOfWork
+                  (i: LabelValue) => i.value === typeOfWork
                 ) || null
               }
-              onChange={(e, value: any) => {
+              onChange={(e, value: LabelValue | null) => {
                 value && setTypeOfWork(value.value);
                 value && setTypeOfWorkError(false);
               }}
@@ -763,12 +771,12 @@ const UserContent = forwardRef<
               id="combo-box-demo"
               sx={{ mt: "18px" }}
               options={roleDropdownData
-                .map((i: any) => (i.Type === 1 ? i : undefined))
-                .filter((i: any) => i !== undefined)}
+                .map((i: LabelValueType) => (i.Type === 1 ? i : undefined))
+                .filter((i: LabelValueType | undefined) => i !== undefined)}
               value={
                 roleDropdownData
-                  .map((i: any) => (i.Type === 1 ? i : undefined))
-                  .filter((i: any) => i !== undefined)
+                  .map((i: LabelValueType) => (i.Type === 1 ? i : undefined))
+                  .filter((i: LabelValueType | undefined) => i !== undefined)
                   .find((i: any) => i.value === role) || null
               }
               onChange={(e, value: any) => {
@@ -802,10 +810,10 @@ const UserContent = forwardRef<
               options={departmentDropdownData}
               value={
                 departmentDropdownData.find(
-                  (i: any) => i.value === department
+                  (i: LabelValue) => i.value === department
                 ) || null
               }
-              onChange={(e, value: any) => {
+              onChange={(e, value: LabelValue | null) => {
                 value && setDepartment(value.value);
                 value && setDepartmentError(false);
               }}
@@ -838,10 +846,10 @@ const UserContent = forwardRef<
               options={reportManagerDropdownData}
               value={
                 reportManagerDropdownData.find(
-                  (i: any) => i.value === report
+                  (i: LabelValue) => i.value === report
                 ) || null
               }
-              onChange={(e, value: any) => {
+              onChange={(e, value: LabelValue | null) => {
                 value && setReport(value.value);
                 value && setReportError(false);
               }}
@@ -894,8 +902,8 @@ const UserContent = forwardRef<
               id="checkboxes-tags-demo"
               options={groupDropdownData}
               value={selectedGroupOptions}
-              getOptionLabel={(option: any) => option.label}
-              getOptionDisabled={(option: any) =>
+              getOptionLabel={(option: LabelValue) => option.label}
+              getOptionDisabled={(option: LabelValue) =>
                 selectGroupValue.includes(option.value)
               }
               disableCloseOnSelect
@@ -956,10 +964,11 @@ const UserContent = forwardRef<
               sx={{ mt: 2 }}
               options={clientDropdownData}
               value={
-                clientDropdownData.find((i: any) => i.value === clientName) ||
-                null
+                clientDropdownData.find(
+                  (i: LabelValue) => i.value === clientName
+                ) || null
               }
-              onChange={(e, value: any) => {
+              onChange={(e, value: LabelValue | null) => {
                 value && setClientName(value.value);
                 value && setClientNameError(false);
               }}
@@ -1102,12 +1111,12 @@ const UserContent = forwardRef<
               id="combo-box-demo"
               sx={{ mt: "15px" }}
               options={roleDropdownData
-                .map((i: any) => (i.Type === 2 ? i : undefined))
-                .filter((i: any) => i !== undefined)}
+                .map((i: LabelValueType) => (i.Type === 2 ? i : undefined))
+                .filter((i: LabelValueType | undefined) => i !== undefined)}
               value={
                 roleDropdownData
-                  .map((i: any) => (i.Type === 2 ? i : undefined))
-                  .filter((i: any) => i !== undefined)
+                  .map((i: LabelValueType) => (i.Type === 2 ? i : undefined))
+                  .filter((i: LabelValueType | undefined) => i !== undefined)
                   .find((i: any) => i.value === clientRole) || null
               }
               onChange={(e, value: any) => {
@@ -1161,7 +1170,7 @@ const UserContent = forwardRef<
 
       {/* Footer */}
       <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
-        {onEdit ? (
+        {onEdit > 0 ? (
           <Button
             variant="outlined"
             className="rounded-[4px] !h-[36px] !text-secondary"
@@ -1184,7 +1193,7 @@ const UserContent = forwardRef<
           className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary cursor-pointer"
           type="submit"
         >
-          {onEdit ? "Save" : `Create ${tab === "Permissions" ? "Role" : tab}`}
+          {onEdit > 0 ? "Save" : `Create User`}
         </Button>
       </div>
     </form>

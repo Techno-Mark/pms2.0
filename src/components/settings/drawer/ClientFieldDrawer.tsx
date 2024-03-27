@@ -13,11 +13,29 @@ import {
   Tooltip,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
+import { LabelValue } from "@/utils/Types/types";
 
-const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
+interface List {
+  FieldId: number;
+  DisplayName: string;
+  IsChecked: boolean;
+  Type: string;
+}
+
+const ClientFieldsDrawer = ({
+  onOpen,
+  onClose,
+  selectedRowId,
+}: {
+  onOpen: boolean;
+  onClose: () => void;
+  selectedRowId: number | null;
+}) => {
   const [isLoadingClientFields, setIsLoadingClientFields] = useState(false);
-  const [fieldsData, setFieldsData] = useState<string[] | any>([]);
-  const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState([]);
+  const [fieldsData, setFieldsData] = useState<List[]>([]);
+  const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState<LabelValue[]>(
+    []
+  );
   const [typeOfWork, setTypeOfWork] = useState(0);
 
   const handleClose = () => {
@@ -30,7 +48,7 @@ const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
     };
     const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: LabelValue[],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -49,7 +67,7 @@ const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
     };
     const url = `${process.env.pms_api_url}/client/GetFields`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: List[],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -120,9 +138,9 @@ const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
                 labelId="demo-simple-select-standard-label"
                 id="demo-simple-select-standard"
                 value={typeOfWork === 0 ? "" : typeOfWork}
-                onChange={(e: any) => setTypeOfWork(parseInt(e.target.value))}
+                onChange={(e) => setTypeOfWork(Number(e.target.value))}
               >
-                {typeOfWorkDropdown.map((i: any, index: number) => (
+                {typeOfWorkDropdown.map((i: LabelValue, index: number) => (
                   <MenuItem value={i.value} key={index}>
                     {i.label}
                   </MenuItem>
@@ -146,7 +164,7 @@ const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
           </div>
 
           <div className="py-5 grid grid-cols-3 justify-items-center">
-            {fieldsData.map((field: any) => (
+            {fieldsData.map((field: List) => (
               <div
                 key={field.FieldId}
                 className="py-[15px] flex items-center w-64 justify-between"
@@ -156,10 +174,10 @@ const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
                   onClick={() => {
                     const toggledChecked = !field.IsChecked;
                     const isSubProcess = fieldsData
-                      .map((i: any) =>
+                      .map((i: List) =>
                         i.Type === "SubProcessName" ? i.FieldId : 0
                       )
-                      .filter((j: any) => j !== 0);
+                      .filter((j: number) => j !== 0);
                     const isProcess =
                       field.Type === "ProcessName" &&
                       field.IsChecked === true &&

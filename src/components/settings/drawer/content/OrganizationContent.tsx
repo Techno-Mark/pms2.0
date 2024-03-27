@@ -1,4 +1,5 @@
 import { callAPI } from "@/utils/API/callAPI";
+import { OrgGetByIdList } from "@/utils/Types/settingTypes";
 import { Button, TextField } from "@mui/material";
 import React, {
   forwardRef,
@@ -15,26 +16,17 @@ export interface OrganizationContentRef {
 const OrganizationContent = forwardRef<
   OrganizationContentRef,
   {
-    tab: string;
-    onEdit: boolean;
+    onEdit: number;
     onClose: () => void;
-    onDataFetch: any;
-    getOrgDetailsFunction: any;
-    onChangeLoader: any;
+    onDataFetch: (() => void) | null;
+    getOrgDetailsFunction: (() => void) | null;
+    onChangeLoader: (e: boolean) => void;
   }
 >(
   (
-    {
-      tab,
-      onEdit,
-      onClose,
-      onDataFetch,
-      getOrgDetailsFunction,
-      onChangeLoader,
-    },
+    { onEdit, onClose, onDataFetch, getOrgDetailsFunction, onChangeLoader },
     ref
   ) => {
-    const [responseData, setResponseData] = useState([]);
     const [organizationId, setOrganizationId] = useState(0);
     const [clientName, setClientName] = useState("");
     const [clientNameErr, setClientNameErr] = useState(false);
@@ -55,11 +47,11 @@ const OrganizationContent = forwardRef<
     }, []);
 
     useEffect(() => {
-      if (onEdit) {
-        const params = { OrganizationId: onEdit || 0 };
+      if (onEdit > 0) {
+        const params = { OrganizationId: onEdit > 0 ? onEdit : 0 };
         const url = `${process.env.pms_api_url}/organization/getbyid`;
         const successCallback = (
-          ResponseData: any,
+          ResponseData: OrgGetByIdList,
           error: boolean,
           ResponseStatus: string
         ) => {
@@ -91,7 +83,6 @@ const OrganizationContent = forwardRef<
     }, [onEdit]);
 
     const clear = () => {
-      setResponseData([]);
       setOrganizationId(0);
       setClientName("");
       setClientNameErr(false);
@@ -138,7 +129,7 @@ const OrganizationContent = forwardRef<
       ) {
         onChangeLoader(true);
         const params = {
-          OrganizationId: onEdit || 0,
+          OrganizationId: onEdit > 0 ? onEdit : 0,
           OrganizationName: organizationName.trim(),
           ClientModuleName: clientName.trim(),
           ProjectModuleName: projectName.trim(),
@@ -147,19 +138,20 @@ const OrganizationContent = forwardRef<
         };
         const url = `${process.env.pms_api_url}/organization/save`;
         const successCallback = (
-          ResponseData: any,
+          ResponseData: null,
           error: boolean,
           ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
-            setResponseData(ResponseData);
             toast.success(
-              `Organization ${onEdit ? "Updated" : "created"}  successfully!`
+              `Organization ${
+                onEdit > 0 ? "Updated" : "created"
+              }  successfully!`
             );
             clearOrganizationData();
-            getOrgDetailsFunction();
+            getOrgDetailsFunction?.();
             onClose();
-            onDataFetch();
+            onDataFetch?.();
             onChangeLoader(false);
           } else {
             onChangeLoader(false);
@@ -193,7 +185,7 @@ const OrganizationContent = forwardRef<
         subProcessName.trim().length > 0
       ) {
         const params = {
-          OrganizationId: onEdit || 0,
+          OrganizationId: onEdit > 0 ? onEdit : 0,
           OrganizationName: organizationName.trim(),
           ClientModuleName: clientName.trim(),
           ProjectModuleName: projectName.trim(),
@@ -202,18 +194,19 @@ const OrganizationContent = forwardRef<
         };
         const url = `${process.env.pms_api_url}/organization/save`;
         const successCallback = (
-          ResponseData: any,
+          ResponseData: null,
           error: boolean,
           ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
-            setResponseData(ResponseData);
             toast.success(
-              `Organization ${onEdit ? "Updated" : "created"}  successfully!`
+              `Organization ${
+                onEdit > 0 ? "Updated" : "created"
+              }  successfully!`
             );
             clearOrganizationData();
-            getOrgDetailsFunction();
-            onDataFetch();
+            getOrgDetailsFunction?.();
+            onDataFetch?.();
           } else {
             onChangeLoader(false);
           }
@@ -378,7 +371,7 @@ const OrganizationContent = forwardRef<
 
         <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
           <>
-            {onEdit ? (
+            {onEdit > 0 ? (
               <Button
                 variant="outlined"
                 className="rounded-[4px] !h-[36px] !text-secondary"
@@ -401,7 +394,7 @@ const OrganizationContent = forwardRef<
               type="submit"
               onClick={handleSubmit}
             >
-              {onEdit ? "Save" : "Create Organization"}
+              {onEdit > 0 ? "Save" : "Create Organization"}
             </Button>
           </>
         </div>

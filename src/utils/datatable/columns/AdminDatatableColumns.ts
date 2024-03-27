@@ -32,7 +32,7 @@ const adminDashboardReportCols = [
     header: "ReworkReviewCompletedAWN",
     label: "Rework Review Completed [AWN]",
   },
-  { header: "Reject", label: "Rejected" },
+  { header: "Rejected", label: "Rejected" },
   { header: "Signedoff", label: "Signed Off" },
   { header: "Assigned", label: "Assigned" },
   { header: "PendingfromAccounting", label: "Pending from Accounting" },

@@ -6,7 +6,6 @@ import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import ReportLoader from "@/components/common/ReportLoader";
 import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
-import { USER } from "./Constants/Tabname";
 import {
   generateCommonBodyRender,
   generateCustomHeaderName,
@@ -24,6 +23,11 @@ import MUIDataTable from "mui-datatables";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
+import {
+  SettingProps,
+  UserInitialFilter,
+  UserList,
+} from "@/utils/Types/settingTypes";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -42,61 +46,66 @@ const initialFilter = {
 const User = ({
   onOpen,
   onEdit,
-  onUserDataFetch,
+  onDataFetch,
   getOrgDetailsFunction,
   canView,
   canEdit,
   canDelete,
   canPermission,
-  onSearchUserData,
+  onSearchData,
   onSearchClear,
   onHandleExport,
-}: any) => {
+}: SettingProps) => {
   const [loader, setLoader] = useState(true);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isOpenSwitchModal, setIsOpenSwitchModal] = useState(false);
   const [switchId, setSwitchId] = useState(0);
   const [switchActive, setSwitchActive] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
-  const [data, setData] = useState<any>([]);
+  const [data, setData] = useState<UserList[]>([]);
   const [openProcessDrawer, setOpenProcessDrawer] = useState(false);
   const [roleId, setRoleId] = useState(0);
   const [userId, setUserId] = useState(0);
-  const [userType, setUserType] = useState(null);
+  const [userType, setUserType] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [totalCount, setTotalCount] = useState(0);
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [filteredObject, setFilteredOject] =
+    useState<UserInitialFilter>(initialFilter);
 
   useEffect(() => {
-    if (onSearchUserData.trim().length >= 0) {
+    if (onSearchData.trim().length >= 0) {
       setFilteredOject({
         ...filteredObject,
-        GlobalSearch: onSearchUserData.trim(),
+        GlobalSearch: onSearchData.trim(),
         PageNo: 1,
       });
       setPage(0);
     }
-  }, [onSearchUserData]);
+  }, [onSearchData]);
 
   useEffect(() => {
     const fetchData = async () => {
       const Org_Token = await localStorage.getItem("Org_Token");
       if (Org_Token !== null) {
         getAll();
-        onUserDataFetch(fetchData);
+        onDataFetch?.(fetchData);
       } else {
         setTimeout(fetchData, 1000);
       }
     };
-    fetchData();
+
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [filteredObject]);
 
   const getAll = async () => {
     const params = filteredObject;
     const url = `${process.env.api_url}/user/getall`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: { List: UserList[]; TotalCount: number },
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -105,7 +114,7 @@ const User = ({
         setLoader(false);
         setData(ResponseData.List);
         setTotalCount(ResponseData.TotalCount);
-        getOrgDetailsFunction();
+        getOrgDetailsFunction?.();
       } else {
         setLoader(false);
         setData([]);
@@ -131,7 +140,7 @@ const User = ({
       if (ResponseStatus === "Success" && error === false) {
         toast.success("User has been deleted successfully!");
         setIsDeleteOpen(false);
-        onSearchClear(USER);
+        onSearchClear();
         setFilteredOject({
           ...filteredObject,
           GlobalSearch: "",
@@ -141,7 +150,7 @@ const User = ({
     };
     callAPI(url, params, successCallback, "POST");
     setIsDeleteOpen(false);
-    onSearchClear(USER);
+    onSearchClear();
     setSelectedRowId(null);
     setPage(0);
     setRowsPerPage(10);
@@ -165,7 +174,7 @@ const User = ({
       if (ResponseStatus === "Success" && error === false) {
         setIsOpenSwitchModal(false);
         toast.success("Status Updated Successfully.");
-        onSearchClear(USER);
+        onSearchClear();
         setFilteredOject({
           ...filteredObject,
           GlobalSearch: "",
@@ -185,7 +194,7 @@ const User = ({
 
   const handleResendInvite = async (
     id: number,
-    email: any,
+    email: string,
     firstName: string,
     lastName: string
   ) => {
@@ -205,7 +214,7 @@ const User = ({
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Resend Link sent Successfully.");
-        onSearchClear(USER);
+        onSearchClear();
         setFilteredOject({
           ...filteredObject,
           GlobalSearch: "",
@@ -218,12 +227,12 @@ const User = ({
 
   const handleActionValue = async (
     actionId: string,
-    id: any,
-    roleId: any,
+    id: number,
+    roleId: number,
     firstName: string,
     lastName: string,
-    email: any,
-    userType: any
+    email: string,
+    userType: string
   ) => {
     setSelectedRowId(id);
     if (actionId.toLowerCase() === "edit") {
@@ -251,7 +260,15 @@ const User = ({
     lastName,
     email,
     userType,
-  }: any) => {
+  }: {
+    actions: string[];
+    id: number;
+    roleId: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    userType: string;
+  }) => {
     const actionsRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
 
@@ -272,7 +289,7 @@ const User = ({
     }, []);
 
     const actionPermissions = actions.filter(
-      (action: any) =>
+      (action: string) =>
         (action.toLowerCase() === "edit" && canEdit) ||
         (action.toLowerCase() === "delete" && canDelete) ||
         (action.toLowerCase() === "permissions" && canPermission) ||
@@ -293,7 +310,7 @@ const User = ({
             <div className="absolute top-30 right-3 z-10 flex justify-center items-center">
               <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-28">
-                  {actionPermissions.map((action: any, index: any) => (
+                  {actionPermissions.map((action: string, index: number) => (
                     <li
                       key={index}
                       onClick={() =>
@@ -346,8 +363,8 @@ const User = ({
           sort: true,
           display: false,
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
-          customBodyRender: (value: any, tableMeta: any) => {
-            const activeUser = async (e: any) => {
+          customBodyRender: (value: boolean, tableMeta: any) => {
+            const activeUser = async () => {
               await setIsOpenSwitchModal(true);
               await setSwitchId(
                 tableMeta.rowData[tableMeta.rowData.length - 5]
@@ -356,10 +373,7 @@ const User = ({
             };
             return (
               <div>
-                <Switch
-                  checked={value}
-                  onChange={(e) => activeUser(e.target.value)}
-                />
+                <Switch checked={value} onChange={() => activeUser()} />
               </div>
             );
           },
@@ -374,7 +388,7 @@ const User = ({
           sort: true,
           display: false,
           customHeadLabelRender: () => generateCustomHeaderName("Group"),
-          customBodyRender: (value: any) => {
+          customBodyRender: (value: string[]) => {
             const Red = ["A", "F", "K", "P", "U", "Z"];
             const Blue = ["B", "G", "L", "Q", "V"];
             const Green = ["C", "H", "M", "R", "W"];
@@ -383,7 +397,7 @@ const User = ({
             return (
               <div className="flex items-start justify-start">
                 <AvatarGroup max={3}>
-                  {value.map((i: any) => (
+                  {value.map((i: string) => (
                     <Avatar
                       alt=""
                       src=""
@@ -424,7 +438,7 @@ const User = ({
           viewColumns: false,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Actions"),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: number, tableMeta: any) => {
             return (
               <Actions
                 actions={[
@@ -583,7 +597,7 @@ const User = ({
     },
   ];
 
-  const userColumns: any = column.map((col: any) => {
+  const userColumns = column.map((col: any) => {
     return generateConditionalColumn(col, 10);
   });
 
@@ -707,7 +721,6 @@ const User = ({
               onClose={handleCloseProcessDrawer}
               userId={userId}
               roleId={roleId}
-              onDataFetch={getAll}
               userType={userType}
             />
             <DrawerOverlay

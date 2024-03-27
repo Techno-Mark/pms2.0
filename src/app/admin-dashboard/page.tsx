@@ -31,10 +31,10 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import MUIDataTable from "mui-datatables";
 import TablePagination from "@mui/material/TablePagination";
 import {
+  generateDashboardReportBodyRender,
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
-import { adminDashboardReportCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { getMuiTheme, ColorToolTip } from "@/utils/datatable/CommonStyle";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
@@ -44,6 +44,7 @@ import { KeyValueColorCodeSequence } from "@/utils/Types/types";
 import FilterIcon from "@/assets/icons/FilterIcon";
 import FilterDialogDashboard from "@/components/admin-dashboard/FilterDialogDashboard";
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 
 interface ClientSummaryStatus {
   ClientName: string;
@@ -83,6 +84,7 @@ interface ClientSummaryStatus {
 interface DashboardSummaryReport {
   TotalCount: number;
   ClientSummary: ClientSummaryStatus[] | [];
+  StatusSummary: { header: string; label: string }[];
 }
 
 interface InitialFilter {
@@ -123,6 +125,9 @@ const Page = () => {
   >([]);
   const [clickedCardName, setClickedCardName] = useState<number>(0);
   const [reportData, setReportData] = useState<ClientSummaryStatus[] | []>([]);
+  const [reportDataHeader, setReportDataHeader] = useState<
+    { header: string; label: string }[] | []
+  >([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
@@ -133,7 +138,7 @@ const Page = () => {
   const [currentFilterData, setCurrentFilterData] =
     useState<DashboardInitialFilter>({
       Clients: [],
-      TypeOfWork: 3,
+      WorkTypeId: null,
       StartDate: null,
       EndDate: null,
     });
@@ -199,6 +204,7 @@ const Page = () => {
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setReportData(ResponseData.ClientSummary);
+        setReportDataHeader(ResponseData.StatusSummary);
         setTableDataCount(ResponseData.TotalCount);
       }
     };
@@ -229,9 +235,9 @@ const Page = () => {
     const params = {
       Clients: currentFilterData.Clients,
       WorkTypeId:
-        currentFilterData.TypeOfWork === null
+        currentFilterData.WorkTypeId === null
           ? 0
-          : currentFilterData.TypeOfWork,
+          : currentFilterData.WorkTypeId,
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,
     };
@@ -583,7 +589,30 @@ const Page = () => {
         <ThemeProvider theme={getMuiTheme()}>
           <MUIDataTable
             data={reportData}
-            columns={adminDashboardReportCols}
+            columns={
+              reportDataHeader.length > 0
+                ? [
+                    { header: "ClientName", label: "Client Name" },
+                    { header: "Total", label: "Total" },
+                    ...reportDataHeader,
+                  ].map((i: { header: string; label: string }) =>
+                    generateCustomColumn(
+                      i.header,
+                      i.label,
+                      generateDashboardReportBodyRender
+                    )
+                  )
+                : [
+                    { header: "ClientName", label: "Client Name" },
+                    { header: "Total", label: "Total" },
+                  ].map((i: { header: string; label: string }) =>
+                    generateCustomColumn(
+                      i.header,
+                      i.label,
+                      generateDashboardReportBodyRender
+                    )
+                  )
+            }
             title={undefined}
             options={dashboardReport_Options}
             data-tableid="Datatable"

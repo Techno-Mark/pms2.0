@@ -6,6 +6,10 @@ import "next-ts-lib/dist/index.css";
 import axios from "axios";
 import ReportLoader from "@/components/common/ReportLoader";
 import { toast } from "react-toastify";
+import {
+  PermissionsMenuItem,
+  PermissionsProps,
+} from "@/utils/Types/settingTypes";
 
 const Permissions = ({
   onOpen,
@@ -16,8 +20,9 @@ const Permissions = ({
   loading,
   getOrgDetailsFunction,
   canView,
-}: any) => {
-  const [data, setData] = useState<any>([]);
+  canEdit,
+}: PermissionsProps) => {
+  const [data, setData] = useState<PermissionsMenuItem[]>([]);
 
   useEffect(() => {
     if (permissionValue > 0) {
@@ -125,6 +130,7 @@ const Permissions = ({
                   ? handleCheckboxChange(2, childIndex, index)
                   : handleCheckboxChange(parentId, childIndex, index)
               }
+              disabled={!canEdit}
             />
           )
         ) : (
@@ -139,17 +145,18 @@ const Permissions = ({
                 ? handleCheckboxChange(2, childIndex, index)
                 : handleCheckboxChange(parentId, childIndex, index)
             }
+            disabled={!canEdit}
           />
         );
       });
   };
 
-  function generateColumns(data: any) {
+  function generateColumns(data: PermissionsMenuItem[]) {
     const largestChildArray = getLargestArray(data);
     const columns = [
       { header: "", accessor: "Name", sortable: false },
       ...(largestChildArray
-        ? largestChildArray.map((child: any, index: number) => ({
+        ? largestChildArray.map((child: null, index: number) => ({
             header: "",
             accessor: index,
             sortable: false,
@@ -160,7 +167,7 @@ const Permissions = ({
     return columns;
   }
 
-  let tableData: any[] = data.map((i: any) => {
+  let tableData = data.map((i: PermissionsMenuItem) => {
     const isViewChecked = i.ActionList;
     const Id = i.Sequence - 1;
 
@@ -176,7 +183,7 @@ const Permissions = ({
               columns={[
                 { header: "", accessor: "name", sortable: false },
                 ...getLargestArray(i?.Children).map(
-                  (child: any, index: number) =>
+                  (child: null, index: number) =>
                     new Object({ header: "", accessor: index, sortable: false })
                 ),
               ]}
@@ -217,7 +224,7 @@ const Permissions = ({
         if (response.data.ResponseStatus === "Success") {
           const responseData = response.data.ResponseData;
           setData(responseData);
-          getOrgDetailsFunction();
+          getOrgDetailsFunction?.();
 
           sendDataToParent(response.data.ResponseData);
         } else {

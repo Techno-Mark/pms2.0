@@ -25,6 +25,8 @@ import {
   createFilterOptions,
 } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
+import { ProcessGetByIdList } from "@/utils/Types/settingTypes";
+import { LabelValue } from "@/utils/Types/types";
 
 export interface ProcessContentRef {
   ProcessDataValue: () => void;
@@ -40,28 +42,30 @@ const filter = createFilterOptions<Options>();
 const ProcessContent = forwardRef<
   ProcessContentRef,
   {
-    tab: any;
-    onEdit: boolean;
-    onOpen: any;
-    onClose: any;
-    onDataFetch(): any;
-    onChangeLoader: any;
-    onValuesChange: any;
+    onEdit: number;
+    onOpen: boolean;
+    onClose: () => void;
+    onDataFetch: (() => void) | null;
+    onChangeLoader: (e: boolean) => void;
+    onValuesChange: (
+      childValue1: React.SetStateAction<number | null>,
+      childValue2: boolean | ((prevState: boolean) => boolean)
+    ) => void;
   }
 >(
   (
     { onEdit, onOpen, onClose, onDataFetch, onChangeLoader, onValuesChange },
     ref
   ) => {
-    const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState([]);
+    const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState<Options[]>([]);
     const [typeOfWork, setTypeOfWork] = useState(0);
     const [typeOfWorkError, setTypeOfWorkError] = useState(false);
-    const [data, setData] = useState([]);
-    const [hoveredItem, setHoveredItem] = useState(null);
+    const [data, setData] = useState<Options[]>([]);
+    const [hoveredItem, setHoveredItem] = useState<Options | null>(null);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [open, toggleOpen] = useState(false);
     const [addMoreClicked, setAddMoreClicked] = useState(false);
-    const [processValue, setProcessValue] = useState<any>(0);
+    const [processValue, setProcessValue] = useState<number>(0);
     const [processName, setProcessName] = useState("");
     const [processNameError, setProcessNameError] = useState(false);
     const [processNameErrText, setProcessNameErrText] = useState<string>(
@@ -71,7 +75,7 @@ const ProcessContent = forwardRef<
 
     const [subProcessName, setSubProcessName] = useState("");
     const [subProcessNameError, setSubProcessNameError] = useState(false);
-    const [returnType, setReturnType] = useState<any>(0);
+    const [returnType, setReturnType] = useState<number>(0);
     const [returnTypeError, setReturnTypeError] = useState(false);
     const returnTypeDrpdown = [
       {
@@ -87,7 +91,7 @@ const ProcessContent = forwardRef<
         value: 2,
       },
     ];
-    const [estTime, setEstTime] = useState<any>("");
+    const [estTime, setEstTime] = useState<string>("");
     const [estTimeError, setEstTimeError] = useState(false);
     const [productive, setProductive] = useState<boolean>(true);
     const [billable, setBillable] = useState<boolean>(true);
@@ -182,7 +186,7 @@ const ProcessContent = forwardRef<
       setInputList(initialInputList);
     }, [activity]);
 
-    function secondsToHHMMSS(seconds: any) {
+    function secondsToHHMMSS(seconds: number) {
       const hours = Math.floor(seconds / 3600);
       const remainingSeconds = seconds % 3600;
       const minutes = Math.floor(remainingSeconds / 60);
@@ -196,11 +200,11 @@ const ProcessContent = forwardRef<
     }
 
     const fetchEditData = async () => {
-      if (onEdit) {
+      if (onEdit > 0) {
         const params = { ProcessId: onEdit };
         const url = `${process.env.pms_api_url}/process/GetById`;
         const successCallback = async (
-          ResponseData: any,
+          ResponseData: ProcessGetByIdList,
           error: boolean,
           ResponseStatus: string
         ) => {
@@ -232,7 +236,7 @@ const ProcessContent = forwardRef<
       const params = { WorkTypeId: typeOfWork };
       const url = `${process.env.pms_api_url}/Process/GetDropdown`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: Options[],
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -270,7 +274,7 @@ const ProcessContent = forwardRef<
               }  successfully.`
             );
             handleClose();
-            await onDataFetch();
+            await onDataFetch?.();
             getDropdownData();
             onEdit && fetchEditData();
           }
@@ -320,25 +324,25 @@ const ProcessContent = forwardRef<
       const estTimeTotalSeconds =
         parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
       subProcessName.trim().length <= 0 && setSubProcessNameError(true);
-      typeOfWork === 3 && parseInt(returnType) <= 0 && setReturnTypeError(true);
+      typeOfWork === 3 && Number(returnType) <= 0 && setReturnTypeError(true);
       estTime.length < 8 && setEstTimeError(true);
 
       const saveData = () => {
         onChangeLoader(true);
         const params = {
-          ProcessId: onEdit || 0,
+          ProcessId: onEdit > 0 ? onEdit : 0,
           Name: subProcessName.trim(),
           ReturnTypeId:
             typeOfWork !== 3
               ? null
-              : parseInt(returnType) === 3
+              : Number(returnType) === 3
               ? 0
-              : parseInt(returnType),
+              : Number(returnType),
           ActivityList: activity
-            .map((i: any) =>
+            .map((i: string) =>
               i !== undefined && i.trim().length > 0 ? i.trim() : false
             )
-            .filter((j: any) => j !== false),
+            .filter((j: string | boolean) => j !== false),
           EstimatedHour: estTimeTotalSeconds,
           IsProductive: productive,
           IsBillable: billable,
@@ -353,11 +357,11 @@ const ProcessContent = forwardRef<
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             ProcessDataValue();
-            onDataFetch();
+            onDataFetch?.();
             onChangeLoader(false);
             toast.success(
-              `${onEdit ? "" : "New"} Process ${
-                onEdit ? "Updated" : "added"
+              `${onEdit > 0 ? "" : "New"} Process ${
+                onEdit > 0 ? "Updated" : "added"
               }  successfully.`
             );
             {
@@ -417,7 +421,7 @@ const ProcessContent = forwardRef<
       };
       const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
       const successCallback = async (
-        ResponseData: any,
+        ResponseData: Options[],
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -438,19 +442,19 @@ const ProcessContent = forwardRef<
 
     useEffect(() => {
       // clearError();
-      if (!onEdit) {
+      if (onEdit <= 0) {
         onOpen && setActivity([]);
       } else {
         onOpen && fetchEditData();
       }
     }, [onEdit, onOpen]);
 
-    const handleBillableChange = (value: any) => {
+    const handleBillableChange = (value: string) => {
       const isBillable = value === "billable";
       setBillable(isBillable);
     };
 
-    const handleProductiveChange = (id: any) => {
+    const handleProductiveChange = (id: string) => {
       if (id === "p1") {
         setProductive(true);
       } else {
@@ -469,7 +473,7 @@ const ProcessContent = forwardRef<
         if (isNaN(parseInt(value.value))) {
           toggleOpen(true);
           setProcessName(value.value);
-          setProcessValue(null);
+          setProcessValue(0);
         }
         if (value !== null && !isNaN(parseInt(value.value))) {
           const selectedValue = value.value;
@@ -493,7 +497,10 @@ const ProcessContent = forwardRef<
       }
     };
 
-    const handleValueChange = (isDeleteOpen: any, selectedRowId: any) => {
+    const handleValueChange = (
+      isDeleteOpen: boolean,
+      selectedRowId: number
+    ) => {
       onValuesChange(selectedRowId, isDeleteOpen);
     };
 
@@ -543,8 +550,8 @@ const ProcessContent = forwardRef<
                 labelId="demo-simple-select-standard-label"
                 id="demo-simple-select-standard"
                 value={typeOfWork === 0 ? "" : typeOfWork}
-                onChange={(e: any) => {
-                  setTypeOfWork(e.target.value);
+                onChange={(e) => {
+                  setTypeOfWork(Number(e.target.value));
                   setProcessValue(0);
                   setProcessValueError(false);
                   setProcessNameError(false);
@@ -553,7 +560,7 @@ const ProcessContent = forwardRef<
                   setSubProcessNameError(false);
                   setReturnType(0);
                   setReturnTypeError(false);
-                  e.target.value > 0 && setTypeOfWorkError(false);
+                  Number(e.target.value) > 0 && setTypeOfWorkError(false);
                 }}
                 onBlur={() => {
                   if (typeOfWork > 0) {
@@ -561,7 +568,7 @@ const ProcessContent = forwardRef<
                   }
                 }}
               >
-                {typeOfWorkDropdown.map((i: any, index: number) => (
+                {typeOfWorkDropdown.map((i: Options, index: number) => (
                   <MenuItem value={i.value} key={index}>
                     {i.label}
                   </MenuItem>
@@ -596,7 +603,7 @@ const ProcessContent = forwardRef<
                       params.inputValue.toLowerCase()
                   );
 
-                  if (!isExistingProject && !onEdit) {
+                  if (!isExistingProject && onEdit <= 0) {
                     filtered.push({
                       label: `Add "${params.inputValue}"`,
                       value: params.inputValue,
@@ -615,7 +622,7 @@ const ProcessContent = forwardRef<
                 };
 
                 const handleDeleteClick = () => {
-                  handleValueChange(true, option.value);
+                  handleValueChange(true, Number(option.value));
                 };
 
                 return (
@@ -712,14 +719,14 @@ const ProcessContent = forwardRef<
                   labelId="demo-simple-select-standard-label"
                   id="demo-simple-select-standard"
                   value={returnType === 0 ? "" : returnType}
-                  onChange={(e) => setReturnType(parseInt(e.target.value))}
+                  onChange={(e) => setReturnType(Number(e.target.value))}
                   onBlur={() => {
                     if (returnType > 0) {
                       setReturnTypeError(false);
                     }
                   }}
                 >
-                  {returnTypeDrpdown.map((i: any, index: number) => (
+                  {returnTypeDrpdown.map((i: LabelValue, index: number) => (
                     <MenuItem value={i.value} key={index}>
                       {i.label}
                     </MenuItem>
@@ -844,7 +851,7 @@ const ProcessContent = forwardRef<
           {/* Footer */}
           <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
             <>
-              {onEdit ? (
+              {onEdit > 0 ? (
                 <Button
                   variant="outlined"
                   className="rounded-[4px] !h-[36px] !text-secondary"
@@ -871,7 +878,7 @@ const ProcessContent = forwardRef<
                 type="submit"
                 onClick={() => setAddMoreClicked(false)}
               >
-                {onEdit ? "Save" : `Create Process`}
+                {onEdit > 0 ? "Save" : `Create Process`}
               </Button>
             </>
           </div>

@@ -3,7 +3,6 @@ import SwitchModal from "@/components/common/SwitchModal";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { callAPI } from "@/utils/API/callAPI";
 import React, { useEffect, useRef, useState } from "react";
-import { PROJECT } from "./Constants/Tabname";
 import { toast } from "react-toastify";
 import {
   generateCommonBodyRender,
@@ -16,12 +15,18 @@ import TableActionIcon from "@/assets/icons/TableActionIcon";
 import { Switch, TablePagination, ThemeProvider } from "@mui/material";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import MUIDataTable from "mui-datatables";
+import {
+  ProjectInitialFilter,
+  ProjectList,
+  SettingAction,
+  SettingProps,
+} from "@/utils/Types/settingTypes";
 
 const pageNo = 1;
 const pageSize = 10;
 
 const initialFilter = {
-  GlobalSearch: null,
+  GlobalSearch: "",
   PageNo: pageNo,
   PageSize: pageSize,
   ClientId: null,
@@ -39,12 +44,12 @@ const Project = ({
   canView,
   canEdit,
   canDelete,
-  onSearchProjectData,
+  onSearchData,
   onSearchClear,
   onHandleExport,
-}: any) => {
+}: SettingProps) => {
   const [loader, setLoader] = useState(true);
-  const [data, setData] = useState<any>([]);
+  const [data, setData] = useState<ProjectList[]>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isOpenSwitchModal, setIsOpenSwitchModal] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
@@ -53,18 +58,19 @@ const Project = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [totalCount, setTotalCount] = useState(0);
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [filteredObject, setFilteredOject] =
+    useState<ProjectInitialFilter>(initialFilter);
 
   useEffect(() => {
-    if (onSearchProjectData.trim().length >= 0) {
+    if (onSearchData.trim().length >= 0) {
       setFilteredOject({
         ...filteredObject,
-        GlobalSearch: onSearchProjectData.trim(),
+        GlobalSearch: onSearchData.trim(),
         PageNo: 1,
       });
       setPage(0);
     }
-  }, [onSearchProjectData]);
+  }, [onSearchData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,14 +82,18 @@ const Project = ({
         setTimeout(fetchData, 1000);
       }
     };
-    fetchData();
+
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [filteredObject]);
 
   const getAll = async () => {
     const params = filteredObject;
     const url = `${process.env.pms_api_url}/project/getall`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: { List: ProjectList[]; TotalCount: number },
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -92,7 +102,7 @@ const Project = ({
         setLoader(false);
         setData(ResponseData.List);
         setTotalCount(ResponseData.TotalCount);
-        getOrgDetailsFunction();
+        getOrgDetailsFunction?.();
       } else {
         setLoader(false);
         setData([]);
@@ -118,7 +128,7 @@ const Project = ({
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Project has been deleted successfully!");
         setIsDeleteOpen(false);
-        onSearchClear(PROJECT);
+        onSearchClear();
         setFilteredOject({
           ...filteredObject,
           GlobalSearch: "",
@@ -128,7 +138,7 @@ const Project = ({
     };
     callAPI(url, params, successCallback, "POST");
     setIsDeleteOpen(false);
-    onSearchClear(PROJECT);
+    onSearchClear();
     setSelectedRowId(null);
     setPage(0);
     setRowsPerPage(10);
@@ -152,10 +162,10 @@ const Project = ({
       if (ResponseStatus === "Success" && error === false) {
         setIsOpenSwitchModal(false);
         toast.success("Status Updated Successfully.");
-        onSearchClear(PROJECT);
+        onSearchClear();
         setFilteredOject({
           ...filteredObject,
-          GlobalSearch: onSearchProjectData.trim(),
+          GlobalSearch: onSearchData.trim(),
           PageNo: 1,
         });
       }
@@ -163,7 +173,7 @@ const Project = ({
     callAPI(url, params, successCallback, "POST");
   };
 
-  const handleActionValue = async (actionId: string, id: any) => {
+  const handleActionValue = async (actionId: string, id: number) => {
     setSelectedRowId(id);
     if (actionId.toLowerCase() === "edit") {
       onEdit(id);
@@ -173,7 +183,7 @@ const Project = ({
     }
   };
 
-  const Actions = ({ actions, id }: any) => {
+  const Actions = ({ actions, id }: SettingAction) => {
     const actionsRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
 
@@ -194,7 +204,7 @@ const Project = ({
     }, []);
 
     const actionPermissions = actions.filter(
-      (action: any) =>
+      (action: string) =>
         (action.toLowerCase() === "edit" && canEdit) ||
         (action.toLowerCase() === "delete" && canDelete)
     );
@@ -213,7 +223,7 @@ const Project = ({
             <div className="absolute top-30 right-3 z-10 flex justify-center items-center">
               <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-28">
-                  {actionPermissions.map((action: any, index: any) => (
+                  {actionPermissions.map((action: string, index: number) => (
                     <li
                       key={index}
                       onClick={() => handleActionValue(action, id)}
@@ -255,8 +265,8 @@ const Project = ({
           viewColumns: false,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
-          customBodyRender: (value: any, tableMeta: any) => {
-            const activeUser = async (e: any) => {
+          customBodyRender: (value: boolean, tableMeta: any) => {
+            const activeUser = async () => {
               await setIsOpenSwitchModal(true);
               await setSwitchId(
                 tableMeta.rowData[tableMeta.rowData.length - 1]
@@ -265,10 +275,7 @@ const Project = ({
             };
             return (
               <div>
-                <Switch
-                  checked={value}
-                  onChange={(e) => activeUser(e.target.value)}
-                />
+                <Switch checked={value} onChange={() => activeUser()} />
               </div>
             );
           },
@@ -282,7 +289,7 @@ const Project = ({
           viewColumns: false,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Actions"),
-          customBodyRender: (value: any) => {
+          customBodyRender: (value: number) => {
             return <Actions actions={["Edit", "Delete"]} id={value} />;
           },
         },
@@ -329,7 +336,7 @@ const Project = ({
     },
   ];
 
-  const projectColumns: any = column.map((col: any) => {
+  const projectColumns = column.map((col: any) => {
     return generateConditionalColumn(col, 10);
   });
 

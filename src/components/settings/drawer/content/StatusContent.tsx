@@ -1,4 +1,6 @@
 import { callAPI } from "@/utils/API/callAPI";
+import { StatusDisplayName, StatusGetById } from "@/utils/Types/settingTypes";
+import { LabelValue } from "@/utils/Types/types";
 import { Autocomplete, Button, TextField } from "@mui/material";
 import { ColorPicker } from "next-ts-lib";
 import React, {
@@ -15,13 +17,12 @@ export interface StatusContenRef {
 const StatusContent = forwardRef<
   StatusContenRef,
   {
-    tab: string;
-    onEdit: any;
+    onEdit: number;
     onClose: () => void;
-    onDataFetch: any;
-    onChangeLoader: any;
+    onDataFetch: (() => void) | null;
+    onChangeLoader: (e: boolean) => void;
   }
->(({ tab, onClose, onEdit, onDataFetch, onChangeLoader }, ref) => {
+>(({ onClose, onEdit, onDataFetch, onChangeLoader }, ref) => {
   const [statusName, setStatusName] = useState("");
   const [statusNameErr, setStatusNameErr] = useState(false);
   const [type, setType] = useState("");
@@ -29,11 +30,13 @@ const StatusContent = forwardRef<
   const [colorName, setColorName] = useState("");
   const [isDefualt, setIsDefualt] = useState(false);
 
-  const [typeOfWorks, setTypeOfWorks] = useState<any[]>([]);
-  const [typeOfWorkName, setTypeOfWorkName] = useState<any[]>([]);
-  const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState<any[]>([]);
+  const [typeOfWorks, setTypeOfWorks] = useState<LabelValue[]>([]);
+  const [typeOfWorkName, setTypeOfWorkName] = useState<number[]>([]);
+  const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState<LabelValue[]>(
+    []
+  );
   const [typeOfWorkNameError, setTypeOfWorkNameError] = useState(false);
-  const [displayNames, setDisplayNames] = useState<any>([]);
+  const [displayNames, setDisplayNames] = useState<StatusDisplayName[]>([]);
 
   const getWorkTypeData = async () => {
     const params = {
@@ -42,7 +45,7 @@ const StatusContent = forwardRef<
     };
     const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
     const successCallback = async (
-      ResponseData: any,
+      ResponseData: LabelValue[],
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -56,13 +59,13 @@ const StatusContent = forwardRef<
   };
 
   const fetchEditData = async () => {
-    if (onEdit) {
+    if (onEdit > 0) {
       const params = {
-        statusId: onEdit || 0,
+        statusId: onEdit > 0 ? onEdit : 0,
       };
       const url = `${process.env.pms_api_url}/status/GetById`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: StatusGetById,
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -72,13 +75,15 @@ const StatusContent = forwardRef<
           setIsDefualt(ResponseData.IsDefault);
           setColorName(ResponseData.ColorCode);
           setTypeOfWorks(
-            ResponseData.WorkTypeDetails.map((i: any) => ({
+            ResponseData.WorkTypeDetails.map((i: StatusDisplayName) => ({
               label: i.WorkTypeName,
               value: i.WorkTypeId,
             }))
           );
           setTypeOfWorkName(
-            ResponseData.WorkTypeDetails.map((i: any) => i.value)
+            ResponseData.WorkTypeDetails.map(
+              (i: StatusDisplayName) => i.WorkTypeId
+            )
           );
           setDisplayNames(ResponseData.WorkTypeDetails);
         } else {
@@ -101,7 +106,7 @@ const StatusContent = forwardRef<
   }, [onClose]);
 
   useEffect(() => {
-    onEdit && fetchEditData();
+    onEdit > 0 && fetchEditData();
     setColorName("");
   }, [onEdit]);
 
@@ -149,12 +154,12 @@ const StatusContent = forwardRef<
     ) {
       onChangeLoader(true);
       const params = {
-        statusId: onEdit || 0,
+        statusId: onEdit > 0 ? onEdit : 0,
         name: statusName.trim(),
         Type: type,
         colorCode: colorName.trim(),
         WorkTypeDetails: displayNames.map(
-          (i: any) =>
+          (i: StatusDisplayName) =>
             new Object({
               WorkTypeId: i.WorkTypeId,
               DisplayName: i.DisplayName,
@@ -163,18 +168,18 @@ const StatusContent = forwardRef<
       };
       const url = `${process.env.pms_api_url}/status/Save`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: null,
         error: boolean,
         ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
-          onDataFetch();
+          onDataFetch?.();
           clearStatusData();
           onChangeLoader(false);
           onClose();
           toast.success(
-            `${onEdit ? "" : "New"} Status ${
-              onEdit ? "Updated" : "added"
+            `${onEdit > 0 ? "" : "New"} Status ${
+              onEdit > 0 ? "Updated" : "added"
             }  successfully.`
           );
         } else {
@@ -206,12 +211,12 @@ const StatusContent = forwardRef<
       typeOfWorkName.length > 0
     ) {
       const params = {
-        statusId: onEdit || 0,
+        statusId: onEdit > 0 ? onEdit : 0,
         name: statusName.trim(),
         Type: type,
         colorCode: colorName.trim(),
         WorkTypeDetails: displayNames.map(
-          (i: any) =>
+          (i: StatusDisplayName) =>
             new Object({
               WorkTypeId: i.WorkTypeId,
               DisplayName: i.DisplayName,
@@ -220,16 +225,16 @@ const StatusContent = forwardRef<
       };
       const url = `${process.env.pms_api_url}/status/Save`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: null,
         error: boolean,
         ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
-          onDataFetch();
+          onDataFetch?.();
           clearStatusData();
           toast.success(
-            `${onEdit ? "" : "New"} Status ${
-              onEdit ? "Updated" : "added"
+            `${onEdit > 0 ? "" : "New"} Status ${
+              onEdit > 0 ? "Updated" : "added"
             }  successfully.`
           );
         }
@@ -328,38 +333,45 @@ const StatusContent = forwardRef<
                     )
                 )
           }
-          getOptionLabel={(option: any) => option.label}
-          onChange={(e: any, data: any) => {
-            if (data.some((d: any) => d.value === -1)) {
+          getOptionLabel={(option: LabelValue) => option.label}
+          onChange={(e, data: LabelValue[]) => {
+            if (data.some((d: LabelValue) => d.value === -1)) {
               setTypeOfWorks(
-                typeOfWorkDropdown.filter((d: any) => d.value !== -1)
+                typeOfWorkDropdown.filter((d: LabelValue) => d.value !== -1)
               );
               setTypeOfWorkName(
                 typeOfWorkDropdown
-                  .filter((d: any) => d.value !== -1)
-                  .map((d: any) => d.value)
+                  .filter((d: LabelValue) => d.value !== -1)
+                  .map((d: LabelValue) => d.value)
               );
               setTypeOfWorkNameError(false);
             } else {
               setTypeOfWorks(data);
-              setTypeOfWorkName(data.map((d: any) => d.value));
+              setTypeOfWorkName(data.map((d: LabelValue) => d.value));
               setTypeOfWorkNameError(false);
               setDisplayNames(
-                data.map((d: any) =>
-                  displayNames.find((item: any) => item.value === d.value)
-                    ? {
-                        WorkTypeName: d.label,
-                        WorkTypeId: d.value,
-                        DisplayName: displayNames.map((item: any) =>
-                          item.value === d.value ? item.DisplayName : ""
-                        )[0],
-                      }
-                    : {
-                        WorkTypeName: d.label,
-                        WorkTypeId: d.value,
-                        DisplayName: "",
-                      }
-                )
+                data
+                  .map((d: LabelValue) => {
+                    const displayNameItem = displayNames.find(
+                      (item: StatusDisplayName) => item.WorkTypeId === d.value
+                    );
+                    return displayNameItem
+                      ? {
+                          WorkTypeName: d.label,
+                          WorkTypeId: d.value,
+                          DisplayName: displayNameItem.DisplayName,
+                        }
+                      : {
+                          WorkTypeName: d.label,
+                          WorkTypeId: d.value,
+                          DisplayName: "",
+                        };
+                  })
+                  .filter(
+                    (
+                      item: StatusDisplayName | undefined
+                    ): item is StatusDisplayName => !!item
+                  )
               );
             }
           }}
@@ -386,14 +398,13 @@ const StatusContent = forwardRef<
             />
           )}
         />
-
         {typeOfWorks.length > 0 && (
           <>
             <div className="flex moduleOrgHeader font-semibold justify-between items-center py-3 px-5">
               <h1 className="font-medium text-[18px]">Default Name</h1>
               <h1 className="font-medium text-[18px]">Display Name</h1>
             </div>
-            {displayNames.map((i: any) => (
+            {displayNames.map((i: StatusDisplayName) => (
               <div
                 className="flex moduleOrgHeader font-semibold justify-between items-center px-5"
                 key={i.WorkTypeId}
@@ -408,7 +419,7 @@ const StatusContent = forwardRef<
                     value={i.DisplayName}
                     onChange={(e) => {
                       setDisplayNames(
-                        displayNames.map((j: any) =>
+                        displayNames.map((j: StatusDisplayName) =>
                           j.WorkTypeId === i.WorkTypeId
                             ? { ...j, DisplayName: e.target.value }
                             : j
@@ -435,7 +446,7 @@ const StatusContent = forwardRef<
         {/* Footer */}
         <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
           <>
-            {onEdit ? (
+            {onEdit > 0 ? (
               <Button
                 variant="outlined"
                 className="rounded-[4px] !h-[36px] !text-secondary"
@@ -461,7 +472,7 @@ const StatusContent = forwardRef<
               className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary cursor-pointer"
               type="submit"
             >
-              {onEdit ? "Save" : `Create Status`}
+              {onEdit > 0 ? "Save" : `Create Status`}
             </Button>
           </>
         </div>

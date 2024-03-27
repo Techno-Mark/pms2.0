@@ -61,9 +61,9 @@ const Dialog_ProjectStatus = ({
     const params = {
       Clients: currentFilterData.Clients,
       WorkTypeId:
-        currentFilterData.TypeOfWork === null
+        currentFilterData.WorkTypeId === null
           ? 0
-          : currentFilterData.TypeOfWork,
+          : currentFilterData.WorkTypeId,
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,
       ProjectId:
@@ -117,9 +117,9 @@ const Dialog_ProjectStatus = ({
           IsDesc: true,
           Clients: currentFilterData.Clients,
           WorkTypeId:
-            currentFilterData.TypeOfWork === null
+            currentFilterData.WorkTypeId === null
               ? 0
-              : currentFilterData.TypeOfWork,
+              : currentFilterData.WorkTypeId,
           StartDate: currentFilterData.StartDate,
           EndDate: currentFilterData.EndDate,
           ProjectId: null,

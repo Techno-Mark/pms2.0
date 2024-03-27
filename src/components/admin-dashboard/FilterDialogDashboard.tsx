@@ -29,7 +29,7 @@ interface FilterModalProps {
   onOpen: boolean;
   onClose: () => void;
   onActionClick?: () => void;
-  currentFilterData?: any;
+  currentFilterData?: (data: DashboardInitialFilter) => void;
 }
 
 const ALL = -1;
@@ -42,7 +42,7 @@ const FilterDialogDashboard = ({
 }: FilterModalProps) => {
   const initialFilter = {
     Clients: [],
-    TypeOfWork: activeTab === 1 ? 3 : null,
+    WorkTypeId: activeTab === 1 ? 3 : null,
     StartDate: null,
     EndDate: null,
   };
@@ -60,7 +60,7 @@ const FilterDialogDashboard = ({
     useState<DashboardInitialFilter>(initialFilter);
 
   const sendFilterToPage = () => {
-    currentFilterData(currSelectedFields);
+    currentFilterData?.(currSelectedFields);
     onClose();
   };
 
@@ -71,7 +71,7 @@ const FilterDialogDashboard = ({
     setWorkTypeActive(activeTab === 1 ? { label: "Tax", value: 3 } : null);
     setStartDate(null);
     setEndDate(null);
-    currentFilterData(initialFilter);
+    currentFilterData?.(initialFilter);
   };
 
   const getDropdownData = async () => {
@@ -110,7 +110,7 @@ const FilterDialogDashboard = ({
   useEffect(() => {
     const selectedFields: DashboardInitialFilter = {
       Clients: clientName,
-      TypeOfWork: workType > 0 ? workType : null,
+      WorkTypeId: workType > 0 ? workType : null,
       StartDate: startDate !== null ? getFormattedDate(startDate) : null,
       EndDate:
         endDate === null
@@ -122,7 +122,7 @@ const FilterDialogDashboard = ({
 
     const selectedFieldsActive: DashboardInitialFilter = {
       Clients: clientName,
-      TypeOfWork: workTypeActive !== null ? workTypeActive.value : null,
+      WorkTypeId: workTypeActive !== null ? workTypeActive.value : null,
       StartDate: startDate !== null ? getFormattedDate(startDate) : null,
       EndDate:
         endDate === null
