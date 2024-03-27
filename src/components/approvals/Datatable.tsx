@@ -375,8 +375,10 @@ const Datatable = ({
         (data: List) => data.TimelogId !== null && data.TimelogId > 0
       ).length > 0
         ? reviewList
-            .map((data: any) =>
-              typeof data.TimelogId !== null && data.TimelogId > 0
+            .map((data: List) =>
+              typeof data.TimelogId !== null &&
+              data.TimelogId !== null &&
+              data.TimelogId > 0
                 ? data.WorkitemId
                 : false
             )
@@ -1217,7 +1219,7 @@ const Datatable = ({
     }
   };
 
-  const approvalColumns: any = (
+  const approvalColumns = (
     activeTab === 1 ? columnConfigReview : columnConfigAllTask
   ).map((col: any) => {
     return generateConditionalColumn(col, 9);

@@ -38,7 +38,7 @@ import { callAPI } from "@/utils/API/callAPI";
 import {
   AppliedFilterWorklogsPage,
   FilterData,
-  List,
+  WorkitemList,
   Response,
 } from "@/utils/Types/worklogsTypes";
 
@@ -125,12 +125,12 @@ const Datatable = ({
   const [isLoadingWorklogsDatatable, setIsLoadingWorklogsDatatable] =
     useState(false);
   const [loaded, setLoaded] = useState<boolean>(false);
-  const [selectedRowsCount, setSelectedRowsCount] = useState(0);
+  const [selectedRowsCount, setSelectedRowsCount] = useState<number>(0);
   const [isPopupOpen, setIsPopupOpen] = useState<
     { index: number; dataIndex: number }[] | []
   >([]);
   const [selectedRows, setSelectedRows] = useState<number[] | []>([]);
-  const [workItemData, setWorkItemData] = useState<List[] | []>([]);
+  const [workItemData, setWorkItemData] = useState<WorkitemList[] | []>([]);
   const [selectedRowIds, setSelectedRowIds] = useState<number[] | []>([]);
   const [selectedRowStatusName, setSelectedRowStatusName] = useState<
     string[] | []
@@ -141,7 +141,9 @@ const Datatable = ({
   const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<
     number[] | []
   >([]);
-  const [selectedRowsdata, setSelectedRowsData] = useState<List[] | []>([]);
+  const [selectedRowsdata, setSelectedRowsData] = useState<WorkitemList[] | []>(
+    []
+  );
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [filteredObject, setFilteredOject] =
     useState<InitialFilter>(initialFilter);
@@ -168,7 +170,7 @@ const Datatable = ({
     allRowsSelected: { index: number; dataIndex: number }[] | [],
     rowsSelected: number[] | []
   ) => {
-    const selectedData: List[] | [] = allRowsSelected.map(
+    const selectedData: WorkitemList[] | [] = allRowsSelected.map(
       (row: { index: number; dataIndex: number }) => workItemData[row.dataIndex]
     );
     setSelectedRowsCount(rowsSelected?.length);
@@ -177,7 +179,9 @@ const Datatable = ({
 
     const selectedWorkItemIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: List) => selectedRow?.WorkitemId)
+        ? selectedData.map(
+            (selectedRow: WorkitemList) => selectedRow?.WorkitemId
+          )
         : [];
 
     setSelectedRowIds(selectedWorkItemIds);
@@ -190,14 +194,16 @@ const Datatable = ({
 
     const selectedWorkItemStatus =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: List) => selectedRow?.StatusName)
+        ? selectedData.map(
+            (selectedRow: WorkitemList) => selectedRow?.StatusName
+          )
         : [];
 
     setSelectedRowStatusName(selectedWorkItemStatus);
 
     const selectedWorkItemClientIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: List) => selectedRow?.ClientId)
+        ? selectedData.map((selectedRow: WorkitemList) => selectedRow?.ClientId)
         : [];
 
     setSelectedRowClientId(selectedWorkItemClientIds);
@@ -205,7 +211,7 @@ const Datatable = ({
     const selectedWorkItemWorkTypeIds: number[] | [] =
       selectedData.length > 0
         ? selectedData
-            .map((selectedRow: List) =>
+            .map((selectedRow: WorkitemList) =>
               selectedRow?.WorkTypeId !== 0 ? selectedRow?.WorkTypeId : false
             )
             .filter((j: number | false): j is number => typeof j === "number")
@@ -249,13 +255,13 @@ const Datatable = ({
   useEffect(() => {
     setRunning(
       workItemData.filter(
-        (data: List) =>
+        (data: WorkitemList) =>
           data.TimelogId !== null &&
           data.TimelogId > 0 &&
           data.AssignedToId == Number(localStorage.getItem("UserId"))
       ).length > 0
         ? workItemData.filter(
-            (data: List) =>
+            (data: WorkitemList) =>
               data.TimelogId !== null &&
               data.TimelogId > 0 &&
               data.AssignedToId == Number(localStorage.getItem("UserId"))
@@ -264,7 +270,7 @@ const Datatable = ({
     );
     setWorkitemTimeId(
       workItemData.filter(
-        (data: List) => data.TimelogId !== null && data.TimelogId > 0
+        (data: WorkitemList) => data.TimelogId !== null && data.TimelogId > 0
       ).length > 0
         ? workItemData
             .map((data: any) =>
@@ -331,8 +337,8 @@ const Datatable = ({
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         if (ResponseData !== null) {
-          setWorkItemData((prev: List[] | []) =>
-            prev.map((data: List) => {
+          setWorkItemData((prev: WorkitemList[] | []) =>
+            prev.map((data: WorkitemList) => {
               if (data.WorkitemId === selectedRowId) {
                 return {
                   ...data,
@@ -999,12 +1005,12 @@ const Datatable = ({
     }
   };
 
-  const workLogsColumns: any = columnConfig.map((col: any) => {
+  const workLogsColumns = columnConfig.map((col: any) => {
     return generateConditionalColumn(col, 10);
   });
 
-  const runningTimerData: List[] | [] = workItemData.filter(
-    (data: List) => data.WorkitemId === isRunning
+  const runningTimerData: WorkitemList[] | [] = workItemData.filter(
+    (data: WorkitemList) => data.WorkitemId === isRunning
   );
 
   const propsForActionBar = {

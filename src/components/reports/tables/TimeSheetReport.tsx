@@ -22,6 +22,68 @@ import { getDates, toSeconds } from "@/utils/timerFunctions";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { timeSheet_InitialFilter } from "@/utils/reports/getFilters";
 import { Popover, TablePagination, ThemeProvider } from "@mui/material";
+import { ReportProps } from "@/utils/Types/reports";
+
+interface InitialFilter {
+  pageNo: number;
+  pageSize: number;
+  sortColumn: string;
+  isDesc: boolean;
+  globalSearch: string;
+  departmentIds: number[];
+  isActive: boolean;
+  users: number[];
+  startDate: string;
+  endDate: string;
+  isDownload: boolean;
+}
+
+interface LogDetails {
+  [x: string]: any;
+  UserId: number;
+  LogDate: string;
+  AttendanceStatus: string;
+  AttendanceColor: number;
+  TotalStandardTime: string;
+  TotalTrackedTimeLogHrsForDay: string;
+  TotalManualTimeLogHrsForDay: string;
+  TotalTimeSpentForDay: string | null;
+  DayStartTime: string;
+  DayEndTime: string;
+  TotalBreakTime: string;
+  TotalIdleTime: string;
+  TotalTimeSpentForDayPercent: string;
+  TotalManualTimeLogHrsForDayPercent: string;
+  TotalTrackedTimeLogHrsForDayPercent: string;
+  TotalDayBreakTimePercent: string;
+  TotalDayIdleTimePercent: string;
+  LogsDetails: any[];
+}
+
+interface List {
+  DateWiseLogs: LogDetails[];
+  StdShiftHours: string;
+  PresentDays: number;
+  TotalTimeSpentByUser: string;
+  TotalTimeExcludingRejectedHrsByUser: string;
+  ManagerHours: string;
+  RejectedHours: string;
+  TotalStandardTime: string;
+  TotalBreakTime: string;
+  TotalIdleTime: string;
+  AvgTotalTime: string;
+  AvgBreakTime: string;
+  AvgIdleTime: string;
+  UserId: number;
+  UserName: string;
+  DepartmentId: number;
+  DepartmentName: string;
+  RoleType: string;
+  ReportingManagerId: number;
+  ReportingManager: string;
+  IsActive: boolean;
+  OrganizationId: number;
+}
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -46,7 +108,12 @@ const CustomProgressBar = ({
   trackedTime,
   manualTime,
   breakTime,
-}: any) => {
+}: {
+  totalTimeSpentForDay: string;
+  trackedTime: string;
+  manualTime: string;
+  breakTime: string;
+}) => {
   const classes = useStyles();
 
   const trackedTimePercent = Math.round(
@@ -89,11 +156,19 @@ const CustomProgressBar = ({
   );
 };
 
-const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
+const DateWiseLogsContent = ({
+  data,
+  date,
+  tableMeta,
+}: {
+  data: LogDetails;
+  date: string;
+  tableMeta: any;
+}) => {
   const dateWiseLogsTable = useRef<HTMLDivElement>(null);
   const [clickedColumnIndex, setClickedColumnIndex] = useState<number>(-1);
   const [showDateWiseLogs, setShowDateWiseLogs] = useState<boolean>(false);
-  const [dateWiseLogsData, setDateWiseLogsData] = useState<any[]>([]);
+  const [dateWiseLogsData, setDateWiseLogsData] = useState<LogDetails[]>([]);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
@@ -107,14 +182,14 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
     );
   };
 
-  const datewiselogsColumn: any = [
+  const datewiselogsColumn = [
     {
       name: "TaskName",
       options: {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Task"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -125,7 +200,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Client"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -136,7 +211,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Project"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -147,7 +222,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Task/Process"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -158,7 +233,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Sub-Process"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -169,7 +244,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
     //     filter: true,
     //     sort: true,
     //     customHeadLabelRender: () => generateCustomHeaderName("Is Manual"),
-    //     customBodyRender: (value: any) => {
+    //     customBodyRender: (value: string) => {
     //       return generateIsManulaBodyRender(value);
     //     },
     //   },
@@ -180,6 +255,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Description"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
       },
     },
     {
@@ -188,7 +266,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Est. Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -199,7 +277,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Status"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -210,7 +288,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Qty."),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -221,7 +299,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateDateWithoutTime(value);
         },
       },
@@ -232,7 +310,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("End Date"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateDateWithoutTime(value);
         },
       },
@@ -243,7 +321,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -256,7 +334,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         customHeadLabelRender: () => {
           return generateIsManualHeaderRender("total time");
         },
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -268,7 +346,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Reviewer Status"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -298,13 +376,13 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         ref={dateWiseLogsTable}
         style={{
           color: getColor(
-            data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+            data.filter((v: LogDetails) => v.LogDate.split("T")[0] === date)[0]
               .AttendanceColor,
             false
           ),
         }}
         className={`relative flex flex-col gap-[5px] ${
-          data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+          data.filter((v: LogDetails) => v.LogDate.split("T")[0] === date)[0]
             .AttendanceColor !== 5
             ? "cursor-pointer"
             : "cursor-default"
@@ -313,48 +391,53 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
           setClickedColumnIndex(tableMeta.columnIndex);
           setShowDateWiseLogs(!showDateWiseLogs);
           setDateWiseLogsData(
-            data.filter((v: any) => v.LogDate.split("T")[0] === date)
+            data.filter((v: LogDetails) => v.LogDate.split("T")[0] === date)
           );
         }}
       >
         <span>
           {
-            data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+            data.filter((v: LogDetails) => v.LogDate.split("T")[0] === date)[0]
               .AttendanceStatus
           }
         </span>
-        {(data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+        {(data.filter((v: LogDetails) => v.LogDate.split("T")[0] === date)[0]
           .AttendanceColor === 1 ||
-          data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+          data.filter((v: LogDetails) => v.LogDate.split("T")[0] === date)[0]
             .AttendanceColor === 2 ||
-          data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+          data.filter((v: LogDetails) => v.LogDate.split("T")[0] === date)[0]
             .AttendanceColor === 3 ||
-          data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+          data.filter((v: LogDetails) => v.LogDate.split("T")[0] === date)[0]
             .AttendanceColor === 4) && (
           <>
             <CustomProgressBar
               totalTimeSpentForDay={
-                data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
-                  .TotalTimeSpentForDay
+                data.filter(
+                  (v: LogDetails) => v.LogDate.split("T")[0] === date
+                )[0].TotalTimeSpentForDay
               }
               trackedTime={
-                data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
-                  .TotalTrackedTimeLogHrsForDay
+                data.filter(
+                  (v: LogDetails) => v.LogDate.split("T")[0] === date
+                )[0].TotalTrackedTimeLogHrsForDay
               }
               manualTime={
-                data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
-                  .TotalManualTimeLogHrsForDay
+                data.filter(
+                  (v: LogDetails) => v.LogDate.split("T")[0] === date
+                )[0].TotalManualTimeLogHrsForDay
               }
               breakTime={
-                data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
-                  .TotalBreakTime
+                data.filter(
+                  (v: LogDetails) => v.LogDate.split("T")[0] === date
+                )[0].TotalBreakTime
               }
             />
             <div className="flex items-center justify-between">
               <span>
                 {
-                  data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
-                    .TotalTimeSpentForDay
+                  data.filter(
+                    (v: LogDetails) => v.LogDate.split("T")[0] === date
+                  )[0].TotalTimeSpentForDay
                 }
               </span>
               <ChevronDownIcon />
@@ -363,7 +446,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         )}
       </div>
       <Popover
-        sx={{ width: "60%" }}
+        sx={{ width: "70%" }}
         id={idFilter}
         open={showDateWiseLogs && tableMeta.columnIndex === clickedColumnIndex}
         anchorEl={anchorElFilter}
@@ -403,8 +486,8 @@ const TimeSheetReport = ({
   filteredData,
   searchValue,
   onHandleExport,
-}: any) => {
-  const [dates, setDates] = useState<any>([]);
+}: ReportProps) => {
+  const [dates, setDates] = useState<string[]>([]);
   const [timesheetFields, setTimesheetFields] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -413,21 +496,25 @@ const TimeSheetReport = ({
   const [timesheetCurrentPage, setTimesheetCurrentPage] = useState<number>(0);
   const [timesheetRowsPerPage, setTimesheetRowsPerPage] = useState<number>(10);
 
-  const getData = async (arg1: any) => {
+  const getData = async (arg1: InitialFilter) => {
     setTimesheetFields({
       ...timesheetFields,
       loaded: false,
     });
     const url = `${process.env.report_api_url}/report/timesheet`;
 
-    const successCallback = (data: any, error: any) => {
-      if (data !== null && error === false) {
-        onHandleExport(data.List.length > 0);
+    const successCallback = (
+      ResponseData: { List: List[]; TotalCount: number },
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        onHandleExport(ResponseData.List.length > 0);
         setTimesheetFields({
           ...timesheetFields,
           loaded: true,
-          data: data.List,
-          dataCount: data.TotalCount,
+          data: ResponseData.List,
+          dataCount: ResponseData.TotalCount,
         });
       } else {
         setTimesheetFields({ ...timesheetFields, loaded: true });
@@ -507,13 +594,13 @@ const TimeSheetReport = ({
     }
   }, [filteredData, searchValue]);
 
-  const isWeekend = (date: any) => {
+  const isWeekend = (date: string) => {
     const day = dayjs(date).day();
     // return day === 6 || day === 0;
     return day === 0;
   };
 
-  const generateUserNameHeaderRender = (headerValue: any) => {
+  const generateUserNameHeaderRender = (headerValue: string) => {
     return (
       <div className="font-bold text-sm capitalize !w-[100px]">
         {headerValue}
@@ -521,7 +608,7 @@ const TimeSheetReport = ({
     );
   };
 
-  const generateUserNameBodyRender = (bodyValue: any, TableMeta: any) => {
+  const generateUserNameBodyRender = (bodyValue: string, TableMeta: any) => {
     return (
       <div className="flex flex-col">
         <span>{bodyValue}</span>
@@ -537,7 +624,7 @@ const TimeSheetReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateUserNameHeaderRender("User Name"),
-        customBodyRender: (value: any, tableMeta: any) => {
+        customBodyRender: (value: string, tableMeta: any) => {
           return generateUserNameBodyRender(value, tableMeta);
         },
       },
@@ -574,7 +661,7 @@ const TimeSheetReport = ({
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Std Shift Hours"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
       },
@@ -593,7 +680,7 @@ const TimeSheetReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
       },
@@ -604,7 +691,7 @@ const TimeSheetReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Std time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
       },
@@ -616,7 +703,7 @@ const TimeSheetReport = ({
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Average Total Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
       },
@@ -628,7 +715,7 @@ const TimeSheetReport = ({
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Average Break Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
       },
@@ -640,13 +727,13 @@ const TimeSheetReport = ({
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Average Idle Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
       },
     },
     ...dates.map(
-      (date: any) =>
+      (date: string) =>
         new Object({
           name: "DateWiseLogs",
           options: {
@@ -666,13 +753,14 @@ const TimeSheetReport = ({
                 </span>
               );
             },
-            customBodyRender: (value: any, tableMeta: any) => {
+            customBodyRender: (value: LogDetails, tableMeta: any) => {
               return isWeekend(date) ? (
                 <span className="text-[#2323434D] text-xl">-</span>
               ) : (
                 value !== undefined &&
-                  (value.filter((v: any) => v.LogDate.split("T")[0] === date)
-                    .length > 0 ? (
+                  (value.filter(
+                    (v: LogDetails) => v.LogDate.split("T")[0] === date
+                  ).length > 0 ? (
                     <DateWiseLogsContent
                       data={value}
                       date={date}
@@ -693,7 +781,7 @@ const TimeSheetReport = ({
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Total Idle Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
       },
@@ -705,7 +793,7 @@ const TimeSheetReport = ({
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Total Break Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
       },

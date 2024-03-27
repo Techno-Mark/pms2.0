@@ -18,8 +18,8 @@ interface FilteredData {
   globalSearch: string;
   typeOfWork: string | null;
   billType: string | null;
-  clients: any[] | [];
-  projects: any[] | [];
+  clients: number[];
+  projects: number[];
   department: string | null;
   isActive: boolean;
   showSubProject: boolean | null;

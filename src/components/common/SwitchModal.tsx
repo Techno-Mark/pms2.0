@@ -16,7 +16,7 @@ interface SwitchModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  firstContent: any;
+  firstContent: string;
   actionText: string;
   onActionClick: () => void;
 }

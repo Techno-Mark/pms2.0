@@ -1,4 +1,4 @@
-export interface List {
+export interface WorkitemList {
   WorkitemId: number;
   TaskName: string;
   Description: string | null;
@@ -50,12 +50,29 @@ export interface List {
   PreparorTime: string;
 }
 
+export interface WorklogsActionBarProps {
+  selectedRowsCount: number;
+  selectedRowId: number | null;
+  selectedRowsdata: WorkitemList[];
+  selectedRowClientId: number[];
+  selectedRowWorkTypeId: number[];
+  selectedRowIds: number[];
+  onEdit: (rowData: number) => void;
+  handleClearSelection: () => void;
+  onRecurring: (rowData: boolean, selectedId: number) => void;
+  onComment: (rowData: boolean, selectedId: number) => void;
+  workItemData: WorkitemList[];
+  getWorkItemList: () => void;
+  isUnassigneeClicked: boolean;
+  getOverLay?: (e: boolean) => void;
+}
+
 export interface Response {
   worklogExportFilter: any | null;
   TotalTime: string;
   TodaysTime: string;
   BreakTime: string;
-  List: List[];
+  List: WorkitemList[];
   TotalCount: number;
 }
 

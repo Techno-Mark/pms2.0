@@ -6,7 +6,7 @@ import DrawerOverlay from "../settings/drawer/DrawerOverlay";
 
 interface WrapperProps {
   children: ReactNode;
-  className?: any;
+  className?: string;
 }
 
 const Wrapper = ({ children, className = "" }: WrapperProps): JSX.Element => {
@@ -24,10 +24,10 @@ const Wrapper = ({ children, className = "" }: WrapperProps): JSX.Element => {
       : `w-[85vw] ${className}`;
   }
 
-  const isOpen = (arg: any) => {
+  const isOpen = (arg: boolean) => {
     setDrawer(arg);
   };
-  const isCollapsed = (arg: any) => {
+  const isCollapsed = (arg: boolean) => {
     setCollapsed(arg);
   };
 

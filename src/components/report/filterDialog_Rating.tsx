@@ -24,7 +24,7 @@ import { LabelValue } from "@/utils/Types/types";
 interface FilterModalProps {
   onOpen: boolean;
   onClose: () => void;
-  currentFilterData?: any;
+  currentFilterData?: (data: any) => void;
 }
 
 const initialRatingFilter = {
@@ -74,7 +74,7 @@ const FilterDialog_Rating = ({
     setRatingsFilterRating(null);
     setStartDateFilterRating(null);
     setEndDateFilterRating(null);
-    currentFilterData(initialRatingFilter);
+    currentFilterData?.(initialRatingFilter);
   };
 
   useEffect(() => {
@@ -123,7 +123,7 @@ const FilterDialog_Rating = ({
   ]);
 
   const sendFilterToPage = () => {
-    currentFilterData(currSelectedRatingFields);
+    currentFilterData?.(currSelectedRatingFields);
     onClose();
   };
 

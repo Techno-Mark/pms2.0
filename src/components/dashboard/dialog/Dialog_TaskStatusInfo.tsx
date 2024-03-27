@@ -11,10 +11,7 @@ import {
 import { Close } from "@mui/icons-material";
 import Datatable_TaskStatusInfo from "../datatable/Datatable_TaskStatusInfo";
 import { DialogTransition } from "@/utils/style/DialogTransition";
-import {
-  KeyValueColorCode,
-  KeyValueColorCodeSequenceStatusId,
-} from "@/utils/Types/types";
+import { KeyValueColorCodeSequenceStatusId } from "@/utils/Types/types";
 import { callAPI } from "@/utils/API/callAPI";
 
 interface TaskStatusInfoDialogProps {
@@ -86,7 +83,7 @@ const Dialog_TaskStatusInfo = ({
     return () => clearTimeout(timer);
   }, [onSelectedProjectIds, onSelectedWorkType]);
 
-  function getValueByLabelOrType(labelOrType: any): number {
+  function getValueByLabelOrType(labelOrType: number): number {
     const status = allStatus.find(
       (status: KeyValueColorCodeSequenceStatusId) =>
         status.StatusId === labelOrType

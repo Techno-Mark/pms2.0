@@ -5,6 +5,7 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import ProcessIcon from "@/assets/icons/worklogs/ProcessIcon";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { callAPI } from "@/utils/API/callAPI";
+import { LabelValue } from "@/utils/Types/types";
 
 const Process = ({
   processDropdownData,
@@ -12,7 +13,13 @@ const Process = ({
   handleClearSelection,
   getWorkItemList,
   getOverLay,
-}: any) => {
+}: {
+  processDropdownData: LabelValue[];
+  selectedRowIds: number[];
+  handleClearSelection: () => void;
+  getWorkItemList: () => void;
+  getOverLay?: (e: boolean) => void;
+}) => {
   const [processSearchQuery, setprocessSearchQuery] = useState("");
 
   const [anchorElProcess, setAnchorElProcess] =
@@ -29,28 +36,28 @@ const Process = ({
   const openProcess = Boolean(anchorElProcess);
   const idProcess = openProcess ? "simple-popover" : undefined;
 
-  const handleProcessSearchChange = (event: any) => {
-    setprocessSearchQuery(event.target.value);
+  const handleProcessSearchChange = (e: string) => {
+    setprocessSearchQuery(e);
   };
 
-  const filteredProcess = processDropdownData?.filter((process: any) =>
+  const filteredProcess = processDropdownData?.filter((process: LabelValue) =>
     process.label.toLowerCase().includes(processSearchQuery.toLowerCase())
   );
 
-  const handleOptionProcess = (id: any) => {
+  const handleOptionProcess = (id: number) => {
     updateProcess(selectedRowIds, id);
     handleCloseProcess();
   };
 
   const updateProcess = async (id: number[], processId: number) => {
-    getOverLay(true);
+    getOverLay?.(true);
     const params = {
       workitemIds: id,
       ProcessId: processId,
     };
     const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemprocess`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: boolean | string,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -58,14 +65,14 @@ const Process = ({
         toast.success("Process has been updated successfully.");
         handleClearSelection();
         getWorkItemList();
-        getOverLay(false);
+        getOverLay?.(false);
       } else if (ResponseStatus === "Warning" && error === false) {
         toast.warning(ResponseData);
         handleClearSelection();
         getWorkItemList();
-        getOverLay(false);
+        getOverLay?.(false);
       } else {
-        getOverLay(false);
+        getOverLay?.(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -109,7 +116,7 @@ const Process = ({
                   placeholder="Search"
                   inputProps={{ "aria-label": "search" }}
                   value={processSearchQuery}
-                  onChange={handleProcessSearchChange}
+                  onChange={(e) => handleProcessSearchChange(e.target.value)}
                   style={{ fontSize: "13px" }}
                 />
               </span>
@@ -121,7 +128,7 @@ const Process = ({
                 No Data Available
               </span>
             ) : (
-              filteredProcess.map((process: any) => {
+              filteredProcess.map((process: LabelValue) => {
                 return (
                   <span
                     key={process.value}

@@ -264,7 +264,7 @@ const WltrProjectReport = ({
     },
   ];
 
-  const reportsWLTRCols: any = reportsWLTRColConfig.map((col: any) =>
+  const reportsWLTRCols = reportsWLTRColConfig.map((col: any) =>
     generateCustomColumn(col.header, col.label, col.bodyRenderer)
   );
 

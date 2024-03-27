@@ -56,10 +56,10 @@ export interface AppliedFilterApprovals {
   ProjectId: number | null;
   ProcessId: number | null;
   StatusId: number | null;
-  dueDate: string | null;
-  startDate: string | null;
-  endDate: string | null;
-  DateFilter: string | null;
+  DateFilter: string | null | undefined;
+  dueDate: string | null | undefined;
+  startDate: string | null | undefined;
+  endDate: string | null | undefined;
 }
 
 export interface ActionList {

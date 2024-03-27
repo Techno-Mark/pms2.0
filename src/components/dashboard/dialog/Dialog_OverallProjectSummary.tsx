@@ -12,6 +12,7 @@ import { Close } from "@mui/icons-material";
 import Datatable_OverallProjectSummary from "../datatable/Datatable_OverallProjectSummary";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { callAPI } from "@/utils/API/callAPI";
+import { ListOverallProject } from "@/utils/Types/dashboardTypes";
 
 interface OverallProjectSummaryDialogProps {
   onOpen: boolean;
@@ -28,7 +29,7 @@ const Dialog_OverallProjectSummary = ({
   onSelectedTaskStatus,
   onSelectedProjectIds,
 }: OverallProjectSummaryDialogProps) => {
-  const [allTaskList, setAllTaskList] = useState<string[] | any>([]);
+  const [allTaskList, setAllTaskList] = useState<{ name: string }[]>([]);
   const [taskStatusName, setTaskStatusName] = useState<string>("");
 
   const handleClose = () => {
@@ -43,14 +44,16 @@ const Dialog_OverallProjectSummary = ({
     };
     const url = `${process.env.report_api_url}/clientdashboard/overallprojectcompletion`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: { List: ListOverallProject[]; TotalCount: number },
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        const statusName: any = ResponseData.List.map((item: { Key: any }) => ({
-          name: item.Key,
-        }));
+        const statusName: { name: string }[] = ResponseData.List.map(
+          (item: { Key: string }) => ({
+            name: item.Key,
+          })
+        );
 
         setAllTaskList(statusName);
       }
@@ -95,7 +98,7 @@ const Dialog_OverallProjectSummary = ({
                 onChange={(e) => setTaskStatusName(e.target.value)}
                 sx={{ height: "36px" }}
               >
-                {allTaskList.map((i: any) => (
+                {allTaskList.map((i: { name: string }) => (
                   <MenuItem value={i.name} key={i.name}>
                     {i.name}
                   </MenuItem>

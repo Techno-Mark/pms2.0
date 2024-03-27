@@ -11,7 +11,15 @@ const priorityOptions = [
   { id: 1, text: "High" },
 ];
 
-const Priority = ({ selectedRowIds, getData, getOverLay }: any) => {
+const Priority = ({
+  selectedRowIds,
+  getData,
+  getOverLay,
+}: {
+  selectedRowIds: number[];
+  getData: () => void;
+  getOverLay: (e: boolean) => void;
+}) => {
   const [anchorElPriority, setAnchorElPriority] =
     React.useState<HTMLButtonElement | null>(null);
 
@@ -26,7 +34,7 @@ const Priority = ({ selectedRowIds, getData, getOverLay }: any) => {
   const openPriority = Boolean(anchorElPriority);
   const idPriority = openPriority ? "simple-popover" : undefined;
 
-  const handleOptionPriority = (id: any) => {
+  const handleOptionPriority = (id: number) => {
     updatePriority(selectedRowIds, id);
     handleClosePriority();
   };
@@ -39,7 +47,7 @@ const Priority = ({ selectedRowIds, getData, getOverLay }: any) => {
     };
     const url = `${process.env.worklog_api_url}/workitem/UpdatePriority`;
     const successCallback = (
-      ResponseData: any,
+      ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -79,7 +87,7 @@ const Priority = ({ selectedRowIds, getData, getOverLay }: any) => {
       >
         <nav className="!w-52">
           <List>
-            {priorityOptions.map((option: any) => (
+            {priorityOptions.map((option: { id: number; text: string }) => (
               <span
                 key={option.id}
                 className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"

@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import ContentCopy from "@/assets/icons/worklogs/ContentCopy";
 import { callAPI } from "@/utils/API/callAPI";
+import { WorkitemList } from "@/utils/Types/worklogsTypes";
 
 const Duplicate = ({
   workItemData,
@@ -10,35 +11,41 @@ const Duplicate = ({
   handleClearSelection,
   getWorkItemList,
   getOverLay,
-}: any) => {
+}: {
+  workItemData: WorkitemList[];
+  selectedRowIds: number[];
+  handleClearSelection: () => void;
+  getWorkItemList: () => void;
+  getOverLay?: (e: boolean) => void;
+}) => {
   const duplicateWorkItem = async () => {
     const dontDuplicateId = workItemData
-      .map((item: any) =>
+      .map((item: WorkitemList) =>
         selectedRowIds.includes(item.WorkitemId) && item.IsCreatedByClient
           ? item.WorkitemId
           : undefined
       )
-      .filter((i: any) => i !== undefined);
+      .filter((i: number | undefined) => i !== undefined);
 
     const duplicateId = workItemData
-      .map((item: any) =>
+      .map((item: WorkitemList) =>
         selectedRowIds.includes(item.WorkitemId) && !item.IsCreatedByClient
           ? item.WorkitemId
           : undefined
       )
-      .filter((i: any) => i !== undefined);
+      .filter((i: number | undefined) => i !== undefined);
 
     if (dontDuplicateId.length > 0) {
       toast.warning("You can not duplicate task which is created by PABS.");
     }
     if (duplicateId.length > 0) {
-      getOverLay(true);
+      getOverLay?.(true);
       const params = {
         workitemIds: duplicateId,
       };
       const url = `${process.env.worklog_api_url}/workitem/copyworkitem`;
       const successCallback = (
-        ResponseData: any,
+        ResponseData: boolean | string,
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -46,14 +53,14 @@ const Duplicate = ({
           toast.success("Task has been duplicated successfully");
           handleClearSelection();
           getWorkItemList();
-          getOverLay(false);
+          getOverLay?.(false);
         } else if (ResponseStatus === "Warning" && error === false) {
           toast.warning(ResponseData);
           handleClearSelection();
           getWorkItemList();
-          getOverLay(false);
+          getOverLay?.(false);
         } else {
-          getOverLay(false);
+          getOverLay?.(false);
         }
       };
       callAPI(url, params, successCallback, "POST");

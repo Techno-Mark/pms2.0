@@ -16,7 +16,7 @@ interface DialogProps {
   onOpen: boolean;
   onClose: () => void;
   onSelectedProjectIds: number[];
-  onSelectedReturnTypeValue: any;
+  onSelectedReturnTypeValue: number;
   onSelectedWorkType: number;
 }
 

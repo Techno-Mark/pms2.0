@@ -100,7 +100,7 @@ const reportTaskColConfig = [
   {
     name: "Status",
     label: "Status",
-    bodyRenderer: (value: any, tableMeta: any) =>
+    bodyRenderer: (value: string, tableMeta: any) =>
       generateStatusWithColor(
         value,
         tableMeta.rowData[tableMeta.rowData.length - 1]
@@ -593,7 +593,7 @@ const generateCustomizableCols = (
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Status"),
-        customBodyRender: (value: any, tableMeta: any) =>
+        customBodyRender: (value: string, tableMeta: any) =>
           generateStatusWithColor(value, tableMeta.rowData[rowDataIndex]),
       },
     };
@@ -611,7 +611,7 @@ const generateCustomizableCols = (
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Login"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateDateWithTime(value);
         },
       },
@@ -623,7 +623,7 @@ const generateCustomizableCols = (
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Logout"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateDateWithTime(value);
         },
       },
@@ -635,7 +635,7 @@ const generateCustomizableCols = (
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Idle Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
       },
@@ -647,7 +647,7 @@ const generateCustomizableCols = (
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Break Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
       },
@@ -660,7 +660,7 @@ const generateCustomizableCols = (
         filter: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Productive Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
       },
@@ -717,7 +717,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("User Name"),
-      customBodyRender: (value: any) => {
+      customBodyRender: (value: string) => {
         return generateCommonBodyRender(value);
       },
     },
@@ -728,7 +728,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("Reporting To"),
-      customBodyRender: (value: any) => {
+      customBodyRender: (value: string) => {
         return generateCommonBodyRender(value);
       },
     },
@@ -739,7 +739,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("Department"),
-      customBodyRender: (value: any) => {
+      customBodyRender: (value: string) => {
         return generateCommonBodyRender(value);
       },
     },
@@ -750,7 +750,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("Login"),
-      customBodyRender: (value: any) => {
+      customBodyRender: (value: string | null) => {
         return generateDateWithTime(value);
       },
     },
@@ -761,7 +761,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("Logout"),
-      customBodyRender: (value: any) => {
+      customBodyRender: (value: string | null) => {
         return generateDateWithTime(value);
       },
     },
@@ -772,7 +772,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("Idle Time"),
-      customBodyRender: (value: any) => {
+      customBodyRender: (value: string) => {
         return generateInitialTimer(value);
       },
     },
@@ -783,7 +783,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("Break Time"),
-      customBodyRender: (value: any) => {
+      customBodyRender: (value: string) => {
         return generateInitialTimer(value);
       },
     },
@@ -794,7 +794,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("Productive Time"),
-      customBodyRender: (value: any) => {
+      customBodyRender: (value: string) => {
         return generateInitialTimer(value);
       },
     },
@@ -805,7 +805,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("Is Logged In"),
-      customBodyRender: (value: any) => generateIsLoggedInBodyRender(value),
+      customBodyRender: (value: number) => generateIsLoggedInBodyRender(value),
     },
   },
 ];
