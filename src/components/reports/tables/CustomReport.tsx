@@ -48,6 +48,8 @@ interface FilteredData {
   endDate: string | null;
   startDateReview: string | null;
   endDateReview: string | null;
+  startDateLogged: string | null;
+  endDateLogged: string | null;
   isDownload: boolean;
 }
 
@@ -89,7 +91,11 @@ interface Response {
         AllInfoDate: string | null;
         TotalEstimatedHours: string;
         TotalSTDHours: string;
+        AssigneeAutoTimeTracked: string;
+        AssigneeManualTimeTracked: string;
         AssigneeTimeTracked: string;
+        ReviewerAutoTimeTracked: string;
+        ReviewerManualTimeTracked: string;
         ReviewerTimeTracked: string;
         BTC: any;
         IsBTC: string;
@@ -630,6 +636,30 @@ const CustomReport = ({
       },
     },
     {
+      name: "AssigneeAutoTimeTracked",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Assignee Auto Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "AssigneeManualTimeTracked",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Assignee Manual Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
       name: "AssigneeTimeTracked",
       options: {
         filter: true,
@@ -637,6 +667,30 @@ const CustomReport = ({
         customHeadLabelRender: () =>
           generateCustomHeaderName("Assignee Time Tracked"),
         customBodyRender: (value: string | null) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "ReviewerAutoTimeTracked",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Reviewer Auto Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "ReviewerManualTimeTracked",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Reviewer Manual Time"),
+        customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
       },

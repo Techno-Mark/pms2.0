@@ -74,7 +74,6 @@ const UnassigneeDatatable = ({
   searchValue: string;
   isUnassigneeClicked: boolean;
 }) => {
-  console.log(currentFilterData);
   const [
     isLoadingWorklogsUnassigneeDatatable,
     setIsLoadingWorklogsUnassigneeDatatable,

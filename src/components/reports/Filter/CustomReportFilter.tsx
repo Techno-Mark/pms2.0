@@ -25,7 +25,6 @@ import {
   getAllProcessDropdownData,
   getCCDropdownData,
   getClientDropdownData,
-  getDeptData,
   getProjectDropdownData,
   getStatusDropdownData,
   getSubProcessDropdownData,
@@ -63,6 +62,8 @@ interface SavedFilter {
     startDate: string | null;
     endDate: string | null;
     startDateReview: string | null;
+    startDateLogged: string | null;
+    endDateLogged: string | null;
     endDateReview: string | null;
     dueDate: string | null;
     allInfoDate: string | null;
@@ -125,6 +126,8 @@ const CustomReportFilter = ({
   const [endDate, setEndDate] = useState<string | number>("");
   const [startDateReview, setStartDateReview] = useState<string | number>("");
   const [endDateReview, setEndDateReview] = useState<string | number>("");
+  const [startDateLogged, setStartDateLogged] = useState<string | number>("");
+  const [endDateLogged, setEndDateLogged] = useState<string | number>("");
   const [dueDate, setDueDate] = useState<string | number>("");
   const [allInfoDate, setAllInfoDate] = useState<string | number>("");
   const [filterName, setFilterName] = useState<string>("");
@@ -186,6 +189,8 @@ const CustomReportFilter = ({
     setEndDate("");
     setStartDateReview("");
     setEndDateReview("");
+    setStartDateLogged("");
+    setEndDateLogged("");
     setDueDate("");
     setAllInfoDate("");
     setError("");
@@ -224,6 +229,8 @@ const CustomReportFilter = ({
     setEndDate("");
     setStartDateReview("");
     setEndDateReview("");
+    setStartDateLogged("");
+    setEndDateLogged("");
     setDueDate("");
     setAllInfoDate("");
     setError("");
@@ -269,6 +276,18 @@ const CustomReportFilter = ({
             ? null
             : getFormattedDate(startDateReview)
           : getFormattedDate(endDateReview),
+      startDateLogged:
+        startDateLogged.toString().trim().length <= 0
+          ? endDateLogged.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(endDateLogged)
+          : getFormattedDate(startDateLogged),
+      endDateLogged:
+        endDateLogged.toString().trim().length <= 0
+          ? startDateLogged.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(startDateLogged)
+          : getFormattedDate(endDateLogged),
       dueDate:
         dueDate.toString().trim().length <= 0
           ? null
@@ -362,6 +381,18 @@ const CustomReportFilter = ({
                 ? null
                 : getFormattedDate(startDateReview)
               : getFormattedDate(endDateReview),
+          startDateLogged:
+            startDateLogged.toString().trim().length <= 0
+              ? endDateLogged.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(endDateLogged)
+              : getFormattedDate(startDateLogged),
+          endDateLogged:
+            endDateLogged.toString().trim().length <= 0
+              ? startDateLogged.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(startDateLogged)
+              : getFormattedDate(endDateLogged),
           dueDate:
             dueDate.toString().trim().length <= 0
               ? null
@@ -414,6 +445,8 @@ const CustomReportFilter = ({
       endDate.toString().trim().length > 0 ||
       startDateReview.toString().trim().length > 0 ||
       endDateReview.toString().trim().length > 0 ||
+      startDateLogged.toString().trim().length > 0 ||
+      endDateLogged.toString().trim().length > 0 ||
       dueDate.toString().trim().length > 0 ||
       allInfoDate.toString().trim().length > 0;
 
@@ -437,6 +470,8 @@ const CustomReportFilter = ({
     endDate,
     startDateReview,
     endDateReview,
+    startDateLogged,
+    endDateLogged,
     dueDate,
     allInfoDate,
   ]);
@@ -565,9 +600,9 @@ const CustomReportFilter = ({
         AppliedFilter.processIdsJSON.length > 0
         ? (
             await getSubProcessDropdownData(
-              savedFilters[index].AppliedFilter.clientIdsJSON[0],
+              AppliedFilter.clientIdsJSON[0],
               null,
-              savedFilters[index].AppliedFilter.processIdsJSON[0]
+              AppliedFilter.processIdsJSON[0]
             ).then((result: IdNameEstimatedHour[]) =>
               result.map((item: IdNameEstimatedHour) => ({
                 label: item.Name,
@@ -575,8 +610,7 @@ const CustomReportFilter = ({
               }))
             )
           ).filter(
-            (item: LabelValue) =>
-              item.value === savedFilters[index].AppliedFilter.subProcessId
+            (item: LabelValue) => item.value === AppliedFilter.subProcessId
           )[0]
         : null
     );
@@ -625,11 +659,7 @@ const CustomReportFilter = ({
 
     setStatus(
       AppliedFilter.StatusId !== null && AppliedFilter.WorkTypeId !== null
-        ? (
-            await getStatusDropdownData(
-              savedFilters[index].AppliedFilter.WorkTypeId
-            )
-          ).filter(
+        ? (await getStatusDropdownData(AppliedFilter.WorkTypeId)).filter(
             (item: LabelValue) => item.value === AppliedFilter.StatusId
           )[0]
         : null
@@ -638,8 +668,7 @@ const CustomReportFilter = ({
     setPriority(
       AppliedFilter.priority !== null
         ? priorityDropdown.filter(
-            (item: LabelValue) =>
-              item.value === savedFilters[index].AppliedFilter.priority
+            (item: LabelValue) => item.value === AppliedFilter.priority
           )[0]
         : null
     );
@@ -648,6 +677,8 @@ const CustomReportFilter = ({
     setEndDate(AppliedFilter?.endDate || "");
     setStartDateReview(AppliedFilter?.startDateReview || "");
     setEndDateReview(AppliedFilter?.endDateReview || "");
+    setStartDateLogged(AppliedFilter.startDateLogged ?? "");
+    setEndDateLogged(AppliedFilter.endDateLogged ?? "");
     setDueDate(AppliedFilter?.dueDate || "");
     setAllInfoDate(AppliedFilter?.allInfoDate || "");
   };
@@ -1192,6 +1223,45 @@ const CustomReportFilter = ({
                       label="All Info Date"
                       value={allInfoDate === "" ? null : dayjs(allInfoDate)}
                       onChange={(newValue: any) => setAllInfoDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Logged From"
+                      value={
+                        startDateLogged === "" ? null : dayjs(startDateLogged)
+                      }
+                      // shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now())}
+                      onChange={(newValue: any) => setStartDateLogged(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Logged To"
+                      value={endDateLogged === "" ? null : dayjs(endDateLogged)}
+                      // shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now())}
+                      minDate={dayjs(startDateLogged)}
+                      onChange={(newValue: any) => setEndDateLogged(newValue)}
                       slotProps={{
                         textField: {
                           readOnly: true,
