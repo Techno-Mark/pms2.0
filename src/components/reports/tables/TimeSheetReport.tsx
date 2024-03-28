@@ -533,12 +533,14 @@ const TimeSheetReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        globalSearch: searchValue,
         pageNo: newPage + 1,
         pageSize: timesheetRowsPerPage,
       });
     } else {
       getData({
         ...timeSheet_InitialFilter,
+        globalSearch: searchValue,
         pageNo: newPage + 1,
         pageSize: timesheetRowsPerPage,
       });
@@ -554,12 +556,14 @@ const TimeSheetReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        globalSearch: searchValue,
         pageNo: 1,
         pageSize: event.target.value,
       });
     } else {
       getData({
         ...timeSheet_InitialFilter,
+        globalSearch: searchValue,
         pageNo: 1,
         pageSize: event.target.value,
       });

@@ -96,12 +96,14 @@ const ActivityReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         PageNo: newPage + 1,
         PageSize: activityRowsPerPage,
       });
     } else {
       getData({
         ...activity_InitialFilter,
+        GlobalSearch: searchValue,
         PageNo: newPage + 1,
         PageSize: activityRowsPerPage,
       });
@@ -117,12 +119,14 @@ const ActivityReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         PageNo: 1,
         PageSize: Number(event.target.value),
       });
     } else {
       getData({
         ...activity_InitialFilter,
+        GlobalSearch: searchValue,
         PageNo: 1,
         PageSize: Number(event.target.value),
       });

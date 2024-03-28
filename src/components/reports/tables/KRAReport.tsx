@@ -93,12 +93,14 @@ const KRAReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         PageNo: newPage + 1,
         PageSize: kraRowsPerPage,
       });
     } else {
       getData({
         ...kra_InitialFilter,
+        GlobalSearch: searchValue,
         PageNo: newPage + 1,
         PageSize: kraRowsPerPage,
       });
@@ -114,12 +116,14 @@ const KRAReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         PageNo: 1,
         PageSize: Number(event.target.value),
       });
     } else {
       getData({
         ...kra_InitialFilter,
+        GlobalSearch: searchValue,
         PageNo: 1,
         PageSize: Number(event.target.value),
       });

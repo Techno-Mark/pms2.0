@@ -112,12 +112,14 @@ const WorkloadReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        globalSearch: searchValue,
         pageNo: newPage + 1,
         pageSize: workloadRowsPerPage,
       });
     } else {
       getData({
         ...workLoad_InitialFilter,
+        globalSearch: searchValue,
         pageNo: newPage + 1,
         pageSize: workloadRowsPerPage,
       });
@@ -133,12 +135,14 @@ const WorkloadReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        globalSearch: searchValue,
         pageNo: 1,
         pageSize: event.target.value,
       });
     } else {
       getData({
         ...workLoad_InitialFilter,
+        globalSearch: searchValue,
         pageNo: 1,
         pageSize: event.target.value,
       });

@@ -105,13 +105,17 @@ const ProjectReport = ({
     setProjectCurrentPage(newPage);
     if (filteredData !== null) {
       getData({
+        ...project_InitialFilter,
         ...filteredData,
+        globalSearch: searchValue,
         pageNo: newPage + 1,
         pageSize: projectRowsPerPage,
       });
     } else {
       getData({
         ...project_InitialFilter,
+        ...filteredData,
+        globalSearch: searchValue,
         pageNo: newPage + 1,
         pageSize: projectRowsPerPage,
       });
@@ -126,13 +130,17 @@ const ProjectReport = ({
 
     if (filteredData !== null) {
       getData({
+        ...project_InitialFilter,
         ...filteredData,
+        globalSearch: searchValue,
         pageNo: 1,
         pageSize: projectRowsPerPage,
       });
     } else {
       getData({
         ...project_InitialFilter,
+        ...filteredData,
+        globalSearch: searchValue,
         pageNo: 1,
         pageSize: event.target.value,
       });
@@ -142,14 +150,22 @@ const ProjectReport = ({
   useEffect(() => {
     if (filteredData !== null) {
       const timer = setTimeout(() => {
-        getData({ ...filteredData, globalSearch: searchValue });
+        getData({
+          ...project_InitialFilter,
+          ...filteredData,
+          globalSearch: searchValue,
+        });
         setProjectCurrentPage(0);
         setProjectRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     } else {
       const timer = setTimeout(() => {
-        getData({ ...project_InitialFilter, globalSearch: searchValue });
+        getData({
+          ...project_InitialFilter,
+          ...filteredData,
+          globalSearch: searchValue,
+        });
         setProjectCurrentPage(0);
         setProjectRowsPerPage(10);
       }, 500);

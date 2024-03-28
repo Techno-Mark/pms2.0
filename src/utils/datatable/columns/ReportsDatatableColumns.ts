@@ -1,5 +1,6 @@
 import {
   generateCommonBodyRender,
+  generateCommonBodyRenderLog,
   generateCommonBodyRenderPercentage,
   generateCustomFormatDate,
   generateCustomHeaderName,
@@ -264,17 +265,17 @@ const reportsLogColConfig = [
   {
     header: "Filed",
     label: "Field Name",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateCommonBodyRenderLog,
   },
   {
     header: "OldValue",
     label: "Old Value",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateCommonBodyRenderLog,
   },
   {
     header: "NewValue",
     label: "New Value",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateCommonBodyRenderLog,
   },
   {
     header: "UpdatedOn",
