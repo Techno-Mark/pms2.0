@@ -97,12 +97,14 @@ const UserLogsReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        globalSearch: searchValue,
         pageNo: newPage + 1,
         pageSize: userRowsPerPage,
       });
     } else {
       getData({
         ...userLogs_InitialFilter,
+        globalSearch: searchValue,
         pageNo: newPage + 1,
         pageSize: userRowsPerPage,
       });
@@ -118,12 +120,14 @@ const UserLogsReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        globalSearch: searchValue,
         pageNo: 1,
         pageSize: event.target.value,
       });
     } else {
       getData({
         ...userLogs_InitialFilter,
+        globalSearch: searchValue,
         pageNo: 1,
         pageSize: event.target.value,
       });

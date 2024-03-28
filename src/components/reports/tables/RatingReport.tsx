@@ -100,12 +100,14 @@ const RatingReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         pageNo: newPage + 1,
         pageSize: ratingRowsPerPage,
       });
     } else {
       getData({
         ...rating_InitialFilter,
+        GlobalSearch: searchValue,
         pageNo: newPage + 1,
         pageSize: ratingRowsPerPage,
       });
@@ -121,12 +123,14 @@ const RatingReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         pageNo: 1,
         pageSize: event.target.value,
       });
     } else {
       getData({
         ...rating_InitialFilter,
+        GlobalSearch: searchValue,
         pageNo: 1,
         pageSize: event.target.value,
       });

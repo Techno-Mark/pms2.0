@@ -95,12 +95,14 @@ const AutoManualReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         PageNo: newPage + 1,
         PageSize: autoManualRowsPerPage,
       });
     } else {
       getData({
         ...am_InitialFilter,
+        GlobalSearch: searchValue,
         PageNo: newPage + 1,
         PageSize: autoManualRowsPerPage,
       });
@@ -116,12 +118,14 @@ const AutoManualReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         PageNo: 1,
         PageSize: Number(event.target.value),
       });
     } else {
       getData({
         ...am_InitialFilter,
+        GlobalSearch: searchValue,
         PageNo: 1,
         PageSize: Number(event.target.value),
       });

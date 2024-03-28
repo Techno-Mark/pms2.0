@@ -167,6 +167,7 @@ const CustomReport = ({
       if (!haveSameData(customreport_InitialFilter, filteredData)) {
         getData({
           ...filteredData,
+          globalSearch: searchValue,
           pageNo: newPage + 1,
           pageSize: customReportRowsPerPage,
         });
@@ -184,6 +185,7 @@ const CustomReport = ({
       if (!haveSameData(customreport_InitialFilter, filteredData)) {
         getData({
           ...filteredData,
+          globalSearch: searchValue,
           pageNo: 1,
           pageSize: event.target.value,
         });

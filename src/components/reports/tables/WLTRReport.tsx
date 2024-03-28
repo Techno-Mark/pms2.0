@@ -113,12 +113,14 @@ const WLTRReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         PageNo: newPage + 1,
         PageSize: wltrRowsPerPage,
       });
     } else {
       getData({
         ...wltr_InitialFilter,
+        GlobalSearch: searchValue,
         PageNo: newPage + 1,
         PageSize: wltrRowsPerPage,
       });
@@ -134,12 +136,14 @@ const WLTRReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         PageNo: 1,
         PageSize: Number(event.target.value),
       });
     } else {
       getData({
         ...wltr_InitialFilter,
+        GlobalSearch: searchValue,
         PageNo: 1,
         PageSize: Number(event.target.value),
       });

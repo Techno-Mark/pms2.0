@@ -5079,6 +5079,14 @@ const EditDrawer = ({
                               setStartTimeWorklogsErrors(
                                 newStartTimeWorklogsErrors
                               );
+                            } else {
+                              const newStartTimeWorklogsErrors = [
+                                ...startTimeWorklogsErrors,
+                              ];
+                              newStartTimeWorklogsErrors[index] = true;
+                              setStartTimeWorklogsErrors(
+                                newStartTimeWorklogsErrors
+                              );
                             }
                           }}
                           error={startTimeWorklogsErrors[index]}
@@ -5119,8 +5127,7 @@ const EditDrawer = ({
                           }
                           onBlur={(e) => {
                             if (
-                              field.endTime.trim().length > 0 &&
-                              field.endTime.trim().length < 8 &&
+                              e.target.value.trim().length > 7 &&
                               field.endTime > field.startTime &&
                               field.startTime
                                 .split(":")
@@ -5137,7 +5144,7 @@ const EditDrawer = ({
                                       acc +
                                       parseInt(timePart) * [3600, 60, 1][index],
                                     0
-                                  ) <
+                                  ) >
                                 field.endTime
                                   .split(":")
                                   .reduce(
@@ -5151,6 +5158,14 @@ const EditDrawer = ({
                                 ...endTimeWorklogsErrors,
                               ];
                               newEndTimeWorklogsErrors[index] = false;
+                              setEndTimeWorklogsErrors(
+                                newEndTimeWorklogsErrors
+                              );
+                            } else {
+                              const newEndTimeWorklogsErrors = [
+                                ...endTimeWorklogsErrors,
+                              ];
+                              newEndTimeWorklogsErrors[index] = true;
                               setEndTimeWorklogsErrors(
                                 newEndTimeWorklogsErrors
                               );
@@ -5233,7 +5248,15 @@ const EditDrawer = ({
                             )
                           }
                           onBlur={(e) => {
-                            if (e.target.value.trim().length > 0) {
+                            if (e.target.value.trim().length < 5) {
+                              const newManualDescWorklogsErrors = [
+                                ...manualDescWorklogsErrors,
+                              ];
+                              newManualDescWorklogsErrors[index] = true;
+                              setManualDescWorklogsErrors(
+                                newManualDescWorklogsErrors
+                              );
+                            } else {
                               const newManualDescWorklogsErrors = [
                                 ...manualDescWorklogsErrors,
                               ];

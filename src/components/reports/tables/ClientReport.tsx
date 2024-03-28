@@ -130,12 +130,14 @@ const ClientReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         PageNo: newPage + 1,
         PageSize: clientRowsPerPage,
       });
     } else {
       getData({
         ...client_InitialFilter,
+        GlobalSearch: searchValue,
         PageNo: newPage + 1,
         PageSize: clientRowsPerPage,
       });
@@ -151,12 +153,14 @@ const ClientReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         PageNo: 1,
         PageSize: Number(event.target.value),
       });
     } else {
       getData({
         ...client_InitialFilter,
+        GlobalSearch: searchValue,
         PageNo: 1,
         PageSize: Number(event.target.value),
       });

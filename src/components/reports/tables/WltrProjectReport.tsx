@@ -131,6 +131,7 @@ const WltrProjectReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         pageNo: newPage + 1,
         pageSize: wltrRowsPerPage,
         ProjectId: Id,
@@ -138,6 +139,7 @@ const WltrProjectReport = ({
     } else {
       getData({
         ...InitialFilter,
+        GlobalSearch: searchValue,
         pageNo: newPage + 1,
         pageSize: wltrRowsPerPage,
         ProjectId: Id,
@@ -154,6 +156,7 @@ const WltrProjectReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         pageNo: 1,
         pageSize: Number(event.target.value),
         ProjectId: Id,
@@ -161,6 +164,7 @@ const WltrProjectReport = ({
     } else {
       getData({
         ...InitialFilter,
+        GlobalSearch: searchValue,
         pageNo: 1,
         pageSize: Number(event.target.value),
         ProjectId: Id,

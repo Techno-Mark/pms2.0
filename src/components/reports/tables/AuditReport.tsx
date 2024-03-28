@@ -110,12 +110,14 @@ const AuditReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         PageNo: newPage + 1,
         PageSize: auditRowsPerPage,
       });
     } else {
       getData({
         ...audit_InitialFilter,
+        GlobalSearch: searchValue,
         PageNo: newPage + 1,
         PageSize: auditRowsPerPage,
       });
@@ -131,12 +133,14 @@ const AuditReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         PageNo: 1,
         PageSize: event.target.value,
       });
     } else {
       getData({
         ...audit_InitialFilter,
+        GlobalSearch: searchValue,
         PageNo: 1,
         PageSize: event.target.value,
       });

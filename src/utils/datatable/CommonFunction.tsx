@@ -9,7 +9,25 @@ export const generateCustomHeaderName = (headerName: string) => {
 export const generateCommonBodyRender = (bodyValue: any) => {
   return (
     <div className="ml-2">
-      {!bodyValue || bodyValue === "0" || bodyValue === null ? "-" : bodyValue}
+      {!bodyValue ||
+      bodyValue === "0" ||
+      bodyValue === null ||
+      bodyValue === "null"
+        ? "-"
+        : bodyValue}
+    </div>
+  );
+};
+
+export const generateCommonBodyRenderLog = (bodyValue: any) => {
+  return (
+    <div className="ml-2">
+      {!bodyValue ||
+      bodyValue === "" ||
+      bodyValue === null ||
+      bodyValue === "null"
+        ? "-"
+        : bodyValue}
     </div>
   );
 };

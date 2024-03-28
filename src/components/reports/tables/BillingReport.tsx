@@ -241,12 +241,14 @@ const BillingReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        globalSearch: searchValue,
         pageNo: newPage + 1,
         pageSize: billingRowsPerPage,
       });
     } else {
       getData({
         ...billingreport_InitialFilter,
+        globalSearch: searchValue,
         pageNo: newPage + 1,
         pageSize: billingRowsPerPage,
       });
@@ -263,12 +265,14 @@ const BillingReport = ({
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        globalSearch: searchValue,
         pageNo: 1,
         pageSize: Number(event.target.value),
       });
     } else {
       getData({
         ...billingreport_InitialFilter,
+        globalSearch: searchValue,
         pageNo: 1,
         pageSize: Number(event.target.value),
       });
