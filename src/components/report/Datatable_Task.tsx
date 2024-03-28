@@ -93,6 +93,11 @@ const Datatable_Task = ({
   const handleChangeRowsPerPageReportTask = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    setAllReportTaskFields({
+      ...allReportTaskFields,
+      page: 0,
+      rowsPerPage: parseInt(event.target.value),
+    });
     setFilteredOjectReportTask({
       ...filteredObjectReportTask,
       PageNo: 1,
@@ -131,11 +136,26 @@ const Datatable_Task = ({
   };
 
   useEffect(() => {
-    setFilteredOjectReportTask({
-      ...filteredObjectReportTask,
-      ...currentFilterData,
-      GlobalSearch: searchValue,
-    });
+    if (searchValue.trim().length > 0) {
+      setFilteredOjectReportTask({
+        ...filteredObjectReportTask,
+        ...currentFilterData,
+        GlobalSearch: searchValue,
+        PageNo: 1,
+        PageSize: pageSizeReportTask,
+      });
+      setAllReportTaskFields({
+        ...allReportTaskFields,
+        page: 0,
+        rowsPerPage: pageSizeReportTask,
+      });
+    } else {
+      setFilteredOjectReportTask({
+        ...filteredObjectReportTask,
+        ...currentFilterData,
+        GlobalSearch: searchValue,
+      });
+    }
   }, [currentFilterData, searchValue]);
 
   useEffect(() => {

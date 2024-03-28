@@ -94,6 +94,11 @@ const Datatable_Rating = ({
   const handleChangeRowsPerPageReportRating = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    setAllReportRatingFields({
+      ...allReportRatingFields,
+      page: 0,
+      rowsPerPage: parseInt(event.target.value),
+    });
     setFilteredOjectReportRating({
       ...filteredObjectReportRating,
       PageNo: 1,
@@ -132,11 +137,26 @@ const Datatable_Rating = ({
   };
 
   useEffect(() => {
-    setFilteredOjectReportRating({
-      ...filteredObjectReportRating,
-      ...currentFilterData,
-      GlobalSearch: searchValue,
-    });
+    if (searchValue.trim().length > 0) {
+      setFilteredOjectReportRating({
+        ...filteredObjectReportRating,
+        ...currentFilterData,
+        GlobalSearch: searchValue,
+        PageNo: 1,
+        PageSize: pageSizeReportRating,
+      });
+      setAllReportRatingFields({
+        ...allReportRatingFields,
+        page: 0,
+        rowsPerPage: pageSizeReportRating,
+      });
+    } else {
+      setFilteredOjectReportRating({
+        ...filteredObjectReportRating,
+        ...currentFilterData,
+        GlobalSearch: searchValue,
+      });
+    }
   }, [currentFilterData, searchValue]);
 
   useEffect(() => {

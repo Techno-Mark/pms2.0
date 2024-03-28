@@ -122,7 +122,7 @@ const RatingReport = ({
       getData({
         ...filteredData,
         pageNo: 1,
-        pageSize: ratingRowsPerPage,
+        pageSize: event.target.value,
       });
     } else {
       getData({
