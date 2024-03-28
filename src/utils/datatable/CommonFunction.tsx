@@ -29,7 +29,11 @@ export const generateCommonBodyRenderPercentage = (bodyValue: any) => {
 };
 
 export const generateDashboardReportBodyRender = (bodyValue: any) => {
-  return <div className="ml-2">{bodyValue === "" ? "-" : bodyValue}</div>;
+  return (
+    <div className="ml-2">
+      {bodyValue === "" || bodyValue === null ? "-" : bodyValue}
+    </div>
+  );
 };
 
 export const generateDashboardReportBodyRenderRight = (bodyValue: any) => {

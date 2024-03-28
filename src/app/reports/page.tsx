@@ -289,8 +289,9 @@ const Page = () => {
         const a = document.createElement("a");
         a.href = url;
         a.download = `${
-          getCurrentTabDetails(activeTab).charAt(0).toUpperCase() +
-          getCurrentTabDetails(activeTab).slice(1)
+          allTabs
+            .map((i: Tabs) => (i.value === activeTab ? i.name : false))
+            .filter((j: string | boolean) => j !== false)[0]
         }_report.${
           getCurrentTabDetails(activeTab).toLowerCase() === "billing"
             ? "zip"
