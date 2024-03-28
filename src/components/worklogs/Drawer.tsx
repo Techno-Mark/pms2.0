@@ -663,7 +663,24 @@ const EditDrawer = ({
 
     const newManualWorklogsFields = [...manualFieldsWorklogs];
     newManualWorklogsFields.splice(index, 1);
-    setManualFieldsWorklogs(newManualWorklogsFields);
+    setManualFieldsWorklogs(
+      manualFieldsWorklogs.length === 1 &&
+        index === 0 &&
+        manualFieldsWorklogs[index].Id > 0
+        ? [
+            {
+              AssigneeId: 0,
+              Id: 0,
+              inputDate: "",
+              startTime: "",
+              endTime: "",
+              totalTime: "",
+              manualDesc: "",
+              IsApproved: false,
+            },
+          ]
+        : newManualWorklogsFields
+    );
 
     const newInputDateWorklogsErrors = [...inputDateWorklogsErrors];
     newInputDateWorklogsErrors.splice(index, 1);
@@ -685,7 +702,14 @@ const EditDrawer = ({
     newManualWorklogsDate.splice(index, 1);
     setInputTypeWorklogsDate(newManualWorklogsDate);
 
-    setManualDisableData(newManualWorklogsFields);
+    manualFieldsWorklogs.length > 1 &&
+      // index > 0 &&
+      // manualFieldsWorklogs[index].Id <= 0 &&
+      setManualDisableData(newManualWorklogsFields);
+    manualFieldsWorklogs.length === 1 &&
+      index === 0 &&
+      manualFieldsWorklogs[index].Id > 0 &&
+      handleSubmitManualWorklogsRemove(manualFieldsWorklogs[index].Id);
   };
 
   const handleInputDateChangeWorklogs = (e: string, index: number) => {
@@ -992,6 +1016,42 @@ const EditDrawer = ({
         };
         callAPI(url, params, successCallback, "POST");
       }
+    } else {
+      toast.warning("Only Assingnee can Edit Manual time.");
+      getManualDataWorklogs();
+    }
+  };
+
+  const handleSubmitManualWorklogsRemove = async (id: number) => {
+    const localString: string | null = localStorage.getItem("UserId");
+    const localNumber: number = localString ? parseInt(localString) : 0;
+
+    if (assigneeWorklogs === localNumber) {
+      setIsLoadingWorklogs(true);
+      const params = {
+        workItemId: onEdit,
+        timelogs: [],
+        deletedTimelogIds: [...deletedManualTimeWorklogs, id],
+      };
+      const url = `${process.env.worklog_api_url}/workitem/timelog/saveManuallogByworkitem`;
+      const successCallback = (
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success(`Manual Time Updated successfully.`);
+          setDeletedManualTimeWorklogs([]);
+          getEditDataWorklogs();
+          getManualDataWorklogs();
+          setIsLoadingWorklogs(false);
+        } else {
+          getManualDataWorklogs();
+          getEditDataWorklogs();
+          setIsLoadingWorklogs(false);
+        }
+      };
+      callAPI(url, params, successCallback, "POST");
     } else {
       toast.warning("Only Assingnee can Edit Manual time.");
       getManualDataWorklogs();
@@ -5059,7 +5119,8 @@ const EditDrawer = ({
                           }
                           onBlur={(e) => {
                             if (
-                              e.target.value.trim().length > 7 &&
+                              field.endTime.trim().length > 0 &&
+                              field.endTime.trim().length < 8 &&
                               field.endTime > field.startTime &&
                               field.startTime
                                 .split(":")
@@ -5199,8 +5260,30 @@ const EditDrawer = ({
                           variant="standard"
                           sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
                         />
-                        {index === 0
-                          ? manualSwitchWorklogs &&
+                        <div className="flex items-center justify-center w-[50px]">
+                          {index === 0 &&
+                            manualSwitchWorklogs &&
+                            !isIdDisabled &&
+                            !isUnassigneeClicked &&
+                            !field.IsApproved &&
+                            field.Id > 0 && (
+                              <span
+                                className="cursor-pointer"
+                                onClick={() => removePhoneFieldWorklogs(index)}
+                              >
+                                <svg
+                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                  focusable="false"
+                                  aria-hidden="true"
+                                  viewBox="0 0 24 24"
+                                  data-testid="RemoveIcon"
+                                >
+                                  <path d="M19 13H5v-2h14v2z"></path>
+                                </svg>
+                              </span>
+                            )}
+                          {index === 0 &&
+                            manualSwitchWorklogs &&
                             !isIdDisabled &&
                             !isUnassigneeClicked && (
                               <span
@@ -5217,8 +5300,11 @@ const EditDrawer = ({
                                   <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
                                 </svg>
                               </span>
-                            )
-                          : manualSwitchWorklogs &&
+                            )}
+                        </div>
+                        <div className="w-[50px] ml-[-55px]">
+                          {index > 0 &&
+                            manualSwitchWorklogs &&
                             !isIdDisabled &&
                             !isUnassigneeClicked &&
                             !field.IsApproved && (
@@ -5227,7 +5313,7 @@ const EditDrawer = ({
                                 onClick={() => removePhoneFieldWorklogs(index)}
                               >
                                 <svg
-                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
                                   focusable="false"
                                   aria-hidden="true"
                                   viewBox="0 0 24 24"
@@ -5237,6 +5323,7 @@ const EditDrawer = ({
                                 </svg>
                               </span>
                             )}
+                        </div>
                       </div>
                     ))}
                   </div>

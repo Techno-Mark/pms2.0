@@ -60,12 +60,12 @@ interface Tabs {
 
 const allTabs = [
   { label: "project", value: 1, name: "Project" },
-  { label: "user", value: 2, name: "User" },
+  { label: "user", value: 2, name: "Attendance" },
   { label: "timesheet", value: 3, name: "Timesheet" },
   { label: "workload", value: 4, name: "Workload" },
   { label: "billing", value: 7, name: "Billing" },
   { label: "custom", value: 8, name: "Custom" },
-  { label: "user log", value: 5, name: "User Log" },
+  { label: "user log", value: 5, name: "User Work Log" },
   { label: "audit", value: 6, name: "Audit" },
   { label: "rating", value: 9, name: "Rating" },
   { label: "log", value: 10, name: "Log" },
