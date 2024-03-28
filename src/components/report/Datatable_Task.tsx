@@ -93,6 +93,11 @@ const Datatable_Task = ({
   const handleChangeRowsPerPageReportTask = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    setAllReportTaskFields({
+      ...allReportTaskFields,
+      page: 0,
+      rowsPerPage: parseInt(event.target.value),
+    });
     setFilteredOjectReportTask({
       ...filteredObjectReportTask,
       PageNo: 1,

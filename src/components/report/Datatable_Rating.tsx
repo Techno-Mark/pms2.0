@@ -94,6 +94,11 @@ const Datatable_Rating = ({
   const handleChangeRowsPerPageReportRating = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    setAllReportRatingFields({
+      ...allReportRatingFields,
+      page: 0,
+      rowsPerPage: parseInt(event.target.value),
+    });
     setFilteredOjectReportRating({
       ...filteredObjectReportRating,
       PageNo: 1,
