@@ -29,7 +29,7 @@ const Dialog_TaskList = ({
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogContent>
+        <DialogContent className="pb-0">
           <Datatable_FullScreen
             onClose={handleClose}
             onSelectedWorkType={onSelectedWorkType}

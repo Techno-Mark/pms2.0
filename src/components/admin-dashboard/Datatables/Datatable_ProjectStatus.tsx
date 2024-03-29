@@ -103,7 +103,7 @@ const Datatable_ProjectStatus = ({
           data={data}
           columns={adminDashboardProjectStatusCols}
           title={undefined}
-          options={dashboard_Options}
+          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="ProjectStatusList_Datatable"
         />
         <TablePagination

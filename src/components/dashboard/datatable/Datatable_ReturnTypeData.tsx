@@ -89,7 +89,7 @@ const Datatable_ReturnTypeData = ({
           data={data}
           columns={dashboardPriorityReturnTaskInfoCols}
           title={undefined}
-          options={dashboard_Options}
+          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="priorityInfo_Datatable"
         />
         <TablePagination

@@ -164,9 +164,9 @@ const Dialog_BillingType = ({
           </IconButton>
         </DialogTitle>
 
-        <DialogContent className="flex flex-col gap-5 mt-[10px]">
+        <DialogContent className="flex flex-col gap-2 mt-[10px] !py-0">
           <div className="flex justify-between items-center">
-            <FormControl sx={{ mx: 0.75, minWidth: 220, marginTop: 1 }}>
+            <FormControl sx={{ mx: 0.75, minWidth: 220 }}>
               <div className="flex items-center h-full relative">
                 <TextField
                   className="m-0"
@@ -184,7 +184,7 @@ const Dialog_BillingType = ({
               </div>
             </FormControl>
             <div className="flex items-center justify-center">
-              <FormControl sx={{ mx: 0.75, minWidth: 220, marginTop: 1 }}>
+              <FormControl sx={{ mx: 0.75, minWidth: 220 }}>
                 <Select
                   labelId="Billing Type"
                   id="Billing Type"
@@ -204,7 +204,7 @@ const Dialog_BillingType = ({
                 <span
                   className={`${
                     isExporting ? "cursor-default" : "cursor-pointer"
-                  } ml-5 mt-5`}
+                  } ml-5`}
                   onClick={exportTaskStatusListReport}
                 >
                   {isExporting ? <Loading /> : <ExportIcon />}

@@ -84,7 +84,7 @@ const Datatable_TaskStatusInfo = ({
           data={data}
           columns={dashboardPriorityReturnTaskInfoCols}
           title={undefined}
-          options={dashboard_Options}
+          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="taskStatusInfo_Datatable"
         />
         <TablePagination

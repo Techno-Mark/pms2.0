@@ -122,7 +122,7 @@ const Datatable_BillingType = ({
           data={data}
           columns={adminDashboardBillingTypeCols}
           title={undefined}
-          options={dashboard_Options}
+          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="taskStatusInfo_Datatable"
         />
         <TablePagination
