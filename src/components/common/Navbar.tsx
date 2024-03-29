@@ -202,7 +202,6 @@ const Navbar = (props: NavbarPropsType) => {
                     };
                   }
                 )}
-                getUserDetails={getUserDetails}
               />
             ) : null
           ) : (
