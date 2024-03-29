@@ -11,14 +11,7 @@ interface Option {
   isFavourite: boolean;
 }
 
-const Dropdown = ({
-  options,
-  getUserDetails,
-}: {
-  options: Option[];
-  getUserDetails: () => void;
-}) => {
-  console.log(options, getUserDetails);
+const Dropdown = ({ options }: { options: Option[] }) => {
   let Org_Name;
   if (typeof window !== "undefined") {
     Org_Name = localStorage.getItem("Org_Name");
@@ -127,7 +120,7 @@ const Dropdown = ({
                 <span className="truncate w-40">{option.label}</span>
               </span>
               <div className="starContainer">
-                <Star data={option} getUserDetails={getUserDetails} />
+                <Star data={option} />
               </div>
             </li>
           ))}

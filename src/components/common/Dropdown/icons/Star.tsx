@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from "react";
+import { callAPI } from "@/utils/API/callAPI";
 
-const Star = ({ data, getUserDetails }) => {
+const Star = ({ data }: any) => {
   const [starred, setStarred] = useState(false);
   useEffect(() => {
     setStarred(data.isFavourite);
   }, [data]);
 
-  const getData = async (id) => {
+  const getData = async (id: number) => {
     const params = {
       OrganizationId: id,
       Isfavourite: !starred,
     };
     const url = `${process.env.pms_api_url}/organization/setfavorite`;
-    const successCallback = (ResponseData, error, ResponseStatus) => {
+    const successCallback = (
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
       if (ResponseStatus === "Success" && error === false) {
         setStarred(!starred);
       }
