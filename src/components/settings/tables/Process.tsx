@@ -449,7 +449,7 @@ function Process({
   const options: any = {
     filterType: "checkbox",
     responsive: "standard",
-    tableBodyHeight: "70vh",
+    tableBodyHeight: "71.8vh",
     viewColumns: false,
     filter: false,
     print: false,
@@ -544,7 +544,7 @@ function Process({
                   data-tableid="Datatable"
                 />
                 <TablePagination
-                  className="mt-[10px]"
+                  // className="mt-[10px]"
                   component="div"
                   count={totalCount}
                   page={page}

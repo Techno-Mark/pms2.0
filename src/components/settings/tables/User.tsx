@@ -604,7 +604,7 @@ const User = ({
   const options: any = {
     filterType: "checkbox",
     responsive: "standard",
-    tableBodyHeight: "63.5vh",
+    tableBodyHeight: "65.4vh",
     viewColumns: true,
     filter: false,
     print: false,
@@ -658,7 +658,7 @@ const User = ({
                   data-tableid="Datatable"
                 />
                 <TablePagination
-                  className="mt-[10px]"
+                  // className="mt-[10px]"
                   component="div"
                   count={totalCount}
                   page={page}

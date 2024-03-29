@@ -90,7 +90,7 @@ const Datatable_SummaryList = ({
           data={data}
           columns={dashboardOverallProjectSumCols}
           title={undefined}
-          options={dashboard_Options}
+          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="taskStatusInfo_Datatable"
         />
         <TablePagination

@@ -88,7 +88,7 @@ const Dialog_OverallProjectSummary = ({
           </IconButton>
         </DialogTitle>
 
-        <DialogContent className="flex flex-col gap-5 mt-[10px]">
+        <DialogContent className="flex flex-col gap-5 mt-[10px] !py-0">
           <div className="flex justify-end items-center">
             <FormControl sx={{ mx: 0.75, minWidth: 220, marginTop: 1 }}>
               <Select

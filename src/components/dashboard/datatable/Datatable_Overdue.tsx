@@ -34,7 +34,6 @@ const Datatable_Overdue = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
-  const [height, setHeight] = useState("86vh");
 
   const options: any = {
     filterType: "checkbox",
@@ -63,24 +62,6 @@ const Datatable_Overdue = ({
       },
     },
   };
-
-  useEffect(() => {
-    const handleResize = () => {
-      const screenWidth = window.innerWidth;
-      if (screenWidth > 1440) {
-        setHeight("77vh");
-      } else if (screenWidth > 1280) {
-        setHeight("86vh");
-      }
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
 
   const getData = () => {
     const params = {
@@ -123,7 +104,7 @@ const Datatable_Overdue = ({
           data={data}
           columns={dashboardOnHoldAndOverdueCols}
           title={undefined}
-          options={{ ...options, tableBodyHeight: height }}
+          options={{ ...options, tableBodyHeight: "78vh" }}
           data-tableid="dashboard_Overdue_Datatable"
         />
         <TablePagination

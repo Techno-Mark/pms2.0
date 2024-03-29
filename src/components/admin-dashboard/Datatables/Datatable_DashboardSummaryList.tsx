@@ -102,7 +102,7 @@ const Datatable_DashboardSummaryList = ({
           data={dashboardSummaryData}
           columns={adminDashboardSummaryCols}
           title={undefined}
-          options={dashboard_Options}
+          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="Datatable_DashboardSummaryList"
         />
         <TablePagination

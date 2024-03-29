@@ -207,7 +207,7 @@ const Datatable_TotalHoursInfo = ({
           data={tableData}
           columns={columns}
           title={undefined}
-          options={dashboard_Options}
+          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="totalHoursInfo_Datatable"
         />
         <TablePagination

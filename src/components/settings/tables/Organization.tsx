@@ -253,7 +253,7 @@ const Organization = ({
   const options: any = {
     filterType: "checkbox",
     responsive: "standard",
-    tableBodyHeight: "83vh",
+    tableBodyHeight: "82vh",
     viewColumns: false,
     filter: false,
     print: false,
