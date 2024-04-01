@@ -3447,18 +3447,17 @@ const EditDrawer = ({
                                 ? null
                                 : dayjs(receiverDateWorklogs)
                             }
-                            shouldDisableDate={isWeekend}
+                            // shouldDisableDate={isWeekend}
                             maxDate={dayjs(Date.now())}
                             onChange={(newDate: any) => {
                               setReceiverDateWorklogs(newDate.$d);
                               setReceiverDateWorklogsErr(false);
                               const selectedDate = dayjs(newDate.$d);
                               let nextDate: any = selectedDate;
-                              if (
-                                selectedDate.day() === 5 ||
-                                selectedDate.day() === 6
-                              ) {
-                                nextDate = nextDate.add(4, "day");
+                              if (selectedDate.day() === 5) {
+                                nextDate = nextDate.add(3, "day");
+                              } else if (selectedDate.day() === 6) {
+                                nextDate = nextDate.add(3, "day");
                               } else {
                                 nextDate = dayjs(newDate.$d)
                                   .add(2, "day")

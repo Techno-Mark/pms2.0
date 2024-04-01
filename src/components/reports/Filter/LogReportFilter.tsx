@@ -362,8 +362,8 @@ const LogReportFilter = ({
           anchorEl={anchorElFilter}
           onClose={() => onDialogClose(false)}
           anchorOrigin={{
-            vertical: 130,
-            horizontal: 1290,
+            vertical: 110,
+            horizontal: "right",
           }}
           transformOrigin={{
             vertical: "top",
