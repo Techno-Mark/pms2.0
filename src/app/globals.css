@@ -189,7 +189,7 @@ input[type="time"]::-moz-time-text {
 
 .MuiDateCalendar-root {
   width: 294px;
-  max-height: 270px !important;
+  max-height: 310px !important;
 }
 
 .MuiPickersCalendarHeader-root {

@@ -54,7 +54,11 @@ import {
   ErrorlogGetByWorkitem,
   SubtaskGetByWorkitem,
 } from "@/utils/Types/worklogsTypes";
-import { IdNameEstimatedHour, LabelValue, LabelValueProfileImage } from "@/utils/Types/types";
+import {
+  IdNameEstimatedHour,
+  LabelValue,
+  LabelValueProfileImage,
+} from "@/utils/Types/types";
 import { ClientWorkitemGetById, GetFields } from "@/utils/Types/clientWorklog";
 
 interface DrawerProps {
@@ -213,7 +217,7 @@ const Drawer = ({
     setSubTaskDescriptionClientWorklogErr,
   ] = useState([false]);
   const [deletedSubTaskClientWorklog, setDeletedSubTaskClientWorklog] =
-    useState<number[]|[]>([]);
+    useState<number[] | []>([]);
 
   const addTaskFieldClientWorklog = () => {
     setSubTaskClientWorklogFields([
@@ -591,7 +595,7 @@ const Drawer = ({
   const [errorLogClientWorklogDrawer, setErrorLogClientWorklogDrawer] =
     useState(true);
   const [cCDropdownClientWorklogData, setCCDropdownClientWorklogData] =
-    useState<LabelValueProfileImage[]|[]>([]);
+    useState<LabelValueProfileImage[] | []>([]);
   const [errorLogClientWorklogFields, setErrorLogClientWorklogFields] =
     useState<ErrorlogGetByWorkitem[]>([
       {
@@ -618,7 +622,7 @@ const Drawer = ({
     ]);
   const [remarkClientWorklogErr, setRemarkClientWorklogErr] = useState([false]);
   const [deletedErrorLogClientWorklog, setDeletedErrorLogClientWorklog] =
-    useState<number[]|[]>([]);
+    useState<number[] | []>([]);
 
   const addErrorLogFieldClientWorklog = () => {
     setErrorLogClientWorklogFields([
@@ -1589,17 +1593,16 @@ const Drawer = ({
                                       !isCreatedByClientWorklog) ||
                                     statusClientWorklog > 1
                                   }
-                                  shouldDisableDate={isWeekend}
+                                  // shouldDisableDate={isWeekend}
                                   maxDate={dayjs(Date.now())}
                                   onChange={(newDate: any) => {
                                     setReceiverDateClientWorklog(newDate.$d);
                                     const selectedDate = dayjs(newDate.$d);
                                     let nextDate: any = selectedDate;
-                                    if (
-                                      selectedDate.day() === 5 ||
-                                      selectedDate.day() === 6
-                                    ) {
-                                      nextDate = nextDate.add(4, "day");
+                                    if (selectedDate.day() === 5) {
+                                      nextDate = nextDate.add(3, "day");
+                                    } else if (selectedDate.day() === 6) {
+                                      nextDate = nextDate.add(3, "day");
                                     } else {
                                       nextDate = dayjs(newDate.$d)
                                         .add(2, "day")

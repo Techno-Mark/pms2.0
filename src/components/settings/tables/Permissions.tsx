@@ -117,23 +117,7 @@ const Permissions = ({
               childIndex +
               action.ActionId.toString();
 
-        return permissionValueType === 2 ? (
-          action.ActionId !== 12 && (
-            <CheckBox
-              key={uniqueId}
-              label={action.ActionName}
-              type="checkbox"
-              id={uniqueId}
-              checked={action.IsChecked}
-              onChange={() =>
-                parentId === 3 && data.length === 3
-                  ? handleCheckboxChange(2, childIndex, index)
-                  : handleCheckboxChange(parentId, childIndex, index)
-              }
-              disabled={!canEdit}
-            />
-          )
-        ) : (
+        return (
           <CheckBox
             key={uniqueId}
             label={action.ActionName}
@@ -148,6 +132,37 @@ const Permissions = ({
             disabled={!canEdit}
           />
         );
+        // permissionValueType === 2 ? (
+        //   action.ActionId !== 12 && (
+        //     <CheckBox
+        //       key={uniqueId}
+        //       label={action.ActionName}
+        //       type="checkbox"
+        //       id={uniqueId}
+        //       checked={action.IsChecked}
+        //       onChange={() =>
+        //         parentId === 3 && data.length === 3
+        //           ? handleCheckboxChange(2, childIndex, index)
+        //           : handleCheckboxChange(parentId, childIndex, index)
+        //       }
+        //       disabled={!canEdit}
+        //     />
+        //   )
+        // ) : (
+        //   <CheckBox
+        //     key={uniqueId}
+        //     label={action.ActionName}
+        //     type="checkbox"
+        //     id={uniqueId}
+        //     checked={action.IsChecked}
+        //     onChange={() =>
+        //       parentId === 3 && data.length === 3
+        //         ? handleCheckboxChange(2, childIndex, index)
+        //         : handleCheckboxChange(parentId, childIndex, index)
+        //     }
+        //     disabled={!canEdit}
+        //   />
+        // );
       });
   };
 
