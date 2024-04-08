@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Button, Password, Email, Spinner } from "next-ts-lib";
+import { Button, Spinner } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -10,7 +10,6 @@ import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
 import Image from "next/image";
 import { TextField } from "@mui/material";
-import SearchIcon from "@/assets/icons/SearchIcon";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 interface TokenList {

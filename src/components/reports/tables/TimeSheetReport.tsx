@@ -461,7 +461,12 @@ const DateWiseLogsContent = ({
           horizontal: "center",
         }}
       >
-        <div className="my-4 px-4 w-full flex items-center justify-end">
+        <div className="my-4 px-4 w-full flex items-center justify-between">
+          <div>
+            {dateWiseLogsData.length > 0
+              ? dateWiseLogsData[0].LogsDetails[0].UserName
+              : []}
+          </div>
           <div
             className="cursor-pointer"
             onClick={() => setShowDateWiseLogs(false)}

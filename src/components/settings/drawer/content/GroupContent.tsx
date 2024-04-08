@@ -111,13 +111,13 @@ const GroupContent = forwardRef<
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     groupName.trim().length < 1 && setGroupNameErr(true);
-    groupName.trim().length > 20 && setGroupNameErr(true);
+    groupName.trim().length > 50 && setGroupNameErr(true);
 
     if (
       !groupNameErr &&
       groupName !== "" &&
       groupName.trim().length > 0 &&
-      groupName.trim().length < 20
+      groupName.trim().length < 50
     ) {
       onChangeLoader(true);
       const params = {
@@ -152,13 +152,13 @@ const GroupContent = forwardRef<
   const addMoreSubmit = async (e: any) => {
     e.preventDefault();
     groupName.trim().length < 1 && setGroupNameErr(true);
-    groupName.trim().length > 20 && setGroupNameErr(true);
+    groupName.trim().length > 50 && setGroupNameErr(true);
 
     if (
       !groupNameErr &&
       groupName !== "" &&
       groupName.trim().length > 0 &&
-      groupName.trim().length < 20
+      groupName.trim().length < 50
     ) {
       const params = {
         id: onEdit > 0 ? onEdit : 0,
@@ -223,15 +223,15 @@ const GroupContent = forwardRef<
           onBlur={(e) => {
             if (
               e.target.value.trim().length < 1 ||
-              e.target.value.trim().length > 20
+              e.target.value.trim().length > 50
             ) {
               setGroupNameErr(true);
             }
           }}
           error={groupNameErr}
           helperText={
-            groupNameErr && groupName?.trim().length > 20
-              ? "Maximum 20 characters allowed."
+            groupNameErr && groupName?.trim().length > 50
+              ? "Maximum 50 characters allowed."
               : groupNameErr
               ? "This is a required field."
               : ""
