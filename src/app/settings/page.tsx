@@ -57,11 +57,11 @@ interface Tabs {
 const filter = createFilterOptions<LabelValue>();
 
 const initialTabs = [
+  { id: "Group", label: "Group", canView: false },
   { id: "Client", label: "Client", canView: false },
   { id: "Project", label: "Project", canView: false },
   { id: "User", label: "User", canView: false },
   { id: "Process", label: "Process", canView: false },
-  { id: "Group", label: "Group", canView: false },
   { id: "Status", label: "Status", canView: false },
   { id: "Permission", label: "Permissions", canView: false },
   { id: "Organization", label: "Organization", canView: true },
