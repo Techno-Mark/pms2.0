@@ -1975,7 +1975,10 @@ const EditDrawer = ({
           : descriptionApprovals.toString().trim(),
       ReceiverDate: dayjs(receiverDateApprovals).format("YYYY/MM/DD"),
       DueDate: dayjs(dueDateApprovals).format("YYYY/MM/DD"),
-      allInfoDate: allInfoDateApprovals === "" ? null : allInfoDateApprovals,
+      allInfoDate:
+        allInfoDateApprovals === ""
+          ? null
+          : dayjs(allInfoDateApprovals).format("YYYY/MM/DD"),
       AssignedId: assigneeApprovals,
       ReviewerId: reviewerApprovals,
       DepartmentId: departmentApprovals,

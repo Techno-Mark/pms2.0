@@ -72,7 +72,7 @@ const allTabs = [
   { label: "activity", value: 11, name: "Activity" },
   { label: "actual/planned", value: 12, name: "Actual/Planned" },
   { label: "client", value: 13, name: "Client" },
-  { label: "kra", value: 14, name: "KRA" },
+  { label: "kra", value: 14, name: "Efficiency" },
   { label: "auto/manual", value: 15, name: "Auto/Manual" },
   { label: "wltr", value: 16, name: "WLTR" },
 ];
@@ -119,7 +119,6 @@ const Page = () => {
   const [showMoreTabs, setShowMoreTabs] = useState<boolean>(false);
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
   const [filteredData, setFilteredData] = useState<any>(null);
-  const [hasBTC, setHasBTC] = useState<boolean>(false);
   const [hasRaisedInvoiceData, setHasRaisedInvoiceData] =
     useState<boolean>(false);
   const [saveBTCData, setSaveBTCData] = useState<boolean>(false);
@@ -424,17 +423,9 @@ const Page = () => {
                   }`}
                   onClick={() => setSaveBTCData(true)}
                 >
-                  Raise Invoice
-                </Button>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="info"
-                  disabled={!hasBTC}
-                  className={`${hasBTC ? "!bg-secondary" : ""}`}
-                  onClick={() => setSaveBTCData(true)}
-                >
-                  Save
+                  {filteredData !== null && filteredData?.IsBTC
+                    ? "UnRaise Invoice"
+                    : "Raise Invoice"}
                 </Button>
               </>
             )}
@@ -488,7 +479,6 @@ const Page = () => {
           <BillingReport
             searchValue={searchValue}
             filteredData={filteredData}
-            hasBTCData={(arg1: boolean) => setHasBTC(arg1)}
             hasRaisedInvoiceData={(arg1: boolean) =>
               setHasRaisedInvoiceData(arg1)
             }

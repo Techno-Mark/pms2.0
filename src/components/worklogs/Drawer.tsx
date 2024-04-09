@@ -2091,7 +2091,10 @@ const EditDrawer = ({
           : descriptionWorklogs.toString().trim(),
       ReceiverDate: dayjs(receiverDateWorklogs).format("YYYY/MM/DD"),
       DueDate: dayjs(dueDateWorklogs).format("YYYY/MM/DD"),
-      allInfoDate: allInfoDateWorklogs === "" ? null : allInfoDateWorklogs,
+      allInfoDate:
+        allInfoDateWorklogs === ""
+          ? null
+          : dayjs(allInfoDateWorklogs).format("YYYY/MM/DD"),
       AssignedId: assigneeWorklogs,
       ReviewerId: reviewerWorklogs,
       DepartmentId: departmentWorklogs,

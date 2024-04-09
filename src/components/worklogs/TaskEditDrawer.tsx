@@ -303,7 +303,9 @@ const TaskEditDrawer = ({
       ReceiverDate: dayjs(receiverDateWorklogsEdit).format("YYYY/MM/DD"),
       DueDate: dayjs(dueDateWorklogsEdit).format("YYYY/MM/DD"),
       allInfoDate:
-        allInfoDateWorklogsEdit === "" ? null : allInfoDateWorklogsEdit,
+        allInfoDateWorklogsEdit === ""
+          ? null
+          : dayjs(allInfoDateWorklogsEdit).format("YYYY/MM/DD"),
       AssignedId: assigneeWorklogsEdit,
       ReviewerId: reviewerWorklogsEdit,
       DepartmentId: departmentWorklogsEdit,
