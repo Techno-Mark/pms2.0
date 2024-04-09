@@ -816,6 +816,8 @@ const UserContent = forwardRef<
               onChange={(e, value: LabelValue | null) => {
                 value && setDepartment(value.value);
                 value && setDepartmentError(false);
+                value && setReport(0);
+                value && setReportError(false);
               }}
               renderInput={(params) => (
                 <TextField

@@ -64,7 +64,7 @@ const dashboardDatatableColsConfig = [
   },
   {
     name: "DueFrom",
-    label: "Due From",
+    label: "On Hold From",
     bodyRenderer: generateDaysBodyRender,
   },
 ];

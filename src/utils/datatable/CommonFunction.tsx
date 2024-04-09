@@ -19,6 +19,10 @@ export const generateCommonBodyRender = (bodyValue: any) => {
   );
 };
 
+export const generateCommonBodyInvoice = (bodyValue: any) => {
+  return bodyValue === 1 ? "Invoice Raised" : "Invoice Pending";
+};
+
 export const generateCommonBodyRenderLog = (bodyValue: any) => {
   return (
     <div className="ml-2">
