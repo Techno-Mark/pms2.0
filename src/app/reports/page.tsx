@@ -424,8 +424,8 @@ const Page = () => {
                   onClick={() => setSaveBTCData(true)}
                 >
                   {filteredData !== null && filteredData?.IsBTC
-                    ? "UnRaise Invoice"
-                    : "Raise Invoice"}
+                    ? "Invoice UnRaise"
+                    : "Invoice Raise"}
                 </Button>
               </>
             )}

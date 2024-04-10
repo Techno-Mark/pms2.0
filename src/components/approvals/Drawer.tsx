@@ -1565,6 +1565,22 @@ const EditDrawer = ({
         ) => {
           if (ResponseStatus.toLowerCase() === "success" && error === false) {
             toast.success(`Manual Time Updated successfully.`);
+            setReviewerManualFields([
+              {
+                AssigneeId: 0,
+                Id: 0,
+                inputDate: "",
+                startTime: "",
+                endTime: "",
+                totalTime: "",
+                manualDesc: "",
+                IsApproved: false,
+              },
+            ]);
+            setInputDateErrors([false]);
+            setStartTimeErrors([false]);
+            setEndTimeErrors([false]);
+            setManualDescErrors([false]);
             setDeletedManualTime([]);
             getManualTimeLogForReviewer(onEdit);
             getEditData();
@@ -1578,6 +1594,42 @@ const EditDrawer = ({
     } else {
       toast.warning("Only Reviewer can Edit Manual time.");
       getManualDataApprovals();
+    }
+  };
+
+  const handleSubmitManualWorklogsRemove = async (id: number) => {
+    const localString: string | null = localStorage.getItem("UserId");
+    const localNumber: number = localString ? parseInt(localString) : 0;
+
+    if (reviewerApprovals === localNumber) {
+      setIsLoadingApprovals(true);
+      const params = {
+        submissionId: onHasId,
+        timelogs: [],
+        deletedTimelogIds: [...deletedManualTime, id],
+      };
+      const url = `${process.env.worklog_api_url}/workitem/approval/savereviewermanualtimelog`;
+      const successCallback = (
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success(`Manual Time Updated successfully.`);
+          setDeletedManualTime([]);
+          getManualTimeLogForReviewer(onEdit);
+          getEditData();
+          setIsLoadingApprovals(false);
+        } else {
+          getManualTimeLogForReviewer(onEdit);
+          getEditData();
+          setIsLoadingApprovals(false);
+        }
+      };
+      callAPI(url, params, successCallback, "POST");
+    } else {
+      toast.warning("Only Reviewer can Edit Manual time.");
+      getManualTimeLogForReviewer(onEdit);
     }
   };
 
@@ -1643,7 +1695,24 @@ const EditDrawer = ({
 
     const newManualFields = [...reviewermanualFields];
     newManualFields.splice(index, 1);
-    setReviewerManualFields(newManualFields);
+    setReviewerManualFields(
+      reviewermanualFields.length === 1 &&
+        index === 0 &&
+        reviewermanualFields[index].Id > 0
+        ? [
+            {
+              AssigneeId: 0,
+              Id: 0,
+              inputDate: "",
+              startTime: "",
+              endTime: "",
+              totalTime: "",
+              manualDesc: "",
+              IsApproved: false,
+            },
+          ]
+        : newManualFields
+    );
 
     const newInputDateErrors = [...inputDateErrors];
     newInputDateErrors.splice(index, 1);
@@ -1665,7 +1734,11 @@ const EditDrawer = ({
     newManualDate.splice(index, 1);
     setInputTypeDate(newManualDate);
 
-    setManualDisableData(newManualFields);
+    reviewermanualFields.length > 1 && setManualDisableData(newManualFields);
+    reviewermanualFields.length === 1 &&
+      index === 0 &&
+      reviewermanualFields[index].Id > 0 &&
+      handleSubmitManualWorklogsRemove(reviewermanualFields[index].Id);
   };
 
   const addManualField = async () => {
@@ -4913,40 +4986,57 @@ const EditDrawer = ({
                           variant="standard"
                           sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
                         />
-                        {index === 0
-                          ? manualSwitch && (
-                              <span
-                                className="cursor-pointer"
-                                onClick={addManualField}
+                        {index === 0 &&
+                          manualSwitch &&
+                          !field.IsApproved &&
+                          field.Id > 0 && (
+                            <span
+                              className="cursor-pointer"
+                              onClick={() => removePhoneField(index)}
+                            >
+                              <svg
+                                className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                focusable="false"
+                                aria-hidden="true"
+                                viewBox="0 0 24 24"
+                                data-testid="RemoveIcon"
                               >
-                                <svg
-                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                  focusable="false"
-                                  aria-hidden="true"
-                                  viewBox="0 0 24 24"
-                                  data-testid="AddIcon"
-                                >
-                                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
-                                </svg>
-                              </span>
-                            )
-                          : manualSwitch &&
-                            !field.IsApproved && (
-                              <span
-                                className="cursor-pointer"
-                                onClick={() => removePhoneField(index)}
-                              >
-                                <svg
-                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                  focusable="false"
-                                  aria-hidden="true"
-                                  viewBox="0 0 24 24"
-                                  data-testid="RemoveIcon"
-                                >
-                                  <path d="M19 13H5v-2h14v2z"></path>
-                                </svg>
-                              </span>
-                            )}
+                                <path d="M19 13H5v-2h14v2z"></path>
+                              </svg>
+                            </span>
+                          )}
+                        {index === 0 && manualSwitch && (
+                          <span
+                            className="cursor-pointer"
+                            onClick={addManualField}
+                          >
+                            <svg
+                              className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                              focusable="false"
+                              aria-hidden="true"
+                              viewBox="0 0 24 24"
+                              data-testid="AddIcon"
+                            >
+                              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                            </svg>
+                          </span>
+                        )}
+                        {index > 0 && manualSwitch && !field.IsApproved && (
+                          <span
+                            className="cursor-pointer"
+                            onClick={() => removePhoneField(index)}
+                          >
+                            <svg
+                              className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                              focusable="false"
+                              aria-hidden="true"
+                              viewBox="0 0 24 24"
+                              data-testid="RemoveIcon"
+                            >
+                              <path d="M19 13H5v-2h14v2z"></path>
+                            </svg>
+                          </span>
+                        )}
                       </div>
                     ))}
                   </div>
