@@ -278,7 +278,7 @@ const BillingReport = ({
     callAPI(url, arg1, successCallback, "post");
   };
 
-  const saveBTCData = async (arg1: IsBTCBtcValue[] | []) => {
+  const saveBTCData = async (arg1: IsBTCBtcValue[] | [], arg2?: string) => {
     const params = {
       selectedArray:
         filteredData !== null && filteredData.IsBTC === true
@@ -308,7 +308,13 @@ const BillingReport = ({
         getData(
           filteredData !== null ? filteredData : billingreport_InitialFilter
         );
-        toast.success("BTC Data saved successfully!");
+        toast.success(
+          arg2 === "save"
+            ? "BTC Data saved successfully."
+            : filteredData !== null && filteredData.IsBTC === true
+            ? "Invoice Unraised."
+            : "Invoice Raised successfully."
+        );
         setTimeout(() => {
           setBTCSaved(false);
           setBTCSavedInside(false);
@@ -929,7 +935,7 @@ const BillingReport = ({
                     ? "!bg-secondary"
                     : ""
                 }`}
-                onClick={() => saveBTCData(finalBTCDataInside)}
+                onClick={() => saveBTCData(finalBTCDataInside, "save")}
               >
                 Save
               </Button>
