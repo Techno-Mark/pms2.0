@@ -177,7 +177,7 @@ const UserContent = forwardRef<
           response = await axios.post(
             `${process.env.api_url}/user/GetRMUserDropdown`,
             {
-              DepartmentId: department,
+              WorkTypeId: typeOfWork,
               UserId: userId,
             },
             {
@@ -198,7 +198,6 @@ const UserContent = forwardRef<
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            setTypeOfWorkDropdownData;
             if (api === "/client/getdropdown") {
               setClientDropdownData(response.data.ResponseData);
             }
@@ -263,12 +262,12 @@ const UserContent = forwardRef<
     };
 
     onOpen && getWorkTypeData();
-    onOpen && onOpen && getData("/client/getdropdown");
+    onOpen && getData("/client/getdropdown");
     onOpen && getData("/department/getdropdown");
     onOpen && getData("/Role/GetDropdown");
     onOpen && getData("/group/getdropdown");
-    onOpen && department > 0 && getData("/user/GetRMUserDropdown");
-  }, [department, userId, onOpen]);
+    onOpen && typeOfWork > 0 && getData("/user/GetRMUserDropdown");
+  }, [typeOfWork, userId, onOpen]);
 
   const clearDataEmployee = () => {
     setUserId(0);
@@ -734,42 +733,6 @@ const UserContent = forwardRef<
               disablePortal
               id="combo-box-demo"
               sx={{ mt: "10px" }}
-              options={typeOfWorkDropdownData}
-              value={
-                typeOfWorkDropdownData.find(
-                  (i: LabelValue) => i.value === typeOfWork
-                ) || null
-              }
-              onChange={(e, value: LabelValue | null) => {
-                value && setTypeOfWork(value.value);
-                value && setTypeOfWorkError(false);
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="standard"
-                  label={
-                    <span>
-                      Type Of Work
-                      <span className="text-defaultRed">&nbsp;*</span>
-                    </span>
-                  }
-                  error={typeOfWorkError}
-                  onBlur={() => {
-                    if (typeOfWork > 0) {
-                      setTypeOfWorkError(false);
-                    }
-                  }}
-                  helperText={
-                    typeOfWorkError ? "This is a required field." : ""
-                  }
-                />
-              )}
-            />
-            <Autocomplete
-              disablePortal
-              id="combo-box-demo"
-              sx={{ mt: "18px" }}
               options={roleDropdownData
                 .map((i: LabelValueType) => (i.Type === 1 ? i : undefined))
                 .filter((i: LabelValueType | undefined) => i !== undefined)}
@@ -816,8 +779,6 @@ const UserContent = forwardRef<
               onChange={(e, value: LabelValue | null) => {
                 value && setDepartment(value.value);
                 value && setDepartmentError(false);
-                value && setReport(0);
-                value && setReportError(false);
               }}
               renderInput={(params) => (
                 <TextField
@@ -831,12 +792,50 @@ const UserContent = forwardRef<
                   }
                   error={departmentError}
                   onBlur={() => {
-                    if (role > 0) {
+                    if (department > 0) {
                       setDepartmentError(false);
                     }
                   }}
                   helperText={
                     departmentError ? "This is a required field." : ""
+                  }
+                />
+              )}
+            />
+            <Autocomplete
+              disablePortal
+              id="combo-box-demo"
+              sx={{ mt: "15px" }}
+              options={typeOfWorkDropdownData}
+              value={
+                typeOfWorkDropdownData.find(
+                  (i: LabelValue) => i.value === typeOfWork
+                ) || null
+              }
+              onChange={(e, value: LabelValue | null) => {
+                value && setTypeOfWork(value.value);
+                value && setTypeOfWorkError(false);
+                value && setReport(0);
+                value && setReportError(false);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="standard"
+                  label={
+                    <span>
+                      Type Of Work
+                      <span className="text-defaultRed">&nbsp;*</span>
+                    </span>
+                  }
+                  error={typeOfWorkError}
+                  onBlur={() => {
+                    if (typeOfWork > 0) {
+                      setTypeOfWorkError(false);
+                    }
+                  }}
+                  helperText={
+                    typeOfWorkError ? "This is a required field." : ""
                   }
                 />
               )}
