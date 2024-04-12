@@ -278,7 +278,7 @@ const BillingReport = ({
     callAPI(url, arg1, successCallback, "post");
   };
 
-  const saveBTCData = async (arg1: IsBTCBtcValue[] | []) => {
+  const saveBTCData = async (arg1: IsBTCBtcValue[] | [], arg2?: string) => {
     const params = {
       selectedArray:
         filteredData !== null && filteredData.IsBTC === true
@@ -308,7 +308,13 @@ const BillingReport = ({
         getData(
           filteredData !== null ? filteredData : billingreport_InitialFilter
         );
-        toast.success("BTC Data saved successfully!");
+        toast.success(
+          arg2 === "save"
+            ? "BTC Data saved successfully."
+            : filteredData !== null && filteredData.IsBTC === true
+            ? "Invoice Unraised."
+            : "Invoice Raised successfully."
+        );
         setTimeout(() => {
           setBTCSaved(false);
           setBTCSavedInside(false);
@@ -760,13 +766,15 @@ const BillingReport = ({
                 <Table style={{ minWidth: "650" }} aria-label="simple table">
                   <TableHead>
                     <TableRow>
-                      <TableCell className="font-semibold">
+                      <TableCell className="font-semibold !pl-20">
                         Date & Time
                       </TableCell>
-                      <TableCell className="font-semibold">
+                      <TableCell className="font-semibold !pl-20">
                         Updated by
                       </TableCell>
-                      <TableCell className="font-semibold">Old Value</TableCell>
+                      <TableCell className="font-semibold !pl-20">
+                        Old Value
+                      </TableCell>
                       <TableCell className="font-semibold">New Value</TableCell>
                     </TableRow>
                   </TableHead>
@@ -776,17 +784,17 @@ const BillingReport = ({
                       billingListInsideData[rowMeta.rowIndex].BillingLogs.map(
                         (i: BillingLogsList, index: number) => (
                           <TableRow key={index}>
-                            <TableCell className="w-[17.5rem]">
+                            <TableCell className="w-[17.5rem] !pl-20">
                               {i.UpdatedOn === null
                                 ? "00:00:00"
                                 : `${i.UpdatedOn.split("T")[0]} ${
                                     i.UpdatedOn.split("T")[1]
                                   }`}
                             </TableCell>
-                            <TableCell className="w-[18.5rem]">
+                            <TableCell className="w-[18.5rem] !pl-20">
                               {i.UpdatedBy === null ? "-" : i.UpdatedBy}
                             </TableCell>
-                            <TableCell className="w-[18.5rem]">
+                            <TableCell className="w-[18.5rem] !pl-20">
                               {i.OldValue === null ? "-" : i.OldValue}
                             </TableCell>
                             <TableCell className="w-[13.5rem]">
@@ -911,8 +919,8 @@ const BillingReport = ({
               onClick={() => saveBTCData(finalBTCDataInside)}
             >
               {filteredData !== null && filteredData?.IsBTC
-                ? "UnRaise Invoice"
-                : "Raise Invoice"}
+                ? "Invoice UnRaise"
+                : "Invoice Raise"}
             </Button>
             {(filteredData === null || !filteredData?.IsBTC) && (
               <Button
@@ -927,7 +935,7 @@ const BillingReport = ({
                     ? "!bg-secondary"
                     : ""
                 }`}
-                onClick={() => saveBTCData(finalBTCDataInside)}
+                onClick={() => saveBTCData(finalBTCDataInside, "save")}
               >
                 Save
               </Button>

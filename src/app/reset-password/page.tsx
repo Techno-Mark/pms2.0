@@ -56,6 +56,7 @@ const Page = () => {
           router.push(`/login`);
         } else {
           setClicked(false);
+          router.push(`/login`);
         }
       };
       callAPI(url, params, successCallback, "POST");
@@ -112,7 +113,7 @@ const Page = () => {
           </span>
           <div className="pb-5 flex justify-center items-center w-[320px] lg:w-[384px]">
             {clicked ? (
-              <span className="mt-[35px] w-full text-center">
+              <span className="mt-[35px] w-full text-center flex items-center justify-center">
                 <Spinner size="20px" />
               </span>
             ) : (
