@@ -512,7 +512,7 @@ const UnassigneeDatatable = ({
                           onClick={onDrawerOpen}
                         >
                           create task
-                        </a>{" "}
+                        </a>
                         to continue.
                       </span>
                     </div>

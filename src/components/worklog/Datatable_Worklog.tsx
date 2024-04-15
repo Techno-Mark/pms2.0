@@ -228,7 +228,7 @@ const Datatable_Worklog = ({
                           onClick={onDrawerOpen}
                         >
                           create
-                        </a>{" "}
+                        </a>
                         process/task.
                       </span>
                     </div>
