@@ -5,7 +5,9 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import {
+  Checkbox,
   FormControl,
+  FormControlLabel,
   IconButton,
   TextField,
   Tooltip,
@@ -17,16 +19,26 @@ import { toast } from "react-toastify";
 import { Close } from "@mui/icons-material";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { callAPI } from "@/utils/API/callAPI";
+import { toHoursAndMinutes, toSeconds } from "@/utils/timerFunctions";
 
 interface EditModalProps {
   onOpen: boolean;
   onClose: () => void;
-  onActionClick?: () => void;
-  onReviewerDataFetch?: any;
-  onClearSelection?: any;
+  onReviewerDataFetch?: () => void;
+  onClearSelection?: () => void;
   onSelectWorkItemId: number;
   onSelectedSubmissionId: number;
-  getOverLay: any;
+  getOverLay?: (e: boolean) => void;
+}
+
+interface Response {
+  EstimateTime: number;
+  Quantity: number;
+  TotalEstimateTime: number;
+  ActualTime: number;
+  ManagerTime: number;
+  Percentage: number | null;
+  IsPercent: boolean | null;
 }
 
 const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
@@ -40,27 +52,30 @@ const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
-const EditDialog: React.FC<EditModalProps> = ({
+const EditDialog = ({
   onOpen,
   onClose,
-  onActionClick,
   onSelectWorkItemId,
   onReviewerDataFetch,
   onClearSelection,
   onSelectedSubmissionId,
   getOverLay,
-}) => {
-  const [estTime, setEstTime] = useState<any>(0);
-  const [totalTime, setTotalTime] = useState<any>(0);
-  const [actualTime, setActualTime] = useState<any>(0);
-  const [quantity, setQuantity] = useState<any>(0);
-  const [editTime, setEditTime] = useState<any>("00:00:00");
+}: EditModalProps) => {
+  const [estTime, setEstTime] = useState<string>("00:00:00");
+  const [totalTime, setTotalTime] = useState<string>("00:00:00");
+  const [actualTime, setActualTime] = useState<string>("00:00:00");
+  const [quantity, setQuantity] = useState<number>(0);
+  const [editTime, setEditTime] = useState<string>("00:00:00");
+  const [percentage, setPercentage] = useState<number>(0);
+  const [checkboxClicked, setCheckboxClicked] = useState<boolean>(false);
   const [initialEditTime, setInitialEditTime] = useState<string>("00:00:00");
 
   const handleClose = () => {
     setEditTime("00:00:00");
     onClose();
-    onReviewerDataFetch();
+    onReviewerDataFetch?.();
+    setCheckboxClicked(false);
+    setPercentage(0);
   };
 
   const handleEditTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,7 +126,7 @@ const EditDialog: React.FC<EditModalProps> = ({
     setEditTime(formattedValue);
   };
 
-  function formatTime(seconds: any) {
+  function formatTime(seconds: number) {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
@@ -122,25 +137,34 @@ const EditDialog: React.FC<EditModalProps> = ({
   }
 
   useEffect(() => {
-    if (onSelectedSubmissionId > 0 && onSelectedSubmissionId !== null) {
+    if (
+      onSelectedSubmissionId > 0 &&
+      onSelectedSubmissionId !== null &&
+      onOpen
+    ) {
       const getDataForManualTime = async () => {
         const params = {
           SubmissionId: onSelectedSubmissionId,
         };
         const url = `${process.env.worklog_api_url}/workitem/approval/GetDataForManulTime`;
         const successCallback = (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          ResponseData: Response,
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             setEstTime(formatTime(ResponseData.EstimateTime));
             setQuantity(ResponseData.Quantity);
-            setActualTime(formatTime(ResponseData.ActualTime));
-            setTotalTime(formatTime(ResponseData.TotalEstimateTime));
-            setActualTime(formatTime(ResponseData.ActualTime));
+            setActualTime(formatTime(ResponseData.TotalEstimateTime));
+            setTotalTime(formatTime(ResponseData.ActualTime));
             setInitialEditTime(formatTime(ResponseData.ManagerTime));
             setEditTime(formatTime(ResponseData.ManagerTime));
+            setCheckboxClicked(
+              ResponseData.IsPercent === null ? false : ResponseData.IsPercent
+            );
+            setPercentage(
+              ResponseData.Percentage === null ? 0 : ResponseData.Percentage
+            );
           }
         };
         callAPI(url, params, successCallback, "POST");
@@ -148,40 +172,73 @@ const EditDialog: React.FC<EditModalProps> = ({
 
       getDataForManualTime();
     }
-  }, [onSelectedSubmissionId]);
+  }, [onSelectedSubmissionId, onOpen]);
 
   const updateManualTime = async () => {
     const [hours, minutes, seconds] = editTime.split(":");
     const convertedEditTime =
       parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
 
-    getOverLay(true);
+    getOverLay?.(true);
     const params = {
       WorkItemId: onSelectWorkItemId,
       managerTime: convertedEditTime,
       SubmissionId: onSelectedSubmissionId,
+      IsPercent: checkboxClicked,
+      Percentage: checkboxClicked ? percentage.toString() : null,
     };
+
     const url = `${process.env.worklog_api_url}/workitem/approval/updateManualTime`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Time has been updated successfully.");
         onClose();
-        onClearSelection();
-        onReviewerDataFetch();
-        getOverLay(false);
+        onClearSelection?.();
+        onReviewerDataFetch?.();
+        getOverLay?.(false);
       } else {
-        getOverLay(false);
+        getOverLay?.(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
   };
 
   const hasEditTimeChanged = () => {
-    return editTime !== initialEditTime;
+    return editTime !== initialEditTime || (checkboxClicked && percentage > 0);
+  };
+
+  const handleCheckboxChange = (e: boolean) => {
+    setCheckboxClicked(e);
+
+    if (e === false) {
+      setEditTime("00:00:00");
+      setPercentage(0);
+    }
+  };
+
+  const handleInputChange = (inputValue: number) => {
+    const digitRegex = /^\d*\.?\d*$/;
+
+    if (digitRegex.test(inputValue.toString()) && inputValue <= 99.99) {
+      const hasDecimal = inputValue.toString().includes(".");
+      const decimalPart = hasDecimal
+        ? inputValue.toString().split(".")[1] || ""
+        : "";
+
+      if (!hasDecimal || (hasDecimal && decimalPart.length <= 2)) {
+        setPercentage(inputValue);
+        const total: number | undefined = toSeconds(totalTime);
+        setEditTime(
+          total !== undefined && total > 0
+            ? toHoursAndMinutes(Math.round((inputValue * total) / 100))
+            : "00:00:00"
+        );
+      }
+    }
   };
 
   return (
@@ -192,7 +249,7 @@ const EditDialog: React.FC<EditModalProps> = ({
         keepMounted
         maxWidth="md"
         onClose={handleClose}
-        className="ml-80"
+        // className="ml-80"
       >
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
           <span className="text-lg font-medium">Edit Time</span>
@@ -203,64 +260,97 @@ const EditDialog: React.FC<EditModalProps> = ({
           </ColorToolTip>
         </DialogTitle>
         <DialogContent className="!pt-[20px]">
-          <div className="flex flex-col gap-[20px]">
-            <div className="flex gap-[20px]">
+          <div className="flex gap-[20px]">
+            <FormControl variant="standard">
+              <TextField
+                label="Est. Time"
+                type="text"
+                fullWidth
+                value={estTime}
+                variant="standard"
+                sx={{ mx: 0.75, maxWidth: 100 }}
+                InputProps={{ readOnly: true }}
+              />
+            </FormControl>
+            <FormControl variant="standard">
+              <TextField
+                label="Qty"
+                type="text"
+                fullWidth
+                value={quantity}
+                variant="standard"
+                sx={{ mx: 0.75, maxWidth: 100 }}
+                InputProps={{ readOnly: true }}
+              />
+            </FormControl>
+            <FormControl variant="standard">
+              <TextField
+                label="Std. Time"
+                type="text"
+                fullWidth
+                value={actualTime}
+                variant="standard"
+                sx={{ mx: 0.75, maxWidth: 100 }}
+                InputProps={{ readOnly: true }}
+              />
+            </FormControl>
+            <FormControl variant="standard">
+              <TextField
+                label="Actual Time"
+                type="text"
+                fullWidth
+                value={totalTime}
+                variant="standard"
+                sx={{ mx: 0.75, maxWidth: 100 }}
+                InputProps={{ readOnly: true }}
+              />
+            </FormControl>
+            <FormControl variant="standard">
+              <TextField
+                label="Edited Time"
+                placeholder="00:00:00"
+                variant="standard"
+                fullWidth
+                disabled={checkboxClicked}
+                value={editTime}
+                onChange={handleEditTimeChange}
+                sx={{ mx: 0.75, maxWidth: 100 }}
+              />
+            </FormControl>
+            <span className="flex flex-col items-start justify-center">
               <FormControl variant="standard">
                 <TextField
-                  label="Est. Time"
-                  type="text"
-                  fullWidth
-                  value={estTime}
-                  variant="standard"
-                  sx={{ mx: 0.75, maxWidth: 100 }}
-                  InputProps={{ readOnly: true }}
-                />
-              </FormControl>
-              <FormControl variant="standard">
-                <TextField
-                  label="Qty"
-                  type="text"
-                  fullWidth
-                  value={quantity}
-                  variant="standard"
-                  sx={{ mx: 0.75, maxWidth: 100 }}
-                  InputProps={{ readOnly: true }}
-                />
-              </FormControl>
-              <FormControl variant="standard">
-                <TextField
-                  label="Actual Time"
-                  type="text"
-                  fullWidth
-                  value={actualTime}
-                  variant="standard"
-                  sx={{ mx: 0.75, maxWidth: 100 }}
-                  InputProps={{ readOnly: true }}
-                />
-              </FormControl>
-              <FormControl variant="standard">
-                <TextField
-                  label="Total Time"
-                  type="text"
-                  fullWidth
-                  value={totalTime}
-                  variant="standard"
-                  sx={{ mx: 0.75, maxWidth: 100 }}
-                  InputProps={{ readOnly: true }}
-                />
-              </FormControl>
-              <FormControl variant="standard">
-                <TextField
-                  label="Edited Time"
-                  placeholder="00:00:00"
+                  type="number"
+                  label="Percentage"
                   variant="standard"
                   fullWidth
-                  value={editTime}
-                  onChange={handleEditTimeChange}
+                  disabled={!checkboxClicked}
+                  value={percentage <= 0 ? "-" : percentage}
+                  onChange={(e) => handleInputChange(Number(e.target.value))}
+                  onFocus={(e) =>
+                    e.target.addEventListener(
+                      "wheel",
+                      function (e) {
+                        e.preventDefault();
+                      },
+                      { passive: false }
+                    )
+                  }
+                  autoComplete="off"
+                  inputProps={{ step: "any" }}
                   sx={{ mx: 0.75, maxWidth: 100 }}
                 />
               </FormControl>
-            </div>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={checkboxClicked}
+                    onChange={(e) => handleCheckboxChange(e.target.checked)}
+                  />
+                }
+                label="Add In %"
+              />
+            </span>
           </div>
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">

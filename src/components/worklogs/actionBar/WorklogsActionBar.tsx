@@ -5,6 +5,7 @@ import { hasPermissionWorklog } from "@/utils/commonFunction";
 import {
   getProjectDropdownData,
   getSubProcessDropdownData,
+  getTypeOfWorkDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import {
   Delete,
@@ -27,15 +28,20 @@ import {
 } from "@/components/common/actionBar/components/ActionBarComponents";
 import CustomActionBar from "@/components/common/actionBar/CustomActionBar";
 import { callAPI } from "@/utils/API/callAPI";
+import TypeOfWork from "./components/TypeOfWork";
+import Reviewer from "./components/Reviewer";
+import {
+  WorkitemList,
+  WorklogsActionBarProps,
+} from "@/utils/Types/worklogsTypes";
+import { IdNameEstimatedHour, LabelValue } from "@/utils/Types/types";
 
 const WorklogsActionBar = ({
   selectedRowsCount,
-  selectedRowStatusId,
   selectedRowId,
   selectedRowsdata,
   selectedRowClientId,
   selectedRowWorkTypeId,
-  selectedRowStatusName,
   selectedRowIds,
   onEdit,
   handleClearSelection,
@@ -45,18 +51,27 @@ const WorklogsActionBar = ({
   getWorkItemList,
   isUnassigneeClicked,
   getOverLay,
-}: any) => {
-  const [projectDropdownData, setProjectDropdownData] = useState([]);
-  const [processDropdownData, setProcessDropdownData] = useState([]);
-  const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
+}: WorklogsActionBarProps) => {
+  const [typeOfWorkDropdownData, setTypeOfWorkDropdownData] = useState<
+    LabelValue[]
+  >([]);
+  const [projectDropdownData, setProjectDropdownData] = useState<LabelValue[]>(
+    []
+  );
+  const [processDropdownData, setProcessDropdownData] = useState<LabelValue[]>(
+    []
+  );
+  const [subProcessDropdownData, setSubProcessDropdownData] = useState<
+    IdNameEstimatedHour[]
+  >([]);
 
-  const getProcessData = async (ids: any) => {
-    const params = { ClientIds: ids };
+  const getProcessData = async (ids: number[], WorkTypeId: number) => {
+    const params = { ClientIds: ids, WorkTypeId: WorkTypeId };
     const url = `${process.env.worklog_api_url}/workitem/getclientcommonprocess`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: LabelValue[],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setProcessDropdownData(ResponseData);
@@ -66,81 +81,146 @@ const WorklogsActionBar = ({
   };
 
   useEffect(() => {
-    const getProjectData = async (clientName: any) => {
+    const getTypeOfWorkData = async (clientName: number) => {
       clientName > 0 &&
-        setProjectDropdownData(await getProjectDropdownData(clientName));
+        setTypeOfWorkDropdownData(await getTypeOfWorkDropdownData(clientName));
+    };
+
+    const getProjectData = async (clientName: number, workTypeId: number) => {
+      clientName > 0 &&
+        workTypeId > 0 &&
+        setProjectDropdownData(
+          await getProjectDropdownData(clientName, workTypeId)
+        );
     };
 
     if (
       workItemData
-        .map((i: any) =>
+        .map((i: WorkitemList) =>
           selectedRowIds.includes(i.WorkitemId) &&
           i.ClientId > 0 &&
+          i.WorkTypeId === 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: number | undefined) => j !== undefined).length > 0 &&
+      workItemData
+        .map((i: WorkitemList) =>
+          selectedRowIds.includes(i.WorkitemId) && i.ClientId === 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+      workItemData
+        .map((i: WorkitemList) =>
+          selectedRowIds.includes(i.WorkitemId) &&
+          i.ClientId > 0 &&
+          i.WorkTypeId !== 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+      Array.from(new Set(selectedRowClientId)).length === 1
+    ) {
+      getTypeOfWorkData(Array.from(new Set(selectedRowClientId))[0]);
+    } else {
+      setTypeOfWorkDropdownData([]);
+    }
+
+    if (
+      workItemData
+        .map((i: WorkitemList) =>
+          selectedRowIds.includes(i.WorkitemId) &&
+          i.ClientId > 0 &&
+          i.WorkTypeId > 0 &&
           i.ProjectId === 0
             ? i.WorkitemId
             : undefined
         )
-        .filter((j: any) => j !== undefined).length > 0 &&
+        .filter((j: number | undefined) => j !== undefined).length > 0 &&
       workItemData
-        .map((i: any) =>
-          selectedRowIds.includes(i.WorkitemId) && i.ClientId === 0
+        .map((i: WorkitemList) =>
+          selectedRowIds.includes(i.WorkitemId) &&
+          i.ClientId === 0 &&
+          i.WorkTypeId === 0
             ? i.WorkitemId
             : undefined
         )
-        .filter((j: any) => j !== undefined).length <= 0 &&
+        .filter((j: number | undefined) => j !== undefined).length <= 0 &&
       workItemData
-        .map((i: any) =>
+        .map((i: WorkitemList) =>
           selectedRowIds.includes(i.WorkitemId) &&
           i.ClientId > 0 &&
+          i.WorkTypeId > 0 &&
           i.ProjectId !== 0
             ? i.WorkitemId
             : undefined
         )
-        .filter((j: any) => j !== undefined).length <= 0 &&
-      Array.from(new Set(selectedRowClientId)).length === 1
+        .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+      Array.from(new Set(selectedRowClientId)).length === 1 &&
+      Array.from(new Set(selectedRowWorkTypeId)).length === 1
     ) {
-      getProjectData(Array.from(new Set(selectedRowClientId))[0]);
+      getProjectData(
+        Array.from(new Set(selectedRowClientId))[0],
+        Array.from(new Set(selectedRowWorkTypeId))[0]
+      );
+    } else {
+      setProjectDropdownData([]);
     }
 
     if (
       workItemData
-        .map((i: any) =>
+        .map((i: WorkitemList) =>
           selectedRowIds.includes(i.WorkitemId) &&
           i.ClientId > 0 &&
+          i.WorkTypeId > 0 &&
           i.ProcessId === 0
             ? i.WorkitemId
             : undefined
         )
-        .filter((j: any) => j !== undefined).length > 0 &&
+        .filter((j: number | undefined) => j !== undefined).length > 0 &&
       workItemData
-        .map((i: any) =>
-          selectedRowIds.includes(i.WorkitemId) && i.ClientId === 0
+        .map((i: WorkitemList) =>
+          selectedRowIds.includes(i.WorkitemId) &&
+          i.ClientId === 0 &&
+          i.WorkTypeId === 0
             ? i.WorkitemId
             : undefined
         )
-        .filter((j: any) => j !== undefined).length <= 0 &&
+        .filter((j: number | undefined) => j !== undefined).length <= 0 &&
       workItemData
-        .map((i: any) =>
+        .map((i: WorkitemList) =>
           selectedRowIds.includes(i.WorkitemId) &&
           i.ClientId > 0 &&
+          i.WorkTypeId > 0 &&
           i.ProcessId !== 0
             ? i.WorkitemId
             : undefined
         )
-        .filter((j: any) => j !== undefined).length <= 0
+        .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+      Array.from(new Set(selectedRowWorkTypeId)).length === 1
     ) {
-      getProcessData(selectedRowClientId);
+      getProcessData(
+        selectedRowClientId,
+        Array.from(new Set(selectedRowWorkTypeId))[0]
+      );
+    } else {
+      setProcessDropdownData([]);
     }
 
-    const getSubProcessData = async (clientName: any, processId: any) => {
+    const getSubProcessData = async (
+      clientName: number,
+      WorkTypeId: number,
+      processId: number
+    ) => {
       clientName > 0 &&
         setSubProcessDropdownData(
-          await getSubProcessDropdownData(clientName, processId)
+          await getSubProcessDropdownData(clientName, WorkTypeId, processId)
         );
     };
     if (
       workItemData
-        .map((i: any) =>
+        .map((i: WorkitemList) =>
           selectedRowIds.includes(i.WorkitemId) &&
           i.ClientId > 0 &&
           i.ProcessId > 0 &&
@@ -148,18 +228,18 @@ const WorklogsActionBar = ({
             ? i.WorkitemId
             : undefined
         )
-        .filter((j: any) => j !== undefined).length > 0 &&
+        .filter((j: number | undefined) => j !== undefined).length > 0 &&
       workItemData
-        .map((i: any) =>
+        .map((i: WorkitemList) =>
           selectedRowIds.includes(i.WorkitemId) &&
           i.ClientId === 0 &&
           i.ProcessId === 0
             ? i.WorkitemId
             : undefined
         )
-        .filter((j: any) => j !== undefined).length <= 0 &&
+        .filter((j: number | undefined) => j !== undefined).length <= 0 &&
       workItemData
-        .map((i: any) =>
+        .map((i: WorkitemList) =>
           selectedRowIds.includes(i.WorkitemId) &&
           i.ClientId > 0 &&
           i.ProcessId > 0 &&
@@ -167,38 +247,46 @@ const WorklogsActionBar = ({
             ? i.WorkitemId
             : undefined
         )
-        .filter((j: any) => j !== undefined).length <= 0 &&
+        .filter((j: number | undefined) => j !== undefined).length <= 0 &&
       Array.from(new Set(selectedRowClientId)).length === 1 &&
+      Array.from(new Set(selectedRowWorkTypeId)).length === 1 &&
       Array.from(
         new Set(
           workItemData
             .map(
-              (i: any) => selectedRowIds.includes(i.WorkitemId) && i.ProcessId
+              (i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) && i.ProcessId
             )
-            .filter((j: any) => j !== false)
+            .filter((j: number | boolean) => j !== false)
         )
       ).length === 1
     ) {
       getSubProcessData(
         Array.from(new Set(selectedRowClientId))[0],
+        Array.from(new Set(selectedRowWorkTypeId))[0],
         Array.from(
           new Set(
             workItemData
               .map(
                 (i: any) => selectedRowIds.includes(i.WorkitemId) && i.ProcessId
               )
-              .filter((j: any) => j !== false)
+              .filter((j: number | boolean) => j !== false)
           )
         )[0]
       );
+    } else {
+      setSubProcessDropdownData([]);
     }
   }, [selectedRowClientId]);
 
-  function areAllValuesSame(arr: any[]) {
+  function areAllValuesSame(arr: number[]) {
     return arr.every((value, index, array) => value === array[0]);
   }
 
-  const handleAssigneeForSubmission = (arr: any[], userId: string | null) => {
+  const handleAssigneeForSubmission = (
+    arr: WorkitemList[],
+    userId: string | null
+  ) => {
     const workItemIds: number[] = [];
     const selctedWorkItemStatusIds: number[] = [];
 
@@ -213,8 +301,10 @@ const WorklogsActionBar = ({
 
   const submitWorkItem = async () => {
     const userId = localStorage.getItem("UserId");
-    const { workItemIds, selctedWorkItemStatusIds } =
-      handleAssigneeForSubmission(selectedRowsdata, userId);
+    const { workItemIds } = handleAssigneeForSubmission(
+      selectedRowsdata,
+      userId
+    );
 
     if (workItemIds.length === 0) {
       toast.warning("Only Assignee can submit the task.");
@@ -224,28 +314,28 @@ const WorklogsActionBar = ({
     if (workItemIds.length < selectedRowsCount) {
       toast.warning("Only Assignee can submit the task.");
     }
-    getOverLay(true);
+    getOverLay?.(true);
     const params = {
       workitemIds: workItemIds,
     };
     const url = `${process.env.worklog_api_url}/workitem/saveworkitemsubmission`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: boolean | string,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("The task has been successfully submitted.");
         handleClearSelection();
         getWorkItemList();
-        getOverLay(false);
+        getOverLay?.(false);
       } else if (ResponseStatus === "Warning") {
         toast.warning(ResponseData);
         handleClearSelection();
         getWorkItemList();
-        getOverLay(false);
+        getOverLay?.(false);
       } else {
-        getOverLay(false);
+        getOverLay?.(false);
         handleClearSelection();
       }
     };
@@ -271,13 +361,13 @@ const WorklogsActionBar = ({
     workItemData,
     selectedRowId,
     selectedRowIds,
-    selectedRowStatusId,
     handleClearSelection,
     getWorkItemList,
     selectedRowsCount,
     selectedRowClientId,
     selectedRowWorkTypeId,
     areAllValuesSame,
+    typeOfWorkDropdownData,
     projectDropdownData,
     processDropdownData,
     subProcessDropdownData,
@@ -339,7 +429,6 @@ const WorklogsActionBar = ({
           Component={Priority}
           propsForActionBar={{
             selectedRowIds: selectedRowIds,
-            selectedRowStatusId: selectedRowStatusId,
             selectedRowsCount: selectedRowsCount,
             getData: getWorkItemList,
           }}
@@ -349,14 +438,37 @@ const WorklogsActionBar = ({
         <ConditionalComponent
           condition={
             areAllValuesSame(selectedRowClientId) &&
-            areAllValuesSame(selectedRowWorkTypeId)
+            areAllValuesSame(selectedRowWorkTypeId) &&
+            Array.from(new Set(selectedRowWorkTypeId)).length === 1
           }
           Component={Assignee}
           propsForActionBar={propsForActionBar}
           getOverLay={getOverLay}
         />
 
-        <ConditionalComponentWithoutConditions
+        <ConditionalComponent
+          condition={
+            hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId > 0 &&
+                i.WorkTypeId > 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length > 0 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId === 0 &&
+                i.WorkTypeId === 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+            Array.from(new Set(selectedRowWorkTypeId)).length === 1
+          }
           Component={Status}
           propsForActionBar={propsForActionBar}
           getOverLay={getOverLay}
@@ -395,20 +507,20 @@ const WorklogsActionBar = ({
           condition={
             hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
             workItemData
-              .map((i: any) =>
+              .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
                 (i.ClientId === 0 || i.ClientId === null)
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length > 0 &&
+              .filter((j: number | undefined) => j !== undefined).length > 0 &&
             workItemData
-              .map((i: any) =>
+              .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) && i.ClientId > 0
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length <= 0
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           Component={Client}
           propsForActionBar={propsForActionBar}
@@ -419,31 +531,71 @@ const WorklogsActionBar = ({
           condition={
             hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
             workItemData
-              .map((i: any) =>
+              .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
                 i.ClientId > 0 &&
-                i.ProjectId === 0
+                i.WorkTypeId === 0
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length > 0 &&
+              .filter((j: number | undefined) => j !== undefined).length > 0 &&
             workItemData
-              .map((i: any) =>
+              .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) && i.ClientId === 0
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length <= 0 &&
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
             workItemData
-              .map((i: any) =>
+              .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
                 i.ClientId > 0 &&
+                i.WorkTypeId !== 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+            Array.from(new Set(selectedRowClientId)).length === 1
+          }
+          Component={TypeOfWork}
+          propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
+        />
+
+        <ConditionalComponent
+          condition={
+            hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId > 0 &&
+                i.WorkTypeId > 0 &&
+                i.ProjectId === 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length > 0 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId === 0 &&
+                i.WorkTypeId === 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId > 0 &&
+                i.WorkTypeId > 0 &&
                 i.ProjectId !== 0
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length <= 0 &&
-            Array.from(new Set(selectedRowClientId)).length === 1
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+            Array.from(new Set(selectedRowClientId)).length === 1 &&
+            Array.from(new Set(selectedRowWorkTypeId)).length === 1
           }
           Component={Project}
           propsForActionBar={propsForActionBar}
@@ -454,30 +606,36 @@ const WorklogsActionBar = ({
           condition={
             hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
             workItemData
-              .map((i: any) =>
+              .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
                 i.ClientId > 0 &&
+                i.WorkTypeId > 0 &&
                 i.ProcessId === 0
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length > 0 &&
+              .filter((j: number | undefined) => j !== undefined).length > 0 &&
             workItemData
-              .map((i: any) =>
-                selectedRowIds.includes(i.WorkitemId) && i.ClientId === 0
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId === 0 &&
+                i.WorkTypeId === 0
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length <= 0 &&
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
             workItemData
-              .map((i: any) =>
+              .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
                 i.ClientId > 0 &&
+                i.WorkTypeId > 0 &&
                 i.ProcessId !== 0
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length <= 0
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+            Array.from(new Set(selectedRowClientId)).length === 1 &&
+            Array.from(new Set(selectedRowWorkTypeId)).length === 1
           }
           Component={Process}
           propsForActionBar={propsForActionBar}
@@ -488,7 +646,7 @@ const WorklogsActionBar = ({
           condition={
             hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
             workItemData
-              .map((i: any) =>
+              .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
                 i.ClientId > 0 &&
                 i.ProcessId > 0 &&
@@ -496,18 +654,18 @@ const WorklogsActionBar = ({
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length > 0 &&
+              .filter((j: number | undefined) => j !== undefined).length > 0 &&
             workItemData
-              .map((i: any) =>
+              .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
                 i.ClientId === 0 &&
                 i.ProcessId === 0
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length <= 0 &&
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
             workItemData
-              .map((i: any) =>
+              .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
                 i.ClientId > 0 &&
                 i.ProcessId > 0 &&
@@ -515,15 +673,15 @@ const WorklogsActionBar = ({
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length <= 0 &&
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
             Array.from(
               new Set(
                 workItemData
                   .map(
-                    (i: any) =>
+                    (i: WorkitemList) =>
                       selectedRowIds.includes(i.WorkitemId) && i.ProcessId
                   )
-                  .filter((j: any) => j !== false)
+                  .filter((j: number | boolean) => j !== false)
               )
             ).length === 1
           }
@@ -536,21 +694,24 @@ const WorklogsActionBar = ({
           condition={
             hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
             workItemData
-              .map((i: any) =>
+              .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
-                (i.ReturnYear === 0 || i.ReturnYear === null)
+                (i.ReturnYear === 0 || i.ReturnYear === null) &&
+                i.WorkTypeId === 3
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length > 0 &&
+              .filter((j: number | undefined) => j !== undefined).length > 0 &&
             workItemData
-              .map((i: any) =>
+              .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
-                (i.ReturnYear > 0 || i.ReturnYear !== null)
+                ((i.ReturnYear !== null && i.ReturnYear > 0) ||
+                  i.ReturnYear !== null) &&
+                i.WorkTypeId === 3
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length <= 0
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           Component={ReturnYear}
           propsForActionBar={propsForActionBar}
@@ -559,23 +720,62 @@ const WorklogsActionBar = ({
 
         <ConditionalComponent
           condition={
+            areAllValuesSame(selectedRowClientId) &&
+            areAllValuesSame(selectedRowWorkTypeId) &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId > 0 &&
+                i.WorkTypeId > 0 &&
+                (i.ReviewerId === 0 || i.ReviewerId === null)
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length > 0 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId === 0 &&
+                i.WorkTypeId === 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+            Array.from(
+              new Set(
+                workItemData
+                  .map(
+                    (i: WorkitemList) =>
+                      selectedRowIds.includes(i.WorkitemId) && i.WorkTypeId
+                  )
+                  .filter((j: number | boolean) => j !== false)
+              )
+            ).length === 1
+          }
+          Component={Reviewer}
+          propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
+        />
+
+        <ConditionalComponent
+          condition={
             hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
             workItemData
-              .map((i: any) =>
+              .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
                 (i.ManagerId === 0 || i.ManagerId === null)
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length > 0 &&
+              .filter((j: number | undefined) => j !== undefined).length > 0 &&
             workItemData
-              .map((i: any) =>
+              .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
                 (i.ManagerId > 0 || i.ManagerId !== null)
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length <= 0
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           Component={Manager}
           propsForActionBar={propsForActionBar}
@@ -586,21 +786,21 @@ const WorklogsActionBar = ({
           condition={
             hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
             workItemData
-              .map((i: any) =>
+              .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
                 (i.ReceiverDate?.length === 0 || i.ReceiverDate === null)
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length > 0 &&
+              .filter((j: number | undefined) => j !== undefined).length > 0 &&
             workItemData
-              .map((i: any) =>
+              .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
                 (i.ReceiverDate?.length > 0 || i.ReceiverDate !== null)
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: any) => j !== undefined).length <= 0
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           Component={DateReceived}
           propsForActionBar={propsForActionBar}

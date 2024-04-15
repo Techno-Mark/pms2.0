@@ -7,6 +7,31 @@ import { callAPI } from "@/utils/API/callAPI";
 import { report_Options } from "@/utils/datatable/TableOptions";
 import { reportDatatatbleRatingCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 import ReportLoader from "../common/ReportLoader";
+import { ClientReportProps } from "@/utils/Types/reports";
+
+interface List {
+  WorkItemId: number;
+  TaskName: string;
+  ProjectId: number;
+  ProjectName: string;
+  ProcessId: number;
+  ProcessName: string;
+  Ratings: string;
+  RatingBy: string;
+  RatingOn: string;
+  UserId: string;
+  AssignedTo: string;
+  TypeOfReturn: string | null;
+  ReturnTypes: string | null;
+  HoursLogged: string | null;
+  DateSubmitted: string;
+  Comments: string | null;
+}
+
+interface Response {
+  List: List[];
+  TotalCount: number;
+}
 
 const Data = new Date();
 
@@ -18,7 +43,7 @@ const initialReportRatingFilter = {
   PageSize: pageSizeReportRating,
   GlobalSearch: "",
   SortColumn: "",
-  IsDesc: false,
+  IsDesc: true,
   Projects: [],
   ReturnTypeId: null,
   TypeofReturnId: null,
@@ -32,18 +57,25 @@ const initialReportRatingFilter = {
 
 const Datatable_Rating = ({
   currentFilterData,
-  onSearchData,
+  searchValue,
   onHandleExport,
-}: any) => {
-  const [allReportRatingFields, setAllReportRatingFields] = useState<any>({
+}: ClientReportProps) => {
+  const [allReportRatingFields, setAllReportRatingFields] = useState<{
+    loaded: boolean;
+    ratingData: List[] | [];
+    page: number;
+    rowsPerPage: number;
+    tableDataCount: number;
+  }>({
     loaded: true,
     ratingData: [],
     page: 0,
     rowsPerPage: pageSizeReportRating,
     tableDataCount: 0,
   });
-  const [filteredObjectReportRating, setFilteredOjectReportRating] =
-    useState<any>(initialReportRatingFilter);
+  const [filteredObjectReportRating, setFilteredOjectReportRating] = useState(
+    initialReportRatingFilter
+  );
 
   const handleChangePageReportRating = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -62,10 +94,15 @@ const Datatable_Rating = ({
   const handleChangeRowsPerPageReportRating = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    setAllReportRatingFields({
+      ...allReportRatingFields,
+      page: 0,
+      rowsPerPage: parseInt(event.target.value),
+    });
     setFilteredOjectReportRating({
       ...filteredObjectReportRating,
       PageNo: 1,
-      PageSize: event.target.value,
+      PageSize: Number(event.target.value),
     });
   };
 
@@ -77,9 +114,9 @@ const Datatable_Rating = ({
     const params = filteredObjectReportRating;
     const url = `${process.env.report_api_url}/report/client/rating`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0);
@@ -100,25 +137,27 @@ const Datatable_Rating = ({
   };
 
   useEffect(() => {
-    setFilteredOjectReportRating({
-      ...filteredObjectReportRating,
-      ...currentFilterData,
-    });
-  }, [currentFilterData]);
-
-  useEffect(() => {
-    if (onSearchData) {
+    if (searchValue.trim().length > 0) {
+      setFilteredOjectReportRating({
+        ...filteredObjectReportRating,
+        ...currentFilterData,
+        GlobalSearch: searchValue,
+        PageNo: 1,
+        PageSize: pageSizeReportRating,
+      });
       setAllReportRatingFields({
         ...allReportRatingFields,
-        ratingData: onSearchData,
+        page: 0,
+        rowsPerPage: pageSizeReportRating,
       });
     } else {
-      const timer = setTimeout(() => {
-        getReportRatingList();
-      }, 500);
-      return () => clearTimeout(timer);
+      setFilteredOjectReportRating({
+        ...filteredObjectReportRating,
+        ...currentFilterData,
+        GlobalSearch: searchValue,
+      });
     }
-  }, [onSearchData]);
+  }, [currentFilterData, searchValue]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

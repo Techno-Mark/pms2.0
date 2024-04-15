@@ -3,19 +3,19 @@ import SwitchModal from "@/components/common/SwitchModal";
 import { callAPI } from "@/utils/API/callAPI";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
-import { ORGANIZATION } from "./Constants/Tabname";
 import {
   generateCommonBodyRender,
   generateCustomHeaderName,
 } from "@/utils/datatable/CommonFunction";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import { Switch, ThemeProvider } from "@mui/material";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import MUIDataTable from "mui-datatables";
+import { OrgList, OrgProps, SettingAction } from "@/utils/Types/settingTypes";
 
 const initialFilter = {
-  GlobalSearch: null,
+  GlobalSearch: "",
   SortColumn: null,
   IsDesc: true,
 };
@@ -23,28 +23,30 @@ const initialFilter = {
 const Organization = ({
   onOpen,
   onEdit,
-  onHandleOrgData,
   onDataFetch,
-  getOrgDetailsFunction,
-  onSearchOrgData,
+  onSearchData,
   onSearchClear,
   onHandleExport,
-}: any) => {
+}: OrgProps) => {
   const [loader, setLoader] = useState(true);
-  const [userList, setUserList] = useState([]);
+  const [userList, setUserList] = useState<OrgList[]>([]);
   const [isOpenSwitchModal, setIsOpenSwitchModal] = useState(false);
   const [switchId, setSwitchId] = useState(0);
   const [switchActive, setSwitchActive] = useState(false);
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [filteredObject, setFilteredOject] = useState<{
+    GlobalSearch: string;
+    SortColumn: string | null;
+    IsDesc: boolean;
+  }>(initialFilter);
 
   useEffect(() => {
-    if (onSearchOrgData.trim().length >= 0) {
+    if (onSearchData.trim().length >= 0) {
       setFilteredOject({
         ...filteredObject,
-        GlobalSearch: onSearchOrgData.trim(),
+        GlobalSearch: onSearchData.trim(),
       });
     }
-  }, [onSearchOrgData]);
+  }, [onSearchData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,35 +58,20 @@ const Organization = ({
         setTimeout(fetchData, 1000);
       }
     };
-    fetchData();
-  }, [filteredObject]);
 
-  const getUserById = async (data: any) => {
-    const params = {
-      OrganizationId: data,
-    };
-    const url = `${process.env.pms_api_url}/organization/getbyid`;
-    const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
-    ) => {
-      if (ResponseStatus === "Success" && error === false) {
-        onHandleOrgData(ResponseData);
-      } else {
-        setUserList([]);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
-  };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [filteredObject]);
 
   const getAll = async () => {
     const params = filteredObject;
     const url = `${process.env.pms_api_url}/organization/getall`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: OrgList[],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.length > 0 ? true : false);
@@ -108,14 +95,14 @@ const Organization = ({
     };
     const url = `${process.env.pms_api_url}/organization/activeinactive`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setIsOpenSwitchModal(false);
         toast.success("Status Updated Successfully.");
-        onSearchClear(ORGANIZATION);
+        onSearchClear();
         setFilteredOject({
           ...filteredObject,
           GlobalSearch: "",
@@ -125,14 +112,13 @@ const Organization = ({
     callAPI(url, params, successCallback, "POST");
   };
 
-  const handleActionValue = async (actionId: string, id: any) => {
+  const handleActionValue = async (actionId: string, id: number) => {
     if (actionId.toLowerCase() === "edit") {
-      getUserById(id);
       onEdit(id);
     }
   };
 
-  const Actions = ({ actions, id }: any) => {
+  const Actions = ({ actions, id }: SettingAction) => {
     const actionsRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
 
@@ -163,10 +149,10 @@ const Organization = ({
         </span>
         {open && (
           <React.Fragment>
-            <div className="absolute top-30 right-[19rem] z-10 flex justify-center items-center">
+            <div className="absolute top-30 right-3 z-10 flex justify-center items-center">
               <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-28">
-                  {actions.map((action: any, index: any) => (
+                  {actions.map((action: string, index: number) => (
                     <li
                       key={index}
                       onClick={() => handleActionValue(action, id)}
@@ -204,8 +190,8 @@ const Organization = ({
           viewColumns: false,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
-          customBodyRender: (value: any, tableMeta: any) => {
-            const activeUser = async (e: any) => {
+          customBodyRender: (value: boolean, tableMeta: any) => {
+            const activeUser = async () => {
               await setIsOpenSwitchModal(true);
               await setSwitchId(
                 tableMeta.rowData[tableMeta.rowData.length - 1]
@@ -214,10 +200,7 @@ const Organization = ({
             };
             return (
               <div>
-                <Switch
-                  checked={value}
-                  onChange={(e) => activeUser(e.target.value)}
-                />
+                <Switch checked={value} onChange={() => activeUser()} />
               </div>
             );
           },
@@ -231,7 +214,7 @@ const Organization = ({
           viewColumns: false,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Actions"),
-          customBodyRender: (value: any) => {
+          customBodyRender: (value: number) => {
             return <Actions actions={["Edit"]} id={value} />;
           },
         },
@@ -263,14 +246,14 @@ const Organization = ({
     },
   ];
 
-  const orgColumns: any = column.map((col: any) => {
+  const orgColumns = column.map((col: any) => {
     return generateConditionalColumn(col, 10);
   });
 
   const options: any = {
     filterType: "checkbox",
     responsive: "standard",
-    tableBodyHeight: "83vh",
+    tableBodyHeight: "82vh",
     viewColumns: false,
     filter: false,
     print: false,
@@ -291,37 +274,39 @@ const Organization = ({
       {loader ? (
         <ReportLoader />
       ) : (
-        <div className="muiTableAction">
-          <ThemeProvider theme={getMuiTheme()}>
-            <MUIDataTable
-              data={userList}
-              columns={orgColumns}
-              title={undefined}
-              options={{
-                ...options,
-                textLabels: {
-                  body: {
-                    noMatch: (
-                      <div className="flex items-start">
-                        <span>
-                          Currently there is no record, you may{" "}
-                          <a
-                            className="text-secondary underline cursor-pointer"
-                            onClick={onOpen}
-                          >
-                            create organization
-                          </a>{" "}
-                          to continue.
-                        </span>
-                      </div>
-                    ),
-                    toolTip: "",
+        <>
+          <div className="muiTableActionHeight">
+            <ThemeProvider theme={getMuiTheme()}>
+              <MUIDataTable
+                data={userList}
+                columns={orgColumns}
+                title={undefined}
+                options={{
+                  ...options,
+                  textLabels: {
+                    body: {
+                      noMatch: (
+                        <div className="flex items-start">
+                          <span>
+                            Currently there is no record, you may
+                            <a
+                              className="text-secondary underline cursor-pointer"
+                              onClick={onOpen}
+                            >
+                              create organization
+                            </a>
+                            to continue.
+                          </span>
+                        </div>
+                      ),
+                      toolTip: "",
+                    },
                   },
-                },
-              }}
-              data-tableid="Datatable"
-            />
-          </ThemeProvider>
+                }}
+                data-tableid="Datatable"
+              />
+            </ThemeProvider>
+          </div>
 
           {isOpenSwitchModal && (
             <SwitchModal
@@ -337,7 +322,7 @@ const Organization = ({
               } Organization?`}
             />
           )}
-        </div>
+        </>
       )}
     </>
   );

@@ -18,25 +18,18 @@ import { toast } from "react-toastify";
 import { Close } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+import { DrawerProps } from "@/utils/Types/settingTypes";
 
 const Drawer = ({
   onOpen,
   onClose,
   tab,
   onEdit,
-  userData,
-  orgData,
   onUserDataFetch,
-  projectData,
-  processData,
   onDataFetch,
-  clientData,
-  groupData,
   getPermissionDropdown,
-  onRefresh,
-  statusData,
   getOrgDetailsFunction,
-}: any) => {
+}: DrawerProps) => {
   const childRef = useRef<UserContentRef>(null);
   const childRefOrg = useRef<OrganizationContentRef>(null);
   const childRefGroup = useRef<GroupContentRef>(null);
@@ -46,8 +39,6 @@ const Drawer = ({
   const permissionRef = useRef<PermissionContentRef>(null);
   const [drawerOverlay, setDrawerOverlay] = useState(false);
 
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const childRefProcess = useRef<ProcessContentRef>(null);
 
   const [isDeleteOpenProject, setIsDeleteOpenProject] = useState(false);
@@ -109,9 +100,10 @@ const Drawer = ({
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            toast("Project has been deleted successfully!");
+            toast.success("Project has been deleted successfully!");
             onClose();
-            onDataFetch();
+            projectRef?.current?.clearAllData();
+            onDataFetch?.();
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -155,12 +147,13 @@ const Drawer = ({
         );
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            toast("Process has been deleted successfully!");
+            toast.success("Process has been deleted successfully!");
             if (childRefProcess.current) {
               childRefProcess.current.ProcessDataValue();
             }
             onClose();
-            onDataFetch();
+            childRefProcess?.current?.ProcessDataValue();
+            onDataFetch?.();
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -206,7 +199,7 @@ const Drawer = ({
       <div
         className={`fixed right-0 top-0 z-30 h-screen overflow-y-auto w-[40%] border border-lightSilver bg-pureWhite transform  ${
           onOpen ? "translate-x-0" : "translate-x-full"
-        } transition-transform duration-300 ease-in-out`}
+        } transition-transform duration-300 ease-in-out overflow-x-hidden`}
       >
         <div className="flex p-[20px] justify-between items-center bg-whiteSmoke border-b border-lightSilver">
           <span className="text-pureBlack text-lg font-medium">
@@ -222,96 +215,78 @@ const Drawer = ({
         {tab === "Client" && (
           <ClientContent
             onOpen={onOpen}
-            tab={tab}
             onEdit={onEdit}
             onClose={onClose}
-            clientData={onEdit && clientData}
             onDataFetch={onDataFetch}
             ref={clientRef}
-            onChangeLoader={(e: any) => setDrawerOverlay(e)}
+            onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
           />
         )}
         {tab === "Permission" && (
           <PermissionsContent
-            tab={tab}
             onClose={onClose}
             ref={permissionRef}
             getPermissionDropdown={getPermissionDropdown}
-            onChangeLoader={(e: any) => setDrawerOverlay(e)}
+            onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
           />
         )}
         {tab === "Project" && (
           <ProjectContent
             onOpen={onOpen}
-            tab={tab}
             ref={projectRef}
             onEdit={onEdit}
             onDataFetch={onDataFetch}
             onClose={onClose}
-            projectData={projectData}
-            onValuesChange={handleProjectChildValuesChange}
-            onChangeLoader={(e: any) => setDrawerOverlay(e)}
           />
         )}
         {tab === "Status" && (
           <StatusContent
-            tab={tab}
             onEdit={onEdit}
             onClose={onClose}
             ref={childRefStatus}
-            statusData={onEdit && statusData}
             onDataFetch={onDataFetch}
-            onChangeLoader={(e: any) => setDrawerOverlay(e)}
+            onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
           />
         )}
         {tab === "User" && (
           <UserContent
             onOpen={onOpen}
-            tab={tab}
             onEdit={onEdit}
             onClose={onClose}
             ref={childRef}
-            userData={onEdit && userData}
             onUserDataFetch={onUserDataFetch}
-            onChangeLoader={(e: any) => setDrawerOverlay(e)}
+            onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
           />
         )}
         {tab === "Process" && (
           <ProcessContent
             onOpen={onOpen}
-            tab={tab}
             onEdit={onEdit}
             onClose={onClose}
             ref={childRefProcess}
             onDataFetch={onDataFetch}
-            processData={onEdit && processData}
-            onChangeLoader={(e: any) => setDrawerOverlay(e)}
+            onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
             onValuesChange={handleProcessChildValuesChange}
           />
         )}
         {tab === "Organization" && (
           <OrganizationContent
-            tab={tab}
             onEdit={onEdit}
             onClose={onClose}
-            orgData={orgData}
             onDataFetch={onDataFetch}
             ref={childRefOrg}
             getOrgDetailsFunction={getOrgDetailsFunction}
-            onChangeLoader={(e: any) => setDrawerOverlay(e)}
+            onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
           />
         )}
         {tab === "Group" && (
           <GroupContent
             onOpen={onOpen}
-            tab={tab}
             onEdit={onEdit}
             onClose={onClose}
-            orgData={orgData}
             ref={childRefGroup}
             onDataFetch={onDataFetch}
-            groupData={onEdit && groupData}
-            onChangeLoader={(e: any) => setDrawerOverlay(e)}
+            onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
           />
         )}
       </div>
@@ -329,7 +304,7 @@ const Drawer = ({
         />
       )}
 
-      {isDeleteOpenProcess && tab === "Project" && (
+      {isDeleteOpenProcess && tab === "Process" && (
         <DeleteDialog
           isOpen={isDeleteOpenProcess}
           onClose={closeModalProcess}

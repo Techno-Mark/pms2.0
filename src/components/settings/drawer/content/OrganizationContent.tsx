@@ -1,5 +1,5 @@
-/* eslint-disable react/display-name */
 import { callAPI } from "@/utils/API/callAPI";
+import { OrgGetByIdList } from "@/utils/Types/settingTypes";
 import { Button, TextField } from "@mui/material";
 import React, {
   forwardRef,
@@ -16,28 +16,17 @@ export interface OrganizationContentRef {
 const OrganizationContent = forwardRef<
   OrganizationContentRef,
   {
-    tab: string;
-    onEdit: boolean;
-    orgData: any;
+    onEdit: number;
     onClose: () => void;
-    onDataFetch: any;
-    getOrgDetailsFunction: any;
-    onChangeLoader: any;
+    onDataFetch: (() => void) | null;
+    getOrgDetailsFunction: (() => void) | null;
+    onChangeLoader: (e: boolean) => void;
   }
 >(
   (
-    {
-      tab,
-      onEdit,
-      orgData,
-      onClose,
-      onDataFetch,
-      getOrgDetailsFunction,
-      onChangeLoader,
-    },
+    { onEdit, onClose, onDataFetch, getOrgDetailsFunction, onChangeLoader },
     ref
   ) => {
-    const [responseData, setResponseData] = useState([]);
     const [organizationId, setOrganizationId] = useState(0);
     const [clientName, setClientName] = useState("");
     const [clientNameErr, setClientNameErr] = useState(false);
@@ -58,13 +47,31 @@ const OrganizationContent = forwardRef<
     }, []);
 
     useEffect(() => {
-      if (orgData && onEdit) {
-        setOrganizationId(orgData.OrganizationId);
-        setOrganizationName(orgData.OrganizationName);
-        setClientName(orgData.ClientModuleName);
-        setProjectName(orgData.ProjectModuleName);
-        setProcessName(orgData.ProcessModuleName);
-        setSubProcessName(orgData.SubProcessModuleName);
+      if (onEdit > 0) {
+        const params = { OrganizationId: onEdit > 0 ? onEdit : 0 };
+        const url = `${process.env.pms_api_url}/organization/getbyid`;
+        const successCallback = (
+          ResponseData: OrgGetByIdList,
+          error: boolean,
+          ResponseStatus: string
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            setOrganizationId(ResponseData.OrganizationId);
+            setOrganizationName(ResponseData.OrganizationName);
+            setClientName(ResponseData.ClientModuleName);
+            setProjectName(ResponseData.ProjectModuleName);
+            setProcessName(ResponseData.ProcessModuleName);
+            setSubProcessName(ResponseData.SubProcessModuleName);
+          } else {
+            setOrganizationId(0);
+            setOrganizationName("");
+            setClientName("");
+            setProjectName("");
+            setProcessName("");
+            setSubProcessName("");
+          }
+        };
+        callAPI(url, params, successCallback, "POST");
       } else {
         setOrganizationId(0);
         setOrganizationName("");
@@ -73,10 +80,9 @@ const OrganizationContent = forwardRef<
         setProcessName("");
         setSubProcessName("");
       }
-    }, [orgData, onEdit]);
+    }, [onEdit]);
 
     const clear = () => {
-      setResponseData([]);
       setOrganizationId(0);
       setClientName("");
       setClientNameErr(false);
@@ -123,7 +129,7 @@ const OrganizationContent = forwardRef<
       ) {
         onChangeLoader(true);
         const params = {
-          OrganizationId: onEdit || 0,
+          OrganizationId: onEdit > 0 ? onEdit : 0,
           OrganizationName: organizationName.trim(),
           ClientModuleName: clientName.trim(),
           ProjectModuleName: projectName.trim(),
@@ -132,19 +138,20 @@ const OrganizationContent = forwardRef<
         };
         const url = `${process.env.pms_api_url}/organization/save`;
         const successCallback = (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          ResponseData: null,
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
-            setResponseData(ResponseData);
             toast.success(
-              `Organization ${onEdit ? "Updated" : "created"}  successfully!`
+              `Organization ${
+                onEdit > 0 ? "Updated" : "created"
+              }  successfully!`
             );
             clearOrganizationData();
-            getOrgDetailsFunction();
+            getOrgDetailsFunction?.();
             onClose();
-            onDataFetch();
+            onDataFetch?.();
             onChangeLoader(false);
           } else {
             onChangeLoader(false);
@@ -178,7 +185,7 @@ const OrganizationContent = forwardRef<
         subProcessName.trim().length > 0
       ) {
         const params = {
-          OrganizationId: onEdit || 0,
+          OrganizationId: onEdit > 0 ? onEdit : 0,
           OrganizationName: organizationName.trim(),
           ClientModuleName: clientName.trim(),
           ProjectModuleName: projectName.trim(),
@@ -187,18 +194,19 @@ const OrganizationContent = forwardRef<
         };
         const url = `${process.env.pms_api_url}/organization/save`;
         const successCallback = (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          ResponseData: null,
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
-            setResponseData(ResponseData);
             toast.success(
-              `Organization ${onEdit ? "Updated" : "created"}  successfully!`
+              `Organization ${
+                onEdit > 0 ? "Updated" : "created"
+              }  successfully!`
             );
             clearOrganizationData();
-            getOrgDetailsFunction();
-            onDataFetch();
+            getOrgDetailsFunction?.();
+            onDataFetch?.();
           } else {
             onChangeLoader(false);
           }
@@ -231,7 +239,7 @@ const OrganizationContent = forwardRef<
               setOrganizationName(e.target.value);
               setOrganizationNameErr(false);
             }}
-            onBlur={(e: any) => {
+            onBlur={(e) => {
               if (
                 e.target.value.trim().length < 3 ||
                 e.target.value.trim().length > 50
@@ -272,7 +280,7 @@ const OrganizationContent = forwardRef<
                   setClientName(e.target.value);
                   setClientNameErr(false);
                 }}
-                onBlur={(e: any) => {
+                onBlur={(e) => {
                   if (e.target.value.trim().length < 1) {
                     setClientNameErr(true);
                   }
@@ -296,7 +304,7 @@ const OrganizationContent = forwardRef<
                   setProjectName(e.target.value);
                   setProjectNameErr(false);
                 }}
-                onBlur={(e: any) => {
+                onBlur={(e) => {
                   if (e.target.value.trim().length < 1) {
                     setProjectNameErr(true);
                   }
@@ -320,7 +328,7 @@ const OrganizationContent = forwardRef<
                   setProcessName(e.target.value);
                   setProcessNameErr(false);
                 }}
-                onBlur={(e: any) => {
+                onBlur={(e) => {
                   if (e.target.value.trim().length < 1) {
                     setProcessNameErr(true);
                   }
@@ -344,7 +352,7 @@ const OrganizationContent = forwardRef<
                   setSubProcessName(e.target.value);
                   setSubProcessNameErr(false);
                 }}
-                onBlur={(e: any) => {
+                onBlur={(e) => {
                   if (e.target.value.trim().length < 1) {
                     setSubProcessNameErr(true);
                   }
@@ -361,9 +369,9 @@ const OrganizationContent = forwardRef<
           </div>
         </div>
 
-        <div className="flex justify-end fixed w-full bottom-0 gap-[20px] px-[20px] py-[15px] bg-pureWhite border-t border-lightSilver">
+        <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
           <>
-            {onEdit ? (
+            {onEdit > 0 ? (
               <Button
                 variant="outlined"
                 className="rounded-[4px] !h-[36px] !text-secondary"
@@ -386,7 +394,7 @@ const OrganizationContent = forwardRef<
               type="submit"
               onClick={handleSubmit}
             >
-              {onEdit ? "Save" : "Create Organization"}
+              {onEdit > 0 ? "Save" : "Create Organization"}
             </Button>
           </>
         </div>

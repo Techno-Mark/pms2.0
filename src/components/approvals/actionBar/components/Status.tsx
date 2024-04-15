@@ -9,32 +9,41 @@ import {
 } from "@/utils/commonDropdownApiCall";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { callAPI } from "@/utils/API/callAPI";
+import { LabelValue, LabelValueType } from "@/utils/Types/types";
+
+interface Status {
+  selectedWorkItemIds: number[];
+  reviewList: any;
+  handleClearSelection: () => void;
+  getReviewList: () => void;
+  selectedRowClientId: number[] | [];
+  selectedRowWorkTypeId: number[] | [];
+  getOverLay?: (e: boolean) => void;
+}
 
 const Status = ({
   selectedWorkItemIds,
-  selectedRowStatusId,
   reviewList,
-  selectedRowsCount,
   handleClearSelection,
   getReviewList,
   selectedRowClientId,
   selectedRowWorkTypeId,
   getOverLay,
-}: any) => {
-  const [allStatus, setAllStatus] = useState<any | any[]>([]);
+}: Status) => {
+  const [allStatus, setAllStatus] = useState<LabelValueType[] | []>([]);
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [reviewer, setReviewer] = useState<any | any[]>([]);
+  const [reviewer, setReviewer] = useState<LabelValue[] | []>([]);
   const [searchQueryRW, setSearchQueryRW] = useState("");
 
-  const handleSearchChangeRW = (event: any) => {
-    setSearchQueryRW(event.target.value);
+  const handleSearchChangeRW = (e: string) => {
+    setSearchQueryRW(e);
   };
 
-  const filteredReviewer = reviewer.filter((reviewer: any) =>
+  const filteredReviewer = reviewer.filter((reviewer: LabelValue) =>
     reviewer.label.toLowerCase().includes(searchQueryRW.toLowerCase())
   );
 
-  const handleOptionReviewer = (id: any) => {
+  const handleOptionReviewer = (id: number) => {
     updateStatus(56, id);
   };
 
@@ -68,7 +77,7 @@ const Status = ({
   const openSecondPopover = Boolean(anchorElSecondPopover);
   const idSecondPopover = openSecondPopover ? "simple-popover" : undefined;
 
-  const handleOptionStatus = async (id: any) => {
+  const handleOptionStatus = async (id: number) => {
     if (id == 56) {
       setReviewer(
         await getReviewerDropdownData(
@@ -96,11 +105,15 @@ const Status = ({
         }
       }
     });
-    const data = await getStatusDropdownData();
+    const data = await getStatusDropdownData(
+      Array.from(new Set(selectedRowWorkTypeId))[0]
+    );
+
     data.length > 0 &&
       setAllStatus(
         data.filter(
-          (item: any) =>
+          (item: LabelValueType) =>
+            item.Type === "InReviewWithClients" ||
             item.Type === "Rework" ||
             (isNotRework.length > 0
               ? item.Type === "InReview" ||
@@ -117,7 +130,10 @@ const Status = ({
       );
   };
 
-  const updateStatus = async (statusId: number, secondReviewerId: any) => {
+  const updateStatus = async (
+    statusId: number,
+    secondReviewerId: number | null
+  ) => {
     let isRework: any = [];
     let isNotRework: any = [];
     reviewList.map((i: any) => {
@@ -130,7 +146,7 @@ const Status = ({
       }
     });
 
-    getOverLay(true);
+    getOverLay?.(true);
     const params = {
       workitemIds: isNotRework.length > 0 ? isNotRework : isRework,
       statusId: statusId,
@@ -138,9 +154,9 @@ const Status = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/UpdateStatus`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: boolean | string,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Status has been updated successfully.");
@@ -148,17 +164,17 @@ const Status = ({
         isRework = [];
         handleClearSelection();
         getReviewList();
-        getOverLay(false);
-      } else if (ResponseStatus === "Warning") {
+        getOverLay?.(false);
+      } else if (ResponseStatus === "Warning" && error === false) {
         toast.warning(ResponseData);
         handleClearSelection();
         isNotRework = [];
         isRework = [];
         getReviewList();
-        getOverLay(false);
+        getOverLay?.(false);
       } else {
         getReviewList();
-        getOverLay(false);
+        getOverLay?.(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -188,7 +204,7 @@ const Status = ({
       >
         <nav className="!w-52">
           <List>
-            {allStatus.map((option: any) => {
+            {allStatus.map((option: LabelValueType) => {
               return (
                 <span
                   key={option.value}
@@ -238,7 +254,7 @@ const Status = ({
                   placeholder="Search"
                   inputProps={{ "aria-label": "search" }}
                   value={searchQueryRW}
-                  onChange={handleSearchChangeRW}
+                  onChange={(e) => handleSearchChangeRW(e.target.value)}
                   style={{ fontSize: "13px" }}
                 />
               </span>
@@ -250,7 +266,7 @@ const Status = ({
                 No Data Available
               </span>
             ) : (
-              filteredReviewer.map((reviewer: any) => {
+              filteredReviewer.map((reviewer: LabelValue) => {
                 return (
                   <span
                     key={reviewer.value}
@@ -263,7 +279,7 @@ const Status = ({
                       <Avatar sx={{ width: 32, height: 32, fontSize: 14 }}>
                         {reviewer.label
                           ?.split(" ")
-                          .map((word: any) => word.charAt(0).toUpperCase())
+                          .map((word: string) => word.charAt(0).toUpperCase())
                           .join("")}
                       </Avatar>
 

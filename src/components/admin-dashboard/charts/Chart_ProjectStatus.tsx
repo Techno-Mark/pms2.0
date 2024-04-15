@@ -4,48 +4,59 @@ import HighchartsReact from "highcharts-react-official";
 
 import HighchartsVariablePie from "highcharts/modules/variable-pie";
 import { callAPI } from "@/utils/API/callAPI";
+import {
+  DashboardInitialFilter,
+  ListProjectStatusSequence,
+} from "@/utils/Types/dashboardTypes";
 
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
 interface ChartProjectStatusProps {
   onSelectedProjectIds: number[];
-  onSelectedWorkType: number;
-  sendData: any;
+  currentFilterData: DashboardInitialFilter;
+  sendData: (isDialogOpen: boolean, selectedPointData: number) => void;
 }
 
-const Chart_ProjectStatus: React.FC<ChartProjectStatusProps> = ({
+interface Response {
+  List: ListProjectStatusSequence[] | [];
+  TotalCount: number;
+}
+
+const Chart_ProjectStatus = ({
   onSelectedProjectIds,
-  onSelectedWorkType,
+  currentFilterData,
   sendData,
-}) => {
+}: ChartProjectStatusProps) => {
   const [data, setData] = useState<any | any[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
   const getProjectStatusData = async () => {
     const params = {
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.WorkTypeId === null
+          ? 0
+          : currentFilterData.WorkTypeId,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
       ProjectId:
         onSelectedProjectIds.length === 0 ? null : onSelectedProjectIds,
     };
     const url = `${process.env.report_api_url}/dashboard/projectstatusgraph`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         const chartData = ResponseData.List.map(
-          (item: {
-            Percentage: any;
-            Key: any;
-            Value: any;
-            ColorCode: any;
-          }) => ({
+          (item: ListProjectStatusSequence) => ({
             name: item.Key,
             y: item.Value,
             percentage: item.Percentage,
             ColorCode: item.ColorCode,
+            Sequence: item.Sequence,
           })
         );
 
@@ -57,8 +68,14 @@ const Chart_ProjectStatus: React.FC<ChartProjectStatusProps> = ({
   };
 
   useEffect(() => {
-    getProjectStatusData();
-  }, [onSelectedWorkType]);
+    const fetchData = async () => {
+      await getProjectStatusData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentFilterData]);
 
   const chartOptions = {
     chart: {
@@ -100,11 +117,11 @@ const Chart_ProjectStatus: React.FC<ChartProjectStatusProps> = ({
         cursor: "pointer",
         point: {
           events: {
-            click: (event: { point: { name: any } }) => {
+            click: (event: { point: { Sequence: number } }) => {
               const selectedPointData = {
-                name: (event.point && event.point.name) || "",
+                Sequence: (event.point && event.point.Sequence) || 0,
               };
-              sendData(true, selectedPointData.name);
+              sendData(true, selectedPointData.Sequence);
             },
           },
         },
@@ -141,7 +158,7 @@ const Chart_ProjectStatus: React.FC<ChartProjectStatusProps> = ({
   return (
     <div className="flex flex-col px-[20px]">
       <span className="flex items-start pt-[30px] px-[10px] text-lg font-medium">
-        Project Status
+        Task Status
       </span>
       <div className="flex justify-between relative">
         <div className="mt-5">

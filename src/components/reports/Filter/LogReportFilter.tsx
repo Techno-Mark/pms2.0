@@ -1,6 +1,6 @@
-import dayjs from "dayjs";
-import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
+import { FilterType } from "../types/ReportsFilterType";
+import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import {
   Autocomplete,
   Button,
@@ -14,159 +14,152 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
-import { DialogTransition } from "@/utils/style/DialogTransition";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import DeleteDialog from "@/components/common/workloags/DeleteDialog";
-import { FilterType } from "../types/ReportsFilterType";
-import { logReport } from "../Enum/Filtertype";
-import { logReport_InitialFilter } from "@/utils/reports/getFilters";
-import SearchIcon from "@/assets/icons/SearchIcon";
-import { Edit, Delete } from "@mui/icons-material";
-import { getFormattedDate } from "@/utils/timerFunctions";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { isWeekend } from "@/utils/commonFunction";
+import dayjs from "dayjs";
+import { getFormattedDate } from "@/utils/timerFunctions";
+import { logReport_InitialFilter } from "@/utils/reports/getFilters";
+import { toast } from "react-toastify";
+import { logReport } from "../Enum/Filtertype";
+import { callAPI } from "@/utils/API/callAPI";
 import {
   getAllProcessDropdownData,
   getClientDropdownData,
   getCommentUserDropdownData,
   getProjectDropdownData,
 } from "@/utils/commonDropdownApiCall";
-import { callAPI } from "@/utils/API/callAPI";
+import SearchIcon from "@/assets/icons/SearchIcon";
+import { Delete, Edit } from "@mui/icons-material";
+import { DialogTransition } from "@/utils/style/DialogTransition";
+import { LabelValue } from "@/utils/Types/types";
+
+interface SavedFilter {
+  FilterId: number;
+  Name: string;
+  AppliedFilter: {
+    ClientFilter: number[];
+    ProjectFilter: number[];
+    ProcessFilter: number[];
+    UpdatedByFilter: number[];
+    StartDate: string | null;
+    EndDate: string | null;
+  };
+}
 
 const LogReportFilter = ({
   isFiltering,
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
-  const [logReport_clients, setLogReport_Clients] = useState<any[]>([]);
-  const [logReport_clientName, setLogReport_ClientName] = useState<any[]>([]);
-  const [logReport_projectName, setLogReport_ProjectName] = useState<any>(null);
-  const [logReport_process, setLogReport_Process] = useState<any>(null);
-  const [logReport_updatedBy, setLogReport_UpdatedBy] = useState<any>(null);
-  const [logReport_startDate, setLogReport_StartDate] = useState<
-    string | number
-  >("");
-  const [logReport_endDate, setLogReport_EndDate] = useState<string | number>(
-    ""
-  );
+  const [clients, setClients] = useState<LabelValue[]>([]);
+  const [clientName, setClientName] = useState<number[]>([]);
+  const [project, setProject] = useState<LabelValue[]>([]);
+  const [projectName, setProjectName] = useState<number[]>([]);
+  const [processLog, setProcessLog] = useState<LabelValue[]>([]);
+  const [processName, setProcessName] = useState<number[]>([]);
+  const [updatedBy, setUpdatedBy] = useState<LabelValue[]>([]);
+  const [updatedByName, setUpdatedByName] = useState<number[]>([]);
+  const [startDate, setStartDate] = useState<string | number>("");
+  const [endDate, setEndDate] = useState<string | number>("");
 
-  const [logReport_clientDropdown, setLogReport_ClientDropdown] = useState<
-    any[]
-  >([]);
-  const [logReport_projectDropdown, setLogReport_ProjectDropdown] = useState<
-    any[]
-  >([]);
-  const [logReport_processDropdown, setLogReport_ProcessDropdown] = useState<
-    any[]
-  >([]);
-  const [logReport_updatedByDropdown, setLogReport_UpdatedByDropdown] =
-    useState<any[]>([]);
-
-  const [logReport_filterName, setLogReport_FilterName] = useState<string>("");
-  const [logReport_saveFilter, setLogReport_SaveFilter] =
-    useState<boolean>(false);
-  const [logReport_anyFieldSelected, setLogReport_AnyFieldSelected] =
-    useState(false);
-  const [logReport_currentFilterId, setLogReport_CurrentFilterId] =
-    useState<any>("");
-  const [logReport_savedFilters, setLogReport_SavedFilters] = useState<any[]>(
-    []
-  );
-  const [logReport_defaultFilter, setLogReport_DefaultFilter] =
-    useState<boolean>(false);
-  const [logReport_searchValue, setLogReport_SearchValue] =
-    useState<string>("");
-  const [logReport_isDeleting, setLogReport_IsDeleting] =
-    useState<boolean>(false);
-  const [logReport_resetting, setLogReport_Resetting] =
-    useState<boolean>(false);
-  const [logReport_error, setLogReport_Error] = useState("");
+  const [filterName, setFilterName] = useState<string>("");
+  const [saveFilter, setSaveFilter] = useState<boolean>(false);
+  const [clientDropdown, setClientDropdown] = useState<LabelValue[]>([]);
+  const [projectDropdown, setProjectDropdown] = useState<LabelValue[]>([]);
+  const [processDropdown, setProcessDropdown] = useState<LabelValue[]>([]);
+  const [updatedByDropdown, setUpdatedByDropdown] = useState<LabelValue[]>([]);
+  const [anyFieldSelected, setAnyFieldSelected] = useState(false);
+  const [currentFilterId, setCurrentFilterId] = useState<number>(0);
+  const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
+  const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
+  const [searchValue, setSearchValue] = useState<string>("");
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [error, setError] = useState("");
+  const [idFilter, setIdFilter] = useState<string | undefined>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
 
-  const handleLogReport_ResetAll = () => {
-    setLogReport_ClientName([]);
-    setLogReport_Clients([]);
-    setLogReport_UpdatedByDropdown([]);
-    setLogReport_ProjectName(null);
-    setLogReport_Process(null);
-    setLogReport_UpdatedBy(null);
-    setLogReport_StartDate("");
-    setLogReport_EndDate("");
-    setLogReport_Error("");
-    setLogReport_Resetting(true);
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
+
+  const handleResetAll = () => {
+    setClientName([]);
+    setClients([]);
+    setProjectName([]);
+    setProject([]);
+    setProcessName([]);
+    setProcessLog([]);
+    setUpdatedBy([]);
+    setUpdatedByName([]);
+    setProjectDropdown([]);
+    setStartDate("");
+    setEndDate("");
+    setError("");
+    setFilterName("");
+    setDefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...logReport_InitialFilter,
     });
   };
 
-  const handleLogReport_Close = () => {
+  const handleClose = () => {
+    setFilterName("");
     onDialogClose(false);
-    setLogReport_Resetting(false);
-    setLogReport_FilterName("");
-    setLogReport_DefaultFilter(false);
-    setLogReport_ClientName([]);
-    setLogReport_Clients([]);
-    setLogReport_UpdatedByDropdown([]);
-    setLogReport_ProjectName(null);
-    setLogReport_Process(null);
-    setLogReport_UpdatedBy(null);
-    setLogReport_StartDate("");
-    setLogReport_EndDate("");
-    setLogReport_Error("");
+    setDefaultFilter(false);
+
+    setClientName([]);
+    setClients([]);
+    setProjectName([]);
+    setProject([]);
+    setProjectDropdown([]);
+    setProcessName([]);
+    setProcessLog([]);
+    setStartDate("");
+    setEndDate("");
+    setError("");
   };
 
-  const handleLogReport_FilterApply = () => {
+  const handleFilterApply = () => {
     sendFilterToPage({
       ...logReport_InitialFilter,
-      clientFilter: logReport_clientName.length > 0 ? logReport_clientName : [],
-      projectFilter:
-        logReport_projectName === null || logReport_projectName === ""
-          ? []
-          : [logReport_projectName.value],
-      processFilter:
-        logReport_process === null || logReport_process === ""
-          ? null
-          : [logReport_process.value],
-      updatedByFilter:
-        logReport_updatedBy === null || logReport_updatedBy === ""
-          ? []
-          : [logReport_updatedBy.value],
-      startDate:
-        logReport_startDate.toString().trim().length <= 0
-          ? logReport_endDate.toString().trim().length <= 0
+      ClientFilter: clientName.length > 0 ? clientName : [],
+      ProjectFilter: projectName.length > 0 ? projectName : [],
+      ProcessFilter: processName.length > 0 ? processName : [],
+      UpdatedByFilter: updatedByName.length > 0 ? updatedByName : [],
+      StartDate:
+        startDate.toString().trim().length <= 0
+          ? endDate.toString().trim().length <= 0
             ? null
-            : getFormattedDate(logReport_endDate)
-          : getFormattedDate(logReport_startDate),
-      endDate:
-        logReport_endDate.toString().trim().length <= 0
-          ? logReport_startDate.toString().trim().length <= 0
+            : getFormattedDate(endDate)
+          : getFormattedDate(startDate),
+      EndDate:
+        endDate.toString().trim().length <= 0
+          ? startDate.toString().trim().length <= 0
             ? null
-            : getFormattedDate(logReport_startDate)
-          : getFormattedDate(logReport_endDate),
+            : getFormattedDate(startDate)
+          : getFormattedDate(endDate),
     });
 
     onDialogClose(false);
   };
 
-  const handleLogReport_SavedFilterApply = (index: number) => {
+  const handleSavedFilterApply = (index: number) => {
     if (Number.isInteger(index)) {
       if (index !== undefined) {
         sendFilterToPage({
           ...logReport_InitialFilter,
-          clientFilter:
-            logReport_savedFilters[index].AppliedFilter.clientFilter,
-          projectFilter:
-            logReport_savedFilters[index].AppliedFilter.projectFilter,
-          processFilter:
-            logReport_savedFilters[index].AppliedFilter.processFilter,
-          updatedByFilter:
-            logReport_savedFilters[index].AppliedFilter.updatedByFilter,
-          startDate: logReport_savedFilters[index].AppliedFilter.startDate,
-          endDate: logReport_savedFilters[index].AppliedFilter.endDate,
+          ClientFilter: savedFilters[index].AppliedFilter.ClientFilter,
+          ProjectFilter: savedFilters[index].AppliedFilter.ProjectFilter,
+          ProcessFilter: savedFilters[index].AppliedFilter.ProcessFilter,
+          UpdatedByFilter: savedFilters[index].AppliedFilter.UpdatedByFilter,
+          StartDate: savedFilters[index].AppliedFilter.StartDate,
+          EndDate: savedFilters[index].AppliedFilter.EndDate,
         });
       }
     }
@@ -174,196 +167,187 @@ const LogReportFilter = ({
     onDialogClose(false);
   };
 
-  const handleLogReport_SaveFilter = async () => {
-    if (logReport_filterName.trim().length === 0) {
-      setLogReport_Error("This is required field!");
-    } else if (logReport_filterName.trim().length > 15) {
-      setLogReport_Error("Max 15 characters allowed!");
-    } else {
-      setLogReport_Error("");
-      const params = {
-        filterId:
-          logReport_currentFilterId !== "" ? logReport_currentFilterId : null,
-        name: logReport_filterName,
-        AppliedFilter: {
-          clientFilter:
-            logReport_clientName.length > 0 ? logReport_clientName : [],
-          projectFilter:
-            logReport_projectName === null ? [] : [logReport_projectName.value],
-          processFilter:
-            logReport_process === null ? null : [logReport_process.value],
-          updatedByFilter:
-            logReport_updatedBy === null ? [] : [logReport_updatedBy.value],
-          startDate:
-            logReport_startDate.toString().trim().length <= 0
-              ? logReport_endDate.toString().trim().length <= 0
-                ? null
-                : getFormattedDate(logReport_endDate)
-              : getFormattedDate(logReport_startDate),
-          endDate:
-            logReport_endDate.toString().trim().length <= 0
-              ? logReport_startDate.toString().trim().length <= 0
-                ? null
-                : getFormattedDate(logReport_startDate)
-              : getFormattedDate(logReport_endDate),
-        },
-        type: logReport,
-      };
-      const url = `${process.env.worklog_api_url}/filter/savefilter`;
-      const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
-      ) => {
-        if (ResponseStatus === "Success" && error === false) {
-          toast.success("Filter has been successully saved.");
-          handleLogReport_Close();
-          getLogReport_FilterList();
-          handleLogReport_FilterApply();
-          setLogReport_SaveFilter(false);
-        }
-      };
-      callAPI(url, params, successCallback, "POST");
+  const handleSaveFilter = async () => {
+    if (filterName.trim().length === 0) {
+      setError("This is required field!");
+      return;
     }
-  };
-
-  useEffect(() => {
-    getLogReport_FilterList();
-  }, []);
-
-  useEffect(() => {
-    const isAnyFieldSelected =
-      logReport_clientName.length > 0 ||
-      logReport_projectName !== null ||
-      logReport_process !== null ||
-      logReport_updatedBy !== null ||
-      logReport_startDate.toString().trim().length > 0 ||
-      logReport_endDate.toString().trim().length > 0;
-
-    setLogReport_AnyFieldSelected(isAnyFieldSelected);
-    setLogReport_SaveFilter(false);
-    setLogReport_Resetting(false);
-  }, [
-    logReport_process,
-    logReport_updatedBy,
-    logReport_clientName,
-    logReport_projectName,
-    logReport_startDate,
-    logReport_endDate,
-  ]);
-
-  useEffect(() => {
-    const filterDropdowns = async () => {
-      setLogReport_UpdatedByDropdown(
-        await getCommentUserDropdownData({
-          ClientId: null,
-          GetClientUser: true,
-        })
-      );
-      setLogReport_ClientDropdown(await getClientDropdownData());
-      setLogReport_ProjectDropdown(
-        await getProjectDropdownData(
-          logReport_clientName.length > 0 ? logReport_clientName[0] : 0
-        )
-      );
-      setLogReport_ProcessDropdown(await getAllProcessDropdownData());
-    };
-    filterDropdowns();
-
-    if (logReport_clientName.length > 0 || logReport_resetting) {
-      onDialogClose(true);
+    if (filterName.trim().length > 15) {
+      setError("Max 15 characters allowed!");
+      return;
     }
-  }, [logReport_clientName]);
-
-  const getLogReport_FilterList = async () => {
+    setError("");
     const params = {
+      filterId: currentFilterId > 0 ? currentFilterId : null,
+      name: filterName,
+      AppliedFilter: {
+        ClientFilter: clientName,
+        ProjectFilter: projectName,
+        ProcessFilter: processName,
+        UpdatedByFilter: updatedByName,
+        StartDate:
+          startDate.toString().trim().length <= 0
+            ? endDate.toString().trim().length <= 0
+              ? null
+              : getFormattedDate(endDate)
+            : getFormattedDate(startDate),
+        EndDate:
+          endDate.toString().trim().length <= 0
+            ? startDate.toString().trim().length <= 0
+              ? null
+              : getFormattedDate(startDate)
+            : getFormattedDate(endDate),
+      },
       type: logReport,
     };
-    const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+    const url = `${process.env.worklog_api_url}/filter/savefilter`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        setLogReport_SavedFilters(ResponseData);
+        toast.success("Filter has been successully saved.");
+        handleClose();
+        getFilterList();
+        handleFilterApply();
+        setSaveFilter(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
   };
 
-  const handleLogReport_SavedFilterEdit = async (index: number) => {
-    setLogReport_SaveFilter(true);
-    setLogReport_DefaultFilter(true);
-    setLogReport_FilterName(logReport_savedFilters[index].Name);
-    setLogReport_CurrentFilterId(logReport_savedFilters[index].FilterId);
+  useEffect(() => {
+    getFilterList();
+  }, []);
 
-    setLogReport_Clients(
-      logReport_savedFilters[index].AppliedFilter.clientFilter.length > 0
-        ? logReport_clientDropdown.filter((client: any) =>
-            logReport_savedFilters[index].AppliedFilter.clientFilter.includes(
-              client.value
-            )
+  useEffect(() => {
+    const isAnyFieldSelected =
+      clientName.length > 0 ||
+      projectName.length > 0 ||
+      processName.length > 0 ||
+      updatedByName.length > 0 ||
+      startDate.toString().trim().length > 0 ||
+      endDate.toString().trim().length > 0;
+
+    setAnyFieldSelected(isAnyFieldSelected);
+    setSaveFilter(false);
+  }, [clientName, projectName, processName, updatedByName, startDate, endDate]);
+
+  useEffect(() => {
+    const filterDropdowns = async () => {
+      setClientDropdown(await getClientDropdownData());
+      setProcessDropdown(await getAllProcessDropdownData());
+      setUpdatedByDropdown(
+        await getCommentUserDropdownData({
+          ClientId: null,
+          GetClientUser: true,
+        })
+      );
+    };
+    filterDropdowns();
+  }, []);
+
+  useEffect(() => {
+    const filterDropdowns = async () => {
+      setProjectDropdown(
+        await getProjectDropdownData(
+          clientName.length > 0 ? clientName[0] : 0,
+          null
+        )
+      );
+    };
+    filterDropdowns();
+  }, [clientName]);
+
+  const getFilterList = async () => {
+    const params = {
+      type: logReport,
+    };
+    const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+    const successCallback = (
+      ResponseData: SavedFilter[],
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setSavedFilters(ResponseData);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  const handleSavedFilterEdit = async (index: number) => {
+    setSaveFilter(true);
+    setDefaultFilter(true);
+
+    const { Name, FilterId, AppliedFilter } = savedFilters[index];
+    setFilterName(Name);
+    setCurrentFilterId(FilterId);
+
+    const clients = AppliedFilter?.ClientFilter || [];
+    setClients(
+      clients.length > 0
+        ? clientDropdown.filter((client: LabelValue) =>
+            clients.includes(client.value)
           )
         : []
     );
-    setLogReport_ClientName(
-      logReport_savedFilters[index].AppliedFilter.clientFilter
-    );
-    setLogReport_ProjectName(
-      logReport_savedFilters[index].AppliedFilter.projectFilter.length > 0
+    setClientName(clients);
+
+    const project = AppliedFilter?.ProjectFilter || [];
+    setProject(
+      clients.length > 0 && project.length > 0
         ? (
             await getProjectDropdownData(
-              logReport_savedFilters[index].AppliedFilter.clientFilter[0]
+              savedFilters[index].AppliedFilter.ClientFilter[0],
+              null
             )
-          ).filter(
-            (item: any) =>
-              item.value ===
-              logReport_savedFilters[index].AppliedFilter.projectFilter[0]
-          )[0]
-        : null
+          ).filter((proj: LabelValue) => project.includes(proj.value))
+        : []
     );
-    setLogReport_Process(
-      logReport_savedFilters[index].AppliedFilter.processFilter.length > 0
-        ? logReport_processDropdown.filter(
-            (item: any) =>
-              item.value ===
-              logReport_savedFilters[index].AppliedFilter.processFilter[0]
-          )[0]
-        : null
+    setProjectName(project);
+
+    const process = AppliedFilter?.ProcessFilter || [];
+    setProcessLog(
+      process.length > 0
+        ? processDropdown.filter((proc: LabelValue) =>
+            process.includes(proc.value)
+          )
+        : []
     );
-    setLogReport_UpdatedBy(
-      logReport_savedFilters[index].AppliedFilter.updatedByFilter.length > 0
-        ? logReport_updatedByDropdown.filter(
-            (item: any) =>
-              item.value ===
-              logReport_savedFilters[index].AppliedFilter.updatedByFilter[0]
-          )[0]
-        : null
+    setProcessName(process);
+
+    const users = AppliedFilter?.UpdatedByFilter || [];
+    setUpdatedBy(
+      users.length > 0
+        ? updatedByDropdown.filter((user: LabelValue) =>
+            users.includes(user.value)
+          )
+        : []
     );
-    setLogReport_StartDate(
-      logReport_savedFilters[index].AppliedFilter.startDate ?? ""
-    );
-    setLogReport_EndDate(
-      logReport_savedFilters[index].AppliedFilter.endDate ?? ""
-    );
+    setUpdatedByName(users);
+
+    setStartDate(AppliedFilter?.StartDate || "");
+    setEndDate(AppliedFilter?.EndDate || "");
   };
 
-  const handleLogReport_SavedFilterDelete = async () => {
+  const handleSavedFilterDelete = async () => {
     const params = {
-      filterId: logReport_currentFilterId,
+      filterId: currentFilterId,
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Filter has been deleted successfully.");
-        handleLogReport_Close();
-        getLogReport_FilterList();
-        setLogReport_CurrentFilterId("");
+        handleClose();
+        getFilterList();
+        setCurrentFilterId(0);
+        sendFilterToPage({ ...logReport_InitialFilter });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -371,15 +355,15 @@ const LogReportFilter = ({
 
   return (
     <>
-      {logReport_savedFilters.length > 0 && !logReport_defaultFilter ? (
+      {savedFilters.length > 0 && !defaultFilter ? (
         <Popover
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleLogReport_Close}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
-            vertical: 130,
-            horizontal: 1290,
+            vertical: 110,
+            horizontal: "right",
           }}
           transformOrigin={{
             vertical: "top",
@@ -390,8 +374,8 @@ const LogReportFilter = ({
             <span
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
-                setLogReport_DefaultFilter(true);
-                setLogReport_CurrentFilterId(0);
+                setDefaultFilter(true);
+                setCurrentFilterId(0);
               }}
             >
               Default Filter
@@ -403,58 +387,54 @@ const LogReportFilter = ({
                 className="pr-7 border-b border-b-slatyGrey w-full"
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
-                value={logReport_searchValue}
-                onChange={(e: any) => setLogReport_SearchValue(e.target.value)}
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {logReport_savedFilters.map((i: any, index: number) => {
+            {savedFilters.map((i: SavedFilter, index: number) => {
               return (
-                <div
-                  key={i.FilterId}
-                  className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
-                >
-                  <span
-                    className="pl-1"
-                    onClick={() => {
-                      setLogReport_CurrentFilterId(i.FilterId);
-                      onDialogClose(false);
-                      handleLogReport_SavedFilterApply(index);
-                    }}
+                <>
+                  <div
+                    key={i.FilterId}
+                    className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
                   >
-                    {i.Name}
-                  </span>
-                  <span className="flex gap-[10px] pr-[10px]">
                     <span
-                      onClick={() => handleLogReport_SavedFilterEdit(index)}
-                    >
-                      <Tooltip title="Edit" placement="top" arrow>
-                        <Edit className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
-                      </Tooltip>
-                    </span>
-                    <span
+                      className="pl-1"
                       onClick={() => {
-                        setLogReport_IsDeleting(true);
-                        setLogReport_CurrentFilterId(i.FilterId);
+                        setCurrentFilterId(i.FilterId);
+                        onDialogClose(false);
+                        handleSavedFilterApply(index);
                       }}
                     >
-                      <Tooltip title="Delete" placement="top" arrow>
-                        <Delete className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
-                      </Tooltip>
+                      {i.Name}
                     </span>
-                  </span>
-                </div>
+                    <span className="flex gap-[10px] pr-[10px]">
+                      <span onClick={() => handleSavedFilterEdit(index)}>
+                        <Tooltip title="Edit" placement="top" arrow>
+                          <Edit className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
+                        </Tooltip>
+                      </span>
+                      <span
+                        onClick={() => {
+                          setIsDeleting(true);
+                          setCurrentFilterId(i.FilterId);
+                        }}
+                      >
+                        <Tooltip title="Delete" placement="top" arrow>
+                          <Delete className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
+                        </Tooltip>
+                      </span>
+                    </span>
+                  </div>
+                </>
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button
-              onClick={handleLogReport_ResetAll}
-              className="mt-2"
-              color="error"
-            >
+            <Button onClick={handleResetAll} className="mt-2" color="error">
               clear all
             </Button>
           </div>
@@ -465,37 +445,36 @@ const LogReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleLogReport_Close}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleLogReport_ResetAll}>
+            <Button color="error" onClick={handleResetAll}>
               Reset all
             </Button>
           </DialogTitle>
           <DialogContent>
             <div className="flex flex-col gap-[20px] pt-[15px]">
-              <div className="flex gap-[20px]">
+              {/* <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, my: 0.4, minWidth: 210 }}
+                  sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
                 >
                   <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={logReport_clientDropdown.filter(
+                    options={clientDropdown.filter(
                       (option) =>
-                        !logReport_clients.find(
-                          (client) => client.value === option.value
-                        )
+                        !clients.find((client) => client.value === option.value)
                     )}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
-                      setLogReport_Clients(data);
-                      setLogReport_ClientName(data.map((d: any) => d.value));
-                      setLogReport_ProjectName(null);
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
+                      setClients(data);
+                      setClientName(data.map((d: LabelValue) => d.value));
+                      setProject([]);
+                      setProcessName([]);
                     }}
-                    value={logReport_clients}
+                    value={clients}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
@@ -507,38 +486,47 @@ const LogReportFilter = ({
                 </FormControl>
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210 }}
+                  sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
-                    options={logReport_projectDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
-                      setLogReport_ProjectName(data);
+                    options={projectDropdown.filter(
+                      (option) => !project.find((p) => p.value === option.value)
+                    )}
+                    disabled={clientName.length > 1}
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
+                      setProject(data);
+                      setProjectName(data.map((d: LabelValue) => d.value));
                     }}
-                    value={logReport_projectName}
-                    disabled={logReport_clientName.length > 1}
+                    value={project}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
                         variant="standard"
-                        label="Project Name"
+                        label="Project"
                       />
                     )}
                   />
                 </FormControl>
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210 }}
+                  sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
-                    options={logReport_processDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
-                      setLogReport_Process(data);
+                    options={processDropdown.filter(
+                      (option) =>
+                        !processLog.find((user) => user.value === option.value)
+                    )}
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
+                      setProcessLog(data);
+                      setProcessName(data.map((d: LabelValue) => d.value));
                     }}
-                    value={logReport_process}
+                    value={processLog}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
@@ -548,20 +536,25 @@ const LogReportFilter = ({
                     )}
                   />
                 </FormControl>
-              </div>
+              </div> */}
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210 }}
+                  sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
-                    options={logReport_updatedByDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
-                      setLogReport_UpdatedBy(data);
+                    options={updatedByDropdown.filter(
+                      (option) =>
+                        !updatedBy.find((user) => user.value === option.value)
+                    )}
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
+                      setUpdatedBy(data);
+                      setUpdatedByName(data.map((d: LabelValue) => d.value));
                     }}
-                    value={logReport_updatedBy}
+                    value={updatedBy}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
@@ -577,16 +570,10 @@ const LogReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
-                      shouldDisableDate={isWeekend}
-                      maxDate={dayjs(Date.now()) || dayjs(logReport_endDate)}
-                      value={
-                        logReport_startDate === ""
-                          ? null
-                          : dayjs(logReport_startDate)
-                      }
-                      onChange={(newValue: any) =>
-                        setLogReport_StartDate(newValue)
-                      }
+                      // shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now()) || dayjs(endDate)}
+                      value={startDate === "" ? null : dayjs(startDate)}
+                      onChange={(newValue: any) => setStartDate(newValue)}
                       slotProps={{
                         textField: {
                           readOnly: true,
@@ -595,24 +582,17 @@ const LogReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
-
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="End Date"
-                      shouldDisableDate={isWeekend}
-                      minDate={dayjs(logReport_startDate)}
+                      // shouldDisableDate={isWeekend}
+                      minDate={dayjs(startDate)}
                       maxDate={dayjs(Date.now())}
-                      value={
-                        logReport_endDate === ""
-                          ? null
-                          : dayjs(logReport_endDate)
-                      }
-                      onChange={(newValue: any) =>
-                        setLogReport_EndDate(newValue)
-                      }
+                      value={endDate === "" ? null : dayjs(endDate)}
+                      onChange={(newValue: any) => setEndDate(newValue)}
                       slotProps={{
                         textField: {
                           readOnly: true,
@@ -625,14 +605,14 @@ const LogReportFilter = ({
             </div>
           </DialogContent>
           <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">
-            {!logReport_saveFilter ? (
+            {!saveFilter ? (
               <>
                 <Button
                   variant="contained"
                   color="info"
-                  className={`${logReport_anyFieldSelected && "!bg-secondary"}`}
-                  disabled={!logReport_anyFieldSelected}
-                  onClick={handleLogReport_FilterApply}
+                  className={`${anyFieldSelected && "!bg-secondary"}`}
+                  disabled={!anyFieldSelected}
+                  onClick={handleFilterApply}
                 >
                   Apply Filter
                 </Button>
@@ -640,9 +620,9 @@ const LogReportFilter = ({
                 <Button
                   variant="contained"
                   color="info"
-                  className={`${logReport_anyFieldSelected && "!bg-secondary"}`}
-                  onClick={() => setLogReport_SaveFilter(true)}
-                  disabled={!logReport_anyFieldSelected}
+                  className={`${anyFieldSelected && "!bg-secondary"}`}
+                  onClick={() => setSaveFilter(true)}
+                  disabled={!anyFieldSelected}
                 >
                   Save Filter
                 </Button>
@@ -658,25 +638,23 @@ const LogReportFilter = ({
                     fullWidth
                     required
                     variant="standard"
-                    value={logReport_filterName}
+                    value={filterName}
                     onChange={(e) => {
-                      setLogReport_FilterName(e.target.value);
-                      setLogReport_Error("");
+                      setFilterName(e.target.value);
+                      setError("");
                     }}
-                    error={logReport_error.length > 0 ? true : false}
-                    helperText={logReport_error}
+                    error={error.length > 0 ? true : false}
+                    helperText={error}
                   />
                 </FormControl>
                 <Button
                   variant="contained"
                   color="info"
-                  onClick={handleLogReport_SaveFilter}
+                  onClick={handleSaveFilter}
                   className={`${
-                    logReport_filterName.trim().length === 0
-                      ? ""
-                      : "!bg-secondary"
+                    filterName.length === 0 ? "" : "!bg-secondary"
                   }`}
-                  disabled={logReport_filterName.trim().length === 0}
+                  disabled={filterName.length === 0}
                 >
                   Save & Apply
                 </Button>
@@ -686,17 +664,22 @@ const LogReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={handleLogReport_Close}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
             >
               Cancel
             </Button>
           </DialogActions>
         </Dialog>
       )}
+
       <DeleteDialog
-        isOpen={logReport_isDeleting}
-        onClose={() => setLogReport_IsDeleting(false)}
-        onActionClick={handleLogReport_SavedFilterDelete}
+        isOpen={isDeleting}
+        onClose={() => setIsDeleting(false)}
+        onActionClick={handleSavedFilterDelete}
         Title={"Delete Filter"}
         firstContent={"Are you sure you want to delete this saved filter?"}
         secondContent={

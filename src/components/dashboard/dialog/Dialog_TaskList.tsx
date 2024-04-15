@@ -10,12 +10,12 @@ interface TaskListDialogProps {
   onSelectedWorkType: number;
 }
 
-const Dialog_TaskList: React.FC<TaskListDialogProps> = ({
+const Dialog_TaskList = ({
   onOpen,
   onClose,
   onSelectedProjectIds,
   onSelectedWorkType,
-}) => {
+}: TaskListDialogProps) => {
   const handleClose = () => {
     onClose();
   };
@@ -29,7 +29,7 @@ const Dialog_TaskList: React.FC<TaskListDialogProps> = ({
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogContent>
+        <DialogContent className="pb-0">
           <Datatable_FullScreen
             onClose={handleClose}
             onSelectedWorkType={onSelectedWorkType}

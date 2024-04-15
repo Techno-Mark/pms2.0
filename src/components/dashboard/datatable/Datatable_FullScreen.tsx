@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
 import React, { useState } from "react";
@@ -13,11 +12,11 @@ interface DatatableFullScreenProps {
   onSelectedWorkType: number;
 }
 
-const Datatable_FullScreen: React.FC<DatatableFullScreenProps> = ({
+const Datatable_FullScreen = ({
   onClose,
   onSelectedProjectIds,
   onSelectedWorkType,
-}) => {
+}: DatatableFullScreenProps) => {
   const [isOverdueClicked, setIsOverdueClicked] = useState(true);
   const [isOnHoldClicked, setIsOnHoldClicked] = useState(false);
 

@@ -15,15 +15,27 @@ interface OnHoldProps {
   onSelectedWorkType: number;
 }
 
-const Datatable_OnHold: React.FC<OnHoldProps> = ({
+interface List {
+  WorkitemId: number | null;
+  ProjectId: number | null;
+  ProjectName: string | null;
+  TaskName: string | null;
+  CloseMonth: string | number | null;
+  StartDate: string | null;
+  DueDate: string | null;
+  DueFrom: number | null;
+}
+
+const Datatable_OnHold = ({
   onSelectedProjectIds,
   onSelectedWorkType,
-}) => {
-  const [data, setData] = useState<any | any[]>([]);
+}: OnHoldProps) => {
+  const [data, setData] = useState<List[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
-  const [options, setOptions] = useState<any>({
+
+  const options: any = {
     filterType: "checkbox",
     responsive: "standard",
     viewColumns: false,
@@ -49,32 +61,7 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
         toolTip: "",
       },
     },
-  });
-
-  useEffect(() => {
-    const handleResize = () => {
-      const screenWidth = window.innerWidth;
-      let tableBodyHeight = "86vh";
-
-      if (screenWidth > 1440) {
-        tableBodyHeight = "77vh";
-      } else if (screenWidth > 1280) {
-        tableBodyHeight = "86vh";
-      }
-
-      setOptions((prevOptions: any) => ({
-        ...prevOptions,
-        tableBodyHeight,
-      }));
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  };
 
   const getData = async () => {
     const params = {
@@ -88,9 +75,9 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
     };
     const url = `${process.env.report_api_url}/clientdashboard/tasklistbyproject`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: { List: List[] | []; TotalCount: number },
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setData(ResponseData.List);
@@ -101,7 +88,13 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
   };
 
   useEffect(() => {
-    getData();
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [onSelectedProjectIds, onSelectedWorkType, page, rowsPerPage]);
 
   return (
@@ -111,7 +104,7 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
           data={data}
           columns={dashboardOnHoldAndOverdueCols}
           title={undefined}
-          options={options}
+          options={{ ...options, tableBodyHeight: "78vh" }}
           data-tableid="dashboard_OnHold_Datatable"
         />
         <TablePagination

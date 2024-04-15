@@ -12,16 +12,18 @@ if (typeof Highcharts === "object") {
 interface PriorityProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
-  sendData: any;
+  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
-const Chart_Priority: React.FC<PriorityProps> = ({
+const Chart_Priority = ({
   onSelectedProjectIds,
   onSelectedWorkType,
   sendData,
-}) => {
-  const [data, setData] = useState<any | any[]>([]);
-  const [totalCount, setTotalCount] = useState<any | number>(0);
+}: PriorityProps) => {
+  const [data, setData] = useState<
+    { name: string; id: string; y: number; z: number }[] | []
+  >([]);
+  const [totalCount, setTotalCount] = useState<number>(0);
 
   useEffect(() => {
     const getData = async () => {
@@ -31,9 +33,9 @@ const Chart_Priority: React.FC<PriorityProps> = ({
       };
       const url = `${process.env.report_api_url}/clientdashboard/taskprioritycount`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: { High: number; Medium: number; Low: number },
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           const drilldownData = Object.entries(ResponseData).map(
@@ -44,10 +46,7 @@ const Chart_Priority: React.FC<PriorityProps> = ({
               z: value,
             })
           );
-          const total = drilldownData.reduce(
-            (acc: any, item: any) => acc + item.y,
-            0
-          );
+          const total = drilldownData.reduce((acc, item) => acc + item.y, 0);
           setTotalCount(total);
           setData(drilldownData);
         }
@@ -55,7 +54,13 @@ const Chart_Priority: React.FC<PriorityProps> = ({
       callAPI(url, params, successCallback, "POST");
     };
 
-    getData();
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [onSelectedProjectIds, onSelectedWorkType]);
 
   const chartOptions = {

@@ -23,15 +23,17 @@ interface DialogProps {
   onClose: () => void;
   onSelectedProjectIds: number[];
   onSelectedPriorityName: string;
+  onSelectedWorkType: number;
 }
 
-const Dialog_PriorityInfo: React.FC<DialogProps> = ({
+const Dialog_PriorityInfo = ({
   onOpen,
   onClose,
   onSelectedProjectIds,
   onSelectedPriorityName,
-}) => {
-  const [priority, setPriority] = useState<number | any>(0);
+  onSelectedWorkType,
+}: DialogProps) => {
+  const [priority, setPriority] = useState<number>(0);
   const [clickedPriorityName, setClickedPriorityName] = useState<string>("");
 
   const priority_Data = [
@@ -58,7 +60,7 @@ const Dialog_PriorityInfo: React.FC<DialogProps> = ({
     setClickedPriorityName("");
   };
 
-  function getValueByLabelOrType(labelOrType: any): number {
+  function getValueByLabelOrType(labelOrType: string | undefined): number {
     const priority = priority_Data.find(
       (priority: Priority) =>
         priority.Type === labelOrType || priority.label === labelOrType
@@ -86,29 +88,31 @@ const Dialog_PriorityInfo: React.FC<DialogProps> = ({
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogTitle className="flex justify-between p-5 bg-whiteSmoke">
+        <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">Task Status</span>
           <IconButton onClick={handleClose}>
             <Close />
           </IconButton>
         </DialogTitle>
 
-        <DialogContent className="flex flex-col gap-5 mt-[10px]">
+        <DialogContent className="flex flex-col gap-5 mt-[10px] !py-0">
           <div className="flex justify-end items-center">
             <FormControl sx={{ mx: 0.75, minWidth: 150, marginTop: 1 }}>
               <Select
                 labelId="status"
                 id="status"
                 value={priority ? priority : 0}
-                onChange={(e) => setPriority(e.target.value)}
+                onChange={(e) => setPriority(Number(e.target.value))}
                 sx={{ height: "36px" }}
               >
                 <MenuItem value={0}>All</MenuItem>
-                {priority_Data.map((i: any) => (
-                  <MenuItem value={i.value} key={i.value}>
-                    {i.label}
-                  </MenuItem>
-                ))}
+                {priority_Data.map(
+                  (i: { Type: string; label: string; value: number }) => (
+                    <MenuItem value={i.value} key={i.value}>
+                      {i.label}
+                    </MenuItem>
+                  )
+                )}
               </Select>
             </FormControl>
           </div>
@@ -116,6 +120,8 @@ const Dialog_PriorityInfo: React.FC<DialogProps> = ({
           <Datatable_PriorityInfo
             onSelectedProjectIds={onSelectedProjectIds}
             onSelectedPriorityId={priority}
+            onSelectedWorkType={onSelectedWorkType}
+            onOpen={onOpen}
           />
         </DialogContent>
       </Dialog>

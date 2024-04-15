@@ -13,6 +13,23 @@ import { toast } from "react-toastify";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { getStatusDropdownData } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
+import { DatatableWorklog } from "@/utils/Types/clientWorklog";
+import { LabelValueType } from "@/utils/Types/types";
+
+interface Props {
+  selectedRowsCount: number;
+  selectedRows: number[];
+  selectedRowId: null | number;
+  selectedRowIds: number[];
+  selectedRowWorkTypeId: number[];
+  onEdit: (rowData: number) => void;
+  handleClearSelection: () => void;
+  onComment: (rowData: boolean, selectedId: number) => void;
+  workItemData: DatatableWorklog[];
+  getWorkItemList: () => void;
+  isCreatedByClient: null | boolean;
+  getOverLay: (e: boolean) => void;
+}
 
 const priorityOptions = [
   { id: 3, text: "Low" },
@@ -23,9 +40,9 @@ const priorityOptions = [
 const WorklogActionbar = ({
   selectedRowsCount,
   selectedRows,
-  selectedRowStatusId,
   selectedRowId,
   selectedRowIds,
+  selectedRowWorkTypeId,
   onEdit,
   handleClearSelection,
   onComment,
@@ -33,8 +50,8 @@ const WorklogActionbar = ({
   getWorkItemList,
   isCreatedByClient,
   getOverLay,
-}: any) => {
-  const [allStatus, setAllStatus] = useState<any | any[]>([]);
+}: Props) => {
+  const [allStatus, setAllStatus] = useState<LabelValueType[]>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
   const [anchorElPriority, setAnchorElPriority] =
     React.useState<HTMLButtonElement | null>(null);
@@ -77,12 +94,12 @@ const WorklogActionbar = ({
   const openStatus = Boolean(anchorElStatus);
   const idStatus = openStatus ? "simple-popover" : undefined;
 
-  const handleOptionPriority = (id: any) => {
+  const handleOptionPriority = (id: number) => {
     updatePriority(selectedRowIds, id);
     handleClosePriority();
   };
 
-  const handleOptionStatus = (id: any) => {
+  const handleOptionStatus = (id: number) => {
     updateStatus(selectedRowIds, id);
     handleCloseStatus();
   };
@@ -99,9 +116,9 @@ const WorklogActionbar = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/UpdatePriority`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Priority has been updated successfully.");
@@ -117,25 +134,25 @@ const WorklogActionbar = ({
 
   const deleteWorkItem = async () => {
     const deletedId = workItemData
-      .map((item: any) =>
+      .map((item: DatatableWorklog) =>
         selectedRowIds.includes(item.WorkitemId) && item.IsCreatedByClient
           ? item.WorkitemId
           : undefined
       )
-      .filter((i: any) => i !== undefined);
+      .filter((i: number | undefined) => i !== undefined);
 
     if (selectedRowIds.length > 0) {
+      // if (
+      //   workItemData.some(
+      //     (item: DatatableWorklog) =>
+      //       selectedRowIds.includes(item.WorkitemId) && item.IsHasErrorlog
+      //   )
+      // ) {
+      //   toast.warning("After resolving the error log, users can delete it.");
+      // }
       if (
         workItemData.some(
-          (item: any) =>
-            selectedRowIds.includes(item.WorkitemId) && item.IsHasErrorlog
-        )
-      ) {
-        toast.warning("After resolving the error log, users can delete it.");
-      }
-      if (
-        workItemData.some(
-          (item: any) =>
+          (item: DatatableWorklog) =>
             selectedRowIds.includes(item.WorkitemId) && !item.IsCreatedByClient
         )
       ) {
@@ -148,9 +165,9 @@ const WorklogActionbar = ({
         };
         const url = `${process.env.worklog_api_url}/workitem/deleteworkitem`;
         const successCallback = (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          ResponseData: null,
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success("Task has been deleted successfully.");
@@ -168,20 +185,20 @@ const WorklogActionbar = ({
 
   const duplicateWorkItem = async () => {
     const dontDuplicateId = workItemData
-      .map((item: any) =>
+      .map((item: DatatableWorklog) =>
         selectedRowIds.includes(item.WorkitemId) && !item.IsCreatedByClient
           ? item.WorkitemId
           : undefined
       )
-      .filter((i: any) => i !== undefined);
+      .filter((i: number | undefined) => i !== undefined);
 
     const duplicateId = workItemData
-      .map((item: any) =>
+      .map((item: DatatableWorklog) =>
         selectedRowIds.includes(item.WorkitemId) && item.IsCreatedByClient
           ? item.WorkitemId
           : undefined
       )
-      .filter((i: any) => i !== undefined);
+      .filter((i: number | undefined) => i !== undefined);
 
     if (dontDuplicateId.length > 0) {
       toast.warning("You can not duplicate task which is created by PABS.");
@@ -193,9 +210,9 @@ const WorklogActionbar = ({
       };
       const url = `${process.env.worklog_api_url}/workitem/copyworkitem`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success("Task has been duplicated successfully");
@@ -211,16 +228,18 @@ const WorklogActionbar = ({
   };
 
   const getAllStatus = async () => {
-    const data = await getStatusDropdownData();
+    const data = await getStatusDropdownData(
+      Array.from(new Set(selectedRowWorkTypeId))[0]
+    );
     data.length > 0 &&
       setAllStatus(
         data
-          .map((i: any) =>
+          .map((i: LabelValueType) =>
             i.Type === "WithdrawnbyClient" || i.Type === "OnHoldFromClient"
               ? i
               : ""
           )
-          .filter((i: any) => i !== "")
+          .filter((i: LabelValueType | undefined | string) => i !== "")
       );
   };
 
@@ -233,9 +252,9 @@ const WorklogActionbar = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/UpdateStatus`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Status has been updated successfully.");
@@ -272,7 +291,7 @@ const WorklogActionbar = ({
                       <span
                         className="pl-2 pr-2 pt-1 text-slatyGrey cursor-pointer border-l border-lightSilver"
                         onClick={() => {
-                          onEdit(selectedRowId);
+                          onEdit(Number(selectedRowId));
                         }}
                       >
                         <EditIcon />
@@ -315,31 +334,38 @@ const WorklogActionbar = ({
                 >
                   <nav className="!w-52">
                     <List>
-                      {priorityOptions.map((option: any) => (
-                        <span
-                          key={option.id}
-                          className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
-                        >
+                      {priorityOptions.map(
+                        (option: { id: number; text: string }) => (
                           <span
-                            className="p-1 cursor-pointer"
-                            onClick={() => handleOptionPriority(option.id)}
+                            key={option.id}
+                            className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                           >
-                            {option.text}
+                            <span
+                              className="p-1 cursor-pointer"
+                              onClick={() => handleOptionPriority(option.id)}
+                            >
+                              {option.text}
+                            </span>
                           </span>
-                        </span>
-                      ))}
+                        )
+                      )}
                     </List>
                   </nav>
                 </Popover>
-                <ColorToolTip title="Status" arrow>
-                  <span
-                    aria-describedby={idStatus}
-                    onClick={handleClickStatus}
-                    className="pl-2 pr-2 pt-1 cursor-pointer border-l border-lightSilver"
-                  >
-                    <DetectorStatus />
-                  </span>
-                </ColorToolTip>
+
+                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+                  Array.from(new Set(selectedRowWorkTypeId)).length === 1 && (
+                    <ColorToolTip title="Status" arrow>
+                      <span
+                        aria-describedby={idStatus}
+                        onClick={handleClickStatus}
+                        className="pl-2 pr-2 pt-1 cursor-pointer border-l border-lightSilver"
+                      >
+                        <DetectorStatus />
+                      </span>
+                    </ColorToolTip>
+                  )}
+
                 {/* Status Popover */}
                 <Popover
                   id={idStatus}
@@ -357,7 +383,7 @@ const WorklogActionbar = ({
                 >
                   <nav className="!w-52">
                     <List>
-                      {allStatus.map((option: any) => {
+                      {allStatus.map((option: LabelValueType) => {
                         return (
                           <span
                             key={option.value}
@@ -390,7 +416,12 @@ const WorklogActionbar = ({
                   <ColorToolTip title="Comments" arrow>
                     <span
                       className="pl-2 pr-2 pt-1 cursor-pointer border-l border-lightSilver"
-                      onClick={() => onComment(true, selectedRowId)}
+                      onClick={() =>
+                        onComment(
+                          true,
+                          selectedRowId !== null ? selectedRowId : 0
+                        )
+                      }
                     >
                       <Comments />
                     </span>

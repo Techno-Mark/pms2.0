@@ -18,19 +18,26 @@ import { callAPI } from "@/utils/API/callAPI";
 interface ImportDialogProp {
   onOpen: boolean;
   onClose: () => void;
-  onDataFetch: any;
+  onDataFetch: (() => void) | null;
 }
 
-const ImportDialog: React.FC<ImportDialogProp> = ({
-  onOpen,
-  onClose,
-  onDataFetch,
-}) => {
+const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
   const [error, setError] = useState("");
   const [importText, setImportText] = useState("");
-  const [importFields, setImportFields] = useState<any[]>([]);
+  const [importFields, setImportFields] = useState<
+    | {
+        id: number;
+        field: string;
+      }[]
+    | []
+  >([]);
   const [isNextCliecked, setIsNextClicked] = useState<boolean>(false);
-  const [selectedTasks, setselectedtasks] = useState<any[]>([]);
+  const [selectedTasks, setselectedtasks] = useState<
+    | {
+        TaskName: string;
+      }[]
+    | []
+  >([]);
 
   const handleClose = () => {
     handleReset();
@@ -46,17 +53,17 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
   };
 
   const handleRowSelect = (
-    currentRowsSelected: any,
-    allRowsSelected: any,
-    rowsSelected: any
+    currentRowsSelected: { index: number; dataIndex: number }[] | [],
+    allRowsSelected: { index: number; dataIndex: number }[] | [],
+    rowsSelected: number[] | []
   ) => {
     const selectedData = allRowsSelected.map(
-      (row: any) => importFields[row.dataIndex]
+      (row: { index: number; dataIndex: number }) => importFields[row.dataIndex]
     );
 
     const tasks =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => ({
+        ? selectedData.map((selectedRow: { id: number; field: string }) => ({
             TaskName: selectedRow.field,
           }))
         : [];
@@ -97,13 +104,13 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/import`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Task has been imported successfully.");
-        onDataFetch();
+        onDataFetch?.();
         handleClose();
       }
     };
@@ -138,9 +145,13 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
                 options={{
                   ...Table_Options,
                   onRowSelectionChange: (
-                    currentRowsSelected: any,
-                    allRowsSelected: any,
-                    rowsSelected: any
+                    currentRowsSelected:
+                      | { index: number; dataIndex: number }[]
+                      | [],
+                    allRowsSelected:
+                      | { index: number; dataIndex: number }[]
+                      | [],
+                    rowsSelected: number[] | []
                   ) =>
                     handleRowSelect(
                       currentRowsSelected,

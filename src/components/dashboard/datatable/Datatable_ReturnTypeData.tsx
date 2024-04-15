@@ -10,22 +10,32 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { dashboardPriorityReturnTaskInfoCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
+import { ListClientDashboard } from "@/utils/Types/dashboardTypes";
 
 interface ReturnTypeDataProps {
   onSelectedProjectIds: number[];
-  onSelectedReturnTypeValue: any;
-  onCurrSelectedReturnType: string;
+  onSelectedReturnTypeValue: number;
+  onCurrSelectedReturnType: string | number;
+  onSelectedWorkType: number;
+  onOpen: boolean;
 }
 
-const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
+const Datatable_ReturnTypeData = ({
   onSelectedProjectIds,
   onSelectedReturnTypeValue,
   onCurrSelectedReturnType,
-}) => {
-  const [data, setData] = useState<any | any[]>([]);
+  onSelectedWorkType,
+  onOpen,
+}: ReturnTypeDataProps) => {
+  const [data, setData] = useState<ListClientDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+
+  useEffect(() => {
+    onOpen && setPage(0);
+    onOpen && setRowsPerPage(10);
+  }, [onOpen]);
 
   useEffect(() => {
     const getData = async () => {
@@ -35,7 +45,7 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
         SortColumn: null,
         IsDesc: true,
         projectIds: onSelectedProjectIds,
-        typeOfWork: null,
+        typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
         priorityId: null,
         statusId: null,
         ReturnTypeId: onCurrSelectedReturnType
@@ -44,9 +54,9 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
       };
       const url = `${process.env.report_api_url}/clientdashboard/taskstatusandprioritylist`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: { List: ListClientDashboard[] | []; TotalCount: number },
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           setData(ResponseData.List);
@@ -56,11 +66,18 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
       callAPI(url, params, successCallback, "POST");
     };
 
-    getData();
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
     onSelectedProjectIds,
     onSelectedReturnTypeValue,
     onCurrSelectedReturnType,
+    onSelectedWorkType,
     page,
     rowsPerPage,
   ]);
@@ -72,7 +89,7 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
           data={data}
           columns={dashboardPriorityReturnTaskInfoCols}
           title={undefined}
-          options={dashboard_Options}
+          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="priorityInfo_Datatable"
         />
         <TablePagination

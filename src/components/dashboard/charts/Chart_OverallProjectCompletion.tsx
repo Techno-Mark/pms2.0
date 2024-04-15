@@ -3,6 +3,7 @@ import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import HighchartsVariablePie from "highcharts/modules/variable-pie";
 import { callAPI } from "@/utils/API/callAPI";
+import { ListOverallProject } from "@/utils/Types/dashboardTypes";
 
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
@@ -10,13 +11,15 @@ if (typeof Highcharts === "object") {
 interface OverallProjectCompletionProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
-  sendData: any;
+  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
-const Chart_OverallProjectCompletion: React.FC<
-  OverallProjectCompletionProps
-> = ({ onSelectedProjectIds, onSelectedWorkType, sendData }) => {
-  const [data, setData] = useState<any | any[]>([]);
+const Chart_OverallProjectCompletion = ({
+  onSelectedProjectIds,
+  onSelectedWorkType,
+  sendData,
+}: OverallProjectCompletionProps) => {
+  const [data, setData] = useState<ListOverallProject[] | []>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
   useEffect(() => {
@@ -27,9 +30,9 @@ const Chart_OverallProjectCompletion: React.FC<
       };
       const url = `${process.env.report_api_url}/clientdashboard/overallprojectcompletion`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: { List: ListOverallProject[] | []; TotalCount: number },
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           setData(ResponseData.List);
@@ -39,7 +42,13 @@ const Chart_OverallProjectCompletion: React.FC<
       callAPI(url, params, successCallback, "POST");
     };
 
-    getData();
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [onSelectedProjectIds, onSelectedWorkType]);
 
   const chartOptions = {
@@ -108,7 +117,7 @@ const Chart_OverallProjectCompletion: React.FC<
         name: "projects",
         borderRadius: 4,
         showInLegend: true,
-        data: data.map((item: { Key: any; Percentage: any; Count: any }) => {
+        data: data.map((item: ListOverallProject) => {
           return {
             name: item.Key,
             key: item.Key,
@@ -116,7 +125,7 @@ const Chart_OverallProjectCompletion: React.FC<
             z: `${item.Percentage} %`,
           };
         }),
-        colors: data.map((item: { ColorCode: any }) => item.ColorCode),
+        colors: data.map((item: ListOverallProject) => item.ColorCode),
       },
     ],
     accessibility: {
@@ -137,11 +146,7 @@ const Chart_OverallProjectCompletion: React.FC<
           <HighchartsReact highcharts={Highcharts} options={chartOptions} />
         </div>
         {data.length > 0 && (
-          <span
-            className={`flex flex-col items-center absolute bottom-[9rem] z-0 ${
-              totalCount <= 1 ? "left-[8.45rem]" : "left-[5rem]"
-            }`}
-          >
+          <span className="flex flex-col items-center absolute bottom-[9rem] z-0 left-[5rem]">
             <span className="text-xl font-semibold text-darkCharcoal">
               {totalCount}
             </span>

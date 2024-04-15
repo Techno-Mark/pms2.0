@@ -5,17 +5,25 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import DetectorStatus from "@/assets/icons/worklogs/DetectorStatus";
 import { getStatusDropdownData } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
+import { WorkitemList } from "@/utils/Types/worklogsTypes";
+import { LabelValueType } from "@/utils/Types/types";
 
 const Status = ({
   selectedRowIds,
-  selectedRowStatusId,
   workItemData,
-  selectedRowsCount,
   getWorkItemList,
   handleClearSelection,
+  selectedRowWorkTypeId,
   getOverLay,
-}: any) => {
-  const [allStatus, setAllStatus] = useState<any | any[]>([]);
+}: {
+  selectedRowIds: number[];
+  workItemData: WorkitemList[];
+  getWorkItemList: () => void;
+  handleClearSelection: () => void;
+  selectedRowWorkTypeId: number[];
+  getOverLay?: (e: boolean) => void;
+}) => {
+  const [allStatus, setAllStatus] = useState<LabelValueType[]>([]);
 
   const [anchorElStatus, setAnchorElStatus] =
     React.useState<HTMLButtonElement | null>(null);
@@ -32,15 +40,15 @@ const Status = ({
   const openStatus = Boolean(anchorElStatus);
   const idStatus = openStatus ? "simple-popover" : undefined;
 
-  const handleOptionStatus = (id: any) => {
+  const handleOptionStatus = (id: number) => {
     updateStatus(selectedRowIds, id);
     handleCloseStatus();
   };
 
   const getAllStatus = async () => {
-    let isRework: any = [];
-    let isNotRework: any = [];
-    workItemData.map((i: any) => {
+    let isRework: number[] = [];
+    let isNotRework: number[] = [];
+    workItemData.map((i: WorkitemList) => {
       if (selectedRowIds.includes(i.WorkitemId)) {
         if (i.ErrorlogSignedOffPending) {
           isRework.push(i.WorkitemId);
@@ -49,11 +57,14 @@ const Status = ({
         }
       }
     });
-    const data = await getStatusDropdownData();
+
+    const data = await getStatusDropdownData(
+      Array.from(new Set(selectedRowWorkTypeId))[0]
+    );
     data.length > 0 &&
       setAllStatus(
         data.filter(
-          (item: any) =>
+          (item: LabelValueType) =>
             item.Type === "PendingFromAccounting" ||
             item.Type === "Rework" ||
             item.Type === "Assigned" ||
@@ -73,9 +84,9 @@ const Status = ({
   };
 
   const updateStatus = async (id: number[], statusId: number) => {
-    let isRework: any = [];
-    let isNotRework: any = [];
-    workItemData.map((i: any) => {
+    let isRework: number[] = [];
+    let isNotRework: number[] = [];
+    workItemData.map((i: WorkitemList) => {
       if (selectedRowIds.includes(i.WorkitemId)) {
         if (i.ErrorlogSignedOffPending) {
           isRework.push(i.WorkitemId);
@@ -85,7 +96,7 @@ const Status = ({
       }
     });
 
-    getOverLay(true);
+    getOverLay?.(true);
     const params = {
       workitemIds: isNotRework.length > 0 ? isNotRework : isRework,
       statusId: statusId,
@@ -93,9 +104,9 @@ const Status = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/UpdateStatus`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: boolean | string,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Status has been updated successfully.");
@@ -103,18 +114,18 @@ const Status = ({
         isNotRework = [];
         isRework = [];
         getWorkItemList();
-        getOverLay(false);
-      } else if (ResponseStatus === "Warning") {
+        getOverLay?.(false);
+      } else if (ResponseStatus === "Warning" && error === false) {
         toast.warning(ResponseData);
         handleClearSelection();
         isNotRework = [];
         isRework = [];
         getWorkItemList();
-        getOverLay(false);
+        getOverLay?.(false);
       } else {
         handleClearSelection();
         getWorkItemList();
-        getOverLay(false);
+        getOverLay?.(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -148,7 +159,7 @@ const Status = ({
                 No Data Available
               </span>
             ) : (
-              allStatus.map((option: any) => {
+              allStatus.map((option: LabelValueType) => {
                 return (
                   <span
                     key={option.value}

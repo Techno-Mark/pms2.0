@@ -10,32 +10,64 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardBillingTypeCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
+import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 
 interface BillingTypeProps {
-  onSelectedWorkType: number;
+  currentFilterData: DashboardInitialFilter;
   onSelectedStatusName: string;
-  onCurrentSelectedBillingType: any;
+  onCurrentSelectedBillingType: number | null;
   onSearchValue: string;
+  isClose: boolean;
 }
 
-const Datatable_BillingType: React.FC<BillingTypeProps> = ({
-  onSelectedWorkType,
+interface List {
+  ClientId: number;
+  ClientName: string;
+  TypeOfWorkId: number;
+  TypeOfWorkName: string;
+  BillingTypeId: number;
+  BillingTypeName: string;
+  Status: boolean;
+  ContractedHours: number;
+  InternalHours: number;
+}
+
+interface Response {
+  TotalCount: number;
+  DashboardSummaryFilters: null;
+  BillingStatusList: List[] | [];
+}
+
+const Datatable_BillingType = ({
+  currentFilterData,
   onSelectedStatusName,
   onCurrentSelectedBillingType,
   onSearchValue,
-}) => {
+  isClose,
+}: BillingTypeProps) => {
   const [data, setData] = useState<any | any[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
 
-  const getBillingTypeData = async (value: any) => {
+  useEffect(() => {
+    isClose && setPage(0);
+    isClose && setRowsPerPage(10);
+  }, [isClose]);
+
+  const getBillingTypeData = async (value: string) => {
     const params = {
       PageNo: page + 1,
       PageSize: rowsPerPage,
       SortColumn: null,
       IsDesc: true,
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.WorkTypeId === null
+          ? 0
+          : currentFilterData.WorkTypeId,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
       GlobalSearch: value,
       BillingTypeId:
         onCurrentSelectedBillingType === 0
@@ -44,12 +76,12 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
     };
     const url = `${process.env.report_api_url}/dashboard/billingstatuslist`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setData(ResponseData.List);
+        setData(ResponseData.BillingStatusList);
         setTableDataCount(ResponseData.TotalCount);
       }
     };
@@ -61,13 +93,21 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
   }, [onCurrentSelectedBillingType]);
 
   useEffect(() => {
-    if (onSearchValue.length >= 3) {
-      getBillingTypeData(onSearchValue);
-    } else {
-      getBillingTypeData("");
-    }
+    const fetchData = async () => {
+      if (onSearchValue.trim().length > 0) {
+        setPage(0);
+        setRowsPerPage(10);
+        await getBillingTypeData(onSearchValue);
+      } else {
+        await getBillingTypeData("");
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
-    onSelectedWorkType,
+    currentFilterData,
     onSelectedStatusName,
     onCurrentSelectedBillingType,
     onSearchValue,
@@ -82,7 +122,7 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
           data={data}
           columns={adminDashboardBillingTypeCols}
           title={undefined}
-          options={dashboard_Options}
+          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="taskStatusInfo_Datatable"
         />
         <TablePagination

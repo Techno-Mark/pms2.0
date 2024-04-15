@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { Avatar, InputBase, List, Popover } from "@mui/material";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
@@ -6,50 +6,36 @@ import SearchIcon from "@/assets/icons/SearchIcon";
 import AssigneeIcon from "@/assets/icons/worklogs/Assignee";
 import { getAssigneeDropdownData } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
+import { LabelValue } from "@/utils/Types/types";
+import { WorkitemList } from "@/utils/Types/worklogsTypes";
 
 const Assignee = ({
   selectedRowIds,
   selectedRowClientId,
   selectedRowWorkTypeId,
   areAllValuesSame,
-  selectedRowStatusId,
   workItemData,
-  selectedRowsCount,
   getWorkItemList,
   handleClearSelection,
   getOverLay,
-}: any) => {
+}: {
+  selectedRowIds: number[];
+  selectedRowClientId: number[];
+  selectedRowWorkTypeId: number[];
+  areAllValuesSame: any;
+  workItemData: WorkitemList[];
+  getWorkItemList: () => void;
+  handleClearSelection: () => void;
+  getOverLay: (e: boolean) => void;
+}) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [assignee, setAssignee] = useState<any | any[]>([]);
+  const [assignee, setAssignee] = useState<LabelValue[]>([]);
 
   const [anchorElAssignee, setAnchorElAssignee] =
     React.useState<HTMLButtonElement | null>(null);
 
   const handleClickAssignee = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorElAssignee(event.currentTarget);
-  };
-
-  const handleCloseAssignee = () => {
-    setAnchorElAssignee(null);
-  };
-
-  const openAssignee = Boolean(anchorElAssignee);
-  const idAssignee = openAssignee ? "simple-popover" : undefined;
-
-  const handleSearchChange = (event: any) => {
-    setSearchQuery(event.target.value);
-  };
-
-  const filteredAssignees = assignee?.filter((assignee: any) =>
-    assignee.label.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleOptionAssignee = (id: any) => {
-    updateAssignee(selectedRowIds, id);
-    handleCloseAssignee();
-  };
-
-  useEffect(() => {
     if (
       selectedRowClientId.length > 0 &&
       selectedRowWorkTypeId.length > 0 &&
@@ -66,25 +52,47 @@ const Assignee = ({
       };
 
       getAssignee();
+    } else {
+      setAssignee([]);
     }
-  }, [selectedRowClientId, selectedRowWorkTypeId]);
+  };
+
+  const handleCloseAssignee = () => {
+    setAnchorElAssignee(null);
+  };
+
+  const openAssignee = Boolean(anchorElAssignee);
+  const idAssignee = openAssignee ? "simple-popover" : undefined;
+
+  const handleSearchChange = (e: string) => {
+    setSearchQuery(e);
+  };
+
+  const filteredAssignees = assignee?.filter((assignee: LabelValue) =>
+    assignee.label.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleOptionAssignee = (id: number) => {
+    updateAssignee(selectedRowIds, id);
+    handleCloseAssignee();
+  };
 
   const updateAssignee = (id: number[], assigneeId: number) => {
     const isRunning = workItemData
-      .map((item: any) =>
+      .map((item: WorkitemList) =>
         id.includes(item.WorkitemId) && item.IsActive === true
           ? item.WorkitemId
           : false
       )
-      .filter((j: any) => j !== false);
+      .filter((j: number | boolean) => j !== false);
 
     const isNotRunning = workItemData
-      .map((item: any) =>
+      .map((item: WorkitemList) =>
         id.includes(item.WorkitemId) && item.IsActive !== true
           ? item.WorkitemId
           : false
       )
-      .filter((j: any) => j !== false);
+      .filter((j: number | boolean) => j !== false);
     if (isRunning.length > 0) {
       toast.warning("Cannot change Assignee for Running tasks.");
     } else if (isNotRunning.length > 0) {
@@ -95,12 +103,17 @@ const Assignee = ({
       };
       const url = `${process.env.worklog_api_url}/workitem/UpdateAssignee`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: boolean | string,
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success("Assignee has been updated successfully.");
+          handleClearSelection();
+          getWorkItemList();
+          getOverLay(false);
+        } else if (ResponseStatus === "Warning" && error === false) {
+          toast.warning(ResponseData);
           handleClearSelection();
           getWorkItemList();
           getOverLay(false);
@@ -151,7 +164,7 @@ const Assignee = ({
                   placeholder="Search"
                   inputProps={{ "aria-label": "search" }}
                   value={searchQuery}
-                  onChange={handleSearchChange}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   style={{ fontSize: "13px" }}
                 />
               </span>
@@ -163,7 +176,7 @@ const Assignee = ({
                 No Data Available
               </span>
             ) : (
-              filteredAssignees.map((assignee: any) => {
+              filteredAssignees.map((assignee: LabelValue) => {
                 return (
                   <span
                     key={assignee.value}
@@ -176,7 +189,7 @@ const Assignee = ({
                       <Avatar sx={{ width: 32, height: 32, fontSize: 14 }}>
                         {assignee.label
                           .split(" ")
-                          .map((word: any) => word.charAt(0).toUpperCase())
+                          .map((word: string) => word.charAt(0).toUpperCase())
                           .join("")}
                       </Avatar>
 

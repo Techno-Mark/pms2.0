@@ -5,8 +5,17 @@ import ReturnYearIcon from "@/assets/icons/worklogs/ReturnYearIcon";
 import { getYears } from "@/utils/commonFunction";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { callAPI } from "@/utils/API/callAPI";
+import { LabelValue } from "@/utils/Types/types";
 
-const ReturnYear = ({ selectedRowIds, getWorkItemList, getOverLay }: any) => {
+const ReturnYear = ({
+  selectedRowIds,
+  getWorkItemList,
+  getOverLay,
+}: {
+  selectedRowIds: number[];
+  getWorkItemList: () => void;
+  getOverLay?: (e: boolean) => void;
+}) => {
   const yearDropdown = getYears();
 
   const [anchorElReturnYear, setAnchorElReturnYear] =
@@ -25,29 +34,33 @@ const ReturnYear = ({ selectedRowIds, getWorkItemList, getOverLay }: any) => {
   const openReturnYear = Boolean(anchorElReturnYear);
   const idReturnYear = openReturnYear ? "simple-popover" : undefined;
 
-  const handleOptionreturnYear = (id: any) => {
+  const handleOptionreturnYear = (id: number) => {
     updateReturnYear(selectedRowIds, id);
     handleCloseReturnYear();
   };
 
   const updateReturnYear = async (id: number[], retunYear: number) => {
-    getOverLay(true);
+    getOverLay?.(true);
     const params = {
       workitemIds: id,
       returnYear: retunYear,
     };
     const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemreturnyear`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: boolean | string,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Return Year has been updated successfully.");
         getWorkItemList();
-        getOverLay(false);
+        getOverLay?.(false);
+      } else if (ResponseStatus === "Warning" && error === false) {
+        toast.warning(ResponseData);
+        getWorkItemList();
+        getOverLay?.(false);
       } else {
-        getOverLay(false);
+        getOverLay?.(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -83,7 +96,7 @@ const ReturnYear = ({ selectedRowIds, getWorkItemList, getOverLay }: any) => {
                 No Data Available
               </span>
             ) : (
-              yearDropdown.map((yr: any) => {
+              yearDropdown.map((yr: LabelValue) => {
                 return (
                   <span
                     key={yr.value}

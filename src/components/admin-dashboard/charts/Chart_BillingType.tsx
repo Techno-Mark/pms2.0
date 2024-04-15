@@ -4,42 +4,57 @@ import HighchartsReact from "highcharts-react-official";
 
 import HighchartsVariablePie from "highcharts/modules/variable-pie";
 import { callAPI } from "@/utils/API/callAPI";
+import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
+
 interface ChartBillingTypeProps {
-  onSelectedProjectIds: number[];
-  onSelectedWorkType: number;
-  sendData: any;
+  currentFilterData: DashboardInitialFilter;
+  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
-const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
-  onSelectedProjectIds,
-  onSelectedWorkType,
+interface List {
+  Percentage: number;
+  Key: string;
+  Value: number;
+}
+
+interface Response {
+  List: List[] | [];
+  TotalCount: number;
+}
+
+const Chart_BillingType = ({
+  currentFilterData,
   sendData,
-}) => {
+}: ChartBillingTypeProps) => {
   const [data, setData] = useState<any | any[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
   const getBillingTypeData = async () => {
     const params = {
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.WorkTypeId === null
+          ? 0
+          : currentFilterData.WorkTypeId,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
     };
     const url = `${process.env.report_api_url}/dashboard/billingstatusgraph`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        const chartData = ResponseData.List.map(
-          (item: { Percentage: any; Key: any; Value: any }) => ({
-            name: item.Key,
-            y: item.Value,
-            percentage: item.Percentage,
-          })
-        );
+        const chartData = ResponseData.List.map((item: List) => ({
+          name: item.Key,
+          y: item.Value,
+          percentage: item.Percentage,
+        }));
 
         setData(chartData);
         setTotalCount(ResponseData.TotalCount);
@@ -49,8 +64,14 @@ const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
   };
 
   useEffect(() => {
-    getBillingTypeData();
-  }, [onSelectedWorkType]);
+    const fetchData = async () => {
+      await getBillingTypeData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentFilterData]);
 
   const chartOptions = {
     chart: {
@@ -92,7 +113,7 @@ const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
         cursor: "pointer",
         point: {
           events: {
-            click: (event: { point: { name: any } }) => {
+            click: (event: { point: { name: string } }) => {
               const selectedPointData = {
                 name: (event.point && event.point.name) || "",
               };
@@ -148,7 +169,7 @@ const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
               {totalCount}
             </span>
             <span className="text-lg text-slatyGrey">
-              {totalCount > 1 ? "Tasks" : "Task"}
+              {totalCount > 1 ? "Clients" : "Client"}
             </span>
           </span>
         )}

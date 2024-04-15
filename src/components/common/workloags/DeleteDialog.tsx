@@ -35,14 +35,14 @@ interface DeleteModalProps {
   secondContent: string;
 }
 
-const DeleteDialog: React.FC<DeleteModalProps> = ({
+const DeleteDialog = ({
   isOpen,
   onClose,
   onActionClick,
   Title,
   firstContent,
   secondContent,
-}) => {
+}: DeleteModalProps) => {
   return (
     <div>
       <Dialog

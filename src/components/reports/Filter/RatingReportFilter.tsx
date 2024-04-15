@@ -16,7 +16,11 @@ import {
 } from "@mui/material";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import {
+  DatePicker,
+  LocalizationProvider,
+  clockNumberClasses,
+} from "@mui/x-date-pickers";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { FilterType } from "../types/ReportsFilterType";
 import { AdminRatingsReports } from "../Enum/Filtertype";
@@ -29,41 +33,62 @@ import {
   getProjectDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
+import { getFormattedDate } from "@/utils/timerFunctions";
+import { LabelValue } from "@/utils/Types/types";
+
+interface SavedFilter {
+  FilterId: number;
+  Name: string;
+  AppliedFilter: {
+    Clients: number[];
+    Projects: number[];
+    ReturnTypeId: number | null;
+    Ratings: number | null;
+    StartDate: string | null;
+    EndDate: string | null;
+  };
+}
 
 const RatingReportFilter = ({
   isFiltering,
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
-  const [ratingreport_clients, setRatingReport_Clients] = useState<any[]>([]);
-  const [ratingreport_clientName, setRatingReport_ClientName] = useState<any[]>(
-    []
-  );
+  const [ratingreport_clients, setRatingReport_Clients] = useState<
+    LabelValue[]
+  >([]);
+  const [ratingreport_clientName, setRatingReport_ClientName] = useState<
+    number[]
+  >([]);
   const [ratingreport_projectName, setRatingReport_ProjectName] =
-    useState<any>(null);
-  const [ratingreport_returnType, setRatingReport_ReturnType] =
-    useState<any>(null);
+    useState<LabelValue | null>(null);
+  const [ratingreport_returnType, setRatingReport_ReturnType] = useState<{
+    label: string;
+    value: string;
+  } | null>(null);
   const [ratingreport_startDate, setRatingReport_StartDate] = useState<
     null | string
   >(null);
   const [ratingreport_endDate, setRatingReport_EndDate] = useState<
     null | string
   >(null);
-  const [ratingreport_ratings, setRatingReport_Ratings] = useState<any>(null);
+  const [ratingreport_ratings, setRatingReport_Ratings] = useState<{
+    label: string;
+    value: string;
+  } | null>(null);
   const [ratingreport_filterName, setRatingReport_FilterName] =
     useState<string>("");
   const [ratingreport_saveFilter, setRatingReport_SaveFilter] =
     useState<boolean>(false);
   const [ratingreport_clientDropdown, setRatingReport_ClientDropdown] =
-    useState<any[]>([]);
+    useState<LabelValue[]>([]);
   const [ratingreport_projectDropdown, setRatingReport_ProjectDropdown] =
-    useState<any[]>([]);
+    useState<LabelValue[]>([]);
   const [ratingreport_anyFieldSelected, setRatingReport_AnyFieldSelected] =
     useState(false);
-  const [ratingreport_currentFilterId, setRatingReport_CurrentFilterId] =
-    useState<any>("");
+  const [currentFilterId, setCurrentFilterId] = useState<number>(0);
   const [ratingreport_savedFilters, setRatingReport_SavedFilters] = useState<
-    any[]
+    SavedFilter[]
   >([]);
   const [ratingreport_defaultFilter, setRatingReport_DefaultFilter] =
     useState<boolean>(false);
@@ -71,13 +96,16 @@ const RatingReportFilter = ({
     useState<string>("");
   const [ratingreport_isDeleting, setRatingReport_IsDeleting] =
     useState<boolean>(false);
-  const [ratingreport_resetting, setRatingReport_Resetting] =
-    useState<boolean>(false);
   const [ratingreport_error, setRatingReport_Error] = useState("");
+  const [idFilter, setIdFilter] = useState<string | undefined>(undefined);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
+
+  useEffect(() => {
+    openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
+  }, [openFilter]);
+
   const ratingReport_Dropdown = [
     {
       label: "Individual Return",
@@ -96,7 +124,7 @@ const RatingReportFilter = ({
     { label: "5", value: "5" },
   ];
 
-  const handleRatingReport_ResetAll = () => {
+  const handleResetAll = () => {
     setRatingReport_Clients([]);
     setRatingReport_ClientName([]);
     setRatingReport_ProjectName(null);
@@ -104,8 +132,11 @@ const RatingReportFilter = ({
     setRatingReport_StartDate(null);
     setRatingReport_EndDate(null);
     setRatingReport_Ratings(null);
-    setRatingReport_Resetting(true);
     setRatingReport_Error("");
+    setRatingReport_FilterName("");
+    setRatingReport_DefaultFilter(false);
+    onDialogClose(false);
+    setIdFilter(undefined);
 
     sendFilterToPage({
       ...rating_InitialFilter,
@@ -114,7 +145,6 @@ const RatingReportFilter = ({
 
   const handleRatingReport_Close = () => {
     onDialogClose(false);
-    setRatingReport_Resetting(false);
     setRatingReport_FilterName("");
     setRatingReport_DefaultFilter(false);
     setRatingReport_ClientName([]);
@@ -132,7 +162,7 @@ const RatingReportFilter = ({
       ...rating_InitialFilter,
       Clients: ratingreport_clientName,
       Projects:
-        ratingreport_projectName === null || ratingreport_projectName === ""
+        ratingreport_projectName === null
           ? []
           : [ratingreport_projectName.value],
       ReturnTypeId:
@@ -141,31 +171,15 @@ const RatingReportFilter = ({
         ratingreport_ratings !== null ? ratingreport_ratings.value : null,
       StartDate:
         ratingreport_startDate !== null
-          ? new Date(
-              new Date(ratingreport_startDate).getTime() + 24 * 60 * 60 * 1000
-            )
-              .toISOString()
-              .split("T")[0]
+          ? getFormattedDate(ratingreport_startDate)
           : ratingreport_endDate !== null
-          ? new Date(
-              new Date(ratingreport_endDate).getTime() + 24 * 60 * 60 * 1000
-            )
-              .toISOString()
-              .split("T")[0]
+          ? getFormattedDate(ratingreport_endDate)
           : null,
       EndDate:
         ratingreport_endDate !== null
-          ? new Date(
-              new Date(ratingreport_endDate).getTime() + 24 * 60 * 60 * 1000
-            )
-              .toISOString()
-              .split("T")[0]
+          ? getFormattedDate(ratingreport_endDate)
           : ratingreport_startDate !== null
-          ? new Date(
-              new Date(ratingreport_startDate).getTime() + 24 * 60 * 60 * 1000
-            )
-              .toISOString()
-              .split("T")[0]
+          ? getFormattedDate(ratingreport_startDate)
           : null,
     });
 
@@ -202,16 +216,13 @@ const RatingReportFilter = ({
     } else {
       setRatingReport_Error("");
       const params = {
-        filterId:
-          ratingreport_currentFilterId !== ""
-            ? ratingreport_currentFilterId
-            : null,
+        filterId: currentFilterId > 0 ? currentFilterId : null,
         name: ratingreport_filterName,
         AppliedFilter: {
           Clients:
             ratingreport_clientName.length > 0 ? ratingreport_clientName : [],
           Projects:
-            ratingreport_projectName === null || ratingreport_projectName === ""
+            ratingreport_projectName === null
               ? []
               : [ratingreport_projectName.value],
           ReturnTypeId:
@@ -222,42 +233,24 @@ const RatingReportFilter = ({
             ratingreport_ratings !== null ? ratingreport_ratings.value : null,
           StartDate:
             ratingreport_startDate !== null
-              ? new Date(
-                  new Date(ratingreport_startDate).getTime() +
-                    24 * 60 * 60 * 1000
-                )
-                  .toISOString()
-                  .split("T")[0]
+              ? getFormattedDate(ratingreport_startDate)
               : ratingreport_endDate !== null
-              ? new Date(
-                  new Date(ratingreport_endDate).getTime() + 24 * 60 * 60 * 1000
-                )
-                  .toISOString()
-                  .split("T")[0]
+              ? getFormattedDate(ratingreport_endDate)
               : null,
           EndDate:
             ratingreport_endDate !== null
-              ? new Date(
-                  new Date(ratingreport_endDate).getTime() + 24 * 60 * 60 * 1000
-                )
-                  .toISOString()
-                  .split("T")[0]
+              ? getFormattedDate(ratingreport_endDate)
               : ratingreport_startDate !== null
-              ? new Date(
-                  new Date(ratingreport_startDate).getTime() +
-                    24 * 60 * 60 * 1000
-                )
-                  .toISOString()
-                  .split("T")[0]
+              ? getFormattedDate(ratingreport_startDate)
               : null,
         },
         type: AdminRatingsReports,
       };
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success("Filter has been successully saved.");
@@ -277,9 +270,9 @@ const RatingReportFilter = ({
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: SavedFilter[],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setRatingReport_SavedFilters(ResponseData);
@@ -291,75 +284,67 @@ const RatingReportFilter = ({
   const handleRatingReport_SavedFilterEdit = async (index: number) => {
     setRatingReport_SaveFilter(true);
     setRatingReport_DefaultFilter(true);
-    setRatingReport_FilterName(ratingreport_savedFilters[index].Name);
-    setRatingReport_CurrentFilterId(ratingreport_savedFilters[index].FilterId);
 
+    const { Name, FilterId, AppliedFilter } = ratingreport_savedFilters[index];
+    setRatingReport_FilterName(Name);
+    setCurrentFilterId(FilterId);
+
+    const clients = AppliedFilter?.Clients || [];
     setRatingReport_Clients(
-      ratingreport_savedFilters[index].AppliedFilter.Clients.length > 0
-        ? ratingreport_clientDropdown.filter((client: any) =>
-            ratingreport_savedFilters[index].AppliedFilter.Clients.includes(
-              client.value
-            )
+      clients.length > 0
+        ? ratingreport_clientDropdown.filter((client: LabelValue) =>
+            clients.includes(client.value)
           )
         : []
     );
-    setRatingReport_ClientName(
-      ratingreport_savedFilters[index].AppliedFilter.Clients
-    );
+    setRatingReport_ClientName(clients);
+
     setRatingReport_ProjectName(
-      ratingreport_savedFilters[index].AppliedFilter.Projects.length > 0
-        ? (
-            await getProjectDropdownData(
-              ratingreport_savedFilters[index].AppliedFilter.Clients[0]
-            )
-          ).filter(
-            (item: any) =>
-              item.value ===
-              ratingreport_savedFilters[index].AppliedFilter.Projects[0]
+      clients.length > 0 && AppliedFilter.Projects.length > 0
+        ? (await getProjectDropdownData(AppliedFilter.Clients[0], null)).filter(
+            (item: LabelValue) => item.value === AppliedFilter.Projects[0]
           )[0]
         : null
     );
+
     setRatingReport_ReturnType(
-      ratingreport_savedFilters[index].AppliedFilter.ReturnTypeId === null
-        ? null
-        : ratingReport_Dropdown.filter(
-            (item: any) =>
-              item.value ===
-              ratingreport_savedFilters[index].AppliedFilter.ReturnTypeId
+      AppliedFilter.ReturnTypeId !== null
+        ? ratingReport_Dropdown.filter(
+            (item: { label: string; value: string }) =>
+              item.value === AppliedFilter.ReturnTypeId?.toString()
           )[0]
+        : null
     );
-    setRatingReport_StartDate(
-      ratingreport_savedFilters[index].AppliedFilter.StartDate ?? null
-    );
-    setRatingReport_EndDate(
-      ratingreport_savedFilters[index].AppliedFilter.EndDate ?? null
-    );
+
     setRatingReport_Ratings(
-      ratingreport_savedFilters[index].AppliedFilter.Ratings === null
-        ? null
-        : ratingReportRating_Dropdown.filter(
-            (item: any) =>
-              item.value ===
-              ratingreport_savedFilters[index].AppliedFilter.Ratings
+      AppliedFilter.Ratings !== null
+        ? ratingReportRating_Dropdown.filter(
+            (item: { label: string; value: string }) =>
+              item.value === AppliedFilter.Ratings?.toString()
           )[0]
+        : null
     );
+
+    setRatingReport_StartDate(AppliedFilter.StartDate ?? null);
+    setRatingReport_EndDate(AppliedFilter.EndDate ?? null);
   };
 
   const handleRatingReport_SavedFilterDelete = async () => {
-    const params = `${process.env.worklog_api_url}/filter/delete`;
-    const url = {
-      filterId: ratingreport_currentFilterId,
+    const params = {
+      filterId: currentFilterId,
     };
+    const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Filter has been deleted successfully.");
         handleRatingReport_Close();
         getRatingReport_FilterList();
-        setRatingReport_CurrentFilterId("");
+        setCurrentFilterId(0);
+        sendFilterToPage({ ...rating_InitialFilter });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -380,7 +365,6 @@ const RatingReportFilter = ({
 
     setRatingReport_AnyFieldSelected(isAnyFieldSelected);
     setRatingReport_SaveFilter(false);
-    setRatingReport_Resetting(false);
   }, [
     ratingreport_clientName,
     ratingreport_projectName,
@@ -395,15 +379,12 @@ const RatingReportFilter = ({
       setRatingReport_ClientDropdown(await getClientDropdownData());
       setRatingReport_ProjectDropdown(
         await getProjectDropdownData(
-          ratingreport_clientName.length > 0 ? ratingreport_clientName[0] : 0
+          ratingreport_clientName.length > 0 ? ratingreport_clientName[0] : 0,
+          null
         )
       );
     };
     filterDropdowns();
-
-    if (ratingreport_clientName.length > 0 || ratingreport_resetting) {
-      onDialogClose(true);
-    }
   }, [ratingreport_clientName]);
 
   return (
@@ -413,10 +394,10 @@ const RatingReportFilter = ({
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleRatingReport_Close}
+          onClose={() => onDialogClose(false)}
           anchorOrigin={{
-            vertical: 130,
-            horizontal: 1290,
+            vertical: 110,
+            horizontal: "right",
           }}
           transformOrigin={{
             vertical: "top",
@@ -428,7 +409,7 @@ const RatingReportFilter = ({
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
                 setRatingReport_DefaultFilter(true);
-                setRatingReport_CurrentFilterId(0);
+                setCurrentFilterId(0);
               }}
             >
               Default Filter
@@ -441,16 +422,14 @@ const RatingReportFilter = ({
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={ratingreport_searchValue}
-                onChange={(e: any) =>
-                  setRatingReport_SearchValue(e.target.value)
-                }
+                onChange={(e) => setRatingReport_SearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {ratingreport_savedFilters.map((i: any, index: number) => {
+            {ratingreport_savedFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div
@@ -460,7 +439,7 @@ const RatingReportFilter = ({
                     <span
                       className="pl-1"
                       onClick={() => {
-                        setRatingReport_CurrentFilterId(i.FilterId);
+                        setCurrentFilterId(i.FilterId);
                         onDialogClose(false);
                         handleRatingReport_SavedFilterApply(index);
                       }}
@@ -480,7 +459,7 @@ const RatingReportFilter = ({
                       <span
                         onClick={() => {
                           setRatingReport_IsDeleting(true);
-                          setRatingReport_CurrentFilterId(i.FilterId);
+                          setCurrentFilterId(i.FilterId);
                         }}
                       >
                         <Tooltip title="Delete" placement="top" arrow>
@@ -493,11 +472,7 @@ const RatingReportFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button
-              onClick={handleRatingReport_ResetAll}
-              className="mt-2"
-              color="error"
-            >
+            <Button onClick={handleResetAll} className="mt-2" color="error">
               clear all
             </Button>
           </div>
@@ -508,11 +483,11 @@ const RatingReportFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleRatingReport_Close}
+          onClose={() => onDialogClose(false)}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleRatingReport_ResetAll}>
+            <Button color="error" onClick={handleResetAll}>
               Reset all
             </Button>
           </DialogTitle>
@@ -532,10 +507,12 @@ const RatingReportFilter = ({
                           (client) => client.value === option.value
                         )
                     )}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue[]) => {
                       setRatingReport_Clients(data);
-                      setRatingReport_ClientName(data.map((d: any) => d.value));
+                      setRatingReport_ClientName(
+                        data.map((d: LabelValue) => d.value)
+                      );
                       setRatingReport_ProjectName(null);
                     }}
                     value={ratingreport_clients}
@@ -555,8 +532,8 @@ const RatingReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={ratingreport_projectDropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue | null) => {
                       setRatingReport_ProjectName(data);
                     }}
                     value={ratingreport_projectName}
@@ -577,8 +554,14 @@ const RatingReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={ratingReport_Dropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: {
+                      label: string;
+                      value: string;
+                    }) => option.label}
+                    onChange={(
+                      e,
+                      data: { label: string; value: string } | null
+                    ) => {
                       setRatingReport_ReturnType(data);
                     }}
                     value={ratingreport_returnType}
@@ -597,7 +580,7 @@ const RatingReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
                       value={
                         ratingreport_startDate === null
@@ -620,7 +603,7 @@ const RatingReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="End Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
                       value={
                         ratingreport_endDate === null
@@ -640,13 +623,19 @@ const RatingReportFilter = ({
                 </div>
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210 }}
+                  sx={{ mx: 0.75, minWidth: 210, mt: 0.5 }}
                 >
                   <Autocomplete
                     id="tags-standard"
                     options={ratingReportRating_Dropdown}
-                    getOptionLabel={(option: any) => option.label}
-                    onChange={(e: any, data: any) => {
+                    getOptionLabel={(option: {
+                      label: string;
+                      value: string;
+                    }) => option.label}
+                    onChange={(
+                      e,
+                      data: { label: string; value: string } | null
+                    ) => {
                       setRatingReport_Ratings(data);
                     }}
                     value={ratingreport_ratings}
@@ -726,7 +715,11 @@ const RatingReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={handleRatingReport_Close}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll()
+                  : onDialogClose(false)
+              }
             >
               Cancel
             </Button>

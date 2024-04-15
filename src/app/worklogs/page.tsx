@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -20,15 +19,42 @@ import Wrapper from "@/components/common/Wrapper";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import SearchIcon from "@/assets/icons/SearchIcon";
-import UnassigneeDatatable from "@/components/worklogs/UnassigneeDatatable";
-import UnassigneeFilterDialog from "@/components/worklogs/UnassigneeFilterDialog";
+import UnassigneeDatatable from "@/components/worklogs/Unassignee/UnassigneeDatatable";
 import ImportDialog from "@/components/worklogs/worklogs_Import/ImportDialog";
 import IdleTimer from "@/components/common/IdleTimer";
 import Loading from "@/assets/icons/reports/Loading";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { callAPI } from "@/utils/API/callAPI";
+import TaskEditDrawer from "@/components/worklogs/TaskEditDrawer";
+import TimelineFilterDialog from "@/components/worklogs/HalfDay/TimelineFilterDialog";
+import TimelineHalfDay from "@/components/worklogs/HalfDay/TimelineHalfDay";
+import UnassigneeFilterDialog from "@/components/worklogs/Unassignee/UnassigneeFilterDialog";
+import TimelineDatatable from "@/components/worklogs/HalfDay/TimelineDatatable";
+import {
+  AppliedFilterWorklogsPage,
+  FilterWorklogsPage,
+} from "@/utils/Types/worklogsTypes";
 
-const exportBody = {
+interface BreakData {
+  BreakId: null | number;
+  IsStared: boolean;
+  TotalTime: null | string;
+}
+
+const initialFilter = {
+  ClientId: null,
+  TypeOfWork: null,
+  ProjectId: null,
+  StatusId: null,
+  AssignedTo: null,
+  AssignedBy: null,
+  DueDate: null,
+  StartDate: null,
+  EndDate: null,
+  ReviewStatus: null,
+};
+
+const exportBodyTask = {
   PageNo: 1,
   PageSize: 50000,
   SortColumn: "",
@@ -46,31 +72,53 @@ const exportBody = {
   ReviewStatus: null,
 };
 
+const exportBodyTimeline = {
+  PageNo: 1,
+  PageSize: 50000,
+  SortColumn: "",
+  IsDesc: true,
+  GlobalSearch: "",
+  ClientId: null,
+  ProjectId: null,
+  StartDate: null,
+  EndDate: null,
+  IsDownload: true,
+};
+
 const Page = () => {
   const router = useRouter();
-  const [timeValue, setTimeValue] = useState(null);
+  const [isLoadingWorklogsDatatable, setIsLoadingWorklogsDatatable] =
+    useState(false);
+  const [timeValue, setTimeValue] = useState<string | null>(null);
+  const [todayTimeValue, setTodayTimeValue] = useState<string | null>(null);
+  const [breakTimeValue, setBreakTimeValue] = useState<string | null>(null);
+  const [isEdit, setIsEdit] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEdit, setHasEdit] = useState(0);
   const [hasRecurring, setHasRecurring] = useState(false);
   const [hasComment, setHasComment] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
-  const [filterList, setFilterList] = useState([]);
+  const [filterList, setFilterList] = useState<FilterWorklogsPage[] | []>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
   const [currentFilterId, setCurrentFilterId] = useState<number>(0);
   const [clickedFilterId, setclickedFilterId] = useState<number>(0);
   const [searchValue, setSearchValue] = useState("");
+  const [search, setSearch] = useState("");
   const [globalSearchValue, setGlobalSearchValue] = useState("");
-  const [currentFilterData, setCurrentFilterData] = useState([]);
+  const [currentFilterData, setCurrentFilterData] = useState<
+    AppliedFilterWorklogsPage | any
+  >([]);
   const [breakId, setBreakID] = useState<number>(0);
-  const [timer, setTimer] = useState<string>("00:00:00");
   const [loaded, setLoaded] = useState(false);
+  const [isTimelineClicked, setIsTimelineClicked] = useState(false);
   const [isTaskClicked, setIsTaskClicked] = useState(true);
   const [isUnassigneeClicked, setIsUnassigneeClicked] = useState(false);
   const [hasId, setHasId] = useState("");
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [canExport, setCanExport] = useState<boolean>(false);
+  const [isHalfDay, setIsHalfDay] = useState<boolean>(false);
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
@@ -86,8 +134,8 @@ const Page = () => {
     setAnchorElFilter(null);
   };
 
-  const handleSearchChange = (event: any) => {
-    setSearchValue(event.target.value);
+  const handleSearchChangeWorklog = (e: string) => {
+    setSearchValue(e);
   };
 
   useEffect(() => {
@@ -100,7 +148,7 @@ const Page = () => {
     }
   }, [router]);
 
-  const filteredFilters = filterList.filter((filter: any) =>
+  const filteredFilters = filterList.filter((filter: FilterWorklogsPage) =>
     filter.Name.toLowerCase().includes(searchValue.toLowerCase())
   );
 
@@ -116,32 +164,37 @@ const Page = () => {
     setLoaded(true);
   };
 
+  const handleIsEdit = (value: boolean) => {
+    setIsEdit(value);
+  };
+
   const handleDrawerOpen = () => {
     setOpenDrawer(true);
   };
 
   const handleDrawerClose = () => {
+    setIsEdit(false);
     setOpenDrawer(false);
     setHasEdit(0);
     setHasRecurring(false);
     setHasComment(false);
     setHasId("");
     setGlobalSearchValue("");
+    setSearch("");
   };
 
-  const handleEdit = (rowData: any, Id: any) => {
+  const handleEdit = (rowData: number) => {
     setHasEdit(rowData);
     setOpenDrawer(true);
-    setHasId(Id);
   };
 
-  const handleSetRecurring = (rowData: any, selectedId: number) => {
+  const handleSetRecurring = (rowData: boolean, selectedId: number) => {
     setHasRecurring(true);
     setOpenDrawer(rowData);
     setHasEdit(selectedId);
   };
 
-  const handleSetComments = (rowData: any, selectedId: number) => {
+  const handleSetComments = (rowData: boolean, selectedId: number) => {
     setHasComment(true);
     setOpenDrawer(rowData);
     setHasEdit(selectedId);
@@ -151,15 +204,19 @@ const Page = () => {
     setIsFilterOpen(false);
   };
 
+  const closeHalfDayModal = () => {
+    setIsHalfDay(false);
+  };
+
   const getFilterList = async () => {
     const params = {
       type: 1,
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: FilterWorklogsPage[] | [],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setFilterList(ResponseData);
@@ -168,20 +225,21 @@ const Page = () => {
     callAPI(url, params, successCallback, "POST");
   };
 
-  const deleteFilter = async (FilterId: any) => {
+  const deleteFilter = async (FilterId: number) => {
     const params = {
       filterId: FilterId,
     };
     const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Filter has been deleted successfully.");
         setCurrentFilterId(0);
         getFilterList();
+        setCurrentFilterData(initialFilter);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -191,7 +249,7 @@ const Page = () => {
     getFilterList();
   }, []);
 
-  const getIdFromFilterDialog = (data: any) => {
+  const getIdFromFilterDialog = (data: AppliedFilterWorklogsPage) => {
     setCurrentFilterData(data);
   };
 
@@ -199,19 +257,15 @@ const Page = () => {
     const params = {};
     const url = `${process.env.worklog_api_url}/workitem/break/getbyuser`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: BreakData,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        if (ResponseData.BreakId === null && ResponseData.TotalTime === null) {
+        if (ResponseData.BreakId === null) {
           setBreakID(0);
-          setTimer("00:00:00");
-        } else if (!ResponseData.IsStared && ResponseData.TotalTime !== null) {
-          setTimer(ResponseData.TotalTime);
         } else if (ResponseData.IsStared && ResponseData.BreakId !== null) {
           setBreakID(ResponseData.BreakId);
-          setTimer(ResponseData.TotalTime);
         }
       }
     };
@@ -219,18 +273,23 @@ const Page = () => {
   };
 
   const setBreak = async () => {
+    setIsLoadingWorklogsDatatable(true);
     const params = {
       breakId: breakId,
     };
     const url = `${process.env.worklog_api_url}/workitem/break/setbreak`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: number,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         getBreakData();
         setBreakID((prev) => (ResponseData === prev ? 0 : ResponseData));
+        setIsLoadingWorklogsDatatable(false);
+      } else {
+        setIsLoadingWorklogsDatatable(false);
+        getBreakData();
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -248,9 +307,14 @@ const Page = () => {
     setIsExporting(true);
     const token = localStorage.getItem("token");
     const Org_Token = localStorage.getItem("Org_Token");
+    const api = isTaskClicked
+      ? "workitem/getexportexcellist"
+      : "workitem/timeline/export";
+
+    const exportBody = isTaskClicked ? exportBodyTask : exportBodyTimeline;
 
     const response = await axios.post(
-      `${process.env.worklog_api_url}/workitem/getexportexcellist`,
+      `${process.env.worklog_api_url}/${api}`,
       {
         ...exportBody,
         ...currentFilterData,
@@ -275,7 +339,9 @@ const Page = () => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "worklog_report.xlsx";
+        a.download = `${
+          isTaskClicked ? "Worklog_report.xlsx" : "Timeline_report.xlsx"
+        }`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -290,6 +356,14 @@ const Page = () => {
     }
   };
 
+  const handleSearchChange = (e: string) => {
+    setSearch(e);
+    const timer = setTimeout(() => {
+      setGlobalSearchValue(e.trim());
+    }, 500);
+    return () => clearTimeout(timer);
+  };
+
   return (
     <Wrapper>
       <IdleTimer onIdle={() => window.location.reload()} />
@@ -300,6 +374,27 @@ const Page = () => {
             <label
               onClick={() => {
                 setGlobalSearchValue("");
+                setSearch("");
+                setIsTimelineClicked(true);
+                setIsTaskClicked(false);
+                setIsUnassigneeClicked(false);
+                setCurrentFilterId(0);
+                setCurrentFilterData([]);
+              }}
+              className={`py-[10px] text-[16px] cursor-pointer select-none ${
+                isTimelineClicked
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
+              }`}
+            >
+              Timeline
+            </label>
+            <span className="text-lightSilver">|</span>
+            <label
+              onClick={() => {
+                setGlobalSearchValue("");
+                setSearch("");
+                setIsTimelineClicked(false);
                 setIsTaskClicked(true);
                 setIsUnassigneeClicked(false);
                 setCurrentFilterId(0);
@@ -323,8 +418,10 @@ const Page = () => {
                 <label
                   onClick={() => {
                     setGlobalSearchValue("");
-                    setIsUnassigneeClicked(true);
+                    setSearch("");
+                    setIsTimelineClicked(false);
                     setIsTaskClicked(false);
+                    setIsUnassigneeClicked(true);
                     setCurrentFilterId(0);
                     setCurrentFilterData([]);
                   }}
@@ -339,17 +436,24 @@ const Page = () => {
               )}
           </div>
           <div className="flex items-center justify-center gap-[10px]">
-            {isTaskClicked && (
-              <span className="text-secondary font-light text-[14px]">
-                Total time: {timeValue}
-              </span>
-            )}
+            <div className="flex flex-col items-end justify-center">
+              {(isTaskClicked || isTimelineClicked) && (
+                <span className="text-secondary font-light text-[14px]">
+                  Total time: {timeValue}
+                </span>
+              )}
+              {isTaskClicked && (
+                <span className="text-secondary font-light text-[14px]">
+                  Today&apos;s time: {todayTimeValue}
+                </span>
+              )}
+            </div>
             <div className="relative">
               <InputBase
                 className="pl-1 pr-7 border-b border-b-lightSilver w-48"
                 placeholder="Search"
-                value={globalSearchValue}
-                onChange={(e: any) => setGlobalSearchValue(e.target.value)}
+                value={search}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
               <span className="absolute top-2 right-2 text-slatyGrey">
                 <SearchIcon />
@@ -399,7 +503,9 @@ const Page = () => {
                         placeholder="Search saved filters"
                         inputProps={{ "aria-label": "search" }}
                         value={searchValue}
-                        onChange={handleSearchChange}
+                        onChange={(e) =>
+                          handleSearchChangeWorklog(e.target.value)
+                        }
                         sx={{ fontSize: 14 }}
                       />
                       <span className="absolute top-4 right-3 text-slatyGrey">
@@ -407,7 +513,7 @@ const Page = () => {
                       </span>
                     </span>
 
-                    {filteredFilters.map((i: any) => {
+                    {filteredFilters.map((i: FilterWorklogsPage) => {
                       return (
                         <>
                           <div
@@ -476,30 +582,32 @@ const Page = () => {
               </ColorToolTip>
             )}
             {isTaskClicked ? (
-              <>
-                <ColorToolTip title="Import" placement="top" arrow>
-                  <span
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setIsImportOpen(true);
-                    }}
-                  >
-                    <ImportIcon />
-                  </span>
-                </ColorToolTip>
-                <ColorToolTip title="Export" placement="top" arrow>
-                  <span
-                    className={
-                      canExport
-                        ? "cursor-pointer"
-                        : "pointer-events-none opacity-50"
-                    }
-                    onClick={canExport ? handleExport : undefined}
-                  >
-                    {isExporting ? <Loading /> : <ExportIcon />}
-                  </span>
-                </ColorToolTip>
-              </>
+              <ColorToolTip title="Import" placement="top" arrow>
+                <span
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setIsImportOpen(true);
+                  }}
+                >
+                  <ImportIcon />
+                </span>
+              </ColorToolTip>
+            ) : (
+              <></>
+            )}
+            {isTaskClicked || isTimelineClicked ? (
+              <ColorToolTip title="Export" placement="top" arrow>
+                <span
+                  className={
+                    canExport
+                      ? "cursor-pointer"
+                      : "pointer-events-none opacity-50"
+                  }
+                  onClick={canExport ? handleExport : undefined}
+                >
+                  {isExporting ? <Loading /> : <ExportIcon />}
+                </span>
+              </ColorToolTip>
             ) : (
               <></>
             )}
@@ -520,7 +628,9 @@ const Page = () => {
                           toast.error("User not have permission to Break Task")
                   }
                 >
-                  <span className="text-white font-light">{timer}</span>
+                  <span className="text-white font-light">
+                    {breakTimeValue}
+                  </span>
                   <span className="text-white font-light -mt-2">
                     {breakId === 0 ? "Break" : "Stop break"}
                   </span>
@@ -536,14 +646,25 @@ const Page = () => {
                           toast.error("User not have permission to Create Task")
                   }
                 >
-                  <span className="flex items-center justify-center gap-[10px] px-[5px]">
+                  <p className="flex items-center justify-center gap-[10px] px-[5px]">
                     <span>
                       <AddPlusIcon />
                     </span>
                     <span className="pt-1">Create Task</span>
-                  </span>
+                  </p>
                 </Button>
               </>
+            )}
+            {isTimelineClicked && (
+              <Button
+                type="button"
+                variant="contained"
+                color="info"
+                className="rounded-[4px] !h-[36px] !bg-[#ff9f43]"
+                onClick={() => setIsHalfDay(true)}
+              >
+                Half Day
+              </Button>
             )}
           </div>
         </div>
@@ -552,26 +673,28 @@ const Page = () => {
             searchValue={globalSearchValue}
             isOnBreak={breakId}
             onGetBreakData={getBreakData}
-            onSetBreak={setBreak}
             currentFilterData={currentFilterData}
             onCurrentFilterId={clickedFilterId}
             onDataFetch={handleDataFetch}
             onEdit={handleEdit}
             onRecurring={handleSetRecurring}
+            onIsEdit={handleIsEdit}
             onDrawerOpen={handleDrawerOpen}
             onDrawerClose={handleDrawerClose}
             onComment={handleSetComments}
             onHandleExport={handleCanExport}
-            isTaskClicked={isTaskClicked}
             isUnassigneeClicked={isUnassigneeClicked}
-            onChangeLoader={(e: any) => setTimeValue(e)}
+            onChangeTimeLoader={(e: string | null) => setTimeValue(e)}
+            onChangeTodayTimeLoader={(e: string | null) => setTodayTimeValue(e)}
+            onChangeBreakTimeLoader={(e: string | null) => setBreakTimeValue(e)}
+            setLoading={isLoadingWorklogsDatatable}
           />
         )}
+
         {isUnassigneeClicked && (
           <UnassigneeDatatable
             searchValue={globalSearchValue}
             currentFilterData={currentFilterData}
-            onCurrentFilterId={clickedFilterId}
             onDataFetch={handleDataFetch}
             onEdit={handleEdit}
             onRecurring={handleSetRecurring}
@@ -581,16 +704,36 @@ const Page = () => {
             isUnassigneeClicked={isUnassigneeClicked}
           />
         )}
-        <Drawer
-          onDataFetch={dataFunction}
-          onOpen={openDrawer}
-          onClose={handleDrawerClose}
-          onEdit={hasEdit}
-          onRecurring={hasRecurring}
-          onComment={hasComment}
-          onHasId={hasId}
-          isUnassigneeClicked={isUnassigneeClicked}
-        />
+
+        {isTimelineClicked && (
+          <TimelineDatatable
+            currentFilterData={currentFilterData}
+            onDataFetch={handleDataFetch}
+            searchValue={globalSearchValue.trim()}
+            onHandleExport={handleCanExport}
+            getTotalTime={(e: string | null) => setTimeValue(e)}
+          />
+        )}
+
+        {isEdit ? (
+          <TaskEditDrawer
+            onDataFetch={dataFunction}
+            onOpen={openDrawer}
+            onClose={handleDrawerClose}
+            onEdit={hasEdit}
+          />
+        ) : (
+          <Drawer
+            onDataFetch={dataFunction}
+            onOpen={openDrawer}
+            onClose={handleDrawerClose}
+            onEdit={hasEdit}
+            onRecurring={hasRecurring}
+            onComment={hasComment}
+            // onHasId={hasId}
+            isUnassigneeClicked={isUnassigneeClicked}
+          />
+        )}
         <DrawerOverlay isOpen={openDrawer} onClose={handleDrawerClose} />
 
         {/* Filter Dialog Box */}
@@ -610,6 +753,16 @@ const Page = () => {
             onClose={closeFilterModal}
             currentFilterData={getIdFromFilterDialog}
           />
+        )}
+        {isTimelineClicked && (
+          <TimelineFilterDialog
+            onOpen={isFilterOpen}
+            onClose={closeFilterModal}
+            currentFilterData={getIdFromFilterDialog}
+          />
+        )}
+        {isTimelineClicked && (
+          <TimelineHalfDay onOpen={isHalfDay} onClose={closeHalfDayModal} />
         )}
       </div>
 

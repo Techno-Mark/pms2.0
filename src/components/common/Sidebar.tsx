@@ -1,8 +1,7 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import styles from "../../assets/scss/sidebar.module.scss";
 import React, { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import DashboardIcon from "../../assets/icons/DashboardIcon";
 import Worklogs from "../../assets/icons/WorklogsIcon";
 import Approvals from "../../assets/icons/ApprovalsIcon";
@@ -15,12 +14,7 @@ import PabsCollapse from "../../assets/icons/PabsCollaps";
 import Link from "next/link";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { callAPI } from "@/utils/API/callAPI";
-
-interface SidebarItem {
-  name: string;
-  href: string;
-  icon: JSX.Element;
-}
+import { MenuItem, User } from "@/utils/Types/types";
 
 const DashboardItems = ({ pathname, isCollapsed, sidebarItems }: any) => {
   return (
@@ -56,7 +50,15 @@ const DashboardItems = ({ pathname, isCollapsed, sidebarItems }: any) => {
   );
 };
 
-const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
+const Sidebar = ({
+  setOpen,
+  setSetting,
+  toggleDrawer,
+}: {
+  setOpen: (arg: boolean) => void;
+  setSetting: (arg: boolean) => void;
+  toggleDrawer: boolean;
+}) => {
   const pathname = usePathname();
   const [isCollapsed, setCollapse] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -68,20 +70,20 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
       const params = {};
       const url = `${process.env.api_url}/auth/getuserdetails`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: User,
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           localStorage.setItem(
             "IsHaveManageAssignee",
-            ResponseData.IsHaveManageAssignee
+            String(ResponseData.IsHaveManageAssignee)
           );
 
           localStorage.setItem("permission", JSON.stringify(ResponseData.Menu));
-          localStorage.setItem("roleId", ResponseData.RoleId);
-          localStorage.setItem("isClient", ResponseData.IsClientUser);
-          localStorage.setItem("UserId", ResponseData.UserId);
+          localStorage.setItem("roleId", String(ResponseData.RoleId));
+          localStorage.setItem("isClient", String(ResponseData.IsClientUser));
+          localStorage.setItem("UserId", String(ResponseData.UserId));
           if (localStorage.getItem("Org_Token") === null) {
             localStorage.setItem(
               "Org_Token",
@@ -91,7 +93,7 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
           if (localStorage.getItem("Org_Id") === null) {
             localStorage.setItem(
               "Org_Id",
-              ResponseData.Organizations[0].OrganizationId
+              String(ResponseData.Organizations[0].OrganizationId)
             );
           }
           if (localStorage.getItem("Org_Name") === null) {
@@ -106,10 +108,12 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
       callAPI(url, params, successCallback, "GET");
     };
 
-    const getSidebarData = async (isClient: any) => {
-      const permission: any = await localStorage.getItem("permission");
+    const getSidebarData = async (isClient: boolean) => {
+      const permission: MenuItem[] | string | null = await localStorage.getItem(
+        "permission"
+      );
 
-      if (permission.length > 0) {
+      if (permission !== null && permission.length > 0) {
         setSidebarItems([
           hasPermissionWorklog("", "View", "Dashboard") &&
             !isClient && {
@@ -138,10 +142,16 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
               hasPermissionWorklog("workload", "View", "Report") ||
               hasPermissionWorklog("user log", "View", "Report") ||
               hasPermissionWorklog("audit", "View", "Report") ||
-              hasPermissionWorklog("billing report", "View", "Report") ||
-              hasPermissionWorklog("custom report", "View", "Report") ||
+              hasPermissionWorklog("billing", "View", "Report") ||
+              hasPermissionWorklog("custom", "View", "Report") ||
               hasPermissionWorklog("rating", "View", "Report") ||
-              hasPermissionWorklog("log", "View", "Report")) &&
+              hasPermissionWorklog("log", "View", "Report") ||
+              hasPermissionWorklog("activity", "View", "Report") ||
+              hasPermissionWorklog("Actual/Planned", "View", "Report") ||
+              hasPermissionWorklog("client", "View", "Report") ||
+              hasPermissionWorklog("kra", "View", "Report") ||
+              hasPermissionWorklog("Auto/Manual", "View", "Report") ||
+              hasPermissionWorklog("wltr", "View", "Report")) &&
             !isClient && {
               name: "Reports",
               href: "/reports",

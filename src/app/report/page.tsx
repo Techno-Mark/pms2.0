@@ -1,11 +1,10 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import React, { useEffect, useState } from "react";
 import "next-ts-lib/dist/index.css";
 import Wrapper from "@/components/common/Wrapper";
 import Navbar from "@/components/common/Navbar";
 import { toast } from "react-toastify";
-import { TextField } from "@mui/material";
+import { InputBase } from "@mui/material";
 import FilterIcon from "@/assets/icons/FilterIcon";
 import Datatable_Rating from "@/components/report/Datatable_Rating";
 import Datatable_Task from "@/components/report/Datatable_Task";
@@ -18,7 +17,6 @@ import { useRouter } from "next/navigation";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
-import { callAPI } from "@/utils/API/callAPI";
 
 const task_InitialFilter = {
   pageNo: 1,
@@ -60,10 +58,8 @@ const Report = () => {
   const [isRatingClicked, setIsRatingClicked] = useState(false);
   const [currentFilterData, setCurrentFilterData] = useState<any>([]);
   const [isExporting, setIsExporting] = useState<boolean>(false);
-  const [isTaskSearch, setIsTaskSearch] = useState("");
-  const [taskData, setTaskData] = useState([]);
-  const [isRatingSearch, setIsRatingSearch] = useState("");
-  const [ratingData, setRatingData] = useState([]);
+  const [search, setSearch] = useState("");
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     if (localStorage.getItem("isClient") === "true") {
@@ -78,86 +74,6 @@ const Report = () => {
       router.push("/");
     }
   }, [router]);
-
-  const handleIsTaskSearch = async (searchValue: any) => {
-    const params = {
-      ...task_InitialFilter,
-      GlobalSearch: searchValue,
-      projectIdsForFilter: currentFilterData.ProjectIdsForFilter,
-      workType: currentFilterData.WorkType,
-      priority: currentFilterData.Priority,
-      startDate: currentFilterData.StartDate,
-      endDate: currentFilterData.EndDate,
-    };
-    const url = `${process.env.report_api_url}/report/client/task`;
-    const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
-    ) => {
-      if (ResponseStatus === "Success" && error === false) {
-        setTaskData(ResponseData.List);
-      } else {
-        setTaskData([]);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
-  };
-
-  useEffect(() => {
-    const fetchOrgToken = async () => {
-      const orgToken = await localStorage.getItem("Org_Token");
-      if (orgToken && isTaskClicked) {
-        if (isTaskSearch.length >= 3) {
-          handleIsTaskSearch(isTaskSearch);
-        } else {
-          handleIsTaskSearch("");
-        }
-      }
-    };
-
-    fetchOrgToken();
-  }, [isTaskSearch, isTaskClicked]);
-
-  const handleIsRatingSearch = async (searchValue: any) => {
-    const params = {
-      ...rating_InitialFilter,
-      GlobalSearch: searchValue,
-      projects: currentFilterData.Projects,
-      returnTypeId: currentFilterData.ReturnTypeId,
-      typeofReturnId: currentFilterData.TypeofReturnId,
-      ratings: currentFilterData.Ratings,
-      dateSubmitted: currentFilterData.DateSubmitted,
-    };
-    const url = `${process.env.report_api_url}/report/client/rating`;
-    const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
-    ) => {
-      if (ResponseStatus === "Success" && error === false) {
-        setRatingData(ResponseData.List);
-      } else {
-        setRatingData([]);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
-  };
-
-  useEffect(() => {
-    const fetchOrgToken = async () => {
-      const orgToken = await localStorage.getItem("Org_Token");
-      if (orgToken && isRatingClicked) {
-        if (isRatingSearch.length >= 3) {
-          handleIsRatingSearch(isRatingSearch);
-        } else {
-          handleIsRatingSearch("");
-        }
-      }
-    };
-
-    fetchOrgToken();
-  }, [isRatingSearch, isRatingClicked]);
 
   const closeFilterModal = () => {
     setIsFilterOpen(false);
@@ -182,7 +98,7 @@ const Report = () => {
         `${process.env.report_api_url}/report/client/${endpoint}/export`,
         {
           ...filteredData,
-          globalSearch: isTaskClicked ? isTaskSearch : isRatingSearch,
+          globalSearch: searchValue.trim().length > 0 ? searchValue : "",
         },
         {
           headers: { Authorization: `bearer ${token}`, org_token: Org_Token },
@@ -261,9 +177,16 @@ const Report = () => {
     toast.error(error);
   };
 
-  //handling export on data length
   const handleCanExport = (arg1: boolean) => {
     setCanExport(arg1);
+  };
+
+  const handleSearchChange = (e: string) => {
+    setSearch(e);
+    const timer = setTimeout(() => {
+      setSearchValue(e.trim());
+    }, 500);
+    return () => clearTimeout(timer);
   };
 
   return (
@@ -277,6 +200,8 @@ const Report = () => {
                 setIsTaskClicked(true);
                 setIsRatingClicked(false);
                 setCurrentFilterData([]);
+                setSearch("");
+                setSearchValue("");
               }}
               className={`py-[10px] cursor-pointer select-none ${
                 isTaskClicked
@@ -297,6 +222,8 @@ const Report = () => {
                 setIsRatingClicked(true);
                 setIsTaskClicked(false);
                 setCurrentFilterData([]);
+                setSearch("");
+                setSearchValue("");
               }}
               className={`py-[10px] cursor-pointer select-none ${
                 isRatingClicked
@@ -310,43 +237,17 @@ const Report = () => {
         </div>
 
         <div className="flex gap-[20px] items-center">
-          {isTaskClicked && hasPermissionWorklog("Task", "View", "Report") && (
-            <div className="flex items-center h-full relative">
-              <TextField
-                className="m-0"
-                placeholder="Search"
-                fullWidth
-                value={isTaskSearch?.trim().length <= 0 ? "" : isTaskSearch}
-                onChange={(e) => setIsTaskSearch(e.target.value)}
-                margin="normal"
-                variant="standard"
-                sx={{ mx: 0.75, maxWidth: 300 }}
-              />
-              <span className="absolute right-1 pl-1">
-                <SearchIcon />
-              </span>
-            </div>
-          )}
-          {isRatingClicked &&
-            hasPermissionWorklog("Rating", "View", "Report") && (
-              <div className="flex items-center h-full relative">
-                <TextField
-                  className="m-0"
-                  placeholder="Search"
-                  fullWidth
-                  value={
-                    isRatingSearch?.trim().length <= 0 ? "" : isRatingSearch
-                  }
-                  onChange={(e) => setIsRatingSearch(e.target.value)}
-                  margin="normal"
-                  variant="standard"
-                  sx={{ mx: 0.75, maxWidth: 300 }}
-                />
-                <span className="absolute right-1 pl-1">
-                  <SearchIcon />
-                </span>
-              </div>
-            )}
+          <div className="relative">
+            <InputBase
+              className="pl-1 pr-7 border-b border-b-lightSilver w-52"
+              placeholder="Search"
+              value={search}
+              onChange={(e) => handleSearchChange(e.target.value)}
+            />
+            <span className="absolute top-2 right-2 text-slatyGrey">
+              <SearchIcon />
+            </span>
+          </div>
           <ColorToolTip title="Filter" placement="top" arrow>
             <span
               className="cursor-pointer"
@@ -371,7 +272,7 @@ const Report = () => {
       {isTaskClicked && (
         <Datatable_Task
           currentFilterData={currentFilterData}
-          onSearchData={taskData}
+          searchValue={searchValue}
           onHandleExport={handleCanExport}
         />
       )}
@@ -387,7 +288,7 @@ const Report = () => {
       {isRatingClicked && (
         <Datatable_Rating
           currentFilterData={currentFilterData}
-          onSearchData={ratingData}
+          searchValue={searchValue}
           onHandleExport={handleCanExport}
         />
       )}

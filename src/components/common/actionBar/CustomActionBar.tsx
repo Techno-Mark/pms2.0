@@ -24,10 +24,10 @@ const CustomActionBar = ({
   return (
     <div>
       {selectedRowsCount > 0 && (
-        <div className="flex items-center justify-start ml-12">
+        <div className="flex items-center justify-start ml-8">
           <Card
             className={`rounded-full flex border p-2 border-[#1976d2] absolute shadow-lg ${
-              selectedRowsCount === 1 ? "w-[80%]" : "w-[71%]"
+              selectedRowsCount === 1 ? "w-[82%]" : "w-[73%]"
             } bottom-12 -translate-y-1/2`}
           >
             <div className="flex flex-row w-full">
@@ -42,7 +42,7 @@ const CustomActionBar = ({
 
               <div
                 className={`flex flex-row z-10 h-8 justify-center items-center ${
-                  selectedRowsCount === 1 ? "w-[100%]" : "w-[80%]"
+                  selectedRowsCount === 1 ? "w-[110%]" : "w-[80%]"
                 }`}
               >
                 {children}

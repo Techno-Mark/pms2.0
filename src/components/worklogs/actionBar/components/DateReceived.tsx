@@ -9,7 +9,15 @@ import { isWeekend } from "@/utils/commonFunction";
 import DateIcon from "@/assets/icons/worklogs/DateIcon";
 import { callAPI } from "@/utils/API/callAPI";
 
-const DateReceived = ({ getWorkItemList, selectedRowIds, getOverLay }: any) => {
+const DateReceived = ({
+  getWorkItemList,
+  selectedRowIds,
+  getOverLay,
+}: {
+  getWorkItemList: () => void;
+  selectedRowIds: number[];
+  getOverLay: (e: boolean) => void;
+}) => {
   const [anchorElDateReceived, setAnchorElDateReceived] =
     React.useState<HTMLButtonElement | null>(null);
 
@@ -29,7 +37,7 @@ const DateReceived = ({ getWorkItemList, selectedRowIds, getOverLay }: any) => {
   const updateDate = async (id: number[], date: any) => {
     const selectedDate = dayjs(date);
     let nextDate: any = selectedDate;
-    if (selectedDate.day() === 4 || selectedDate.day() === 5) {
+    if (selectedDate.day() === 5 || selectedDate.day() === 6) {
       nextDate = nextDate.add(4, "day");
     } else {
       nextDate = dayjs(date).add(2, "day").toDate();
@@ -42,12 +50,17 @@ const DateReceived = ({ getWorkItemList, selectedRowIds, getOverLay }: any) => {
     };
     const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemreceiverdate`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: boolean | string,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Reciever Date has been updated successfully.");
+        handleCloseDateReceived();
+        getWorkItemList();
+        getOverLay(false);
+      } else if (ResponseStatus === "Warning" && error === false) {
+        toast.warning(ResponseData);
         handleCloseDateReceived();
         getWorkItemList();
         getOverLay(false);

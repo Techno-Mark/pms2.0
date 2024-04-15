@@ -1,12 +1,11 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import axios from "axios";
 import { toast } from "react-toastify";
 
 export const callAPI = async (
-  url: any,
+  url: string,
   params: any,
   successCallback: any,
-  method: string
+  method: "get" | "post" | "GET" | "POST"
 ) => {
   try {
     const token = await localStorage.getItem("token");
@@ -30,15 +29,19 @@ export const callAPI = async (
       );
     }
 
-    const { ResponseStatus, ResponseData, Message } = response.data;
+    const { ResponseStatus, ResponseData, Message, ErrorData } = response.data;
     if (response.status === 200) {
       if (ResponseStatus === "Success") {
         successCallback(ResponseData, false, ResponseStatus);
       } else if (ResponseStatus === "Warning") {
         successCallback(Message, false, ResponseStatus);
       } else {
-        if (Message === null) {
-          toast.error("Please try again later.");
+        if (Message === null || Message.trim().length <= 0) {
+          toast.error(
+            !!ErrorData && !!ErrorData.Error
+              ? ErrorData.Error
+              : "Please try again later."
+          );
         } else {
           toast.error(Message);
         }

@@ -12,6 +12,7 @@ import { Close } from "@mui/icons-material";
 import Datatable_OverallProjectSummary from "../datatable/Datatable_OverallProjectSummary";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { callAPI } from "@/utils/API/callAPI";
+import { ListOverallProject } from "@/utils/Types/dashboardTypes";
 
 interface OverallProjectSummaryDialogProps {
   onOpen: boolean;
@@ -21,16 +22,14 @@ interface OverallProjectSummaryDialogProps {
   onSelectedProjectIds: number[];
 }
 
-const Dialog_OverallProjectSummary: React.FC<
-  OverallProjectSummaryDialogProps
-> = ({
+const Dialog_OverallProjectSummary = ({
   onOpen,
   onClose,
   onSelectedWorkType,
   onSelectedTaskStatus,
   onSelectedProjectIds,
-}) => {
-  const [allTaskList, setAllTaskList] = useState<string[] | any>([]);
+}: OverallProjectSummaryDialogProps) => {
+  const [allTaskList, setAllTaskList] = useState<{ name: string }[]>([]);
   const [taskStatusName, setTaskStatusName] = useState<string>("");
 
   const handleClose = () => {
@@ -45,14 +44,16 @@ const Dialog_OverallProjectSummary: React.FC<
     };
     const url = `${process.env.report_api_url}/clientdashboard/overallprojectcompletion`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: { List: ListOverallProject[]; TotalCount: number },
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        const statusName: any = ResponseData.List.map((item: { Key: any }) => ({
-          name: item.Key,
-        }));
+        const statusName: { name: string }[] = ResponseData.List.map(
+          (item: { Key: string }) => ({
+            name: item.Key,
+          })
+        );
 
         setAllTaskList(statusName);
       }
@@ -61,9 +62,13 @@ const Dialog_OverallProjectSummary: React.FC<
   };
 
   useEffect(() => {
-    if (onOpen === true) {
-      getTaskStatusList();
-    }
+    const fetchData = async () => {
+      onOpen && getTaskStatusList();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [onSelectedWorkType, onSelectedProjectIds, onSelectedProjectIds, onOpen]);
 
   return (
@@ -76,14 +81,14 @@ const Dialog_OverallProjectSummary: React.FC<
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogTitle className="flex justify-between p-5 bg-whiteSmoke">
+        <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">Task Status</span>
           <IconButton onClick={handleClose}>
             <Close />
           </IconButton>
         </DialogTitle>
 
-        <DialogContent className="flex flex-col gap-5 mt-[10px]">
+        <DialogContent className="flex flex-col gap-5 mt-[10px] !py-0">
           <div className="flex justify-end items-center">
             <FormControl sx={{ mx: 0.75, minWidth: 220, marginTop: 1 }}>
               <Select
@@ -93,7 +98,7 @@ const Dialog_OverallProjectSummary: React.FC<
                 onChange={(e) => setTaskStatusName(e.target.value)}
                 sx={{ height: "36px" }}
               >
-                {allTaskList.map((i: any) => (
+                {allTaskList.map((i: { name: string }) => (
                   <MenuItem value={i.name} key={i.name}>
                     {i.name}
                   </MenuItem>
@@ -106,6 +111,7 @@ const Dialog_OverallProjectSummary: React.FC<
             onSelectedWorkType={onSelectedWorkType}
             onSelectedTaskStatus={onSelectedTaskStatus}
             onCurrselectedtaskStatus={taskStatusName}
+            onOpen={onOpen}
           />
         </DialogContent>
       </Dialog>

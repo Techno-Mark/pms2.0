@@ -6,19 +6,27 @@ import SearchIcon from "@/assets/icons/SearchIcon";
 import AssigneeIcon from "@/assets/icons/worklogs/Assignee";
 import { getAssigneeDropdownData } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
+import { LabelValue } from "@/utils/Types/types";
+
+interface Assignee {
+  selectedWorkItemIds: number[];
+  handleClearSelection: () => void;
+  getReviewList: () => void;
+  selectedRowClientId: number[] | [];
+  selectedRowWorkTypeId: number[] | [];
+  getOverLay?: (e: boolean) => void;
+}
 
 const Assignee = ({
   selectedWorkItemIds,
-  selectedRowStatusId,
-  selectedRowsCount,
   handleClearSelection,
   getReviewList,
   selectedRowClientId,
   selectedRowWorkTypeId,
   getOverLay,
-}: any) => {
+}: Assignee) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [assignee, setAssignee] = useState<any | any[]>([]);
+  const [assignee, setAssignee] = useState<LabelValue[] | []>([]);
 
   const [anchorElAssignee, setAnchorElAssignee] =
     React.useState<HTMLButtonElement | null>(null);
@@ -42,38 +50,43 @@ const Assignee = ({
   const openAssignee = Boolean(anchorElAssignee);
   const idAssignee = openAssignee ? "simple-popover" : undefined;
 
-  const handleSearchChange = (event: any) => {
-    setSearchQuery(event.target.value);
+  const handleSearchChange = (e: string) => {
+    setSearchQuery(e);
   };
 
-  const filteredAssignees = assignee.filter((assignee: any) =>
+  const filteredAssignees = assignee.filter((assignee: LabelValue) =>
     assignee.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleOptionAssignee = (id: any) => {
+  const handleOptionAssignee = (id: number) => {
     updateAssignee(selectedWorkItemIds, id);
     handleCloseAssignee();
   };
 
   const updateAssignee = async (id: number[], assigneeId: number) => {
-    getOverLay(true);
+    getOverLay?.(true);
     const params = {
       workitemIds: id,
       assigneeId: assigneeId,
     };
     const url = `${process.env.worklog_api_url}/workitem/UpdateAssignee`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: boolean | string,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Assignee has been updated successfully.");
         handleClearSelection();
         getReviewList();
-        getOverLay(false);
+        getOverLay?.(false);
+      } else if (ResponseStatus === "Warning" && error === false) {
+        toast.warning(ResponseData);
+        handleClearSelection();
+        getReviewList();
+        getOverLay?.(false);
       } else {
-        getOverLay(false);
+        getOverLay?.(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -118,7 +131,7 @@ const Assignee = ({
                   placeholder="Search"
                   inputProps={{ "aria-label": "search" }}
                   value={searchQuery}
-                  onChange={handleSearchChange}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   style={{ fontSize: "13px" }}
                 />
               </span>
@@ -130,7 +143,7 @@ const Assignee = ({
                 No Data Available
               </span>
             ) : (
-              filteredAssignees.map((assignee: any) => {
+              filteredAssignees.map((assignee: LabelValue) => {
                 return (
                   <span
                     key={assignee.value}
@@ -143,7 +156,7 @@ const Assignee = ({
                       <Avatar sx={{ width: 32, height: 32, fontSize: 14 }}>
                         {assignee.label
                           .split(" ")
-                          .map((word: any) => word.charAt(0).toUpperCase())
+                          .map((word: string) => word.charAt(0).toUpperCase())
                           .join("")}
                       </Avatar>
 

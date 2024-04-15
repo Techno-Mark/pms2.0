@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import React, { useEffect, useState } from "react";
 import DrawerOverlay from "@/components/settings/drawer/DrawerOverlay";
@@ -9,7 +8,7 @@ import Datatable_Worklog from "@/components/worklog/Datatable_Worklog";
 import Datatable_CompletedTask from "@/components/worklog/Datatable_CompletedTask";
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
-import { Button, TextField } from "@mui/material";
+import { Button, InputBase, TextField } from "@mui/material";
 import { toast } from "react-toastify";
 import FilterDialog from "@/components/worklog/filterDialog";
 import SearchIcon from "@/assets/icons/SearchIcon";
@@ -18,22 +17,25 @@ import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { useRouter } from "next/navigation";
 import ImportDialog from "@/components/worklog/worklog_Import/ImportDialog";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
-import { callAPI } from "@/utils/API/callAPI";
+import { TaskFilter } from "@/utils/Types/clientWorklog";
 
 const Worklog = () => {
   const router = useRouter();
-  const [openDrawer, setOpenDrawer] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const [hasEdit, setHasEdit] = useState(0);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
   const [isWorklogClicked, setIsWorklogClicked] = useState(true);
-  const [isCompletedTaskClicked, setIsCompletedTaskClicked] = useState(false);
+  const [isCompletedTaskClicked, setIsCompletedTaskClicked] =
+    useState<boolean>(false);
   const [hasComment, setHasComment] = useState(false);
   const [hasErrorLog, setHasErrorLog] = useState(false);
-  const [currentFilterData, setCurrentFilterData] = useState([]);
-  const [errorLog, setErrorLog] = useState(false);
-  const [isWorklogSearch, setIsWorklogSearch] = useState("");
-  const [isWorklogCompleteSearch, setIsWorklogCompleteSearch] = useState("");
+  const [currentFilterData, setCurrentFilterData] = useState<TaskFilter | []>(
+    []
+  );
+  const [errorLog, setErrorLog] = useState<boolean>(false);
+  const [search, setSearch] = useState("");
+  const [searchValue, setSearchValue] = useState("");
   const [isImportOpen, setIsImportOpen] = useState(false);
 
   useEffect(() => {
@@ -59,8 +61,6 @@ const Worklog = () => {
   };
 
   const handleDrawerClose = () => {
-    setIsWorklogSearch("");
-    setIsWorklogCompleteSearch("");
     setOpenDrawer(false);
     setHasEdit(0);
     setHasComment(false);
@@ -71,25 +71,33 @@ const Worklog = () => {
     setDataFunction(() => getData);
   };
 
-  const handleEdit = (rowData: any) => {
+  const handleEdit = (rowData: number) => {
     setHasEdit(rowData);
     setOpenDrawer(true);
   };
 
-  const handleSetComments = (rowData: any, selectedId: number) => {
+  const handleSetComments = (rowData: boolean, selectedId: number) => {
     setHasComment(true);
     setOpenDrawer(rowData);
     setHasEdit(selectedId);
   };
 
-  const handleSetErrorLog = (rowData: any, selectedId: number) => {
+  const handleSetErrorLog = (rowData: boolean, selectedId: number) => {
     setHasErrorLog(true);
     setOpenDrawer(rowData);
     setHasEdit(selectedId);
   };
 
-  const getIdFromFilterDialog = (data: any) => {
+  const getIdFromFilterDialog = (data: TaskFilter) => {
     setCurrentFilterData(data);
+  };
+
+  const handleSearchChange = (e: string) => {
+    setSearch(e);
+    const timer = setTimeout(() => {
+      setSearchValue(e.trim());
+    }, 500);
+    return () => clearTimeout(timer);
   };
 
   return (
@@ -103,7 +111,8 @@ const Worklog = () => {
                 setIsWorklogClicked(true);
                 setIsCompletedTaskClicked(false);
                 setErrorLog(false);
-                setIsWorklogCompleteSearch("");
+                setSearch("");
+                setSearchValue("");
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 isWorklogClicked
@@ -124,7 +133,8 @@ const Worklog = () => {
                 setIsCompletedTaskClicked(true);
                 setIsWorklogClicked(false);
                 setErrorLog(true);
-                setIsWorklogSearch("");
+                setSearch("");
+                setSearchValue("");
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 isCompletedTaskClicked
@@ -138,48 +148,17 @@ const Worklog = () => {
         </div>
 
         <div className="flex gap-[20px] items-center justify-center">
-          {isWorklogClicked &&
-            hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && (
-              <div className="flex items-center h-full relative">
-                <TextField
-                  className="m-0"
-                  placeholder="Search"
-                  fullWidth
-                  value={
-                    isWorklogSearch?.trim().length <= 0 ? "" : isWorklogSearch
-                  }
-                  onChange={(e) => setIsWorklogSearch(e.target.value)}
-                  margin="normal"
-                  variant="standard"
-                  sx={{ mx: 0.75, maxWidth: 300 }}
-                />
-                <span className="absolute right-1 pl-1">
-                  <SearchIcon />
-                </span>
-              </div>
-            )}
-          {isCompletedTaskClicked &&
-            hasPermissionWorklog("Rating", "View", "WorkLogs") && (
-              <div className="flex items-center h-full relative">
-                <TextField
-                  className="m-0"
-                  placeholder="Search"
-                  fullWidth
-                  value={
-                    isWorklogCompleteSearch?.trim().length <= 0
-                      ? ""
-                      : isWorklogCompleteSearch
-                  }
-                  onChange={(e) => setIsWorklogCompleteSearch(e.target.value)}
-                  margin="normal"
-                  variant="standard"
-                  sx={{ mx: 0.75, maxWidth: 300 }}
-                />
-                <span className="absolute right-1 pl-1">
-                  <SearchIcon />
-                </span>
-              </div>
-            )}
+          <div className="relative">
+            <InputBase
+              className="pl-1 pr-7 border-b border-b-lightSilver w-52"
+              placeholder="Search"
+              value={search}
+              onChange={(e) => handleSearchChange(e.target.value)}
+            />
+            <span className="absolute top-2 right-2 text-slatyGrey">
+              <SearchIcon />
+            </span>
+          </div>
           <ColorToolTip title="Filter" placement="top" arrow>
             <span
               className="cursor-pointer"
@@ -226,8 +205,9 @@ const Worklog = () => {
           onEdit={handleEdit}
           onDrawerOpen={handleDrawerOpen}
           onComment={handleSetComments}
+          onErrorLog={handleSetErrorLog}
           currentFilterData={currentFilterData}
-          onSearchWorkTypeData={isWorklogSearch}
+          searchValue={searchValue}
           onCloseDrawer={openDrawer}
         />
       )}
@@ -239,8 +219,9 @@ const Worklog = () => {
           onComment={handleSetComments}
           onErrorLog={handleSetErrorLog}
           currentFilterData={currentFilterData}
-          onSearchWorkTypeData={isWorklogCompleteSearch}
+          searchValue={searchValue}
           onCloseDrawer={openDrawer}
+          onEdit={handleEdit}
         />
       )}
 

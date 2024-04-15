@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -12,12 +11,15 @@ import Drawer from "@/components/approvals/Drawer";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
-import FilterDialog_Approval from "@/components/approvals/FilterDialog_Approval";
+import FilterDialogApproval from "@/components/approvals/FilterDialogApproval";
 import IdleTimer from "@/components/common/IdleTimer";
 import Loading from "@/assets/icons/reports/Loading";
 import axios from "axios";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import {
+  AppliedFilterApprovals,
+} from "@/utils/Types/types";
 
 const exportBody = {
   pageNo: 1,
@@ -37,16 +39,19 @@ const exportBody = {
 
 const Page = () => {
   const router = useRouter();
-  const [timeValue, setTimeValue] = useState(null);
+  const [timeValue, setTimeValue] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<number>(1);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEditId, setHasEditId] = useState(0);
   const [iconIndex, setIconIndex] = useState<number>(0);
-  const [hasId, setHasId] = useState("");
+  const [hasId, setHasId] = useState<number>(0);
+  const [searchValue, setSearchValue] = useState("");
   const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
-  const [currentFilterData, setCurrentFilterData] = useState<any>([]);
+  const [currentFilterData, setCurrentFilterData] = useState<
+    AppliedFilterApprovals | []
+  >([]);
   const [hasComment, setHasComment] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [hasManual, setHasManual] = useState(false);
@@ -57,7 +62,7 @@ const Page = () => {
     setisFilterOpen(false);
   };
 
-  const getIdFromFilterDialog = (data: any) => {
+  const getIdFromFilterDialog = (data: AppliedFilterApprovals) => {
     setCurrentFilterData(data);
   };
 
@@ -81,11 +86,12 @@ const Page = () => {
     setHasComment(false);
     setHasError(false);
     setHasManual(false);
-    setHasId("");
+    setHasId(0);
     setGlobalSearchValue("");
+    setSearchValue("");
   };
 
-  const handleEdit = (rowId: any, Id: any, iconIndex?: number) => {
+  const handleEdit = (rowId: number, Id: number, iconIndex?: number) => {
     setIconIndex(iconIndex !== undefined ? iconIndex : 0);
     setHasEditId(rowId);
     setOpenDrawer(true);
@@ -96,19 +102,19 @@ const Page = () => {
     setDataFunction(() => getData);
   };
 
-  const handleSetComments = (rowData: any, selectedId: number) => {
+  const handleSetComments = (rowData: boolean, selectedId: number) => {
     setHasComment(true);
     setOpenDrawer(rowData);
     setHasEditId(selectedId);
   };
 
-  const handleSetError = (rowData: any, selectedId: number) => {
+  const handleSetError = (rowData: boolean, selectedId: number) => {
     setHasError(true);
     setOpenDrawer(rowData);
     setHasEditId(selectedId);
   };
 
-  const handleSetManual = (rowData: any, selectedId: number) => {
+  const handleSetManual = (rowData: boolean, selectedId: number) => {
     setHasManual(true);
     setOpenDrawer(rowData);
     setHasEditId(selectedId);
@@ -128,6 +134,7 @@ const Page = () => {
       {
         ...exportBody,
         ...currentFilterData,
+        globalSearch: searchValue,
         isDownload: true,
       },
       {
@@ -167,6 +174,14 @@ const Page = () => {
     setCanExport(arg1);
   };
 
+  const handleSearchChange = (e: string) => {
+    setSearchValue(e);
+    const timer = setTimeout(() => {
+      setGlobalSearchValue(e.trim());
+    }, 500);
+    return () => clearTimeout(timer);
+  };
+
   return (
     <Wrapper>
       <IdleTimer onIdle={() => window.location.reload()} />
@@ -182,7 +197,9 @@ const Page = () => {
               }`}
               onClick={() => {
                 setActiveTab(1);
-                setCurrentFilterData({ PageNo: 1, PageSize: 10 });
+                // setCurrentFilterData({ PageNo: 1, PageSize: 10 });
+                setGlobalSearchValue("");
+                setSearchValue("");
               }}
             >
               Review
@@ -196,7 +213,9 @@ const Page = () => {
               }`}
               onClick={() => {
                 setActiveTab(2);
-                setCurrentFilterData({ PageNo: 1, PageSize: 10 });
+                // setCurrentFilterData({ PageNo: 1, PageSize: 10 });
+                setGlobalSearchValue("");
+                setSearchValue("");
               }}
             >
               All Task
@@ -212,8 +231,8 @@ const Page = () => {
               <InputBase
                 className="pl-1 pr-7 border-b border-b-lightSilver w-52"
                 placeholder="Search"
-                value={globalSearchValue}
-                onChange={(e: any) => setGlobalSearchValue(e.target.value)}
+                value={searchValue}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
               <span className="absolute top-2 right-2 text-slatyGrey">
                 <SearchIcon />
@@ -247,7 +266,7 @@ const Page = () => {
           searchValue={globalSearchValue}
           onDataFetch={handleDataFetch}
           onEdit={handleEdit}
-          onDrawerOpen={handleDrawerOpen}
+          // onDrawerOpen={handleDrawerOpen}
           currentFilterData={currentFilterData}
           onFilterOpen={isFilterOpen}
           onCloseDrawer={openDrawer}
@@ -255,22 +274,23 @@ const Page = () => {
           onErrorLog={handleSetError}
           onManualTime={handleSetManual}
           onHandleExport={handleCanExport}
-          onChangeLoader={(e: any) => setTimeValue(e)}
+          onChangeLoader={(e: string | null) => setTimeValue(e)}
         />
 
         <Drawer
+          activeTab={activeTab}
           onDataFetch={dataFunction}
           onOpen={openDrawer}
           onClose={handleDrawerClose}
           onEdit={hasEditId}
-          hasIconIndex={iconIndex > 0 ? iconIndex : 0}
+          // hasIconIndex={iconIndex > 0 ? iconIndex : 0}
           onHasId={hasId}
           onComment={hasComment}
           onErrorLog={hasError}
           onManualTime={hasManual}
         />
 
-        <FilterDialog_Approval
+        <FilterDialogApproval
           activeTab={activeTab}
           onOpen={isFilterOpen}
           onClose={handleCloseFilter}

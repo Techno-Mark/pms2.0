@@ -1,4 +1,8 @@
 import OverLay from "@/components/common/OverLay";
+import {
+  PermissionsMenuItem,
+  UserPermissionDrawer,
+} from "@/utils/Types/settingTypes";
 import axios from "axios";
 import { Button, CheckBox, Close, DataTable } from "next-ts-lib";
 import React, { useEffect, useState } from "react";
@@ -9,10 +13,10 @@ const UserPermissionDrawer = ({
   onClose,
   userId,
   roleId,
-  onDataFetch,
-}: any) => {
+  userType,
+}: UserPermissionDrawer) => {
   const [isLoadingUserPermission, setIsLoadingUserPermission] = useState(false);
-  const [data, setData] = useState<any>([]);
+  const [data, setData] = useState<PermissionsMenuItem[]>([]);
 
   const getData = async () => {
     const token = await localStorage.getItem("token");
@@ -79,7 +83,7 @@ const UserPermissionDrawer = ({
     const columns = [
       { header: "", accessor: "Name", sortable: false },
       ...(largestChildArray
-        ? largestChildArray.map((child: any, index: number) => ({
+        ? largestChildArray.map((child: null, index: number) => ({
             header: "",
             accessor: index,
             sortable: false,
@@ -222,7 +226,22 @@ const UserPermissionDrawer = ({
               childIndex +
               action.ActionId.toString();
 
-        return (
+        return userType === "Client" ? (
+          action.ActionId !== 12 && (
+            <CheckBox
+              key={uniqueId}
+              label={action.ActionName}
+              type="checkbox"
+              id={uniqueId}
+              checked={action.IsChecked}
+              onChange={() =>
+                parentId === 3 && data.length === 3
+                  ? handleCheckboxChange(2, childIndex, index)
+                  : handleCheckboxChange(parentId, childIndex, index)
+              }
+            />
+          )
+        ) : (
           <CheckBox
             key={uniqueId}
             label={action.ActionName}
@@ -239,7 +258,7 @@ const UserPermissionDrawer = ({
       });
   };
 
-  let tableData: any[] = data.map((i: any) => {
+  let tableData = data.map((i: PermissionsMenuItem) => {
     const isViewChecked = i.ActionList;
     const Id = i.Sequence - 1;
 
@@ -255,7 +274,7 @@ const UserPermissionDrawer = ({
               columns={[
                 { header: "", accessor: "name", sortable: false },
                 ...getLargestArray(i?.Children).map(
-                  (child: any, index: number) =>
+                  (child: null, index: number) =>
                     new Object({ header: "", accessor: index, sortable: false })
                 ),
               ]}

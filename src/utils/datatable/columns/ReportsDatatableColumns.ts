@@ -1,5 +1,7 @@
 import {
   generateCommonBodyRender,
+  generateCommonBodyRenderLog,
+  generateCommonBodyRenderPercentage,
   generateCustomFormatDate,
   generateCustomHeaderName,
   generateDateWithTime,
@@ -10,7 +12,7 @@ import {
   generateRatingsBodyRender,
   generateStatusWithColor,
 } from "../CommonFunction";
-import { generateCustomColumn } from "./ColsGenerateFunctions";
+import { generateCustomColumn } from "../ColsGenerateFunctions";
 
 const RatingReportColsConfig = [
   {
@@ -99,8 +101,11 @@ const reportTaskColConfig = [
   {
     name: "Status",
     label: "Status",
-    bodyRenderer: (value: any, tableMeta: any) =>
-      generateStatusWithColor(value, tableMeta.rowData[11]),
+    bodyRenderer: (value: string, tableMeta: any) =>
+      generateStatusWithColor(
+        value,
+        tableMeta.rowData[tableMeta.rowData.length - 1]
+      ),
   },
   {
     name: "AssignedTo",
@@ -260,17 +265,17 @@ const reportsLogColConfig = [
   {
     header: "Filed",
     label: "Field Name",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateCommonBodyRenderLog,
   },
   {
     header: "OldValue",
     label: "Old Value",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateCommonBodyRenderLog,
   },
   {
     header: "NewValue",
     label: "New Value",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateCommonBodyRenderLog,
   },
   {
     header: "UpdatedOn",
@@ -337,6 +342,243 @@ const reportsRatingColConfig = [
   },
 ];
 
+const reportsActivityColConfig = [
+  {
+    header: "UserName",
+    label: "User Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "DepartmentName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "TotalHours",
+    label: "Total Hours",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "TotalProductive",
+    label: "Productive",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "TotalNonProductive",
+    label: "Non-Productive",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "TotalBillable",
+    label: "Billable",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "TotalNonBillable",
+    label: "Non-Billable",
+    bodyRenderer: generateCommonBodyRender,
+  },
+];
+
+const reportsAPColConfig = [
+  {
+    header: "WorkItemId",
+    label: "Task ID",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ClientName",
+    label: "Client Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ProjectName",
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ProcessName",
+    label: "Process",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "SubProcessName",
+    label: "Sub-Process",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "DepartmentName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "TaskDate",
+    label: "Created On",
+    bodyRenderer: generateDateWithoutTime,
+  },
+  {
+    header: "Description",
+    label: "Description",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "AssignedTo",
+    label: "Assign To",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ReportingTo",
+    label: "Reporting To",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "Quantity",
+    label: "QTY",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "StdTime",
+    label: "STD Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "AutoTime",
+    label: "Auto Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "ManualTime",
+    label: "Manual Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "Difference",
+    label: "Difference (%)",
+    bodyRenderer: generateCommonBodyRenderPercentage,
+  },
+  {
+    header: "Comment",
+    label: "Reviewer's Note",
+    bodyRenderer: generateCommonBodyRender,
+  },
+];
+
+const reportsKRAColConfig = [
+  {
+    header: "WorkItemId",
+    label: "Task ID",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ClientName",
+    label: "Client Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ProjectName",
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ProcessName",
+    label: "Process",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "SubProcessName",
+    label: "Sub-Process",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "UserName",
+    label: "User Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "DepartmentName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "StdTime",
+    label: "STD Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "Quantity",
+    label: "QTY",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "AutoTime",
+    label: "Auto Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "ManualTime",
+    label: "Manual Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "Efficiency",
+    label: "Efficiency (%)",
+    bodyRenderer: generateCommonBodyRenderPercentage,
+  },
+  {
+    header: "Remarks",
+    label: "Remarks/Comments",
+    bodyRenderer: generateCommonBodyRender,
+  },
+];
+
+const reportsAMColConfig = [
+  {
+    header: "UserName",
+    label: "User Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "DepartmentName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ReportingTo",
+    label: "Reporting Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "StdTime",
+    label: "STD Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "AutoTime",
+    label: "Auto Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "ManualTime",
+    label: "Manual Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateInitialTimer,
+  },
+];
+
 const generateCustomizableCols = (
   column: {
     name: string;
@@ -352,7 +594,7 @@ const generateCustomizableCols = (
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Status"),
-        customBodyRender: (value: any, tableMeta: any) =>
+        customBodyRender: (value: string, tableMeta: any) =>
           generateStatusWithColor(value, tableMeta.rowData[rowDataIndex]),
       },
     };
@@ -370,7 +612,7 @@ const generateCustomizableCols = (
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Login"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateDateWithTime(value);
         },
       },
@@ -382,7 +624,7 @@ const generateCustomizableCols = (
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Logout"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string | null) => {
           return generateDateWithTime(value);
         },
       },
@@ -394,7 +636,7 @@ const generateCustomizableCols = (
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Idle Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
       },
@@ -406,7 +648,7 @@ const generateCustomizableCols = (
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Break Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
       },
@@ -419,7 +661,7 @@ const generateCustomizableCols = (
         filter: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Productive Time"),
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
       },
@@ -429,28 +671,44 @@ const generateCustomizableCols = (
   }
 };
 
-const reportDatatatbleRatingCols: any = RatingReportColsConfig.map((col: any) =>
+const reportDatatatbleRatingCols = RatingReportColsConfig.map((col: any) =>
   generateCustomColumn(col.name, col.label, col.bodyRenderer)
 );
 
-const reportDatatableTaskCols: any = reportTaskColConfig.map((col: any) =>
-  generateCustomizableCols(col, 11)
+const reportDatatableTaskCols = reportTaskColConfig.map((col: any) =>
+  generateCustomizableCols(col, 10)
 );
 
-const reportsAuditCols: any = auditColConfig.map((col: any) =>
+const reportsAuditCols = auditColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
 
-const reportsLogCols: any = reportsLogColConfig.map((col: any) =>
+const reportsLogCols = reportsLogColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
 
-const reportsProjectsCols: any = reportsProjectsColConfig.map((col: any) =>
+const reportsProjectsCols = reportsProjectsColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
 
-const reportsRatingCols: any = reportsRatingColConfig.map((col: any) =>
+const reportsRatingCols = reportsRatingColConfig.map((col: any) =>
   generateCustomColumn(col.name, col.label, col.bodyRenderer)
+);
+
+const reportsActivityCols = reportsActivityColConfig.map((col: any) =>
+  generateCustomColumn(col.header, col.label, col.bodyRenderer)
+);
+
+const reportsAPCols = reportsAPColConfig.map((col: any) =>
+  generateCustomColumn(col.header, col.label, col.bodyRenderer)
+);
+
+const reportsKRACols = reportsKRAColConfig.map((col: any) =>
+  generateCustomColumn(col.header, col.label, col.bodyRenderer)
+);
+
+const reportsAMCols = reportsAMColConfig.map((col: any) =>
+  generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
 
 const reportsUserLogsCols: any[] = [
@@ -460,7 +718,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("User Name"),
-      customBodyRender: (value: any) => {
+      customBodyRender: (value: string) => {
         return generateCommonBodyRender(value);
       },
     },
@@ -471,7 +729,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("Reporting To"),
-      customBodyRender: (value: any) => {
+      customBodyRender: (value: string) => {
         return generateCommonBodyRender(value);
       },
     },
@@ -482,7 +740,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("Department"),
-      customBodyRender: (value: any) => {
+      customBodyRender: (value: string) => {
         return generateCommonBodyRender(value);
       },
     },
@@ -493,7 +751,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("Login"),
-      customBodyRender: (value: any) => {
+      customBodyRender: (value: string | null) => {
         return generateDateWithTime(value);
       },
     },
@@ -504,7 +762,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("Logout"),
-      customBodyRender: (value: any) => {
+      customBodyRender: (value: string | null) => {
         return generateDateWithTime(value);
       },
     },
@@ -515,7 +773,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("Idle Time"),
-      customBodyRender: (value: any) => {
+      customBodyRender: (value: string) => {
         return generateInitialTimer(value);
       },
     },
@@ -526,7 +784,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("Break Time"),
-      customBodyRender: (value: any) => {
+      customBodyRender: (value: string) => {
         return generateInitialTimer(value);
       },
     },
@@ -537,7 +795,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("Productive Time"),
-      customBodyRender: (value: any) => {
+      customBodyRender: (value: string) => {
         return generateInitialTimer(value);
       },
     },
@@ -548,7 +806,7 @@ const reportsUserLogsCols: any[] = [
       sort: true,
       filter: true,
       customHeadLabelRender: () => generateCustomHeaderName("Is Logged In"),
-      customBodyRender: (value: any) => generateIsLoggedInBodyRender(value),
+      customBodyRender: (value: number) => generateIsLoggedInBodyRender(value),
     },
   },
 ];
@@ -561,4 +819,8 @@ export {
   reportsRatingCols,
   reportsUserLogsCols,
   reportsLogCols,
+  reportsActivityCols,
+  reportsAPCols,
+  reportsKRACols,
+  reportsAMCols,
 };

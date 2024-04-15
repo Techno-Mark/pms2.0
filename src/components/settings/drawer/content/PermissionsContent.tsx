@@ -1,7 +1,5 @@
-/* eslint-disable react/display-name */
 import { callAPI } from "@/utils/API/callAPI";
 import { Button, Radio, TextField } from "@mui/material";
-import { Text } from "next-ts-lib";
 import React, { forwardRef, useImperativeHandle, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -12,14 +10,13 @@ export interface PermissionContentRef {
 const PermissionsContent = forwardRef<
   PermissionContentRef,
   {
-    tab: string;
     onClose: () => void;
-    getPermissionDropdown: any;
-    onChangeLoader: any;
+    getPermissionDropdown: () => void;
+    onChangeLoader: (e: boolean) => void;
   }
->(({ tab, onClose, getPermissionDropdown, onChangeLoader }, ref) => {
+>(({ onClose, getPermissionDropdown, onChangeLoader }, ref) => {
   const [role, setRole] = useState("");
-  const [type, setType] = useState<any>("1");
+  const [type, setType] = useState<string>("1");
   const [roleErr, setRoleErr] = useState(false);
 
   const clearData = () => {
@@ -45,9 +42,9 @@ const PermissionsContent = forwardRef<
     };
     const url = `${process.env.pms_api_url}/Role/Save`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         clearAllData();
@@ -67,7 +64,7 @@ const PermissionsContent = forwardRef<
     role.trim().length < 3 && setRoleErr(true);
     role.trim().length > 50 && setRoleErr(true);
 
-    if (!roleErr && role.trim().length < 3 && role.trim().length > 50) {
+    if (!roleErr && role.trim().length > 2 && role.trim().length < 50) {
       saveRole();
     }
   };
@@ -77,7 +74,7 @@ const PermissionsContent = forwardRef<
       <div className="flex flex-col p-[20px]">
         <div className="flex items-center -ml-4">
           <Radio
-            checked={type == 1}
+            checked={Number(type) == 1}
             onChange={(e) => setType(e.target.value)}
             value="1"
             name="radio-buttons"
@@ -86,7 +83,7 @@ const PermissionsContent = forwardRef<
             Employee
           </span>
           <Radio
-            checked={type == 2}
+            checked={Number(type) == 2}
             onChange={(e) => setType(e.target.value)}
             value="2"
             name="radio-buttons"
@@ -110,7 +107,7 @@ const PermissionsContent = forwardRef<
             setRole(e.target.value);
             setRoleErr(false);
           }}
-          onBlur={(e: any) => {
+          onBlur={(e) => {
             if (
               e.target.value.trim().length < 3 ||
               e.target.value.trim().length > 50

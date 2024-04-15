@@ -3,17 +3,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import "next-ts-lib/dist/index.css";
-import { PROCESS } from "./Constants/Tabname";
 import ReportLoader from "@/components/common/ReportLoader";
 import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import {
   Paper,
-  Switch,
   Table,
   TableBody,
-  TableCell,
   TableContainer,
   TablePagination,
   TableRow,
@@ -25,9 +22,15 @@ import {
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import MUIDataTable from "mui-datatables";
+import {
+  ProcessInitialFilter,
+  ProcessList,
+  SettingAction,
+  SettingProps,
+} from "@/utils/Types/settingTypes";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -40,41 +43,42 @@ const initialFilter = {
   IsDesc: 0,
   IsBillable: null,
   IsProductive: null,
-  WorkTypeFilter: null, //[1] //null
+  WorkTypeFilter: null,
+  GlobalSearch: "",
 };
 
 function Process({
   onOpen,
   onEdit,
   onDataFetch,
-  onHandleProcessData,
   getOrgDetailsFunction,
   canView,
   canEdit,
   canDelete,
-  onSearchProcessData,
+  onSearchData,
   onSearchClear,
   onHandleExport,
-}: any) {
+}: SettingProps) {
   const [loader, setLoader] = useState(false);
-  const [data, setData] = useState<any>([]);
+  const [data, setData] = useState<ProcessList[]>([]);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [totalCount, setTotalCount] = useState(0);
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [filteredObject, setFilteredOject] =
+    useState<ProcessInitialFilter>(initialFilter);
 
   useEffect(() => {
-    if (onSearchProcessData.trim().length >= 0) {
+    if (onSearchData.trim().length >= 0) {
       setFilteredOject({
         ...filteredObject,
-        GlobalSearch: onSearchProcessData.trim(),
+        GlobalSearch: onSearchData.trim(),
         PageNo: 1,
       });
       setPage(0);
     }
-  }, [onSearchProcessData]);
+  }, [onSearchData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,7 +90,11 @@ function Process({
         setTimeout(fetchData, 1000);
       }
     };
-    fetchData();
+
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [filteredObject]);
 
   const getAll = async () => {
@@ -94,16 +102,16 @@ function Process({
     const params = filteredObject;
     const url = `${process.env.pms_api_url}/process/GetAll`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: { List: ProcessList[]; TotalCount: number },
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0 ? true : false);
         setLoader(false);
         setData(ResponseData.List);
         setTotalCount(ResponseData.TotalCount);
-        getOrgDetailsFunction();
+        getOrgDetailsFunction?.();
       } else {
         setLoader(false);
       }
@@ -111,7 +119,7 @@ function Process({
     callAPI(url, params, successCallback, "POST");
   };
 
-  const handleActionValue = async (actionId: string, id: any) => {
+  const handleActionValue = async (actionId: string, id: number) => {
     setSelectedRowId(id);
     if (actionId.toLowerCase() === "edit") {
       onEdit(id);
@@ -131,13 +139,13 @@ function Process({
     };
     const url = `${process.env.pms_api_url}/process/Delete`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Process has been deleted successfully!");
-        onSearchClear(PROCESS);
+        onSearchClear();
         setIsDeleteOpen(false);
         setFilteredOject({
           ...filteredObject,
@@ -148,11 +156,13 @@ function Process({
     };
     callAPI(url, params, successCallback, "POST");
     setIsDeleteOpen(false);
-    onSearchClear(PROCESS);
+    onSearchClear();
     setSelectedRowId(null);
+    setPage(0);
+    setRowsPerPage(10);
   };
 
-  const Actions = ({ actions, id }: any) => {
+  const Actions = ({ actions, id }: SettingAction) => {
     const actionsRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
 
@@ -173,7 +183,7 @@ function Process({
     }, []);
 
     const actionPermissions = actions.filter(
-      (action: any) =>
+      (action: string) =>
         (action.toLowerCase() === "edit" && canEdit) ||
         (action.toLowerCase() === "delete" && canDelete)
     );
@@ -182,17 +192,17 @@ function Process({
       <div>
         <span
           ref={actionsRef}
-          className="w-5 h-5 cursor-pointer"
+          className="w-5 h-5 cursor-pointer relative"
           onClick={() => setOpen(!open)}
         >
           <TableActionIcon />
         </span>
         {open && (
           <React.Fragment>
-            <div className="absolute top-30 right-10 z-10 flex justify-center items-center">
+            <div className="absolute top-30 right-[1rem] z-10 flex justify-center items-center">
               <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-28">
-                  {actionPermissions.map((action: any, index: any) => (
+                  {actionPermissions.map((action: string, index: number) => (
                     <li
                       key={index}
                       onClick={() => handleActionValue(action, id)}
@@ -232,22 +242,17 @@ function Process({
         options: {
           filter: true,
           viewColumns: false,
-          sort: true,
+          sort: false,
           customHeadLabelRender: () => generateCustomHeaderName("Activity"),
-          customBodyRender: (value: any) => {
-            const modifiedList =
-              value.length > 0 &&
-              value.map((activity: any, index: any) =>
-                index === 0 ? activity : ","
-              );
+          customBodyRender: (value: string[]) => {
+            const modifiedList = value.map((activity, index) =>
+              index === 0 ? activity : ","
+            );
+            const firstActivity = modifiedList[0];
+            const remainingCount = modifiedList.filter(
+              (item) => item === ","
+            ).length;
 
-            const firstActivity =
-              modifiedList.length > 0 ? modifiedList[0] : "";
-
-            const remainingCount =
-              modifiedList.length > 0
-                ? modifiedList.filter((item: any) => item === ",").length
-                : "";
             return (
               <div>
                 {value.length > 0 ? (
@@ -269,10 +274,10 @@ function Process({
         options: {
           filter: true,
           viewColumns: false,
-          sort: true,
+          sort: false,
           customHeadLabelRender: () =>
             generateCustomHeaderName("Productive/Non-Productive"),
-          customBodyRender: (value: any) => {
+          customBodyRender: (value: boolean) => {
             return <div>{value ? "Productive" : "Non-Productive"}</div>;
           },
         },
@@ -283,9 +288,9 @@ function Process({
         options: {
           filter: true,
           viewColumns: false,
-          sort: true,
+          sort: false,
           customHeadLabelRender: () => generateCustomHeaderName("Est. Time"),
-          customBodyRender: (value: any) => {
+          customBodyRender: (value: number) => {
             const hours = Math.floor(value / 3600);
             const remainingSeconds = value % 3600;
             const minutes = Math.floor(remainingSeconds / 60);
@@ -307,10 +312,10 @@ function Process({
         options: {
           filter: true,
           viewColumns: false,
-          sort: true,
+          sort: false,
           customHeadLabelRender: () =>
             generateCustomHeaderName("Billable/Non-Billable"),
-          customBodyRender: (value: any) => {
+          customBodyRender: (value: boolean) => {
             return <div>{value ? "Billable" : "Non-Billable"}</div>;
           },
         },
@@ -321,10 +326,62 @@ function Process({
         options: {
           filter: true,
           viewColumns: false,
-          sort: true,
+          sort: false,
           customHeadLabelRender: () => generateCustomHeaderName("Actions"),
-          customBodyRender: (value: any) => {
+          customBodyRender: (value: number) => {
             return <Actions actions={["Edit", "Delete"]} id={value} />;
+          },
+        },
+      };
+    } else if (column.label === "Process") {
+      return {
+        name: "ParentProcessName",
+        options: {
+          filter: true,
+          viewColumns: false,
+          sort: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Process"),
+          customBodyRender: (value: string) => {
+            return <span>{value}</span>;
+          },
+        },
+      };
+    } else if (column.label === "Sub-Process") {
+      return {
+        name: "ChildProcessName",
+        options: {
+          filter: true,
+          viewColumns: false,
+          sort: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Sub-Process"),
+          customBodyRender: (value: string) => {
+            return <span>{value}</span>;
+          },
+        },
+      };
+    } else if (column.label === "Type Of Work") {
+      return {
+        name: "WorkTypeName",
+        options: {
+          filter: true,
+          viewColumns: false,
+          sort: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Type Of Work"),
+          customBodyRender: (value: string) => {
+            return <span>{value}</span>;
+          },
+        },
+      };
+    } else if (column.label === "Return Type") {
+      return {
+        name: "ReturnTypeName",
+        options: {
+          filter: true,
+          viewColumns: false,
+          sort: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Return Type"),
+          customBodyRender: (value: string | null) => {
+            return <span>{value === null ? "-" : value}</span>;
           },
         },
       };
@@ -385,14 +442,14 @@ function Process({
     },
   ];
 
-  const projectColumns: any = column.map((col: any) => {
+  const projectColumns = column.map((col: any) => {
     return generateConditionalColumn(col, 10);
   });
 
   const options: any = {
     filterType: "checkbox",
     responsive: "standard",
-    tableBodyHeight: "73vh",
+    tableBodyHeight: "71.8vh",
     viewColumns: false,
     filter: false,
     print: false,
@@ -405,7 +462,7 @@ function Process({
       transitionTime: 300,
     },
     expandableRows: true,
-    renderExpandableRow: (rowData: any, rowMeta: any) => {
+    renderExpandableRow: (rowData: null, rowMeta: any) => {
       return (
         <React.Fragment>
           <tr>
@@ -416,11 +473,14 @@ function Process({
                     <span className="ml-16">
                       {data[rowMeta.rowIndex].ActivityList.length > 0 ? (
                         data[rowMeta.rowIndex].ActivityList.map(
-                          (i: any, index: any) => {
+                          (i: string, index: number) => {
                             return (
                               <TableRow className="h-12" key={index}>
                                 <span className="flex items-center justify-start pt-3">
-                                  {index === i.length - 2 ? i : i + ", "}
+                                  {index ===
+                                  data[rowMeta.rowIndex].ActivityList.length - 1
+                                    ? i
+                                    : i + ", "}
                                 </span>
                               </TableRow>
                             );
@@ -452,66 +512,68 @@ function Process({
         loader ? (
           <ReportLoader />
         ) : (
-          <div className="muiTableAction">
-            <ThemeProvider theme={getMuiTheme()}>
-              <MUIDataTable
-                data={data}
-                columns={projectColumns}
-                title={undefined}
-                options={{
-                  ...options,
-                  textLabels: {
-                    body: {
-                      noMatch: (
-                        <div className="flex items-start">
-                          <span>
-                            Currently there is no record, you may{" "}
-                            <a
-                              className="text-secondary underline cursor-pointer"
-                              onClick={onOpen}
-                            >
-                              create process
-                            </a>{" "}
-                            to continue.
-                          </span>
-                        </div>
-                      ),
-                      toolTip: "",
+          <>
+            <div className="muiTableActionProcess">
+              <ThemeProvider theme={getMuiTheme()}>
+                <MUIDataTable
+                  data={data}
+                  columns={projectColumns}
+                  title={undefined}
+                  options={{
+                    ...options,
+                    textLabels: {
+                      body: {
+                        noMatch: (
+                          <div className="flex items-start">
+                            <span>
+                              Currently there is no record, you may
+                              <a
+                                className="text-secondary underline cursor-pointer"
+                                onClick={onOpen}
+                              >
+                                create process
+                              </a>
+                              to continue.
+                            </span>
+                          </div>
+                        ),
+                        toolTip: "",
+                      },
                     },
-                  },
-                }}
-                data-tableid="Datatable"
-              />
-              <TablePagination
-                className="mt-[10px]"
-                component="div"
-                count={totalCount}
-                page={page}
-                onPageChange={(
-                  event: React.MouseEvent<HTMLButtonElement> | null,
-                  newPage: number
-                ) => {
-                  handlePageChangeWithFilter(
-                    newPage,
-                    setPage,
-                    setFilteredOject
-                  );
-                }}
-                rowsPerPage={rowsPerPage}
-                onRowsPerPageChange={(
-                  event: React.ChangeEvent<
-                    HTMLInputElement | HTMLTextAreaElement
-                  >
-                ) => {
-                  handleChangeRowsPerPageWithFilter(
-                    event,
-                    setRowsPerPage,
-                    setPage,
-                    setFilteredOject
-                  );
-                }}
-              />
-            </ThemeProvider>
+                  }}
+                  data-tableid="Datatable"
+                />
+                <TablePagination
+                  // className="mt-[10px]"
+                  component="div"
+                  count={totalCount}
+                  page={page}
+                  onPageChange={(
+                    event: React.MouseEvent<HTMLButtonElement> | null,
+                    newPage: number
+                  ) => {
+                    handlePageChangeWithFilter(
+                      newPage,
+                      setPage,
+                      setFilteredOject
+                    );
+                  }}
+                  rowsPerPage={rowsPerPage}
+                  onRowsPerPageChange={(
+                    event: React.ChangeEvent<
+                      HTMLInputElement | HTMLTextAreaElement
+                    >
+                  ) => {
+                    handleChangeRowsPerPageWithFilter(
+                      event,
+                      setRowsPerPage,
+                      setPage,
+                      setFilteredOject
+                    );
+                  }}
+                />
+              </ThemeProvider>
+            </div>
 
             {/* Delete Modal */}
             {isDeleteOpen && (
@@ -526,7 +588,7 @@ function Process({
                 }
               />
             )}
-          </div>
+          </>
         )
       ) : (
         <div className="flex justify-center items-center py-[17px] text-[14px] text-red-500">

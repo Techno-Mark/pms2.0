@@ -29,7 +29,7 @@ export const dashboard_Options: any = {
 
 export const dashboardReport_Options: any = {
   responsive: "standard",
-  tableBodyHeight: "73vh",
+  tableBodyHeight: "71vh",
   viewColumns: false,
   filter: false,
   print: false,
@@ -48,7 +48,7 @@ export const dashboardReport_Options: any = {
 export const approvals_Dt_Options: any = {
   filterType: "checkbox",
   responsive: "standard",
-  tableBodyHeight: "73vh",
+  tableBodyHeight: "71vh",
   elevation: 0,
   viewColumns: false,
   filter: false,

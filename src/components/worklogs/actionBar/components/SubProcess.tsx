@@ -5,13 +5,19 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import SubProcessIcon from "@/assets/icons/worklogs/SubProcess";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { callAPI } from "@/utils/API/callAPI";
+import { IdNameEstimatedHour } from "@/utils/Types/types";
 
 const SubProcess = ({
   subProcessDropdownData,
   selectedRowIds,
   getWorkItemList,
   getOverLay,
-}: any) => {
+}: {
+  subProcessDropdownData: IdNameEstimatedHour[];
+  selectedRowIds: number[];
+  getWorkItemList: () => void;
+  getOverLay?: (e: boolean) => void;
+}) => {
   const [subProcessSearchQuery, setSubProcessSearchQuery] = useState("");
 
   const [anchorElSubProcess, setAnchorElSubProcess] =
@@ -30,37 +36,44 @@ const SubProcess = ({
   const openSubProcess = Boolean(anchorElSubProcess);
   const idSubProcess = openSubProcess ? "simple-popover" : undefined;
 
-  const handleSubProcessSearchChange = (event: any) => {
-    setSubProcessSearchQuery(event.target.value);
+  const handleSubProcessSearchChange = (e: string) => {
+    setSubProcessSearchQuery(e);
   };
 
-  const filteredSubProcess = subProcessDropdownData?.filter((subProcess: any) =>
-    subProcess.Name.toLowerCase().includes(subProcessSearchQuery.toLowerCase())
+  const filteredSubProcess = subProcessDropdownData?.filter(
+    (subProcess: IdNameEstimatedHour) =>
+      subProcess.Name.toLowerCase().includes(
+        subProcessSearchQuery.toLowerCase()
+      )
   );
 
-  const handleOptionSubProcess = (id: any) => {
+  const handleOptionSubProcess = (id: number) => {
     updateSubProcess(selectedRowIds, id);
     handleCloseSubProcess();
   };
 
   const updateSubProcess = async (id: number[], processId: number) => {
-    getOverLay(true);
+    getOverLay?.(true);
     const params = {
       WorkitemIds: id,
       SubProcessId: processId,
     };
     const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemsubprocess`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: boolean | string,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Sub-Process has been updated successfully.");
         getWorkItemList();
-        getOverLay(false);
+        getOverLay?.(false);
+      } else if (ResponseStatus === "Warning" && error === false) {
+        toast.warning(ResponseData);
+        getWorkItemList();
+        getOverLay?.(false);
       } else {
-        getOverLay(false);
+        getOverLay?.(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -104,7 +117,7 @@ const SubProcess = ({
                   placeholder="Search"
                   inputProps={{ "aria-label": "search" }}
                   value={subProcessSearchQuery}
-                  onChange={handleSubProcessSearchChange}
+                  onChange={(e) => handleSubProcessSearchChange(e.target.value)}
                   style={{ fontSize: "13px" }}
                 />
               </span>
@@ -116,7 +129,7 @@ const SubProcess = ({
                 No Data Available
               </span>
             ) : (
-              filteredSubProcess.map((subProcess: any) => {
+              filteredSubProcess.map((subProcess: IdNameEstimatedHour) => {
                 return (
                   <span
                     key={subProcess.Id}

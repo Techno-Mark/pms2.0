@@ -1,5 +1,3 @@
-/* eslint-disable react/jsx-key */
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -14,12 +12,12 @@ import FilterIcon from "@/assets/icons/FilterIcon";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
 import SearchIcon from "@/assets/icons/SearchIcon";
-import Project from "@/components/reports/tables/Project";
-import User from "@/components/reports/tables/User";
-import TimeSheet from "@/components/reports/tables/TimeSheet";
-import Workload from "@/components/reports/tables/Workload";
-import UserLogs from "@/components/reports/tables/UserLogs";
-import Audit from "@/components/reports/tables/Audit";
+import ProjectReport from "@/components/reports/tables/ProjectReport";
+import UserReport from "@/components/reports/tables/UserReport";
+import TimeSheetReport from "@/components/reports/tables/TimeSheetReport";
+import WorkloadReport from "@/components/reports/tables/WorkloadReport";
+import UserLogsReport from "@/components/reports/tables/UserLogsReport";
+import AuditReport from "@/components/reports/tables/AuditReport";
 import BillingReport from "@/components/reports/tables/BillingReport";
 import CustomReport from "@/components/reports/tables/CustomReport";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
@@ -28,37 +26,63 @@ import {
   customreport_InitialFilter,
   getCurrentTabDetails,
 } from "@/utils/reports/getFilters";
-import ProjectFilter from "@/components/reports/Filter/ProjectFilter";
-import UserFilter from "@/components/reports/Filter/UserFilter";
-import WorkLoadFilter from "@/components/reports/Filter/WorkLoadFilter";
-import UserLogsFilter from "@/components/reports/Filter/UserLogsFilter";
-import TimesheetFilter from "@/components/reports/Filter/TimesheetFilter";
+import ProjectReportFilter from "@/components/reports/Filter/ProjectReportFilter";
+import UserReportFilter from "@/components/reports/Filter/UserReportFilter";
+import WorkLoadReportFilter from "@/components/reports/Filter/WorkLoadReportFilter";
+import UserLogsReportFilter from "@/components/reports/Filter/UserLogsReportFilter";
+import TimesheetReportFilter from "@/components/reports/Filter/TimesheetReportFilter";
 import BillingReportFilter from "@/components/reports/Filter/BillingReportFilter";
 import CustomReportFilter from "@/components/reports/Filter/CustomReportFilter";
 import RatingReport from "@/components/reports/tables/RatingReport";
 import RatingReportFilter from "@/components/reports/Filter/RatingReportFilter";
-import AuditFilter from "@/components/reports/Filter/AuditFilter";
+import AuditReportFilter from "@/components/reports/Filter/AuditReportFilter";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import LogReport from "@/components/reports/tables/LogReport";
 import LogReportFilter from "@/components/reports/Filter/LogReportFilter";
+import ActivityReport from "@/components/reports/tables/ActivityReport";
+import ActivityReportFilter from "@/components/reports/Filter/ActivityReportFilter";
+import APReport from "@/components/reports/tables/APReport";
+import APReportFilter from "@/components/reports/Filter/APReportFilter";
+import ClientReport from "@/components/reports/tables/ClientReport";
+import KRAReport from "@/components/reports/tables/KRAReport";
+import AutoManualReport from "@/components/reports/tables/AutoManualReport";
+import WLTRReport from "@/components/reports/tables/WLTRReport";
+import WLTRReportFilter from "@/components/reports/Filter/WLTRReportFilter";
+import AutoManualReportFilter from "@/components/reports/Filter/AutoManualReportFilter";
+import KRAReportFilter from "@/components/reports/Filter/KRAReportFilter";
+import ClientReportFilter from "@/components/reports/Filter/ClientReportFilter";
 
-const primaryTabs = [
-  { label: "project", value: 1 },
-  { label: "user", value: 2 },
-  { label: "timesheet", value: 3 },
-  { label: "workload", value: 4 },
-  { label: "billing", value: 7 },
-  { label: "custom", value: 8 },
+interface Tabs {
+  label: string;
+  value: number;
+  name: string;
+}
+
+const allTabs = [
+  { label: "project", value: 1, name: "Project" },
+  { label: "user", value: 2, name: "Attendance" },
+  { label: "timesheet", value: 3, name: "Timesheet" },
+  { label: "workload", value: 4, name: "Workload" },
+  { label: "billing", value: 7, name: "Billing" },
+  { label: "custom", value: 8, name: "Custom" },
+  { label: "user log", value: 5, name: "User Work Log" },
+  { label: "audit", value: 6, name: "Audit" },
+  { label: "rating", value: 9, name: "Rating" },
+  { label: "log", value: 10, name: "Log" },
+  { label: "activity", value: 11, name: "Activity" },
+  { label: "actual/planned", value: 12, name: "Actual/Planned" },
+  { label: "client", value: 13, name: "Client" },
+  { label: "kra", value: 14, name: "Efficiency" },
+  { label: "auto/manual", value: 15, name: "Auto/Manual" },
+  { label: "wltr", value: 16, name: "WLTR" },
 ];
 
-const secondaryTabs = [
-  { label: "user log", value: 5 },
-  { label: "audit", value: 6 },
-  { label: "rating", value: 9 },
-  { label: "log", value: 10 },
-];
+interface MoreTabs {
+  moreTabs: Tabs[];
+  handleMoreTabsClick: (tab: Tabs, index: number) => void;
+}
 
-const MoreTabs = ({ moreTabs, handleMoreTabsClick }: any) => {
+const MoreTabs = ({ moreTabs, handleMoreTabsClick }: MoreTabs) => {
   return (
     <div
       style={{
@@ -67,8 +91,8 @@ const MoreTabs = ({ moreTabs, handleMoreTabsClick }: any) => {
       className="absolute w-36 z-50 bg-slate-50 rounded flex flex-col whitespace-nowrap"
     >
       {moreTabs
-        .filter((tab: any) => tab !== false)
-        .map((tab: any, index: number) => (
+        .filter((tab: Tabs | boolean) => tab !== false)
+        .map((tab: Tabs, index: number) => (
           <div
             key={tab.value}
             className={`py-2 w-full hover:bg-[#0000000e] ${
@@ -76,10 +100,8 @@ const MoreTabs = ({ moreTabs, handleMoreTabsClick }: any) => {
             } ${index === moreTabs.length - 1 ? "rounded-b" : ""}`}
             onClick={() => handleMoreTabsClick(tab, index)}
           >
-            <label
-              className={`mx-4 my-1 flex capitalize cursor-pointer text-base`}
-            >
-              {tab.label}
+            <label className={`mx-4 my-1 flex cursor-pointer text-base`}>
+              {tab.name}
             </label>
           </div>
         ))}
@@ -91,20 +113,19 @@ const Page = () => {
   const router = useRouter();
   const moreTabsRef = useRef<HTMLDivElement>(null);
   const [canExport, setCanExport] = useState<boolean>(false);
-  const [activeTabs, setActiveTabs] = useState<any[]>(primaryTabs);
-  const [moreTabs, setMoreTabs] = useState<any[]>(secondaryTabs);
+  const [activeTabs, setActiveTabs] = useState<any[]>([]);
+  const [moreTabs, setMoreTabs] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<number>(1);
   const [showMoreTabs, setShowMoreTabs] = useState<boolean>(false);
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
   const [filteredData, setFilteredData] = useState<any>(null);
-  const [hasBTC, setHasBTC] = useState<boolean>(false);
   const [hasRaisedInvoiceData, setHasRaisedInvoiceData] =
     useState<boolean>(false);
   const [saveBTCData, setSaveBTCData] = useState<boolean>(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>("");
   const [searchValue, setSearchValue] = useState<string>("");
 
-  //handling outside click for moreTabs
   useEffect(() => {
     const handleOutsideClick = (event: any) => {
       const isOutsideMoreTabs =
@@ -122,42 +143,55 @@ const Page = () => {
     };
   }, []);
 
-  //check if has permissions
   const hasTabsPermission = () => {
     return (
-      !hasPermissionWorklog("", "View", "Report") &&
-      (!hasPermissionWorklog("project", "View", "Report") ||
-        !hasPermissionWorklog("user", "View", "Report") ||
-        !hasPermissionWorklog("timesheet", "View", "Report") ||
-        !hasPermissionWorklog("workload", "View", "Report") ||
-        !hasPermissionWorklog("user log", "View", "Report") ||
-        !hasPermissionWorklog("audit", "View", "Report") ||
-        !hasPermissionWorklog("billing report", "View", "Report") ||
-        !hasPermissionWorklog("custom report", "View", "Report"))
+      hasPermissionWorklog("", "View", "Report") &&
+      (hasPermissionWorklog("project", "View", "Report") ||
+        hasPermissionWorklog("user", "View", "Report") ||
+        hasPermissionWorklog("timesheet", "View", "Report") ||
+        hasPermissionWorklog("workload", "View", "Report") ||
+        hasPermissionWorklog("user log", "View", "Report") ||
+        hasPermissionWorklog("audit", "View", "Report") ||
+        hasPermissionWorklog("billing", "View", "Report") ||
+        hasPermissionWorklog("custom", "View", "Report") ||
+        hasPermissionWorklog("log", "View", "Report") ||
+        hasPermissionWorklog("activity", "View", "Report") ||
+        hasPermissionWorklog("Actual/Planned", "View", "Report") ||
+        hasPermissionWorklog("client", "View", "Report") ||
+        hasPermissionWorklog("kra", "View", "Report") ||
+        hasPermissionWorklog("Auto/Manual", "View", "Report") ||
+        hasPermissionWorklog("wltr", "View", "Report"))
     );
   };
 
-  //redirect or set required states
   const actionAfterPermissionCheck = () => {
-    if (hasTabsPermission()) {
+    if (!hasTabsPermission()) {
       router.push("/");
     } else {
       setActiveTabs(
-        primaryTabs.map((tab: any) =>
-          hasPermissionWorklog(tab.label, "view", "report") ? tab : false
-        )
-      );
-      setActiveTab(
-        primaryTabs
-          .map((tab: any) =>
+        allTabs
+          .map((tab) =>
             hasPermissionWorklog(tab.label, "view", "report") ? tab : false
           )
-          .filter((tab: any) => tab !== false)[0].value
+          .filter((tab) => tab !== false)
+          .slice(0, 6)
+      );
+      setActiveTab(
+        allTabs
+          .filter((tab) => hasPermissionWorklog(tab.label, "view", "report"))
+          .map((tab) => tab.value)[0]
+      );
+      setMoreTabs(
+        allTabs
+          .map((tab) =>
+            hasPermissionWorklog(tab.label, "view", "report") ? tab : false
+          )
+          .filter((tab) => tab !== false)
+          .slice(6)
       );
     }
   };
 
-  //handle routing & permission
   useEffect(() => {
     const isClient = localStorage.getItem("isClient") === "false";
 
@@ -168,44 +202,34 @@ const Page = () => {
     }
   }, [router]);
 
-  //tab change handling
   const handleTabChange = (tabId: number) => {
     setActiveTab(tabId);
     setFilteredData(null);
     setSearchValue("");
+    setSearch("");
   };
 
-  //handle export on data length
   const handleCanExport = (arg1: boolean) => {
     setCanExport(arg1);
   };
 
-  //handling more tabs
-  const handleMoreTabsClick = (tab: any, index: number) => {
-    //index of clicked tab in moreTab section
+  const handleMoreTabsClick = (tab: Tabs, index: number) => {
     const clickedIndex = index;
 
-    //object of last present in activeTabs
     const lastVisibleTab = activeTabs[activeTabs.length - 1];
 
-    //closing the more tabs section
     setShowMoreTabs(false);
 
-    //handling tab change
     handleTabChange(tab.value);
 
-    //updating the activeTabs state with the newly clicked tab
     setActiveTabs((prevTabs) =>
-      prevTabs.map((tab: any, index: number) =>
-        //swap the last tab of activeTabs with clicked tab of moreTabs
+      prevTabs.map((tab: Tabs, index: number) =>
         index === activeTabs.length - 1 ? moreTabs[clickedIndex] : tab
       )
     );
 
-    //updating the moreTabs state with the last tab present in activeTabs
     setMoreTabs((prevTabs) =>
-      prevTabs.map((tab: any, index: number) =>
-        //swap the last tab of activeTabs with clicked tab of moreTabs
+      prevTabs.map((tab: Tabs, index: number) =>
         index === clickedIndex ? lastVisibleTab : tab
       )
     );
@@ -232,6 +256,10 @@ const Page = () => {
     const response = await axios.post(
       getCurrentTabDetails(activeTab).toLowerCase() === "billing"
         ? `${process.env.report_api_url}/report/billing/exportclientwisezipReport`
+        : getCurrentTabDetails(activeTab).toLowerCase() === "auto/manual"
+        ? `${process.env.report_api_url}/report/automanual/export`
+        : getCurrentTabDetails(activeTab).toLowerCase() === "a/p"
+        ? `${process.env.report_api_url}/report/actualplanned/export`
         : `${process.env.report_api_url}/report/${getCurrentTabDetails(
             activeTab
           )}/export`,
@@ -260,8 +288,9 @@ const Page = () => {
         const a = document.createElement("a");
         a.href = url;
         a.download = `${
-          getCurrentTabDetails(activeTab).charAt(0).toUpperCase() +
-          getCurrentTabDetails(activeTab).slice(1)
+          allTabs
+            .map((i: Tabs) => (i.value === activeTab ? i.name : false))
+            .filter((j: string | boolean) => j !== false)[0]
         }_report.${
           getCurrentTabDetails(activeTab).toLowerCase() === "billing"
             ? "zip"
@@ -279,38 +308,52 @@ const Page = () => {
     }
   };
 
+  const handleSearchChange = (e: string) => {
+    setSearch(e);
+    const timer = setTimeout(() => {
+      setSearchValue(e.trim());
+    }, 500);
+    return () => clearTimeout(timer);
+  };
+
   return (
     <Wrapper>
       <div>
         <Navbar />
         <div className="w-full pr-5 flex items-center justify-between">
           <div className="flex justify-between items-center">
-            <div className="flex justify-center items-center">
+            <div
+              className={`flex justify-center items-center ${
+                moreTabs.length <= 0 ? "my-2" : ""
+              }`}
+            >
               {activeTabs
-                .filter((tab: any) => tab !== false)
-                .map((tab: any, index: number) => (
+                .filter((tab: Tabs | boolean) => tab !== false)
+                .map((tab: Tabs, index: number) => (
                   <Fragment key={tab.value}>
                     <label
-                      className={`mx-4 capitalize cursor-pointer text-base ${
+                      className={`mx-4 cursor-pointer text-base ${
                         activeTab === tab.value
                           ? "text-secondary font-semibold"
                           : "text-slatyGrey"
                       }`}
                       onClick={() => handleTabChange(tab.value)}
                     >
-                      {tab.label}
+                      {tab.name}
                     </label>
                     <LineIcon />
                   </Fragment>
                 ))}
             </div>
             <div className="cursor-pointer relative">
-              <div
-                ref={moreTabsRef}
-                onClick={() => setShowMoreTabs(!showMoreTabs)}
-              >
-                <MoreIcon />
-              </div>
+              {moreTabs.length > 0 && (
+                <div
+                  ref={moreTabsRef}
+                  onClick={() => setShowMoreTabs(!showMoreTabs)}
+                >
+                  <MoreIcon />
+                </div>
+              )}
               {showMoreTabs && (
                 <MoreTabs
                   moreTabs={moreTabs}
@@ -325,8 +368,8 @@ const Page = () => {
               <InputBase
                 className="pl-1 pr-7 border-b border-b-lightSilver w-52"
                 placeholder="Search"
-                value={searchValue}
-                onChange={(e: any) => setSearchValue(e.target.value)}
+                value={search}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
               <span className="absolute top-2 right-2 text-slatyGrey">
                 <SearchIcon />
@@ -380,17 +423,9 @@ const Page = () => {
                   }`}
                   onClick={() => setSaveBTCData(true)}
                 >
-                  Raise Invoice
-                </Button>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="info"
-                  disabled={!hasBTC}
-                  className={`${hasBTC ? "!bg-secondary" : ""}`}
-                  onClick={() => setSaveBTCData(true)}
-                >
-                  Save
+                  {filteredData !== null && filteredData?.IsBTC
+                    ? "Invoice UnRaise"
+                    : "Invoice Raise"}
                 </Button>
               </>
             )}
@@ -399,42 +434,42 @@ const Page = () => {
 
         {/* tabs */}
         {activeTab === 1 && (
-          <Project
+          <ProjectReport
             searchValue={searchValue}
             filteredData={filteredData}
             onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 2 && (
-          <User
+          <UserReport
             searchValue={searchValue}
             filteredData={filteredData}
             onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 3 && (
-          <TimeSheet
+          <TimeSheetReport
             searchValue={searchValue}
             filteredData={filteredData}
             onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 4 && (
-          <Workload
+          <WorkloadReport
             searchValue={searchValue}
             filteredData={filteredData}
             onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 5 && (
-          <UserLogs
+          <UserLogsReport
             searchValue={searchValue}
             filteredData={filteredData}
             onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 6 && (
-          <Audit
+          <AuditReport
             searchValue={searchValue}
             filteredData={filteredData}
             onHandleExport={handleCanExport}
@@ -444,8 +479,9 @@ const Page = () => {
           <BillingReport
             searchValue={searchValue}
             filteredData={filteredData}
-            hasBTCData={(arg1: any) => setHasBTC(arg1)}
-            hasRaisedInvoiceData={(arg1: any) => setHasRaisedInvoiceData(arg1)}
+            hasRaisedInvoiceData={(arg1: boolean) =>
+              setHasRaisedInvoiceData(arg1)
+            }
             isSavingBTCData={saveBTCData}
             onSaveBTCDataComplete={() => setSaveBTCData(false)}
             onHandleExport={handleCanExport}
@@ -473,11 +509,59 @@ const Page = () => {
             onHandleExport={handleCanExport}
           />
         )}
+
+        {activeTab === 11 && (
+          <ActivityReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
+        {activeTab === 12 && (
+          <APReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
+        {activeTab === 13 && (
+          <ClientReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
+        {activeTab === 14 && (
+          <KRAReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
+        {activeTab === 15 && (
+          <AutoManualReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
+        {activeTab === 16 && (
+          <WLTRReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
       </div>
 
       {/* tabs filter */}
       {activeTab === 1 && (
-        <ProjectFilter
+        <ProjectReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}
@@ -485,7 +569,7 @@ const Page = () => {
       )}
 
       {activeTab === 2 && (
-        <UserFilter
+        <UserReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}
@@ -493,7 +577,7 @@ const Page = () => {
       )}
 
       {activeTab === 3 && (
-        <TimesheetFilter
+        <TimesheetReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}
@@ -501,7 +585,7 @@ const Page = () => {
       )}
 
       {activeTab === 4 && (
-        <WorkLoadFilter
+        <WorkLoadReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}
@@ -509,7 +593,7 @@ const Page = () => {
       )}
 
       {activeTab === 5 && (
-        <UserLogsFilter
+        <UserLogsReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}
@@ -517,7 +601,7 @@ const Page = () => {
       )}
 
       {activeTab === 6 && (
-        <AuditFilter
+        <AuditReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}
@@ -547,6 +631,48 @@ const Page = () => {
       )}
       {activeTab === 10 && (
         <LogReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 11 && (
+        <ActivityReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 12 && (
+        <APReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 13 && (
+        <ClientReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 14 && (
+        <KRAReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 15 && (
+        <AutoManualReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 16 && (
+        <WLTRReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}

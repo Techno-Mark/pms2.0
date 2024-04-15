@@ -18,14 +18,14 @@ interface DeleteModalProps {
   onActionClick: () => void;
 }
 
-const DeleteModal: React.FC<DeleteModalProps> = ({
+const DeleteModal = ({
   isOpen,
   onClose,
   title,
   children,
   actionText,
   onActionClick,
-}) => {
+}: DeleteModalProps) => {
   const [disabled, setDisabled] = useState(false);
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md">

@@ -3,13 +3,21 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import EditTimeIcon from "@/assets/icons/worklogs/EditTime";
 import EditDialog from "../../EditDialog";
 
+interface EditTime {
+  workitemId: number;
+  id: number;
+  getReviewList: () => void;
+  handleClearSelection: () => void;
+  getOverLay?: (e: boolean) => void;
+}
+
 const EditTime = ({
   workitemId,
   id,
   getReviewList,
   handleClearSelection,
   getOverLay,
-}: any) => {
+}: EditTime) => {
   const [isEditOpen, setisEditOpen] = useState<boolean>(false);
 
   const closeModal = () => {
@@ -24,7 +32,6 @@ const EditTime = ({
         </span>
       </ColorToolTip>
 
-      {/* Filter Dialog Box */}
       <EditDialog
         onOpen={isEditOpen}
         onClose={closeModal}

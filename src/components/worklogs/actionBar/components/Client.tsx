@@ -6,13 +6,19 @@ import SearchIcon from "@/assets/icons/SearchIcon";
 import ClientIcon from "@/assets/icons/worklogs/ClientIcon";
 import { getClientDropdownData } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
+import { LabelValue } from "@/utils/Types/types";
 
 const Client = ({
   selectedRowIds,
   handleClearSelection,
   getWorkItemList,
   getOverLay,
-}: any) => {
+}: {
+  selectedRowIds: number[];
+  handleClearSelection: () => void;
+  getWorkItemList: () => void;
+  getOverLay?: (e: boolean) => void;
+}) => {
   const [clientSearchQuery, setClientSearchQuery] = useState("");
   const [clientDropdownData, setClientDropdownData] = useState([]);
 
@@ -31,15 +37,15 @@ const Client = ({
   const openClient = Boolean(anchorElClient);
   const idClient = openClient ? "simple-popover" : undefined;
 
-  const handleClientSearchChange = (event: any) => {
-    setClientSearchQuery(event.target.value);
+  const handleClientSearchChange = (e: string) => {
+    setClientSearchQuery(e);
   };
 
-  const filteredClient = clientDropdownData?.filter((client: any) =>
+  const filteredClient = clientDropdownData?.filter((client: LabelValue) =>
     client.label.toLowerCase().includes(clientSearchQuery.toLowerCase())
   );
 
-  const handleOptionClient = (id: any) => {
+  const handleOptionClient = (id: number) => {
     updateClient(selectedRowIds, id);
     handleCloseClient();
   };
@@ -49,24 +55,29 @@ const Client = ({
   };
 
   const updateClient = async (id: number[], clientId: number) => {
-    getOverLay(true);
+    getOverLay?.(true);
     const params = {
       workitemIds: id,
       ClientId: clientId,
     };
     const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemclient`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: boolean | string,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Client has been updated successfully.");
         handleClearSelection();
         getWorkItemList();
-        getOverLay(false);
+        getOverLay?.(false);
+      } else if (ResponseStatus === "Warning" && error === false) {
+        toast.warning(ResponseData);
+        handleClearSelection();
+        getWorkItemList();
+        getOverLay?.(false);
       } else {
-        getOverLay(false);
+        getOverLay?.(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -111,7 +122,7 @@ const Client = ({
                   placeholder="Search"
                   inputProps={{ "aria-label": "search" }}
                   value={clientSearchQuery}
-                  onChange={handleClientSearchChange}
+                  onChange={(e) => handleClientSearchChange(e.target.value)}
                   style={{ fontSize: "13px" }}
                 />
               </span>
@@ -123,7 +134,7 @@ const Client = ({
                 No Data Available
               </span>
             ) : (
-              filteredClient.map((client: any) => {
+              filteredClient.map((client: LabelValue) => {
                 return (
                   <span
                     key={client.value}

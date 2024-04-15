@@ -9,7 +9,7 @@ import {
 import {
   generateCustomColumn,
   generateStatusColumn,
-} from "./ColsGenerateFunctions";
+} from "../ColsGenerateFunctions";
 
 const generateCustomizableCols = (column: {
   name: string;
@@ -64,7 +64,7 @@ const dashboardDatatableColsConfig = [
   },
   {
     name: "DueFrom",
-    label: "Due From",
+    label: "On Hold From",
     bodyRenderer: generateDaysBodyRender,
   },
 ];
@@ -218,7 +218,7 @@ const WorklogColsConfig = [
   {
     name: "StatusName",
     label: "Status",
-    bodyRenderer: (value: any, tableMeta: any) =>
+    bodyRenderer: (value: string, tableMeta: any) =>
       generateStatusWithColor(value, tableMeta.rowData[9]),
   },
   {

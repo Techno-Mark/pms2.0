@@ -16,16 +16,18 @@ interface DialogProps {
   onOpen: boolean;
   onClose: () => void;
   onSelectedProjectIds: number[];
-  onSelectedReturnTypeValue: any;
+  onSelectedReturnTypeValue: number;
+  onSelectedWorkType: number;
 }
 
-const Dialog_ReturnTypeData: React.FC<DialogProps> = ({
+const Dialog_ReturnTypeData = ({
   onOpen,
   onClose,
   onSelectedProjectIds,
   onSelectedReturnTypeValue,
-}) => {
-  const [returnType, setReturnType] = useState<number | any>(0);
+  onSelectedWorkType,
+}: DialogProps) => {
+  const [returnType, setReturnType] = useState<number | string>(0);
 
   const handleClose = () => {
     onClose();
@@ -42,14 +44,14 @@ const Dialog_ReturnTypeData: React.FC<DialogProps> = ({
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogTitle className="flex justify-between p-5 bg-whiteSmoke">
+        <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">Task Status</span>
           <IconButton onClick={handleClose}>
             <Close />
           </IconButton>
         </DialogTitle>
 
-        <DialogContent className="flex flex-col gap-5 mt-[10px]">
+        <DialogContent className="flex flex-col gap-5 mt-[10px] !py-0">
           <div className="flex justify-end items-center">
             <FormControl sx={{ mx: 0.75, minWidth: 220, marginTop: 1 }}>
               <Select
@@ -69,6 +71,8 @@ const Dialog_ReturnTypeData: React.FC<DialogProps> = ({
             onSelectedProjectIds={onSelectedProjectIds}
             onSelectedReturnTypeValue={onSelectedReturnTypeValue}
             onCurrSelectedReturnType={returnType}
+            onSelectedWorkType={onSelectedWorkType}
+            onOpen={onOpen}
           />
         </DialogContent>
       </Dialog>
