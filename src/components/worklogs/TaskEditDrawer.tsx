@@ -951,7 +951,7 @@ const TaskEditDrawer = ({
                 <div className="flex gap-4">
                   {onEdit > 0 && (
                     <span>
-                      Created By :{" "}
+                      Created By :
                       {editDataWorklogs !== null &&
                         editDataWorklogs?.CreatedByName}
                     </span>

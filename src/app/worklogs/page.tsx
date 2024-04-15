@@ -646,12 +646,12 @@ const Page = () => {
                           toast.error("User not have permission to Create Task")
                   }
                 >
-                  <span className="flex items-center justify-center gap-[10px] px-[5px]">
+                  <p className="flex items-center justify-center gap-[10px] px-[5px]">
                     <span>
                       <AddPlusIcon />
                     </span>
                     <span className="pt-1">Create Task</span>
-                  </span>
+                  </p>
                 </Button>
               </>
             )}

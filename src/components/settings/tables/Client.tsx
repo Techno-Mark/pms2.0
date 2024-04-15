@@ -70,7 +70,7 @@ const Client = ({
   const [isOpenSwitchModal, setIsOpenSwitchModal] = useState(false);
   const [switchId, setSwitchId] = useState(0);
   const [switchActive, setSwitchActive] = useState(false);
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [openProcessDrawer, setOpenProcessDrawer] = useState(false);
@@ -520,13 +520,13 @@ const Client = ({
                         noMatch: (
                           <div className="flex items-start">
                             <span>
-                              Currently there is no record, you may{" "}
+                              Currently there is no record, you may
                               <a
                                 className="text-secondary underline cursor-pointer"
                                 onClick={onOpen}
                               >
                                 create client
-                              </a>{" "}
+                              </a>
                               to continue.
                             </span>
                           </div>

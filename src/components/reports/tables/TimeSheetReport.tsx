@@ -446,7 +446,7 @@ const DateWiseLogsContent = ({
         )}
       </div>
       <Popover
-        sx={{ width: "70%" }}
+        sx={{ width: "96vw" }}
         id={idFilter}
         open={showDateWiseLogs && tableMeta.columnIndex === clickedColumnIndex}
         anchorEl={anchorElFilter}

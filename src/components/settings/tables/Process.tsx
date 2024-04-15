@@ -90,7 +90,7 @@ function Process({
         setTimeout(fetchData, 1000);
       }
     };
-    
+
     const timer = setTimeout(() => {
       fetchData();
     }, 500);
@@ -526,13 +526,13 @@ function Process({
                         noMatch: (
                           <div className="flex items-start">
                             <span>
-                              Currently there is no record, you may{" "}
+                              Currently there is no record, you may
                               <a
                                 className="text-secondary underline cursor-pointer"
                                 onClick={onOpen}
                               >
                                 create process
-                              </a>{" "}
+                              </a>
                               to continue.
                             </span>
                           </div>

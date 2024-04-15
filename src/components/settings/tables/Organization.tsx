@@ -288,13 +288,13 @@ const Organization = ({
                       noMatch: (
                         <div className="flex items-start">
                           <span>
-                            Currently there is no record, you may{" "}
+                            Currently there is no record, you may
                             <a
                               className="text-secondary underline cursor-pointer"
                               onClick={onOpen}
                             >
                               create organization
-                            </a>{" "}
+                            </a>
                             to continue.
                           </span>
                         </div>
