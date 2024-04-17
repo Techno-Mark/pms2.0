@@ -105,4 +105,5 @@ export interface User {
   IsHaveManageAssignee: boolean;
   RoleName: string;
   ClientId: number | null;
+  WorkTypeId: number | null;
 }

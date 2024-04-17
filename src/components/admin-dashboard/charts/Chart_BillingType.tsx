@@ -34,11 +34,15 @@ const Chart_BillingType = ({
   const [totalCount, setTotalCount] = useState<number>(0);
 
   const getBillingTypeData = async () => {
+    const workTypeIdFromLocalStorage =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("workTypeId")
+        : 3;
     const params = {
       Clients: currentFilterData.Clients,
       WorkTypeId:
         currentFilterData.WorkTypeId === null
-          ? 0
+          ? Number(workTypeIdFromLocalStorage)
           : currentFilterData.WorkTypeId,
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,

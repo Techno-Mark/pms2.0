@@ -56,6 +56,10 @@ const Datatable_BillingType = ({
   }, [isClose]);
 
   const getBillingTypeData = async (value: string) => {
+    const workTypeIdFromLocalStorage =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("workTypeId")
+        : 3;
     const params = {
       PageNo: page + 1,
       PageSize: rowsPerPage,
@@ -64,7 +68,7 @@ const Datatable_BillingType = ({
       Clients: currentFilterData.Clients,
       WorkTypeId:
         currentFilterData.WorkTypeId === null
-          ? 0
+          ? Number(workTypeIdFromLocalStorage)
           : currentFilterData.WorkTypeId,
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,

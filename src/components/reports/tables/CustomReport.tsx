@@ -272,7 +272,7 @@ const CustomReport = ({
     );
 
     return actionPermissions.length > 0 &&
-      localStorage.getItem("IsAdmin") == "true" ? (
+      localStorage.getItem("isAdmin") == "true" ? (
       <div>
         <span
           ref={actionsRef}
@@ -305,12 +305,12 @@ const CustomReport = ({
           </React.Fragment>
         )}
       </div>
-    ) : localStorage.getItem("IsAdmin") == "true" ? (
+    ) : localStorage.getItem("isAdmin") == "true" ? (
       <div className="w-5 h-5 relative opacity-50 pointer-events-none">
         <TableActionIcon />
       </div>
     ) : (
-      localStorage.getItem("IsAdmin") == "false" && (
+      localStorage.getItem("isAdmin") == "false" && (
         <div className="w-5 h-5 relative opacity-50 pointer-events-none">-</div>
       )
     );
