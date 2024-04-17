@@ -80,12 +80,12 @@ const Navbar = (props: NavbarPropsType) => {
           "IsHaveManageAssignee",
           String(ResponseData.IsHaveManageAssignee)
         );
-
         localStorage.setItem("permission", JSON.stringify(ResponseData.Menu));
         localStorage.setItem("roleId", String(ResponseData.RoleId));
-        localStorage.setItem("IsAdmin", String(ResponseData.IsAdmin));
+        localStorage.setItem("isAdmin", String(ResponseData.IsAdmin));
         localStorage.setItem("isClient", String(ResponseData.IsClientUser));
         localStorage.setItem("clientId", String(ResponseData.ClientId));
+        localStorage.setItem("workTypeId", String(ResponseData.WorkTypeId));
         if (localStorage.getItem("Org_Token") === null) {
           localStorage.setItem(
             "Org_Token",

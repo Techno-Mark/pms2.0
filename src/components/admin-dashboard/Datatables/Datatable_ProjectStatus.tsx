@@ -43,6 +43,10 @@ const Datatable_ProjectStatus = ({
   }, [onOpen, isClose]);
 
   const getProjectStatusData = async () => {
+    const workTypeIdFromLocalStorage =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("workTypeId")
+        : 3;
     const params = {
       PageNo: page + 1,
       PageSize: rowsPerPage,
@@ -51,7 +55,7 @@ const Datatable_ProjectStatus = ({
       Clients: currentFilterData.Clients,
       WorkTypeId:
         currentFilterData.WorkTypeId === null
-          ? 0
+          ? Number(workTypeIdFromLocalStorage)
           : currentFilterData.WorkTypeId,
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,

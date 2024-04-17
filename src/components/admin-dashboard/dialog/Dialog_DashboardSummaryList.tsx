@@ -51,11 +51,15 @@ const Dialog_DashboardSummaryList = ({
   };
 
   const getProjectSummary = async () => {
+    const workTypeIdFromLocalStorage =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("workTypeId")
+        : 3;
     const params = {
       Clients: currentFilterData.Clients,
       WorkTypeId:
         currentFilterData.WorkTypeId === null
-          ? 0
+          ? Number(workTypeIdFromLocalStorage)
           : currentFilterData.WorkTypeId,
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,

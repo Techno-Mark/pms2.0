@@ -78,8 +78,14 @@ const Dialog_TaskStatus = ({
   }, [clickedStatusName, onSelectedStatusName]);
 
   const getAllStatus = async () => {
+    const workTypeIdFromLocalStorage =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("workTypeId")
+        : 3;
     const statusData = await getStatusDropdownData(
-      currentFilterData.WorkTypeId === null ? 3 : currentFilterData.WorkTypeId
+      currentFilterData.WorkTypeId === null
+        ? Number(workTypeIdFromLocalStorage)
+        : currentFilterData.WorkTypeId
     );
     setAllStatus(statusData);
   };

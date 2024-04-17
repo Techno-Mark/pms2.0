@@ -40,9 +40,13 @@ const FilterDialogDashboard = ({
   onClose,
   currentFilterData,
 }: FilterModalProps) => {
+  const workTypeIdFromLocalStorage =
+    typeof localStorage !== "undefined"
+      ? localStorage.getItem("workTypeId")
+      : 3;
   const initialFilter = {
     Clients: [],
-    WorkTypeId: activeTab === 1 ? 3 : null,
+    WorkTypeId: activeTab === 1 ? Number(workTypeIdFromLocalStorage) : null,
     StartDate: null,
     EndDate: null,
   };
@@ -65,9 +69,13 @@ const FilterDialogDashboard = ({
   };
 
   const handleResetAll = () => {
+    const workTypeIdFromLocalStorage =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("workTypeId")
+        : 3;
     setClientName([]);
     setClients([]);
-    setWorkType(activeTab === 1 ? 3 : 0);
+    setWorkType(activeTab === 1 ? Number(workTypeIdFromLocalStorage) : 0);
     setWorkTypeActive(activeTab === 1 ? { label: "Tax", value: 3 } : null);
     setStartDate(null);
     setEndDate(null);
