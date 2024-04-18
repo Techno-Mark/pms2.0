@@ -205,7 +205,7 @@ const GroupContent = forwardRef<
 
   return (
     <>
-      <div className="flex gap-[10px] flex-col px-[20px]">
+      <div className="flex gap-[20px] flex-col px-[20px] pb-[50px] max-h-[73.5vh] overflow-y-auto">
         <TextField
           label={
             <span>
