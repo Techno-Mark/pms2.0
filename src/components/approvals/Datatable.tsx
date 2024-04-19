@@ -8,6 +8,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Popover,
 } from "@mui/material";
 import TablePagination from "@mui/material/TablePagination";
 import PlayButton from "@/assets/icons/worklogs/PlayButton";
@@ -30,10 +31,35 @@ import {
 import { approvals_Dt_Options } from "@/utils/datatable/TableOptions";
 import { ColorToolTip, getMuiTheme } from "@/utils/datatable/CommonStyle";
 import ApprovalsActionBar from "./actionBar/ApprovalsActionBar";
-import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import ReportLoader from "../common/ReportLoader";
 import OverLay from "../common/OverLay";
 import { callAPI } from "@/utils/API/callAPI";
+import { ArrowDropDownIcon } from "@mui/x-date-pickers";
+import CloseIcon from "@/assets/icons/reports/CloseIcon";
+import { DialogTransition } from "@/utils/style/DialogTransition";
+import { options } from "@/utils/datatable/TableOptions";
+import {
+  ApprovalsPopupResponse,
+  InitialFilterApprovals,
+  List,
+} from "@/utils/Types/approvalsTypes";
+import { AppliedFilterApprovals } from "@/utils/Types/types";
+
+interface DatatableProps {
+  activeTab: number;
+  onEdit: (rowId: number, Id: number, iconIndex?: number) => void;
+  onDataFetch: (getData: () => void) => void;
+  currentFilterData: AppliedFilterApprovals | [];
+  onFilterOpen: boolean;
+  onCloseDrawer: boolean;
+  onComment: (rowData: boolean, selectedId: number) => void;
+  onErrorLog: (rowData: boolean, selectedId: number) => void;
+  onManualTime: (rowData: boolean, selectedId: number) => void;
+  onHandleExport: (arg1: boolean) => void;
+  searchValue: string;
+  onChangeLoader: (e: string | null) => void;
+}
 
 const pageNo = 1;
 const pageSize = 10;
@@ -46,12 +72,14 @@ const initialFilter = {
   globalSearch: "",
   userId: null,
   ClientId: null,
+  TypeOfWork: null,
   projectId: null,
   startDate: null,
   endDate: null,
   dueDate: null,
   StatusId: null,
   ProcessId: null,
+  DateFilter: null,
 };
 
 const Datatable = ({
@@ -67,19 +95,23 @@ const Datatable = ({
   onHandleExport,
   searchValue,
   onChangeLoader,
-}: any) => {
+}: DatatableProps) => {
+  const workloadAnchorElFilter: HTMLButtonElement | null = null;
+  const openWorkloadFilter = Boolean(workloadAnchorElFilter);
+  const workloadIdFilter = openWorkloadFilter ? "simple-popover" : undefined;
   const [isLoadingApprovalsDatatable, setIsLoadingApprovalsDatatable] =
     useState(false);
   const [loaded, setLoaded] = useState<boolean>(false);
+  const [loadingInside, setLoadingInside] = useState<boolean>(false);
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [selectedRowIds, setSelectedRowIds] = useState<number[]>([]);
-  const [selectedWorkItemIds, setSelectedWorkItemIds] = useState<
-    number[] | any
-  >([]);
-  const [workitemId, setWorkitemId] = useState(0);
-  const [id, setId] = useState(0);
+  const [selectedRows, setSelectedRows] = useState<number[] | []>([]);
+  const [selectedRowIds, setSelectedRowIds] = useState<number[] | []>([]);
+  const [selectedWorkItemIds, setSelectedWorkItemIds] = useState<number[] | []>(
+    []
+  );
+  const [workitemId, setWorkitemId] = useState<number>(0);
+  const [id, setId] = useState<number>(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
@@ -87,16 +119,19 @@ const Datatable = ({
   const [workitemTimeId, setWorkitemTimeId] = useState<number>(-1);
   const [submissionId, setSubmissionId] = useState<number>(-1);
   const [stopReviewTimer, setStopReviewTimer] = useState<boolean>(false);
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
-  const [reviewList, setReviewList] = useState<any>([]);
-  const [selectedRowStatusId, setSelectedRowStatusId] = useState<
-    any | number[]
-  >([]);
-  const [selectedRowClientId, setSelectedRowClientId] = useState<
-    any | number[]
-  >([]);
+  const [filteredObject, setFilteredOject] =
+    useState<InitialFilterApprovals>(initialFilter);
+  const [reviewList, setReviewList] = useState<List[] | []>([]);
+  const [selectedRowClientId, setSelectedRowClientId] = useState<number[] | []>(
+    []
+  );
   const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<
-    any | number[]
+    number[] | []
+  >([]);
+  const [isWorkloadExpanded, setIsWorkloadExpanded] = useState<boolean>(false);
+  const [clickedWorkloadRowId, setClickedWorkloadRowId] = useState<number>(-1);
+  const [reviewListInsideData, setReviewListInsideData] = useState<
+    ApprovalsPopupResponse[] | []
   >([]);
 
   const getInitialPagePerRows = () => {
@@ -113,8 +148,14 @@ const Datatable = ({
     }
   }, [onCloseDrawer]);
 
+  useEffect(() => {
+    handleClearSelection();
+    setPage(0);
+    setRowsPerPage(10);
+  }, [activeTab]);
+
   const getReviewList = () => {
-    setLoaded(true);
+    setLoaded(false);
     const params = {
       ...filteredObject,
       dueDate: activeTab === 1 ? null : filteredObject.dueDate,
@@ -126,13 +167,19 @@ const Datatable = ({
     }
     `;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: {
+        reviewerExportFilter: boolean;
+        List: List[];
+        TotalTime?: string;
+        TotalCount: number;
+      },
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        onChangeLoader(ResponseData.TotalTime);
-        onHandleExport(ResponseData.List > 0 ? true : false);
+        const totalTime = ResponseData.TotalTime || "00:00:00";
+        onChangeLoader(totalTime);
+        onHandleExport(ResponseData.List.length > 0 ? true : false);
         setLoaded(true);
         setReviewList(ResponseData.List);
         setTableDataCount(ResponseData.TotalCount);
@@ -144,21 +191,21 @@ const Datatable = ({
   };
 
   const handleRowSelect = (
-    currentRowsSelected: any,
-    allRowsSelected: any,
-    rowsSelected: any
+    currentRowsSelected: { index: number; dataIndex: number }[] | [],
+    allRowsSelected: { index: number; dataIndex: number }[] | [],
+    rowsSelected: number[] | []
   ) => {
     const selectedData = allRowsSelected.map(
-      (row: any) => reviewList[row.dataIndex]
+      (row: { index: number; dataIndex: number }) => reviewList[row.dataIndex]
     );
 
     setSelectedRowsCount(rowsSelected.length);
     setSelectedRows(rowsSelected);
 
     // adding all selected Ids in an array
-    const selectedWorkItemIds: any =
+    const selectedWorkItemIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow?.WorkitemId)
+        ? selectedData.map((selectedRow: List) => selectedRow?.WorkitemId)
         : [];
 
     setSelectedWorkItemIds(selectedWorkItemIds);
@@ -167,20 +214,20 @@ const Datatable = ({
     const workitem =
       selectedData.length > 0
         ? selectedData[selectedData.length - 1]?.WorkitemId
-        : null;
-    setWorkitemId(workitem);
+        : 0;
+    setWorkitemId(Number(workitem));
 
     // adding selected workItem Id
     const Id =
       selectedData.length > 0
         ? selectedData[selectedData.length - 1]?.SubmissionId
-        : null;
-    setId(Id);
+        : 0;
+    setId(Number(Id));
 
     // adding all selected Ids in an array
     const selectedSubmissionIds =
       selectedData.length > 0
-        ? selectedData?.map((selectedRow: any) => selectedRow?.SubmissionId)
+        ? selectedData?.map((selectedRow: List) => selectedRow?.SubmissionId)
         : [];
 
     setSelectedRowIds(selectedSubmissionIds);
@@ -188,7 +235,7 @@ const Datatable = ({
     // adding all selected row's Client Ids in an array
     const selectedWorkItemClientIds =
       selectedData.length > 0
-        ? selectedData?.map((selectedRow: any) => selectedRow?.ClientId)
+        ? selectedData?.map((selectedRow: List) => selectedRow?.ClientId)
         : [];
 
     setSelectedRowClientId(selectedWorkItemClientIds);
@@ -196,18 +243,12 @@ const Datatable = ({
     // adding all selected row's WorkType Ids in an array
     const selectedWorkItemWorkTypeIds =
       selectedData.length > 0
-        ? selectedData?.map((selectedRow: any) => selectedRow?.WorkTypeId)
+        ? selectedData?.map((selectedRow: List) => selectedRow?.WorkTypeId)
         : [];
 
     setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
 
     // adding all selected row's status Ids in an array
-    const selectedWorkItemStatusIds =
-      selectedData.length > 0
-        ? selectedData?.map((selectedRow: any) => selectedRow?.StatusId)
-        : [];
-
-    setSelectedRowStatusId(selectedWorkItemStatusIds);
 
     if (allRowsSelected) {
       setIsPopupOpen(true);
@@ -229,7 +270,7 @@ const Datatable = ({
   }, [activeTab]);
 
   useEffect(() => {
-    if (onFilterOpen || onFilterOpen === true) {
+    if (onFilterOpen) {
       handleClearSelection();
     }
   }, [onFilterOpen]);
@@ -240,13 +281,13 @@ const Datatable = ({
     handleClearSelection();
   };
 
-  const handleReviewerManualTime = (id1: any, id2: any) => {
+  const handleReviewerManualTime = (id1: number, id2: number) => {
     onEdit(id1, id2, 2);
     onManualTime(true, id1);
     handleClearSelection();
   };
 
-  function formatTime(seconds: any) {
+  function formatTime(seconds: number) {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
@@ -271,9 +312,9 @@ const Datatable = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/approval/saveworkitemreviewertimestamp`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: number,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setWorkitemTimeId((prev) =>
@@ -296,24 +337,31 @@ const Datatable = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/approval/getreviewerworkitemsync`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: {
+        SyncTime: number;
+      },
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setReviewList((prev: any) =>
-          prev.map((data: any) => {
-            if (data.SubmissionId === submissionId) {
-              return new Object({
-                ...data,
-                Timer: ResponseData.SyncTime,
-              });
-            } else {
-              return data;
-            }
-          })
-        );
-        setIsLoadingApprovalsDatatable(false);
+        if (ResponseData !== null) {
+          setReviewList((prev: List[] | []) =>
+            prev.map((data: List) => {
+              if (data.SubmissionId === submissionId) {
+                return {
+                  ...data,
+                  Timer: ResponseData?.SyncTime,
+                };
+              } else {
+                return data;
+              }
+            })
+          );
+          setIsLoadingApprovalsDatatable(false);
+        } else {
+          getReviewList();
+          setIsLoadingApprovalsDatatable(false);
+        }
       } else {
         setIsLoadingApprovalsDatatable(false);
       }
@@ -324,29 +372,43 @@ const Datatable = ({
   useEffect(() => {
     setRunning(
       reviewList.filter(
-        (data: any) => data.TimelogId > 0 || data.TimelogId !== null
+        (data: List) => data.TimelogId !== null && data.TimelogId > 0
       ).length > 0
-        ? reviewList.filter(
-            (data: any) => data.TimelogId > 0 || data.TimelogId !== null
-          )[0].WorkitemId
+        ? reviewList
+            .map((data: List) =>
+              typeof data.TimelogId !== null &&
+              data.TimelogId !== null &&
+              data.TimelogId > 0
+                ? data.WorkitemId
+                : false
+            )
+            .filter((j: number | boolean) => j !== false)[0]
         : -1
     );
     setWorkitemTimeId(
       reviewList.filter(
-        (data: any) => data.TimelogId > 0 || data.TimelogId !== null
+        (data: List) => data.TimelogId !== null && data.TimelogId > 0
       ).length > 0
-        ? reviewList.filter(
-            (data: any) => data.TimelogId > 0 || data.TimelogId !== null
-          )[0].TimelogId
+        ? reviewList
+            .map((data: any) =>
+              typeof data.TimelogId !== null && data.TimelogId > 0
+                ? data.TimelogId
+                : false
+            )
+            .filter((j: number | boolean) => j !== false)[0]
         : -1
     );
     setSubmissionId(
       reviewList.filter(
-        (data: any) => data.TimelogId > 0 || data.TimelogId !== null
+        (data: List) => data.TimelogId !== null && data.TimelogId > 0
       ).length > 0
-        ? reviewList.filter(
-            (data: any) => data.TimelogId > 0 || data.TimelogId !== null
-          )[0].SubmissionId
+        ? reviewList
+            .map((data: any) =>
+              typeof data.TimelogId !== null && data.TimelogId > 0
+                ? data.SubmissionId
+                : false
+            )
+            .filter((j: number | boolean) => j !== false)[0]
         : -1
     );
   }, [reviewList]);
@@ -355,9 +417,29 @@ const Datatable = ({
     setFilteredOject({
       ...filteredObject,
       ...currentFilterData,
-      globalSearch: searchValue,
     });
-  }, [currentFilterData, searchValue, activeTab]);
+  }, [currentFilterData]);
+
+  useEffect(() => {
+    setFilteredOject({
+      ...filteredObject,
+      ...currentFilterData,
+      PageNo: pageNo,
+      PageSize: pageSize,
+    });
+  }, [activeTab]);
+
+  useEffect(() => {
+    setFilteredOject({
+      ...filteredObject,
+      ...currentFilterData,
+      globalSearch: searchValue,
+      PageNo: pageNo,
+      PageSize: pageSize,
+    });
+    setPage(0);
+    setRowsPerPage(10);
+  }, [searchValue]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -370,15 +452,45 @@ const Datatable = ({
     return () => clearTimeout(timer);
   }, [currentFilterData, searchValue, activeTab, filteredObject]);
 
-  const generateManualTimeBodyRender = (bodyValue: any) => {
+  const getReviewListInside = async () => {
+    setLoadingInside(false);
+    const params = {
+      WorkItemSubmissionId: clickedWorkloadRowId,
+      DateFilter: activeTab === 2 ? null : filteredObject.DateFilter,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/approval/getbreakandidletime`;
+    const successCallback = (
+      ResponseData: ApprovalsPopupResponse[] | [],
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus.toLowerCase() === "success" && error === false) {
+        setLoadingInside(true);
+        setReviewListInsideData(ResponseData);
+      } else {
+        setLoadingInside(true);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await getReviewListInside();
+    };
+    isWorkloadExpanded && fetchData();
+  }, [isWorkloadExpanded]);
+
+  const generateManualTimeBodyRender = (bodyValue: number) => {
     return <div>{bodyValue ? formatTime(bodyValue) : "00:00:00"}</div>;
   };
 
-  const generateIsManualBodyRender = (bodyValue: any) => {
-    return <div>{bodyValue === true ? "Yes" : "No"}</div>;
-  };
-
-  const columnConfig = [
+  const columnConfigReview = [
+    {
+      name: "SubmissionId",
+      label: "",
+      bodyRenderer: generateCommonBodyRender,
+    },
     {
       name: "WorkitemId",
       label: "Task ID",
@@ -420,6 +532,11 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "ReviewerName",
+      label: "Reviewer Name",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "PriorityName",
       label: "Priority",
       bodyRenderer: generatePriorityWithColor,
@@ -436,8 +553,23 @@ const Datatable = ({
     {
       name: "StatusName",
       label: "Status",
-      bodyRenderer: (value: any, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[9]),
+      bodyRenderer: (value: string, tableMeta: any) =>
+        generateStatusWithColor(value, tableMeta.rowData[11]),
+    },
+    {
+      name: "TaskColorCode",
+      options: {
+        filter: false,
+        sort: false,
+        display: false,
+        viewColumns: false,
+      },
+    },
+    {
+      name: "TaskStatusName",
+      label: "Task Status",
+      bodyRenderer: (value: string, tableMeta: any) =>
+        generateStatusWithColor(value, tableMeta.rowData[13]),
     },
     {
       name: "EstimateTime",
@@ -452,7 +584,7 @@ const Datatable = ({
     {
       name: "Est*Qty",
       label: "Std. Time",
-      bodyRenderer: (value: any, tableMeta: any) => {
+      bodyRenderer: (value: null, tableMeta: any) => {
         return <span>{tableMeta.rowData.toString()}</span>;
       },
     },
@@ -538,6 +670,191 @@ const Datatable = ({
     },
   ];
 
+  const columnConfigAllTask = [
+    {
+      name: "WorkitemId",
+      label: "Task ID",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ClientName",
+      label: "Client",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ProjectName",
+      label: "Project",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "TaskName",
+      label: "Task",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ParentProcess",
+      label: "Process",
+      bodyRenderer: generateParentProcessBodyRender,
+    },
+    {
+      name: "SubProcess",
+      label: "Sub-Process",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "Timer",
+      label: "Review Timer",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "AssignedName",
+      label: "Assigned To",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ReviewerName",
+      label: "Reviewer Name",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "PriorityName",
+      label: "Priority",
+      bodyRenderer: generatePriorityWithColor,
+    },
+    {
+      name: "ColorCode",
+      options: {
+        filter: false,
+        sort: false,
+        display: false,
+        viewColumns: false,
+      },
+    },
+    {
+      name: "StatusName",
+      label: "Status",
+      bodyRenderer: (value: string, tableMeta: any) =>
+        generateStatusWithColor(value, tableMeta.rowData[10]),
+    },
+    {
+      name: "TaskColorCode",
+      options: {
+        filter: false,
+        sort: false,
+        display: false,
+        viewColumns: false,
+      },
+    },
+    {
+      name: "TaskStatusName",
+      label: "Task Status",
+      bodyRenderer: (value: string, tableMeta: any) =>
+        generateStatusWithColor(value, tableMeta.rowData[12]),
+    },
+    {
+      name: "EstimateTime",
+      label: "Est. Hours",
+      bodyRenderer: generateManualTimeBodyRender,
+    },
+    {
+      name: "Quantity",
+      label: "Qty.",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "Est*Qty",
+      label: "Std. Time",
+      bodyRenderer: (value: null, tableMeta: any) => {
+        return <span>{tableMeta.rowData.toString()}</span>;
+      },
+    },
+    {
+      name: "PreparorTime",
+      label: "Preparation Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ReviewerTime",
+      label: "Reviewer Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ActualTime",
+      label: "Actual Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "StartDate",
+      label: "Start Date",
+      bodyRenderer: generateCustomFormatDate,
+    },
+    {
+      name: "EndDate",
+      label: "End Date",
+      bodyRenderer: generateCustomFormatDate,
+    },
+    {
+      name: "ReviewDate",
+      label: "Review Date",
+      bodyRenderer: generateCustomFormatDate,
+    },
+    {
+      name: "EmpolyeeName",
+      label: "Employee",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "Role",
+      label: "Designation",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "EmployeeManualTime",
+      label: "Edited Time",
+      bodyRenderer: generateManualTimeBodyRender,
+    },
+    // {
+    //   name: "EmployeeIsManual",
+    //   label: "Is Manual",
+    //   bodyRenderer: generateIsManualBodyRender,
+    // },
+    {
+      name: "ManagerName",
+      label: "Manager",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ReviewerId",
+      options: {
+        display: false,
+      },
+    },
+    {
+      name: "ReviewerIsManual",
+      options: {
+        display: false,
+      },
+    },
+    {
+      name: "SubmissionId",
+      options: {
+        display: false,
+      },
+    },
+    {
+      name: "State",
+      options: {
+        display: false,
+      },
+    },
+    {
+      name: "WorkitemId",
+      options: {
+        display: false,
+      },
+    },
+  ];
+
   const generateConditionalColumn = (
     column: {
       name: string;
@@ -553,7 +870,7 @@ const Datatable = ({
           filter: true,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Review Timer"),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: number, tableMeta: any) => {
             const timerValue =
               value === 0 ? "00:00:00" : toHoursAndMinutes(value);
 
@@ -561,7 +878,8 @@ const Datatable = ({
               <div className="w-44 h-7 flex items-center">
                 <ColorToolTip
                   title={`Estimated Time: ${toHoursAndMinutes(
-                    tableMeta.rowData[11] * tableMeta.rowData[12]
+                    tableMeta.rowData[activeTab === 1 ? 15 : 14] *
+                      tableMeta.rowData[activeTab === 1 ? 16 : 15]
                   )}`}
                   placement="top"
                   arrow
@@ -577,17 +895,23 @@ const Datatable = ({
                   </span>
                 </ColorToolTip>
                 {reviewList[tableMeta.rowIndex].ReviewerId ==
-                  localStorage.getItem("UserId") &&
+                  Number(localStorage.getItem("UserId")) &&
                   reviewList.length > 0 &&
-                  (reviewList[tableMeta.rowIndex].ReviewerIsManual === null ||
-                    reviewList[tableMeta.rowIndex].ReviewerIsManual ===
-                      false) &&
-                  (reviewList[tableMeta.rowIndex].StatusId === 56 ||
-                    reviewList[tableMeta.rowIndex].StatusId === 58 ||
-                    reviewList[tableMeta.rowIndex].StatusId === 59 ||
-                    reviewList[tableMeta.rowIndex].StatusId === 6 ||
-                    reviewList[tableMeta.rowIndex].StatusId === 54) &&
-                  reviewList[tableMeta.rowIndex].IsFinalSubmited &&
+                  (reviewList[tableMeta.rowIndex].StatusType ===
+                    "InReviewWithClients" ||
+                    reviewList[tableMeta.rowIndex].StatusType === "InReview" ||
+                    reviewList[tableMeta.rowIndex].StatusType ===
+                      "ReworkInReview" ||
+                    reviewList[tableMeta.rowIndex].StatusType ===
+                      "PartialSubmitted" ||
+                    reviewList[tableMeta.rowIndex].StatusType ===
+                      "SecondManagerReview" ||
+                    reviewList[tableMeta.rowIndex].StatusType === "Submitted" ||
+                    reviewList[tableMeta.rowIndex].StatusType ===
+                      "ReworkSubmitted") &&
+                  (reviewList[tableMeta.rowIndex].StatusType ===
+                    "PartialSubmitted" ||
+                    reviewList[tableMeta.rowIndex].IsFinalSubmited) &&
                   tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
                   tableMeta.rowData[tableMeta.rowData.length - 1] !==
                     isRunning &&
@@ -595,14 +919,15 @@ const Datatable = ({
                     <ColorToolTip title="Start" placement="top" arrow>
                       <span
                         className="cursor-pointer"
-                        onClick={() =>
+                        onClick={() => {
                           handleReviewTimer(
                             1,
                             tableMeta.rowData[tableMeta.rowData.length - 1],
                             tableMeta.rowData[tableMeta.rowData.length - 3],
                             0
-                          )
-                        }
+                          );
+                          handleClearSelection();
+                        }}
                       >
                         <PlayButton />
                       </span>
@@ -612,14 +937,15 @@ const Datatable = ({
                       <ColorToolTip title="Resume" placement="top" arrow>
                         <span
                           className="cursor-pointer"
-                          onClick={() =>
+                          onClick={() => {
                             handleReviewTimer(
                               1,
                               tableMeta.rowData[tableMeta.rowData.length - 1],
                               tableMeta.rowData[tableMeta.rowData.length - 3],
                               0
-                            )
-                          }
+                            );
+                            handleClearSelection();
+                          }}
                         >
                           <PlayPause />
                         </span>
@@ -627,7 +953,7 @@ const Datatable = ({
                     )
                   ))}
                 {reviewList[tableMeta.rowIndex].ReviewerId ==
-                  localStorage.getItem("UserId") &&
+                  Number(localStorage.getItem("UserId")) &&
                   (tableMeta.rowData[tableMeta.rowData.length - 2] === 1 ||
                     tableMeta.rowData[tableMeta.rowData.length - 1] ===
                       isRunning) && (
@@ -645,6 +971,7 @@ const Datatable = ({
                               tableMeta.rowData[tableMeta.rowData.length - 3],
                               workitemTimeId
                             );
+                            handleClearSelection();
                           }}
                         >
                           <PauseButton />
@@ -661,24 +988,32 @@ const Datatable = ({
                       <ColorToolTip title="Sync" placement="top" arrow>
                         <span
                           className="cursor-pointer"
-                          onClick={() =>
+                          onClick={() => {
                             handleReviewSync(
                               tableMeta.rowData[tableMeta.rowData.length - 3]
-                            )
-                          }
+                            );
+                            handleClearSelection();
+                          }}
                         >
                           <RestartButton />
                         </span>
                       </ColorToolTip>
                     </div>
                   )}
-                {(reviewList[tableMeta.rowIndex].StatusId === 56 ||
-                  reviewList[tableMeta.rowIndex].StatusId === 58 ||
-                  reviewList[tableMeta.rowIndex].StatusId === 59 ||
-                  reviewList[tableMeta.rowIndex].StatusId === 6 ||
-                  reviewList[tableMeta.rowIndex].StatusId === 54) &&
+                {(reviewList[tableMeta.rowIndex].StatusType ===
+                  "InReviewWithClients" ||
+                  reviewList[tableMeta.rowIndex].StatusType === "InReview" ||
+                  reviewList[tableMeta.rowIndex].StatusType ===
+                    "ReworkInReview" ||
+                  reviewList[tableMeta.rowIndex].StatusType ===
+                    "PartialSubmitted" ||
+                  reviewList[tableMeta.rowIndex].StatusType ===
+                    "SecondManagerReview" ||
+                  reviewList[tableMeta.rowIndex].StatusType === "Submitted" ||
+                  reviewList[tableMeta.rowIndex].StatusType ===
+                    "ReworkSubmitted") &&
                   reviewList[tableMeta.rowIndex].ReviewerId ==
-                    localStorage.getItem("UserId") &&
+                    Number(localStorage.getItem("UserId")) &&
                   tableMeta.rowData[tableMeta.rowData.length - 4] !== false && (
                     <ColorToolTip
                       title="Reviewer Manual Time"
@@ -687,18 +1022,42 @@ const Datatable = ({
                     >
                       <span
                         className="ml-2 cursor-pointer"
-                        onClick={() =>
+                        onClick={() => {
                           handleReviewerManualTime(
                             tableMeta.rowData[tableMeta.rowData.length - 1],
                             tableMeta.rowData[tableMeta.rowData.length - 3]
-                          )
-                        }
+                          );
+                          handleClearSelection();
+                        }}
                       >
                         <ClockIcon />
                       </span>
                     </ColorToolTip>
                   )}
               </div>
+            );
+          },
+        },
+      };
+    } else if (column.label === "") {
+      return {
+        name: "SubmissionId",
+        options: {
+          filter: true,
+          viewColumns: false,
+          sort: true,
+          customHeadLabelRender: () => generateCustomHeaderName(""),
+          customBodyRender: (value: number) => {
+            return (
+              <span
+                className="flex flex-col cursor-pointer"
+                onClick={() => {
+                  setIsWorkloadExpanded(true);
+                  setClickedWorkloadRowId(value);
+                }}
+              >
+                <ArrowDropDownIcon />
+              </span>
             );
           },
         },
@@ -711,7 +1070,7 @@ const Datatable = ({
           viewColumns: false,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: number) => {
             return generateCommonBodyRender(value);
           },
         },
@@ -719,6 +1078,16 @@ const Datatable = ({
     } else if (column.name === "ColorCode") {
       return {
         name: "ColorCode",
+        options: {
+          filter: false,
+          sort: false,
+          display: false,
+          viewColumns: false,
+        },
+      };
+    } else if (column.name === "TaskColorCode") {
+      return {
+        name: "TaskColorCode",
         options: {
           filter: false,
           sort: false,
@@ -734,15 +1103,43 @@ const Datatable = ({
           sort: true,
           viewColumns: false,
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
-          customBodyRender: (value: any, tableMeta: any) => {
-            const statusColorCode = tableMeta.rowData[9];
+          customBodyRender: (value: string, tableMeta: any) => {
+            const statusColorCode =
+              tableMeta.rowData[activeTab === 1 ? 11 : 10];
 
             return (
               <div>
-                {value === null ||
-                value === "" ||
-                value === 0 ||
-                value === "0" ? (
+                {value === null || value === "" || value === "0" ? (
+                  "-"
+                ) : (
+                  <div className="inline-block mr-1">
+                    <div
+                      className="w-[10px] h-[10px] rounded-full inline-block mr-2"
+                      style={{ backgroundColor: statusColorCode }}
+                    ></div>
+                    {value}
+                  </div>
+                )}
+              </div>
+            );
+          },
+        },
+      };
+    } else if (column.name === "TaskStatusName") {
+      return {
+        name: "TaskStatusName",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Task Status"),
+          customBodyRender: (value: string, tableMeta: any) => {
+            const statusColorCode =
+              tableMeta.rowData[activeTab === 1 ? 13 : 12];
+
+            return (
+              <div>
+                {value === null || value === "" || value === "0" ? (
                   "-"
                 ) : (
                   <div className="inline-block mr-1">
@@ -766,11 +1163,12 @@ const Datatable = ({
           sort: true,
           viewColumns: false,
           customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
-          customBodyRender: (value: any, tableMeta: any) => {
+          customBodyRender: (value: null, tableMeta: any) => {
             return (
               <span>
                 {toHoursAndMinutes(
-                  tableMeta.rowData[11] * tableMeta.rowData[12]
+                  tableMeta.rowData[activeTab === 1 ? 15 : 14] *
+                    tableMeta.rowData[activeTab === 1 ? 16 : 15]
                 )}
               </span>
             );
@@ -821,14 +1219,86 @@ const Datatable = ({
     }
   };
 
-  const approvalColumns: any = columnConfig.map((col: any) => {
+  const approvalColumns = (
+    activeTab === 1 ? columnConfigReview : columnConfigAllTask
+  ).map((col: any) => {
     return generateConditionalColumn(col, 9);
   });
+
+  const expandableColumns: any[] = [
+    {
+      name: "StartDateTime",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Start Date & Time"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "EndDateTime",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("End Date & Time"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "Client",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Client"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "Project",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Project"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "Process",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Idle / Break"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "TotalHours",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Total Hours"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+  ];
 
   const propsForActionBar = {
     selectedRowsCount,
     selectedRows,
-    selectedRowStatusId,
     selectedRowIds,
     selectedWorkItemIds,
     selectedRowClientId,
@@ -856,9 +1326,11 @@ const Datatable = ({
             options={{
               ...approvals_Dt_Options,
               onRowSelectionChange: (
-                currentRowsSelected: any,
-                allRowsSelected: any,
-                rowsSelected: any
+                currentRowsSelected:
+                  | { index: number; dataIndex: number }[]
+                  | [],
+                allRowsSelected: { index: number; dataIndex: number }[] | [],
+                rowsSelected: number[] | []
               ) =>
                 handleRowSelect(
                   currentRowsSelected,
@@ -894,6 +1366,63 @@ const Datatable = ({
               handleClearSelection();
             }}
           />
+
+          {loadingInside ? (
+            <Popover
+              id={workloadIdFilter}
+              open={isWorkloadExpanded}
+              anchorEl={workloadAnchorElFilter}
+              TransitionComponent={DialogTransition}
+              onClose={() => {
+                setIsWorkloadExpanded(false);
+                setClickedWorkloadRowId(-1);
+                setReviewListInsideData([]);
+                setLoadingInside(false);
+              }}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "center",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "center",
+              }}
+            >
+              <div className="px-5 w-full flex items-center justify-between">
+                <div className="my-5 flex items-center">
+                  <div className="mr-[10px]">
+                    <label className="text-sm font-normal font-proxima text-slatyGrey capitalize mr-[5px]">
+                      User Name:
+                    </label>
+                    <label className="text-sm font-bold font-proxima capitalize">
+                      {reviewListInsideData[0]?.UserName.length > 0
+                        ? reviewListInsideData[0]?.UserName
+                        : "-"}
+                    </label>
+                  </div>
+                </div>
+                <div
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setIsWorkloadExpanded(false);
+                    setClickedWorkloadRowId(-1);
+                    setReviewListInsideData([]);
+                    setLoadingInside(false);
+                  }}
+                >
+                  <CloseIcon />
+                </div>
+              </div>
+              <MUIDataTable
+                title={undefined}
+                columns={expandableColumns}
+                data={reviewListInsideData}
+                options={{ ...options, tableBodyHeight: "450px" }}
+              />
+            </Popover>
+          ) : (
+            <ReportLoader />
+          )}
         </ThemeProvider>
       ) : (
         <ReportLoader />
@@ -940,9 +1469,9 @@ const Datatable = ({
       {/* Approval's Action Bar */}
       <ApprovalsActionBar
         {...propsForActionBar}
-        getOverLay={(e: any) => setIsLoadingApprovalsDatatable(e)}
+        getOverLay={(e: boolean) => setIsLoadingApprovalsDatatable(e)}
       />
-      {isLoadingApprovalsDatatable ? <OverLay /> : ""}
+      {isLoadingApprovalsDatatable || isWorkloadExpanded ? <OverLay /> : ""}
     </div>
   );
 };

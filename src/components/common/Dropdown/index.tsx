@@ -4,7 +4,14 @@ import ArrowDown from "./icons/ArrowDown";
 import Star from "./icons/Star";
 import Building from "./icons/Building";
 
-export default function Dropdown({ options, getUserDetails }: any) {
+interface Option {
+  id: number;
+  label: string;
+  token: string;
+  isFavourite: boolean;
+}
+
+const Dropdown = ({ options }: { options: Option[] }) => {
   let Org_Name;
   if (typeof window !== "undefined") {
     Org_Name = localStorage.getItem("Org_Name");
@@ -13,15 +20,6 @@ export default function Dropdown({ options, getUserDetails }: any) {
   const [isOpen, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(
     localStorage.getItem("Org_Name") || ""
-  );
-  const [selectedId, setSelectedId] = useState(
-    localStorage.getItem("Org_Id") || ""
-  );
-  const [selectedValue, setSelectedValue] = useState(
-    localStorage.getItem("Org_Name") || ""
-  );
-  const [selectedToken, setSelectedToken] = useState(
-    localStorage.getItem("Org_Token") || ""
   );
 
   const handleRefresh = () => {
@@ -41,7 +39,7 @@ export default function Dropdown({ options, getUserDetails }: any) {
     }
   };
 
-  const filteredOptions = options.filter((option: any) =>
+  const filteredOptions = options.filter((option: Option) =>
     option.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -52,7 +50,7 @@ export default function Dropdown({ options, getUserDetails }: any) {
     };
   }, [Org_Name]);
 
-  const handelInput = (e: any) => {
+  const handelInput = () => {
     setSearchQuery("");
     setOpen(true);
   };
@@ -96,11 +94,11 @@ export default function Dropdown({ options, getUserDetails }: any) {
         <ul
           className={`max-h-[400px] m-0 p-0 list-none border-b border-b-[#d8d8d8] overflow-auto`}
         >
-          {filteredOptions.map((option: any) => (
+          {filteredOptions.map((option: Option) => (
             <li
               key={option.id}
               className="mx-5 my-5 cursor-pointer flex items-center justify-between text-[14px] font-normal"
-              id={option.id}
+              id={option.id.toString()}
               value={option.label}
               onClick={(e: any) => {
                 const liElementWithValue = e.target.closest("li[value]");
@@ -108,13 +106,10 @@ export default function Dropdown({ options, getUserDetails }: any) {
                   const id = liElementWithValue.getAttribute("id");
                   const value = liElementWithValue.getAttribute("value");
                   setOpen(false);
-                  setSelectedId(id);
                   setSearchQuery(value);
-                  setSelectedValue(value);
-                  setSelectedToken(option.token);
 
                   localStorage.setItem("Org_Token", option.token);
-                  localStorage.setItem("Org_Id", option.id);
+                  localStorage.setItem("Org_Id", option.id.toString());
                   localStorage.setItem("Org_Name", option.label);
                   handleRefresh();
                 }
@@ -125,7 +120,7 @@ export default function Dropdown({ options, getUserDetails }: any) {
                 <span className="truncate w-40">{option.label}</span>
               </span>
               <div className="starContainer">
-                <Star data={option} getUserDetails={getUserDetails} />
+                <Star data={option} />
               </div>
             </li>
           ))}
@@ -138,4 +133,6 @@ export default function Dropdown({ options, getUserDetails }: any) {
       </div>
     </div>
   );
-}
+};
+
+export default Dropdown;

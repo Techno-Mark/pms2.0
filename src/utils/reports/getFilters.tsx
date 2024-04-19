@@ -25,7 +25,7 @@ export const user_InitialFilter: any = {
   sortColumn: "",
   isDesc: true,
   globalSearch: "",
-  departmentId: null,
+  departmentIds: [],
   isActive: true,
   users: [],
   startDate: getDates()[0],
@@ -38,8 +38,8 @@ export const timeSheet_InitialFilter: any = {
   pageSize: 10,
   sortColumn: "",
   isDesc: true,
-  globlaSearch: "",
-  departmentId: null,
+  globalSearch: "",
+  departmentIds: [],
   isActive: true,
   users: [],
   startDate: getDates()[0],
@@ -53,7 +53,7 @@ export const workLoad_InitialFilter: any = {
   sortColumn: "",
   isDesc: true,
   globalSearch: "",
-  departmentId: null,
+  departmentIds: [],
   dateFilter: null,
   isDownload: false,
 };
@@ -64,7 +64,7 @@ export const userLogs_InitialFilter: any = {
   sortColumn: "",
   isDesc: true,
   globalSearch: "",
-  departmentId: null,
+  departmentIds: [],
   isActive: true,
   users: [],
   dateFilter: null,
@@ -113,6 +113,8 @@ export const customreport_InitialFilter = {
   projectIdsJSON: [],
   clientIdsJSON: [],
   processIdsJSON: [],
+  // DepartmentIds: [],
+  WorkTypeId: null,
   subProcessId: null,
   assignedById: null,
   assigneeId: null,
@@ -129,6 +131,8 @@ export const customreport_InitialFilter = {
   allInfoDate: null,
   startDate: null,
   endDate: null,
+  startDateReview: null,
+  endDateReview: null,
   isDownload: false,
 };
 
@@ -137,7 +141,7 @@ export const rating_InitialFilter: any = {
   pageSize: 10,
   GlobalSearch: "",
   SortColumn: "",
-  IsDesc: false,
+  IsDesc: true,
   Projects: [],
   ReturnTypeId: null,
   Ratings: null,
@@ -148,18 +152,100 @@ export const rating_InitialFilter: any = {
 };
 
 export const logReport_InitialFilter = {
-  pageNo: 1,
-  pageSize: 10,
-  globalSearch: "",
-  sortColumn: null,
-  isDesc: false,
-  clientFilter: [],
-  isDownload: false,
-  projectFilter: [],
-  processFilter: [],
-  updatedByFilter: [],
-  startDate: null,
-  endDate: null,
+  GlobalSearch: "",
+  PageNo: 1,
+  PageSize: 10,
+  SortColumn: null,
+  IsDesc: 1,
+  ClientFilter: [],
+  ProjectFilter: [],
+  ProcessFilter: [],
+  UpdatedByFilter: [],
+  StartDate: null,
+  EndDate: null,
+};
+
+export const activity_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  sortColumn: "",
+  IsDesc: true,
+  GlobalSearch: "",
+  StartDate: null,
+  EndDate: null,
+  Users: [],
+  DepartmentIds: [],
+  IsDownload: false,
+};
+
+export const ap_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  sortColumn: "",
+  IsDesc: true,
+  GlobalSearch: "",
+  StartDate: null,
+  EndDate: null,
+  Users: [],
+  Clients: [],
+  ReportingManagers: [],
+  DepartmentIds: [],
+  IsDownload: false,
+};
+
+export const client_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  GlobalSearch: "",
+  SortColumn: "",
+  IsDesc: true,
+  IsDownload: false,
+  DepartmentIds: [],
+  BillingTypeId: null,
+  WorkTypeId: null,
+  StartDate: null,
+  EndDate: null,
+  Clients: [],
+};
+
+export const kra_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  sortColumn: "",
+  IsDesc: true,
+  GlobalSearch: "",
+  StartDate: null,
+  EndDate: null,
+  Users: [],
+  Clients: [],
+  DepartmentIds: [],
+  IsDownload: false,
+};
+
+export const am_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  sortColumn: "",
+  IsDesc: true,
+  GlobalSearch: "",
+  StartDate: null,
+  EndDate: null,
+  Users: [],
+  ReportingManagerId: null,
+  DepartmentIds: [],
+  IsDownload: false,
+};
+
+export const wltr_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  GlobalSearch: "",
+  SortColumn: "",
+  IsDesc: true,
+  IsDownload: false,
+  StartDate: null,
+  EndDate: null,
+  Clients: [],
 };
 
 export const getCurrentTabDetails = (activeTab: number, getBody?: boolean) => {
@@ -192,5 +278,23 @@ export const getCurrentTabDetails = (activeTab: number, getBody?: boolean) => {
   }
   if (activeTab === 10) {
     return getBody ? logReport_InitialFilter : "auditlog";
+  }
+  if (activeTab === 11) {
+    return getBody ? activity_InitialFilter : "activity";
+  }
+  if (activeTab === 12) {
+    return getBody ? ap_InitialFilter : "a/p";
+  }
+  if (activeTab === 13) {
+    return getBody ? kra_InitialFilter : "client";
+  }
+  if (activeTab === 14) {
+    return getBody ? kra_InitialFilter : "kra";
+  }
+  if (activeTab === 15) {
+    return getBody ? kra_InitialFilter : "auto/manual";
+  }
+  if (activeTab === 16) {
+    return getBody ? wltr_InitialFilter : "wltr";
   }
 };

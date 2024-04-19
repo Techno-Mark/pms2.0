@@ -10,43 +10,65 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardTaskStatusCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
+import {
+  DashboardInitialFilter,
+  ListDashboard,
+  ResponseDashboardTask,
+} from "@/utils/Types/dashboardTypes";
 
 interface TaskStatusProps {
-  onSelectedWorkType: number;
+  currentFilterData: DashboardInitialFilter;
   onSelectedStatusName: string;
-  onCurrSelectedStatus: any;
+  onCurrSelectedStatus: number;
   onSearchValue: string;
+  isClose: boolean;
 }
 
-const Datatable_TaskStatus: React.FC<TaskStatusProps> = ({
-  onSelectedWorkType,
+const Datatable_TaskStatus = ({
+  currentFilterData,
   onSelectedStatusName,
   onCurrSelectedStatus,
   onSearchValue,
-}) => {
-  const [data, setData] = useState<any>([]);
+  isClose,
+}: TaskStatusProps) => {
+  const [data, setData] = useState<ListDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
 
-  const getTaskStatusData = async (value: any) => {
+  useEffect(() => {
+    isClose && setPage(0);
+    isClose && setRowsPerPage(10);
+  }, [isClose]);
+
+  const getTaskStatusData = async (value: string) => {
+    const workTypeIdFromLocalStorage =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("workTypeId")
+        : 3;
     const params = {
       PageNo: page + 1,
       PageSize: rowsPerPage,
       SortColumn: null,
       IsDesc: true,
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.WorkTypeId === null
+          ? Number(workTypeIdFromLocalStorage)
+          : currentFilterData.WorkTypeId,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
       GlobalSearch: value,
       StatusId: onCurrSelectedStatus === 0 ? null : onCurrSelectedStatus,
     };
     const url = `${process.env.report_api_url}/dashboard/taskstatuslist`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: ResponseDashboardTask,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setData(ResponseData.List);
+        setData(ResponseData.TaskStatusList);
         setTableDataCount(ResponseData.TotalCount);
       }
     };
@@ -58,15 +80,23 @@ const Datatable_TaskStatus: React.FC<TaskStatusProps> = ({
   }, [onCurrSelectedStatus]);
 
   useEffect(() => {
-    if (onSearchValue.length >= 3) {
-      getTaskStatusData(onSearchValue);
-    } else {
-      getTaskStatusData("");
-    }
+    const fetchData = async () => {
+      if (onSearchValue.trim().length > 0) {
+        setPage(0);
+        setRowsPerPage(10);
+        await getTaskStatusData(onSearchValue);
+      } else {
+        await getTaskStatusData("");
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
     onSearchValue,
     onCurrSelectedStatus,
-    onSelectedWorkType,
+    currentFilterData,
     onSelectedStatusName,
     page,
     rowsPerPage,
@@ -79,7 +109,7 @@ const Datatable_TaskStatus: React.FC<TaskStatusProps> = ({
           data={data}
           columns={adminDashboardTaskStatusCols}
           title={undefined}
-          options={dashboard_Options}
+          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="taskStatusInfo_Datatable"
         />
         <TablePagination

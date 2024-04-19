@@ -1,13 +1,13 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import Link from "next/link";
-import { Button, Typography, Password } from "next-ts-lib";
+import { Typography, Password } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import Footer from "@/components/common/Footer";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
+import { Button } from "@mui/material";
 
 const Page = () => {
   const getToken = useSearchParams();
@@ -46,9 +46,9 @@ const Page = () => {
       const params = { Token: token, Password: password, TokenType: 2 };
       const url = `${process.env.api_url}/auth/setpassword`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           setClicked(false);
@@ -106,9 +106,9 @@ const Page = () => {
           </div>
           <div className="pb-5 w-[300px] lg:w-[356px] flex justify-between items-center">
             <Button
+              variant="contained"
+              className="rounded-full !font-semibold mt-[35px] w-full !bg-secondary"
               type="submit"
-              variant="btn-primary"
-              className="rounded-full sm:!w-[356px] !w-[256px] !font-semibold mt-[35px]"
             >
               CONTINUE
             </Button>

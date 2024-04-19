@@ -3,7 +3,12 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import AcceptDiloag from "../../AcceptDiloag";
 import AcceptNote from "@/assets/icons/worklogs/AcceptNote";
 
-const AcceptWithNotes = ({ selectedRowIds, acceptWorkitem }: any) => {
+interface Accept {
+  selectedRowIds: number[] | [];
+  acceptWorkitem: (note: string, id: number[]) => void;
+}
+
+const AcceptWithNotes = ({ selectedRowIds, acceptWorkitem }: Accept) => {
   const [isAcceptOpen, setisAcceptOpen] = useState<boolean>(false);
 
   const closeModal = () => {
@@ -13,9 +18,7 @@ const AcceptWithNotes = ({ selectedRowIds, acceptWorkitem }: any) => {
   return (
     <div>
       <ColorToolTip title="Accept with Note" arrow>
-        <span
-          onClick={() => setisAcceptOpen(true)}
-        >
+        <span onClick={() => setisAcceptOpen(true)}>
           <AcceptNote />
         </span>
       </ColorToolTip>

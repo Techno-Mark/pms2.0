@@ -10,42 +10,67 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardSummaryCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
+import {
+  DashboardInitialFilter,
+  ListDashboard,
+  ResponseDashboardProjectSummary,
+} from "@/utils/Types/dashboardTypes";
 
 interface DashboardSummaryListProps {
-  onSelectedWorkType: number;
-  onClickedSummaryTitle: string;
-  onCurrSelectedSummaryTitle: string;
+  currentFilterData: DashboardInitialFilter;
+  onClickedSummaryTitle: number;
+  onCurrSelectedSummaryTitle: number;
+  isClose: boolean;
 }
 
-const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
-  onSelectedWorkType,
+const Datatable_DashboardSummaryList = ({
+  currentFilterData,
   onClickedSummaryTitle,
   onCurrSelectedSummaryTitle,
-}) => {
-  const [dashboardSummaryData, setDashboardSummaryData] = useState([]);
+  isClose,
+}: DashboardSummaryListProps) => {
+  const [dashboardSummaryData, setDashboardSummaryData] = useState<
+    ListDashboard[] | []
+  >([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
 
+  useEffect(() => {
+    isClose && setPage(0);
+    isClose && setRowsPerPage(10);
+  }, [isClose]);
+
   const getProjectSummaryData = async () => {
+    const workTypeIdFromLocalStorage =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("workTypeId")
+        : 3;
     const params = {
       PageNo: page + 1,
       PageSize: rowsPerPage,
       SortColumn: null,
       IsDesc: true,
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-      Key: onCurrSelectedSummaryTitle
-        ? onCurrSelectedSummaryTitle
-        : onClickedSummaryTitle,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.WorkTypeId === null
+          ? Number(workTypeIdFromLocalStorage)
+          : currentFilterData.WorkTypeId,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
+      Key:
+        onCurrSelectedSummaryTitle > 0
+          ? onCurrSelectedSummaryTitle
+          : onClickedSummaryTitle,
     };
     const url = `${process.env.report_api_url}/dashboard/dashboardsummarylist`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: ResponseDashboardProjectSummary,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setDashboardSummaryData(ResponseData.List);
+        setDashboardSummaryData(ResponseData.ProjectStatusList);
         setTableDataCount(ResponseData.TotalCount);
       }
     };
@@ -57,11 +82,17 @@ const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
   }, [onCurrSelectedSummaryTitle]);
 
   useEffect(() => {
-    if (onCurrSelectedSummaryTitle !== "" || onClickedSummaryTitle !== "") {
-      getProjectSummaryData();
-    }
+    const fetchData = async () => {
+      if (onCurrSelectedSummaryTitle > 0 || onClickedSummaryTitle > 0) {
+        await getProjectSummaryData();
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
-    onSelectedWorkType,
+    currentFilterData,
     onClickedSummaryTitle,
     onCurrSelectedSummaryTitle,
     page,
@@ -75,7 +106,7 @@ const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
           data={dashboardSummaryData}
           columns={adminDashboardSummaryCols}
           title={undefined}
-          options={dashboard_Options}
+          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="Datatable_DashboardSummaryList"
         />
         <TablePagination

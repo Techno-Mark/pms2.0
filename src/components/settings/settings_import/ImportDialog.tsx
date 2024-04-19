@@ -1,6 +1,4 @@
 import ExcelIcon from "@/assets/icons/Import/ExcelIcon";
-import FileIcon from "@/assets/icons/worklogs/FileIcon";
-import ReportLoader from "@/components/common/ReportLoader";
 import { TransitionDown } from "@/utils/style/DialogTransition";
 import { Download } from "@mui/icons-material";
 import {
@@ -11,26 +9,27 @@ import {
   DialogTitle,
 } from "@mui/material";
 import axios from "axios";
+import { Spinner } from "next-ts-lib";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 interface ImportDialogProp {
   onOpen: boolean;
   onClose: () => void;
-  onDataFetch: any;
-  tab: any;
+  onDataFetch: (() => void) | null;
+  tab: string;
 }
 
-const ImportDialog: React.FC<ImportDialogProp> = ({
+const ImportDialog = ({
   onOpen,
   onClose,
   onDataFetch,
   tab,
-}) => {
+}: ImportDialogProp) => {
   const [fileInputKey, setFileInputKey] = useState(0);
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [isUploading, setIsUplaoding] = useState<boolean>(false);
-  const [Loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleFileChange = (event: any) => {
     setSelectedFile(event.target.files[0]);
@@ -47,8 +46,10 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     const Org_Token = await localStorage.getItem("Org_Token");
     const apiEndPoint =
       tab === "Client"
-        ? "client/import"
-        : tab === "Project" && "project/import";
+        ? `${process.env.pms_api_url}/client/import`
+        : tab === "Project"
+        ? `${process.env.pms_api_url}/project/import`
+        : tab === "User" && `${process.env.api_url}/user/import`;
 
     if (selectedFile) {
       try {
@@ -56,22 +57,18 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
         const formData = new FormData();
         formData.append("file", selectedFile);
 
-        const response = await axios.post(
-          `${process.env.pms_api_url}/${apiEndPoint}`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+        const response = await axios.post(`${apiEndPoint}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        });
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
             toast.success("Task has been imported successfully.");
-            onDataFetch();
+            onDataFetch?.();
             setIsUplaoding(false);
             handleClose();
           } else if (response.data.ResponseStatus === "Warning") {
@@ -104,7 +101,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
             document.body.removeChild(downloadLink);
             URL.revokeObjectURL(fileURL);
 
-            onDataFetch();
+            onDataFetch?.();
             setIsUplaoding(false);
             handleClose();
           } else {
@@ -136,20 +133,19 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     const Org_Token = await localStorage.getItem("Org_Token");
     const apiEndPoint =
       tab === "Client"
-        ? "client/exportexcelfordemo"
-        : tab === "Project" && "project/exportexcelfordemo";
+        ? `${process.env.pms_api_url}/client/exportexcelfordemo`
+        : tab === "Project"
+        ? `${process.env.pms_api_url}/project/exportexcelfordemo`
+        : tab === "User" && `${process.env.api_url}/user/exportexcelfordemo`;
 
     try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/${apiEndPoint}`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-          responseType: "blob",
-        }
-      );
+      const response = await axios.get(`${apiEndPoint}`, {
+        headers: {
+          Authorization: `bearer ${token}`,
+          org_token: `${Org_Token}`,
+        },
+        responseType: "blob",
+      });
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Failure") {
@@ -221,8 +217,10 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
           </div>
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] mx-[15px] gap-[10px] h-[64px] flex items-center justify-between">
-          {Loading ? (
-            <ReportLoader />
+          {loading ? (
+            <span className="flex items-center justify-center w-40">
+              <Spinner size="20px" />
+            </span>
           ) : (
             <Button
               variant="contained"

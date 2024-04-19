@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-key */
 import React, { useEffect, useState } from "react";
 import ChevronDownIcon from "@/assets/icons/ChevronDownIcon";
 import TaskIcon from "@/assets/icons/TaskIcon";
@@ -55,6 +54,7 @@ import {
   getCCDropdownData,
   getClientDropdownData,
   getCommentUserDropdownData,
+  getDepartmentDropdownData,
   getManagerDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
@@ -71,6 +71,41 @@ import { callAPI } from "@/utils/API/callAPI";
 import { generateCommonBodyRender } from "@/utils/datatable/CommonFunction";
 import MUIDataTable from "mui-datatables";
 import OverLay from "../common/OverLay";
+import {
+  AuditlogGetByWorkitem,
+  CommentAttachment,
+  CommentGetByWorkitem,
+  ErrorlogGetByWorkitem,
+  GetManualLogByWorkitem,
+  GetManualLogByWorkitemReviewer,
+  GetReviewerNoteList,
+  ManualFieldsWorklogs,
+  ManualTimeFields,
+  RecurringGetByWorkitem,
+  ReminderGetByWorkitem,
+  ReviewerNoteDetails,
+  SubtaskGetByWorkitem,
+  WorkitemGetbyid,
+} from "@/utils/Types/worklogsTypes";
+import {
+  IdNameEstimatedHour,
+  LabelValue,
+  LabelValueProfileImage,
+  LabelValueType,
+  User,
+} from "@/utils/Types/types";
+
+interface EditDrawer {
+  onOpen: boolean;
+  onClose: () => void;
+  onEdit: number;
+  onDataFetch: (() => void) | null;
+  onHasId: number;
+  onComment: boolean;
+  onErrorLog: boolean;
+  onManualTime: boolean;
+  activeTab: number;
+}
 
 const EditDrawer = ({
   onOpen,
@@ -78,11 +113,11 @@ const EditDrawer = ({
   onEdit,
   onDataFetch,
   onHasId,
-  hasIconIndex,
   onComment,
   onErrorLog,
   onManualTime,
-}: any) => {
+  activeTab,
+}: EditDrawer) => {
   const router = useRouter();
   const yearDropdown = getYears();
   const [userId, setUserId] = useState(0);
@@ -100,10 +135,10 @@ const EditDrawer = ({
   const [inputTypeStartTime, setInputTypeStartTime] = useState(["text"]);
   const [inputTypeEndTime, setInputTypeEndTime] = useState(["text"]);
 
-  const toggleColor = (index: any) => {
+  const toggleColor = (index: number) => {
     if (selectedDays.includes(index)) {
       setSelectedDays(
-        selectedDays.filter((dayIndex: any) => dayIndex !== index)
+        selectedDays.filter((dayIndex: number) => dayIndex !== index)
       );
     } else {
       setSelectedDays([...selectedDays, index]);
@@ -141,7 +176,7 @@ const EditDrawer = ({
     }
   };
 
-  const handleMultiSelect = (e: React.SyntheticEvent, value: any) => {
+  const handleMultiSelect = (e: React.SyntheticEvent, value: LabelValue[]) => {
     if (value !== undefined) {
       setReminderNotificationApprovals(value);
     } else {
@@ -149,7 +184,10 @@ const EditDrawer = ({
     }
   };
 
-  const handleMultiSelectMonth = (e: React.SyntheticEvent, value: any) => {
+  const handleMultiSelectMonth = (
+    e: React.SyntheticEvent,
+    value: LabelValue[]
+  ) => {
     if (value !== undefined) {
       setRecurringMonthApprovals(value);
     } else {
@@ -177,9 +215,7 @@ const EditDrawer = ({
   const [clientNameApprovalsErr, setClientNameApprovalsErr] = useState(false);
   const [workTypeApprovalsDropdownData, setWorkTypeApprovalsDropdownData] =
     useState([]);
-  const [typeOfWorkApprovals, setTypeOfWorkApprovals] = useState<
-    string | number
-  >(0);
+  const [typeOfWorkApprovals, setTypeOfWorkApprovals] = useState<any>(0);
   const [typeOfWorkApprovalsErr, setTypeOfWorkApprovalsErr] = useState(false);
   const [projectApprovalsDropdownData, setProjectApprovalsDropdownData] =
     useState([]);
@@ -197,16 +233,25 @@ const EditDrawer = ({
     useState<any>([]);
   const [statusApprovalsDropdownDataUse, setStatusApprovalsDropdownDataUse] =
     useState<any>([]);
+  const [
+    errorlogSignedOffPendingApprovals,
+    setErrorlogSignOffPendingApprovals,
+  ] = useState(false);
+  const [editStatusApprovals, setEditStatusApprovals] = useState(0);
   const [statusApprovals, setStatusApprovals] = useState<any>(0);
   const [statusApprovalsErr, setStatusApprovalsErr] = useState(false);
   const [assigneeApprovalsDropdownData, setAssigneeApprovalsDropdownData] =
     useState<any>([]);
-  const [assigneeApprovals, setAssigneeApprovals] = useState<any>([]);
+  const [assigneeApprovals, setAssigneeApprovals] = useState<any>(0);
   const [assigneeApprovalsErr, setAssigneeApprovalsErr] = useState(false);
   const [reviewerApprovalsDropdownData, setReviewerApprovalsDropdownData] =
     useState([]);
-  const [reviewerApprovals, setReviewerApprovals] = useState<any>([]);
+  const [reviewerApprovals, setReviewerApprovals] = useState<any>(0);
   const [reviewerApprovalsErr, setReviewerApprovalsErr] = useState(false);
+  const [departmentApprovalsDropdownData, setDepartmentApprovalsDropdownData] =
+    useState([]);
+  const [departmentApprovals, setDepartmentApprovals] = useState<any>(0);
+  const [departmentApprovalsErr, setDepartmentApprovalsErr] = useState(false);
   const [managerApprovalsDropdownData, setManagerApprovalsDropdownData] =
     useState<any>([]);
   const [managerApprovals, setManagerApprovals] = useState<any>(0);
@@ -233,9 +278,7 @@ const EditDrawer = ({
   const [assigneeDisableApprovals, setAssigneeDisableApprovals] =
     useState<any>(true);
   const [estTimeDataApprovals, setEstTimeDataApprovals] = useState([]);
-  const [returnYearApprovals, setReturnYearApprovals] = useState<
-    string | number
-  >(0);
+  const [returnYearApprovals, setReturnYearApprovals] = useState<number>(0);
   const [returnYearApprovalsErr, setReturnYearApprovalsErr] = useState(false);
   const [noOfPagesApprovals, setNoOfPagesApprovals] = useState<any>(0);
   const [checklistWorkpaperApprovals, setChecklistWorkpaperApprovals] =
@@ -295,23 +338,26 @@ const EditDrawer = ({
     setSubTaskDescriptionApprovalsErr(newSubTaskDescriptionErrors);
   };
 
-  const handleSubTaskChangeApprovals = (e: any, index: number) => {
+  const handleSubTaskChangeApprovals = (e: string, index: number) => {
     const newTaskFields = [...subTaskFieldsApprovals];
-    newTaskFields[index].Title = e.target.value;
+    newTaskFields[index].Title = e;
     setSubTaskFieldsApprovals(newTaskFields);
 
     const newTaskErrors = [...taskNameApprovalsErr];
-    newTaskErrors[index] = e.target.value.trim().length === 0;
+    newTaskErrors[index] = e.trim().length === 0;
     setTaskNameApprovalsErr(newTaskErrors);
   };
 
-  const handleSubTaskDescriptionChangeApprovals = (e: any, index: number) => {
+  const handleSubTaskDescriptionChangeApprovals = (
+    e: string,
+    index: number
+  ) => {
     const newTaskFields = [...subTaskFieldsApprovals];
-    newTaskFields[index].Description = e.target.value;
+    newTaskFields[index].Description = e;
     setSubTaskFieldsApprovals(newTaskFields);
 
     const newSubTaskDescErrors = [...subTaskDescriptionApprovalsErr];
-    newSubTaskDescErrors[index] = e.target.value.trim().length === 0;
+    newSubTaskDescErrors[index] = e.trim().length === 0;
     setSubTaskDescriptionApprovalsErr(newSubTaskDescErrors);
   };
 
@@ -321,9 +367,9 @@ const EditDrawer = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/subtask/getbyworkitem`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: SubtaskGetByWorkitem[] | [],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -374,7 +420,7 @@ const EditDrawer = ({
           workitemId: onEdit,
           subtasks: subTaskSwitchApprovals
             ? subTaskFieldsApprovals.map(
-                (i: any) =>
+                (i: SubtaskGetByWorkitem) =>
                   new Object({
                     SubtaskId: i.SubtaskId,
                     Title: i.Title.trim(),
@@ -386,9 +432,9 @@ const EditDrawer = ({
         };
         const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
         const successCallback = (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          ResponseData: null,
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(`Sub Task Updated successfully.`);
@@ -430,29 +476,23 @@ const EditDrawer = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/recurring/getbyworkitem`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: RecurringGetByWorkitem | null,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
         ResponseData !== null &&
         error === false
       ) {
-        setRecurringStartDateApprovals(
-          ResponseData.length <= 0 ? "" : ResponseData.StartDate
-        );
-        setRecurringEndDateApprovals(
-          ResponseData.length <= 0 ? "" : ResponseData.EndDate
-        );
-        setRecurringTimeApprovals(
-          ResponseData.length <= 0 ? 0 : ResponseData.Type
-        );
+        setRecurringStartDateApprovals(ResponseData.StartDate);
+        setRecurringEndDateApprovals(ResponseData.EndDate);
+        setRecurringTimeApprovals(ResponseData.Type);
         ResponseData.Type === 2
           ? setSelectedDays(ResponseData.Triggers)
           : ResponseData.Type === 3
           ? setRecurringMonthApprovals(
-              ResponseData.Triggers.map((trigger: any) =>
+              ResponseData.Triggers.map((trigger: number) =>
                 months.find((month) => month.value === trigger)
               ).filter(Boolean)
             )
@@ -469,7 +509,9 @@ const EditDrawer = ({
   };
 
   // ManualTime
-  const [manualFieldsApprovals, setManualFieldsApprovals] = useState([
+  const [manualFieldsApprovals, setManualFieldsApprovals] = useState<
+    ManualFieldsWorklogs[]
+  >([
     {
       AssigneeId: 0,
       Id: 0,
@@ -478,6 +520,7 @@ const EditDrawer = ({
       endTime: "",
       totalTime: "",
       manualDesc: "",
+      IsApproved: false,
     },
   ]);
 
@@ -487,9 +530,9 @@ const EditDrawer = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/timelog/getManuallogByWorkitem`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: GetManualLogByWorkitem[] | [],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -497,18 +540,16 @@ const EditDrawer = ({
         error === false
       ) {
         setManualFieldsApprovals(
-          ResponseData.map(
-            (i: any) =>
-              new Object({
-                AssigneeId: i.AssigneeId,
-                Id: i.Id,
-                inputDate: i.Date,
-                startTime: i.StartTime,
-                endTime: i.EndTime,
-                totalTime: getTimeDifference(i.StartTime, i.EndTime),
-                manualDesc: i.Comment,
-              })
-          )
+          ResponseData.map((i: GetManualLogByWorkitem) => ({
+            AssigneeId: i.AssigneeId,
+            Id: i.Id,
+            inputDate: i.Date,
+            startTime: i.StartTime,
+            endTime: i.EndTime,
+            totalTime: getTimeDifference(i.StartTime, i.EndTime),
+            manualDesc: i.Comment,
+            IsApproved: i.IsApproved,
+          }))
         );
       } else {
         setManualFieldsApprovals([
@@ -520,6 +561,7 @@ const EditDrawer = ({
             endTime: "",
             totalTime: "",
             manualDesc: "",
+            IsApproved: false,
           },
         ]);
       }
@@ -552,9 +594,9 @@ const EditDrawer = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/reminder/getbyworkitem`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: ReminderGetByWorkitem | null,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -569,12 +611,14 @@ const EditDrawer = ({
             : true
         );
         setReminderCheckboxValueApprovals(ResponseData.ReminderType);
-        setReminderDateApprovals(ResponseData.ReminderDate);
+        setReminderDateApprovals(
+          ResponseData.ReminderDate === null ? "" : ResponseData.ReminderDate
+        );
         setReminderTimeApprovals(ResponseData.ReminderTime);
         setReminderNotificationApprovals(
-          ResponseData.ReminderUserIds.map((reminderUserId: any) =>
+          ResponseData.ReminderUserIds.map((reminderUserId: number) =>
             assigneeApprovalsDropdownData.find(
-              (assignee: { value: any }) => assignee.value === reminderUserId
+              (assignee: { value: number }) => assignee.value === reminderUserId
             )
           ).filter(Boolean)
         );
@@ -620,14 +664,14 @@ const EditDrawer = ({
               : null,
           ReminderTime: reminderTimeApprovals,
           ReminderUserIds: reminderNotificationApprovals.map(
-            (i: any) => i.value
+            (i: LabelValue) => i.value
           ),
         };
         const url = `${process.env.worklog_api_url}/workitem/reminder/savebyworkitem`;
         const successCallback = (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          ResponseData: null,
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(`Reminder Updated successfully.`);
@@ -654,14 +698,14 @@ const EditDrawer = ({
   const [checkListDataApprovals, setCheckListDataApprovals] = useState([]);
   const [itemStatesApprovals, setItemStatesApprovals] = useState<any>({});
 
-  const toggleGeneralOpen = (index: any) => {
+  const toggleGeneralOpen = (index: number) => {
     setItemStatesApprovals((prevStates: any) => ({
       ...prevStates,
       [index]: !prevStates[index],
     }));
   };
 
-  const toggleAddChecklistField = (index: any) => {
+  const toggleAddChecklistField = (index: number) => {
     setItemStatesApprovals((prevStates: any) => ({
       ...prevStates,
       [`addChecklistField_${index}`]: !prevStates[`addChecklistField_${index}`],
@@ -692,9 +736,9 @@ const EditDrawer = ({
         };
         const url = `${process.env.worklog_api_url}/workitem/checklist/createbyworkitem`;
         const successCallback = (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          ResponseData: null,
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(`Checklist created successfully.`);
@@ -720,8 +764,8 @@ const EditDrawer = ({
     const url = `${process.env.worklog_api_url}/workitem/checklist/getbyworkitem`;
     const successCallback = (
       ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -752,9 +796,9 @@ const EditDrawer = ({
       setIsLoadingApprovals(true);
       const url = `${process.env.worklog_api_url}/workitem/checklist/savebyworkitem`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success(`CheckList Updated successfully.`);
@@ -772,10 +816,11 @@ const EditDrawer = ({
 
   // Comments
   const [commentsApprovalsDrawer, setCommentsApprovalsDrawer] = useState(true);
-  const [commentSelectApprovals, setCommentSelectApprovals] = useState<
-    number | string
-  >(1);
-  const [commentDataApprovals, setCommentDataApprovals] = useState([]);
+  const [commentSelectApprovals, setCommentSelectApprovals] =
+    useState<number>(1);
+  const [commentDataApprovals, setCommentDataApprovals] = useState<
+    CommentGetByWorkitem[] | []
+  >([]);
   const [value, setValue] = useState("");
   const [valueError, setValueError] = useState(false);
   const [valueEdit, setValueEdit] = useState("");
@@ -783,37 +828,41 @@ const EditDrawer = ({
   const [mention, setMention] = useState<any>([]);
   const [editingCommentIndexApprovals, setEditingCommentIndexApprovals] =
     useState(-1);
-  const [commentAttachmentApprovals, setCommentAttachmentApprovals] = useState([
+  const [commentAttachmentApprovals, setCommentAttachmentApprovals] = useState<
+    CommentAttachment[]
+  >([
     {
       AttachmentId: 0,
       UserFileName: "",
       SystemFileName: "",
-      AttachmentPath: process.env.attachment,
+      AttachmentPath: process.env.attachment || "",
     },
   ]);
   const [commentUserDataApprovals, setCommentUserDataApprovals] = useState([]);
 
-  const users: any =
-    commentUserDataApprovals?.length > 0 &&
-    commentUserDataApprovals.map(
-      (i: any) =>
-        new Object({
+  const users: { id: number; display: string }[] =
+    commentUserDataApprovals?.length > 0
+      ? commentUserDataApprovals.map((i: LabelValue) => ({
           id: i.value,
           display: i.label,
-        })
-    );
+        }))
+      : [];
 
-  const handleEditClick = (index: any, message: any) => {
+  const handleEditClick = (index: number, message: string) => {
     setEditingCommentIndexApprovals(index);
     setValueEdit(message);
   };
 
-  const handleSaveClickApprovals = async (e: any, i: any, type: any) => {
+  const handleSaveClickApprovals = async (
+    e: any,
+    i: CommentGetByWorkitem,
+    type: number
+  ) => {
     e.preventDefault();
-    setValueEditError(valueEdit.trim().length < 51);
+    setValueEditError(valueEdit.trim().length < 1);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (valueEdit.trim().length > 51 && !valueEditError) {
+      if (valueEdit.trim().length > 1 && !valueEditError) {
         setIsLoadingApprovals(true);
         const params = {
           workitemId: onEdit,
@@ -828,9 +877,9 @@ const EditDrawer = ({
         };
         const url = `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`;
         const successCallback = (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          ResponseData: null,
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(`Comment updated successfully.`);
@@ -840,7 +889,7 @@ const EditDrawer = ({
                 AttachmentId: 0,
                 UserFileName: "",
                 SystemFileName: "",
-                AttachmentPath: process.env.attachment,
+                AttachmentPath: process.env.attachment || "",
               },
             ]);
             setValueEditError(false);
@@ -860,46 +909,47 @@ const EditDrawer = ({
     }
   };
 
-  const handleCommentChange = (e: any) => {
+  const handleCommentChange = (e: string) => {
     setMention(
       e
         .split("(")
-        .map((i: any, index: number) => {
+        .map((i: string) => {
           if (i.includes(")")) {
-            return parseInt(i.split(")")[0]);
+            const parsedValue = parseInt(i.split(")")[0]);
+            return isNaN(parsedValue) ? null : parsedValue;
           }
         })
-        .filter((i: any) => i !== undefined)
+        .filter((i: any) => i !== undefined && i !== null)
     );
     setValueError(false);
   };
 
   const handleCommentAttachmentsChange = (
-    data1: any,
-    data2: any,
-    commentAttachment: any
+    data1: string,
+    data2: string,
+    commentAttachment: CommentAttachment[]
   ) => {
     const Attachment = [
       {
         AttachmentId: commentAttachment[0].AttachmentId,
         UserFileName: data1,
         SystemFileName: data2,
-        AttachmentPath: process.env.attachment,
+        AttachmentPath: process.env.attachment || "",
       },
     ];
     setCommentAttachmentApprovals(Attachment);
   };
 
-  const getCommentDataApprovals = async (type: any) => {
+  const getCommentDataApprovals = async (type: number) => {
     const params = {
       WorkitemId: onEdit,
       type: type,
     };
     const url = `${process.env.worklog_api_url}/workitem/comment/getByWorkitem`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: CommentGetByWorkitem[] | [],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -917,7 +967,7 @@ const EditDrawer = ({
 
   const handleSubmitComment = async (
     e: { preventDefault: () => void },
-    type: any
+    type: number
   ) => {
     e.preventDefault();
     setValueError(value.trim().length < 5);
@@ -938,9 +988,9 @@ const EditDrawer = ({
         };
         const url = `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`;
         const successCallback = (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          ResponseData: null,
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(`Comment sent successfully.`);
@@ -950,7 +1000,7 @@ const EditDrawer = ({
                 AttachmentId: 0,
                 UserFileName: "",
                 SystemFileName: "",
-                AttachmentPath: process.env.attachment,
+                AttachmentPath: process.env.attachment || "",
               },
             ]);
             setValueEditError(false);
@@ -975,7 +1025,9 @@ const EditDrawer = ({
   const [cCDropdownDataApprovals, setCCDropdownDataApprovals] = useState<any>(
     []
   );
-  const [errorLogFieldsApprovals, setErrorLogFieldsApprovals] = useState([
+  const [errorLogFieldsApprovals, setErrorLogFieldsApprovals] = useState<
+    ErrorlogGetByWorkitem[]
+  >([
     {
       SubmitedBy: "",
       SubmitedOn: "",
@@ -992,10 +1044,11 @@ const EditDrawer = ({
           AttachmentId: 0,
           UserFileName: "",
           SystemFileName: "",
-          AttachmentPath: process.env.attachment,
+          AttachmentPath: process.env.attachment || "",
         },
       ],
       isSolved: false,
+      DisableErrorLog: false,
     },
   ]);
   const [errorTypeErrApprovals, setErrorTypeErrApprovals] = useState([false]);
@@ -1028,10 +1081,11 @@ const EditDrawer = ({
             AttachmentId: 0,
             UserFileName: "",
             SystemFileName: "",
-            AttachmentPath: process.env.attachment,
+            AttachmentPath: process.env.attachment || "",
           },
         ],
         isSolved: false,
+        DisableErrorLog: false,
       },
     ]);
     setErrorTypeErrApprovals([...errorTypeErrApprovals, false]);
@@ -1077,77 +1131,79 @@ const EditDrawer = ({
     setRemarkErrApprovals(newRemarkErrors);
   };
 
-  const handleErrorTypeChangeApprovals = (e: any, index: number) => {
+  const handleErrorTypeChangeApprovals = (e: number, index: number) => {
     const newFields = [...errorLogFieldsApprovals];
-    newFields[index].ErrorType = e.target.value;
+    newFields[index].ErrorType = e;
     setErrorLogFieldsApprovals(newFields);
 
     const newErrors = [...errorTypeErrApprovals];
-    newErrors[index] = e.target.value === 0;
+    newErrors[index] = e === 0;
     setErrorTypeErrApprovals(newErrors);
   };
 
-  const handleRootCauseChangeApprovals = (e: any, index: number) => {
+  const handleRootCauseChangeApprovals = (e: number, index: number) => {
     const newFields = [...errorLogFieldsApprovals];
-    newFields[index].RootCause = e.target.value;
+    newFields[index].RootCause = e;
     setErrorLogFieldsApprovals(newFields);
 
     const newErrors = [...rootCauseErrApprovals];
-    newErrors[index] = e.target.value === 0;
+    newErrors[index] = e === 0;
     setRootCauseErrApprovals(newErrors);
   };
 
-  const handleNatureOfErrorChangeApprovals = (e: any, index: number) => {
+  const handleNatureOfErrorChangeApprovals = (e: number, index: number) => {
     const newFields = [...errorLogFieldsApprovals];
-    newFields[index].NatureOfError = e.target.value;
+    newFields[index].NatureOfError = e;
     setErrorLogFieldsApprovals(newFields);
 
     const newErrors = [...natureOfErrApprovals];
-    newErrors[index] = e.target.value === 0;
+    newErrors[index] = e === 0;
     setNatureOfErrApprovals(newErrors);
   };
 
-  const handlePriorityChangeApprovals = (e: any, index: number) => {
+  const handlePriorityChangeApprovals = (e: number, index: number) => {
     const newFields = [...errorLogFieldsApprovals];
-    newFields[index].Priority = e.target.value;
+    newFields[index].Priority = e;
     setErrorLogFieldsApprovals(newFields);
 
     const newErrors = [...errorLogPriorityErrApprovals];
-    newErrors[index] = e.target.value === 0;
+    newErrors[index] = e === 0;
     setErrorLogPriorityErrApprovals(newErrors);
   };
 
-  const handleErrorCountChangeApprovals = (e: any, index: number) => {
+  const handleErrorCountChangeApprovals = (e: number, index: number) => {
     const newFields = [...errorLogFieldsApprovals];
-    newFields[index].ErrorCount = e.target.value;
+    newFields[index].ErrorCount = e;
     setErrorLogFieldsApprovals(newFields);
 
     const newErrors = [...errorCountErrApprovals];
-    newErrors[index] =
-      e.target.value < 0 || e.target.value.toString().length > 4;
+    newErrors[index] = e < 0 || e.toString().length > 4;
     setErrorCountErrApprovals(newErrors);
   };
 
-  const handleCCChangeApprovals = (newValue: any, index: any) => {
+  const handleCCChangeApprovals = (
+    newValue: LabelValueProfileImage[] | [],
+    index: number
+  ) => {
     const newFields = [...errorLogFieldsApprovals];
     newFields[index].CC = newValue;
     setErrorLogFieldsApprovals(newFields);
   };
 
-  const handleRemarksChangeApprovals = (e: any, index: number) => {
+  const handleRemarksChangeApprovals = (e: string, index: number) => {
     const newFields = [...errorLogFieldsApprovals];
-    newFields[index].Remark = e.target.value;
+    newFields[index].Remark = e;
     setErrorLogFieldsApprovals(newFields);
 
     const newErrors = [...remarkErrApprovals];
-    newErrors[index] = e.target.value.trim().length <= 0;
+    newErrors[index] = e.trim().length <= 0;
     setRemarkErrApprovals(newErrors);
   };
 
   const handleAttachmentsChangeApprovals = (
-    data1: any,
-    data2: any,
-    Attachments: any,
+    data1: string,
+    data2: string,
+    Attachments: CommentAttachment[],
     index: number
   ) => {
     const newFields = [...errorLogFieldsApprovals];
@@ -1156,7 +1212,7 @@ const EditDrawer = ({
         AttachmentId: Attachments[0].AttachmentId,
         UserFileName: data1,
         SystemFileName: data2,
-        AttachmentPath: process.env.attachment,
+        AttachmentPath: process.env.attachment || "",
       },
     ];
     setErrorLogFieldsApprovals(newFields);
@@ -1168,9 +1224,9 @@ const EditDrawer = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/errorlog/getByWorkitem`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: ErrorlogGetByWorkitem[] | [],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         ResponseData.length <= 0
@@ -1191,45 +1247,42 @@ const EditDrawer = ({
                     AttachmentId: 0,
                     UserFileName: "",
                     SystemFileName: "",
-                    AttachmentPath: process.env.attachment,
+                    AttachmentPath: process.env.attachment || "",
                   },
                 ],
                 isSolved: false,
+                DisableErrorLog: false,
               },
             ])
           : setErrorLogFieldsApprovals(
-              ResponseData.map(
-                (i: any) =>
-                  new Object({
-                    SubmitedBy: i.SubmitedBy,
-                    SubmitedOn: i.SubmitedOn,
-                    ErrorLogId: i.ErrorLogId,
-                    ErrorType: i.ErrorType,
-                    RootCause: i.RootCause,
-                    Priority: i.Priority,
-                    ErrorCount: i.ErrorCount,
-                    NatureOfError: i.NatureOfError,
-                    CC: i.CC.map((i: any) =>
-                      cCDropdownDataApprovals.find(
-                        (j: { value: any }) => j.value === i
-                      )
-                    ).filter(Boolean),
-                    Remark: i.Remark,
-                    Attachments:
-                      i.Attachment.length > 0 &&
-                      i.Attachment[0].SystemFileName.length > 0
-                        ? i.Attachment
-                        : [
-                            {
-                              AttachmentId: 0,
-                              UserFileName: "",
-                              SystemFileName: "",
-                              AttachmentPath: process.env.attachment,
-                            },
-                          ],
-                    isSolved: i.IsSolved,
-                  })
-              )
+              ResponseData.map((i: ErrorlogGetByWorkitem) => ({
+                SubmitedBy: i.SubmitedBy,
+                SubmitedOn: i.SubmitedOn,
+                ErrorLogId: i.ErrorLogId,
+                ErrorType: i.ErrorType,
+                RootCause: i.RootCause,
+                Priority: i.Priority,
+                ErrorCount: i.ErrorCount,
+                NatureOfError: i.NatureOfError,
+                CC: i.CC.map((cc: number) =>
+                  cCDropdownDataApprovals.find(
+                    (j: { value: number }) => j.value === cc
+                  )
+                ).filter(Boolean),
+                Remark: i.Remark,
+                Attachments: i.Attachment?.length
+                  ? i.Attachment
+                  : [
+                      {
+                        AttachmentId: 0,
+                        UserFileName: "",
+                        SystemFileName: "",
+                        AttachmentPath: process.env.attachment || "",
+                      },
+                    ],
+                isSolved: i.IsSolved,
+                DisableErrorLog: i.DisableErrorLog,
+              }))
             );
       }
     };
@@ -1280,7 +1333,7 @@ const EditDrawer = ({
         const params = {
           WorkItemId: onEdit,
           Errors: errorLogFieldsApprovals.map(
-            (i: any) =>
+            (i: ErrorlogGetByWorkitem) =>
               new Object({
                 ErrorLogId: i.ErrorLogId,
                 ErrorType: i.ErrorType,
@@ -1288,10 +1341,10 @@ const EditDrawer = ({
                 Priority: i.Priority,
                 ErrorCount: i.ErrorCount,
                 NatureOfError: i.NatureOfError,
-                CC: i.CC.map((j: any) => j.value),
+                CC: i.CC.map((j: LabelValueProfileImage) => j.value),
                 Remark: i.Remark,
                 Attachments:
-                  i.Attachments[0].SystemFileName.length > 0
+                  i.Attachments?.[0]?.SystemFileName?.length ?? 0 > 0
                     ? i.Attachments
                     : null,
               })
@@ -1302,16 +1355,16 @@ const EditDrawer = ({
         };
         const url = `${process.env.worklog_api_url}/workitem/errorlog/saveByworkitem`;
         const successCallback = (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          ResponseData: null,
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(`Error logged successfully.`);
             setDeletedErrorLogApprovals([]);
             getEditData();
             getErrorLogDataApprpvals();
-            onDataFetch();
+            onDataFetch?.();
             setIsLoadingApprovals(false);
           }
           setIsLoadingApprovals(false);
@@ -1335,7 +1388,7 @@ const EditDrawer = ({
       name: "Filed",
       label: "Filed Name",
       options: {
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -1344,7 +1397,7 @@ const EditDrawer = ({
       name: "OldValue",
       label: "Old Value",
       options: {
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -1353,7 +1406,7 @@ const EditDrawer = ({
       name: "NewValue",
       label: "New Value",
       options: {
-        customBodyRender: (value: any) => {
+        customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },
       },
@@ -1366,9 +1419,9 @@ const EditDrawer = ({
     };
     const url = `${process.env.report_api_url}/auditlog/getbyworkitem`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: { List: AuditlogGetByWorkitem[] | []; TotalCount: number },
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -1384,9 +1437,9 @@ const EditDrawer = ({
 
   // Reviewer's Note
   const [reasonDrawerApprovals, setReasonDrawerApprovals] = useState(true);
-  const [reviewerNoteDataApprovals, setReviewerNoteDataApprovals] = useState(
-    []
-  );
+  const [reviewerNoteDataApprovals, setReviewerNoteDataApprovals] = useState<
+    GetReviewerNoteList[] | []
+  >([]);
 
   const getReviewerNoteDataApprovals = async () => {
     const params = {
@@ -1394,9 +1447,9 @@ const EditDrawer = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/approval/getreviewernotelist`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: GetReviewerNoteList[] | [],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (
         ResponseStatus === "Success" &&
@@ -1412,7 +1465,9 @@ const EditDrawer = ({
 
   // Manuals
   const [deletedManualTime, setDeletedManualTime] = useState<any>([]);
-  const [reviewermanualFields, setReviewerManualFields] = useState([
+  const [reviewermanualFields, setReviewerManualFields] = useState<
+    ManualFieldsWorklogs[]
+  >([
     {
       AssigneeId: 0,
       Id: 0,
@@ -1488,7 +1543,7 @@ const EditDrawer = ({
         const params = {
           submissionId: onHasId,
           timelogs: reviewermanualFields.map(
-            (i: any) =>
+            (i: ManualFieldsWorklogs) =>
               new Object({
                 id: i.Id,
                 startTime:
@@ -1504,12 +1559,28 @@ const EditDrawer = ({
         };
         const url = `${process.env.worklog_api_url}/workitem/approval/savereviewermanualtimelog`;
         const successCallback = (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          ResponseData: null,
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus.toLowerCase() === "success" && error === false) {
             toast.success(`Manual Time Updated successfully.`);
+            setReviewerManualFields([
+              {
+                AssigneeId: 0,
+                Id: 0,
+                inputDate: "",
+                startTime: "",
+                endTime: "",
+                totalTime: "",
+                manualDesc: "",
+                IsApproved: false,
+              },
+            ]);
+            setInputDateErrors([false]);
+            setStartTimeErrors([false]);
+            setEndTimeErrors([false]);
+            setManualDescErrors([false]);
             setDeletedManualTime([]);
             getManualTimeLogForReviewer(onEdit);
             getEditData();
@@ -1526,19 +1597,56 @@ const EditDrawer = ({
     }
   };
 
-  const getManualTimeLogForReviewer = async (workItemId: any) => {
+  const handleSubmitManualWorklogsRemove = async (id: number) => {
+    const localString: string | null = localStorage.getItem("UserId");
+    const localNumber: number = localString ? parseInt(localString) : 0;
+
+    if (reviewerApprovals === localNumber) {
+      setIsLoadingApprovals(true);
+      const params = {
+        submissionId: onHasId,
+        timelogs: [],
+        deletedTimelogIds: [...deletedManualTime, id],
+      };
+      const url = `${process.env.worklog_api_url}/workitem/approval/savereviewermanualtimelog`;
+      const successCallback = (
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success(`Manual Time Updated successfully.`);
+          setDeletedManualTime([]);
+          getManualTimeLogForReviewer(onEdit);
+          getEditData();
+          setIsLoadingApprovals(false);
+        } else {
+          getManualTimeLogForReviewer(onEdit);
+          getEditData();
+          setIsLoadingApprovals(false);
+        }
+      };
+      callAPI(url, params, successCallback, "POST");
+    } else {
+      toast.warning("Only Reviewer can Edit Manual time.");
+      getManualTimeLogForReviewer(onEdit);
+    }
+  };
+
+  const getManualTimeLogForReviewer = async (workItemId: number) => {
     const params = { workItemId: workItemId };
     const url = `${process.env.worklog_api_url}/workitem/approval/getmanuallogbyworkitem`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: GetManualLogByWorkitemReviewer[] | [],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setManualSwitch(ResponseData.length <= 0 ? false : true);
         setManualSubmitDisable(
           ResponseData.map(
-            (i: any) => i.IsApproved === false && i.assignee !== userId
+            (i: GetManualLogByWorkitemReviewer) =>
+              i.IsApproved === false && i.AssigneeId !== userId
           ).includes(true)
             ? false
             : true
@@ -1557,19 +1665,16 @@ const EditDrawer = ({
                   IsApproved: false,
                 },
               ]
-            : ResponseData.map(
-                (i: any) =>
-                  new Object({
-                    AssigneeId: i.AssigneeId,
-                    Id: i.TimeId,
-                    inputDate: i.Date,
-                    startTime: i.StartTime,
-                    endTime: i.EndTime,
-                    totalTime: getTimeDifference(i.StartTime, i.EndTime),
-                    manualDesc: i.Comment,
-                    IsApproved: i.IsApproved,
-                  })
-              )
+            : ResponseData.map((i: GetManualLogByWorkitemReviewer) => ({
+                AssigneeId: i.AssigneeId,
+                Id: i.TimeId,
+                inputDate: i.Date,
+                startTime: i.StartTime,
+                endTime: i.EndTime,
+                totalTime: getTimeDifference(i.StartTime, i.EndTime),
+                manualDesc: i.Comment,
+                IsApproved: i.IsApproved,
+              }))
         );
       }
     };
@@ -1590,7 +1695,24 @@ const EditDrawer = ({
 
     const newManualFields = [...reviewermanualFields];
     newManualFields.splice(index, 1);
-    setReviewerManualFields(newManualFields);
+    setReviewerManualFields(
+      reviewermanualFields.length === 1 &&
+        index === 0 &&
+        reviewermanualFields[index].Id > 0
+        ? [
+            {
+              AssigneeId: 0,
+              Id: 0,
+              inputDate: "",
+              startTime: "",
+              endTime: "",
+              totalTime: "",
+              manualDesc: "",
+              IsApproved: false,
+            },
+          ]
+        : newManualFields
+    );
 
     const newInputDateErrors = [...inputDateErrors];
     newInputDateErrors.splice(index, 1);
@@ -1612,7 +1734,11 @@ const EditDrawer = ({
     newManualDate.splice(index, 1);
     setInputTypeDate(newManualDate);
 
-    setManualDisableData(newManualFields);
+    reviewermanualFields.length > 1 && setManualDisableData(newManualFields);
+    reviewermanualFields.length === 1 &&
+      index === 0 &&
+      reviewermanualFields[index].Id > 0 &&
+      handleSubmitManualWorklogsRemove(reviewermanualFields[index].Id);
   };
 
   const addManualField = async () => {
@@ -1651,8 +1777,8 @@ const EditDrawer = ({
     ]);
   };
 
-  const handleEstTimeChange = (e: any) => {
-    let newValue = e.target.value;
+  const handleEstTimeChange = (e: string) => {
+    let newValue = e;
     newValue = newValue.replace(/\D/g, "");
     if (newValue.length > 8) {
       return;
@@ -1688,9 +1814,9 @@ const EditDrawer = ({
     return formattedValue;
   };
 
-  const handleStartTimeChange = (e: any, index: number) => {
-    const newManualFields: any = [...reviewermanualFields];
-    newManualFields[index].startTime = handleEstTimeChange(e);
+  const handleStartTimeChange = (e: string, index: number) => {
+    const newManualFields: ManualTimeFields[] = [...reviewermanualFields];
+    newManualFields[index].startTime = handleEstTimeChange(e) || "";
     setReviewerManualFields(newManualFields);
 
     const startDate = newManualFields[index].startTime;
@@ -1731,9 +1857,9 @@ const EditDrawer = ({
     }
   };
 
-  const handleEndTimeChange = (e: any, index: number) => {
-    const newManualFields: any = [...reviewermanualFields];
-    newManualFields[index].endTime = handleEstTimeChange(e);
+  const handleEndTimeChange = (e: string, index: number) => {
+    const newManualFields: ManualTimeFields[] = [...reviewermanualFields];
+    newManualFields[index].endTime = handleEstTimeChange(e) || "";
     setReviewerManualFields(newManualFields);
 
     const startDate = newManualFields[index].startTime;
@@ -1774,13 +1900,13 @@ const EditDrawer = ({
     }
   };
 
-  const handleManualDescChange = (e: any, index: number) => {
+  const handleManualDescChange = (e: string, index: number) => {
     const newManualFields = [...reviewermanualFields];
-    newManualFields[index].manualDesc = e.target.value;
+    newManualFields[index].manualDesc = e;
     setReviewerManualFields(newManualFields);
 
     const newManualDescErrors = [...manualDescErrors];
-    newManualDescErrors[index] = e.target.value.trim().length === 0;
+    newManualDescErrors[index] = e.trim().length === 0;
     setManualDescErrors(newManualDescErrors);
   };
 
@@ -1794,10 +1920,10 @@ const EditDrawer = ({
     setInputDateErrors(newInputDateErrors);
   };
 
-  const setManualDisableData = (manualField: any) => {
+  const setManualDisableData = (manualField: ManualTimeFields[]) => {
     setManualSubmitDisable(
       manualField
-        .map((i: any) => (i.IsApproved === false ? false : true))
+        .map((i: ManualTimeFields) => (i.IsApproved === false ? false : true))
         .includes(false)
         ? false
         : true
@@ -1812,6 +1938,7 @@ const EditDrawer = ({
       clientName: validateField(clientNameApprovals),
       typeOfWork: validateField(typeOfWorkApprovals),
       projectName: validateField(projectNameApprovals),
+      status: validateField(statusApprovals),
       processName: validateField(processNameApprovals),
       subProcess: validateField(subProcessApprovals),
       clientTaskName: validateField(clientTaskNameApprovals),
@@ -1820,6 +1947,7 @@ const EditDrawer = ({
       dueDate: validateField(dueDateApprovals),
       assignee: assigneeDisableApprovals && validateField(assigneeApprovals),
       reviewer: validateField(reviewerApprovals),
+      department: validateField(departmentApprovals),
       manager: validateField(managerApprovals),
       returnYear:
         typeOfWorkApprovals === 3 && validateField(returnYearApprovals),
@@ -1838,6 +1966,7 @@ const EditDrawer = ({
     setClientNameApprovalsErr(fieldValidations.clientName);
     setTypeOfWorkApprovalsErr(fieldValidations.typeOfWork);
     setProjectNameApprovalsErr(fieldValidations.projectName);
+    setStatusApprovalsErr(fieldValidations.status);
     setProcessNameApprovalsErr(fieldValidations.processName);
     setSubProcessApprovalsErr(fieldValidations.subProcess);
     setClientTaskNameApprovalsErr(fieldValidations.clientTaskName);
@@ -1846,6 +1975,7 @@ const EditDrawer = ({
     assigneeDisableApprovals &&
       setAssigneeApprovalsErr(fieldValidations.assignee);
     setReviewerApprovalsErr(fieldValidations.reviewer);
+    setDepartmentApprovalsErr(fieldValidations.department);
     setManagerApprovalsErr(fieldValidations.manager);
     typeOfWorkApprovals === 3 &&
       setReturnYearApprovalsErr(fieldValidations.returnYear);
@@ -1889,6 +2019,7 @@ const EditDrawer = ({
       receiverDate: validateField(receiverDateApprovals),
       assignee: validateField(assigneeApprovals),
       reviewer: validateField(reviewerApprovals),
+      separtment: validateField(departmentApprovals),
       manager: validateField(managerApprovals),
       returnYear:
         typeOfWorkApprovals === 3 && validateField(returnYearApprovals),
@@ -1910,16 +2041,20 @@ const EditDrawer = ({
       SubProcessId: subProcessApprovals === 0 ? null : subProcessApprovals,
       StatusId: statusApprovals,
       Priority: priorityApprovals === 0 ? 0 : priorityApprovals,
-      Quantity: quantityApprovals,
+      Quantity: quantityApprovals <= 0 ? null : quantityApprovals,
       Description:
         descriptionApprovals.toString().length <= 0
           ? null
           : descriptionApprovals.toString().trim(),
       ReceiverDate: dayjs(receiverDateApprovals).format("YYYY/MM/DD"),
       DueDate: dayjs(dueDateApprovals).format("YYYY/MM/DD"),
-      allInfoDate: allInfoDateApprovals === "" ? null : allInfoDateApprovals,
+      allInfoDate:
+        allInfoDateApprovals === ""
+          ? null
+          : dayjs(allInfoDateApprovals).format("YYYY/MM/DD"),
       AssignedId: assigneeApprovals,
       ReviewerId: reviewerApprovals,
+      DepartmentId: departmentApprovals,
       managerId: managerApprovals,
       TaxReturnType: null,
       TaxCustomFields:
@@ -1948,9 +2083,9 @@ const EditDrawer = ({
       const params = data;
       const url = `${process.env.worklog_api_url}/workitem/saveworkitem`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: number | string,
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success(
@@ -1963,6 +2098,10 @@ const EditDrawer = ({
           onEdit === 0 && onClose();
           onEdit === 0 && handleClose();
           setIsLoadingApprovals(false);
+        } else if (ResponseStatus === "Warning" && error === false) {
+          toast.warning(ResponseData);
+          setIsLoadingApprovals(false);
+          onEdit > 0 && getEditData();
         } else {
           setIsLoadingApprovals(false);
         }
@@ -1996,14 +2135,16 @@ const EditDrawer = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/getbyid`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: WorkitemGetbyid,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
+        setErrorlogSignOffPendingApprovals(
+          ResponseData.ErrorlogSignedOffPending
+        );
         setEditData(ResponseData);
         setIsCreatedByClient(ResponseData.IsCreatedByClient);
-        setIsManual(ResponseData.IsManual);
         setClientNameApprovals(ResponseData.ClientId);
         setTypeOfWorkApprovals(ResponseData.WorkTypeId);
         setProjectNameApprovals(ResponseData.ProjectId);
@@ -2013,59 +2154,45 @@ const EditDrawer = ({
           ResponseData.TaskName === null ? "" : ResponseData.TaskName
         );
         setStatusApprovals(ResponseData.StatusId);
+        setEditStatusApprovals(ResponseData.StatusId);
         setAllInfoDateApprovals(
           ResponseData.AllInfoDate === null ? "" : ResponseData.AllInfoDate
         );
-        !ResponseData.ErrorlogSignedOffPending
-          ? setStatusApprovalsDropdownDataUse(
-              statusApprovalsDropdownData.filter(
-                (item: any) =>
-                  item.Type === "Rework" ||
-                  item.Type === "InReview" ||
-                  item.Type === "Submitted" ||
-                  item.Type === "Accept" ||
-                  item.Type === "AcceptWithNotes" ||
-                  item.Type === "OnHoldFromClient" ||
-                  item.Type === "WithDraw" ||
-                  item.Type === "WithdrawnbyClient" ||
-                  item.value == ResponseData.StatusId
-              )
-            )
-          : setStatusApprovalsDropdownDataUse(
-              statusApprovalsDropdownData.filter(
-                (item: any) =>
-                  item.Type === "Rework In Review" ||
-                  item.Type === "ReworkSubmitted" ||
-                  item.Type === "ReworkAccept" ||
-                  item.Type === "ReworkAcceptWithNotes" ||
-                  item.Type === "OnHoldFromClient" ||
-                  item.Type === "WithDraw" ||
-                  item.Type === "WithdrawnbyClient" ||
-                  item.value == ResponseData.StatusId
-              )
-            );
-        setPriorityApprovals(ResponseData.Priority);
+        setPriorityApprovals(
+          ResponseData.Priority === null ? 0 : ResponseData.Priority
+        );
         setQuantityApprovals(ResponseData.Quantity);
         setDescriptionApprovals(
           ResponseData.Description === null ? "" : ResponseData.Description
         );
         setReceiverDateApprovals(ResponseData.ReceiverDate);
         setDueDateApprovals(ResponseData.DueDate);
-        setDateOfReviewApprovals(ResponseData.ReviewerDate);
-        setDateOfPreperationApprovals(ResponseData.PreparationDate);
+        setDateOfReviewApprovals(
+          ResponseData.ReviewerDate === null ? "" : ResponseData.ReviewerDate
+        );
+        setDateOfPreperationApprovals(
+          ResponseData.PreparationDate === null
+            ? ""
+            : ResponseData.PreparationDate
+        );
         setAssigneeApprovals(ResponseData.AssignedId);
         setReviewerApprovals(ResponseData.ReviewerId);
+        setDepartmentApprovals(ResponseData.DepartmentId);
         setManagerApprovals(
           ResponseData.ManagerId === null ? 0 : ResponseData.ManagerId
         );
         setReturnYearApprovals(
-          ResponseData.TypeOfReturnId === 0
-            ? null
+          ResponseData.TaxCustomFields === null
+            ? 0
+            : ResponseData.TypeOfReturnId === 0
+            ? 0
             : ResponseData.TaxCustomFields.ReturnYear
         );
         setNoOfPagesApprovals(
-          ResponseData.TypeOfReturnId === 0
-            ? null
+          ResponseData.TaxCustomFields === null
+            ? 0
+            : ResponseData.TypeOfReturnId === 0
+            ? 0
             : ResponseData.TaxCustomFields.NoOfPages
         );
         setChecklistWorkpaperApprovals(
@@ -2082,14 +2209,86 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
-      const statusData = await getStatusDropdownData();
+      const statusData = await getStatusDropdownData(typeOfWorkApprovals);
 
       await setStatusApprovalsDropdownData(statusData);
+
+      const getType = statusData.filter(
+        (item: LabelValueType) => item.value === editStatusApprovals
+      )[0].Type;
+
+      !errorlogSignedOffPendingApprovals &&
+        setStatusApprovalsDropdownDataUse(
+          statusData.filter(
+            (item: LabelValueType) =>
+              item.Type === "InReviewWithClients" ||
+              item.Type === "Rework" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient" ||
+              (getType !== "PartialSubmitted" && item.Type === "Accept") ||
+              // (getType !== "PartialSubmitted" &&
+              //   item.Type === "AcceptWithNotes") ||
+              (getType !== "PartialSubmitted" && item.Type === "InReview") ||
+              (getType !== "PartialSubmitted" && item.Type === "Submitted") ||
+              (typeOfWorkApprovals !== 3 &&
+                getType !== "Submitted" &&
+                item.Type === "PartialSubmitted") ||
+              item.value === editStatusApprovals
+          )
+        );
+
+      errorlogSignedOffPendingApprovals &&
+        setStatusApprovalsDropdownDataUse(
+          statusData.filter(
+            (item: LabelValueType) =>
+              item.Type === "InReviewWithClients" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient" ||
+              (getType !== "PartialSubmitted" &&
+                item.Type === "ReworkAccept") ||
+              // (getType !== "PartialSubmitted" &&
+              //   item.Type === "ReworkAcceptWithNotes") ||
+              (getType !== "PartialSubmitted" &&
+                item.Type === "ReworkInReview") ||
+              (getType !== "PartialSubmitted" &&
+                item.Type === "ReworkSubmitted") ||
+              (typeOfWorkApprovals !== 3 &&
+                getType !== "ReworkSubmitted" &&
+                item.Type === "PartialSubmitted") ||
+              item.value === editStatusApprovals
+          )
+        );
+
+      activeTab === 2 &&
+        getType === "Reject" &&
+        setStatusApprovalsDropdownDataUse(
+          statusData.filter(
+            (item: LabelValueType) =>
+              item.Type === "InReviewWithClients" ||
+              item.Type === "Rework" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient" ||
+              item.value === editStatusApprovals
+          )
+        );
+    };
+
+    onOpen &&
+      statusApprovalsDropdownData?.length === 0 &&
+      typeOfWorkApprovals > 0 &&
+      getData();
+  }, [onEdit, statusApprovalsDropdownData, typeOfWorkApprovals]);
+
+  useEffect(() => {
+    const getData = async () => {
       await setCCDropdownDataApprovals(await getCCDropdownData());
     };
 
-    onOpen && statusApprovalsDropdownData.length === 0 && getData();
-    if (onEdit > 0 && statusApprovalsDropdownData.length > 0) {
+    onOpen && getData();
+    if (onEdit > 0) {
       getEditData();
       getSubTaskDataApprovals();
       getRecurringDataApprovals();
@@ -2099,10 +2298,13 @@ const EditDrawer = ({
       getReviewerNoteDataApprovals();
       getLogsDataWorklogs();
     }
+  }, [onEdit]);
+
+  useEffect(() => {
     if (onEdit > 0 && assigneeApprovalsDropdownData.length > 0) {
       getReminderDataApprovals();
     }
-  }, [onEdit, statusApprovalsDropdownData, assigneeApprovalsDropdownData]);
+  }, [onEdit, assigneeApprovalsDropdownData]);
 
   useEffect(() => {
     onEdit > 0 &&
@@ -2115,9 +2317,9 @@ const EditDrawer = ({
     const params = {};
     const url = `${process.env.api_url}/auth/getuserdetails`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: User,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setAssigneeDisableApprovals(ResponseData.IsHaveManageAssignee);
@@ -2136,16 +2338,6 @@ const EditDrawer = ({
         setWorkTypeApprovalsDropdownData(
           await getTypeOfWorkDropdownData(clientNameApprovals)
         );
-      clientNameApprovals > 0 &&
-        setProjectApprovalsDropdownData(
-          await getProjectDropdownData(clientNameApprovals)
-        );
-      const processData: any =
-        clientNameApprovals > 0 &&
-        (await getProcessDropdownData(clientNameApprovals));
-      setProcessApprovalsDropdownData(
-        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
-      );
     };
 
     onOpen && getData();
@@ -2167,29 +2359,55 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
-      const data: any =
+      clientNameApprovals > 0 &&
+        typeOfWorkApprovals > 0 &&
+        setProjectApprovalsDropdownData(
+          await getProjectDropdownData(clientNameApprovals, typeOfWorkApprovals)
+        );
+      const processData =
+        clientNameApprovals > 0 &&
+        typeOfWorkApprovals > 0 &&
+        (await getProcessDropdownData(
+          clientNameApprovals,
+          typeOfWorkApprovals
+        ));
+      processData.length > 0
+        ? setProcessApprovalsDropdownData(
+            processData?.map(
+              (i: IdNameEstimatedHour) =>
+                new Object({ label: i.Name, value: i.Id })
+            )
+          )
+        : setProcessApprovalsDropdownData([]);
+      const data =
         processNameApprovals !== 0 &&
         (await getSubProcessDropdownData(
           clientNameApprovals,
+          typeOfWorkApprovals,
           processNameApprovals
         ));
       data.length > 0 && setEstTimeDataApprovals(data);
-      data.length > 0 &&
-        setSubProcessApprovalsDropdownData(
-          data.map((i: any) => new Object({ label: i.Name, value: i.Id }))
-        );
+      data.length > 0
+        ? setSubProcessApprovalsDropdownData(
+            data.map(
+              (i: IdNameEstimatedHour) =>
+                new Object({ label: i.Name, value: i.Id })
+            )
+          )
+        : setSubProcessApprovalsDropdownData([]);
     };
 
     getData();
-  }, [processNameApprovals]);
+  }, [processNameApprovals, typeOfWorkApprovals]);
 
   useEffect(() => {
     const getData = async () => {
-      const assigneeData = await getAssigneeDropdownData(
-        [clientNameApprovals],
-        typeOfWorkApprovals
+      setAssigneeApprovalsDropdownData(
+        await getAssigneeDropdownData(
+          [clientNameApprovals],
+          typeOfWorkApprovals
+        )
       );
-      assigneeData.length > 0 && setAssigneeApprovalsDropdownData(assigneeData);
       setReviewerApprovalsDropdownData(
         await getReviewerDropdownData(
           [clientNameApprovals],
@@ -2198,8 +2416,22 @@ const EditDrawer = ({
       );
     };
 
-    typeOfWorkApprovals !== 0 && getData();
+    typeOfWorkApprovals > 0 && getData();
   }, [typeOfWorkApprovals, clientNameApprovals]);
+
+  useEffect(() => {
+    const getData = async () => {
+      const departmentData = await getDepartmentDropdownData(assigneeApprovals);
+      departmentData.DepartmentList.length > 0
+        ? setDepartmentApprovalsDropdownData(departmentData.DepartmentList)
+        : setDepartmentApprovalsDropdownData([]);
+      departmentData.DefaultId > 0 &&
+        onEdit === 0 &&
+        setDepartmentApprovals(departmentData.DefaultId);
+    };
+
+    assigneeApprovals > 0 && getData();
+  }, [assigneeApprovals]);
 
   const handleClose = () => {
     // Common
@@ -2208,7 +2440,7 @@ const EditDrawer = ({
     setIsCreatedByClient(false);
     setUserId(0);
     scrollToPanel(0);
-    onDataFetch();
+    onDataFetch?.();
 
     // Task
     setClientApprovalsDropdownData([]);
@@ -2231,8 +2463,12 @@ const EditDrawer = ({
     setManagerApprovals(0);
     setManagerApprovalsErr(false);
     setStatusApprovalsDropdownDataUse([]);
+    setErrorlogSignOffPendingApprovals(false);
+    setEditStatusApprovals(0);
     setStatusApprovals(0);
     setStatusApprovalsErr(false);
+    setStatusApprovalsDropdownData([]);
+    setStatusApprovalsDropdownDataUse([]);
     setDescriptionApprovals("");
     setPriorityApprovals(0);
     setQuantityApprovals(1);
@@ -2248,6 +2484,9 @@ const EditDrawer = ({
     setReviewerApprovalsDropdownData([]);
     setReviewerApprovals(0);
     setReviewerApprovalsErr(false);
+    setDepartmentApprovalsDropdownData([]);
+    setDepartmentApprovals(0);
+    setDepartmentApprovalsErr(false);
     setDateOfReviewApprovals("");
     setDateOfPreperationApprovals("");
     setEstTimeDataApprovals([]);
@@ -2286,6 +2525,7 @@ const EditDrawer = ({
         endTime: "",
         totalTime: "",
         manualDesc: "",
+        IsApproved: false,
       },
     ]);
 
@@ -2339,7 +2579,7 @@ const EditDrawer = ({
         AttachmentId: 0,
         UserFileName: "",
         SystemFileName: "",
-        AttachmentPath: process.env.attachment,
+        AttachmentPath: process.env.attachment || "",
       },
     ]);
     setCommentUserDataApprovals([]);
@@ -2365,10 +2605,11 @@ const EditDrawer = ({
             AttachmentId: 0,
             UserFileName: "",
             SystemFileName: "",
-            AttachmentPath: process.env.attachment,
+            AttachmentPath: process.env.attachment || "",
           },
         ],
         isSolved: false,
+        DisableErrorLog: false,
       },
     ]);
     setErrorTypeErrApprovals([false]);
@@ -2404,11 +2645,11 @@ const EditDrawer = ({
         <div className="sticky top-0 !h-[9%] bg-whiteSmoke border-b z-30 border-lightSilver">
           <div className="flex p-[6px] justify-between items-center">
             <div className="flex items-center py-[6.5px] pl-[5px]">
-              {Task.map((task) => task)
-                .filter((i: any) => i !== false)
-                .map((task: any, index: number) => (
+              {Task.map((task: string) => task)
+                .filter((i: string | boolean) => i !== false)
+                .map((task: string, index: number) => (
                   <div
-                    key={index}
+                    key={task + index}
                     className={`my-2 px-3 text-[14px] ${
                       index !== Task.length - 1 &&
                       "border-r border-r-lightSilver"
@@ -2460,15 +2701,17 @@ const EditDrawer = ({
                         options={clientApprovalsDropdownData}
                         value={
                           clientApprovalsDropdownData.find(
-                            (i: any) => i.value === clientNameApprovals
+                            (i: LabelValue) => i.value === clientNameApprovals
                           ) || null
                         }
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValue | null) => {
                           value && setClientNameApprovals(value.value);
                           setTypeOfWorkApprovals(0);
                           setTypeOfWorkApprovalsErr(false);
                           setProjectNameApprovals(0);
                           setProjectNameApprovalsErr(false);
+                          setStatusApprovals(0);
+                          setStatusApprovalsErr(false);
                           setProcessNameApprovals(0);
                           setProcessNameApprovalsErr(false);
                           setSubProcessApprovals(0);
@@ -2487,6 +2730,8 @@ const EditDrawer = ({
                             setAssigneeApprovalsErr(false);
                           setReviewerApprovals(0);
                           setReviewerApprovalsErr(false);
+                          setDepartmentApprovals(0);
+                          setDepartmentApprovalsErr(false);
                           setReturnYearApprovals(0);
                           setNoOfPagesApprovals(0);
                           setChecklistWorkpaperApprovals(0);
@@ -2504,7 +2749,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={clientNameApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (clientNameApprovals > 0) {
                                 setClientNameApprovalsErr(false);
                               }
@@ -2545,16 +2790,26 @@ const EditDrawer = ({
                             setReturnYearApprovals(0);
                             setNoOfPagesApprovals(0);
                             setChecklistWorkpaperApprovals(0);
+                            setProjectNameApprovals(0);
+                            setProjectNameApprovalsErr(false);
+                            setStatusApprovals(0);
+                            setStatusApprovalsErr(false);
+                            setProcessNameApprovals(0);
+                            setProcessNameApprovalsErr(false);
+                            setSubProcessApprovals(0);
+                            setSubProcessApprovalsErr(false);
+                            setDepartmentApprovals(0);
+                            setDepartmentApprovalsErr(false);
                           }}
-                          onBlur={(e: any) => {
-                            if (e.target.value > 0) {
+                          onBlur={() => {
+                            if (typeOfWorkApprovals > 0) {
                               setTypeOfWorkApprovalsErr(false);
                             }
                           }}
                         >
                           {workTypeApprovalsDropdownData.map(
-                            (i: any, index: number) => (
-                              <MenuItem value={i.value} key={index}>
+                            (i: LabelValue, index: number) => (
+                              <MenuItem value={i.value} key={i.value}>
                                 {i.label}
                               </MenuItem>
                             )
@@ -2574,11 +2829,11 @@ const EditDrawer = ({
                         options={projectApprovalsDropdownData}
                         value={
                           projectApprovalsDropdownData.find(
-                            (i: any) => i.value === projectNameApprovals
+                            (i: LabelValue) => i.value === projectNameApprovals
                           ) || null
                         }
                         disabled={isCreatedByClient && editData.ProjectId > 0}
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValue | null) => {
                           value && setProjectNameApprovals(value.value);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
@@ -2593,7 +2848,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={projectNameApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (projectNameApprovals > 0) {
                                 setProjectNameApprovalsErr(false);
                               }
@@ -2618,13 +2873,15 @@ const EditDrawer = ({
                         value={
                           onEdit === 0
                             ? statusApprovalsDropdownData.find(
-                                (i: any) => i.value === statusApprovals
+                                (i: LabelValueType) =>
+                                  i.value === statusApprovals
                               ) || null
                             : statusApprovalsDropdownDataUse.find(
-                                (i: any) => i.value === statusApprovals
+                                (i: LabelValueType) =>
+                                  i.value === statusApprovals
                               ) || null
                         }
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValueType | null) => {
                           value && setStatusApprovals(value.value);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
@@ -2639,7 +2896,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={statusApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (subProcessApprovals > 0) {
                                 setStatusApprovalsErr(false);
                               }
@@ -2660,11 +2917,11 @@ const EditDrawer = ({
                         options={processApprovalsDropdownData}
                         value={
                           processApprovalsDropdownData.find(
-                            (i: any) => i.value === processNameApprovals
+                            (i: LabelValue) => i.value === processNameApprovals
                           ) || null
                         }
                         disabled={isCreatedByClient && editData.ProcessId > 0}
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValue | null) => {
                           value && setProcessNameApprovals(value.value);
                           value && setSubProcessApprovals(0);
                         }}
@@ -2680,7 +2937,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={processNameApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (processNameApprovals > 0) {
                                 setProcessNameApprovalsErr(false);
                               }
@@ -2701,13 +2958,13 @@ const EditDrawer = ({
                         options={subProcessApprovalsDropdownData}
                         value={
                           subProcessApprovalsDropdownData.find(
-                            (i: any) => i.value === subProcessApprovals
+                            (i: LabelValue) => i.value === subProcessApprovals
                           ) || null
                         }
                         disabled={
                           isCreatedByClient && editData.SubProcessId > 0
                         }
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValue | null) => {
                           value && setSubProcessApprovals(value.value);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
@@ -2722,7 +2979,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={subProcessApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (subProcessApprovals > 0) {
                                 setSubProcessApprovalsErr(false);
                               }
@@ -2755,7 +3012,7 @@ const EditDrawer = ({
                           setClientTaskNameApprovals(e.target.value);
                           setClientTaskNameApprovalsErr(false);
                         }}
-                        onBlur={(e: any) => {
+                        onBlur={(e) => {
                           if (e.target.value.trim().length > 4) {
                             setClientTaskNameApprovalsErr(false);
                           }
@@ -2885,7 +3142,7 @@ const EditDrawer = ({
                           setQuantityApprovals(e.target.value);
                           setQuantityApprovalsErr(false);
                         }}
-                        onBlur={(e: any) => {
+                        onBlur={(e) => {
                           if (
                             e.target.value.trim().length > 0 &&
                             e.target.value.trim().length < 5 &&
@@ -2979,18 +3236,17 @@ const EditDrawer = ({
                                 ? null
                                 : dayjs(receiverDateApprovals)
                             }
-                            shouldDisableDate={isWeekend}
+                            // shouldDisableDate={isWeekend}
                             maxDate={dayjs(Date.now())}
                             onChange={(newDate: any) => {
                               setReceiverDateApprovals(newDate.$d);
                               setReceiverDateApprovalsErr(false);
                               const selectedDate = dayjs(newDate.$d);
                               let nextDate: any = selectedDate;
-                              if (
-                                selectedDate.day() === 4 ||
-                                selectedDate.day() === 5
-                              ) {
-                                nextDate = nextDate.add(4, "day");
+                              if (selectedDate.day() === 5) {
+                                nextDate = nextDate.add(3, "day");
+                              } else if (selectedDate.day() === 6) {
+                                nextDate = nextDate.add(3, "day");
                               } else {
                                 nextDate = dayjs(newDate.$d)
                                   .add(2, "day")
@@ -3027,10 +3283,11 @@ const EditDrawer = ({
                                 ? null
                                 : dayjs(dueDateApprovals)
                             }
-                            disabled
+                            shouldDisableDate={isWeekend}
                             onChange={(newDate: any) => {
                               setDueDateApprovals(newDate.$d);
                             }}
+                            minDate={dayjs(receiverDateApprovals)}
                             slotProps={{
                               textField: {
                                 readOnly: true,
@@ -3047,6 +3304,7 @@ const EditDrawer = ({
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
                             label="All Info Date"
+                            shouldDisableDate={isWeekend}
                             value={
                               allInfoDateApprovals === ""
                                 ? null
@@ -3067,11 +3325,13 @@ const EditDrawer = ({
                         disabled={!assigneeDisableApprovals}
                         value={
                           assigneeApprovalsDropdownData.find(
-                            (i: any) => i.value === assigneeApprovals
+                            (i: LabelValue) => i.value === assigneeApprovals
                           ) || null
                         }
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValue | null) => {
                           value && setAssigneeApprovals(value.value);
+                          setDepartmentApprovals(0);
+                          setDepartmentApprovalsErr(false);
                         }}
                         sx={{ width: 300, mt: -1, mx: 0.75 }}
                         renderInput={(params) => (
@@ -3085,7 +3345,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={assigneeApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (assigneeApprovals > 0) {
                                 setAssigneeApprovalsErr(false);
                               }
@@ -3112,10 +3372,10 @@ const EditDrawer = ({
                         options={reviewerApprovalsDropdownData}
                         value={
                           reviewerApprovalsDropdownData.find(
-                            (i: any) => i.value === reviewerApprovals
+                            (i: LabelValue) => i.value === reviewerApprovals
                           ) || null
                         }
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValue | null) => {
                           value && setReviewerApprovals(value.value);
                         }}
                         sx={{
@@ -3134,7 +3394,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={reviewerApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (reviewerApprovals > 0) {
                                 setReviewerApprovalsErr(false);
                               }
@@ -3158,13 +3418,62 @@ const EditDrawer = ({
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
+                        options={departmentApprovalsDropdownData}
+                        value={
+                          departmentApprovalsDropdownData.find(
+                            (i: LabelValue) => i.value === departmentApprovals
+                          ) || null
+                        }
+                        onChange={(e, value: LabelValue | null) => {
+                          value && setDepartmentApprovals(value.value);
+                        }}
+                        sx={{
+                          width: 300,
+                          mt: typeOfWorkApprovals === 3 ? 0.2 : -1,
+                          mx: 0.75,
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Department
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={departmentApprovalsErr}
+                            onBlur={() => {
+                              if (departmentApprovals > 0) {
+                                setDepartmentApprovalsErr(false);
+                              }
+                            }}
+                            helperText={
+                              departmentApprovalsErr
+                                ? "This is a required field."
+                                : ""
+                            }
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid
+                      item
+                      xs={3}
+                      className={`${
+                        typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
+                      }`}
+                    >
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
                         options={managerApprovalsDropdownData}
                         value={
                           managerApprovalsDropdownData.find(
-                            (i: any) => i.value === managerApprovals
+                            (i: LabelValue) => i.value === managerApprovals
                           ) || null
                         }
-                        onChange={(e, value: any) => {
+                        onChange={(e, value: LabelValue | null) => {
                           value && setManagerApprovals(value.value);
                         }}
                         sx={{
@@ -3183,7 +3492,7 @@ const EditDrawer = ({
                               </span>
                             }
                             error={managerApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (managerApprovals > 0) {
                                 setManagerApprovalsErr(false);
                               }
@@ -3218,19 +3527,21 @@ const EditDrawer = ({
                                   : returnYearApprovals
                               }
                               onChange={(e) =>
-                                setReturnYearApprovals(e.target.value)
+                                setReturnYearApprovals(Number(e.target.value))
                               }
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
+                              onBlur={() => {
+                                if (returnYearApprovals > 0) {
                                   setReturnYearApprovalsErr(false);
                                 }
                               }}
                             >
-                              {yearDropdown.map((i: any, index: number) => (
-                                <MenuItem value={i.value} key={index}>
-                                  {i.label}
-                                </MenuItem>
-                              ))}
+                              {yearDropdown.map(
+                                (i: LabelValue, index: number) => (
+                                  <MenuItem value={i.value} key={i.value}>
+                                    {i.label}
+                                  </MenuItem>
+                                )
+                              )}
                             </Select>
                             {returnYearApprovalsErr && (
                               <FormHelperText>
@@ -3249,6 +3560,15 @@ const EditDrawer = ({
                             }
                             onChange={(e) =>
                               setNoOfPagesApprovals(e.target.value)
+                            }
+                            onFocus={(e) =>
+                              e.target.addEventListener(
+                                "wheel",
+                                function (e) {
+                                  e.preventDefault();
+                                },
+                                { passive: false }
+                              )
                             }
                             margin="normal"
                             variant="standard"
@@ -3276,8 +3596,8 @@ const EditDrawer = ({
                               onChange={(e) =>
                                 setChecklistWorkpaperApprovals(e.target.value)
                               }
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
+                              onBlur={() => {
+                                if (checklistWorkpaperApprovals > 0) {
                                   setChecklistWorkpaperApprovalsErr(false);
                                 }
                               }}
@@ -3313,7 +3633,7 @@ const EditDrawer = ({
                               setDateOfPreperationApprovals(e.target.value)
                             }
                             onFocus={() => setInputTypePreperation("date")}
-                            onBlur={(e: any) => {
+                            onBlur={() => {
                               setInputTypePreperation("text");
                             }}
                             margin="normal"
@@ -3342,7 +3662,7 @@ const EditDrawer = ({
                               setDateOfReviewApprovals(e.target.value)
                             }
                             onFocus={() => setInputTypeReview("date")}
-                            onBlur={(e: any) => {
+                            onBlur={() => {
                               setInputTypeReview("text");
                             }}
                             margin="normal"
@@ -3431,9 +3751,9 @@ const EditDrawer = ({
                           disabled={!subTaskSwitchApprovals}
                           value={field.Title}
                           onChange={(e) =>
-                            handleSubTaskChangeApprovals(e, index)
+                            handleSubTaskChangeApprovals(e.target.value, index)
                           }
-                          onBlur={(e: any) => {
+                          onBlur={(e) => {
                             if (e.target.value.trim().length > 0) {
                               const newTaskNameErrors = [
                                 ...taskNameApprovalsErr,
@@ -3470,9 +3790,12 @@ const EditDrawer = ({
                           disabled={!subTaskSwitchApprovals}
                           value={field.Description}
                           onChange={(e) =>
-                            handleSubTaskDescriptionChangeApprovals(e, index)
+                            handleSubTaskDescriptionChangeApprovals(
+                              e.target.value,
+                              index
+                            )
                           }
-                          onBlur={(e: any) => {
+                          onBlur={(e) => {
                             if (e.target.value.trim().length > 0) {
                               const newSubTaskDescErrors = [
                                 ...subTaskDescriptionApprovalsErr,
@@ -3574,7 +3897,7 @@ const EditDrawer = ({
                   {checkListApprovalsDrawer &&
                     checkListDataApprovals?.length > 0 &&
                     checkListDataApprovals.map((i: any, index: number) => (
-                      <div className="mt-3">
+                      <div className="mt-3" key={i.Category + index}>
                         <span className="flex items-center">
                           <span onClick={() => toggleGeneralOpen(index)}>
                             {itemStatesApprovals[index] ? (
@@ -3592,6 +3915,7 @@ const EditDrawer = ({
                           <FormGroup className="ml-8 mt-2">
                             {i.Activities.map((j: any, index: number) => (
                               <FormControlLabel
+                                key={j.IsCheck + index}
                                 control={
                                   <Checkbox
                                     checked={j.IsCheck}
@@ -3653,7 +3977,7 @@ const EditDrawer = ({
                                   setCheckListNameApprovals(e.target.value);
                                   setCheckListNameApprovalsError(false);
                                 }}
-                                onBlur={(e: any) => {
+                                onBlur={(e) => {
                                   if (e.target.value.trim().length > 5) {
                                     setCheckListNameApprovalsError(false);
                                   }
@@ -3719,8 +4043,8 @@ const EditDrawer = ({
                         id="demo-simple-select-standard"
                         value={commentSelectApprovals}
                         onChange={(e) => {
-                          setCommentSelectApprovals(e.target.value);
-                          getCommentDataApprovals(e.target.value);
+                          setCommentSelectApprovals(Number(e.target.value));
+                          getCommentDataApprovals(Number(e.target.value));
                         }}
                       >
                         <MenuItem value={1}>Internal</MenuItem>
@@ -3743,200 +4067,208 @@ const EditDrawer = ({
                   <div className="flex flex-col gap-4">
                     {commentsApprovalsDrawer &&
                       commentDataApprovals.length > 0 &&
-                      commentDataApprovals.map((i: any, index: number) => (
-                        <div className="flex gap-4">
-                          {i.UserName.length > 0 ? (
-                            <Avatar>
-                              {i.UserName.split(" ")
-                                .map((word: any) =>
-                                  word.charAt(0).toUpperCase()
-                                )
-                                .join("")}
-                            </Avatar>
-                          ) : (
-                            <Avatar sx={{ width: 32, height: 32 }} />
-                          )}
-                          <div>
-                            <Typography>{i.UserName}</Typography>
-                            <Typography>
-                              {i.SubmitedDate},&nbsp;
-                              {new Date(
-                                `1970-01-01T${i.SubmitedTime}:00Z`
-                              ).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </Typography>
-                            <div className="flex items-center gap-2">
-                              {editingCommentIndexApprovals === index ? (
-                                <div className="flex items-start justify-center gap-8">
-                                  <div className="flex flex-col">
-                                    <div className="flex items-start justify-center">
-                                      <MentionsInput
-                                        style={mentionsInputStyle}
-                                        className="!w-[100%] textareaOutlineNoneEdit max-w-[70%]"
-                                        value={valueEdit}
-                                        onChange={(e) => {
-                                          setValueEdit(e.target.value);
-                                          setValueEditError(false);
-                                          handleCommentChange(e.target.value);
-                                        }}
-                                        placeholder="Type a next message OR type @ if you want to mention anyone in the message."
-                                      >
-                                        <Mention
-                                          data={users}
-                                          style={{
-                                            backgroundColor: "#cee4e5",
+                      commentDataApprovals.map(
+                        (i: CommentGetByWorkitem, index: number) => (
+                          <div className="flex gap-4" key={i.UserName + index}>
+                            {i.UserName.length > 0 ? (
+                              <Avatar>
+                                {i.UserName.split(" ")
+                                  .map((word: string) =>
+                                    word.charAt(0).toUpperCase()
+                                  )
+                                  .join("")}
+                              </Avatar>
+                            ) : (
+                              <Avatar sx={{ width: 32, height: 32 }} />
+                            )}
+                            <div>
+                              <Typography>{i.UserName}</Typography>
+                              <Typography>
+                                {i.SubmitedDate},&nbsp;
+                                {new Date(
+                                  `1970-01-01T${i.SubmitedTime}:00Z`
+                                ).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </Typography>
+                              <div className="flex items-center gap-2">
+                                {editingCommentIndexApprovals === index ? (
+                                  <div className="flex items-start justify-center gap-8">
+                                    <div className="flex flex-col">
+                                      <div className="flex items-start justify-start w-[70vw]">
+                                        <MentionsInput
+                                          style={mentionsInputStyle}
+                                          className="!w-[100%] textareaOutlineNoneEdit max-w-[60vw]"
+                                          value={valueEdit}
+                                          onChange={(e) => {
+                                            setValueEdit(e.target.value);
+                                            setValueEditError(false);
+                                            handleCommentChange(e.target.value);
                                           }}
-                                          trigger="@"
-                                        />
-                                      </MentionsInput>
-                                      <div className="flex flex-col">
-                                        <div className="flex">
-                                          <ImageUploader
-                                            className="!mt-0"
-                                            getData={(data1: any, data2: any) =>
-                                              handleCommentAttachmentsChange(
-                                                data1,
-                                                data2,
-                                                commentAttachmentApprovals
-                                              )
-                                            }
-                                            isDisable={false}
+                                          placeholder="Type a next message OR type @ if you want to mention anyone in the message."
+                                        >
+                                          <Mention
+                                            data={users}
+                                            style={{
+                                              backgroundColor: "#cee4e5",
+                                            }}
+                                            trigger="@"
                                           />
+                                        </MentionsInput>
+                                        <div className="flex flex-col">
+                                          <div className="flex">
+                                            <ImageUploader
+                                              className="!mt-0"
+                                              getData={(
+                                                data1: string,
+                                                data2: string
+                                              ) =>
+                                                handleCommentAttachmentsChange(
+                                                  data1,
+                                                  data2,
+                                                  commentAttachmentApprovals
+                                                )
+                                              }
+                                              isDisable={false}
+                                            />
+                                          </div>
                                         </div>
-                                      </div>
-                                      {commentAttachmentApprovals[0]
-                                        ?.SystemFileName.length > 0 && (
-                                        <div className="flex items-start justify-center">
-                                          <span className="cursor-pointer">
-                                            {
-                                              commentAttachmentApprovals[0]
-                                                ?.UserFileName
-                                            }
-                                          </span>
-                                          <span
-                                            onClick={() =>
-                                              getFileFromBlob(
-                                                commentAttachmentApprovals[0]
-                                                  ?.SystemFileName,
+                                        {commentAttachmentApprovals[0]
+                                          ?.SystemFileName.length > 0 && (
+                                          <div className="flex items-start justify-center">
+                                            <span className="cursor-pointer">
+                                              {
                                                 commentAttachmentApprovals[0]
                                                   ?.UserFileName
-                                              )
-                                            }
-                                          >
-                                            <ColorToolTip
-                                              title="Download"
-                                              placement="top"
-                                              arrow
+                                              }
+                                            </span>
+                                            <span
+                                              onClick={() =>
+                                                getFileFromBlob(
+                                                  commentAttachmentApprovals[0]
+                                                    ?.SystemFileName,
+                                                  commentAttachmentApprovals[0]
+                                                    ?.UserFileName
+                                                )
+                                              }
                                             >
-                                              <Download />
-                                            </ColorToolTip>
+                                              <ColorToolTip
+                                                title="Download"
+                                                placement="top"
+                                                arrow
+                                              >
+                                                <Download />
+                                              </ColorToolTip>
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div className="flex flex-col">
+                                        {valueEditError && (
+                                          <span className="text-defaultRed text-[14px]">
+                                            This is a required field.
                                           </span>
-                                        </div>
-                                      )}
+                                        )}
+                                      </div>
                                     </div>
-                                    <div className="flex flex-col">
-                                      {valueEditError && (
-                                        <span className="text-defaultRed text-[14px]">
-                                          This is a required field.
-                                        </span>
-                                      )}
-                                    </div>
+                                    <button
+                                      type="button"
+                                      className="!bg-secondary text-white border rounded-md px-[4px]"
+                                      onClick={(e) =>
+                                        handleSaveClickApprovals(
+                                          e,
+                                          i,
+                                          commentSelectApprovals
+                                        )
+                                      }
+                                    >
+                                      <Save className="w-4 h-4" />
+                                    </button>
                                   </div>
-                                  <button
-                                    type="button"
-                                    className="!bg-secondary text-white border rounded-md px-[4px]"
-                                    onClick={(e) =>
-                                      handleSaveClickApprovals(
-                                        e,
-                                        i,
-                                        commentSelectApprovals
-                                      )
-                                    }
-                                  >
-                                    <Save className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              ) : (
-                                <div className="flex items-start justify-center gap-8">
-                                  <span className="hidden"></span>
-                                  <div className="flex items-start max-w-[70%]">
-                                    {extractText(i.Message).map((i: any) => {
-                                      const assignee =
-                                        commentUserDataApprovals.map(
-                                          (j: any) => j.label
-                                        );
-                                      return assignee.includes(i) ? (
-                                        <span
-                                          className="text-secondary"
-                                          key={index}
-                                        >
-                                          &nbsp; {i} &nbsp;
-                                        </span>
-                                      ) : (
-                                        i
-                                      );
-                                    })}
-                                  </div>
-                                  {i.Attachment[0]?.SystemFileName.length >
-                                    0 && (
-                                    <div className="flex items-start justify-center">
-                                      <span className="cursor-pointer">
-                                        {i.Attachment[0]?.UserFileName}
-                                      </span>
-                                      <span
-                                        onClick={() =>
-                                          getFileFromBlob(
-                                            i.Attachment[0]?.SystemFileName,
-                                            i.Attachment[0]?.UserFileName
-                                          )
+                                ) : (
+                                  <div className="flex items-start justify-start gap-8 w-[70vw]">
+                                    <span className="hidden"></span>
+                                    <div className="max-w-[60vw]">
+                                      {extractText(i.Message).map(
+                                        (i: string) => {
+                                          const assignee =
+                                            commentUserDataApprovals.map(
+                                              (j: LabelValue) => j.label
+                                            );
+                                          return assignee.includes(i) ? (
+                                            <span
+                                              className="text-secondary"
+                                              key={i + index}
+                                            >
+                                              &nbsp; {i} &nbsp;
+                                            </span>
+                                          ) : (
+                                            i
+                                          );
                                         }
-                                      >
-                                        <ColorToolTip
-                                          title="Download"
-                                          placement="top"
-                                          arrow
-                                        >
-                                          <Download />
-                                        </ColorToolTip>
-                                      </span>
+                                      )}
                                     </div>
-                                  )}
-                                  {userId === i.UserId &&
-                                    hasPermissionWorklog(
-                                      "Comment",
-                                      "save",
-                                      "WorkLogs"
-                                    ) && (
-                                      <button
-                                        type="button"
-                                        className="flex items-start !bg-secondary text-white border rounded-md p-[4px]"
-                                        onClick={() => {
-                                          handleEditClick(index, i.Message);
-                                          setCommentAttachmentApprovals([
-                                            {
-                                              AttachmentId:
-                                                i.Attachment[0].AttachmentId,
-                                              UserFileName:
-                                                i.Attachment[0].UserFileName,
-                                              SystemFileName:
-                                                i.Attachment[0].SystemFileName,
-                                              AttachmentPath:
-                                                process.env.attachment,
-                                            },
-                                          ]);
-                                        }}
-                                      >
-                                        <EditIcon className="h-4 w-4" />
-                                      </button>
+                                    {i.Attachment[0]?.SystemFileName.length >
+                                      0 && (
+                                      <div className="flex items-start justify-center">
+                                        <span className="cursor-pointer">
+                                          {i.Attachment[0]?.UserFileName}
+                                        </span>
+                                        <span
+                                          onClick={() =>
+                                            getFileFromBlob(
+                                              i.Attachment[0]?.SystemFileName,
+                                              i.Attachment[0]?.UserFileName
+                                            )
+                                          }
+                                        >
+                                          <ColorToolTip
+                                            title="Download"
+                                            placement="top"
+                                            arrow
+                                          >
+                                            <Download />
+                                          </ColorToolTip>
+                                        </span>
+                                      </div>
                                     )}
-                                </div>
-                              )}
+                                    {userId === i.UserId &&
+                                      hasPermissionWorklog(
+                                        "Comment",
+                                        "save",
+                                        "WorkLogs"
+                                      ) && (
+                                        <button
+                                          type="button"
+                                          className="flex items-start !bg-secondary text-white border rounded-md p-[4px]"
+                                          onClick={() => {
+                                            handleEditClick(index, i.Message);
+                                            setCommentAttachmentApprovals([
+                                              {
+                                                AttachmentId:
+                                                  i.Attachment[0].AttachmentId,
+                                                UserFileName:
+                                                  i.Attachment[0].UserFileName,
+                                                SystemFileName:
+                                                  i.Attachment[0]
+                                                    .SystemFileName,
+                                                AttachmentPath:
+                                                  process.env.attachment || "",
+                                              },
+                                            ]);
+                                          }}
+                                        >
+                                          <EditIcon className="h-4 w-4" />
+                                        </button>
+                                      )}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      )}
                   </div>
                 </div>
                 {commentsApprovalsDrawer &&
@@ -3964,7 +4296,7 @@ const EditDrawer = ({
                           <div className="flex">
                             <ImageUploader
                               className="!mt-0"
-                              getData={(data1: any, data2: any) =>
+                              getData={(data1: string, data2: string) =>
                                 handleCommentAttachmentsChange(
                                   data1,
                                   data2,
@@ -4145,7 +4477,7 @@ const EditDrawer = ({
                       <div className="pl-4 m-2 flex">
                         {days.map((day, index) => (
                           <div
-                            key={index}
+                            key={day[0] + index}
                             className={`px-3 py-1 rounded-[50%] m-[5px] ${
                               selectedDays.includes(index)
                                 ? "text-pureWhite bg-secondary"
@@ -4205,9 +4537,9 @@ const EditDrawer = ({
                           : recurringTimeApprovals === 2
                           ? `Occurs every ${selectedDays
                               .sort()
-                              .map((day: any) => " " + days[day])} ${
-                              selectedDays.length <= 0 && "day"
-                            } starting from today`
+                              .map(
+                                (day: number) => " " + days[day]
+                              )} starting from today`
                           : recurringTimeApprovals === 3 &&
                             "Occurs every month starting from today"}
                       </span>
@@ -4217,91 +4549,81 @@ const EditDrawer = ({
               </div>
             )}
 
-            {(isManual === true || isManual === null) && (
-              <div
-                className="mt-14"
-                id={`${
-                  isManual === true || isManual === null ? "tabpanel-5" : ""
-                }`}
-              >
-                <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
-                  <span className="flex items-center">
-                    <ClockIcon />
-                    <span className="ml-[21px]">Manual Time</span>
-                  </span>
-                  <span
-                    className={`cursor-pointer ${
-                      manualTimeDrawer ? "rotate-180" : ""
-                    }`}
-                    onClick={() => setManualTimeDrawer(!manualTimeDrawer)}
-                  >
-                    <ChevronDownIcon />
-                  </span>
-                </div>
-                {manualTimeDrawer && (
-                  <>
-                    <div className="-mt-2 pl-6">
-                      {manualFieldsApprovals.map((field) => (
-                        <div key={field.Id}>
-                          <div
-                            className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]`}
-                          >
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                              <DatePicker
-                                label={
-                                  <span>
-                                    Date
-                                    <span className="!text-defaultRed">
-                                      &nbsp;*
-                                    </span>
+            <div className="mt-14" id="tabpanel-5">
+              <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
+                <span className="flex items-center">
+                  <ClockIcon />
+                  <span className="ml-[21px]">Manual Time</span>
+                </span>
+                <span
+                  className={`cursor-pointer ${
+                    manualTimeDrawer ? "rotate-180" : ""
+                  }`}
+                  onClick={() => setManualTimeDrawer(!manualTimeDrawer)}
+                >
+                  <ChevronDownIcon />
+                </span>
+              </div>
+              {manualTimeDrawer && (
+                <>
+                  <div className="-mt-2 pl-6">
+                    {manualFieldsApprovals.map((field) => (
+                      <div key={field.Id}>
+                        <div
+                          className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]`}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              label={
+                                <span>
+                                  Date
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
                                   </span>
-                                }
-                                value={
-                                  field.inputDate === ""
-                                    ? null
-                                    : dayjs(field.inputDate)
-                                }
-                                readOnly
-                              />
-                            </LocalizationProvider>
-                          </div>
-                          <TextField
-                            label={
-                              <span>
-                                Start Time(24h)
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
                                 </span>
-                              </span>
-                            }
-                            placeholder="00:00:00"
-                            fullWidth
-                            value={field.startTime}
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 230 }}
-                          />
-                          <TextField
-                            label={
-                              <span>
-                                End Time(24h)
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            placeholder="00:00:00"
-                            fullWidth
-                            value={field.endTime}
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 230 }}
-                          />
-                          {/* <TextField
+                              }
+                              value={
+                                field.inputDate === ""
+                                  ? null
+                                  : dayjs(field.inputDate)
+                              }
+                              readOnly
+                            />
+                          </LocalizationProvider>
+                        </div>
+                        <TextField
+                          label={
+                            <span>
+                              Start Time(24h)
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          placeholder="00:00:00"
+                          fullWidth
+                          value={field.startTime}
+                          InputProps={{ readOnly: true }}
+                          inputProps={{ readOnly: true }}
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 230 }}
+                        />
+                        <TextField
+                          label={
+                            <span>
+                              End Time(24h)
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          placeholder="00:00:00"
+                          fullWidth
+                          value={field.endTime}
+                          InputProps={{ readOnly: true }}
+                          inputProps={{ readOnly: true }}
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 230 }}
+                        />
+                        {/* <TextField
                             label="Total Time"
                             disabled
                             fullWidth
@@ -4317,42 +4639,39 @@ const EditDrawer = ({
                             InputProps={{ readOnly: true }}
                             inputProps={{ readOnly: true }}
                           /> */}
-                          <TextField
-                            label="Total Time"
-                            disabled
-                            fullWidth
-                            value={field.totalTime}
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 225 }}
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
-                          />
-                          <TextField
-                            label={
-                              <span>
-                                Description
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            className="mt-4"
-                            fullWidth
-                            value={field.manualDesc}
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
+                        <TextField
+                          label="Total Time"
+                          disabled
+                          fullWidth
+                          value={field.totalTime}
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 225 }}
+                          InputProps={{ readOnly: true }}
+                          inputProps={{ readOnly: true }}
+                        />
+                        <TextField
+                          label={
+                            <span>
+                              Description
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          className="mt-4"
+                          fullWidth
+                          value={field.manualDesc}
+                          InputProps={{ readOnly: true }}
+                          inputProps={{ readOnly: true }}
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
 
             <div className="mt-14" id="tabpanel-6">
               <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
@@ -4494,8 +4813,10 @@ const EditDrawer = ({
                           }
                           fullWidth
                           value={field.startTime}
-                          onChange={(e) => handleStartTimeChange(e, index)}
-                          onBlur={(e: any) => {
+                          onChange={(e) =>
+                            handleStartTimeChange(e.target.value, index)
+                          }
+                          onBlur={(e) => {
                             if (e.target.value.trim().length > 7) {
                               const newStartTimeErrors = [...startTimeErrors];
                               newStartTimeErrors[index] = false;
@@ -4533,8 +4854,10 @@ const EditDrawer = ({
                           }
                           fullWidth
                           value={field.endTime}
-                          onChange={(e) => handleEndTimeChange(e, index)}
-                          onBlur={(e: any) => {
+                          onChange={(e) =>
+                            handleEndTimeChange(e.target.value, index)
+                          }
+                          onBlur={(e) => {
                             if (
                               e.target.value.trim().length > 7 &&
                               field.endTime > field.startTime &&
@@ -4636,8 +4959,10 @@ const EditDrawer = ({
                           }
                           fullWidth
                           value={field.manualDesc}
-                          onChange={(e) => handleManualDescChange(e, index)}
-                          onBlur={(e: any) => {
+                          onChange={(e) =>
+                            handleManualDescChange(e.target.value, index)
+                          }
+                          onBlur={(e) => {
                             if (e.target.value.trim().length > 0) {
                               const newManualDescErrors = [...manualDescErrors];
                               newManualDescErrors[index] = false;
@@ -4661,40 +4986,57 @@ const EditDrawer = ({
                           variant="standard"
                           sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
                         />
-                        {index === 0
-                          ? manualSwitch && (
-                              <span
-                                className="cursor-pointer"
-                                onClick={addManualField}
+                        {index === 0 &&
+                          manualSwitch &&
+                          !field.IsApproved &&
+                          field.Id > 0 && (
+                            <span
+                              className="cursor-pointer"
+                              onClick={() => removePhoneField(index)}
+                            >
+                              <svg
+                                className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                focusable="false"
+                                aria-hidden="true"
+                                viewBox="0 0 24 24"
+                                data-testid="RemoveIcon"
                               >
-                                <svg
-                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                  focusable="false"
-                                  aria-hidden="true"
-                                  viewBox="0 0 24 24"
-                                  data-testid="AddIcon"
-                                >
-                                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
-                                </svg>
-                              </span>
-                            )
-                          : manualSwitch &&
-                            !field.IsApproved && (
-                              <span
-                                className="cursor-pointer"
-                                onClick={() => removePhoneField(index)}
-                              >
-                                <svg
-                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                  focusable="false"
-                                  aria-hidden="true"
-                                  viewBox="0 0 24 24"
-                                  data-testid="RemoveIcon"
-                                >
-                                  <path d="M19 13H5v-2h14v2z"></path>
-                                </svg>
-                              </span>
-                            )}
+                                <path d="M19 13H5v-2h14v2z"></path>
+                              </svg>
+                            </span>
+                          )}
+                        {index === 0 && manualSwitch && (
+                          <span
+                            className="cursor-pointer"
+                            onClick={addManualField}
+                          >
+                            <svg
+                              className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                              focusable="false"
+                              aria-hidden="true"
+                              viewBox="0 0 24 24"
+                              data-testid="AddIcon"
+                            >
+                              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                            </svg>
+                          </span>
+                        )}
+                        {index > 0 && manualSwitch && !field.IsApproved && (
+                          <span
+                            className="cursor-pointer"
+                            onClick={() => removePhoneField(index)}
+                          >
+                            <svg
+                              className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                              focusable="false"
+                              aria-hidden="true"
+                              viewBox="0 0 24 24"
+                              data-testid="RemoveIcon"
+                            >
+                              <path d="M19 13H5v-2h14v2z"></path>
+                            </svg>
+                          </span>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -4896,14 +5238,14 @@ const EditDrawer = ({
                           onChange={(e) =>
                             setReminderTimeApprovals(e.target.value)
                           }
-                          onBlur={(e: any) => {
-                            if (e.target.value > 0) {
+                          onBlur={() => {
+                            if (reminderTimeApprovals > 0) {
                               setReminderTimeApprovalsErr(false);
                             }
                           }}
                         >
-                          {hours.map((i: any, index: number) => (
-                            <MenuItem value={i.value} key={index}>
+                          {hours.map((i: LabelValue) => (
+                            <MenuItem value={i.value} key={i.value}>
                               {i.label}
                             </MenuItem>
                           ))}
@@ -4944,7 +5286,7 @@ const EditDrawer = ({
                             }
                             variant="standard"
                             error={reminderNotificationApprovalsErr}
-                            onBlur={(e) => {
+                            onBlur={() => {
                               if (reminderNotificationApprovals.length > 0) {
                                 setReminderNotificationApprovalsErr(false);
                               }
@@ -4998,7 +5340,10 @@ const EditDrawer = ({
                   <>
                     <div className="mt-3 pl-6">
                       {errorLogFieldsApprovals.map((field, index) => (
-                        <div className="w-[100%] mt-4" key={index}>
+                        <div
+                          className="w-[100%] mt-4"
+                          key={field.SubmitedBy + index}
+                        >
                           {field.SubmitedBy.length > 0 && (
                             <div className="ml-1 mt-8 mb-3">
                               <span className="font-bold">Correction By</span>
@@ -5042,10 +5387,13 @@ const EditDrawer = ({
                                 field.ErrorType === 0 ? "" : field.ErrorType
                               }
                               onChange={(e) =>
-                                handleErrorTypeChangeApprovals(e, index)
+                                handleErrorTypeChangeApprovals(
+                                  Number(e.target.value),
+                                  index
+                                )
                               }
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
+                              onBlur={() => {
+                                if (field.ErrorType > 0) {
                                   const newErrorTypeErrors = [
                                     ...errorTypeErrApprovals,
                                   ];
@@ -5092,10 +5440,13 @@ const EditDrawer = ({
                                 field.RootCause === 0 ? "" : field.RootCause
                               }
                               onChange={(e) =>
-                                handleRootCauseChangeApprovals(e, index)
+                                handleRootCauseChangeApprovals(
+                                  Number(e.target.value),
+                                  index
+                                )
                               }
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
+                              onBlur={() => {
+                                if (field.RootCause > 0) {
                                   const newRootCauseErrors = [
                                     ...rootCauseErrApprovals,
                                   ];
@@ -5144,10 +5495,13 @@ const EditDrawer = ({
                                   : field.NatureOfError
                               }
                               onChange={(e) =>
-                                handleNatureOfErrorChangeApprovals(e, index)
+                                handleNatureOfErrorChangeApprovals(
+                                  Number(e.target.value),
+                                  index
+                                )
                               }
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
+                              onBlur={() => {
+                                if (field.NatureOfError > 0) {
                                   const newNatureOfErrorErrors = [
                                     ...natureOfErrApprovals,
                                   ];
@@ -5217,10 +5571,13 @@ const EditDrawer = ({
                               }
                               value={field.Priority === 0 ? "" : field.Priority}
                               onChange={(e) =>
-                                handlePriorityChangeApprovals(e, index)
+                                handlePriorityChangeApprovals(
+                                  Number(e.target.value),
+                                  index
+                                )
                               }
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
+                              onBlur={() => {
+                                if (field.Priority > 0) {
                                   const newPriorityErrors = [
                                     ...errorLogPriorityErrApprovals,
                                   ];
@@ -5267,9 +5624,12 @@ const EditDrawer = ({
                               field.ErrorCount === 0 ? "" : field.ErrorCount
                             }
                             onChange={(e) =>
-                              handleErrorCountChangeApprovals(e, index)
+                              handleErrorCountChangeApprovals(
+                                Number(e.target.value),
+                                index
+                              )
                             }
-                            onBlur={(e: any) => {
+                            onBlur={(e) => {
                               if (e.target.value.length > 0) {
                                 const newErrorCountErrors = [
                                   ...errorCountErrApprovals,
@@ -5278,6 +5638,15 @@ const EditDrawer = ({
                                 setErrorCountErrApprovals(newErrorCountErrors);
                               }
                             }}
+                            onFocus={(e) =>
+                              e.target.addEventListener(
+                                "wheel",
+                                function (e) {
+                                  e.preventDefault();
+                                },
+                                { passive: false }
+                              )
+                            }
                             error={errorCountErrApprovals[index]}
                             helperText={
                               errorCountErrApprovals[index] &&
@@ -5360,9 +5729,12 @@ const EditDrawer = ({
                                   : field.Remark
                               }
                               onChange={(e) =>
-                                handleRemarksChangeApprovals(e, index)
+                                handleRemarksChangeApprovals(
+                                  e.target.value,
+                                  index
+                                )
                               }
-                              onBlur={(e: any) => {
+                              onBlur={(e) => {
                                 if (e.target.value.length > 0) {
                                   const newRemarkErrors = [
                                     ...remarkErrApprovals,
@@ -5391,41 +5763,49 @@ const EditDrawer = ({
                             <div className="flex flex-col">
                               <div className="flex">
                                 <ImageUploader
-                                  getData={(data1: any, data2: any) =>
-                                    handleAttachmentsChangeApprovals(
-                                      data1,
-                                      data2,
-                                      field.Attachments,
-                                      index
-                                    )
+                                  getData={(data1: string, data2: string) =>
+                                    field.Attachments
+                                      ? handleAttachmentsChangeApprovals(
+                                          data1,
+                                          data2,
+                                          field.Attachments,
+                                          index
+                                        )
+                                      : undefined
                                   }
                                   isDisable={field.isSolved}
                                 />
-                                {field.Attachments[0]?.SystemFileName.length >
-                                  0 && (
-                                  <div className="flex items-center justify-center gap-2">
-                                    <span className="mt-6 ml-2 cursor-pointer">
-                                      {field.Attachments[0]?.UserFileName}
-                                    </span>
-                                    <span
-                                      className="mt-6"
-                                      onClick={() =>
-                                        getFileFromBlob(
-                                          field.Attachments[0]?.SystemFileName,
-                                          field.Attachments[0]?.UserFileName
-                                        )
-                                      }
-                                    >
-                                      <ColorToolTip
-                                        title="Download"
-                                        placement="top"
-                                        arrow
+                                {field.Attachments &&
+                                  field.Attachments.length > 0 &&
+                                  field.Attachments[0]?.SystemFileName.length >
+                                    0 && (
+                                    <div className="flex items-center justify-center gap-2">
+                                      <span className="mt-6 ml-2 cursor-pointer">
+                                        {field.Attachments[0]?.UserFileName}
+                                      </span>
+                                      <span
+                                        className="mt-6"
+                                        onClick={() =>
+                                          field.Attachments
+                                            ? getFileFromBlob(
+                                                field.Attachments[0]
+                                                  ?.SystemFileName,
+                                                field.Attachments[0]
+                                                  ?.UserFileName
+                                              )
+                                            : undefined
+                                        }
                                       >
-                                        <Download />
-                                      </ColorToolTip>
-                                    </span>
-                                  </div>
-                                )}
+                                        <ColorToolTip
+                                          title="Download"
+                                          placement="top"
+                                          arrow
+                                        >
+                                          <Download />
+                                        </ColorToolTip>
+                                      </span>
+                                    </div>
+                                  )}
                               </div>
                             </div>
                             {field.isSolved && (
@@ -5519,51 +5899,69 @@ const EditDrawer = ({
               </div>
               {reasonDrawerApprovals &&
                 reviewerNoteDataApprovals.length > 0 &&
-                reviewerNoteDataApprovals.map((i: any, index: number) => (
-                  <div className="mt-5 pl-[70px] text-sm">
-                    <span className="font-semibold">
-                      {i.ReviewedDate.split("-")
-                        .slice(1)
-                        .concat(i.ReviewedDate.split("-")[0])
-                        .join("-")}
-                    </span>
-                    {i.Details.map((j: any, index: number) => (
-                      <div className="flex gap-3 mt-4">
-                        <span className="mt-2">{index + 1}</span>
-                        {j.ReviewerName.length > 0 ? (
-                          <Tooltip title={j.ReviewerName} placement="top" arrow>
-                            <Avatar>
-                              {j.ReviewerName.split(" ")
-                                .map((word: any) =>
-                                  word.charAt(0).toUpperCase()
-                                )
-                                .join("")}
-                            </Avatar>
-                          </Tooltip>
-                        ) : (
-                          <Tooltip title={j.ReviewerName} placement="top" arrow>
-                            <Avatar sx={{ width: 32, height: 32 }} />
-                          </Tooltip>
-                        )}
-                        <div className="flex flex-col items-start">
-                          <span>{j.Comment}</span>
-                          <span>{j.Status}</span>
-                          <span>
-                            at&nbsp;
-                            {new Date(
-                              j.ReviewedDateTime + "Z"
-                            ).toLocaleTimeString("en-US", {
-                              hour: "numeric",
-                              minute: "numeric",
-                              hour12: true,
-                              timeZone: "Asia/Kolkata",
-                            })}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ))}
+                reviewerNoteDataApprovals.map(
+                  (i: GetReviewerNoteList, index: number) => (
+                    <div
+                      className="mt-5 pl-[70px] text-sm"
+                      key={i.ReviewedDate + index}
+                    >
+                      <span className="font-semibold">
+                        {i.ReviewedDate.split("-")
+                          .slice(1)
+                          .concat(i.ReviewedDate.split("-")[0])
+                          .join("-")}
+                      </span>
+                      {i.Details.map(
+                        (j: ReviewerNoteDetails, index: number) => (
+                          <div
+                            className="flex gap-3 mt-4"
+                            key={j.ReviewerName + index}
+                          >
+                            <span className="mt-2">{index + 1}</span>
+                            {j.ReviewerName.length > 0 ? (
+                              <Tooltip
+                                title={j.ReviewerName}
+                                placement="top"
+                                arrow
+                              >
+                                <Avatar>
+                                  {j.ReviewerName.split(" ")
+                                    .map((word: string) =>
+                                      word.charAt(0).toUpperCase()
+                                    )
+                                    .join("")}
+                                </Avatar>
+                              </Tooltip>
+                            ) : (
+                              <Tooltip
+                                title={j.ReviewerName}
+                                placement="top"
+                                arrow
+                              >
+                                <Avatar sx={{ width: 32, height: 32 }} />
+                              </Tooltip>
+                            )}
+                            <div className="flex flex-col items-start">
+                              <span>{j.Comment}</span>
+                              <span>{j.Status}</span>
+                              <span>
+                                at&nbsp;
+                                {new Date(
+                                  j.ReviewedDateTime + "Z"
+                                ).toLocaleTimeString("en-US", {
+                                  hour: "numeric",
+                                  minute: "numeric",
+                                  hour12: true,
+                                  timeZone: "Asia/Kolkata",
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )
+                )}
             </div>
 
             {/* Logs */}
@@ -5585,51 +5983,53 @@ const EditDrawer = ({
                 </div>
                 {logsWorklogsDrawer &&
                   logsDataWorklogs.length > 0 &&
-                  logsDataWorklogs.map((i: any, index: number) => (
-                    <div
-                      className="mt-5 pl-[70px] text-sm"
-                      key={i.UpdatedBy + Math.random()}
-                    >
-                      <div className="flex gap-3 mt-4">
-                        <b className="mt-2">{index + 1}</b>
-                        <div className="flex flex-col items-start">
-                          <b>Modify By: {i.UpdatedBy}</b>
-                          <b>
-                            Date & Time:&nbsp;
-                            {i.UpdatedOn.split("T")[0]
-                              .split("-")
-                              .slice(1)
-                              .concat(i.UpdatedOn.split("T")[0].split("-")[0])
-                              .join("-")}
-                            &nbsp;&&nbsp;
-                            {i.UpdatedOn.split("T")[1]}
-                          </b>
-                          <br />
-                          <ThemeProvider theme={getMuiTheme()}>
-                            <MUIDataTable
-                              data={i.UpdatedFieldsList}
-                              columns={logsDatatableTaskCols}
-                              title={undefined}
-                              options={{
-                                responsive: "standard",
-                                viewColumns: false,
-                                filter: false,
-                                print: false,
-                                download: false,
-                                search: false,
-                                selectToolbarPlacement: "none",
-                                selectableRows: "none",
-                                elevation: 0,
-                                pagination: false,
-                              }}
-                              data-tableid="task_Report_Datatable"
-                            />
-                          </ThemeProvider>
-                          <br />
+                  logsDataWorklogs.map(
+                    (i: AuditlogGetByWorkitem, index: number) => (
+                      <div
+                        className="mt-5 pl-[70px] text-sm"
+                        key={i.UpdatedBy + Math.random()}
+                      >
+                        <div className="flex gap-3 mt-4">
+                          <b className="mt-2">{index + 1}</b>
+                          <div className="flex flex-col items-start">
+                            <b>Modify By: {i.UpdatedBy}</b>
+                            <b>
+                              Date & Time:&nbsp;
+                              {i.UpdatedOn.split("T")[0]
+                                .split("-")
+                                .slice(1)
+                                .concat(i.UpdatedOn.split("T")[0].split("-")[0])
+                                .join("-")}
+                              &nbsp;&&nbsp;
+                              {i.UpdatedOn.split("T")[1]}
+                            </b>
+                            <br />
+                            <ThemeProvider theme={getMuiTheme()}>
+                              <MUIDataTable
+                                data={i.UpdatedFieldsList}
+                                columns={logsDatatableTaskCols}
+                                title={undefined}
+                                options={{
+                                  responsive: "standard",
+                                  viewColumns: false,
+                                  filter: false,
+                                  print: false,
+                                  download: false,
+                                  search: false,
+                                  selectToolbarPlacement: "none",
+                                  selectableRows: "none",
+                                  elevation: 0,
+                                  pagination: false,
+                                }}
+                                data-tableid="task_Report_Datatable"
+                              />
+                            </ThemeProvider>
+                            <br />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
               </div>
             )}
 

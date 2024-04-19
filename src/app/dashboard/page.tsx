@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import React, { useEffect, useState } from "react";
 import Navbar from "@/components/common/Navbar";
@@ -40,6 +39,23 @@ import Dialog_SummaryList from "@/components/dashboard/dialog/Dialog_SummaryList
 import Dialog_ReturnTypeData from "@/components/dashboard/dialog/Dialog_ReturnTypeData";
 import { callAPI } from "@/utils/API/callAPI";
 import { getTypeOfWorkDropdownData } from "@/utils/commonDropdownApiCall";
+import {
+  KeyValueColorCode,
+  KeyValueColorCodeSequence,
+  LabelValue,
+} from "@/utils/Types/types";
+
+interface Project {
+  Childrens: Project[];
+  ProjectName: string;
+  Level: number;
+  ParentId: number | null;
+  ProjectId: number;
+}
+
+interface ProjectList {
+  List: Project[] | [];
+}
 
 const Page = () => {
   const router = useRouter();
@@ -52,7 +68,7 @@ const Page = () => {
   const [isProjectStatusDialogOpen, setIsProjectStatusDialogOpen] =
     useState<boolean>(false);
   const [clickedPriorityName, setClickedPriorityName] = useState<string>("");
-  const [clickedStatusName, setClickedStatusName] = useState<string>("");
+  const [clickedStatusName, setClickedStatusName] = useState<number>(0);
   const [clickedWorkTypeName, setClickedWorkTypeName] = useState<string>("");
   const [clickedProjectStatusName, setClickedProjectStatusName] =
     useState<string>("");
@@ -66,16 +82,28 @@ const Page = () => {
   const [currentProjectId, setCurrentProjectId] = useState<number[]>([]);
   const [currentProjectName, setCurrentProjectName] = useState<any>("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [projectSummary, setProjectSummary] = useState<any>([]);
+  const [projectSummary, setProjectSummary] = useState<
+    KeyValueColorCodeSequence[] | []
+  >([]);
   const [anchorElProjects, setAnchorElProjects] = React.useState<
     HTMLButtonElement | null | any
   >(null);
-  const [summaryLabel, setSummaryLabel] = useState<string>("");
+  const [summaryLabel, setSummaryLabel] = useState<number>(0);
   const [isSummaryListDialogOpen, setIsSummaryListDialogOpen] =
     useState<boolean>(false);
   const [isReturnTypeDialogOpen, setIsReturnTypeDialogOpen] =
     useState<boolean>(false);
   const [clickedReturnTypeValue, setClickedReturnTypeValue] = useState<any>("");
+
+  useEffect(() => {
+    if (localStorage.getItem("isClient") === "true") {
+      if (hasPermissionWorklog("", "View", "Dashboard") === false) {
+        router.push("/");
+      }
+    } else {
+      router.push("/");
+    }
+  }, [router]);
 
   const handleClickProjects = (event: any) => {
     setAnchorElProjects(event.currentTarget);
@@ -88,19 +116,19 @@ const Page = () => {
   const openProjects = Boolean(anchorElProjects);
   const idProjects = openProjects ? "simple-popover" : undefined;
 
-  const handleOptionProjects = (id: any, name: any) => {
+  const handleOptionProjects = (id: number, name: string) => {
     setCurrentProjectId([id]);
     setCurrentProjectName(name);
     setIsAllProject(false);
     handleCloseProjects();
   };
 
-  const handleSearchChange = (event: any) => {
-    setSearchQuery(event.target.value);
+  const handleSearchChange = (e: string) => {
+    setSearchQuery(e);
   };
 
   const filteredProjects = searchQuery
-    ? projects.filter((project: any) =>
+    ? projects.filter((project: Project) =>
         project.ProjectName.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : projects;
@@ -122,23 +150,15 @@ const Page = () => {
 
   const handleValueFromReturnType = (
     isDialogOpen: boolean,
-    selectedPointData: number
+    selectedPointData: string
   ) => {
     setIsReturnTypeDialogOpen(isDialogOpen);
     setClickedReturnTypeValue(selectedPointData);
   };
 
-  const handleValueFromTotalHours = (
-    isDialogOpen: boolean,
-    selectedPointData: string
-  ) => {
-    setIsTotalHrsDialogOpen(isDialogOpen);
-    setClickedWorkTypeName(selectedPointData);
-  };
-
   const handleValueFromTaskStatus = (
     isDialogOpen: boolean,
-    selectedPointData: string
+    selectedPointData: number
   ) => {
     setIsTaskStatusDialogOpen(isDialogOpen);
     setClickedStatusName(selectedPointData);
@@ -152,27 +172,18 @@ const Page = () => {
     setClickedPriorityName(selectedPointData);
   };
 
-  useEffect(() => {
-    if (localStorage.getItem("isClient") === "true") {
-      if (hasPermissionWorklog("", "View", "Dashboard") === false) {
-        router.push("/");
-      }
-    } else {
-      router.push("/");
-    }
-  }, [router]);
-
   const getProjects = async () => {
     const ClientId = await localStorage.getItem("clientId");
     const params = {
       clientId: ClientId,
+      TypeofWorkId: null,
       isAll: true,
     };
     const url = `${process.env.pms_api_url}/project/getdropdown`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: ProjectList,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setProjects(ResponseData.List);
@@ -200,9 +211,9 @@ const Page = () => {
     };
     const url = `${process.env.report_api_url}/clientdashboard/summarybyproject`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: KeyValueColorCodeSequence[] | [],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setProjectSummary(ResponseData);
@@ -224,10 +235,10 @@ const Page = () => {
   }, [isAllProject]);
 
   const statusIconMapping: any = {
-    "Total Task Created": <TotalTaskCreated />,
-    "Pending Task": <PendingTask />,
-    "In Preparation Task": <InProgressWork />,
-    "Completed Task": <CompletedTask />,
+    1: <TotalTaskCreated />,
+    2: <PendingTask />,
+    3: <InProgressWork />,
+    4: <CompletedTask />,
   };
 
   return (
@@ -258,11 +269,11 @@ const Page = () => {
                   {currentProjectName
                     ? currentProjectName
                         .split(" ")
-                        .map((word: any) => word.charAt(0).toUpperCase())
+                        .map((word: string) => word.charAt(0).toUpperCase())
                         .join("")
                     : "All Projects"
                         .split(" ")
-                        .map((word: any) => word.charAt(0).toUpperCase())
+                        .map((word: string) => word.charAt(0).toUpperCase())
                         .join("")}
                 </Avatar>
                 <span
@@ -302,7 +313,7 @@ const Page = () => {
                         placeholder="Search"
                         inputProps={{ "aria-label": "search" }}
                         value={searchQuery}
-                        onChange={handleSearchChange}
+                        onChange={(e) => handleSearchChange(e.target.value)}
                         style={{ fontSize: "13px" }}
                       />
                     </span>
@@ -318,7 +329,7 @@ const Page = () => {
                         <Avatar sx={{ width: 34, height: 34, fontSize: 14 }}>
                           {"All Projects"
                             .split(" ")
-                            .map((word: any) => word.charAt(0).toUpperCase())
+                            .map((word: string) => word.charAt(0).toUpperCase())
                             .join("")}
                         </Avatar>
 
@@ -345,7 +356,7 @@ const Page = () => {
                       </span>
                     )}
 
-                  {filteredProjects.map((project: any) => {
+                  {filteredProjects?.map((project: Project) => {
                     return (
                       <span
                         key={project.ProjectId}
@@ -362,7 +373,9 @@ const Page = () => {
                         >
                           <Avatar sx={{ width: 34, height: 34, fontSize: 14 }}>
                             {project.ProjectName.split(" ")
-                              .map((word: any) => word.charAt(0).toUpperCase())
+                              .map((word: string) =>
+                                word.charAt(0).toUpperCase()
+                              )
                               .join("")}
                           </Avatar>
 
@@ -386,18 +399,19 @@ const Page = () => {
                 disabled={!isAllProject}
               >
                 <MenuItem value={0}>All</MenuItem>
-                {workTypeData.map((i: any) => (
-                  <MenuItem value={i.value} key={i.value}>
-                    {i.label}
-                  </MenuItem>
-                ))}
+                {workTypeData?.length > 0 &&
+                  workTypeData?.map((i: LabelValue) => (
+                    <MenuItem value={i.value} key={i.value}>
+                      {i.label}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
           </section>
 
           <section className="flex gap-[25px] items-center px-[20px] py-[10px]">
             {projectSummary &&
-              projectSummary.map((item: any) => (
+              projectSummary?.map((item: KeyValueColorCodeSequence) => (
                 <Card
                   key={item.Key}
                   className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
@@ -406,7 +420,7 @@ const Page = () => {
                   <div
                     className="flex p-[20px] items-center"
                     onClick={() => {
-                      setSummaryLabel(item.Key);
+                      setSummaryLabel(item.Sequence);
                       setIsSummaryListDialogOpen(true);
                     }}
                   >
@@ -414,7 +428,7 @@ const Page = () => {
                       style={{ color: item.ColorCode }}
                       className={`border-r border-lightSilver pr-[20px]`}
                     >
-                      {statusIconMapping[item.Key]}
+                      {statusIconMapping[item.Sequence]}
                     </span>
                     <div className="inline-flex flex-col items-start pl-[20px]">
                       <span className="text-[14px] font-normal text-darkCharcoal">
@@ -444,7 +458,7 @@ const Page = () => {
                 sendData={handleValueFromPriority}
               />
             </Card>
-            {workType !== 1 && (
+            {(workType === 0 || workType === 3) && (
               <Card className="w-full h-[344px] border border-lightSilver rounded-lg justify-center flex">
                 <Chart_ReturnType
                   onSelectedProjectIds={currentProjectId}
@@ -557,13 +571,13 @@ const Page = () => {
           onSelectedProjectIds={currentProjectId}
         />
 
-        <Dialog_TotalHoursInfo
+        {/* <Dialog_TotalHoursInfo
           onOpen={isTotalHrsDialogOpen}
           onClose={() => setIsTotalHrsDialogOpen(false)}
           onWorkTypeData={workTypeData}
           onSelectedProjectIds={currentProjectId}
           onSelectedWorkTypeName={clickedWorkTypeName}
-        />
+        /> */}
 
         <Dialog_TaskStatusInfo
           onOpen={isTaskStatusDialogOpen}
@@ -579,6 +593,7 @@ const Page = () => {
           onClose={() => setIsPriorityInfoDialogOpen(false)}
           onSelectedProjectIds={currentProjectId}
           onSelectedPriorityName={clickedPriorityName}
+          onSelectedWorkType={workType}
         />
 
         <Dialog_OverallProjectSummary
@@ -605,6 +620,7 @@ const Page = () => {
           onSelectedReturnTypeValue={
             clickedReturnTypeValue === "Individual Return" ? 1 : 2
           }
+          onSelectedWorkType={workType}
         />
       </div>
     </Wrapper>

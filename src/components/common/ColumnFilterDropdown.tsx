@@ -10,13 +10,13 @@ interface ColumnFilterDropdownProps {
   handleHeaderToggle: (header: string) => void;
 }
 
-const ColumnFilterDropdown: React.FC<ColumnFilterDropdownProps> = ({
+const ColumnFilterDropdown = ({
   headers,
   visibleHeaders,
   isOpen,
   setOpen,
   handleHeaderToggle,
-}) => {
+}: ColumnFilterDropdownProps) => {
   return (
     <div className="cursor-pointer absolute right-2 top-3">
       <span

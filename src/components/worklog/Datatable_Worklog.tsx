@@ -13,6 +13,11 @@ import WorklogActionbar from "./actionBar/WorklogActionbar";
 import ReportLoader from "../common/ReportLoader";
 import OverLay from "../common/OverLay";
 import { callAPI } from "@/utils/API/callAPI";
+import {
+  DatatableWorklog,
+  DatatableWorklogProps,
+  InitialFilter,
+} from "@/utils/Types/clientWorklog";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -22,7 +27,7 @@ const initialFilter = {
   PageSize: pageSize,
   SortColumn: "",
   IsDesc: true,
-  GlobalSearch: null,
+  GlobalSearch: "",
   ProjectIds: null,
   OverdueBy: null,
   PriorityId: null,
@@ -43,9 +48,9 @@ const Datatable_Worklog = ({
   onDataFetch,
   onComment,
   currentFilterData,
-  onSearchWorkTypeData,
+  searchValue,
   onCloseDrawer,
-}: any) => {
+}: DatatableWorklogProps) => {
   const [isLoadingWorklogDatatable, setIsLoadingWorklogDatatable] =
     useState(false);
   const [loaded, setLoaded] = useState<boolean>(false);
@@ -53,36 +58,52 @@ const Datatable_Worklog = ({
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [workItemData, setWorkItemData] = useState<any | any[]>([]);
-  const [selectedRowIds, setSelectedRowIds] = useState<any | number[]>([]);
-  const [selectedRowStatusId, setSelectedRowStatusId] = useState<
-    any | number[]
+  const [isPopupOpen, setIsPopupOpen] = useState<
+    { index: number; dataIndex: number }[] | []
   >([]);
-  const [selectedRowId, setSelectedRowId] = useState<any | number>(null);
-  const [isCreatedByClient, setIsCreatedByClient] = useState<any | number>(
+  const [selectedRows, setSelectedRows] = useState<number[] | []>([]);
+  const [workItemData, setWorkItemData] = useState<DatatableWorklog[]>([]);
+  const [selectedRowIds, setSelectedRowIds] = useState<number[]>([]);
+  const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<number[]>(
+    []
+  );
+  const [selectedRowId, setSelectedRowId] = useState<null | number>(null);
+  const [isCreatedByClient, setIsCreatedByClient] = useState<null | boolean>(
     null
   );
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [filteredObject, setFilteredOject] =
+    useState<InitialFilter>(initialFilter);
 
   const handleRowSelect = (
-    currentRowsSelected: any,
-    allRowsSelected: any,
-    rowsSelected: any
+    currentRowsSelected: { index: number; dataIndex: number }[] | [],
+    allRowsSelected: { index: number; dataIndex: number }[] | [],
+    rowsSelected: number[] | []
   ) => {
     const selectedData = allRowsSelected.map(
-      (row: any) => workItemData[row.dataIndex]
+      (row: { index: number; dataIndex: number }) => workItemData[row.dataIndex]
     );
+
     setSelectedRowsCount(rowsSelected.length);
     setSelectedRows(rowsSelected);
 
     // adding all selected Ids in an array
     const selectedWorkItemIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.WorkitemId)
+        ? selectedData.map(
+            (selectedRow: DatatableWorklog) => selectedRow.WorkitemId
+          )
         : [];
     setSelectedRowIds(selectedWorkItemIds);
+
+    // adding all selected workitemid in an array
+    const selectedWorkTypeId =
+      selectedData.length > 0
+        ? selectedData.map(
+            (selectedRow: DatatableWorklog) => selectedRow.WorkTypeId
+          )
+        : [];
+
+    setSelectedRowWorkTypeId(selectedWorkTypeId);
 
     // adding only one or last selected id
     const lastSelectedWorkItemId =
@@ -98,20 +119,13 @@ const Datatable_Worklog = ({
         : null;
     setIsCreatedByClient(IsCreatedByClient);
 
-    // adding all selected row's status Ids in an array
-    const selectedWorkItemStatusIds =
-      selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.StatusId)
-        : [];
-    setSelectedRowStatusId(selectedWorkItemStatusIds);
-
     setIsPopupOpen(allRowsSelected);
   };
 
   const handleClearSelection = () => {
     setSelectedRowsCount(0);
     setSelectedRows([]);
-    setIsPopupOpen(false);
+    setIsPopupOpen([]);
   };
 
   useEffect(() => {
@@ -119,15 +133,15 @@ const Datatable_Worklog = ({
       const pathname = window.location.href.includes("id=");
       if (pathname) {
         const idMatch = window.location.href.match(/id=([^?&]+)/);
-        const id = idMatch ? idMatch[1] : null;
-        onEdit(id);
+        const id = idMatch ? idMatch[1] : 0;
+        onEdit(Number(id));
         onDrawerOpen();
       }
     }
   }, []);
 
   useEffect(() => {
-    if (!onCloseDrawer || onCloseDrawer === false) {
+    if (!onCloseDrawer || !onCloseDrawer) {
       handleClearSelection();
     }
   }, [onCloseDrawer]);
@@ -136,9 +150,9 @@ const Datatable_Worklog = ({
     const params = filteredObject;
     const url = `${process.env.worklog_api_url}/ClientWorkitem/getworkitemlist`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: { List: DatatableWorklog[] | []; TotalCount: number },
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setLoaded(true);
@@ -159,11 +173,11 @@ const Datatable_Worklog = ({
     setFilteredOject({
       ...filteredObject,
       PageNo: 1,
-      pageSize: pageSize,
-      GlobalSearch: onSearchWorkTypeData,
+      PageSize: pageSize,
+      GlobalSearch: searchValue,
     });
-    onSearchWorkTypeData.length > 0 && setPage(0);
-  }, [onSearchWorkTypeData]);
+    searchValue.length > 0 && setPage(0);
+  }, [searchValue]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -179,9 +193,9 @@ const Datatable_Worklog = ({
   const propsForActionBar = {
     selectedRowsCount,
     selectedRows,
-    selectedRowStatusId,
     selectedRowId,
     selectedRowIds,
+    selectedRowWorkTypeId,
     onEdit,
     handleClearSelection,
     onComment,
@@ -214,7 +228,7 @@ const Datatable_Worklog = ({
                           onClick={onDrawerOpen}
                         >
                           create
-                        </a>{" "}
+                        </a>
                         process/task.
                       </span>
                     </div>
@@ -223,9 +237,11 @@ const Datatable_Worklog = ({
                 },
               },
               onRowSelectionChange: (
-                currentRowsSelected: any,
-                allRowsSelected: any,
-                rowsSelected: any
+                currentRowsSelected:
+                  | { index: number; dataIndex: number }[]
+                  | [],
+                allRowsSelected: { index: number; dataIndex: number }[] | [],
+                rowsSelected: number[] | []
               ) =>
                 handleRowSelect(
                   currentRowsSelected,
@@ -265,7 +281,7 @@ const Datatable_Worklog = ({
       ;{/* WorkLog's Action Bar */}
       <WorklogActionbar
         {...propsForActionBar}
-        getOverLay={(e: any) => setIsLoadingWorklogDatatable(e)}
+        getOverLay={(e: boolean) => setIsLoadingWorklogDatatable(e)}
       />
       {isLoadingWorklogDatatable ? <OverLay /> : ""}
     </div>

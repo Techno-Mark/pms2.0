@@ -2,19 +2,28 @@ import React, { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { callAPI } from "@/utils/API/callAPI";
+import { KeyValueColorCodeSequenceStatusId } from "@/utils/Types/types";
 
 interface TaskStatusProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
-  sendData: any;
+  sendData: (isDialogOpen: boolean, selectedPointData: number) => void;
 }
 
-const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
+const Chart_TaskStatus = ({
   onSelectedProjectIds,
   onSelectedWorkType,
   sendData,
-}) => {
-  const [data, setData] = useState<any | any[]>([]);
+}: TaskStatusProps) => {
+  const [data, setData] = useState<
+    | {
+        name: string;
+        y: number;
+        color: string;
+        StatusId: number;
+      }[]
+    | []
+  >([]);
 
   useEffect(() => {
     const getData = () => {
@@ -24,16 +33,17 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
       };
       const url = `${process.env.report_api_url}/clientdashboard/taskstatuscount`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: KeyValueColorCodeSequenceStatusId[] | [],
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           const chartData = ResponseData.map(
-            (item: { ColorCode: any; Key: any; Value: any }) => ({
+            (item: KeyValueColorCodeSequenceStatusId) => ({
               name: item.Key,
               y: item.Value,
               color: item.ColorCode,
+              StatusId: item.StatusId,
             })
           );
 
@@ -43,7 +53,13 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
       callAPI(url, params, successCallback, "POST");
     };
 
-    getData();
+    const fetchData = async () => {
+      getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [onSelectedProjectIds, onSelectedWorkType]);
 
   const chartOptions: Highcharts.Options = {
@@ -56,7 +72,7 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
       text: undefined,
     },
     xAxis: {
-      categories: data.map((item: { name: any }) => item.name),
+      categories: data.map((item: { name: string }) => item.name),
       title: {
         text: null,
       },
@@ -80,11 +96,11 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
         cursor: "pointer",
         point: {
           events: {
-            click: (event) => {
+            click: (event: any) => {
               const selectedPointData = {
-                name: (event.point && event.point.name) || "",
+                StatusId: (event.point && event.point.StatusId) || "",
               };
-              sendData(true, selectedPointData.name);
+              sendData(true, selectedPointData.StatusId);
             },
           },
         },

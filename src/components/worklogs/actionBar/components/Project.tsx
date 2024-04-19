@@ -5,13 +5,19 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import ProjectIcon from "@/assets/icons/worklogs/ProjectIcon";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { callAPI } from "@/utils/API/callAPI";
+import { LabelValue } from "@/utils/Types/types";
 
 const Project = ({
   selectedRowIds,
   getWorkItemList,
   projectDropdownData,
   getOverLay,
-}: any) => {
+}: {
+  selectedRowIds: number[];
+  getWorkItemList: () => void;
+  projectDropdownData: LabelValue[];
+  getOverLay?: (e: boolean) => void;
+}) => {
   const [projectSearchQuery, setprojectSearchQuery] = useState("");
 
   const [anchorElProject, setAnchorElProject] =
@@ -28,37 +34,41 @@ const Project = ({
   const openProject = Boolean(anchorElProject);
   const idProject = openProject ? "simple-popover" : undefined;
 
-  const handleProjectSearchChange = (event: any) => {
-    setprojectSearchQuery(event.target.value);
+  const handleProjectSearchChange = (e: string) => {
+    setprojectSearchQuery(e);
   };
 
-  const filteredProject = projectDropdownData?.filter((project: any) =>
+  const filteredProject = projectDropdownData?.filter((project: LabelValue) =>
     project.label.toLowerCase().includes(projectSearchQuery.toLowerCase())
   );
 
-  const handleOptionProject = (id: any) => {
+  const handleOptionProject = (id: number) => {
     updateProject(selectedRowIds, id);
     handleCloseProject();
   };
 
-  const updateProject = async (id: number[], processId: number) => {
-    getOverLay(true);
+  const updateProject = async (id: number[], projectId: number) => {
+    getOverLay?.(true);
     const params = {
       workitemIds: id,
-      ProjectId: processId,
+      ProjectId: projectId,
     };
     const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemproject`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: boolean | string,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Project has been updated successfully.");
         getWorkItemList();
-        getOverLay(false);
+        getOverLay?.(false);
+      } else if (ResponseStatus === "Warning" && error === false) {
+        toast.warning(ResponseData);
+        getWorkItemList();
+        getOverLay?.(false);
       } else {
-        getOverLay(false);
+        getOverLay?.(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -103,7 +113,7 @@ const Project = ({
                   placeholder="Search"
                   inputProps={{ "aria-label": "search" }}
                   value={projectSearchQuery}
-                  onChange={handleProjectSearchChange}
+                  onChange={(e) => handleProjectSearchChange(e.target.value)}
                   style={{ fontSize: "13px" }}
                 />
               </span>
@@ -115,7 +125,7 @@ const Project = ({
                 No Data Available
               </span>
             ) : (
-              filteredProject.map((project: any) => {
+              filteredProject.map((project: LabelValue) => {
                 return (
                   <span
                     key={project.value}

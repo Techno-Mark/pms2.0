@@ -13,11 +13,13 @@ const priorityOptions = [
 
 const Priority = ({
   selectedRowIds,
-  selectedRowStatusId,
-  selectedRowsCount,
   getData,
   getOverLay,
-}: any) => {
+}: {
+  selectedRowIds: number[];
+  getData: () => void;
+  getOverLay: (e: boolean) => void;
+}) => {
   const [anchorElPriority, setAnchorElPriority] =
     React.useState<HTMLButtonElement | null>(null);
 
@@ -32,7 +34,7 @@ const Priority = ({
   const openPriority = Boolean(anchorElPriority);
   const idPriority = openPriority ? "simple-popover" : undefined;
 
-  const handleOptionPriority = (id: any) => {
+  const handleOptionPriority = (id: number) => {
     updatePriority(selectedRowIds, id);
     handleClosePriority();
   };
@@ -45,9 +47,9 @@ const Priority = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/UpdatePriority`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Priority has been updated successfully.");
@@ -85,7 +87,7 @@ const Priority = ({
       >
         <nav className="!w-52">
           <List>
-            {priorityOptions.map((option: any) => (
+            {priorityOptions.map((option: { id: number; text: string }) => (
               <span
                 key={option.id}
                 className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"

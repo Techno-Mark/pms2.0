@@ -10,31 +10,55 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardProjectStatusCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
+import {
+  DashboardInitialFilter,
+  ListDashboard,
+  ResponseDashboardProjectSummary,
+} from "@/utils/Types/dashboardTypes";
 
 interface ProjectStatusProps {
-  onSelectedWorkType: number;
-  onSelectedProjectStatus: string;
+  currentFilterData: DashboardInitialFilter;
+  onSelectedProjectStatus: number;
   onSelectedProjectIds: number[];
-  onCurrSelectedProjectStatus: string;
+  onCurrSelectedProjectStatus: number;
+  onOpen: boolean;
+  isClose: boolean;
 }
 
-const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
-  onSelectedWorkType,
+const Datatable_ProjectStatus = ({
+  currentFilterData,
   onSelectedProjectStatus,
   onCurrSelectedProjectStatus,
-}) => {
-  const [data, setData] = useState([]);
+  onOpen,
+  isClose,
+}: ProjectStatusProps) => {
+  const [data, setData] = useState<ListDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
 
+  useEffect(() => {
+    (isClose || onOpen) && setPage(0);
+    (isClose || onOpen) && setRowsPerPage(10);
+  }, [onOpen, isClose]);
+
   const getProjectStatusData = async () => {
+    const workTypeIdFromLocalStorage =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("workTypeId")
+        : 3;
     const params = {
       PageNo: page + 1,
       PageSize: rowsPerPage,
       SortColumn: null,
       IsDesc: true,
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.WorkTypeId === null
+          ? Number(workTypeIdFromLocalStorage)
+          : currentFilterData.WorkTypeId,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
       ProjectId: null,
       Key: onCurrSelectedProjectStatus
         ? onCurrSelectedProjectStatus
@@ -42,12 +66,12 @@ const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
     };
     const url = `${process.env.report_api_url}/dashboard/projectstatuslist`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: ResponseDashboardProjectSummary,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setData(ResponseData.List);
+        setData(ResponseData.ProjectStatusList);
         setTableDataCount(ResponseData.TotalCount);
       }
     };
@@ -59,11 +83,17 @@ const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
   }, [onCurrSelectedProjectStatus]);
 
   useEffect(() => {
-    if (onCurrSelectedProjectStatus !== "" || onSelectedProjectStatus !== "") {
-      getProjectStatusData();
-    }
+    const fetchData = async () => {
+      if (onCurrSelectedProjectStatus > 0 || onSelectedProjectStatus > 0) {
+        await getProjectStatusData();
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
-    onSelectedWorkType,
+    currentFilterData,
     onSelectedProjectStatus,
     onCurrSelectedProjectStatus,
     page,
@@ -77,7 +107,7 @@ const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
           data={data}
           columns={adminDashboardProjectStatusCols}
           title={undefined}
-          options={dashboard_Options}
+          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="ProjectStatusList_Datatable"
         />
         <TablePagination

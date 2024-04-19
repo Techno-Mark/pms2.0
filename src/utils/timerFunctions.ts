@@ -62,8 +62,9 @@ const getFormattedDate = (newValue: any) => {
     const year = dateObject.getFullYear();
     const month = dateObject.getMonth() + 1;
     const day = dateObject.getDate();
+    const dateMonth = month.toString().length > 1 ? month : `0${month}`;
     const date = day.toString().length > 1 ? day : `0${day}`;
-    const formattedDate = year + "-" + month + "-" + date;
+    const formattedDate = year + "-" + dateMonth + "-" + date;
 
     return formattedDate;
   }

@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 import React, { useRef, useCallback } from "react";
 import FileIcon from "@/assets/icons/worklogs/FileIcon";

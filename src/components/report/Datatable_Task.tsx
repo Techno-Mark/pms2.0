@@ -7,6 +7,32 @@ import { callAPI } from "@/utils/API/callAPI";
 import { report_Options } from "@/utils/datatable/TableOptions";
 import { reportDatatableTaskCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 import ReportLoader from "../common/ReportLoader";
+import { ClientReportProps } from "@/utils/Types/reports";
+
+interface List {
+  WorkItemId: number;
+  TaskName: string;
+  ProjectId: number;
+  ProjectName: string;
+  ProcessId: number;
+  ProcessName: string;
+  workTypeId: number;
+  Type: string;
+  Priority: string | null;
+  StatusId: number;
+  Status: string;
+  ColorCode: string;
+  AssignedToId: number;
+  AssignedTo: string;
+  HoursLogged: string | null;
+  StartDate: string;
+  DueDate: string;
+}
+
+interface Response {
+  List: List[];
+  TotalCount: number;
+}
 
 const pageNoReportTask = 1;
 const pageSizeReportTask = 10;
@@ -15,7 +41,7 @@ const initialReportTaskFilter = {
   PageNo: pageNoReportTask,
   PageSize: pageSizeReportTask,
   GlobalSearch: null,
-  IsDesc: false,
+  IsDesc: true,
   SortColumn: null,
   Priority: null,
   StatusFilter: null,
@@ -30,17 +56,23 @@ const initialReportTaskFilter = {
 
 const Datatable_Task = ({
   currentFilterData,
-  onSearchData,
+  searchValue,
   onHandleExport,
-}: any) => {
-  const [allReportTaskFields, setAllReportTaskFields] = useState<any>({
+}: ClientReportProps) => {
+  const [allReportTaskFields, setAllReportTaskFields] = useState<{
+    loaded: boolean;
+    taskData: List[] | [];
+    page: number;
+    rowsPerPage: number;
+    tableDataCount: number;
+  }>({
     loaded: true,
     taskData: [],
     page: 0,
     rowsPerPage: pageSizeReportTask,
     tableDataCount: 0,
   });
-  const [filteredObjectReportTask, setFilteredOjectReportTask] = useState<any>(
+  const [filteredObjectReportTask, setFilteredOjectReportTask] = useState(
     initialReportTaskFilter
   );
 
@@ -61,10 +93,15 @@ const Datatable_Task = ({
   const handleChangeRowsPerPageReportTask = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    setAllReportTaskFields({
+      ...allReportTaskFields,
+      page: 0,
+      rowsPerPage: parseInt(event.target.value),
+    });
     setFilteredOjectReportTask({
       ...filteredObjectReportTask,
       PageNo: 1,
-      PageSize: event.target.value,
+      PageSize: Number(event.target.value),
     });
   };
 
@@ -76,9 +113,9 @@ const Datatable_Task = ({
     const params = filteredObjectReportTask;
     const url = `${process.env.report_api_url}/report/client/task`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0);
@@ -99,25 +136,27 @@ const Datatable_Task = ({
   };
 
   useEffect(() => {
-    setFilteredOjectReportTask({
-      ...filteredObjectReportTask,
-      ...currentFilterData,
-    });
-  }, [currentFilterData]);
-
-  useEffect(() => {
-    if (onSearchData) {
+    if (searchValue.trim().length > 0) {
+      setFilteredOjectReportTask({
+        ...filteredObjectReportTask,
+        ...currentFilterData,
+        GlobalSearch: searchValue,
+        PageNo: 1,
+        PageSize: pageSizeReportTask,
+      });
       setAllReportTaskFields({
         ...allReportTaskFields,
-        taskData: onSearchData,
+        page: 0,
+        rowsPerPage: pageSizeReportTask,
       });
     } else {
-      const timer = setTimeout(() => {
-        getReportTaskList();
-      }, 500);
-      return () => clearTimeout(timer);
+      setFilteredOjectReportTask({
+        ...filteredObjectReportTask,
+        ...currentFilterData,
+        GlobalSearch: searchValue,
+      });
     }
-  }, [onSearchData]);
+  }, [currentFilterData, searchValue]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

@@ -18,27 +18,36 @@ import {
 } from "@/utils/worklog/importTableOprions";
 import { TransitionDown } from "@/utils/style/DialogTransition";
 import { callAPI } from "@/utils/API/callAPI";
+import { Spinner } from "next-ts-lib";
 
 interface ImportDialogProp {
   onOpen: boolean;
   onClose: () => void;
-  onDataFetch: any;
+  onDataFetch: (() => void) | null;
 }
 
-const ImportDialog: React.FC<ImportDialogProp> = ({
-  onOpen,
-  onClose,
-  onDataFetch,
-}) => {
+const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
   const [error, setError] = useState("");
   const [importText, setImportText] = useState("");
-  const [importFields, setImportFields] = useState<any[]>([]);
+  const [importFields, setImportFields] = useState<
+    | {
+        id: number;
+        field: string;
+      }[]
+    | []
+  >([]);
   const [isNextCliecked, setIsNextClicked] = useState<boolean>(false);
-  const [selectedTasks, setselectedtasks] = useState<any[]>([]);
+  const [selectedTasks, setselectedtasks] = useState<
+    | {
+        TaskName: string;
+      }[]
+    | []
+  >([]);
   const [isTaskClicked, setIsTaskClicked] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [isUploading, setIsUplaoding] = useState<boolean>(false);
   const [fileInputKey, setFileInputKey] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const handleClose = () => {
     handleReset();
@@ -57,17 +66,17 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
   };
 
   const handleRowSelect = (
-    currentRowsSelected: any,
-    allRowsSelected: any,
-    rowsSelected: any
+    currentRowsSelected: { index: number; dataIndex: number }[] | [],
+    allRowsSelected: { index: number; dataIndex: number }[] | [],
+    rowsSelected: number[] | []
   ) => {
     const selectedData = allRowsSelected.map(
-      (row: any) => importFields[row.dataIndex]
+      (row: { index: number; dataIndex: number }) => importFields[row.dataIndex]
     );
 
     const tasks =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => ({
+        ? selectedData.map((selectedRow: { id: number; field: string }) => ({
             TaskName: selectedRow.field,
           }))
         : [];
@@ -109,13 +118,13 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/import`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Task has been imported successfully.");
-        onDataFetch();
+        onDataFetch?.();
         handleClose();
       }
     };
@@ -147,7 +156,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
             toast.success("Task has been imported successfully.");
-            onDataFetch();
+            onDataFetch?.();
             setIsUplaoding(false);
             handleClose();
           } else if (response.data.ResponseStatus === "Warning") {
@@ -180,7 +189,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
             document.body.removeChild(downloadLink);
             URL.revokeObjectURL(fileURL);
 
-            onDataFetch();
+            onDataFetch?.();
             setIsUplaoding(false);
             handleClose();
           } else {
@@ -207,6 +216,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
   }, [selectedFile]);
 
   const handleDownloadSampleFile = async () => {
+    setLoading(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
 
@@ -225,6 +235,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Failure") {
           toast.error("Please try again later.");
+          setLoading(false);
         } else {
           const blob = new Blob([response.data], {
             type: response.headers["content-type"],
@@ -238,12 +249,15 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
           document.body.removeChild(a);
           window.URL.revokeObjectURL(url);
           toast.success("File has been downloaded successfully.");
+          setLoading(false);
         }
       } else {
         toast.error("Please try again later.");
+        setLoading(false);
       }
     } catch (error) {
       toast.error("Error downloading data.");
+      setLoading(false);
     }
   };
 
@@ -310,9 +324,13 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
                 options={{
                   ...Table_Options,
                   onRowSelectionChange: (
-                    currentRowsSelected: any,
-                    allRowsSelected: any,
-                    rowsSelected: any
+                    currentRowsSelected:
+                      | { index: number; dataIndex: number }[]
+                      | [],
+                    allRowsSelected:
+                      | { index: number; dataIndex: number }[]
+                      | [],
+                    rowsSelected: number[] | []
                   ) =>
                     handleRowSelect(
                       currentRowsSelected,
@@ -397,17 +415,23 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
             </Button>
           ) : (
             <>
-              <Button
-                variant="contained"
-                color="success"
-                className="rounded-[4px] !h-[36px] !bg-[#388e3c] hover:!bg-darkSuccess"
-                onClick={handleDownloadSampleFile}
-              >
-                Sample File&nbsp;
-                <span className="text-xl">
-                  <Download />
+              {loading ? (
+                <span className="flex items-center justify-center w-40">
+                  <Spinner size="20px" />
                 </span>
-              </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  color="success"
+                  className="rounded-[4px] !h-[36px] !bg-[#388e3c] hover:!bg-darkSuccess"
+                  onClick={handleDownloadSampleFile}
+                >
+                  Sample File&nbsp;
+                  <span className="text-xl">
+                    <Download />
+                  </span>
+                </Button>
+              )}
 
               <Button
                 variant="outlined"

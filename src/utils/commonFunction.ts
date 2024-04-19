@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { toast } from "react-toastify";
 import { callAPI } from "./API/callAPI";
 
@@ -21,8 +20,8 @@ const handleLogoutUtil = async () => {
   const url = `${process.env.api_url}/auth/logout`;
   const successCallback = (
     ResponseData: any,
-    error: any,
-    ResponseStatus: any
+    error: boolean,
+    ResponseStatus: string
   ) => {
     if (ResponseStatus === "Success" && error === false) {
       localStorage.clear();

@@ -1,13 +1,9 @@
-/* eslint-disable react/display-name */
-/* eslint-disable react-hooks/exhaustive-deps */
-import { Text } from "next-ts-lib";
 import React, {
   useState,
   forwardRef,
   useEffect,
   useImperativeHandle,
 } from "react";
-
 import PlusIcon from "@/assets/icons/PlusIcon";
 import MinusIcon from "@/assets/icons/MinusIcon";
 import { toast } from "react-toastify";
@@ -29,7 +25,8 @@ import {
   createFilterOptions,
 } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import { getTypeOfWorkDropdownData } from "@/utils/commonDropdownApiCall";
+import { ProcessGetByIdList } from "@/utils/Types/settingTypes";
+import { LabelValue } from "@/utils/Types/types";
 
 export interface ProcessContentRef {
   ProcessDataValue: () => void;
@@ -45,29 +42,30 @@ const filter = createFilterOptions<Options>();
 const ProcessContent = forwardRef<
   ProcessContentRef,
   {
-    tab: any;
-    onEdit: boolean;
-    onOpen: any;
-    onClose: any;
-    processData: any;
-    onDataFetch(): any;
-    onChangeLoader: any;
-    onValuesChange: any;
+    onEdit: number;
+    onOpen: boolean;
+    onClose: () => void;
+    onDataFetch: (() => void) | null;
+    onChangeLoader: (e: boolean) => void;
+    onValuesChange: (
+      childValue1: React.SetStateAction<number | null>,
+      childValue2: boolean | ((prevState: boolean) => boolean)
+    ) => void;
   }
 >(
   (
     { onEdit, onOpen, onClose, onDataFetch, onChangeLoader, onValuesChange },
     ref
   ) => {
-    const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState([]);
+    const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState<Options[]>([]);
     const [typeOfWork, setTypeOfWork] = useState(0);
     const [typeOfWorkError, setTypeOfWorkError] = useState(false);
-    const [data, setData] = useState([]);
-    const [hoveredItem, setHoveredItem] = useState(null);
+    const [data, setData] = useState<Options[]>([]);
+    const [hoveredItem, setHoveredItem] = useState<Options | null>(null);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [open, toggleOpen] = useState(false);
     const [addMoreClicked, setAddMoreClicked] = useState(false);
-    const [processValue, setProcessValue] = useState<any>(0);
+    const [processValue, setProcessValue] = useState<number>(0);
     const [processName, setProcessName] = useState("");
     const [processNameError, setProcessNameError] = useState(false);
     const [processNameErrText, setProcessNameErrText] = useState<string>(
@@ -77,7 +75,7 @@ const ProcessContent = forwardRef<
 
     const [subProcessName, setSubProcessName] = useState("");
     const [subProcessNameError, setSubProcessNameError] = useState(false);
-    const [returnType, setReturnType] = useState<any>(0);
+    const [returnType, setReturnType] = useState<number>(0);
     const [returnTypeError, setReturnTypeError] = useState(false);
     const returnTypeDrpdown = [
       {
@@ -93,7 +91,7 @@ const ProcessContent = forwardRef<
         value: 2,
       },
     ];
-    const [estTime, setEstTime] = useState<any>("");
+    const [estTime, setEstTime] = useState<string>("");
     const [estTimeError, setEstTimeError] = useState(false);
     const [productive, setProductive] = useState<boolean>(true);
     const [billable, setBillable] = useState<boolean>(true);
@@ -188,7 +186,7 @@ const ProcessContent = forwardRef<
       setInputList(initialInputList);
     }, [activity]);
 
-    function secondsToHHMMSS(seconds: any) {
+    function secondsToHHMMSS(seconds: number) {
       const hours = Math.floor(seconds / 3600);
       const remainingSeconds = seconds % 3600;
       const minutes = Math.floor(remainingSeconds / 60);
@@ -202,13 +200,13 @@ const ProcessContent = forwardRef<
     }
 
     const fetchEditData = async () => {
-      if (onEdit) {
+      if (onEdit > 0) {
         const params = { ProcessId: onEdit };
         const url = `${process.env.pms_api_url}/process/GetById`;
         const successCallback = async (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          ResponseData: ProcessGetByIdList,
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             setTypeOfWork(ResponseData.WorkTypeId);
@@ -238,9 +236,9 @@ const ProcessContent = forwardRef<
       const params = { WorkTypeId: typeOfWork };
       const url = `${process.env.pms_api_url}/Process/GetDropdown`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: Options[],
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           setData(ResponseData);
@@ -265,9 +263,9 @@ const ProcessContent = forwardRef<
         };
         const url = `${process.env.pms_api_url}/process/SaveParentProcess`;
         const successCallback = async (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
+          ResponseData: null,
+          error: boolean,
+          ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             toast.success(
@@ -276,7 +274,7 @@ const ProcessContent = forwardRef<
               }  successfully.`
             );
             handleClose();
-            await onDataFetch();
+            await onDataFetch?.();
             getDropdownData();
             onEdit && fetchEditData();
           }
@@ -288,6 +286,7 @@ const ProcessContent = forwardRef<
     const clearData = () => {
       setTypeOfWork(0);
       setTypeOfWorkDropdown([]);
+      setData([]);
       setSubProcessName("");
       setReturnType(0);
       setEstTime("");
@@ -304,8 +303,8 @@ const ProcessContent = forwardRef<
       setSubProcessNameError(false);
       setReturnTypeError(false);
       setEstTimeError(false);
-      setProductive(true);
-      setBillable(true);
+      !onEdit && setProductive(true);
+      !onEdit && setBillable(true);
     };
 
     const ProcessDataValue = async () => {
@@ -325,10 +324,60 @@ const ProcessContent = forwardRef<
       const estTimeTotalSeconds =
         parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
       subProcessName.trim().length <= 0 && setSubProcessNameError(true);
-      parseInt(returnType) <= 0 && setReturnTypeError(true);
+      typeOfWork === 3 && Number(returnType) <= 0 && setReturnTypeError(true);
       estTime.length < 8 && setEstTimeError(true);
+
+      const saveData = () => {
+        onChangeLoader(true);
+        const params = {
+          ProcessId: onEdit > 0 ? onEdit : 0,
+          Name: subProcessName.trim(),
+          ReturnTypeId:
+            typeOfWork !== 3
+              ? null
+              : Number(returnType) === 3
+              ? 0
+              : Number(returnType),
+          ActivityList: activity
+            .map((i: string) =>
+              i !== undefined && i.trim().length > 0 ? i.trim() : false
+            )
+            .filter((j: string | boolean) => j !== false),
+          EstimatedHour: estTimeTotalSeconds,
+          IsProductive: productive,
+          IsBillable: billable,
+          ParentId: processValue,
+          WorkTypeId: typeOfWork,
+        };
+        const url = `${process.env.pms_api_url}/process/Save`;
+        const successCallback = async (
+          ResponseData: null,
+          error: boolean,
+          ResponseStatus: string
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            ProcessDataValue();
+            onDataFetch?.();
+            onChangeLoader(false);
+            toast.success(
+              `${onEdit > 0 ? "" : "New"} Process ${
+                onEdit > 0 ? "Updated" : "added"
+              }  successfully.`
+            );
+            {
+              !addMoreClicked && onClose();
+            }
+            clearData();
+          } else {
+            onChangeLoader(false);
+          }
+        };
+        callAPI(url, params, successCallback, "POST");
+      };
+
       if (
         typeOfWork > 0 &&
+        typeOfWork === 3 &&
         !typeOfWorkError &&
         processValue > 0 &&
         subProcessName.trim().length > 0 &&
@@ -342,46 +391,22 @@ const ProcessContent = forwardRef<
         !returnTypeError &&
         !estTimeError
       ) {
-        onChangeLoader(true);
-        const params = {
-          ProcessId: onEdit || 0,
-          Name: subProcessName.trim(),
-          ReturnTypeId: parseInt(returnType) === 3 ? 0 : parseInt(returnType),
-          ActivityList: activity
-            .map((i: any) =>
-              i !== undefined && i.trim().length > 0 ? i.trim() : false
-            )
-            .filter((j: any) => j !== false),
-          EstimatedHour: estTimeTotalSeconds,
-          IsProductive: productive,
-          IsBillable: billable,
-          ParentId: processValue,
-          WorkTypeId: typeOfWork,
-        };
-        const url = `${process.env.pms_api_url}/process/Save`;
-        const successCallback = async (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
-        ) => {
-          if (ResponseStatus === "Success" && error === false) {
-            ProcessDataValue();
-            onDataFetch();
-            onChangeLoader(false);
-            toast.success(
-              `${onEdit ? "" : "New"} Process ${
-                onEdit ? "Updated" : "added"
-              }  successfully.`
-            );
-            {
-              !addMoreClicked && onClose();
-            }
-            clearData();
-          } else {
-            onChangeLoader(false);
-          }
-        };
-        callAPI(url, params, successCallback, "POST");
+        saveData();
+      } else if (
+        typeOfWork > 0 &&
+        typeOfWork !== 3 &&
+        !typeOfWorkError &&
+        processValue > 0 &&
+        subProcessName.trim().length > 0 &&
+        estTime !== "00:00:00" &&
+        estTime !== "" &&
+        estTime.length >= 8 &&
+        estTimeTotalSeconds > 0 &&
+        !processValueError &&
+        !subProcessNameError &&
+        !estTimeError
+      ) {
+        saveData();
       }
     };
 
@@ -396,9 +421,9 @@ const ProcessContent = forwardRef<
       };
       const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
       const successCallback = async (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: Options[],
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           setTypeOfWorkDropdown(ResponseData);
@@ -416,20 +441,20 @@ const ProcessContent = forwardRef<
     }, [onEdit, onOpen, typeOfWork]);
 
     useEffect(() => {
-      clearError();
-      if (!onEdit) {
+      // clearError();
+      if (onEdit <= 0) {
         onOpen && setActivity([]);
       } else {
         onOpen && fetchEditData();
       }
     }, [onEdit, onOpen]);
 
-    const handleBillableChange = (value: any) => {
+    const handleBillableChange = (value: string) => {
       const isBillable = value === "billable";
       setBillable(isBillable);
     };
 
-    const handleProductiveChange = (id: any) => {
+    const handleProductiveChange = (id: string) => {
       if (id === "p1") {
         setProductive(true);
       } else {
@@ -444,13 +469,14 @@ const ProcessContent = forwardRef<
     };
 
     const handleProcess = (e: React.SyntheticEvent, value: any) => {
+      console.log(value);
       if (value !== null) {
-        if (isNaN(parseInt(value.value))) {
+        if (typeof value.value == "string") {
           toggleOpen(true);
           setProcessName(value.value);
-          setProcessValue(null);
+          setProcessValue(0);
         }
-        if (value !== null && !isNaN(parseInt(value.value))) {
+        if (value !== null && typeof value.value == "number") {
           const selectedValue = value.value;
           setProcessValue(selectedValue);
           setProcessValueError(false);
@@ -460,21 +486,57 @@ const ProcessContent = forwardRef<
       }
     };
 
-    const handleProcessName = (e: any) => {
-      if (e.target.value === "" || e.target.value.trim().length <= 0) {
-        setProcessName(e.target.value);
+    const handleProcessName = (e: string) => {
+      if (e.trim() === "" || e.trim().length <= 0) {
+        setProcessName(e);
         setProcessNameError(true);
         setProcessNameErrText("This is required field.");
       } else {
-        setProcessName(e.target.value);
+        setProcessName(e);
         setProcessNameError(false);
         setProcessNameErrText("");
       }
     };
 
-    const handleValueChange = (isDeleteOpen: any, selectedRowId: any) => {
+    const handleValueChange = (
+      isDeleteOpen: boolean,
+      selectedRowId: number
+    ) => {
       onValuesChange(selectedRowId, isDeleteOpen);
     };
+
+    interface CheckboxComponentParams {
+      id: string;
+      name: string;
+      checked: boolean;
+      onChangeFunction: () => void;
+      value: string;
+      label: string;
+      disabled?: boolean;
+    }
+
+    const CheckboxComponent = ({
+      id,
+      name,
+      checked,
+      onChangeFunction,
+      value,
+      label,
+      disabled,
+    }: CheckboxComponentParams) => (
+      <div className="checkboxRadio">
+        <input
+          type="checkbox"
+          id={id}
+          name={name}
+          checked={checked}
+          onChange={onChangeFunction}
+          value={value}
+          disabled={disabled}
+        />
+        <span>{label}</span>
+      </div>
+    );
 
     return (
       <>
@@ -489,18 +551,25 @@ const ProcessContent = forwardRef<
                 labelId="demo-simple-select-standard-label"
                 id="demo-simple-select-standard"
                 value={typeOfWork === 0 ? "" : typeOfWork}
-                onChange={(e: any) => {
-                  setTypeOfWork(e.target.value);
+                onChange={(e) => {
+                  setTypeOfWork(Number(e.target.value));
                   setProcessValue(0);
-                  e.target.value > 0 && setTypeOfWorkError(false);
+                  setProcessValueError(false);
+                  setProcessNameError(false);
+                  setProcessNameErrText("");
+                  setSubProcessName("");
+                  setSubProcessNameError(false);
+                  setReturnType(0);
+                  setReturnTypeError(false);
+                  Number(e.target.value) > 0 && setTypeOfWorkError(false);
                 }}
-                onBlur={(e: any) => {
-                  if (e.target.value > 0) {
+                onBlur={() => {
+                  if (typeOfWork > 0) {
                     setTypeOfWorkError(false);
                   }
                 }}
               >
-                {typeOfWorkDropdown.map((i: any, index: number) => (
+                {typeOfWorkDropdown.map((i: Options, index: number) => (
                   <MenuItem value={i.value} key={index}>
                     {i.label}
                   </MenuItem>
@@ -535,7 +604,7 @@ const ProcessContent = forwardRef<
                       params.inputValue.toLowerCase()
                   );
 
-                  if (!isExistingProject && !onEdit) {
+                  if (!isExistingProject && onEdit <= 0) {
                     filtered.push({
                       label: `Add "${params.inputValue}"`,
                       value: params.inputValue,
@@ -554,7 +623,7 @@ const ProcessContent = forwardRef<
                 };
 
                 const handleDeleteClick = () => {
-                  handleValueChange(true, option.value);
+                  handleValueChange(true, Number(option.value));
                 };
 
                 return (
@@ -612,6 +681,7 @@ const ProcessContent = forwardRef<
                   <span className="!text-defaultRed">&nbsp;*</span>
                 </span>
               }
+              autoComplete="off"
               fullWidth
               className="pt-1"
               value={subProcessName?.trim().length <= 0 ? "" : subProcessName}
@@ -619,7 +689,7 @@ const ProcessContent = forwardRef<
                 setSubProcessName(e.target.value);
                 setSubProcessNameError(false);
               }}
-              onBlur={(e: any) => {
+              onBlur={(e) => {
                 if (
                   e.target.value.trim().length <= 0 ||
                   e.target.value.trim().length > 50
@@ -639,38 +709,36 @@ const ProcessContent = forwardRef<
               variant="standard"
             />
           </div>
-          <div className="flex flex-col px-[20px] mt-2">
-            <FormControl
-              variant="standard"
-              // sx={{ width: 300, mt: -0.3, mx: 0.75 }}
-              error={returnTypeError}
-            >
-              <InputLabel id="demo-simple-select-standard-label">
-                Return Type
-                <span className="text-defaultRed">&nbsp;*</span>
-              </InputLabel>
-              <Select
-                labelId="demo-simple-select-standard-label"
-                id="demo-simple-select-standard"
-                value={returnType === 0 ? "" : returnType}
-                onChange={(e) => setReturnType(parseInt(e.target.value))}
-                onBlur={(e: any) => {
-                  if (e.target.value > 0) {
-                    setReturnTypeError(false);
-                  }
-                }}
-              >
-                {returnTypeDrpdown.map((i: any, index: number) => (
-                  <MenuItem value={i.value} key={index}>
-                    {i.label}
-                  </MenuItem>
-                ))}
-              </Select>
-              {returnTypeError && (
-                <FormHelperText>This is a required field.</FormHelperText>
-              )}
-            </FormControl>
-          </div>
+          {typeOfWork === 3 && (
+            <div className="flex flex-col px-[20px] mt-2">
+              <FormControl variant="standard" error={returnTypeError}>
+                <InputLabel id="demo-simple-select-standard-label">
+                  Return Type
+                  <span className="text-defaultRed">&nbsp;*</span>
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-standard-label"
+                  id="demo-simple-select-standard"
+                  value={returnType === 0 ? "" : returnType}
+                  onChange={(e) => setReturnType(Number(e.target.value))}
+                  onBlur={() => {
+                    if (returnType > 0) {
+                      setReturnTypeError(false);
+                    }
+                  }}
+                >
+                  {returnTypeDrpdown.map((i: LabelValue, index: number) => (
+                    <MenuItem value={i.value} key={index}>
+                      {i.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {returnTypeError && (
+                  <FormHelperText>This is a required field.</FormHelperText>
+                )}
+              </FormControl>
+            </div>
+          )}
           <div className="flex flex-col px-[20px]">
             <TextField
               label={
@@ -679,11 +747,12 @@ const ProcessContent = forwardRef<
                   <span className="!text-defaultRed">&nbsp;*</span>
                 </span>
               }
+              autoComplete="off"
               placeholder="00:00:00"
               fullWidth
               value={estTime}
               onChange={handleEstTimeChange}
-              onBlur={(e: any) => {
+              onBlur={(e) => {
                 if (e.target.value.trim().length < 7) {
                   setEstTimeError(true);
                 }
@@ -721,17 +790,8 @@ const ProcessContent = forwardRef<
                     onChange={(e: any) => handleInputChange(e, i)}
                     margin="normal"
                     variant="standard"
+                    autoComplete="off"
                   />
-                  {/* <Text
-                      type="text"
-                      label="Activities"
-                      placeholder={"Enter Activities"}
-                      value={inputItem.activityName}
-                      getValue={(e: any) => handleInputChange(e, i)}
-                      onChange={(e: any) => handleInputChange(e, i)}
-                      getError={(e: any) => setActivityHasError(e)}
-                      hasError={activityError}
-                    /> */}
                   <div className="btn-box">
                     {i === 0 ? (
                       <span className="cursor-pointer" onClick={handleAddClick}>
@@ -750,61 +810,49 @@ const ProcessContent = forwardRef<
               </>
             ))}
           </div>
-          <span className="flex items-center pr-[20px] pl-[20px] pb-[20px]">
-            <div className="mr-[100px] checkboxRadio">
-              <input
-                type="checkbox"
-                id="p1"
-                name="group1"
-                checked={productive}
-                onChange={() => handleProductiveChange("p1")}
-                value="productive"
-              />
-              <span>Productive</span>
-            </div>
-            <div className="checkboxRadio">
-              <input
-                type="checkbox"
-                id="non_p1"
-                name="group1"
-                checked={!productive}
-                onChange={() => handleProductiveChange("non_p1")}
-                value="non_productive"
-              />
-              <span>Non-Productive</span>
-            </div>
+          <span className="flex items-center pr-[20px] pl-[20px] pb-[20px] gap-[100px]">
+            <CheckboxComponent
+              id="p1"
+              name="group1"
+              checked={productive}
+              onChangeFunction={() => handleProductiveChange("p1")}
+              value="productive"
+              label="Productive"
+            />
+            <CheckboxComponent
+              id="non_p1"
+              name="group1"
+              checked={!productive}
+              onChangeFunction={() => handleProductiveChange("non_p1")}
+              value="non_productive"
+              label="Non-Productive"
+            />
           </span>
-          <span className="flex items-center pr-[20px] pl-[20px] pb-[20px]">
-            <div className="mr-[128px] checkboxRadio">
-              <input
-                type="checkbox"
-                id="billable"
-                name="group2"
-                onChange={() => handleBillableChange("billable")}
-                disabled={!productive}
-                checked={billable}
-                value="billable"
-              />
-              <span>Billable</span>
-            </div>
-            <div className="checkboxRadio">
-              <input
-                type="checkbox"
-                onChange={() => handleBillableChange("non_billable")}
-                disabled={!productive}
-                checked={!billable}
-                value="non_billable"
-                name="group2"
-                id="non_billable"
-              />
-              <span>Non-Billable</span>
-            </div>
+          <span className="flex items-center pr-[20px] pl-[20px] pb-[20px] gap-[123px]">
+            <CheckboxComponent
+              id="billable"
+              name="group2"
+              checked={billable}
+              onChangeFunction={() => handleBillableChange("billable")}
+              value="billable"
+              label="Billable"
+              disabled={!productive}
+            />
+            <CheckboxComponent
+              id="non_billable"
+              name="group2"
+              checked={!billable}
+              onChangeFunction={() => handleBillableChange("non_billable")}
+              value="non_billable"
+              label="Non-Billable"
+              disabled={!productive}
+            />
           </span>
 
           {/* Footer */}
           <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
             <>
-              {onEdit ? (
+              {onEdit > 0 ? (
                 <Button
                   variant="outlined"
                   className="rounded-[4px] !h-[36px] !text-secondary"
@@ -831,7 +879,7 @@ const ProcessContent = forwardRef<
                 type="submit"
                 onClick={() => setAddMoreClicked(false)}
               >
-                {onEdit ? "Save" : `Create Process`}
+                {onEdit > 0 ? "Save" : `Create Process`}
               </Button>
             </>
           </div>
@@ -844,8 +892,8 @@ const ProcessContent = forwardRef<
           <DialogContent>
             <DialogContentText>
               {editDialogOpen
-                ? "Did you change any process in list? Please, edit it!"
-                : "Did you miss any process in list? Please, add it!"}
+                ? "Are you sure you want to update this Process?"
+                : "Are you sure you want to add this Process?"}
             </DialogContentText>
             <TextField
               className="w-full"
@@ -858,7 +906,7 @@ const ProcessContent = forwardRef<
                 editDialogOpen ? "Edit a process" : "Add new process"
               }
               variant="standard"
-              onChange={handleProcessName}
+              onChange={(e) => handleProcessName(e.target.value)}
             />
           </DialogContent>
           <DialogActions>

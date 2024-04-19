@@ -9,13 +9,64 @@ export const generateCustomHeaderName = (headerName: string) => {
 export const generateCommonBodyRender = (bodyValue: any) => {
   return (
     <div className="ml-2">
-      {!bodyValue || bodyValue === "0" ? "-" : bodyValue}
+      {!bodyValue ||
+      bodyValue === "0" ||
+      bodyValue === null ||
+      bodyValue === "null"
+        ? "-"
+        : bodyValue}
+    </div>
+  );
+};
+
+export const generateCommonBodyInvoice = (bodyValue: any) => {
+  return bodyValue === 1 ? "Invoice Raised" : "Invoice Pending";
+};
+
+export const generateCommonBodyRenderLog = (bodyValue: any) => {
+  return (
+    <div className="ml-2">
+      {!bodyValue ||
+      bodyValue === "" ||
+      bodyValue === null ||
+      bodyValue === "null"
+        ? "-"
+        : bodyValue}
+    </div>
+  );
+};
+
+export const generateCommonBodyRenderNullCheck = (bodyValue: any) => {
+  return <div className="ml-2">{bodyValue === null ? "-" : bodyValue}</div>;
+};
+
+export const generateCommonBodyRenderPercentage = (bodyValue: any) => {
+  return (
+    <div className="ml-2">
+      {!bodyValue || bodyValue === "0" || bodyValue === null
+        ? "-"
+        : `${bodyValue} %`}
     </div>
   );
 };
 
 export const generateDashboardReportBodyRender = (bodyValue: any) => {
-  return <div className="ml-2">{bodyValue === "" ? "-" : bodyValue}</div>;
+  return (
+    <div className="ml-2">
+      {bodyValue === "" || bodyValue === null ? "-" : bodyValue}
+    </div>
+  );
+};
+
+export const generateDashboardReportBodyRenderRight = (bodyValue: any) => {
+  return (
+    <div
+      className="flex justify-end w-full items-center"
+      style={{ paddingRight: "14px" }}
+    >
+      {bodyValue === "" ? "-" : bodyValue}
+    </div>
+  );
 };
 
 export const generateCustomFormatDate = (
@@ -72,12 +123,12 @@ export const generatePriorityWithColor = (value: any) => {
   );
 };
 
-export const generateStatusWithColor = (value: any, rowIndex: any) => {
+export const generateStatusWithColor = (value: string, rowIndex: any) => {
   const statusColorCode = rowIndex;
 
   return (
     <div>
-      {value === null || value === "" || value === 0 || value === "0" ? (
+      {value === null || value === "" || value === "0" ? (
         "-"
       ) : (
         <div className="inline-block mr-1">
@@ -177,7 +228,7 @@ export const generateIsLoggedInBodyRender = (bodyValue: any) => {
 };
 
 export const generateCustomeTaskIdwithErrorLogs = (
-  bodyValue: any,
+  bodyValue: number,
   TableMeta: any,
   RowIndex: number
 ) => {
@@ -192,7 +243,7 @@ export const generateCustomeTaskIdwithErrorLogs = (
           }
         ></div>
       )}
-      {bodyValue === null || bodyValue === "" ? "-" : bodyValue}
+      {bodyValue === null ? "-" : bodyValue}
     </div>
   );
 };

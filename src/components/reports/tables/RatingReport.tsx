@@ -8,8 +8,54 @@ import ReportLoader from "@/components/common/ReportLoader";
 import { TablePagination, ThemeProvider } from "@mui/material";
 import { rating_InitialFilter } from "@/utils/reports/getFilters";
 import { reportsRatingCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
+import { ReportProps } from "@/utils/Types/reports";
 
-const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
+interface FilteredData {
+  pageNo: number;
+  pageSize: number;
+  GlobalSearch: string;
+  SortColumn: string;
+  IsDesc: boolean;
+  Projects: number[] | [];
+  ReturnTypeId: number | null;
+  Ratings: string | null;
+  Clients: number[] | [];
+  DepartmentId: number | null;
+  StartDate: string | null;
+  EndDate: string | null;
+}
+
+interface Response {
+  List:
+    | {
+        WorkItemId: number;
+        TaskName: string;
+        ClientId: number;
+        ClientName: string;
+        ProjectId: number;
+        ProjectName: string;
+        ProcessId: number;
+        ProcessName: string;
+        Ratings: string;
+        RatingBy: string;
+        RatingOn: string;
+        UserId: string;
+        AssignedTo: string;
+        TypeOfReturn: number | null;
+        ReturnTypes: string | null;
+        HoursLogged: string | null;
+        DateSubmitted: string | null;
+        Comments: string | null;
+      }[]
+    | [];
+  TotalCount: number;
+}
+
+const RatingReport = ({
+  filteredData,
+  searchValue,
+  onHandleExport,
+}: ReportProps) => {
   const [ratingReportFields, setRatingReportFields] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -18,21 +64,25 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [ratingCurrentPage, setRatingCurrentPage] = useState<number>(0);
   const [ratingRowsPerPage, setRatingRowsPerPage] = useState<number>(10);
 
-  const getData = async (arg1: any) => {
+  const getData = async (arg1: FilteredData) => {
     setRatingReportFields({
       ...ratingReportFields,
       loaded: false,
     });
     const url = `${process.env.report_api_url}/report/admin/rating`;
 
-    const successCallback = (data: any, error: any) => {
-      if (data !== null && error === false) {
-        onHandleExport(data.List.length > 0);
+    const successCallback = (
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        onHandleExport(ResponseData.List.length > 0);
         setRatingReportFields({
           ...ratingReportFields,
           loaded: true,
-          data: data.List,
-          dataCount: data.TotalCount,
+          data: ResponseData.List,
+          dataCount: ResponseData.TotalCount,
         });
       } else {
         setRatingReportFields({ ...ratingReportFields, loaded: true });
@@ -50,12 +100,14 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         pageNo: newPage + 1,
         pageSize: ratingRowsPerPage,
       });
     } else {
       getData({
         ...rating_InitialFilter,
+        GlobalSearch: searchValue,
         pageNo: newPage + 1,
         pageSize: ratingRowsPerPage,
       });
@@ -71,12 +123,14 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     if (filteredData !== null) {
       getData({
         ...filteredData,
+        GlobalSearch: searchValue,
         pageNo: 1,
-        pageSize: ratingRowsPerPage,
+        pageSize: event.target.value,
       });
     } else {
       getData({
         ...rating_InitialFilter,
+        GlobalSearch: searchValue,
         pageNo: 1,
         pageSize: event.target.value,
       });
@@ -94,6 +148,8 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     } else {
       const timer = setTimeout(() => {
         getData({ ...rating_InitialFilter, GlobalSearch: searchValue });
+        setRatingCurrentPage(0);
+        setRatingRowsPerPage(10);
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -105,7 +161,7 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         title={undefined}
         columns={reportsRatingCols}
         data={ratingReportFields.data}
-        options={options}
+        options={{ ...options, tableBodyHeight: "73vh" }}
       />
       <TablePagination
         component="div"

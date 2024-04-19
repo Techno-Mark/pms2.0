@@ -1,8 +1,6 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Select } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
@@ -22,31 +20,48 @@ import { hasNoToken, hasPermissionWorklog } from "@/utils/commonFunction";
 import { useRouter } from "next/navigation";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import Loading from "@/assets/icons/reports/Loading";
-import {
-  CLIENT,
-  GROUP,
-  ORGANIZATION,
-  PROCESS,
-  PROJECT,
-  STATUS,
-  USER,
-} from "@/components/settings/tables/Constants/Tabname";
 import { toast } from "react-toastify";
 import ReportLoader from "@/components/common/ReportLoader";
 import { callAPI } from "@/utils/API/callAPI";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import ImportIcon from "@/assets/icons/ImportIcon";
-import { Button, InputBase } from "@mui/material";
+import {
+  Autocomplete,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  InputBase,
+  TextField,
+  createFilterOptions,
+} from "@mui/material";
 import ImportDialog from "@/components/settings/settings_import/ImportDialog";
+import FilterIcon from "@/assets/icons/FilterIcon";
+import FilterDialog_Status from "@/components/settings/FilterDialog_Status";
+import { Delete, Edit } from "@mui/icons-material";
+import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+import {
+  LabelValue,
+  LabelValueTypeIsDefault,
+  MenuItem,
+} from "@/utils/Types/types";
 
-type Tabs = { id: string; label: string; canView: boolean };
+interface Tabs {
+  id: string;
+  label: string;
+  canView: boolean;
+}
+
+const filter = createFilterOptions<LabelValue>();
 
 const initialTabs = [
+  { id: "Group", label: "Group", canView: false },
   { id: "Client", label: "Client", canView: false },
   { id: "Project", label: "Project", canView: false },
   { id: "User", label: "User", canView: false },
   { id: "Process", label: "Process", canView: false },
-  { id: "Group", label: "Group", canView: false },
   { id: "Status", label: "Status", canView: false },
   { id: "Permission", label: "Permissions", canView: false },
   { id: "Organization", label: "Organization", canView: true },
@@ -63,63 +78,75 @@ const Page = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [isLoaded, setLoaded] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasEditId, setHasEditId] = useState("");
-  const [userData, setUserData] = useState([]);
+  const [hasEditId, setHasEditId] = useState(0);
   const [getUserDataFunction, setUserGetDataFunction] = useState<
     (() => void) | null
   >(null);
-  const [groupData, setGroupData] = useState("");
-  const [projectData, setProjectData] = useState([]);
 
-  const [statusData, setStatusData] = useState("");
-  const [processData, setProcessData] = useState("");
   const [isImportOpen, setIsImportOpen] = useState(false);
-
-  const handleGroupData = (data: any) => {
-    setGroupData(data);
-  };
-
-  const handleProjectData = (data: any) => {
-    setProjectData(data);
-  };
-  const handleStatusData = (data: any) => {
-    setStatusData(data);
-  };
+  const [currentFilterData, setCurrentFilterData] = useState<any>([]);
+  const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
 
   const handleUserDataFetch = (getData: () => void) => {
     setUserGetDataFunction(() => getData);
   };
 
-  const handleProcessData = (data: any) => {
-    setProcessData(data);
+  const handleCloseFilter = () => {
+    setisFilterOpen(false);
   };
 
-  const handleUserData = (data: any) => {
-    setUserData(data);
+  interface FilterSettings {
+    SortColumn: string;
+    IsDec: boolean;
+    globalFilter: string | null;
+    IsDefault: boolean | null;
+    Type: string;
+    Export: boolean;
+    GlobalSearch: string | null;
+    WorkTypeId: number | null;
+  }
+
+  const getIdFromFilterDialog = (data: FilterSettings) => {
+    setCurrentFilterData(data);
   };
-  const [orgData, setOrgData] = useState([]);
-  const [clientData, setClientData] = useState([]);
+
   const [getDataFunction, setGetDataFunction] = useState<(() => void) | null>(
     null
   );
   const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
     (() => void) | null
   >(null);
-  const [permissionValue, setPermissionValue] = useState(0);
-  const [permissionDropdownData, setPermissionDropdownData] = useState([]);
+  const [permissionDropdownData, setPermissionDropdownData] = useState<
+    LabelValueTypeIsDefault[] | []
+  >([]);
   const [isPermissionExpanded, setPermissionExpanded] =
     useState<boolean>(false);
-  const [updatedPermissionsData, setUpdatedPermissionsData] = useState([]);
-  const [textName, setTextName] = useState("");
-  const [textValue, setTextValue] = useState(null);
+  const [updatedPermissionsData, setUpdatedPermissionsData] = useState<
+    MenuItem[] | []
+  >([]);
 
-  const [clientSearchValue, setClientSearchValue] = useState("");
-  const [projectSearchValue, setProjectSearchValue] = useState("");
-  const [userSearchValue, setUserSearchValue] = useState("");
-  const [processSearchValue, setProcessSearchValue] = useState("");
-  const [statusSearchValue, setStatusSearchValue] = useState("");
-  const [groupSearchValue, setGroupSearchValue] = useState("");
-  const [orgSearchValue, setOrgSearchValue] = useState("");
+  const [permissionValueError, setPermissionValueError] = useState(false);
+  const [permissionValueErrText, setPermissionValueErrText] = useState<string>(
+    "This field is required."
+  );
+  const [permissionValueType, setPermissionValueType] = useState<number>(0);
+  const [permissionValue, setPermissionValue] = useState<number>(0);
+  const [permissionName, setPermissionName] = useState("");
+  const [permissionNameError, setPermissionNameError] = useState(false);
+  const [permissionNameErrText, setPermissionNameErrText] = useState<string>(
+    "This field is required."
+  );
+  const [hoveredItem, setHoveredItem] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [open, toggleOpen] = useState(false);
+
+  const [isDeleteOpenProject, setIsDeleteOpenProject] = useState(false);
+  const [selectedRowIdProject, setSelectedRowIdProject] = useState<
+    number | null
+  >(null);
+
+  const [search, setSearch] = useState("");
+  const [searchValue, setSearchValue] = useState("");
   const [canExport, setCanExport] = useState<boolean>(false);
 
   useEffect(() => {
@@ -149,14 +176,6 @@ const Page = () => {
     setGetDataFunction(() => getData);
   };
 
-  const handleOrgData = (data: any) => {
-    setOrgData(data);
-  };
-
-  const handleClientData = (data: any) => {
-    setClientData(data);
-  };
-
   useEffect(() => {
     hasNoToken(router);
   }, [router]);
@@ -171,10 +190,10 @@ const Page = () => {
 
   const handleDrawerClose = () => {
     setOpenDrawer(false);
-    setHasEditId("");
+    setHasEditId(0);
   };
 
-  const handleEdit = (rowId: string) => {
+  const handleEdit = (rowId: number) => {
     setHasEditId(rowId);
     setOpenDrawer(true);
   };
@@ -187,6 +206,8 @@ const Page = () => {
       if (visibleTabs.some((tab) => tab.id === tabId)) {
         setTab(tabId);
         setSelectedTabIndex(index);
+        setSearch("");
+        setSearchValue("");
         return;
       }
 
@@ -221,9 +242,9 @@ const Page = () => {
     const params = {};
     const url = `${process.env.pms_api_url}/Role/GetList`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: LabelValueTypeIsDefault[],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setPermissionDropdownData(ResponseData);
@@ -255,67 +276,15 @@ const Page = () => {
     };
     const url = `${process.env.pms_api_url}/Role/SavePermission`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Data saved successfully.");
       }
     };
     callAPI(url, params, successCallback, "POST");
-  };
-
-  const handleFormButtonClick = (editing: boolean) => {
-    const saveRole = async () => {
-      const params = {
-        RoleId: textValue,
-        Name: textName,
-        Type: permissionDropdownData
-          .map((i: any) => (i.value === textValue ? i.Type : undefined))
-          .filter((i: any) => i !== undefined)[0],
-      };
-      const url = `${process.env.pms_api_url}/Role/Save`;
-      const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
-      ) => {
-        if (ResponseStatus === "Success" && error === false) {
-          getPermissionDropdown();
-          toast.success(`Role saved successfully.`);
-        }
-      };
-      callAPI(url, params, successCallback, "POST");
-    };
-
-    if (editing && textName.trim().length > 0 && textValue !== null) {
-      saveRole();
-    }
-  };
-
-  const deleteRole = async (e: any) => {
-    const params = {
-      RoleId: e,
-    };
-    const url = `${process.env.pms_api_url}/Role/Delete`;
-    const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
-    ) => {
-      if (ResponseStatus === "Success" && error === false) {
-        getPermissionDropdown();
-        toast.success(`Role has been deleted successfully!`);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
-  };
-
-  const handleProjectDelete = (e: any) => {
-    if (e > 0) {
-      deleteRole(e);
-    }
   };
 
   const handleUserDetailsFetch = (getData: () => void) => {
@@ -328,7 +297,7 @@ const Page = () => {
     arg2: string,
     arg3: string,
     arg4: string,
-    arg5: any
+    arg5: string
   ) => {
     const updatedTabs = tabs.map((tab) => {
       switch (tab.id.toLowerCase()) {
@@ -437,10 +406,29 @@ const Page = () => {
   const exportData = async (
     endpoint: string,
     filename: string,
-    searchValue: any
+    searchValue: string
   ) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
+
+    const data = {
+      GlobalSearch: searchValue,
+      SortColumn: null,
+      IsDesc: true,
+      IsDownload: true,
+      PageNo: 1,
+      PageSize: 50000,
+    };
+
+    const statusData = {
+      ...currentFilterData,
+      GlobalSearch: searchValue,
+      SortColumn: null,
+      IsDesc: true,
+      IsDownload: true,
+      PageNo: 1,
+      PageSize: 50000,
+    };
 
     try {
       setIsExporting(true);
@@ -448,14 +436,7 @@ const Page = () => {
         `${
           endpoint === "user" ? process.env.api_url : process.env.pms_api_url
         }/${endpoint}/export`,
-        {
-          GlobalSearch: searchValue,
-          SortColumn: null,
-          IsDesc: false,
-          IsDownload: true,
-          PageNo: 1,
-          PageSize: 50000,
-        },
+        tab === "Status" ? statusData : data,
         {
           headers: {
             Authorization: `bearer ${token}`,
@@ -494,30 +475,123 @@ const Page = () => {
     }
   };
 
-  const clearSearchValue = (tab: string) => {
-    switch (tab) {
-      case CLIENT:
-        setClientSearchValue("");
-        break;
-      case PROJECT:
-        setProjectSearchValue("");
-        break;
-      case USER:
-        setUserSearchValue("");
-        break;
-      case PROCESS:
-        setProcessSearchValue("");
-        break;
-      case GROUP:
-        setGroupSearchValue("");
-        break;
-      case STATUS:
-        setStatusSearchValue("");
-        break;
-      case ORGANIZATION:
-        setOrgSearchValue("");
-        break;
+  const clearSearchValue = () => {
+    setSearch("");
+    setSearchValue("");
+  };
+
+  const handlePermissionName = (e: string) => {
+    if (e === "" || e.trim().length <= 0) {
+      setPermissionName(e);
+      setPermissionNameError(true);
+      setPermissionNameErrText("This is required field.");
+    } else {
+      setPermissionName(e);
+      setPermissionNameError(false);
+      setPermissionNameErrText("This field is required.");
     }
+  };
+
+  const handlePermission = (
+    e: React.SyntheticEvent,
+    value: LabelValueTypeIsDefault
+  ) => {
+    if (value !== null) {
+      if (isNaN(Number(value.value))) {
+        toggleOpen(true);
+        setPermissionName(value.label);
+        setPermissionValue(0);
+        setPermissionValueType(0);
+      }
+      if (value !== null && !isNaN(Number(value.value))) {
+        const selectedValue = value.value;
+        setPermissionValue(selectedValue);
+        setPermissionValueType(value.Type);
+        setPermissionValueError(false);
+        setPermissionValueErrText("");
+      } else {
+        setPermissionValue(0);
+        setPermissionValueType(0);
+      }
+    }
+  };
+
+  const handleClose = () => {
+    toggleOpen(false);
+    setEditDialogOpen(false);
+  };
+
+  const handleAddProject = async () => {
+    const saveRole = async () => {
+      const params = {
+        RoleId: permissionValue,
+        Name: permissionName,
+        Type: permissionDropdownData
+          .map((i: LabelValueTypeIsDefault) =>
+            i.value === permissionValue ? i.Type : undefined
+          )
+          .filter((i: number | undefined) => i !== undefined)[0],
+      };
+
+      const url = `${process.env.pms_api_url}/Role/Save`;
+      const successCallback = (
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          getPermissionDropdown();
+          toast.success(`Role saved successfully.`);
+          handleClose();
+        }
+      };
+      callAPI(url, params, successCallback, "POST");
+    };
+
+    if (permissionName.trim().length > 0 && permissionValue !== null) {
+      saveRole();
+    }
+  };
+
+  const closeModalProject = () => {
+    setIsDeleteOpenProject(false);
+  };
+
+  const handleValueChange = (
+    childValue1: React.SetStateAction<number | null>,
+    childValue2: boolean | ((prevState: boolean) => boolean)
+  ) => {
+    setSelectedRowIdProject(childValue1);
+    setIsDeleteOpenProject(childValue2);
+  };
+
+  const handleDeleteRowProject = async () => {
+    const params = {
+      RoleId: selectedRowIdProject,
+    };
+    const url = `${process.env.pms_api_url}/Role/Delete`;
+    const successCallback = (
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        getPermissionDropdown();
+        toast.success(`Role has been deleted successfully!`);
+        setPermissionValue(0);
+        setPermissionValueType(0);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+    setIsDeleteOpenProject(false);
+  };
+
+  const handleSearchChange = (e: string) => {
+    setSearch(e);
+    const timer = setTimeout(() => {
+      setSearchValue(e.trim());
+    }, 500);
+    return () => clearTimeout(timer);
   };
 
   return (
@@ -536,7 +610,7 @@ const Page = () => {
           <div className="bg-white flex justify-between items-center">
             <div className="flex items-center py-[16px]">
               {visibleTabs
-                .filter((i: any) => i.canView !== false)
+                .filter((i: Tabs) => i.canView !== false)
                 .map((tab, index, array) => (
                   <label
                     key={tab.id}
@@ -576,37 +650,8 @@ const Page = () => {
                       <InputBase
                         className="pl-1 pr-7 border-b border-b-lightSilver w-48"
                         placeholder="Search"
-                        value={
-                          tab === "Client"
-                            ? clientSearchValue
-                            : tab === "Project"
-                            ? projectSearchValue
-                            : tab === "User"
-                            ? userSearchValue
-                            : tab === "Process"
-                            ? processSearchValue
-                            : tab === "Group"
-                            ? groupSearchValue
-                            : tab === "Status"
-                            ? statusSearchValue
-                            : tab === "Organization" && orgSearchValue
-                        }
-                        onChange={(e: any) =>
-                          tab === "Client"
-                            ? setClientSearchValue(e.target.value)
-                            : tab === "Project"
-                            ? setProjectSearchValue(e.target.value)
-                            : tab === "User"
-                            ? setUserSearchValue(e.target.value)
-                            : tab === "Process"
-                            ? setProcessSearchValue(e.target.value)
-                            : tab === "Group"
-                            ? setGroupSearchValue(e.target.value)
-                            : tab === "Status"
-                            ? setStatusSearchValue(e.target.value)
-                            : tab === "Organization" &&
-                              setOrgSearchValue(e.target.value)
-                        }
+                        value={search}
+                        onChange={(e) => handleSearchChange(e.target.value)}
                       />
                       <span className="absolute top-2 right-2 text-slatyGrey">
                         <SearchIcon />
@@ -614,7 +659,20 @@ const Page = () => {
                     </div>
                   )}
 
-                  {(tab === "Client" || tab === "Project") && (
+                  {tab === "Status" && (
+                    <ColorToolTip title="Filter" placement="top" arrow>
+                      <span
+                        className="cursor-pointer"
+                        onClick={() => setisFilterOpen(true)}
+                      >
+                        <FilterIcon />
+                      </span>
+                    </ColorToolTip>
+                  )}
+
+                  {(tab === "Client" ||
+                    tab === "Project" ||
+                    tab === "User") && (
                     <ColorToolTip title="Import" placement="top" arrow>
                       <div
                         className={`${
@@ -646,7 +704,9 @@ const Page = () => {
                         onClick={
                           canExport
                             ? () => {
-                                const tabMappings: any = {
+                                const tabMappings: {
+                                  [key: string]: string;
+                                } = {
                                   Client: "client",
                                   Group: "group",
                                   Process: "process",
@@ -656,22 +716,13 @@ const Page = () => {
                                   Organization: "organization",
                                 };
 
-                                const searchData: any = {
-                                  Client: clientSearchValue,
-                                  Group: groupSearchValue,
-                                  Process: processSearchValue,
-                                  Project: projectSearchValue,
-                                  Status: statusSearchValue,
-                                  User: userSearchValue,
-                                };
-
                                 const selectedTab = tabMappings[tab];
 
                                 if (selectedTab) {
                                   exportData(
                                     selectedTab,
                                     `${tab}_data`,
-                                    searchData[tab]
+                                    search.trim()
                                   );
                                 }
                               }
@@ -685,37 +736,101 @@ const Page = () => {
                 </>
               ) : (
                 <div className="flex items-center justify-center gap-3 mr-4">
-                  <Select
-                    id="permissionName"
-                    placeholder="Select Permission"
-                    className="!w-[200px]"
-                    defaultValue={permissionValue === 0 ? "" : permissionValue}
-                    getValue={(value) => {
-                      setPermissionValue(value);
-                    }}
-                    getError={(e) => {
-                      console.error(e);
-                    }}
+                  <Autocomplete
+                    className={`${
+                      permissionValueError ? "errorAutocomplete" : ""
+                    }`}
+                    limitTags={2}
+                    id="checkboxes-tags-demo"
                     options={permissionDropdownData}
-                    addDynamicForm_Icons_Edit={
-                      hasPermissionWorklog("permission", "save", "settings")
-                        ? true
-                        : false
+                    value={
+                      permissionValue !== 0
+                        ? permissionDropdownData.find(
+                            (option: LabelValueTypeIsDefault) =>
+                              option.value === permissionValue
+                          ) || null
+                        : null
                     }
-                    addDynamicForm_Icons_Delete={
-                      hasPermissionWorklog("permission", "delete", "settings")
-                        ? true
-                        : false
+                    sx={{ width: "250px" }}
+                    getOptionLabel={(option: LabelValueTypeIsDefault) =>
+                      option.label
                     }
-                    addDynamicForm_Label="Role"
-                    addDynamicForm_Placeholder="Select Role"
-                    onChangeText={(value, label) => {
-                      setTextValue(value);
-                      setTextName(label);
+                    onChange={handlePermission}
+                    filterOptions={(
+                      options: LabelValueTypeIsDefault[],
+                      params: any
+                    ) => {
+                      const filtered = filter(options, params);
+                      return filtered;
                     }}
-                    onClickButton={handleFormButtonClick}
-                    onDeleteButton={(e) => handleProjectDelete(e)}
+                    renderOption={(props: any, option: any) => {
+                      const isItemHovered = option === hoveredItem;
+
+                      const handleEditClick = () => {
+                        setPermissionName(option.label);
+                        setEditDialogOpen(true);
+                      };
+
+                      const handleDeleteClick = () => {
+                        handleValueChange(option.value, true);
+                      };
+                      return (
+                        <li
+                          {...props}
+                          onMouseEnter={() => setHoveredItem(option)}
+                          onMouseLeave={() => setHoveredItem(null)}
+                        >
+                          {option.label}
+                          {isItemHovered && (
+                            <div className="flex justify-center items-center">
+                              {hasPermissionWorklog(
+                                "permission",
+                                "delete",
+                                "settings"
+                              ) && (
+                                <span
+                                  className="absolute right-3"
+                                  onClick={handleDeleteClick}
+                                >
+                                  <Delete />
+                                </span>
+                              )}
+                              {hasPermissionWorklog(
+                                "permission",
+                                "save",
+                                "settings"
+                              ) && (
+                                <span
+                                  className="absolute right-10 pt-1"
+                                  onClick={handleEditClick}
+                                >
+                                  <Edit />
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </li>
+                      );
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label={
+                          <span>
+                            Role
+                            <span className="text-defaultRed">&nbsp;*</span>
+                          </span>
+                        }
+                        placeholder="Please Select..."
+                        variant="standard"
+                      />
+                    )}
                   />
+                  {permissionValueError && (
+                    <span className="text-[#D32F2F] text-[12px] -mt-3">
+                      {permissionValueErrText}
+                    </span>
+                  )}
                   <div className="w-[60px]">
                     <Button
                       variant="contained"
@@ -750,7 +865,7 @@ const Page = () => {
                   isLoaded &&
                   (hasPermissionWorklog(tab, "save", "settings") ||
                     tabs.filter(
-                      (i: any) => i.label.toLowerCase() === "organization"
+                      (i: Tabs) => i.label.toLowerCase() === "organization"
                     )[0].canView)
                     ? ""
                     : "cursor-not-allowed"
@@ -758,7 +873,7 @@ const Page = () => {
                 onClick={
                   hasPermissionWorklog(tab, "save", "settings") ||
                   tabs.filter(
-                    (i: any) => i.label.toLowerCase() === "organization"
+                    (i: Tabs) => i.label.toLowerCase() === "organization"
                   )[0].canView
                     ? handleDrawerOpen
                     : undefined
@@ -783,20 +898,12 @@ const Page = () => {
 
         {/*  Drawer */}
         <Drawer
-          userData={userData}
-          orgData={orgData}
-          clientData={clientData}
-          projectData={projectData}
-          processData={processData}
           onEdit={hasEditId}
-          groupData={groupData}
-          statusData={statusData}
           onOpen={openDrawer}
           tab={tab}
           onClose={handleDrawerClose}
           onDataFetch={getDataFunction}
           onUserDataFetch={getUserDataFunction}
-          onRefresh={handleRefresh}
           getPermissionDropdown={getPermissionDropdown}
           getOrgDetailsFunction={getOrgDetailsFunction}
         />
@@ -812,14 +919,13 @@ const Page = () => {
                 : undefined
             }
             onEdit={handleEdit}
-            onHandleClientData={handleClientData}
             onDataFetch={handleDataFetch}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("client", "view", "settings")}
             canEdit={hasPermissionWorklog("client", "save", "settings")}
             canDelete={hasPermissionWorklog("client", "delete", "settings")}
             canProcess={hasPermissionWorklog("client", "save", "settings")}
-            onSearchClientData={clientSearchValue}
+            onSearchData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
           />
@@ -833,12 +939,11 @@ const Page = () => {
             }
             onEdit={handleEdit}
             onDataFetch={handleDataFetch}
-            onHandleProjectData={handleProjectData}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("project", "view", "settings")}
             canEdit={hasPermissionWorklog("project", "save", "settings")}
             canDelete={hasPermissionWorklog("project", "delete", "settings")}
-            onSearchProjectData={projectSearchValue}
+            onSearchData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
           />
@@ -851,13 +956,12 @@ const Page = () => {
                 : undefined
             }
             onEdit={handleEdit}
-            onHandleUserData={handleUserData}
-            onUserDataFetch={handleUserDataFetch}
+            onDataFetch={handleUserDataFetch}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("user", "view", "settings")}
             canEdit={hasPermissionWorklog("user", "save", "settings")}
             canDelete={hasPermissionWorklog("user", "delete", "settings")}
-            onSearchUserData={userSearchValue}
+            onSearchData={searchValue}
             canPermission={
               hasPermissionWorklog("permission", "view", "settings") &&
               hasPermissionWorklog("permission", "save", "settings")
@@ -875,12 +979,11 @@ const Page = () => {
             }
             onEdit={handleEdit}
             onDataFetch={handleDataFetch}
-            onHandleGroupData={handleGroupData}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("group", "view", "settings")}
             canEdit={hasPermissionWorklog("group", "save", "settings")}
             canDelete={hasPermissionWorklog("group", "delete", "settings")}
-            onSearchGroupData={groupSearchValue}
+            onSearchData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
           />
@@ -894,12 +997,11 @@ const Page = () => {
             }
             onEdit={handleEdit}
             onDataFetch={handleDataFetch}
-            onHandleProcessData={handleProcessData}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("process", "view", "settings")}
             canEdit={hasPermissionWorklog("process", "save", "settings")}
             canDelete={hasPermissionWorklog("process", "delete", "settings")}
-            onSearchProcessData={processSearchValue}
+            onSearchData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
           />
@@ -913,14 +1015,14 @@ const Page = () => {
             }
             onEdit={handleEdit}
             onDataFetch={handleDataFetch}
-            onHandleStatusData={handleStatusData}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("status", "view", "settings")}
             canEdit={hasPermissionWorklog("status", "save", "settings")}
             canDelete={hasPermissionWorklog("status", "delete", "settings")}
-            onSearchStatusData={statusSearchValue}
+            onSearchData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
+            currentFilterData={currentFilterData}
           />
         )}
         {tab === "Permission" && (
@@ -930,16 +1032,16 @@ const Page = () => {
                 ? handleDrawerOpen
                 : undefined
             }
-            onEdit={handleEdit}
-            expanded={isPermissionExpanded}
             permissionValue={permissionValue}
-            sendDataToParent={(data: any) => setUpdatedPermissionsData(data)}
+            permissionValueType={permissionValueType}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("permission", "view", "settings")}
             canEdit={hasPermissionWorklog("permission", "save", "settings")}
-            canDelete={hasPermissionWorklog("permission", "delete", "settings")}
-            onSearchClear={clearSearchValue}
-            onHandleExport={handleCanExport}
+            sendDataToParent={(data: MenuItem[]) =>
+              setUpdatedPermissionsData(data)
+            }
+            expanded={isPermissionExpanded}
+            loading={isLoading}
           />
         )}
         {tab === "Organization" && (
@@ -950,10 +1052,8 @@ const Page = () => {
                 : undefined
             }
             onEdit={handleEdit}
-            onHandleOrgData={handleOrgData}
             onDataFetch={handleDataFetch}
-            getOrgDetailsFunction={getOrgDetailsFunction}
-            onSearchOrgData={orgSearchValue}
+            onSearchData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
           />
@@ -966,6 +1066,66 @@ const Page = () => {
         onDataFetch={getDataFunction}
         tab={tab}
       />
+
+      {tab === "Status" && (
+        <FilterDialog_Status
+          onOpen={isFilterOpen}
+          onClose={handleCloseFilter}
+          currentFilterData={getIdFromFilterDialog}
+        />
+      )}
+
+      <DeleteDialog
+        isOpen={isDeleteOpenProject}
+        onClose={closeModalProject}
+        onActionClick={handleDeleteRowProject}
+        Title={"Delete Role"}
+        firstContent={"Are you sure you want to delete Role?"}
+        secondContent={
+          "If you delete the Role, you will permanently lose Role and Role related data."
+        }
+      />
+
+      <Dialog open={editDialogOpen || open} onClose={handleClose}>
+        <DialogTitle>
+          {editDialogOpen ? "Edit Role" : "Add a new Role"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {editDialogOpen
+              ? "Are you sure you want to update this Role?."
+              : "Are you sure you want to add this Role?."}
+          </DialogContentText>
+          <TextField
+            className="w-full mt-2"
+            value={permissionName}
+            error={permissionNameError}
+            helperText={permissionNameError && permissionNameErrText}
+            id="standard-basic"
+            label="Role"
+            placeholder={editDialogOpen ? "Edit a Role" : "Add new Role"}
+            variant="standard"
+            onChange={(e) => handlePermissionName(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleClose}
+            variant="outlined"
+            className="rounded-[4px] !h-[36px]"
+          >
+            Close
+          </Button>
+          <Button
+            variant="contained"
+            className="rounded-[4px] !h-[36px] !bg-[#0592c6]"
+            type="button"
+            onClick={handleAddProject}
+          >
+            {editDialogOpen ? "Save" : "Add"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Wrapper>
   );
 };

@@ -24,13 +24,13 @@ interface WorkType {
   value: number | any;
 }
 
-const Dialog_TotalHoursInfo: React.FC<TotalHoursInfoDialogProps> = ({
+const Dialog_TotalHoursInfo = ({
   onOpen,
   onClose,
   onWorkTypeData,
   onSelectedProjectIds,
   onSelectedWorkTypeName,
-}) => {
+}: TotalHoursInfoDialogProps) => {
   const [workType, setWorkType] = useState<number | any>(0);
   const [clickedWorkTypeName, setClickedWorkTypeName] = useState<string>("");
 
@@ -67,14 +67,14 @@ const Dialog_TotalHoursInfo: React.FC<TotalHoursInfoDialogProps> = ({
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogTitle className="flex justify-between p-5 bg-whiteSmoke">
+        <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">Total Hours</span>
           <IconButton onClick={handleClose}>
             <Close />
           </IconButton>
         </DialogTitle>
 
-        <DialogContent className="flex flex-col gap-5 mt-[10px]">
+        <DialogContent className="flex flex-col gap-5 mt-[10px] !py-0">
           <div className="flex justify-end items-center">
             <FormControl sx={{ mx: 0.75, minWidth: 150, marginTop: 1 }}>
               <Select
@@ -85,7 +85,7 @@ const Dialog_TotalHoursInfo: React.FC<TotalHoursInfoDialogProps> = ({
                 sx={{ height: "36px" }}
               >
                 <MenuItem value={0}>All</MenuItem>
-                {onWorkTypeData.map((i: any) => (
+                {onWorkTypeData?.map((i: any) => (
                   <MenuItem value={i.value} key={i.value}>
                     {i.label}
                   </MenuItem>

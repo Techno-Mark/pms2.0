@@ -12,43 +12,63 @@ import { Close } from "@mui/icons-material";
 import Datatable_DashboardSummaryList from "../Datatables/Datatable_DashboardSummaryList";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { callAPI } from "@/utils/API/callAPI";
-
-interface Status {
-  Type: string;
-  label: string;
-  value: number;
-}
+import Loading from "@/assets/icons/reports/Loading";
+import ExportIcon from "@/assets/icons/ExportIcon";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { KeyValueColorCodeSequence } from "@/utils/Types/types";
+import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 
 interface DashboardSummaryListProps {
   onOpen: boolean;
   onClose: () => void;
-  onSelectedWorkType: number;
-  onClickedSummaryTitle: string;
+  currentFilterData: DashboardInitialFilter;
+  onClickedSummaryTitle: number;
 }
 
-const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
+const Dialog_DashboardSummaryList = ({
   onOpen,
   onClose,
-  onSelectedWorkType,
+  currentFilterData,
   onClickedSummaryTitle,
-}) => {
-  const [summaryList, setSummaryList] = useState<Status[]>([]);
-  const [summaryName, setSummaryName] = useState<string>("");
+}: DashboardSummaryListProps) => {
+  const [summaryList, setSummaryList] = useState<KeyValueColorCodeSequence[]>(
+    []
+  );
+  const [summaryName, setSummaryName] = useState<number>(0);
+  const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [isClose, setIsClose] = useState<boolean>(false);
+
+  useEffect(() => {
+    onOpen && setIsClose(false);
+  }, [onOpen]);
 
   const handleClose = () => {
     onClose();
-    setSummaryName("");
+    setSummaryName(0);
+    setIsClose(true);
   };
 
   const getProjectSummary = async () => {
+    const workTypeIdFromLocalStorage =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("workTypeId")
+        : 3;
     const params = {
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.WorkTypeId === null
+          ? Number(workTypeIdFromLocalStorage)
+          : currentFilterData.WorkTypeId,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
     };
     const url = `${process.env.report_api_url}/dashboard/summary`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: KeyValueColorCodeSequence[] | [],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setSummaryList(ResponseData);
@@ -58,8 +78,76 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
   };
 
   useEffect(() => {
-    getProjectSummary();
-  }, [onSelectedWorkType]);
+    const fetchData = async () => {
+      await getProjectSummary();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentFilterData]);
+
+  const exportTaskStatusReport = async () => {
+    try {
+      setIsExporting(true);
+
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+
+      const response = await axios.post(
+        `${process.env.report_api_url}/dashboard/dashboardsummarylist/export`,
+        {
+          PageNo: 1,
+          PageSize: 50000,
+          SortColumn: null,
+          IsDesc: true,
+          Clients: currentFilterData.Clients,
+          WorkTypeId:
+            currentFilterData.WorkTypeId === null
+              ? 0
+              : currentFilterData.WorkTypeId,
+          StartDate: currentFilterData.StartDate,
+          EndDate: currentFilterData.EndDate,
+          Key: summaryName ? summaryName : onClickedSummaryTitle,
+          IsDownload: true,
+        },
+        {
+          headers: { Authorization: `bearer ${token}`, org_token: Org_Token },
+          responseType: "arraybuffer",
+        }
+      );
+
+      handleExportResponse(response);
+    } catch (error: any) {
+      setIsExporting(false);
+      toast.error(error);
+    }
+  };
+
+  const handleExportResponse = (response: any) => {
+    if (response.status === 200) {
+      if (response.data.ResponseStatus === "Failure") {
+        setIsExporting(false);
+        toast.error("Please try again later.");
+      } else {
+        const blob = new Blob([response.data], {
+          type: response.headers["content-type"],
+        });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Dashboard_Task_report.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        setIsExporting(false);
+      }
+    } else {
+      setIsExporting(false);
+      toast.error("Please try again.");
+    }
+  };
 
   return (
     <div>
@@ -71,14 +159,14 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
         maxWidth="xl"
         onClose={handleClose}
       >
-        <DialogTitle className="flex justify-between p-5 bg-whiteSmoke">
+        <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">Task Status</span>
           <IconButton onClick={handleClose}>
             <Close />
           </IconButton>
         </DialogTitle>
 
-        <DialogContent className="flex flex-col gap-5 mt-[10px]">
+        <DialogContent className="flex flex-col gap-5 mt-[10px] !py-0">
           <div className="flex justify-end items-center">
             {/* <FormControl sx={{ mx: 0.75, minWidth: 220, marginTop: 1 }}>
               <div className="flex items-center h-full relative">
@@ -102,22 +190,33 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
               <Select
                 labelId="summary list"
                 id="summary list"
-                value={summaryName ? summaryName : onClickedSummaryTitle}
-                onChange={(e) => setSummaryName(e.target.value)}
+                value={summaryName > 0 ? summaryName : onClickedSummaryTitle}
+                onChange={(e) => setSummaryName(Number(e.target.value))}
                 sx={{ height: "36px" }}
               >
-                {summaryList.map((i: any) => (
-                  <MenuItem value={i.Key} key={i.Key}>
+                {summaryList.map((i: KeyValueColorCodeSequence) => (
+                  <MenuItem value={i.Sequence} key={i.Sequence}>
                     {i.Key}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
+            <ColorToolTip title="Export" placement="top" arrow>
+              <span
+                className={`${
+                  isExporting ? "cursor-default" : "cursor-pointer"
+                } ml-5 mt-5`}
+                onClick={exportTaskStatusReport}
+              >
+                {isExporting ? <Loading /> : <ExportIcon />}
+              </span>
+            </ColorToolTip>
           </div>
           <Datatable_DashboardSummaryList
-            onSelectedWorkType={onSelectedWorkType}
+            currentFilterData={currentFilterData}
             onClickedSummaryTitle={onClickedSummaryTitle}
             onCurrSelectedSummaryTitle={summaryName}
+            isClose={isClose}
           />
         </DialogContent>
       </Dialog>

@@ -2,37 +2,43 @@ import React, { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { callAPI } from "@/utils/API/callAPI";
+import { KeyValueColorCode } from "@/utils/Types/types";
+import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 
 interface TaskStatusProps {
-  onSelectedProjectIds: number[];
-  onSelectedWorkType: number;
-  sendData: any;
+  currentFilterData: DashboardInitialFilter;
+  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
-const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
-  sendData,
-  onSelectedWorkType,
-}) => {
+const Chart_TaskStatus = ({ sendData, currentFilterData }: TaskStatusProps) => {
   const [data, setData] = useState<any[]>([]);
 
   const getTaskStatusData = async () => {
+    const workTypeIdFromLocalStorage =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("workTypeId")
+        : 3;
     const params = {
-      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.WorkTypeId === null
+          ? Number(workTypeIdFromLocalStorage)
+          : currentFilterData.WorkTypeId,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
     };
     const url = `${process.env.report_api_url}/dashboard/taskstatusgraph`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: KeyValueColorCode[],
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        const chartData = ResponseData.map(
-          (item: { ColorCode: any; Key: any; Value: any }) => ({
-            name: item.Key,
-            y: item.Value,
-            color: item.ColorCode,
-          })
-        );
+        const chartData = ResponseData.map((item: KeyValueColorCode) => ({
+          name: item.Key,
+          y: item.Value,
+          color: item.ColorCode,
+        }));
 
         setData(chartData);
       }
@@ -41,8 +47,14 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
   };
 
   useEffect(() => {
-    getTaskStatusData();
-  }, [onSelectedWorkType]);
+    const fetchData = async () => {
+      await getTaskStatusData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentFilterData]);
 
   const chartOptions: Highcharts.Options = {
     chart: {
@@ -54,7 +66,7 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
       text: undefined,
     },
     xAxis: {
-      categories: data.map((item: { name: any }) => item.name),
+      categories: data.map((item: { name: string }) => item.name),
       title: {
         text: null,
       },

@@ -10,24 +10,32 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { dashboardOverallProjectSumCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
+import { ListClientDashboard } from "@/utils/Types/dashboardTypes";
 
 interface OverallProjectSummaryProps {
   onSelectedWorkType: number;
   onSelectedTaskStatus: string;
   onSelectedProjectIds: number[];
   onCurrselectedtaskStatus: string;
+  onOpen: boolean;
 }
 
-const Datatable_OverallProjectSummary: React.FC<OverallProjectSummaryProps> = ({
+const Datatable_OverallProjectSummary = ({
   onSelectedWorkType,
   onSelectedTaskStatus,
   onSelectedProjectIds,
   onCurrselectedtaskStatus,
-}) => {
-  const [data, setData] = useState([]);
+  onOpen,
+}: OverallProjectSummaryProps) => {
+  const [data, setData] = useState<ListClientDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+
+  useEffect(() => {
+    onOpen && setPage(0);
+    onOpen && setRowsPerPage(10);
+  }, [onOpen]);
 
   const getOverallProjectSummaryData = () => {
     const params = {
@@ -43,9 +51,9 @@ const Datatable_OverallProjectSummary: React.FC<OverallProjectSummaryProps> = ({
     };
     const url = `${process.env.report_api_url}/clientdashboard/overallprojectcompletionlist`;
     const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
+      ResponseData: { List: ListClientDashboard[] | []; TotalCount: number },
+      error: boolean,
+      ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setData(ResponseData.List);
@@ -56,9 +64,15 @@ const Datatable_OverallProjectSummary: React.FC<OverallProjectSummaryProps> = ({
   };
 
   useEffect(() => {
-    if (onCurrselectedtaskStatus !== "" || onSelectedTaskStatus !== "") {
-      getOverallProjectSummaryData();
-    }
+    const fetchData = async () => {
+      if (onCurrselectedtaskStatus !== "" || onSelectedTaskStatus !== "") {
+        onOpen && getOverallProjectSummaryData();
+      }
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
     onSelectedWorkType,
     onSelectedTaskStatus,
@@ -75,7 +89,7 @@ const Datatable_OverallProjectSummary: React.FC<OverallProjectSummaryProps> = ({
           data={data}
           columns={dashboardOverallProjectSumCols}
           title={undefined}
-          options={dashboard_Options}
+          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="taskStatusInfo_Datatable"
         />
         <TablePagination

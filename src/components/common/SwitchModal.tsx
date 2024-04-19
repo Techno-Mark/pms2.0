@@ -16,19 +16,19 @@ interface SwitchModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  firstContent: any;
+  firstContent: string;
   actionText: string;
   onActionClick: () => void;
 }
 
-const SwitchModal: React.FC<SwitchModalProps> = ({
+const SwitchModal = ({
   isOpen,
   onClose,
   title,
   firstContent,
   actionText,
   onActionClick,
-}) => {
+}: SwitchModalProps) => {
   return (
     <>
       <Dialog

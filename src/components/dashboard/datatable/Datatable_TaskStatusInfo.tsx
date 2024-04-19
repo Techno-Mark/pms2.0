@@ -10,22 +10,30 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { dashboardPriorityReturnTaskInfoCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
+import { ListClientDashboard } from "@/utils/Types/dashboardTypes";
 
 interface TaskStatusInfoProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
   onSelectedStatusId: number;
+  onOpen: boolean;
 }
 
-const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
+const Datatable_TaskStatusInfo = ({
   onSelectedProjectIds,
   onSelectedWorkType,
   onSelectedStatusId,
-}) => {
-  const [data, setData] = useState<any | any[]>([]);
+  onOpen,
+}: TaskStatusInfoProps) => {
+  const [data, setData] = useState<ListClientDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+
+  useEffect(() => {
+    onOpen && setPage(0);
+    onOpen && setRowsPerPage(10);
+  }, [onOpen]);
 
   useEffect(() => {
     const getData = () => {
@@ -37,14 +45,14 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
         projectIds: onSelectedProjectIds,
         typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
         priorityId: null,
-        statusId: onSelectedStatusId,
+        statusId: onSelectedStatusId === 0 ? null : onSelectedStatusId,
         ReturnTypeId: null,
       };
       const url = `${process.env.report_api_url}/clientdashboard/taskstatusandprioritylist`;
       const successCallback = (
-        ResponseData: any,
-        error: any,
-        ResponseStatus: any
+        ResponseData: { List: ListClientDashboard[] | []; TotalCount: number },
+        error: boolean,
+        ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           setData(ResponseData.List);
@@ -54,7 +62,13 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
       callAPI(url, params, successCallback, "POST");
     };
 
-    getData();
+    const fetchData = async () => {
+      onOpen && getData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [
     onSelectedProjectIds,
     onSelectedWorkType,
@@ -70,7 +84,7 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
           data={data}
           columns={dashboardPriorityReturnTaskInfoCols}
           title={undefined}
-          options={dashboard_Options}
+          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="taskStatusInfo_Datatable"
         />
         <TablePagination
