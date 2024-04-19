@@ -577,7 +577,7 @@ const ClientProcessDrawer = ({
         </div>
 
         {table_Data.length > 0 ? (
-          <div className="px-2 py-2 h-[81vh] max-h-[78.5vh] overflow-y-auto">
+          <div className="px-2 py-2 mb-10 h-[81vh] max-h-[73.5vh] overflow-y-auto">
             <DataTable columns={headers} data={table_Data} />
           </div>
         ) : (
@@ -597,7 +597,9 @@ const ClientProcessDrawer = ({
 
           <Button
             variant="contained"
-            className="rounded-[4px] !h-[36px] !bg-secondary cursor-pointer"
+            className={`rounded-[4px] !h-[36px] ${
+              selectedRowsData.length !== 0 && "!bg-secondary"
+            } cursor-pointer`}
             type="submit"
             onClick={() => {
               handleSubmit();
