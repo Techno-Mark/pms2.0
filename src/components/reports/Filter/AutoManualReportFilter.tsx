@@ -77,7 +77,7 @@ const AutoManualReportFilter = ({
     openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
   }, [openFilter]);
 
-  const handleResetAll = () => {
+  const handleResetAll = (close: boolean) => {
     setReportingManager(null);
     setDeptName([]);
     setDepts([]);
@@ -85,9 +85,9 @@ const AutoManualReportFilter = ({
     setEndDate("");
     setError("");
     setFilterName("");
-    setDefaultFilter(false);
-    onDialogClose(false);
     setIdFilter(undefined);
+    close && setDefaultFilter(false);
+    close && onDialogClose(false);
 
     sendFilterToPage({
       ...am_InitialFilter,
@@ -369,7 +369,11 @@ const AutoManualReportFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button onClick={handleResetAll} className="mt-2" color="error">
+            <Button
+              onClick={() => handleResetAll(true)}
+              className="mt-2"
+              color="error"
+            >
               clear all
             </Button>
           </div>
@@ -384,7 +388,7 @@ const AutoManualReportFilter = ({
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleResetAll}>
+            <Button color="error" onClick={() => handleResetAll(false)}>
               Reset all
             </Button>
           </DialogTitle>
@@ -541,8 +545,8 @@ const AutoManualReportFilter = ({
               color="info"
               onClick={() =>
                 currentFilterId > 0 || !!currentFilterId
-                  ? handleResetAll()
-                  : onDialogClose(false)
+                  ? handleResetAll(true)
+                  : (onDialogClose(false), setDefaultFilter(false))
               }
             >
               Cancel

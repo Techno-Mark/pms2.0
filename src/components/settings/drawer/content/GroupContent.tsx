@@ -41,6 +41,10 @@ const GroupContent = forwardRef<
   const [selectValue, setSelectValue] = useState<number[]>([]);
   const [selectedOptions, setSelectOptions] = useState<Options[]>([]);
 
+  useEffect(() => {
+    data.length <= 0 && getDropdownData();
+  }, []);
+
   const fetchEditData = async () => {
     if (onEdit > 0) {
       const params = { groupId: onEdit || 0 };
@@ -87,7 +91,7 @@ const GroupContent = forwardRef<
 
   useEffect(() => {
     onOpen && fetchEditData();
-    data.length <= 0 && getDropdownData();
+    // data.length <= 0 && getDropdownData();
   }, [onEdit, onOpen]);
 
   const getDropdownData = async () => {
@@ -205,7 +209,7 @@ const GroupContent = forwardRef<
 
   return (
     <>
-      <div className="flex gap-[20px] flex-col px-[20px] pb-[50px] max-h-[73.5vh] overflow-y-auto">
+      <div className="flex gap-[20px] flex-col px-[20px] pb-[150px] max-h-[73.5vh] overflow-y-auto">
         <TextField
           label={
             <span>

@@ -470,11 +470,23 @@ const Datatable = ({
   }, [onCurrentFilterId]);
 
   useEffect(() => {
-    setFilteredOject({
-      ...filteredObject,
-      ...currentFilterData,
-      GlobalSearch: searchValue,
-    });
+    if (searchValue.trim().length > 0) {
+      setFilteredOject({
+        ...filteredObject,
+        ...currentFilterData,
+        GlobalSearch: searchValue,
+        PageNo: pageNo,
+        PageSize: pageSize,
+      });
+      setPage(0);
+      setRowsPerPage(pageSize);
+    } else {
+      setFilteredOject({
+        ...filteredObject,
+        ...currentFilterData,
+        GlobalSearch: searchValue,
+      });
+    }
   }, [currentFilterData, searchValue]);
 
   useEffect(() => {
@@ -1050,14 +1062,14 @@ const Datatable = ({
                   noMatch: (
                     <div className="flex items-start">
                       <span>
-                        Currently there is no record, you may
+                        Currently there is no record, you may&nbsp;
                         <a
                           className="text-secondary underline cursor-pointer"
                           onClick={onDrawerOpen}
                         >
                           create task
                         </a>
-                        to continue.
+                        &nbsp;to continue.
                       </span>
                     </div>
                   ),

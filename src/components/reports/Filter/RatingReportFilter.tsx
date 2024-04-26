@@ -16,11 +16,7 @@ import {
 } from "@mui/material";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import {
-  DatePicker,
-  LocalizationProvider,
-  clockNumberClasses,
-} from "@mui/x-date-pickers";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { FilterType } from "../types/ReportsFilterType";
 import { AdminRatingsReports } from "../Enum/Filtertype";
@@ -124,7 +120,7 @@ const RatingReportFilter = ({
     { label: "5", value: "5" },
   ];
 
-  const handleResetAll = () => {
+  const handleResetAll = (close: boolean) => {
     setRatingReport_Clients([]);
     setRatingReport_ClientName([]);
     setRatingReport_ProjectName(null);
@@ -134,9 +130,9 @@ const RatingReportFilter = ({
     setRatingReport_Ratings(null);
     setRatingReport_Error("");
     setRatingReport_FilterName("");
-    setRatingReport_DefaultFilter(false);
-    onDialogClose(false);
     setIdFilter(undefined);
+    close && setRatingReport_DefaultFilter(false);
+    close && onDialogClose(false);
 
     sendFilterToPage({
       ...rating_InitialFilter,
@@ -472,7 +468,11 @@ const RatingReportFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button onClick={handleResetAll} className="mt-2" color="error">
+            <Button
+              onClick={() => handleResetAll(true)}
+              className="mt-2"
+              color="error"
+            >
               clear all
             </Button>
           </div>
@@ -487,7 +487,7 @@ const RatingReportFilter = ({
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleResetAll}>
+            <Button color="error" onClick={() => handleResetAll(false)}>
               Reset all
             </Button>
           </DialogTitle>
@@ -717,8 +717,8 @@ const RatingReportFilter = ({
               color="info"
               onClick={() =>
                 currentFilterId > 0 || !!currentFilterId
-                  ? handleResetAll()
-                  : onDialogClose(false)
+                  ? handleResetAll(true)
+                  : (onDialogClose(false), setRatingReport_DefaultFilter(false))
               }
             >
               Cancel
