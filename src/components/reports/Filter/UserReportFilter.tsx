@@ -82,9 +82,9 @@ const UserReportFilter = ({
     setUser_EndDate("");
     setUser_Error("");
     setUser_FilterName("");
+    setIdFilter(undefined);
     clear && setUser_DefaultFilter(false);
     clear && onDialogClose(false);
-    setIdFilter(undefined);
 
     sendFilterToPage({
       ...user_InitialFilter,
@@ -542,7 +542,11 @@ const UserReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => handleResetAll(true)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll(true)
+                  : (onDialogClose(false), setUser_DefaultFilter(false))
+              }
             >
               Cancel
             </Button>

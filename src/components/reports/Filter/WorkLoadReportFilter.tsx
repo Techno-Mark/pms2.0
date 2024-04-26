@@ -81,7 +81,7 @@ const WorkLoadReportFilter = ({
     openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
   }, [openFilter]);
 
-  const handleResetAll = () => {
+  const handleResetAll = (close: boolean) => {
     setWorkload_UserNames([]);
     setWorkload_Users([]);
     setWorkload_DeptNames([]);
@@ -89,9 +89,9 @@ const WorkLoadReportFilter = ({
     setWorkload_DateFilter("");
     setWorkload_Error("");
     setWorkload_FilterName("");
-    setWorkload_DefaultFilter(false);
-    onDialogClose(false);
     setIdFilter(undefined);
+    close && setWorkload_DefaultFilter(false);
+    close && onDialogClose(false);
 
     sendFilterToPage({
       ...workLoad_InitialFilter,
@@ -352,7 +352,11 @@ const WorkLoadReportFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button onClick={handleResetAll} className="mt-2" color="error">
+            <Button
+              onClick={() => handleResetAll(true)}
+              className="mt-2"
+              color="error"
+            >
               clear all
             </Button>
           </div>
@@ -367,7 +371,7 @@ const WorkLoadReportFilter = ({
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleResetAll}>
+            <Button color="error" onClick={() => handleResetAll(false)}>
               Reset all
             </Button>
           </DialogTitle>
@@ -516,8 +520,8 @@ const WorkLoadReportFilter = ({
               color="info"
               onClick={() =>
                 currentFilterId > 0 || !!currentFilterId
-                  ? handleResetAll()
-                  : onDialogClose(false)
+                  ? handleResetAll(true)
+                  : (onDialogClose(false), setWorkload_DefaultFilter(false))
               }
             >
               Cancel

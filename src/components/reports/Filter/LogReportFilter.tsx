@@ -99,9 +99,9 @@ const LogReportFilter = ({
     setEndDate("");
     setError("");
     setFilterName("");
+    setIdFilter(undefined);
     close && setDefaultFilter(false);
     close && onDialogClose(false);
-    setIdFilter(undefined);
 
     sendFilterToPage({
       ...logReport_InitialFilter,
@@ -668,7 +668,11 @@ const LogReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => handleResetAll(true)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll(true)
+                  : (onDialogClose(false), setDefaultFilter(false))
+              }
             >
               Cancel
             </Button>

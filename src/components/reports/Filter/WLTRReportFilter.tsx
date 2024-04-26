@@ -75,9 +75,9 @@ const WLTRReportFilter = ({
     setEndDate("");
     setError("");
     setFilterName("");
+    setIdFilter(undefined);
     clear && setDefaultFilter(false);
     clear && onDialogClose(false);
-    setIdFilter(undefined);
 
     sendFilterToPage({
       ...wltr_InitialFilter,
@@ -493,7 +493,11 @@ const WLTRReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => handleResetAll(true)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll(true)
+                  : (onDialogClose(false), onDialogClose(false))
+              }
             >
               Cancel
             </Button>

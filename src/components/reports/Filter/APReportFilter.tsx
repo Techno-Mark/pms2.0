@@ -668,7 +668,11 @@ const APReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => handleResetAll(true)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll(true)
+                  : (onDialogClose(false), setDefaultFilter(false))
+              }
             >
               Cancel
             </Button>

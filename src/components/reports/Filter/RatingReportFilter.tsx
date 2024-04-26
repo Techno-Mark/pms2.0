@@ -130,9 +130,9 @@ const RatingReportFilter = ({
     setRatingReport_Ratings(null);
     setRatingReport_Error("");
     setRatingReport_FilterName("");
+    setIdFilter(undefined);
     close && setRatingReport_DefaultFilter(false);
     close && onDialogClose(false);
-    setIdFilter(undefined);
 
     sendFilterToPage({
       ...rating_InitialFilter,
@@ -715,7 +715,11 @@ const RatingReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => handleResetAll(true)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll(true)
+                  : (onDialogClose(false), setRatingReport_DefaultFilter(false))
+              }
             >
               Cancel
             </Button>

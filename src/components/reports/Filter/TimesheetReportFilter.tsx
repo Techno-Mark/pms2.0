@@ -94,9 +94,9 @@ const TimesheetReportFilter = ({
     setTimesheetEndDate("");
     setTimesheetError("");
     setTimesheetFilterName("");
+    setIdFilter(undefined);
     close && setTimesheetDefaultFilter(false);
     close && onDialogClose(false);
-    setIdFilter(undefined);
 
     sendFilterToPage({
       ...timeSheet_InitialFilter,
@@ -573,7 +573,11 @@ const TimesheetReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => handleResetAll(true)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll(true)
+                  : (onDialogClose(false), setTimesheetDefaultFilter(false))
+              }
             >
               Cancel
             </Button>

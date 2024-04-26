@@ -100,9 +100,9 @@ const UserLogsReportFilter = ({
     setUserlogs_DateFilter("");
     setUserlogs_Error("");
     setUserlogs_FilterName("");
+    setIdFilter(undefined);
     close && setUserlogs_DefaultFilter(false);
     close && onDialogClose(false);
-    setIdFilter(undefined);
 
     sendFilterToPage({
       ...userLogs_InitialFilter,
@@ -569,7 +569,11 @@ const UserLogsReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => handleResetAll(true)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll(true)
+                  : (onDialogClose(false), setUserlogs_DefaultFilter(false))
+              }
             >
               Cancel
             </Button>

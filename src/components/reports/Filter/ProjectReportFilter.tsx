@@ -116,9 +116,9 @@ const ProjectReportFilter = ({
     setProject_Error("");
     setProject_ProjectDropdown([]);
     setProject_FilterName("");
+    setIdFilter(undefined);
     close && setProject_DefaultFilter(false);
     close && onDialogClose(false);
-    setIdFilter(undefined);
 
     sendFilterToPage({
       ...project_filter_InitialFilter,
@@ -686,7 +686,11 @@ const ProjectReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => handleResetAll(true)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll(true)
+                  : (onDialogClose(false), setProject_DefaultFilter(false))
+              }
             >
               Cancel
             </Button>

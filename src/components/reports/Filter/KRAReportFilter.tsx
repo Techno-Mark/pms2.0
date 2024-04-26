@@ -95,9 +95,9 @@ const KRAReportFilter = ({
     setEndDate("");
     setError("");
     setFilterName("");
+    setIdFilter(undefined);
     close && setDefaultFilter(false);
     close && onDialogClose(false);
-    setIdFilter(undefined);
 
     sendFilterToPage({
       ...kra_InitialFilter,
@@ -600,7 +600,11 @@ const KRAReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() => handleResetAll(true)}
+              onClick={() =>
+                currentFilterId > 0 || !!currentFilterId
+                  ? handleResetAll(true)
+                  : (onDialogClose(false), setDefaultFilter(false))
+              }
             >
               Cancel
             </Button>
