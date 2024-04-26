@@ -102,6 +102,7 @@ const User = ({
   }, [filteredObject]);
 
   const getAll = async () => {
+    setLoader(true);
     const params = filteredObject;
     const url = `${process.env.api_url}/user/getall`;
     const successCallback = (
@@ -640,14 +641,14 @@ const User = ({
                         noMatch: (
                           <div className="flex items-start">
                             <span>
-                              Currently there is no record, you may
+                              Currently there is no record, you may&nbsp;
                               <a
                                 className="text-secondary underline cursor-pointer"
                                 onClick={onOpen}
                               >
                                 create user
                               </a>
-                              to continue.
+                              &nbsp;to continue.
                             </span>
                           </div>
                         ),

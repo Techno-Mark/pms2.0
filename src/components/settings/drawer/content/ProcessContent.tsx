@@ -469,7 +469,6 @@ const ProcessContent = forwardRef<
     };
 
     const handleProcess = (e: React.SyntheticEvent, value: any) => {
-      console.log(value);
       if (value !== null) {
         if (typeof value.value == "string") {
           toggleOpen(true);

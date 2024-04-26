@@ -270,7 +270,7 @@ const Permissions = ({
       {canView ? (
         data.length <= 0 || permissionValue === 0 ? (
           <p className="flex justify-center items-center py-[17px] text-[14px]">
-            Currently there is no record, you may
+            Currently there is no record, you may&nbsp;
             <a
               onClick={onOpen}
               className={`text-[#0281B9] underline ml-1 mr-1 ${
@@ -279,7 +279,7 @@ const Permissions = ({
             >
               Create Role
             </a>
-            to continue
+            &nbsp;to continue
           </p>
         ) : (
           <div

@@ -2104,6 +2104,7 @@ const EditDrawer = ({
           onEdit > 0 && getEditData();
         } else {
           setIsLoadingApprovals(false);
+          onEdit > 0 && getEditData();
         }
       };
       callAPI(url, params, successCallback, "POST");

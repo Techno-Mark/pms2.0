@@ -203,7 +203,7 @@ const Status = ({
         {open && (
           <React.Fragment>
             <div className="absolute top-30 right-[14rem] z-10 flex justify-center items-center">
-              <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
+              <div className="py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg">
                 <ul className="w-28">
                   {actionPermissions.map((action: string, index: number) => (
                     <li
@@ -403,14 +403,14 @@ const Status = ({
                         noMatch: (
                           <div className="flex items-start">
                             <span>
-                              Currently there is no record, you may
+                              Currently there is no record, you may&nbsp;
                               <a
                                 className="text-secondary underline cursor-pointer"
                                 onClick={onOpen}
                               >
                                 create status
                               </a>
-                              to continue.
+                              &nbsp;to continue.
                             </span>
                           </div>
                         ),

@@ -201,14 +201,14 @@ const Datatable_CompletedTask = ({
                   noMatch: (
                     <div className="flex items-start">
                       <span>
-                        Currently there is no record, you may
+                        Currently there is no record, you may&nbsp;
                         <a
                           className="text-secondary underline cursor-pointer"
                           onClick={onDrawerOpen}
                         >
                           create task
                         </a>
-                        to continue.
+                        &nbsp;to continue.
                       </span>
                     </div>
                   ),

@@ -91,7 +91,7 @@ const APReportFilter = ({
     openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
   }, [openFilter]);
 
-  const handleResetAll = () => {
+  const handleResetAll = (close: boolean) => {
     setClientName([]);
     setClients([]);
     setUserName([]);
@@ -104,9 +104,9 @@ const APReportFilter = ({
     setEndDate("");
     setError("");
     setFilterName("");
-    setDefaultFilter(false);
-    onDialogClose(false);
     setIdFilter(undefined);
+    close && setDefaultFilter(false);
+    close && onDialogClose(false);
 
     sendFilterToPage({
       ...ap_InitialFilter,
@@ -429,7 +429,11 @@ const APReportFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button onClick={handleResetAll} className="mt-2" color="error">
+            <Button
+              onClick={() => handleResetAll(true)}
+              className="mt-2"
+              color="error"
+            >
               clear all
             </Button>
           </div>
@@ -444,7 +448,7 @@ const APReportFilter = ({
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleResetAll}>
+            <Button color="error" onClick={() => handleResetAll(false)}>
               Reset all
             </Button>
           </DialogTitle>
@@ -664,11 +668,7 @@ const APReportFilter = ({
             <Button
               variant="outlined"
               color="info"
-              onClick={() =>
-                currentFilterId > 0 || !!currentFilterId
-                  ? handleResetAll()
-                  : onDialogClose(false)
-              }
+              onClick={() => handleResetAll(true)}
             >
               Cancel
             </Button>

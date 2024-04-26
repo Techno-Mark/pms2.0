@@ -428,7 +428,7 @@ const WorkLoadReportFilter = ({
                   />
                 </FormControl>
                 <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                  className={`inline-flex -mt-1 mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
