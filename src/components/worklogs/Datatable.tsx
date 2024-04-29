@@ -699,14 +699,11 @@ const Datatable = ({
     },
   ];
 
-  const generateConditionalColumn = (
-    column: {
-      name: string;
-      label: string;
-      bodyRenderer: (arg0: any) => any;
-    },
-    rowDataIndex: number
-  ) => {
+  const generateConditionalColumn = (column: {
+    name: string;
+    label: string;
+    bodyRenderer: (arg0: any) => any;
+  }) => {
     if (column.name === "Timer") {
       return {
         name: "Timer",
@@ -1018,7 +1015,7 @@ const Datatable = ({
   };
 
   const workLogsColumns = columnConfig.map((col: any) => {
-    return generateConditionalColumn(col, 10);
+    return generateConditionalColumn(col);
   });
 
   const runningTimerData: WorkitemList[] | [] = workItemData.filter(
