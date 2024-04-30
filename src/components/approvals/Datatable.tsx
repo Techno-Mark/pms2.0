@@ -24,7 +24,6 @@ import {
   generateCustomFormatDate,
   generatePriorityWithColor,
   generateStatusWithColor,
-  generateParentProcessBodyRender,
   handlePageChangeWithFilter,
   handleChangeRowsPerPageWithFilter,
 } from "@/utils/datatable/CommonFunction";
@@ -514,7 +513,7 @@ const Datatable = ({
     {
       name: "ParentProcess",
       label: "Process",
-      bodyRenderer: generateParentProcessBodyRender,
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "SubProcess",
@@ -694,7 +693,7 @@ const Datatable = ({
     {
       name: "ParentProcess",
       label: "Process",
-      bodyRenderer: generateParentProcessBodyRender,
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "SubProcess",

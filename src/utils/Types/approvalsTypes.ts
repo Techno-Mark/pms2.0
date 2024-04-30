@@ -83,7 +83,7 @@ export interface InitialFilterApprovals {
   DateFilter: string | null | undefined;
 }
 
-export interface ApprovalsActionBar {
+export interface ApprovalsActionBarData {
   selectedRowsCount: number;
   selectedRowIds: number[] | [];
   selectedWorkItemIds: number[];

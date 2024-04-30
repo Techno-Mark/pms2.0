@@ -717,7 +717,6 @@ const WorklogsActionBar = ({
           propsForActionBar={propsForActionBar}
           getOverLay={getOverLay}
         />
-
         <ConditionalComponent
           condition={
             areAllValuesSame(selectedRowClientId) &&

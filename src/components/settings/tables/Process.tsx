@@ -59,7 +59,7 @@ function Process({
   onSearchClear,
   onHandleExport,
 }: SettingProps) {
-  const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(true);
   const [data, setData] = useState<ProcessList[]>([]);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -526,14 +526,14 @@ function Process({
                         noMatch: (
                           <div className="flex items-start">
                             <span>
-                              Currently there is no record, you may
+                              Currently there is no record, you may&nbsp;
                               <a
                                 className="text-secondary underline cursor-pointer"
                                 onClick={onOpen}
                               >
                                 create process
                               </a>
-                              to continue.
+                              &nbsp;to continue.
                             </span>
                           </div>
                         ),

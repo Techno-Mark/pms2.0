@@ -19,7 +19,7 @@ import {
 } from "@/components/common/actionBar/components/ActionBarComponents";
 import { callAPI } from "@/utils/API/callAPI";
 import Reject from "./components/Reject";
-import { ApprovalsActionBar, List } from "@/utils/Types/approvalsTypes";
+import { ApprovalsActionBarData, List } from "@/utils/Types/approvalsTypes";
 
 interface ConditionalComponentWithoutConditions {
   Component: any;
@@ -80,7 +80,7 @@ const ApprovalsActionBar = ({
   getInitialPagePerRows,
   handleClearSelection,
   getOverLay,
-}: ApprovalsActionBar) => {
+}: ApprovalsActionBarData) => {
   const isReviewer = reviewList
     .filter(
       (i: List) =>
@@ -141,7 +141,7 @@ const ApprovalsActionBar = ({
       ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        toast.success("Selected tasks have been successfully approved.");
+        toast.success("Selected tasks have been successfully rejected.");
         handleClearSelection();
         getReviewList();
         getInitialPagePerRows();
@@ -201,7 +201,12 @@ const ApprovalsActionBar = ({
           condition={
             hasPermissionWorklog("", "Approve", "Approvals") &&
             isNotReviewer.length === 0 &&
-            isReviewer.length > 0
+            isReviewer.length > 0 &&
+            reviewList.filter(
+              (i: List) =>
+                i.WorkitemId === workitemId &&
+                i.StatusType !== "PartialSubmitted"
+            ).length > 0
           }
           Component={Accept}
           propsForActionBar={propsForActionBar}
@@ -211,7 +216,12 @@ const ApprovalsActionBar = ({
             hasPermissionWorklog("", "Approve", "Approvals") &&
             selectedRowsCount === 1 &&
             isNotReviewer.length === 0 &&
-            isReviewer.length > 0
+            isReviewer.length > 0 &&
+            reviewList.filter(
+              (i: List) =>
+                i.WorkitemId === workitemId &&
+                i.StatusType !== "PartialSubmitted"
+            ).length > 0
           }
           Component={AcceptWithNotes}
           propsForActionBar={propsForActionBar}

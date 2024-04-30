@@ -50,14 +50,14 @@ interface SavedFilter {
     projectIdsJSON: number[];
     processIdsJSON: number[];
     WorkTypeId?: number | null;
-    assignedById: number | null;
-    assigneeId: number | null;
-    reviewerId: number | null;
+    assignedByIds: number[];
+    assigneeIds: number[];
+    reviewerIds: number[];
     returnTypeId: number | null;
     numberOfPages: number | null;
     returnYear: number | null;
     subProcessId: number | null;
-    StatusId: number | null;
+    StatusIds: number[];
     priority: number | null;
     startDate: string | null;
     endDate: string | null;
@@ -70,7 +70,9 @@ interface SavedFilter {
   };
 }
 
-const ALL = -1;
+const ALL_CLIENT = -1;
+const ALL_STATUS = -1;
+const ALL_USERS = -1;
 
 const returnTypeDropdown = [
   {
@@ -111,16 +113,17 @@ const CustomReportFilter = ({
   const [projectName, setProjectName] = useState<LabelValue | null>(null);
   const [processName, setProcessName] = useState<LabelValue | null>(null);
   const [subProcessName, setSubProcessName] = useState<LabelValue | null>(null);
-  const [assignByName, setAssignByName] =
-    useState<LabelValueProfileImage | null>(null);
-  const [assigneeName, setAssigneeName] =
-    useState<LabelValueProfileImage | null>(null);
-  const [reviewerName, setReviewerName] =
-    useState<LabelValueProfileImage | null>(null);
+  const [assignBy, setAssignBy] = useState<LabelValueProfileImage[]>([]);
+  const [assignByName, setAssignByName] = useState<number[]>([]);
+  const [assignee, setAssignee] = useState<LabelValueProfileImage[]>([]);
+  const [assigneeName, setAssigneeName] = useState<number[]>([]);
+  const [reviewer, setReviewer] = useState<LabelValueProfileImage[]>([]);
+  const [reviewerName, setReviewerName] = useState<number[]>([]);
   const [returnTypeName, setReturnTypeName] = useState<LabelValue | null>(null);
   const [noofPages, setNoofPages] = useState<string | number>("");
   const [returnYear, setReturnYear] = useState<LabelValue | null>(null);
-  const [status, setStatus] = useState<LabelValueType | null>(null);
+  const [status, setStatus] = useState<LabelValueType[]>([]);
+  const [statusName, setStatusName] = useState<number[]>([]);
   const [priority, setPriority] = useState<LabelValue | null>(null);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
@@ -170,20 +173,24 @@ const CustomReportFilter = ({
     }
   };
 
-  const handleResetAll = () => {
+  const handleResetAll = (close: boolean) => {
     setClientName([]);
     setClients([]);
     setTypeOfWorkName(null);
     setProjectName(null);
     setProcessName(null);
-    setAssignByName(null);
-    setAssigneeName(null);
-    setReviewerName(null);
+    setAssignBy([]);
+    setAssignByName([]);
+    setAssignee([]);
+    setAssigneeName([]);
+    setReviewer([]);
+    setReviewerName([]);
     setReturnTypeName(null);
     setNoofPages("");
     setReturnYear(null);
     setSubProcessName(null);
-    setStatus(null);
+    setStatus([]);
+    setStatusName([]);
     setPriority(null);
     setStartDate("");
     setEndDate("");
@@ -195,12 +202,12 @@ const CustomReportFilter = ({
     setAllInfoDate("");
     setError("");
     setFilterName("");
-    setDefaultFilter(false);
-    onDialogClose(false);
     setIdFilter(undefined);
     setSubProcessDropdown([]);
     setStatusDropdown([]);
     setProjectDropdown([]);
+    close && setDefaultFilter(false);
+    close && onDialogClose(false);
 
     sendFilterToPage({
       ...customreport_InitialFilter,
@@ -216,14 +223,18 @@ const CustomReportFilter = ({
     setTypeOfWorkName(null);
     setProjectName(null);
     setProcessName(null);
-    setAssignByName(null);
-    setAssigneeName(null);
-    setReviewerName(null);
+    setAssignBy([]);
+    setAssignByName([]);
+    setAssignee([]);
+    setAssigneeName([]);
+    setReviewer([]);
+    setReviewerName([]);
     setReturnTypeName(null);
     setNoofPages("");
     setReturnYear(null);
     setSubProcessName(null);
-    setStatus(null);
+    setStatus([]);
+    setStatusName([]);
     setPriority(null);
     setStartDate("");
     setEndDate("");
@@ -243,14 +254,14 @@ const CustomReportFilter = ({
       WorkTypeId: typeOfWorkName === null ? null : typeOfWorkName.value,
       projectIdsJSON: projectName === null ? [] : [projectName.value],
       processIdsJSON: processName === null ? [] : [processName.value],
-      assignedById: assignByName === null ? null : assignByName.value,
-      assigneeId: assigneeName === null ? null : assigneeName.value,
-      reviewerId: reviewerName === null ? null : reviewerName.value,
+      assignedByIds: assignByName.length > 0 ? assignByName : [],
+      assigneeIds: assigneeName.length > 0 ? assigneeName : [],
+      reviewerIds: reviewerName.length > 0 ? reviewerName : [],
       returnTypeId: returnTypeName === null ? null : returnTypeName.value,
       numberOfPages: noofPages.toString().trim().length <= 0 ? null : noofPages,
       returnYear: returnYear === null ? null : returnYear.value,
       subProcessId: subProcessName === null ? null : subProcessName.value,
-      StatusId: !!status && !!status.value ? status.value : null,
+      StatusIds: statusName.length > 0 ? statusName : [],
       priority: priority === null ? null : priority.value,
       startDate:
         startDate.toString().trim().length <= 0
@@ -310,14 +321,14 @@ const CustomReportFilter = ({
           WorkTypeId: savedFilters[index].AppliedFilter.WorkTypeId,
           projectIdsJSON: savedFilters[index].AppliedFilter.projectIdsJSON,
           processIdsJSON: savedFilters[index].AppliedFilter.processIdsJSON,
-          assignedById: savedFilters[index].AppliedFilter.assignedById,
-          assigneeId: savedFilters[index].AppliedFilter.assigneeId,
-          reviewerId: savedFilters[index].AppliedFilter.reviewerId,
+          assignedByIds: savedFilters[index].AppliedFilter.assignedByIds,
+          assigneeIds: savedFilters[index].AppliedFilter.assigneeIds,
+          reviewerIds: savedFilters[index].AppliedFilter.reviewerIds,
           returnTypeId: savedFilters[index].AppliedFilter.returnTypeId,
           numberOfPages: savedFilters[index].AppliedFilter.numberOfPages,
           returnYear: savedFilters[index].AppliedFilter.returnYear,
           subProcessId: savedFilters[index].AppliedFilter.subProcessId,
-          StatusId: savedFilters[index].AppliedFilter.StatusId,
+          StatusIds: savedFilters[index].AppliedFilter.StatusIds,
           priority: savedFilters[index].AppliedFilter.priority,
           startDate: savedFilters[index].AppliedFilter.startDate,
           endDate: savedFilters[index].AppliedFilter.endDate,
@@ -347,15 +358,15 @@ const CustomReportFilter = ({
           WorkTypeId: typeOfWorkName === null ? null : typeOfWorkName.value,
           projectIdsJSON: projectName === null ? [] : [projectName.value],
           processIdsJSON: processName === null ? [] : [processName.value],
-          assignedById: assignByName === null ? null : assignByName.value,
-          assigneeId: assigneeName === null ? null : assigneeName.value,
-          reviewerId: reviewerName === null ? null : reviewerName.value,
+          assignedByIds: assignByName.length > 0 ? assignByName : [],
+          assigneeIds: assigneeName.length > 0 ? assigneeName : [],
+          reviewerIds: reviewerName.length > 0 ? reviewerName : [],
           returnTypeId: returnTypeName === null ? null : returnTypeName.value,
           numberOfPages:
             noofPages.toString().trim().length <= 0 ? null : noofPages,
           returnYear: returnYear === null ? null : returnYear.value,
           subProcessId: subProcessName === null ? null : subProcessName.value,
-          StatusId: !!status && !!status.value ? status.value : null,
+          StatusIds: statusName.length > 0 ? statusName : [],
           priority: priority === null ? null : priority.value,
           startDate:
             startDate.toString().trim().length <= 0
@@ -479,11 +490,14 @@ const CustomReportFilter = ({
   useEffect(() => {
     const customDropdowns = async () => {
       setClientDropdown([
-        { label: "Select All", value: ALL },
+        { label: "Select All", value: ALL_CLIENT },
         ...(await getClientDropdownData()),
       ]);
       setTypeOfWorkDropdown(await getTypeOfWorkDropdownData(0));
-      setUserDropdown(await getCCDropdownData());
+      setUserDropdown([
+        { label: "Select All", value: ALL_USERS },
+        ...(await getCCDropdownData()),
+      ]);
       setProcessDropdown(await getAllProcessDropdownData());
     };
     customDropdowns();
@@ -491,7 +505,10 @@ const CustomReportFilter = ({
 
   useEffect(() => {
     const customDropdowns = async () => {
-      setStatusDropdown(await getStatusDropdownData(typeOfWorkName?.value));
+      setStatusDropdown([
+        { label: "Select All", value: ALL_STATUS },
+        ...(await getStatusDropdownData(typeOfWorkName?.value)),
+      ]);
     };
     typeOfWorkName !== null && typeOfWorkName?.value > 0 && customDropdowns();
   }, [typeOfWorkName]);
@@ -566,11 +583,8 @@ const CustomReportFilter = ({
     setClientName(clients);
 
     setTypeOfWorkName(
-      AppliedFilter.clientIdsJSON.length === 1 &&
-        AppliedFilter.WorkTypeId !== null
-        ? (
-            await getTypeOfWorkDropdownData(AppliedFilter.clientIdsJSON[0])
-          ).filter(
+      AppliedFilter.WorkTypeId !== null
+        ? (await getTypeOfWorkDropdownData(null)).filter(
             (item: LabelValue) => item.value === AppliedFilter.WorkTypeId
           )[0]
         : null
@@ -615,29 +629,35 @@ const CustomReportFilter = ({
         : null
     );
 
-    setAssignByName(
-      AppliedFilter.assignedById !== null
-        ? userDropdown.filter(
-            (item: LabelValue) => item.value === AppliedFilter.assignedById
-          )[0]
-        : null
+    const assigneebys = AppliedFilter?.assignedByIds || [];
+    setAssignBy(
+      assigneebys.length > 0
+        ? userDropdown.filter((assignee: LabelValue) =>
+            assigneebys.includes(assignee.value)
+          )
+        : []
     );
+    setAssignByName(assigneebys);
 
-    setAssigneeName(
-      AppliedFilter.assigneeId !== null
-        ? userDropdown.filter(
-            (item: LabelValue) => item.value === AppliedFilter.assigneeId
-          )[0]
-        : null
+    const assignees = AppliedFilter?.assigneeIds || [];
+    setAssignee(
+      assignees.length > 0
+        ? userDropdown.filter((assignee: LabelValue) =>
+            assignees.includes(assignee.value)
+          )
+        : []
     );
+    setAssigneeName(assignees);
 
-    setReviewerName(
-      AppliedFilter.reviewerId !== null
-        ? userDropdown.filter(
-            (item: LabelValue) => item.value === AppliedFilter.reviewerId
-          )[0]
-        : null
+    const reviewers = AppliedFilter?.reviewerIds || [];
+    setReviewer(
+      reviewers.length > 0
+        ? userDropdown.filter((review: LabelValue) =>
+            reviewers.includes(review.value)
+          )
+        : []
     );
+    setReviewerName(reviewers);
 
     setReturnTypeName(
       AppliedFilter.returnTypeId !== null
@@ -657,13 +677,16 @@ const CustomReportFilter = ({
         : null
     );
 
+    const statuses = AppliedFilter?.StatusIds || [];
     setStatus(
-      AppliedFilter.StatusId !== null && AppliedFilter.WorkTypeId !== null
-        ? (await getStatusDropdownData(AppliedFilter.WorkTypeId)).filter(
-            (item: LabelValue) => item.value === AppliedFilter.StatusId
-          )[0]
-        : null
+      statuses.length > 0 && AppliedFilter.WorkTypeId !== null
+        ? [
+            { label: "Select All", value: ALL_CLIENT },
+            ...(await getStatusDropdownData(AppliedFilter.WorkTypeId)),
+          ].filter((client: LabelValue) => statuses.includes(client.value))
+        : []
     );
+    setStatusName(statuses);
 
     setPriority(
       AppliedFilter.priority !== null
@@ -785,7 +808,11 @@ const CustomReportFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button onClick={handleResetAll} className="mt-2" color="error">
+            <Button
+              onClick={() => handleResetAll(true)}
+              className="mt-2"
+              color="error"
+            >
               clear all
             </Button>
           </div>
@@ -800,7 +827,7 @@ const CustomReportFilter = ({
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleResetAll}>
+            <Button color="error" onClick={() => handleResetAll(false)}>
               Reset all
             </Button>
           </DialogTitle>
@@ -864,7 +891,7 @@ const CustomReportFilter = ({
                     getOptionLabel={(option: LabelValue) => option.label}
                     onChange={(e, data: LabelValue | null) => {
                       setTypeOfWorkName(data);
-                      setStatus(null);
+                      setStatus([]);
                     }}
                     value={typeOfWorkName}
                     renderInput={(params: any) => (
@@ -950,15 +977,46 @@ const CustomReportFilter = ({
                   sx={{ mx: 0.75, minWidth: 200 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
-                    options={userDropdown}
+                    options={
+                      userDropdown.length - 1 === assignBy.length
+                        ? []
+                        : userDropdown.filter(
+                            (option) =>
+                              !assignBy.find(
+                                (assigneeby) =>
+                                  assigneeby.value === option.value
+                              )
+                          )
+                    }
                     getOptionLabel={(option: LabelValueProfileImage) =>
                       option.label
                     }
-                    onChange={(e, data: LabelValueProfileImage | null) => {
-                      setAssignByName(data);
+                    onChange={(e, data: LabelValueProfileImage[]) => {
+                      if (
+                        data.some((d: LabelValueProfileImage) => d.value === -1)
+                      ) {
+                        setAssignBy(
+                          userDropdown.filter(
+                            (d: LabelValueProfileImage) => d.value !== -1
+                          )
+                        );
+                        setAssignByName(
+                          userDropdown
+                            .filter(
+                              (d: LabelValueProfileImage) => d.value !== -1
+                            )
+                            .map((d: LabelValueProfileImage) => d.value)
+                        );
+                      } else {
+                        setAssignBy(data);
+                        setAssignByName(
+                          data.map((d: LabelValueProfileImage) => d.value)
+                        );
+                      }
                     }}
-                    value={assignByName}
+                    value={assignBy}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
@@ -975,15 +1033,45 @@ const CustomReportFilter = ({
                   sx={{ mx: 0.75, minWidth: 200 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
-                    options={userDropdown}
+                    options={
+                      userDropdown.length - 1 === assignee.length
+                        ? []
+                        : userDropdown.filter(
+                            (option) =>
+                              !assignee.find(
+                                (assigne) => assigne.value === option.value
+                              )
+                          )
+                    }
                     getOptionLabel={(option: LabelValueProfileImage) =>
                       option.label
                     }
-                    onChange={(e, data: LabelValueProfileImage | null) => {
-                      setAssigneeName(data);
+                    onChange={(e, data: LabelValueProfileImage[]) => {
+                      if (
+                        data.some((d: LabelValueProfileImage) => d.value === -1)
+                      ) {
+                        setAssignee(
+                          userDropdown.filter(
+                            (d: LabelValueProfileImage) => d.value !== -1
+                          )
+                        );
+                        setAssigneeName(
+                          userDropdown
+                            .filter(
+                              (d: LabelValueProfileImage) => d.value !== -1
+                            )
+                            .map((d: LabelValueProfileImage) => d.value)
+                        );
+                      } else {
+                        setAssignee(data);
+                        setAssigneeName(
+                          data.map((d: LabelValueProfileImage) => d.value)
+                        );
+                      }
                     }}
-                    value={assigneeName}
+                    value={assignee}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
@@ -998,15 +1086,45 @@ const CustomReportFilter = ({
                   sx={{ mx: 0.75, minWidth: 200 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
-                    options={userDropdown}
+                    options={
+                      userDropdown.length - 1 === reviewer.length
+                        ? []
+                        : userDropdown.filter(
+                            (option) =>
+                              !reviewer.find(
+                                (review) => review.value === option.value
+                              )
+                          )
+                    }
                     getOptionLabel={(option: LabelValueProfileImage) =>
                       option.label
                     }
-                    onChange={(e, data: LabelValueProfileImage | null) => {
-                      setReviewerName(data);
+                    onChange={(e, data: LabelValueProfileImage[]) => {
+                      if (
+                        data.some((d: LabelValueProfileImage) => d.value === -1)
+                      ) {
+                        setReviewer(
+                          userDropdown.filter(
+                            (d: LabelValueProfileImage) => d.value !== -1
+                          )
+                        );
+                        setReviewerName(
+                          userDropdown
+                            .filter(
+                              (d: LabelValueProfileImage) => d.value !== -1
+                            )
+                            .map((d: LabelValueProfileImage) => d.value)
+                        );
+                      } else {
+                        setReviewer(data);
+                        setReviewerName(
+                          data.map((d: LabelValueProfileImage) => d.value)
+                        );
+                      }
                     }}
-                    value={reviewerName}
+                    value={reviewer}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
@@ -1077,11 +1195,35 @@ const CustomReportFilter = ({
                   sx={{ mx: 0.75, minWidth: 200 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
-                    options={statusDropdown}
+                    options={
+                      statusDropdown.length - 1 === status.length
+                        ? []
+                        : statusDropdown.filter(
+                            (option) =>
+                              !status.find(
+                                (status) => status.value === option.value
+                              )
+                          )
+                    }
                     getOptionLabel={(option: LabelValueType) => option.label}
-                    onChange={(e, data: LabelValueType | null) => {
-                      setStatus(data);
+                    onChange={(e, data: LabelValueType[]) => {
+                      if (data.some((d: LabelValueType) => d.value === -1)) {
+                        setStatus(
+                          statusDropdown.filter(
+                            (d: LabelValueType) => d.value !== -1
+                          )
+                        );
+                        setStatusName(
+                          statusDropdown
+                            .filter((d: LabelValueType) => d.value !== -1)
+                            .map((d: LabelValueType) => d.value)
+                        );
+                      } else {
+                        setStatus(data);
+                        setStatusName(data.map((d: LabelValueType) => d.value));
+                      }
                     }}
                     value={status}
                     renderInput={(params: any) => (
@@ -1335,8 +1477,8 @@ const CustomReportFilter = ({
               color="info"
               onClick={() =>
                 currentFilterId > 0 || !!currentFilterId
-                  ? handleResetAll()
-                  : onDialogClose(false)
+                  ? handleResetAll(true)
+                  : (onDialogClose(false), setDefaultFilter(false))
               }
             >
               Cancel

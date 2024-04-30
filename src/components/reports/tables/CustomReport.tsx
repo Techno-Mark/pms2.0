@@ -151,6 +151,8 @@ const CustomReport = ({
         setCustomReportFields({
           ...customReportFields,
           loaded: true,
+          data: [],
+          dataCount: 0,
         });
       }
     };
@@ -378,6 +380,17 @@ const CustomReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Process Name"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "SubProcessName",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Sub-Process"),
         customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
         },

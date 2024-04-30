@@ -84,7 +84,7 @@ const KRAReportFilter = ({
     openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
   }, [openFilter]);
 
-  const handleResetAll = () => {
+  const handleResetAll = (close: boolean) => {
     setClientName([]);
     setClients([]);
     setUserName([]);
@@ -95,9 +95,9 @@ const KRAReportFilter = ({
     setEndDate("");
     setError("");
     setFilterName("");
-    setDefaultFilter(false);
-    onDialogClose(false);
     setIdFilter(undefined);
+    close && setDefaultFilter(false);
+    close && onDialogClose(false);
 
     sendFilterToPage({
       ...kra_InitialFilter,
@@ -393,7 +393,11 @@ const KRAReportFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button onClick={handleResetAll} className="mt-2" color="error">
+            <Button
+              onClick={() => handleResetAll(true)}
+              className="mt-2"
+              color="error"
+            >
               clear all
             </Button>
           </div>
@@ -408,7 +412,7 @@ const KRAReportFilter = ({
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleResetAll}>
+            <Button color="error" onClick={() => handleResetAll(false)}>
               Reset all
             </Button>
           </DialogTitle>
@@ -598,8 +602,8 @@ const KRAReportFilter = ({
               color="info"
               onClick={() =>
                 currentFilterId > 0 || !!currentFilterId
-                  ? handleResetAll()
-                  : onDialogClose(false)
+                  ? handleResetAll(true)
+                  : (onDialogClose(false), setDefaultFilter(false))
               }
             >
               Cancel

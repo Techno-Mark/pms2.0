@@ -34,7 +34,13 @@ export const callAPI = async (
       if (ResponseStatus === "Success") {
         successCallback(ResponseData, false, ResponseStatus);
       } else if (ResponseStatus === "Warning") {
-        successCallback(Message, false, ResponseStatus);
+        successCallback(
+          Message !== null && Message.trim().length > 0
+            ? Message
+            : ResponseData,
+          false,
+          ResponseStatus
+        );
       } else {
         if (Message === null || Message.trim().length <= 0) {
           toast.error(
