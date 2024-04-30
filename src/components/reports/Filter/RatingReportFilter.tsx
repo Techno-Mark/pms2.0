@@ -130,6 +130,7 @@ const RatingReportFilter = ({
     setRatingReport_Ratings(null);
     setRatingReport_Error("");
     setRatingReport_FilterName("");
+    setRatingReport_AnyFieldSelected(false);
     setIdFilter(undefined);
     close && setRatingReport_DefaultFilter(false);
     close && onDialogClose(false);

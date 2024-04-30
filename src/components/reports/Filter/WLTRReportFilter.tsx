@@ -75,6 +75,7 @@ const WLTRReportFilter = ({
     setEndDate("");
     setError("");
     setFilterName("");
+    setAnyFieldSelected(false);
     setIdFilter(undefined);
     clear && setDefaultFilter(false);
     clear && onDialogClose(false);
