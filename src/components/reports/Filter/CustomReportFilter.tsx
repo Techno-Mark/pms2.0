@@ -202,6 +202,7 @@ const CustomReportFilter = ({
     setAllInfoDate("");
     setError("");
     setFilterName("");
+    setAnyFieldSelected(false);
     setIdFilter(undefined);
     setSubProcessDropdown([]);
     setStatusDropdown([]);
@@ -443,14 +444,14 @@ const CustomReportFilter = ({
       typeOfWorkName !== null ||
       projectName !== null ||
       processName !== null ||
-      assignByName !== null ||
-      assigneeName !== null ||
-      reviewerName !== null ||
+      assignByName.length > 0 ||
+      assigneeName.length > 0 ||
+      reviewerName.length > 0 ||
       returnTypeName !== null ||
       noofPages.toString().trim().length > 0 ||
       returnYear !== null ||
       subProcessName !== null ||
-      status !== null ||
+      status.length > 0 ||
       priority !== null ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0 ||

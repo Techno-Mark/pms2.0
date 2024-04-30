@@ -125,6 +125,7 @@ const BillingReportFilter = ({
     setEndDateReview("");
     setError("");
     setFilterName("");
+    setAnyFieldSelected(false);
     setIdFilter(undefined);
     close && setDefaultFilter(false);
     close && onDialogClose(false);

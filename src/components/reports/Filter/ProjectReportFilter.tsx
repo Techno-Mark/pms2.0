@@ -116,6 +116,7 @@ const ProjectReportFilter = ({
     setProject_Error("");
     setProject_ProjectDropdown([]);
     setProject_FilterName("");
+    setProject_AnyFieldSelected(false);
     setIdFilter(undefined);
     close && setProject_DefaultFilter(false);
     close && onDialogClose(false);

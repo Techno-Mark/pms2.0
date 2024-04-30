@@ -82,6 +82,7 @@ const UserReportFilter = ({
     setUser_EndDate("");
     setUser_Error("");
     setUser_FilterName("");
+    setUser_AnyFieldSelected(false);
     setIdFilter(undefined);
     clear && setUser_DefaultFilter(false);
     clear && onDialogClose(false);
