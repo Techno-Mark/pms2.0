@@ -99,6 +99,7 @@ const LogReportFilter = ({
     setEndDate("");
     setError("");
     setFilterName("");
+    setAnyFieldSelected(false);
     setIdFilter(undefined);
     close && setDefaultFilter(false);
     close && onDialogClose(false);

@@ -8,9 +8,6 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField,
 } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -87,6 +84,7 @@ const FilterDialog_Task = ({
     setDueDateFilterTask(null);
     setStartDateFilterTask(null);
     setEndDateFilterTask(null);
+    setAnyTaskFieldSelected(false);
     currentFilterData?.(initialTaskFilter);
   };
 

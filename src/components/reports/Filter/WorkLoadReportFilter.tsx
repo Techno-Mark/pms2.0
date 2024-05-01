@@ -89,6 +89,7 @@ const WorkLoadReportFilter = ({
     setWorkload_DateFilter("");
     setWorkload_Error("");
     setWorkload_FilterName("");
+    setWorkload_AnyFieldSelected(false);
     setIdFilter(undefined);
     close && setWorkload_DefaultFilter(false);
     close && onDialogClose(false);

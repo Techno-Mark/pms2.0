@@ -37,6 +37,7 @@ const WltrProjectReportFilter = ({
   const handleResetAll = () => {
     setStartDate("");
     setEndDate("");
+    setAnyFieldSelected(false);
     onDialogClose(false);
 
     sendFilterToPage({

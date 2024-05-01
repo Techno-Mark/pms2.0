@@ -16,7 +16,9 @@ const toSeconds = (time: string) => {
     const minutes = parseInt(time.split(":")[1]) * 60;
     const seconds = parseInt(time.split(":")[2]);
     return hours + minutes + seconds;
-  } else console.error("Please provide the time in hh:mm:ss format!");
+  } else {
+    return null;
+  }
 };
 
 const getDates = (startDate?: any, endDate?: any) => {

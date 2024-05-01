@@ -94,6 +94,7 @@ const TimesheetReportFilter = ({
     setTimesheetEndDate("");
     setTimesheetError("");
     setTimesheetFilterName("");
+    setTimesheetAnyFieldSelected(false);
     setIdFilter(undefined);
     close && setTimesheetDefaultFilter(false);
     close && onDialogClose(false);

@@ -100,6 +100,7 @@ const UserLogsReportFilter = ({
     setUserlogs_DateFilter("");
     setUserlogs_Error("");
     setUserlogs_FilterName("");
+    setUserlogs_AnyFieldSelected(false);
     setIdFilter(undefined);
     close && setUserlogs_DefaultFilter(false);
     close && onDialogClose(false);
