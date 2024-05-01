@@ -412,22 +412,20 @@ const Page = () => {
             </ColorToolTip>
 
             {activeTab === 7 && (
-              <>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="info"
-                  disabled={!hasRaisedInvoiceData}
-                  className={`whitespace-nowrap ${
-                    hasRaisedInvoiceData ? "!bg-secondary" : ""
-                  }`}
-                  onClick={() => setSaveBTCData(true)}
-                >
-                  {filteredData !== null && filteredData?.IsBTC
-                    ? "Invoice UnRaise"
-                    : "Invoice Raise"}
-                </Button>
-              </>
+              <Button
+                type="submit"
+                variant="contained"
+                color="info"
+                disabled={!hasRaisedInvoiceData}
+                className={`whitespace-nowrap ${
+                  hasRaisedInvoiceData ? "!bg-secondary" : ""
+                }`}
+                onClick={() => setSaveBTCData(true)}
+              >
+                {filteredData !== null && filteredData?.IsBTC
+                  ? "Invoice UnRaise"
+                  : "Invoice Raise"}
+              </Button>
             )}
           </div>
         </div>

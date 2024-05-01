@@ -73,6 +73,7 @@ const FilterDialogHalfDay = ({
     setUserNames([]);
     setMonth(null);
     setYear(null);
+    setAnyFieldSelected(false);
     currentFilterData(initialFilter);
   };
 

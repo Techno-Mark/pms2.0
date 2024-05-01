@@ -99,6 +99,7 @@ const FilterDialogApproval = ({
     setProjectDropdownData([]);
     setProcessDropdownData([]);
     setStatusDropdownData([]);
+    setAnyFieldSelected(false);
     currentFilterData?.(initialFilter);
   };
 

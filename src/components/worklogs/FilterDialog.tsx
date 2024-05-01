@@ -122,6 +122,7 @@ const FilterDialog = ({
     setReviewStatus(0);
     setSaveFilter(false);
     setFilterName("");
+    setAnyFieldSelected(false);
     currentFilterData?.(initialFilter);
     setStatusDropdownData([]);
     setError("");
