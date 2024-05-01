@@ -1,7 +1,9 @@
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
-import { LabelValue } from "@/utils/Types/types";
+import { LabelValue, LabelValueType } from "@/utils/Types/types";
 import {
+  getCCDropdownData,
   getClientDropdownData,
+  getStatusDropdownData,
   getTypeOfWorkDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { DialogTransition } from "@/utils/style/DialogTransition";
@@ -47,6 +49,9 @@ const FilterDialogDashboard = ({
   const initialFilter = {
     Clients: [],
     WorkTypeId: activeTab === 1 ? Number(workTypeIdFromLocalStorage) : null,
+    AssigneeIds: [],
+    ReviewerIds: [],
+    StatusIds: [],
     StartDate: null,
     EndDate: null,
   };
@@ -57,6 +62,16 @@ const FilterDialogDashboard = ({
   const [workType, setWorkType] = useState<number>(3);
   const [workTypeActive, setWorkTypeActive] = useState<LabelValue | null>(null);
   const [worktypeDropdownData, setWorktypeDropdownData] = useState([]);
+  const [assignees, setAssignees] = useState<LabelValue[] | []>([]);
+  const [assigneeName, setAssigneeName] = useState<number[] | []>([]);
+  const [userDropdown, setUserDropdown] = useState<LabelValue[] | []>([]);
+  const [reviewers, setReviewers] = useState<LabelValue[] | []>([]);
+  const [reviewerName, setReviewerName] = useState<number[] | []>([]);
+  const [status, setStatus] = useState<LabelValueType[] | []>([]);
+  const [statusName, setStatusName] = useState<number[] | []>([]);
+  const [statusDropdown, setStatusDropdown] = useState<LabelValueType[] | []>(
+    []
+  );
   const [startDate, setStartDate] = useState<null | string>(null);
   const [endDate, setEndDate] = useState<null | string>(null);
   const [anyFieldSelected, setAnyFieldSelected] = useState<boolean>(false);
@@ -77,6 +92,13 @@ const FilterDialogDashboard = ({
     setClients([]);
     setWorkType(activeTab === 1 ? Number(workTypeIdFromLocalStorage) : 0);
     setWorkTypeActive(activeTab === 1 ? { label: "Tax", value: 3 } : null);
+    setAssigneeName([]);
+    setAssignees([]);
+    setReviewerName([]);
+    setReviewers([]);
+    setStatusName([]);
+    setStatus([]);
+    setStatusDropdown([]);
     setStartDate(null);
     setEndDate(null);
     currentFilterData?.(initialFilter);
@@ -89,7 +111,18 @@ const FilterDialogDashboard = ({
       ...(await getClientDropdownData()),
     ]);
     setWorktypeDropdownData(typeOfWorkData);
+    setUserDropdown(await getCCDropdownData());
   };
+
+  useEffect(() => {
+    const customDropdowns = async () => {
+      setStatusDropdown(await getStatusDropdownData(workTypeActive?.value));
+    };
+    workTypeActive !== null &&
+      workTypeActive?.value > 0 &&
+      activeTab === 2 &&
+      customDropdowns();
+  }, [workTypeActive]);
 
   useEffect(() => {
     if (onOpen === true) {
@@ -107,18 +140,33 @@ const FilterDialogDashboard = ({
     const isAnyFieldSelectedActive: boolean =
       clientName.length > 0 ||
       workTypeActive !== null ||
+      assigneeName.length > 0 ||
+      reviewerName.length > 0 ||
+      statusName.length > 0 ||
       startDate !== null ||
       endDate !== null;
 
     setAnyFieldSelected(
       activeTab === 1 ? isAnyFieldSelected : isAnyFieldSelectedActive
     );
-  }, [clientName, workType, workTypeActive, startDate, endDate]);
+  }, [
+    clientName,
+    workType,
+    workTypeActive,
+    assigneeName,
+    reviewerName,
+    statusName,
+    startDate,
+    endDate,
+  ]);
 
   useEffect(() => {
     const selectedFields: DashboardInitialFilter = {
       Clients: clientName,
       WorkTypeId: workType > 0 ? workType : null,
+      AssigneeIds: assigneeName,
+      ReviewerIds: reviewerName,
+      StatusIds: statusName,
       StartDate: startDate !== null ? getFormattedDate(startDate) : null,
       EndDate:
         endDate === null
@@ -131,6 +179,9 @@ const FilterDialogDashboard = ({
     const selectedFieldsActive: DashboardInitialFilter = {
       Clients: clientName,
       WorkTypeId: workTypeActive !== null ? workTypeActive.value : null,
+      AssigneeIds: assigneeName,
+      ReviewerIds: reviewerName,
+      StatusIds: statusName,
       StartDate: startDate !== null ? getFormattedDate(startDate) : null,
       EndDate:
         endDate === null
@@ -142,7 +193,16 @@ const FilterDialogDashboard = ({
     setCurrSelectedFileds(
       activeTab === 1 ? selectedFields : selectedFieldsActive
     );
-  }, [clientName, workType, workTypeActive, startDate, endDate]);
+  }, [
+    clientName,
+    workType,
+    workTypeActive,
+    assigneeName,
+    reviewerName,
+    statusName,
+    startDate,
+    endDate,
+  ]);
 
   useEffect(() => {
     handleResetAll();
@@ -252,6 +312,8 @@ const FilterDialogDashboard = ({
                       data: LabelValue | null
                     ) => {
                       setWorkTypeActive(data);
+                      setStatus([]);
+                      setStatusName([]);
                     }}
                     value={workTypeActive}
                     renderInput={(params: any) => (
@@ -264,8 +326,113 @@ const FilterDialogDashboard = ({
                   />
                 </FormControl>
               )}
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, width: 210 }}
+              >
+                <Autocomplete
+                  multiple
+                  id="tags-standard"
+                  options={
+                    userDropdown.length - 1 === assignees.length
+                      ? []
+                      : userDropdown.filter(
+                          (option) =>
+                            !assignees.find(
+                              (assignee) => assignee.value === option.value
+                            )
+                        )
+                  }
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(
+                    e: React.ChangeEvent<{}>,
+                    data: LabelValue[] | []
+                  ) => {
+                    setAssignees(data);
+                    setAssigneeName(data.map((d: LabelValue) => d.value));
+                  }}
+                  value={assignees}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Preparer/Assignee"
+                    />
+                  )}
+                />
+              </FormControl>
             </div>
             <div className="flex gap-[20px]">
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, width: 210 }}
+              >
+                <Autocomplete
+                  multiple
+                  id="tags-standard"
+                  options={
+                    userDropdown.length - 1 === reviewers.length
+                      ? []
+                      : userDropdown.filter(
+                          (option) =>
+                            !reviewers.find(
+                              (reviewer) => reviewer.value === option.value
+                            )
+                        )
+                  }
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(
+                    e: React.ChangeEvent<{}>,
+                    data: LabelValue[] | []
+                  ) => {
+                    setReviewers(data);
+                    setReviewerName(data.map((d: LabelValue) => d.value));
+                  }}
+                  value={reviewers}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Reviewer"
+                    />
+                  )}
+                />
+              </FormControl>
+              {activeTab === 2 && (
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, mt: 0.5, width: 210 }}
+                >
+                  <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={
+                      statusDropdown.length - 1 === status.length
+                        ? []
+                        : statusDropdown.filter(
+                            (option) =>
+                              !status.find((sta) => sta.value === option.value)
+                          )
+                    }
+                    getOptionLabel={(option: LabelValueType) => option.label}
+                    onChange={(
+                      e: React.ChangeEvent<{}>,
+                      data: LabelValueType[] | []
+                    ) => {
+                      setStatus(data);
+                      setStatusName(data.map((d: LabelValueType) => d.value));
+                    }}
+                    value={status}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Status Name"
+                      />
+                    )}
+                  />
+                </FormControl>
+              )}
               <div
                 className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
               >
@@ -286,27 +453,54 @@ const FilterDialogDashboard = ({
                   />
                 </LocalizationProvider>
               </div>
-              <div
-                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
-              >
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="To"
-                    value={endDate === null ? null : dayjs(endDate)}
-                    // shouldDisableDate={isWeekend}
-                    minDate={dayjs(startDate)}
-                    maxDate={dayjs(Date.now())}
-                    onChange={(newDate: any) => {
-                      setEndDate(newDate.$d);
-                    }}
-                    slotProps={{
-                      textField: {
-                        readOnly: true,
-                      } as Record<string, any>,
-                    }}
-                  />
-                </LocalizationProvider>
-              </div>
+              {activeTab === 1 && (
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="To"
+                      value={endDate === null ? null : dayjs(endDate)}
+                      // shouldDisableDate={isWeekend}
+                      minDate={dayjs(startDate)}
+                      maxDate={dayjs(Date.now())}
+                      onChange={(newDate: any) => {
+                        setEndDate(newDate.$d);
+                      }}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+              )}
+            </div>
+            <div className="flex gap-[20px]">
+              {activeTab === 2 && (
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="To"
+                      value={endDate === null ? null : dayjs(endDate)}
+                      // shouldDisableDate={isWeekend}
+                      minDate={dayjs(startDate)}
+                      maxDate={dayjs(Date.now())}
+                      onChange={(newDate: any) => {
+                        setEndDate(newDate.$d);
+                      }}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+              )}
             </div>
           </div>
         </DialogContent>

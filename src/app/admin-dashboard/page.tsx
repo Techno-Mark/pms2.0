@@ -142,6 +142,9 @@ const Page = () => {
     useState<DashboardInitialFilter>({
       Clients: [],
       WorkTypeId: null,
+      AssigneeIds: [],
+      ReviewerIds: [],
+      StatusIds: [],
       StartDate: null,
       EndDate: null,
     });
@@ -151,6 +154,7 @@ const Page = () => {
   };
 
   const getIdFromFilterDialog = (data: DashboardInitialFilter) => {
+    console.log(data)
     setCurrentFilterData(data);
   };
 
@@ -249,6 +253,8 @@ const Page = () => {
         currentFilterData.WorkTypeId === null
           ? Number(workTypeIdFromLocalStorage)
           : currentFilterData.WorkTypeId,
+      AssigneeIds: currentFilterData.AssigneeIds,
+      ReviewerIds: currentFilterData.ReviewerIds,
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,
     };
@@ -619,7 +625,7 @@ const Page = () => {
                       generateCustomColumn(
                         i.header,
                         i.label,
-                        generateDashboardReportBodyRenderRight
+                        generateDashboardReportBodyRender
                       )
                     ),
                   ]
