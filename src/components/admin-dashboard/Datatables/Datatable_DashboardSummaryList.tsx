@@ -56,6 +56,8 @@ const Datatable_DashboardSummaryList = ({
         currentFilterData.WorkTypeId === null
           ? Number(workTypeIdFromLocalStorage)
           : currentFilterData.WorkTypeId,
+      AssigneeIds: currentFilterData.AssigneeIds,
+      ReviewerIds: currentFilterData.ReviewerIds,
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,
       Key:
