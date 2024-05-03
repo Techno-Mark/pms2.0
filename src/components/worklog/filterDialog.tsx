@@ -9,9 +9,6 @@ import {
   Checkbox,
   FormControl,
   FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField,
 } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -111,6 +108,7 @@ const FilterDialog = ({
     setIsChecked(false);
     setStatusDropdownWorklogData([]);
     setStatusDropdownCompletedData([]);
+    setAnyFieldSelected(false);
     currentFilterData?.(initialFilter);
   };
 

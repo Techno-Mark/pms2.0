@@ -74,6 +74,7 @@ const FilterDialog_Rating = ({
     setRatingsFilterRating(null);
     setStartDateFilterRating(null);
     setEndDateFilterRating(null);
+    setAnyRatingFieldSelected(false);
     currentFilterData?.(initialRatingFilter);
   };
 
