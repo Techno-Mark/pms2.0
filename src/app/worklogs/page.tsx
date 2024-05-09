@@ -409,12 +409,10 @@ const Page = () => {
               Task
             </label>
             {hasPermissionWorklog("", "View", "WorkLogs") &&
-              hasPermissionWorklog("", "ClientManager", "WorkLogs") &&
               hasPermissionWorklog("", "ManageAssignee", "WorkLogs") && (
                 <span className="text-lightSilver">|</span>
               )}
-            {hasPermissionWorklog("", "ClientManager", "WorkLogs") &&
-              hasPermissionWorklog("", "ManageAssignee", "WorkLogs") && (
+            {hasPermissionWorklog("", "ManageAssignee", "WorkLogs") && (
                 <label
                   onClick={() => {
                     setGlobalSearchValue("");

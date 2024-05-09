@@ -194,7 +194,9 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
             handleClose();
           } else {
             toast.error(
-              "The uploaded file is not in the format of the sample file."
+              response.data.Message === "" || response.data.Message === null
+                ? "The uploaded file is not in the format of the sample file."
+                : response.data.Message
             );
             setIsUplaoding(false);
             handleClose();
