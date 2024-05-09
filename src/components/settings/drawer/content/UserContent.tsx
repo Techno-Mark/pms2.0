@@ -442,7 +442,6 @@ const UserContent = forwardRef<
   const clearAllData = async () => {
     await clearDataEmployee();
     await clearDataClient();
-    setValue("Employee");
     onClose();
   };
 

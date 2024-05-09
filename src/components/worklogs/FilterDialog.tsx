@@ -557,7 +557,7 @@ const FilterDialog = ({
               </FormControl>
 
               <div
-                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}
+                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
               >
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
@@ -578,7 +578,7 @@ const FilterDialog = ({
 
             <div className="flex gap-[20px]">
               <div
-                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}
+                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
               >
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
@@ -596,7 +596,7 @@ const FilterDialog = ({
                 </LocalizationProvider>
               </div>
               <div
-                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}
+                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
               >
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker

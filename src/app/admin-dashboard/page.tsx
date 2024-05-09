@@ -153,8 +153,7 @@ const Page = () => {
     setisFilterOpen(false);
   };
 
-  const getIdFromFilterDialog = (data: DashboardInitialFilter) => {
-    console.log(data)
+  const getIdFromFilterDialog = (data: DashboardInitialFilter) => {   
     setCurrentFilterData(data);
   };
 

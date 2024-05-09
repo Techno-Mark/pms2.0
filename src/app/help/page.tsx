@@ -17,7 +17,7 @@ const Page = () => {
       </div>
       <div className="mx-4 px-5 flex justify-between items-center w-[97%] h-28 bg-whiteSmoke rounded-lg shadow-xl">
         <span>
-          PMS Executable (.exe) File [Version 1.0] - December 11, 2023
+          PMS Executable (.exe) File [Version 2.0] - May 3, 2024
         </span>
         <Button variant="contained" className="!bg-secondary">
           <a href="https://pmsaea8.blob.core.windows.net/prod-help-video-setup/PGCTimeTracker.msi">
@@ -37,7 +37,7 @@ const Page = () => {
           </li>
           <li className="pb-1">
             Ensure that the user system has the most recent version of the PMS
-            Executable (.exe) File [Version 1.0] - December 11, 2023 and remove
+            Executable (.exe) File [Version 2.0] - May 3, 2024 and remove
             any outdated version if any.
           </li>
           <li className="pb-1">
