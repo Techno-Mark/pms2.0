@@ -2402,6 +2402,13 @@ const EditDrawer = ({
   }, [assigneeWorklogsDropdownData]);
 
   useEffect(() => {
+    const getCCData = async () => {
+      await setCCDropdownDataWorklogs(await getCCDropdownData());
+    };
+    cCDropdownDataWorklogs.length <= 0 && getCCData();
+  }, []);
+
+  useEffect(() => {
     const getData = async () => {
       await onEditDataWorklogs();
     };
@@ -2482,7 +2489,6 @@ const EditDrawer = ({
             )
             .filter((i: LabelValueType | undefined) => i !== undefined)[0]
         );
-      onOpen && (await setCCDropdownDataWorklogs(await getCCDropdownData()));
     };
     getData();
   }, [typeOfWorkWorklogs, onOpen]);

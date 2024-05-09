@@ -2288,7 +2288,10 @@ const EditDrawer = ({
       await setCCDropdownDataApprovals(await getCCDropdownData());
     };
 
-    onOpen && getData();
+    cCDropdownDataApprovals.length <= 0 && getData();
+  }, []);
+
+  useEffect(() => {
     if (onEdit > 0) {
       getEditData();
       getSubTaskDataApprovals();
