@@ -280,7 +280,7 @@ const Page = () => {
                   className={`${
                     anchorElProjects === null
                       ? ""
-                      : "font-semibold text-primary"
+                      : "font-semibold text-secondary"
                   }`}
                 >
                   {currentProjectName ? currentProjectName : "All Projects"}

@@ -528,10 +528,29 @@ const Datatable = ({
     tableMeta: any
   ) => {
     const IsRecurring = tableMeta.rowData[tableMeta.rowData.length - 5];
+    const shortProcessName =
+      bodyValue !== null && bodyValue !== undefined && bodyValue.length > 20
+        ? bodyValue.slice(0, 20)
+        : bodyValue;
     return (
       <div className="flex items-center gap-2">
-        {bodyValue === null || bodyValue === "" ? (
+        {!bodyValue ||
+        bodyValue === "0" ||
+        bodyValue === null ||
+        bodyValue === "null" ? (
           "-"
+        ) : bodyValue.length > 20 ? (
+          <>
+            {IsRecurring && (
+              <span className="text-secondary font-semibold">
+                <RecurringIcon />
+              </span>
+            )}
+            <ColorToolTip title={bodyValue} placement="top">
+              <span>{shortProcessName}</span>
+            </ColorToolTip>
+            <span>...</span>
+          </>
         ) : (
           <>
             {IsRecurring && (
@@ -539,7 +558,7 @@ const Datatable = ({
                 <RecurringIcon />
               </span>
             )}
-            {bodyValue}
+            {shortProcessName}
           </>
         )}
       </div>
@@ -734,7 +753,7 @@ const Datatable = ({
                   <span
                     className={`w-16 text-center text-ellipsis overflow-hidden ${
                       tableMeta.rowData[tableMeta.rowData.length - 2] === 3
-                        ? "text-primary"
+                        ? "text-secondary"
                         : ""
                     }`}
                   >

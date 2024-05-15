@@ -2227,7 +2227,7 @@ const EditDrawer = ({
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient" ||
-              (getType !== "PartialSubmitted" && item.Type === "Accept") ||
+              // (getType !== "PartialSubmitted" && item.Type === "Accept") ||
               // (getType !== "PartialSubmitted" &&
               //   item.Type === "AcceptWithNotes") ||
               (getType !== "PartialSubmitted" && item.Type === "InReview") ||
@@ -2247,8 +2247,8 @@ const EditDrawer = ({
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient" ||
-              (getType !== "PartialSubmitted" &&
-                item.Type === "ReworkAccept") ||
+              // (getType !== "PartialSubmitted" &&
+              //   item.Type === "ReworkAccept") ||
               // (getType !== "PartialSubmitted" &&
               //   item.Type === "ReworkAcceptWithNotes") ||
               (getType !== "PartialSubmitted" &&
@@ -2288,7 +2288,10 @@ const EditDrawer = ({
       await setCCDropdownDataApprovals(await getCCDropdownData());
     };
 
-    onOpen && getData();
+    cCDropdownDataApprovals.length <= 0 && getData();
+  }, []);
+
+  useEffect(() => {
     if (onEdit > 0) {
       getEditData();
       getSubTaskDataApprovals();

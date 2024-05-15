@@ -623,15 +623,20 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      name: "EmployeeManualTime",
-      label: "Edited Time",
+      name: "ManagerHours",
+      label: "Preparor Edited Time",
       bodyRenderer: generateManualTimeBodyRender,
     },
-    // {
-    //   name: "EmployeeIsManual",
-    //   label: "Is Manual",
-    //   bodyRenderer: generateIsManualBodyRender,
-    // },
+    {
+      name: "ReviewerEditedTimeSec",
+      label: "Reviewer Edited Time",
+      bodyRenderer: generateManualTimeBodyRender,
+    },
+    {
+      name: "TotalEditedTimeSec",
+      label: "Total Time",
+      bodyRenderer: generateManualTimeBodyRender,
+    },
     {
       name: "ManagerName",
       label: "Manager",
@@ -808,15 +813,20 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      name: "EmployeeManualTime",
-      label: "Edited Time",
+      name: "ManagerHours",
+      label: "Preparor Edited Time",
       bodyRenderer: generateManualTimeBodyRender,
     },
-    // {
-    //   name: "EmployeeIsManual",
-    //   label: "Is Manual",
-    //   bodyRenderer: generateIsManualBodyRender,
-    // },
+    {
+      name: "ReviewerEditedTimeSec",
+      label: "Reviewer Edited Time",
+      bodyRenderer: generateManualTimeBodyRender,
+    },
+    {
+      name: "TotalEditedTimeSec",
+      label: "Total Time",
+      bodyRenderer: generateManualTimeBodyRender,
+    },
     {
       name: "ManagerName",
       label: "Manager",
@@ -886,7 +896,7 @@ const Datatable = ({
                   <span
                     className={`w-16 text-center text-ellipsis overflow-hidden ${
                       tableMeta.rowData[tableMeta.rowData.length - 2] === 3
-                        ? "text-primary"
+                        ? "text-secondary"
                         : ""
                     }`}
                   >

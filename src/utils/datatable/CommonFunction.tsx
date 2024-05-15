@@ -7,33 +7,38 @@ export const generateCustomHeaderName = (headerName: string) => {
 };
 
 export const generateCommonBodyRender = (bodyValue: any) => {
+  const shortProcessName =
+    bodyValue !== null &&
+    bodyValue !== undefined &&
+    bodyValue !== "" &&
+    bodyValue !== "0" &&
+    bodyValue.length > 20
+      ? bodyValue.slice(0, 20)
+      : bodyValue;
+
   return (
     <div className="ml-2">
       {!bodyValue ||
       bodyValue === "0" ||
       bodyValue === null ||
-      bodyValue === "null"
-        ? "-"
-        : bodyValue}
+      bodyValue === "null" ? (
+        "-"
+      ) : bodyValue.length > 20 ? (
+        <>
+          <ColorToolTip title={bodyValue} placement="top">
+            <span>{shortProcessName}</span>
+          </ColorToolTip>
+          <span>...</span>
+        </>
+      ) : (
+        shortProcessName
+      )}
     </div>
   );
 };
 
 export const generateCommonBodyInvoice = (bodyValue: any) => {
   return bodyValue === 1 ? "Invoice Raised" : "Invoice Pending";
-};
-
-export const generateCommonBodyRenderLog = (bodyValue: any) => {
-  return (
-    <div className="ml-2">
-      {!bodyValue ||
-      bodyValue === "" ||
-      bodyValue === null ||
-      bodyValue === "null"
-        ? "-"
-        : bodyValue}
-    </div>
-  );
 };
 
 export const generateCommonBodyRenderNullCheck = (bodyValue: any) => {
