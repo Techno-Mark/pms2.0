@@ -125,6 +125,8 @@ const Page = () => {
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
   const [searchValue, setSearchValue] = useState<string>("");
+  const [hasHoursShared, setHasHoursShared] = useState<boolean>(false);
+  const [saveHourData, setSaveHourData] = useState<boolean>(false);
 
   useEffect(() => {
     const handleOutsideClick = (event: any) => {
@@ -427,6 +429,21 @@ const Page = () => {
                   : "Invoice Raise"}
               </Button>
             )}
+
+            {activeTab === 8 && (
+              <Button
+                type="submit"
+                variant="contained"
+                color="info"
+                disabled={!hasHoursShared}
+                className={`whitespace-nowrap ${
+                  hasHoursShared ? "!bg-secondary" : ""
+                }`}
+                onClick={() => setSaveHourData(true)}
+              >
+                Hours Shared
+              </Button>
+            )}
           </div>
         </div>
 
@@ -489,6 +506,9 @@ const Page = () => {
           <CustomReport
             searchValue={searchValue}
             filteredData={filteredData}
+            hasHoursShared={(arg1: boolean) => setHasHoursShared(arg1)}
+            isSavingHourData={saveHourData}
+            onSaveHourDataComplete={() => setSaveHourData(false)}
             onHandleExport={handleCanExport}
           />
         )}

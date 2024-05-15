@@ -91,6 +91,7 @@ interface BillingDataList {
   TotalTime: string | null;
   IsBTC: number | null;
   BTC: string;
+  ReviewerEditedTime: string;
   BillingLogs: BillingLogsList[] | [];
 }
 
@@ -128,6 +129,7 @@ interface List {
   ReviewerDate: string | null;
   IsBTC: number | null;
   WorkItemSubmissionId: null;
+  ReviewerEditedTime: string;
   BillingData: BillingDataList[];
 }
 
@@ -541,7 +543,12 @@ const BillingReport = ({
     },
     {
       name: "EditedHours",
-      label: "Edited Time",
+      label: "Preparor Edited Time",
+      bodyRenderer: generateInitialTimer,
+    },
+    {
+      name: "ReviewerEditedTime",
+      label: "Reviewer Edited Time",
       bodyRenderer: generateInitialTimer,
     },
     // {
@@ -725,7 +732,20 @@ const BillingReport = ({
       options: {
         sort: false,
         filter: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Edited Time"),
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Preparor Edited Time"),
+        customBodyRender: (value: string) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "ReviewerEditedTime",
+      options: {
+        sort: false,
+        filter: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Reviewer Edited Time"),
         customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },

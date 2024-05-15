@@ -63,6 +63,11 @@ export interface List {
   ReviewerTime: string;
   ActualTimeSec: number;
   ActualTime: string;
+  ReviewDate: string | null;
+  ReviewerEditedTimeSec: number;
+  ReviewerEditedTime: string;
+  TotalEditedTimeSec: number;
+  TotalEditedTime: string;
 }
 
 export interface InitialFilterApprovals {

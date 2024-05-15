@@ -1,23 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { DialogContentText } from "@mui/material";
+import { FormControl, TextareaAutosize, FormHelperText } from "@mui/material";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { toHoursAndMinutes } from "@/utils/timerFunctions";
 
 interface AcceptDiloagModalProps {
   onOpen: boolean;
   onClose: () => void;
+  onActionClick?: () => void;
+  onSetNote?: string;
   acceptWorkitem: (note: string, id: number[]) => void;
   selectedWorkItemIds: number[] | [];
   data: any;
   handleEditClicked: (click: boolean) => void;
 }
 
-const AcceptDiloag = ({
+const AcceptWithNoteDiloag = ({
   onOpen,
   onClose,
   acceptWorkitem,
@@ -25,14 +27,31 @@ const AcceptDiloag = ({
   data,
   handleEditClicked,
 }: AcceptDiloagModalProps) => {
+  const [note, setNote] = useState<string>("");
+  const [noteErr, setNoteErr] = useState(false);
+
+  const validateNote = () => {
+    if (note.trim() === "" || note.length <= 0) {
+      setNoteErr(true);
+    } else {
+      setNoteErr(false);
+    }
+  };
+
   const handleClose = () => {
+    setNote("");
+    setNoteErr(false);
     onClose();
   };
 
   const handleSaveAndApply = () => {
-    acceptWorkitem("", selectedWorkItemIds);
-    handleClose();
+    validateNote();
+    if (noteErr !== true || !noteErr) {
+      acceptWorkitem(note, selectedWorkItemIds);
+      handleClose();
+    }
   };
+
   return (
     <div>
       <Dialog
@@ -41,10 +60,10 @@ const AcceptDiloag = ({
         onClose={handleClose}
       >
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
-          <span className="text-lg font-medium">Accept Task</span>
+          <span className="text-lg font-medium">Accept with Note</span>
         </DialogTitle>
         <DialogContent>
-          <DialogContentText>
+          <div className="flex flex-col gap-[20px] pt-[20px]">
             <div className="flex flex-col mr-20 mb-8 mt-4">
               <p className="mb-2">
                 Are you sure you want to Accept task with same time?
@@ -56,7 +75,36 @@ const AcceptDiloag = ({
                 </>
               )}
             </div>
-          </DialogContentText>
+            <FormControl variant="standard">
+              <label htmlFor="notes" className="pb-1 text-sm">
+                Note<sup>*</sup>
+              </label>
+              <TextareaAutosize
+                color="error"
+                id="notes"
+                name="notes"
+                placeholder="Enter the accept note."
+                minRows={3}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                autoFocus
+                required
+                onBlur={() => {
+                  if (note.trim() === "") {
+                    setNoteErr(true);
+                  } else {
+                    setNoteErr(false);
+                  }
+                }}
+                className={`outline-none w-90 border-b ${
+                  noteErr ? "border-defaultRed" : ""
+                }`}
+              />
+              {noteErr && (
+                <FormHelperText error>Please enter a note.</FormHelperText>
+              )}
+            </FormControl>
+          </div>
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">
           <Button variant="outlined" color="error" onClick={handleClose}>
@@ -86,4 +134,4 @@ const AcceptDiloag = ({
   );
 };
 
-export default AcceptDiloag;
+export default AcceptWithNoteDiloag;
