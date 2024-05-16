@@ -444,7 +444,9 @@ const EditDialog = ({
                 placeholder="00:00:00"
                 variant="standard"
                 fullWidth
-                disabled={reviewerCheckboxClicked}
+                disabled={
+                  reviewerCheckboxClicked || reviewerEditTime === "00:00:00"
+                }
                 value={reviewerEditTime}
                 onChange={(e: any) => handleEditTimeChange(e, false)}
                 sx={{ mx: 0.75, maxWidth: 100 }}
@@ -477,6 +479,7 @@ const EditDialog = ({
                 />
               </FormControl>
               <FormControlLabel
+                disabled={reviewerEditTime === "00:00:00"}
                 control={
                   <Checkbox
                     checked={reviewerCheckboxClicked}
