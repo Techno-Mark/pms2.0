@@ -5,6 +5,7 @@ import {
   generateDateWithoutTime,
   generateStatusWithColor,
   generatePriorityWithColor,
+  generateDateWithTime,
 } from "@/utils/datatable/CommonFunction";
 import MUIDataTable from "mui-datatables";
 import { useEffect, useRef, useState } from "react";
@@ -106,6 +107,7 @@ interface List {
   TotalEditedHours: string;
   ReviewerActualTime: string;
   ReviewerEditedTime: string;
+  HoursSharedDate: string | null;
 }
 
 interface Response {
@@ -507,6 +509,18 @@ const CustomReport = ({
             value,
             value === "Hours Shared" ? "#00B050" : "#A5A5A5"
           );
+        },
+      },
+    },
+    {
+      name: "HoursSharedDate",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Hours Shared Date"),
+        customBodyRender: (value: string) => {
+          return generateDateWithTime(value);
         },
       },
     },
