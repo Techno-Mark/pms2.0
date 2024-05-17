@@ -227,6 +227,9 @@ const CustomReport = ({
         hasHoursShared(false);
         onSaveHourDataComplete();
         handleClearSelection();
+        setCustomReportCurrentPage(0);
+        setCustomReportRowsPerPage(10);
+        getData({ ...filteredData, globalSearch: searchValue });
       } else {
         hasHoursShared(false);
         onSaveHourDataComplete();
