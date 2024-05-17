@@ -219,6 +219,8 @@ const CustomReport = ({
         hasHoursShared(false);
         onSaveHourDataComplete();
         handleClearSelection();
+        setCustomReportCurrentPage(0);
+        setCustomReportRowsPerPage(10);
         getData({ ...filteredData, globalSearch: searchValue });
       } else if (ResponseStatus === "Warning" && error === false) {
         toast.warning(ResponseData);
@@ -229,7 +231,6 @@ const CustomReport = ({
         hasHoursShared(false);
         onSaveHourDataComplete();
         handleClearSelection();
-        getData({ ...filteredData, globalSearch: searchValue });
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -983,6 +984,11 @@ const CustomReport = ({
             onPageChange={handleChangePage}
             rowsPerPage={customReportRowsPerPage}
             onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={
+              customReportFields.dataCount > 100
+                ? [10, 25, 50, 100, customReportFields.dataCount]
+                : [10, 25, 50, 100]
+            }
           />
         </ThemeProvider>
       </div>
