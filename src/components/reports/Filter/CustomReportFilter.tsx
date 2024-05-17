@@ -470,7 +470,7 @@ const CustomReportFilter = ({
       subProcessName !== null ||
       status.length > 0 ||
       priority !== null ||
-      hoursShared.value !== null ||
+      (hoursShared !== null && hoursShared.value !== null) ||
       hoursShared !== null ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0 ||
@@ -1452,14 +1452,19 @@ const CustomReportFilter = ({
                     options={hoursDropdown}
                     getOptionLabel={(option: LabelValueNull) => option.label}
                     onChange={(e, data: LabelValueNull | null) => {
-                      setHoursShared(data);
+                      data === null
+                        ? setHoursShared({
+                            label: "All",
+                            value: null,
+                          })
+                        : setHoursShared(data);
                     }}
                     value={hoursShared}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
                         variant="standard"
-                        label="Shared Hours"
+                        label="Hours Shared"
                       />
                     )}
                   />
