@@ -3,6 +3,11 @@ export interface LabelValue {
   value: number;
 }
 
+export interface LabelValueNull {
+  label: string;
+  value: number | null;
+}
+
 export interface LabelValueType {
   Type: number | string;
   label: string;
