@@ -29,6 +29,7 @@ interface EditModalProps {
   onSelectWorkItemId: number;
   onSelectedSubmissionId: number;
   getOverLay?: (e: boolean) => void;
+  handleEditClicked: (click: boolean) => void;
 }
 
 interface Response {
@@ -39,6 +40,10 @@ interface Response {
   ManagerTime: number;
   Percentage: number | null;
   IsPercent: boolean | null;
+  ReviewerEditedTime: number;
+  IsReviewerPercent: boolean | null;
+  ReviewerPercentage: number | null;
+  ReviewerActualTime: number;
 }
 
 const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
@@ -60,25 +65,40 @@ const EditDialog = ({
   onClearSelection,
   onSelectedSubmissionId,
   getOverLay,
+  handleEditClicked,
 }: EditModalProps) => {
   const [estTime, setEstTime] = useState<string>("00:00:00");
+  const [quantity, setQuantity] = useState<number>(0);
   const [totalTime, setTotalTime] = useState<string>("00:00:00");
   const [actualTime, setActualTime] = useState<string>("00:00:00");
-  const [quantity, setQuantity] = useState<number>(0);
   const [editTime, setEditTime] = useState<string>("00:00:00");
   const [percentage, setPercentage] = useState<number>(0);
   const [checkboxClicked, setCheckboxClicked] = useState<boolean>(false);
   const [initialEditTime, setInitialEditTime] = useState<string>("00:00:00");
+  const [reviewerActualTime, setReviewerActualTime] =
+    useState<string>("00:00:00");
+  const [reviewerEditTime, setReviewerEditTime] = useState<string>("00:00:00");
+  const [reviewerPercentage, setReviewerPercentage] = useState<number>(0);
+  const [reviewerCheckboxClicked, setReviewerCheckboxClicked] =
+    useState<boolean>(false);
+  const [reviewerInitialEditTime, setReviewerInitialEditTime] =
+    useState<string>("00:00:00");
 
   const handleClose = () => {
     setEditTime("00:00:00");
-    onClose();
-    onReviewerDataFetch?.();
     setCheckboxClicked(false);
     setPercentage(0);
+    setReviewerEditTime("00:00:00");
+    setReviewerCheckboxClicked(false);
+    setReviewerPercentage(0);
+    onClose();
+    // onReviewerDataFetch?.();
   };
 
-  const handleEditTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditTimeChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    IsPreperor: boolean
+  ) => {
     let newValue = event.target.value;
     newValue = newValue.replace(/\D/g, "");
     if (newValue.length > 8) {
@@ -123,7 +143,9 @@ const EditDialog = ({
       totalSeconds = hours * 3600 + minutes * 60 + seconds;
     }
 
-    setEditTime(formattedValue);
+    IsPreperor
+      ? setEditTime(formattedValue)
+      : setReviewerEditTime(formattedValue);
   };
 
   function formatTime(seconds: number) {
@@ -155,8 +177,8 @@ const EditDialog = ({
           if (ResponseStatus === "Success" && error === false) {
             setEstTime(formatTime(ResponseData.EstimateTime));
             setQuantity(ResponseData.Quantity);
-            setActualTime(formatTime(ResponseData.TotalEstimateTime));
-            setTotalTime(formatTime(ResponseData.ActualTime));
+            setTotalTime(formatTime(ResponseData.TotalEstimateTime));
+            setActualTime(formatTime(ResponseData.ActualTime));
             setInitialEditTime(formatTime(ResponseData.ManagerTime));
             setEditTime(formatTime(ResponseData.ManagerTime));
             setCheckboxClicked(
@@ -164,6 +186,21 @@ const EditDialog = ({
             );
             setPercentage(
               ResponseData.Percentage === null ? 0 : ResponseData.Percentage
+            );
+            setReviewerActualTime(formatTime(ResponseData.ReviewerActualTime));
+            setReviewerInitialEditTime(
+              formatTime(ResponseData.ReviewerEditedTime)
+            );
+            setReviewerEditTime(formatTime(ResponseData.ReviewerEditedTime));
+            setReviewerCheckboxClicked(
+              ResponseData.IsReviewerPercent === null
+                ? false
+                : ResponseData.IsReviewerPercent
+            );
+            setReviewerPercentage(
+              ResponseData.ReviewerPercentage === null
+                ? 0
+                : ResponseData.ReviewerPercentage
             );
           }
         };
@@ -178,14 +215,25 @@ const EditDialog = ({
     const [hours, minutes, seconds] = editTime.split(":");
     const convertedEditTime =
       parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
+    const [reviewerHours, reviewerMinutes, reviewerSeconds] =
+      reviewerEditTime.split(":");
+    const convertedReviewerEditTime =
+      parseInt(reviewerHours) * 3600 +
+      parseInt(reviewerMinutes) * 60 +
+      parseInt(reviewerSeconds);
 
     getOverLay?.(true);
     const params = {
       WorkItemId: onSelectWorkItemId,
-      managerTime: convertedEditTime,
       SubmissionId: onSelectedSubmissionId,
+      ManagerTime: convertedEditTime,
       IsPercent: checkboxClicked,
       Percentage: checkboxClicked ? percentage.toString() : null,
+      ReviewerEditedTime: convertedReviewerEditTime,
+      IsReviewerPercent: reviewerCheckboxClicked,
+      ReviewerPercentage: reviewerCheckboxClicked
+        ? reviewerPercentage.toString()
+        : null,
     };
 
     const url = `${process.env.worklog_api_url}/workitem/approval/updateManualTime`;
@@ -197,6 +245,7 @@ const EditDialog = ({
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Time has been updated successfully.");
         onClose();
+        handleEditClicked(false);
         onClearSelection?.();
         onReviewerDataFetch?.();
         getOverLay?.(false);
@@ -208,19 +257,33 @@ const EditDialog = ({
   };
 
   const hasEditTimeChanged = () => {
-    return editTime !== initialEditTime || (checkboxClicked && percentage > 0);
+    return (
+      editTime !== initialEditTime ||
+      (checkboxClicked && percentage > 0) ||
+      reviewerEditTime !== reviewerInitialEditTime ||
+      (reviewerCheckboxClicked && reviewerPercentage > 0)
+    );
   };
 
-  const handleCheckboxChange = (e: boolean) => {
-    setCheckboxClicked(e);
+  const handleCheckboxChange = (e: boolean, IsPreperor: boolean) => {
+    if (IsPreperor) {
+      setCheckboxClicked(e);
 
-    if (e === false) {
-      setEditTime("00:00:00");
-      setPercentage(0);
+      if (e === false) {
+        setEditTime("00:00:00");
+        setPercentage(0);
+      }
+    } else {
+      setReviewerCheckboxClicked(e);
+
+      if (e === false) {
+        setReviewerEditTime("00:00:00");
+        setReviewerPercentage(0);
+      }
     }
   };
 
-  const handleInputChange = (inputValue: number) => {
+  const handleInputChange = (inputValue: number, IsPreperor: boolean) => {
     const digitRegex = /^\d*\.?\d*$/;
 
     if (digitRegex.test(inputValue.toString()) && inputValue <= 99.99) {
@@ -230,15 +293,70 @@ const EditDialog = ({
         : "";
 
       if (!hasDecimal || (hasDecimal && decimalPart.length <= 2)) {
-        setPercentage(inputValue);
-        const total: number | undefined = toSeconds(totalTime);
-        setEditTime(
+        IsPreperor
+          ? setPercentage(inputValue)
+          : setReviewerPercentage(inputValue);
+        const total: number | undefined = toSeconds(
+          IsPreperor ? actualTime : reviewerActualTime
+        );
+        const time =
           total !== undefined && total > 0
             ? toHoursAndMinutes(Math.round((inputValue * total) / 100))
-            : "00:00:00"
-        );
+            : "00:00:00";
+        IsPreperor ? setEditTime(time) : setReviewerEditTime(time);
       }
     }
+  };
+
+  const CommonField = ({ totalTime, actualTime }: any) => {
+    return (
+      <>
+        <FormControl variant="standard">
+          <TextField
+            label="Est. Time"
+            type="text"
+            fullWidth
+            value={estTime}
+            variant="standard"
+            sx={{ mx: 0.75, maxWidth: 100 }}
+            InputProps={{ readOnly: true }}
+          />
+        </FormControl>
+        <FormControl variant="standard">
+          <TextField
+            label="Qty"
+            type="text"
+            fullWidth
+            value={quantity}
+            variant="standard"
+            sx={{ mx: 0.75, maxWidth: 100 }}
+            InputProps={{ readOnly: true }}
+          />
+        </FormControl>
+        <FormControl variant="standard">
+          <TextField
+            label="Std. Time"
+            type="text"
+            fullWidth
+            value={totalTime}
+            variant="standard"
+            sx={{ mx: 0.75, maxWidth: 100 }}
+            InputProps={{ readOnly: true }}
+          />
+        </FormControl>
+        <FormControl variant="standard">
+          <TextField
+            label="Actual Time"
+            type="text"
+            fullWidth
+            value={actualTime}
+            variant="standard"
+            sx={{ mx: 0.75, maxWidth: 100 }}
+            InputProps={{ readOnly: true }}
+          />
+        </FormControl>
+      </>
+    );
   };
 
   return (
@@ -260,51 +378,9 @@ const EditDialog = ({
           </ColorToolTip>
         </DialogTitle>
         <DialogContent className="!pt-[20px]">
+          <p className="mb-2 font-extrabold">Preparer Time</p>
           <div className="flex gap-[20px]">
-            <FormControl variant="standard">
-              <TextField
-                label="Est. Time"
-                type="text"
-                fullWidth
-                value={estTime}
-                variant="standard"
-                sx={{ mx: 0.75, maxWidth: 100 }}
-                InputProps={{ readOnly: true }}
-              />
-            </FormControl>
-            <FormControl variant="standard">
-              <TextField
-                label="Qty"
-                type="text"
-                fullWidth
-                value={quantity}
-                variant="standard"
-                sx={{ mx: 0.75, maxWidth: 100 }}
-                InputProps={{ readOnly: true }}
-              />
-            </FormControl>
-            <FormControl variant="standard">
-              <TextField
-                label="Std. Time"
-                type="text"
-                fullWidth
-                value={actualTime}
-                variant="standard"
-                sx={{ mx: 0.75, maxWidth: 100 }}
-                InputProps={{ readOnly: true }}
-              />
-            </FormControl>
-            <FormControl variant="standard">
-              <TextField
-                label="Actual Time"
-                type="text"
-                fullWidth
-                value={totalTime}
-                variant="standard"
-                sx={{ mx: 0.75, maxWidth: 100 }}
-                InputProps={{ readOnly: true }}
-              />
-            </FormControl>
+            <CommonField totalTime={totalTime} actualTime={actualTime} />
             <FormControl variant="standard">
               <TextField
                 label="Edited Time"
@@ -313,7 +389,7 @@ const EditDialog = ({
                 fullWidth
                 disabled={checkboxClicked}
                 value={editTime}
-                onChange={handleEditTimeChange}
+                onChange={(e: any) => handleEditTimeChange(e, true)}
                 sx={{ mx: 0.75, maxWidth: 100 }}
               />
             </FormControl>
@@ -326,7 +402,9 @@ const EditDialog = ({
                   fullWidth
                   disabled={!checkboxClicked}
                   value={percentage <= 0 ? "-" : percentage}
-                  onChange={(e) => handleInputChange(Number(e.target.value))}
+                  onChange={(e) =>
+                    handleInputChange(Number(e.target.value), true)
+                  }
                   onFocus={(e) =>
                     e.target.addEventListener(
                       "wheel",
@@ -345,7 +423,69 @@ const EditDialog = ({
                 control={
                   <Checkbox
                     checked={checkboxClicked}
-                    onChange={(e) => handleCheckboxChange(e.target.checked)}
+                    onChange={(e) =>
+                      handleCheckboxChange(e.target.checked, true)
+                    }
+                  />
+                }
+                label="Add In %"
+              />
+            </span>
+          </div>
+          <p className="mb-2 font-extrabold">Reviewer Time</p>
+          <div className="flex gap-[20px]">
+            <CommonField
+              totalTime={totalTime}
+              actualTime={reviewerActualTime}
+            />
+            <FormControl variant="standard">
+              <TextField
+                label="Edited Time"
+                placeholder="00:00:00"
+                variant="standard"
+                fullWidth
+                disabled={
+                  reviewerCheckboxClicked || reviewerActualTime === "00:00:00"
+                }
+                value={reviewerEditTime}
+                onChange={(e: any) => handleEditTimeChange(e, false)}
+                sx={{ mx: 0.75, maxWidth: 100 }}
+              />
+            </FormControl>
+            <span className="flex flex-col items-start justify-center">
+              <FormControl variant="standard">
+                <TextField
+                  type="number"
+                  label="Percentage"
+                  variant="standard"
+                  fullWidth
+                  disabled={!reviewerCheckboxClicked}
+                  value={reviewerPercentage <= 0 ? "-" : reviewerPercentage}
+                  onChange={(e) =>
+                    handleInputChange(Number(e.target.value), false)
+                  }
+                  onFocus={(e) =>
+                    e.target.addEventListener(
+                      "wheel",
+                      function (e) {
+                        e.preventDefault();
+                      },
+                      { passive: false }
+                    )
+                  }
+                  autoComplete="off"
+                  inputProps={{ step: "any" }}
+                  sx={{ mx: 0.75, maxWidth: 100 }}
+                />
+              </FormControl>
+              <FormControlLabel
+                disabled={reviewerActualTime === "00:00:00"}
+                control={
+                  <Checkbox
+                    checked={reviewerCheckboxClicked}
+                    onChange={(e) =>
+                      handleCheckboxChange(e.target.checked, false)
+                    }
                   />
                 }
                 label="Add In %"

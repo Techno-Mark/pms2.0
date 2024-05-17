@@ -117,11 +117,14 @@ const Status = ({
             item.Type === "Rework" ||
             (isNotRework.length > 0
               ? item.Type === "InReview" ||
-                item.Type === "Submitted" ||
-                item.Type === "Accept"
+                item.Type === "Submitted" 
+                // ||
+                // item.Type === "Accept"
               : item.Type === "ReworkInReview" ||
-                item.Type === "ReworkSubmitted" ||
-                item.Type === "ReworkAccept") ||
+                item.Type === "ReworkSubmitted" 
+                // ||
+                // item.Type === "ReworkAccept"
+              ) ||
             item.Type === "SecondManagerReview" ||
             item.Type === "OnHoldFromClient" ||
             item.Type === "WithDraw" ||

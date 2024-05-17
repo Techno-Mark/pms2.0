@@ -4,12 +4,14 @@ import {
   generateInitialTimer,
   generateDateWithoutTime,
   generateStatusWithColor,
+  generatePriorityWithColor,
+  generateDateWithTime,
 } from "@/utils/datatable/CommonFunction";
 import MUIDataTable from "mui-datatables";
 import { useEffect, useRef, useState } from "react";
 import { callAPI } from "@/utils/API/callAPI";
 import { options } from "@/utils/datatable/TableOptions";
-import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { ColorToolTip, getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { TablePagination, ThemeProvider } from "@mui/material";
 import { haveSameData } from "@/utils/reports/commonFunctions";
 import { customreport_InitialFilter } from "@/utils/reports/getFilters";
@@ -18,7 +20,6 @@ import TableActionIcon from "@/assets/icons/TableActionIcon";
 import React from "react";
 import { toast } from "react-toastify";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
-import { ReportProps } from "@/utils/Types/reports";
 
 interface FilteredData {
   pageNo: number;
@@ -53,68 +54,76 @@ interface FilteredData {
   isDownload: boolean;
 }
 
+interface List {
+  WorkItemId: number;
+  TaskName: string;
+  Description: string | null;
+  ClientId: number;
+  ClientName: string;
+  ProjectId: number;
+  ProjectName: string;
+  ProcessId: number;
+  ProcessName: string;
+  SubProcessId: number;
+  SubProcessName: string;
+  Status: string;
+  AssignedById: number;
+  AssignedBy: string;
+  AssigneeId: number;
+  AssigneeName: string;
+  ReviewerId: number;
+  ReviewerName: string;
+  TaxReturnType: any;
+  TypeOfReturnId: any;
+  TypeOfReturnName: any;
+  NoOfPages: number | null;
+  ReturnYear: number | null;
+  CurrentYear: number | null;
+  Complexity: number | null;
+  priority: string;
+  DateCreated: string;
+  DateOfPreparation: string | null;
+  DateOfReview: string | null;
+  ReceiverDate: string;
+  DueDate: string;
+  AllInfoDate: string | null;
+  TotalEstimatedHours: string;
+  TotalSTDHours: string;
+  AssigneeAutoTimeTracked: string;
+  AssigneeManualTimeTracked: string;
+  AssigneeTimeTracked: string;
+  ReviewerAutoTimeTracked: string;
+  ReviewerManualTimeTracked: string;
+  ReviewerTimeTracked: string;
+  BTC: any;
+  IsBTC: string;
+  TotalTime: string;
+  TotalTimeInMinutes: number | null;
+  EditedHours: any;
+  StatusColorCode: string;
+  Errors: number;
+  Quantity: number;
+  HoursShared: string;
+  TotalEditedHours: string;
+  ReviewerActualTime: string;
+  ReviewerEditedTime: string;
+  HoursSharedDate: string | null;
+}
+
 interface Response {
   CustomReportFilters: any | null;
-  List:
-    | {
-        WorkItemId: number;
-        TaskName: string;
-        Description: string | null;
-        ClientId: number;
-        ClientName: string;
-        ProjectId: number;
-        ProjectName: string;
-        ProcessId: number;
-        ProcessName: string;
-        SubProcessId: number;
-        SubProcessName: string;
-        Status: string;
-        AssignedById: number;
-        AssignedBy: string;
-        AssigneeId: number;
-        AssigneeName: string;
-        ReviewerId: number;
-        ReviewerName: string;
-        TaxReturnType: any;
-        TypeOfReturnId: any;
-        TypeOfReturnName: any;
-        NoOfPages: number | null;
-        ReturnYear: number | null;
-        CurrentYear: number | null;
-        Complexity: number | null;
-        priority: string;
-        DateCreated: string;
-        DateOfPreparation: string | null;
-        DateOfReview: string | null;
-        ReceiverDate: string;
-        DueDate: string;
-        AllInfoDate: string | null;
-        TotalEstimatedHours: string;
-        TotalSTDHours: string;
-        AssigneeAutoTimeTracked: string;
-        AssigneeManualTimeTracked: string;
-        AssigneeTimeTracked: string;
-        ReviewerAutoTimeTracked: string;
-        ReviewerManualTimeTracked: string;
-        ReviewerTimeTracked: string;
-        BTC: any;
-        IsBTC: string;
-        TotalTime: string;
-        TotalTimeInMinutes: number | null;
-        EditedHours: any;
-        StatusColorCode: string;
-        Errors: number;
-        Quantity: number;
-      }[]
-    | [];
+  List: List[];
   TotalCount: number;
 }
 
 const CustomReport = ({
   filteredData,
   searchValue,
+  hasHoursShared,
+  isSavingHourData,
+  onSaveHourDataComplete,
   onHandleExport,
-}: ReportProps) => {
+}: any) => {
   const [customReportFields, setCustomReportFields] = useState<any>({
     loaded: true,
     data: [],
@@ -126,6 +135,12 @@ const CustomReport = ({
     useState<number>(10);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
+  const [selectedRows, setSelectedRows] = useState<number[] | []>([]);
+  const [selectedRowsCount, setSelectedRowsCount] = useState<number>(0);
+  const [isPopupOpen, setIsPopupOpen] = useState<
+    { index: number; dataIndex: number }[] | []
+  >([]);
+  const [selectedRowIds, setSelectedRowIds] = useState<number[] | []>([]);
 
   const getData = async (arg1: FilteredData) => {
     setCustomReportFields({
@@ -147,6 +162,7 @@ const CustomReport = ({
           data: ResponseData.List,
           dataCount: ResponseData.TotalCount,
         });
+        handleClearSelection();
       } else {
         setCustomReportFields({
           ...customReportFields,
@@ -154,10 +170,82 @@ const CustomReport = ({
           data: [],
           dataCount: 0,
         });
+        handleClearSelection();
       }
     };
     callAPI(url, arg1, successCallback, "post");
   };
+
+  const handleRowSelect = (
+    currentRowsSelected: { index: number; dataIndex: number }[] | [],
+    allRowsSelected: { index: number; dataIndex: number }[] | [],
+    rowsSelected: number[] | []
+  ) => {
+    const selectedData: List[] | [] = allRowsSelected.map(
+      (row: { index: number; dataIndex: number }) =>
+        customReportFields.data[row.dataIndex]
+    );
+    setSelectedRowsCount(rowsSelected?.length);
+    setSelectedRows(rowsSelected);
+
+    const selectedWorkItemIds =
+      selectedData.length > 0
+        ? selectedData.map((selectedRow: List) => selectedRow?.WorkItemId)
+        : [];
+    setSelectedRowIds(selectedWorkItemIds);
+
+    setIsPopupOpen(allRowsSelected);
+  };
+
+  const handleClearSelection = () => {
+    setSelectedRowsCount(0);
+    setSelectedRows([]);
+    setIsPopupOpen([]);
+  };
+
+  const saveHoursData = (arg1: number[]) => {
+    const params = {
+      WorkItemIds: arg1,
+      IsHoursShared: 1, // 0 -> pending
+    };
+    const url = `${process.env.report_api_url}/report/custom/hoursshared`;
+    const successCallback = (
+      ResponseData: number | string | boolean,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Selected tasks hours shared successfully.");
+        hasHoursShared(false);
+        onSaveHourDataComplete();
+        handleClearSelection();
+        setCustomReportCurrentPage(0);
+        setCustomReportRowsPerPage(10);
+        getData({ ...filteredData, globalSearch: searchValue });
+      } else if (ResponseStatus === "Warning" && error === false) {
+        toast.warning(ResponseData);
+        hasHoursShared(false);
+        onSaveHourDataComplete();
+        handleClearSelection();
+        setCustomReportCurrentPage(0);
+        setCustomReportRowsPerPage(10);
+        getData({ ...filteredData, globalSearch: searchValue });
+      } else {
+        hasHoursShared(false);
+        onSaveHourDataComplete();
+        handleClearSelection();
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  useEffect(() => hasHoursShared(selectedRowIds.length > 0), [selectedRowIds]);
+
+  useEffect(() => {
+    if (isSavingHourData) {
+      saveHoursData(selectedRowIds);
+    }
+  }, [isSavingHourData]);
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -356,6 +444,14 @@ const CustomReport = ({
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
         customBodyRender: (value: string, tableMeta: any) => {
+          const shortProcessName =
+            value !== null &&
+            value !== undefined &&
+            value !== "" &&
+            value !== "0" &&
+            value.length > 20
+              ? value.slice(0, 20)
+              : value;
           return (
             <div className="ml-2">
               {!value || value === "0" ? (
@@ -366,7 +462,16 @@ const CustomReport = ({
                   href={`${process.env.redirectURL}${tableMeta.rowData[0]}`}
                   className="text-[#0592C6] cursor-pointer"
                 >
-                  {value}
+                  {value.length > 20 ? (
+                    <>
+                      <ColorToolTip title={value} placement="top">
+                        <span>{shortProcessName}</span>
+                      </ColorToolTip>
+                      <span>...</span>
+                    </>
+                  ) : (
+                    shortProcessName
+                  )}
                 </a>
               )}
             </div>
@@ -393,6 +498,33 @@ const CustomReport = ({
         customHeadLabelRender: () => generateCustomHeaderName("Sub-Process"),
         customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "HoursShared",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Shared Hrs. Status"),
+        customBodyRender: (value: string) => {
+          return generateStatusWithColor(
+            value,
+            value === "Hours Shared" ? "#00B050" : "#A5A5A5"
+          );
+        },
+      },
+    },
+    {
+      name: "HoursSharedDate",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Hours Shared Date"),
+        customBodyRender: (value: string) => {
+          return generateDateWithTime(value);
         },
       },
     },
@@ -466,17 +598,6 @@ const CustomReport = ({
       },
     },
     {
-      name: "Quantity",
-      options: {
-        sort: true,
-        filter: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Qty."),
-        customBodyRender: (value: string | number) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
       name: "ReturnYear",
       options: {
         filter: true,
@@ -525,7 +646,7 @@ const CustomReport = ({
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Priority"),
         customBodyRender: (value: string | null) => {
-          return generateCommonBodyRender(value);
+          return generatePriorityWithColor(value);
         },
       },
     },
@@ -559,52 +680,6 @@ const CustomReport = ({
         customHeadLabelRender: () => generateCustomHeaderName("All Info Date"),
         customBodyRender: (value: string | null) => {
           return generateDateWithoutTime(value);
-        },
-      },
-    },
-    {
-      name: "TotalEstimatedHours",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () =>
-          generateCustomHeaderName("Total Est. Time"),
-        customBodyRender: (value: string | null) => {
-          return generateInitialTimer(value);
-        },
-      },
-    },
-    {
-      name: "TotalSTDHours",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () =>
-          generateCustomHeaderName("Total Std. Time"),
-        customBodyRender: (value: string | null) => {
-          return generateInitialTimer(value);
-        },
-      },
-    },
-    {
-      name: "TotalTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Actual Time"),
-        customBodyRender: (value: string | null) => {
-          return generateInitialTimer(value);
-        },
-      },
-    },
-    {
-      name: "EditedHours",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Edited Hours"),
-        customBodyRender: (value: string | null) => {
-          return generateInitialTimer(value);
         },
       },
     },
@@ -647,6 +722,41 @@ const CustomReport = ({
         customHeadLabelRender: () => generateCustomHeaderName("Date of Review"),
         customBodyRender: (value: string | null) => {
           return generateDateWithoutTime(value);
+        },
+      },
+    },
+    {
+      name: "TotalEstimatedHours",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Total Est. Time"),
+        customBodyRender: (value: string | null) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "Quantity",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Qty."),
+        customBodyRender: (value: string | number) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "TotalSTDHours",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Total Std. Time"),
+        customBodyRender: (value: string | null) => {
+          return generateInitialTimer(value);
         },
       },
     },
@@ -723,6 +833,53 @@ const CustomReport = ({
       },
     },
     {
+      name: "TotalTime",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
+        customBodyRender: (value: string | null) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "EditedHours",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Assignee Edited Hours"),
+        customBodyRender: (value: string | null) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "ReviewerEditedTime",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Reviewer Edited Hours"),
+        customBodyRender: (value: string | null) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "TotalEditedHours",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Total Edited Hours"),
+        customBodyRender: (value: string | null) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
       name: "Errors",
       options: {
         filter: true,
@@ -791,6 +948,9 @@ const CustomReport = ({
             title={undefined}
             options={{
               ...options,
+              rowsSelected: selectedRows,
+              selectAllRows: isPopupOpen && selectedRowsCount === 0,
+              selectableRows: "multiple",
               tableBodyHeight: "73vh",
               textLabels: {
                 body: {
@@ -806,6 +966,18 @@ const CustomReport = ({
                   toolTip: "",
                 },
               },
+              onRowSelectionChange: (
+                currentRowsSelected:
+                  | { index: number; dataIndex: number }[]
+                  | [],
+                allRowsSelected: { index: number; dataIndex: number }[] | [],
+                rowsSelected: number[] | []
+              ) =>
+                handleRowSelect(
+                  currentRowsSelected,
+                  allRowsSelected,
+                  rowsSelected
+                ),
             }}
           />
           <TablePagination
@@ -815,6 +987,11 @@ const CustomReport = ({
             onPageChange={handleChangePage}
             rowsPerPage={customReportRowsPerPage}
             onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={
+              customReportFields.dataCount > 100
+                ? [10, 25, 50, 100, customReportFields.dataCount]
+                : [10, 25, 50, 100]
+            }
           />
         </ThemeProvider>
       </div>

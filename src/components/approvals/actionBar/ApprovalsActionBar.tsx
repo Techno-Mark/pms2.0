@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import {
@@ -81,6 +81,8 @@ const ApprovalsActionBar = ({
   handleClearSelection,
   getOverLay,
 }: ApprovalsActionBarData) => {
+  const [editClicked, setEditClicked] = useState(false);
+
   const isReviewer = reviewList
     .filter(
       (i: List) =>
@@ -101,7 +103,7 @@ const ApprovalsActionBar = ({
     getOverLay?.(true);
     const params = {
       workitemSubmissionIds: id,
-      comment: note ? note : null,
+      comment: note.trim().length > 0 ? note : null,
     };
     const url = `${process.env.worklog_api_url}/workitem/approval/acceptworkitem`;
     const successCallback = (
@@ -163,6 +165,10 @@ const ApprovalsActionBar = ({
     return arr.every((value, index, array) => value === array[0]);
   }
 
+  const handleEditClicked = (click: boolean) => {
+    setEditClicked(click);
+  };
+
   const propsForActionBar = {
     onEdit,
     workitemId,
@@ -179,7 +185,11 @@ const ApprovalsActionBar = ({
     selectedRowWorkTypeId,
     onComment,
     settingSelectedId,
+    handleEditClicked,
+    editClicked,
   };
+
+  useEffect(() => handleEditClicked(false), [selectedRowIds]);
 
   return (
     <div>

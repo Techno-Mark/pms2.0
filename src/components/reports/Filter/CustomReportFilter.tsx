@@ -38,6 +38,7 @@ import { callAPI } from "@/utils/API/callAPI";
 import {
   IdNameEstimatedHour,
   LabelValue,
+  LabelValueNull,
   LabelValueProfileImage,
   LabelValueType,
 } from "@/utils/Types/types";
@@ -67,6 +68,7 @@ interface SavedFilter {
     endDateReview: string | null;
     dueDate: string | null;
     allInfoDate: string | null;
+    IsHoursShared: number | null;
   };
 }
 
@@ -83,6 +85,12 @@ const returnTypeDropdown = [
     label: "Business Return",
     value: 2,
   },
+];
+
+const hoursDropdown = [
+  { label: "All", value: null },
+  { label: "Hours Shared", value: 1 },
+  { label: "Hours Pending", value: 0 },
 ];
 
 const priorityDropdown = [
@@ -132,6 +140,10 @@ const CustomReportFilter = ({
   const [startDateLogged, setStartDateLogged] = useState<string | number>("");
   const [endDateLogged, setEndDateLogged] = useState<string | number>("");
   const [dueDate, setDueDate] = useState<string | number>("");
+  const [hoursShared, setHoursShared] = useState<any>({
+    label: "All",
+    value: null,
+  });
   const [allInfoDate, setAllInfoDate] = useState<string | number>("");
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
@@ -192,6 +204,7 @@ const CustomReportFilter = ({
     setStatus([]);
     setStatusName([]);
     setPriority(null);
+    setHoursShared({ label: "All", value: null });
     setStartDate("");
     setEndDate("");
     setStartDateReview("");
@@ -237,6 +250,7 @@ const CustomReportFilter = ({
     setStatus([]);
     setStatusName([]);
     setPriority(null);
+    setHoursShared({ label: "All", value: null });
     setStartDate("");
     setEndDate("");
     setStartDateReview("");
@@ -264,6 +278,7 @@ const CustomReportFilter = ({
       subProcessId: subProcessName === null ? null : subProcessName.value,
       StatusIds: statusName.length > 0 ? statusName : [],
       priority: priority === null ? null : priority.value,
+      IsHoursShared: hoursShared === null ? null : hoursShared.value,
       startDate:
         startDate.toString().trim().length <= 0
           ? endDate.toString().trim().length <= 0
@@ -331,6 +346,7 @@ const CustomReportFilter = ({
           subProcessId: savedFilters[index].AppliedFilter.subProcessId,
           StatusIds: savedFilters[index].AppliedFilter.StatusIds,
           priority: savedFilters[index].AppliedFilter.priority,
+          IsHoursShared: savedFilters[index].AppliedFilter.IsHoursShared,
           startDate: savedFilters[index].AppliedFilter.startDate,
           endDate: savedFilters[index].AppliedFilter.endDate,
           startDateReview: savedFilters[index].AppliedFilter.startDateReview,
@@ -369,6 +385,7 @@ const CustomReportFilter = ({
           subProcessId: subProcessName === null ? null : subProcessName.value,
           StatusIds: statusName.length > 0 ? statusName : [],
           priority: priority === null ? null : priority.value,
+          IsHoursShared: hoursShared === null ? null : hoursShared.value,
           startDate:
             startDate.toString().trim().length <= 0
               ? endDate.toString().trim().length <= 0
@@ -453,6 +470,8 @@ const CustomReportFilter = ({
       subProcessName !== null ||
       status.length > 0 ||
       priority !== null ||
+      (hoursShared !== null && hoursShared.value !== null) ||
+      hoursShared !== null ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0 ||
       startDateReview.toString().trim().length > 0 ||
@@ -478,6 +497,7 @@ const CustomReportFilter = ({
     subProcessName,
     status,
     priority,
+    hoursShared,
     startDate,
     endDate,
     startDateReview,
@@ -693,6 +713,14 @@ const CustomReportFilter = ({
       AppliedFilter.priority !== null
         ? priorityDropdown.filter(
             (item: LabelValue) => item.value === AppliedFilter.priority
+          )[0]
+        : null
+    );
+
+    setHoursShared(
+      AppliedFilter.IsHoursShared !== null
+        ? hoursDropdown.filter(
+            (item: LabelValueNull) => item.value === AppliedFilter.IsHoursShared
           )[0]
         : null
     );
@@ -1413,6 +1441,34 @@ const CustomReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
+              </div>
+              <div className="flex gap-[20px]">
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, minWidth: 200 }}
+                >
+                  <Autocomplete
+                    id="tags-standard"
+                    options={hoursDropdown}
+                    getOptionLabel={(option: LabelValueNull) => option.label}
+                    onChange={(e, data: LabelValueNull | null) => {
+                      data === null
+                        ? setHoursShared({
+                            label: "All",
+                            value: null,
+                          })
+                        : setHoursShared(data);
+                    }}
+                    value={hoursShared}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Hours Shared"
+                      />
+                    )}
+                  />
+                </FormControl>
               </div>
             </div>
           </DialogContent>

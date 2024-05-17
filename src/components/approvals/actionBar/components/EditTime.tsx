@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import EditTimeIcon from "@/assets/icons/worklogs/EditTime";
 import EditDialog from "../../EditDialog";
@@ -9,6 +9,8 @@ interface EditTime {
   getReviewList: () => void;
   handleClearSelection: () => void;
   getOverLay?: (e: boolean) => void;
+  editClicked: boolean;
+  handleEditClicked: (click: boolean) => void;
 }
 
 const EditTime = ({
@@ -17,12 +19,18 @@ const EditTime = ({
   getReviewList,
   handleClearSelection,
   getOverLay,
+  editClicked,
+  handleEditClicked,
 }: EditTime) => {
   const [isEditOpen, setisEditOpen] = useState<boolean>(false);
 
   const closeModal = () => {
     setisEditOpen(false);
   };
+
+  useEffect(() => {
+    editClicked && setisEditOpen(true);
+  }, [editClicked]);
 
   return (
     <div>
@@ -40,6 +48,7 @@ const EditTime = ({
         onReviewerDataFetch={getReviewList}
         onClearSelection={handleClearSelection}
         getOverLay={getOverLay}
+        handleEditClicked={handleEditClicked}
       />
     </div>
   );

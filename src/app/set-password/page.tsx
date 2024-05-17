@@ -77,7 +77,7 @@ const Page = () => {
           Please set a password for your account.
         </Typography>
         <form
-          className="text-start w-full max-w-3xl py-5 px-3 flex flex-col items-center justify-center"
+          className="text-start w-full max-w-3xl py-5 !pb-2 px-3 flex flex-col items-center justify-center"
           onSubmit={handleSubmit}
         >
           <div className="mb-5 w-[300px] lg:w-[356px]">
@@ -114,9 +114,9 @@ const Page = () => {
             </Button>
           </div>
         </form>
-        <div className="pb-4 flex justify-between items-center mt-[20px] text-darkCharcoal text-sm lg:text-base">
+        <div className="pb-4 flex justify-between items-center text-darkCharcoal text-sm lg:text-base">
           Don&rsquo;t have an accout?&nbsp;
-          <Link href={""} className="text-primary font-semibold underline">
+          <Link href={""} className="text-secondary font-semibold underline">
             Sign Up
           </Link>
         </div>

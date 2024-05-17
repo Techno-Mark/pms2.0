@@ -3,7 +3,15 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
-import { Button, InputBase } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  InputBase,
+} from "@mui/material";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import LineIcon from "@/assets/icons/reports/LineIcon";
@@ -51,6 +59,7 @@ import WLTRReportFilter from "@/components/reports/Filter/WLTRReportFilter";
 import AutoManualReportFilter from "@/components/reports/Filter/AutoManualReportFilter";
 import KRAReportFilter from "@/components/reports/Filter/KRAReportFilter";
 import ClientReportFilter from "@/components/reports/Filter/ClientReportFilter";
+import { DialogTransition } from "@/utils/style/DialogTransition";
 
 interface Tabs {
   label: string;
@@ -125,6 +134,9 @@ const Page = () => {
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
   const [searchValue, setSearchValue] = useState<string>("");
+  const [hasHoursShared, setHasHoursShared] = useState<boolean>(false);
+  const [saveHourData, setSaveHourData] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   useEffect(() => {
     const handleOutsideClick = (event: any) => {
@@ -427,8 +439,59 @@ const Page = () => {
                   : "Invoice Raise"}
               </Button>
             )}
+
+            {activeTab === 8 && (
+              <Button
+                type="submit"
+                variant="contained"
+                color="info"
+                disabled={!hasHoursShared}
+                className={`whitespace-nowrap ${
+                  hasHoursShared ? "!bg-secondary" : ""
+                }`}
+                onClick={() => setIsDeleting(true)}
+              >
+                Hours Shared
+              </Button>
+            )}
           </div>
         </div>
+
+        <Dialog
+          open={isDeleting}
+          TransitionComponent={DialogTransition}
+          onClose={() => setIsDeleting(false)}
+        >
+          <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
+            <span className="text-lg font-medium">Share Hours</span>
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              <div className="flex flex-col mr-20 mb-8 mt-4">
+                Are you sure you want to Share Hours?
+              </div>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={() => setIsDeleting(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="!bg-secondary"
+              variant="contained"
+              onClick={() => {
+                setSaveHourData(true);
+                setIsDeleting(false);
+              }}
+            >
+              Yes
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         {/* tabs */}
         {activeTab === 1 && (
@@ -489,6 +552,9 @@ const Page = () => {
           <CustomReport
             searchValue={searchValue}
             filteredData={filteredData}
+            hasHoursShared={(arg1: boolean) => setHasHoursShared(arg1)}
+            isSavingHourData={saveHourData}
+            onSaveHourDataComplete={() => setSaveHourData(false)}
             onHandleExport={handleCanExport}
           />
         )}
