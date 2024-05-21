@@ -443,6 +443,7 @@ const Datatable = ({
   };
 
   const getWorkItemList = async () => {
+    setLoaded(false);
     const params = filteredObject;
     const url = `${process.env.worklog_api_url}/workitem/getworkitemlist`;
     const successCallback = (
