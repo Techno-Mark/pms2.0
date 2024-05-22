@@ -235,10 +235,10 @@ input[type="time"]::-moz-time-text {
   justify-content: end;
 }
 
-.muiTableAction tbody tr td:nth-child(5) {
+.muiTableAction tbody tr td:last-child {
   /* width: 2px !important; */
   display: flex;
-  justify-content: start;
+  justify-content: center;
   height: auto;
   margin-top: 12px;
   padding-bottom: 24px;
