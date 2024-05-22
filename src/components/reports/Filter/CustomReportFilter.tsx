@@ -471,7 +471,6 @@ const CustomReportFilter = ({
       status.length > 0 ||
       priority !== null ||
       (hoursShared !== null && hoursShared.value !== null) ||
-      hoursShared !== null ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0 ||
       startDateReview.toString().trim().length > 0 ||
