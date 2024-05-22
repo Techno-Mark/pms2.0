@@ -35,7 +35,7 @@ const CustomActionBar = ({
                 <span className="cursor-pointer" onClick={handleClearSelection}>
                   <Minus />
                 </span>
-                <span className="pl-2 pt-[1px] pr-6 text-[14px]">
+                <span className="pl-2 pt-[1px] pr-2 text-[14px]">
                   {selectedRowsCount || selectedRows} task selected
                 </span>
               </div>

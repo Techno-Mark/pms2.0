@@ -588,6 +588,15 @@ const WorklogsActionBar = ({
               .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
                 i.ClientId > 0 &&
+                i.WorkTypeId === 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId > 0 &&
                 i.WorkTypeId > 0 &&
                 i.ProjectId !== 0
                   ? i.WorkitemId
@@ -619,6 +628,15 @@ const WorklogsActionBar = ({
               .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
                 i.ClientId === 0 &&
+                i.WorkTypeId === 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId > 0 &&
                 i.WorkTypeId === 0
                   ? i.WorkitemId
                   : undefined
