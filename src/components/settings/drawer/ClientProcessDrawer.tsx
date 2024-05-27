@@ -18,6 +18,7 @@ import { callAPI } from "@/utils/API/callAPI";
 import { Close, Save } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { LabelValue } from "@/utils/Types/types";
+import { getDepartmentDataByClient } from "@/utils/commonDropdownApiCall";
 
 interface List {
   Id: number;
@@ -46,6 +47,10 @@ const ClientProcessDrawer = ({
     []
   );
   const [typeOfWork, setTypeOfWork] = useState(0);
+  const [departmentDropdown, setDepartmentDropdown] = useState<LabelValue[]>(
+    []
+  );
+  const [department, setDepartment] = useState(0);
   const [clientProcessData, setClientProcessData] = useState([]);
   const [thisclientProcess, setThisClientProcess] = useState([]);
   const [stndrdTime, setStndrdTime] = useState<any>([]);
@@ -289,6 +294,12 @@ const ClientProcessDrawer = ({
     callAPI(url, params, successCallback, "POST");
   };
 
+  const getDepartmentData = async () => {
+    const data = await getDepartmentDataByClient(selectedRowId || 0);
+    setDepartmentDropdown(data);
+    setDepartment(data[0].value);
+  };
+
   const getProcessByClient = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -299,6 +310,7 @@ const ClientProcessDrawer = ({
         {
           clientId: selectedRowId || 0,
           WorkTypeId: typeOfWork,
+          DepartmentId: department,
           globalSearch: searchValue,
         },
         {
@@ -350,14 +362,15 @@ const ClientProcessDrawer = ({
   useEffect(() => {
     if (selectedRowId && onOpen) {
       getWorkTypeData();
+      getDepartmentData();
     }
   }, [selectedRowId, onOpen]);
 
   useEffect(() => {
-    if (typeOfWork > 0) {
+    if (typeOfWork > 0 && department > 0) {
       getProcessByClient();
     }
-  }, [typeOfWork, onOpen, searchValue]);
+  }, [typeOfWork, department, onOpen, searchValue]);
 
   const handleActionValue = (id: number) => {
     setEditingRows((prevEditingRows) => ({
@@ -546,7 +559,7 @@ const ClientProcessDrawer = ({
             </div>
             <FormControl
               variant="standard"
-              sx={{ width: 300, mt: -0.3, my: -1, mx: 0.75, mr: 4 }}
+              sx={{ width: 210, mt: -0.3, my: -1, mx: 0.75, mr: 4 }}
             >
               <InputLabel id="demo-simple-select-standard-label">
                 Type Of Work
@@ -562,6 +575,30 @@ const ClientProcessDrawer = ({
                 }}
               >
                 {typeOfWorkDropdown.map((i: LabelValue, index: number) => (
+                  <MenuItem value={i.value} key={index}>
+                    {i.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl
+              variant="standard"
+              sx={{ width: 210, mt: -0.3, my: -1, mx: 0.75, mr: 4 }}
+            >
+              <InputLabel id="demo-simple-select-standard-label">
+                Department
+                <span className="text-defaultRed">&nbsp;*</span>
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                value={department === 0 ? "" : department}
+                onChange={(e) => {
+                  setDepartment(Number(e.target.value));
+                  setSearchValue("");
+                }}
+              >
+                {departmentDropdown.map((i: LabelValue, index: number) => (
                   <MenuItem value={i.value} key={index}>
                     {i.label}
                   </MenuItem>

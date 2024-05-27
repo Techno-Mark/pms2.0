@@ -48,6 +48,8 @@ export interface WorkitemList {
   ReturnYear: number | null;
   PreparorTimeSec: number;
   PreparorTime: string;
+  DepartmentId: number;
+  DepartmentName: string;
 }
 
 export interface WorklogsActionBarProps {
@@ -56,6 +58,7 @@ export interface WorklogsActionBarProps {
   selectedRowsdata: WorkitemList[];
   selectedRowClientId: number[];
   selectedRowWorkTypeId: number[];
+  selectedRowDepartmentId: number[];
   selectedRowIds: number[];
   onEdit: (rowData: number) => void;
   handleClearSelection: () => void;

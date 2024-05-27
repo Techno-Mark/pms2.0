@@ -18,7 +18,7 @@ import { callAPI } from "@/utils/API/callAPI";
 import {
   getAssigneeDropdownData,
   getClientDropdownData,
-  getDepartmentDropdownData,
+  getDepartmentDataByClient,
   getManagerDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
@@ -612,32 +612,27 @@ const TaskEditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
-      const departmentData = await getDepartmentDropdownData(assigneeWorklogs);
+      const departmentData = await getDepartmentDataByClient(
+        clientNameWorklogs
+      );
       departmentData.DepartmentList.length > 0
         ? setDepartmentWorklogsDropdownData(departmentData.DepartmentList)
         : setDepartmentWorklogsDropdownData([]);
     };
-
-    assigneeWorklogs > 0 && getData();
-  }, [assigneeWorklogs]);
+    clientNameWorklogs > 0 && getData();
+  }, [clientNameWorklogs]);
 
   useEffect(() => {
     const getData = async () => {
-      const departmentDataEdit = await getDepartmentDropdownData(
-        assigneeWorklogsEdit
+      const departmentDataEdit = await getDepartmentDataByClient(
+        clientNameWorklogsEdit
       );
-      departmentDataEdit.DepartmentList.length > 0
-        ? setDepartmentWorklogsDropdownDataEdit(
-            departmentDataEdit.DepartmentList
-          )
+      departmentDataEdit.length > 0
+        ? setDepartmentWorklogsDropdownDataEdit(departmentDataEdit)
         : setDepartmentWorklogsDropdownDataEdit([]);
-      departmentDataEdit.DefaultId > 0 &&
-        departmentDataEdit <= 0 &&
-        setDepartmentWorklogsEdit(departmentDataEdit.DefaultId);
     };
-
-    assigneeWorklogsEdit > 0 && getData();
-  }, [assigneeWorklogsEdit]);
+    clientNameWorklogsEdit > 0 && getData();
+  }, [clientNameWorklogsEdit]);
 
   useEffect(() => {
     const getData = async () => {
@@ -684,7 +679,12 @@ const TaskEditDrawer = ({
       const processData =
         clientNameWorklogs > 0 &&
         typeOfWorkWorklogs > 0 &&
-        (await getProcessDropdownData(clientNameWorklogs, typeOfWorkWorklogs));
+        departmentWorklogs > 0 &&
+        (await getProcessDropdownData(
+          clientNameWorklogs,
+          typeOfWorkWorklogs,
+          departmentWorklogs
+        ));
       processData.length > 0
         ? setProcessWorklogsDropdownData(
             processData?.map(
@@ -713,7 +713,7 @@ const TaskEditDrawer = ({
     };
 
     getData();
-  }, [processNameWorklogs, typeOfWorkWorklogs]);
+  }, [processNameWorklogs, typeOfWorkWorklogs, departmentWorklogs]);
 
   useEffect(() => {
     const getData = async () => {
@@ -755,9 +755,11 @@ const TaskEditDrawer = ({
       const processData =
         clientNameWorklogsEdit > 0 &&
         typeOfWorkWorklogsEdit > 0 &&
+        departmentWorklogs > 0 &&
         (await getProcessDropdownData(
           clientNameWorklogsEdit,
-          typeOfWorkWorklogsEdit
+          typeOfWorkWorklogsEdit,
+          departmentWorklogs
         ));
       processData.length > 0
         ? setProcessWorklogsDropdownDataEdit(
@@ -787,7 +789,7 @@ const TaskEditDrawer = ({
     };
 
     getData();
-  }, [processNameWorklogsEdit, typeOfWorkWorklogsEdit]);
+  }, [processNameWorklogsEdit, typeOfWorkWorklogsEdit, departmentWorklogs]);
 
   useEffect(() => {
     const getData = async () => {

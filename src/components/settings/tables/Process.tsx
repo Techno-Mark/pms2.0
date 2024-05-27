@@ -44,6 +44,7 @@ const initialFilter = {
   IsBillable: null,
   IsProductive: null,
   WorkTypeFilter: null,
+  DepartmentId: null,
   GlobalSearch: "",
 };
 
@@ -333,58 +334,6 @@ function Process({
           },
         },
       };
-    } else if (column.label === "Process") {
-      return {
-        name: "ParentProcessName",
-        options: {
-          filter: true,
-          viewColumns: false,
-          sort: false,
-          customHeadLabelRender: () => generateCustomHeaderName("Process"),
-          customBodyRender: (value: string) => {
-            return <span>{value}</span>;
-          },
-        },
-      };
-    } else if (column.label === "Sub-Process") {
-      return {
-        name: "ChildProcessName",
-        options: {
-          filter: true,
-          viewColumns: false,
-          sort: false,
-          customHeadLabelRender: () => generateCustomHeaderName("Sub-Process"),
-          customBodyRender: (value: string) => {
-            return <span>{value}</span>;
-          },
-        },
-      };
-    } else if (column.label === "Type Of Work") {
-      return {
-        name: "WorkTypeName",
-        options: {
-          filter: true,
-          viewColumns: false,
-          sort: false,
-          customHeadLabelRender: () => generateCustomHeaderName("Type Of Work"),
-          customBodyRender: (value: string) => {
-            return <span>{value}</span>;
-          },
-        },
-      };
-    } else if (column.label === "Return Type") {
-      return {
-        name: "ReturnTypeName",
-        options: {
-          filter: true,
-          viewColumns: false,
-          sort: false,
-          customHeadLabelRender: () => generateCustomHeaderName("Return Type"),
-          customBodyRender: (value: string | null) => {
-            return <span>{value === null ? "-" : value}</span>;
-          },
-        },
-      };
     } else {
       return generateCustomColumn(
         column.name,
@@ -408,6 +357,11 @@ function Process({
     {
       name: "WorkTypeName",
       label: "Type Of Work",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "DepartmentName",
+      label: "Department",
       bodyRenderer: generateCommonBodyRender,
     },
     {

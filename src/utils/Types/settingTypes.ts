@@ -141,6 +141,7 @@ export interface ProcessInitialFilter {
   IsBillable: null;
   IsProductive: null;
   WorkTypeFilter: null;
+  DepartmentId: null;
 }
 
 export interface ProcessList {
@@ -155,6 +156,8 @@ export interface ProcessList {
   ParentId: number;
   WorkTypeId: number;
   WorkTypeName: string;
+  DepartmentId: string;
+  DepartmentName: string;
   ProcessId: number;
 }
 
@@ -326,6 +329,7 @@ export interface ProcessGetByIdList {
   ReturnTypeName: string | null;
   ParentId: number;
   WorkTypeId: number;
+  DepartmentId: number;
   ProcessId: number;
 }
 

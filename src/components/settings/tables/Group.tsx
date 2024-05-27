@@ -90,6 +90,7 @@ const Group = ({
   }, [filteredObject]);
 
   const getAll = async () => {
+    setLoader(true);
     const params = filteredObject;
     const url = `${process.env.pms_api_url}/group/getall`;
     const successCallback = (

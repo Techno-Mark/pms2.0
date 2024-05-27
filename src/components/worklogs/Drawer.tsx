@@ -53,7 +53,7 @@ import {
   getCCDropdownData,
   getClientDropdownData,
   getCommentUserDropdownData,
-  getDepartmentDropdownData,
+  getDepartmentDataByClient,
   getManagerDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
@@ -126,6 +126,7 @@ const EditDrawer = ({
     useState(false);
   const [editDataWorklogs, setEditDataWorklogs] = useState<any>([]);
   const [isIdDisabled, setIsIdDisabled] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     onRecurring && scrollToPanel(4);
@@ -262,6 +263,16 @@ const EditDrawer = ({
     useState<number>(0);
   const [checklistWorkpaperWorklogsErr, setChecklistWorkpaperWorklogsErr] =
     useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      let adminStatus = localStorage.getItem("isAdmin") === "true";
+      let departmentId: any = localStorage.getItem("departmentId");
+      setIsAdmin(adminStatus);
+      adminStatus === false &&
+        setDepartmentWorklogs(departmentId > 0 ? Number(departmentId) : 0);
+    }
+  }, [onOpen]);
 
   // Sub-Task
   const [subTaskWorklogsDrawer, setSubTaskWorklogsDrawer] = useState(true);
@@ -2540,17 +2551,27 @@ const EditDrawer = ({
         clientNameWorklogs > 0 &&
         typeOfWorkWorklogs > 0 &&
         (await getProjectDropdownData(clientNameWorklogs, typeOfWorkWorklogs));
-      projectData.length > 0
-        ? setProjectWorklogsDropdownData(projectData)
-        : setProjectWorklogsDropdownData([]);
+      projectData.length > 0 && setProjectWorklogsDropdownData(projectData);
       projectData.length > 0 &&
         projectData.length === 1 &&
         onEdit === 0 &&
         setProjectNameWorklogs(projectData.map((i: LabelValue) => i.value)[0]);
+    };
+
+    getData();
+  }, [typeOfWorkWorklogs, clientNameWorklogs]);
+
+  useEffect(() => {
+    const getData = async () => {
       const processData =
         clientNameWorklogs > 0 &&
         typeOfWorkWorklogs > 0 &&
-        (await getProcessDropdownData(clientNameWorklogs, typeOfWorkWorklogs));
+        departmentWorklogs > 0 &&
+        (await getProcessDropdownData(
+          clientNameWorklogs,
+          typeOfWorkWorklogs,
+          departmentWorklogs
+        ));
       processData.length > 0
         ? setProcessWorklogsDropdownData(
             processData?.map(
@@ -2559,6 +2580,18 @@ const EditDrawer = ({
             )
           )
         : setProcessWorklogsDropdownData([]);
+    };
+
+    getData();
+  }, [
+    processNameWorklogs,
+    typeOfWorkWorklogs,
+    departmentWorklogs,
+    clientNameWorklogs,
+  ]);
+
+  useEffect(() => {
+    const getData = async () => {
       const data =
         processNameWorklogs !== 0 &&
         (await getSubProcessDropdownData(
@@ -2578,7 +2611,7 @@ const EditDrawer = ({
     };
 
     getData();
-  }, [processNameWorklogs, typeOfWorkWorklogs]);
+  }, [processNameWorklogs, typeOfWorkWorklogs, clientNameWorklogs]);
 
   useEffect(() => {
     const getData = async () => {
@@ -2629,17 +2662,18 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
-      const departmentData = await getDepartmentDropdownData(assigneeWorklogs);
-      departmentData.DepartmentList.length > 0
-        ? setDepartmentWorklogsDropdownData(departmentData.DepartmentList)
+      const departmentData = await getDepartmentDataByClient(
+        clientNameWorklogs
+      );
+      departmentData.length > 0
+        ? setDepartmentWorklogsDropdownData(departmentData)
         : setDepartmentWorklogsDropdownData([]);
-      departmentData.DefaultId > 0 &&
-        onEdit === 0 &&
-        setDepartmentWorklogs(departmentData.DefaultId);
     };
 
-    assigneeWorklogs > 0 && getData();
-  }, [assigneeWorklogs]);
+    clientNameWorklogs > 0 &&
+      departmentWorklogsDropdownData.length <= 0 &&
+      getData();
+  }, [clientNameWorklogs]);
 
   const getUserDetails = async () => {
     const params = {};
@@ -2944,8 +2978,8 @@ const EditDrawer = ({
                             setAssigneeWorklogsErr(false);
                           setReviewerWorklogs(0);
                           setReviewerWorklogsErr(false);
-                          setDepartmentWorklogs(0);
-                          setDepartmentWorklogsErr(false);
+                          isAdmin && setDepartmentWorklogs(0);
+                          isAdmin && setDepartmentWorklogsErr(false);
                         }}
                         disabled={
                           (isCreatedByClientWorklogsDrawer &&
@@ -3015,8 +3049,8 @@ const EditDrawer = ({
                             onEdit === 0 && setDateOfPreperationWorklogs("");
                             setReturnYearWorklogs(0);
                             setNoOfPagesWorklogs(0);
-                            setDepartmentWorklogs(0);
-                            setDepartmentWorklogsErr(false);
+                            isAdmin && setDepartmentWorklogs(0);
+                            isAdmin && setDepartmentWorklogsErr(false);
                           }}
                           onBlur={() => {
                             if (typeOfWorkWorklogs > 0) {
@@ -3115,6 +3149,51 @@ const EditDrawer = ({
                             }}
                             helperText={
                               statusWorklogsErr
+                                ? "This is a required field."
+                                : ""
+                            }
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={departmentWorklogsDropdownData}
+                        disabled={
+                          (isCreatedByClientWorklogsDrawer &&
+                            editDataWorklogs.DepartmentId > 0) ||
+                          isIdDisabled ||
+                          isAdmin === false
+                        }
+                        value={
+                          departmentWorklogsDropdownData.find(
+                            (i: LabelValue) => i.value === departmentWorklogs
+                          ) || null
+                        }
+                        onChange={(e, value: LabelValue | null) => {
+                          value && setDepartmentWorklogs(value.value);
+                        }}
+                        sx={{ mx: 0.75, width: 300 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Department
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={departmentWorklogsErr}
+                            onBlur={() => {
+                              if (departmentWorklogs > 0) {
+                                setDepartmentWorklogsErr(false);
+                              }
+                            }}
+                            helperText={
+                              departmentWorklogsErr
                                 ? "This is a required field."
                                 : ""
                             }
@@ -3260,11 +3339,10 @@ const EditDrawer = ({
                         sx={{ mx: 0.75, width: 300, mt: -0.5 }}
                       />
                     </Grid>
-                    <Grid item xs={3} className="pt-4">
+                    <Grid item xs={3} className="pt-[14px]">
                       <TextField
                         label="Description"
                         fullWidth
-                        className="pt-1"
                         value={
                           descriptionWorklogs?.trim().length <= 0
                             ? ""
@@ -3276,27 +3354,6 @@ const EditDrawer = ({
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -0.5 }}
                       />
-                    </Grid>
-                    <Grid item xs={3} className="pt-4">
-                      <FormControl
-                        variant="standard"
-                        sx={{ mx: 0.75, width: 300, mt: -1.2 }}
-                        disabled={isIdDisabled}
-                      >
-                        <InputLabel id="demo-simple-select-standard-label">
-                          Priority
-                        </InputLabel>
-                        <Select
-                          labelId="demo-simple-select-standard-label"
-                          id="demo-simple-select-standard"
-                          value={priorityWorklogs === 0 ? "" : priorityWorklogs}
-                          onChange={(e) => setPriorityWorklogs(e.target.value)}
-                        >
-                          <MenuItem value={1}>High</MenuItem>
-                          <MenuItem value={2}>Medium</MenuItem>
-                          <MenuItem value={3}>Low</MenuItem>
-                        </Select>
-                      </FormControl>
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <TextField
@@ -3434,6 +3491,27 @@ const EditDrawer = ({
                       />
                     </Grid>
                     <Grid item xs={3} className="pt-4">
+                      <FormControl
+                        variant="standard"
+                        sx={{ mx: 0.75, width: 300, mt: -1.2 }}
+                        disabled={isIdDisabled}
+                      >
+                        <InputLabel id="demo-simple-select-standard-label">
+                          Priority
+                        </InputLabel>
+                        <Select
+                          labelId="demo-simple-select-standard-label"
+                          id="demo-simple-select-standard"
+                          value={priorityWorklogs === 0 ? "" : priorityWorklogs}
+                          onChange={(e) => setPriorityWorklogs(e.target.value)}
+                        >
+                          <MenuItem value={1}>High</MenuItem>
+                          <MenuItem value={2}>Medium</MenuItem>
+                          <MenuItem value={3}>Low</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
                       <div
                         className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
                           receiverDateWorklogsErr ? "datepickerError" : ""
@@ -3541,7 +3619,13 @@ const EditDrawer = ({
                         </LocalizationProvider>
                       </div>
                     </Grid>
-                    <Grid item xs={3} className="pt-4">
+                    <Grid
+                      item
+                      xs={3}
+                      className={`${
+                        typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
+                      }`}
+                    >
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
@@ -3554,10 +3638,12 @@ const EditDrawer = ({
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setAssigneeWorklogs(value.value);
-                          setDepartmentWorklogs(0);
-                          setDepartmentWorklogsErr(false);
                         }}
-                        sx={{ width: 300, mt: -1, mx: 0.75 }}
+                        sx={{
+                          width: 300,
+                          mt: typeOfWorkWorklogs === 3 ? 0.2 : -1,
+                          mx: 0.75,
+                        }}
                         renderInput={(params) => (
                           <TextField
                             {...params}
@@ -3626,56 +3712,6 @@ const EditDrawer = ({
                             }}
                             helperText={
                               reviewerWorklogsErr
-                                ? "This is a required field."
-                                : ""
-                            }
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid
-                      item
-                      xs={3}
-                      className={`${
-                        typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
-                      }`}
-                    >
-                      <Autocomplete
-                        disablePortal
-                        id="combo-box-demo"
-                        options={departmentWorklogsDropdownData}
-                        disabled={isIdDisabled}
-                        value={
-                          departmentWorklogsDropdownData.find(
-                            (i: LabelValue) => i.value === departmentWorklogs
-                          ) || null
-                        }
-                        onChange={(e, value: LabelValue | null) => {
-                          value && setDepartmentWorklogs(value.value);
-                        }}
-                        sx={{
-                          width: 300,
-                          mt: typeOfWorkWorklogs === 3 ? 0.2 : -1,
-                          mx: 0.75,
-                        }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="standard"
-                            label={
-                              <span>
-                                Department
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </span>
-                            }
-                            error={departmentWorklogsErr}
-                            onBlur={() => {
-                              if (departmentWorklogs > 0) {
-                                setDepartmentWorklogsErr(false);
-                              }
-                            }}
-                            helperText={
-                              departmentWorklogsErr
                                 ? "This is a required field."
                                 : ""
                             }

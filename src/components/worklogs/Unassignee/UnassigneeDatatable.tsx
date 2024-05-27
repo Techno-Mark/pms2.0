@@ -187,6 +187,7 @@ const UnassigneeDatatable = ({
   }, []);
 
   const getWorkItemList = async () => {
+    setLoaded(false);
     const params = filteredObject;
     const url = `${process.env.worklog_api_url}/workitem/getunassignedworkitemlist`;
     const successCallback = (

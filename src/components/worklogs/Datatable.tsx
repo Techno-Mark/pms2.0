@@ -141,6 +141,9 @@ const Datatable = ({
   const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<
     number[] | []
   >([]);
+  const [selectedRowDepartmentId, setSelectedRowDepartmentId] = useState<
+    number[] | []
+  >([]);
   const [selectedRowsdata, setSelectedRowsData] = useState<WorkitemList[] | []>(
     []
   );
@@ -158,9 +161,6 @@ const Datatable = ({
   const [commentErrText, setCommentErrText] = useState<string>("");
   const [isTimeExceed, setIsTimeExceed] = useState<boolean>(false);
 
-  useEffect(() => {
-    setIsLoadingWorklogsDatatable(setLoading);
-  }, [setLoading]);
   useEffect(() => {
     setIsLoadingWorklogsDatatable(setLoading);
   }, [setLoading]);
@@ -218,6 +218,20 @@ const Datatable = ({
         : [];
 
     setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
+
+    const selectedWorkItemDepartmentIds: number[] | [] =
+      selectedData.length > 0
+        ? selectedData
+            .map((selectedRow: WorkitemList) =>
+              selectedRow?.DepartmentId !== 0
+                ? selectedRow?.DepartmentId
+                : false
+            )
+            .filter((j: number | false): j is number => typeof j === "number")
+        : [];
+
+    setSelectedRowDepartmentId(selectedWorkItemDepartmentIds);
+
     setIsPopupOpen(allRowsSelected);
   };
 
@@ -356,6 +370,7 @@ const Datatable = ({
           setIsLoadingWorklogsDatatable(false);
         }
       } else {
+        getWorkItemList();
         setIsLoadingWorklogsDatatable(false);
       }
     };
@@ -1049,6 +1064,7 @@ const Datatable = ({
     selectedRowsdata,
     selectedRowClientId,
     selectedRowWorkTypeId,
+    selectedRowDepartmentId,
     selectedRowStatusName,
     selectedRowIds,
     onEdit,

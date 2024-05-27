@@ -101,6 +101,7 @@ const Status = ({
   }, [filteredObject]);
 
   const getStatusList = async () => {
+    setLoader(true);
     const params = filteredObject;
     const url = `${process.env.pms_api_url}/status/GetAll`;
     const successCallback = (

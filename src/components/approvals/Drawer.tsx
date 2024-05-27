@@ -54,7 +54,7 @@ import {
   getCCDropdownData,
   getClientDropdownData,
   getCommentUserDropdownData,
-  getDepartmentDropdownData,
+  getDepartmentDataByClient,
   getManagerDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
@@ -126,7 +126,6 @@ const EditDrawer = ({
   const [inputTypePreperation, setInputTypePreperation] = useState("text");
   const [editData, setEditData] = useState<any>([]);
   const [isCreatedByClient, setIsCreatedByClient] = useState(false);
-  const [isManual, setIsManual] = useState(null);
   const [selectedDays, setSelectedDays] = useState<any>([]);
   const [inputDateErrors, setInputDateErrors] = useState([false]);
   const [startTimeErrors, setStartTimeErrors] = useState([false]);
@@ -134,6 +133,7 @@ const EditDrawer = ({
   const [inputTypeDate, setInputTypeDate] = useState(["text"]);
   const [inputTypeStartTime, setInputTypeStartTime] = useState(["text"]);
   const [inputTypeEndTime, setInputTypeEndTime] = useState(["text"]);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const toggleColor = (index: number) => {
     if (selectedDays.includes(index)) {
@@ -285,6 +285,13 @@ const EditDrawer = ({
     useState<any>(0);
   const [checklistWorkpaperApprovalsErr, setChecklistWorkpaperApprovalsErr] =
     useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      let adminStatus = localStorage.getItem("isAdmin") === "true";
+      setIsAdmin(adminStatus);
+    }
+  }, [onOpen]);
 
   // Sub-Task
   const [subTaskApprovalsDrawer, setSubTaskApprovalsDrawer] = useState(true);
@@ -2368,12 +2375,21 @@ const EditDrawer = ({
         setProjectApprovalsDropdownData(
           await getProjectDropdownData(clientNameApprovals, typeOfWorkApprovals)
         );
+    };
+
+    getData();
+  }, [clientNameApprovals, typeOfWorkApprovals]);
+
+  useEffect(() => {
+    const getData = async () => {
       const processData =
         clientNameApprovals > 0 &&
         typeOfWorkApprovals > 0 &&
+        departmentApprovals > 0 &&
         (await getProcessDropdownData(
           clientNameApprovals,
-          typeOfWorkApprovals
+          typeOfWorkApprovals,
+          departmentApprovals
         ));
       processData.length > 0
         ? setProcessApprovalsDropdownData(
@@ -2383,6 +2399,13 @@ const EditDrawer = ({
             )
           )
         : setProcessApprovalsDropdownData([]);
+    };
+
+    getData();
+  }, [clientNameApprovals, typeOfWorkApprovals, departmentApprovals]);
+
+  useEffect(() => {
+    const getData = async () => {
       const data =
         processNameApprovals !== 0 &&
         (await getSubProcessDropdownData(
@@ -2402,7 +2425,7 @@ const EditDrawer = ({
     };
 
     getData();
-  }, [processNameApprovals, typeOfWorkApprovals]);
+  }, [processNameApprovals]);
 
   useEffect(() => {
     const getData = async () => {
@@ -2425,17 +2448,16 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
-      const departmentData = await getDepartmentDropdownData(assigneeApprovals);
-      departmentData.DepartmentList.length > 0
-        ? setDepartmentApprovalsDropdownData(departmentData.DepartmentList)
+      const departmentData = await getDepartmentDataByClient(
+        clientNameApprovals
+      );
+      departmentData.length > 0
+        ? setDepartmentApprovalsDropdownData(departmentData)
         : setDepartmentApprovalsDropdownData([]);
-      departmentData.DefaultId > 0 &&
-        onEdit === 0 &&
-        setDepartmentApprovals(departmentData.DefaultId);
     };
 
-    assigneeApprovals > 0 && getData();
-  }, [assigneeApprovals]);
+    clientNameApprovals && getData();
+  }, [clientNameApprovals]);
 
   const handleClose = () => {
     // Common
@@ -2734,8 +2756,8 @@ const EditDrawer = ({
                             setAssigneeApprovalsErr(false);
                           setReviewerApprovals(0);
                           setReviewerApprovalsErr(false);
-                          setDepartmentApprovals(0);
-                          setDepartmentApprovalsErr(false);
+                          isAdmin && setDepartmentApprovals(0);
+                          isAdmin && setDepartmentApprovalsErr(false);
                           setReturnYearApprovals(0);
                           setNoOfPagesApprovals(0);
                           setChecklistWorkpaperApprovals(0);
@@ -2802,8 +2824,8 @@ const EditDrawer = ({
                             setProcessNameApprovalsErr(false);
                             setSubProcessApprovals(0);
                             setSubProcessApprovalsErr(false);
-                            setDepartmentApprovals(0);
-                            setDepartmentApprovalsErr(false);
+                            isAdmin && setDepartmentApprovals(0);
+                            isAdmin && setDepartmentApprovalsErr(false);
                           }}
                           onBlur={() => {
                             if (typeOfWorkApprovals > 0) {
@@ -2907,6 +2929,46 @@ const EditDrawer = ({
                             }}
                             helperText={
                               statusApprovalsErr
+                                ? "This is a required field."
+                                : ""
+                            }
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={departmentApprovalsDropdownData}
+                        value={
+                          departmentApprovalsDropdownData.find(
+                            (i: LabelValue) => i.value === departmentApprovals
+                          ) || null
+                        }
+                        disabled={isAdmin === false}
+                        onChange={(e, value: LabelValue | null) => {
+                          value && setDepartmentApprovals(value.value);
+                        }}
+                        sx={{ mx: 0.75, width: 300 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Department
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={departmentApprovalsErr}
+                            onBlur={() => {
+                              if (departmentApprovals > 0) {
+                                setDepartmentApprovalsErr(false);
+                              }
+                            }}
+                            helperText={
+                              departmentApprovalsErr
                                 ? "This is a required field."
                                 : ""
                             }
@@ -3060,7 +3122,7 @@ const EditDrawer = ({
                         }
                         margin="normal"
                         variant="standard"
-                        sx={{ mx: 0.75, width: 300, mt: -0.5 }}
+                        sx={{ mx: 0.75, width: 300, mt: -1.4 }}
                       />
                     </Grid>
                     <Grid item xs={3} className="pt-4">
@@ -3321,7 +3383,13 @@ const EditDrawer = ({
                         </LocalizationProvider>
                       </div>
                     </Grid>
-                    <Grid item xs={3} className="pt-4">
+                    <Grid
+                      item
+                      xs={3}
+                      className={`${
+                        typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
+                      }`}
+                    >
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
@@ -3334,10 +3402,12 @@ const EditDrawer = ({
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setAssigneeApprovals(value.value);
-                          setDepartmentApprovals(0);
-                          setDepartmentApprovalsErr(false);
                         }}
-                        sx={{ width: 300, mt: -1, mx: 0.75 }}
+                        sx={{
+                          width: 300,
+                          mt: typeOfWorkApprovals === 3 ? 0.2 : -1,
+                          mx: 0.75,
+                        }}
                         renderInput={(params) => (
                           <TextField
                             {...params}
@@ -3405,55 +3475,6 @@ const EditDrawer = ({
                             }}
                             helperText={
                               reviewerApprovalsErr
-                                ? "This is a required field."
-                                : ""
-                            }
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid
-                      item
-                      xs={3}
-                      className={`${
-                        typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
-                      }`}
-                    >
-                      <Autocomplete
-                        disablePortal
-                        id="combo-box-demo"
-                        options={departmentApprovalsDropdownData}
-                        value={
-                          departmentApprovalsDropdownData.find(
-                            (i: LabelValue) => i.value === departmentApprovals
-                          ) || null
-                        }
-                        onChange={(e, value: LabelValue | null) => {
-                          value && setDepartmentApprovals(value.value);
-                        }}
-                        sx={{
-                          width: 300,
-                          mt: typeOfWorkApprovals === 3 ? 0.2 : -1,
-                          mx: 0.75,
-                        }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="standard"
-                            label={
-                              <span>
-                                Department
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </span>
-                            }
-                            error={departmentApprovalsErr}
-                            onBlur={() => {
-                              if (departmentApprovals > 0) {
-                                setDepartmentApprovalsErr(false);
-                              }
-                            }}
-                            helperText={
-                              departmentApprovalsErr
                                 ? "This is a required field."
                                 : ""
                             }
@@ -3579,7 +3600,7 @@ const EditDrawer = ({
                             sx={{ width: 300, mt: 0, mx: 0.75 }}
                           />
                         </Grid>
-                        <Grid item xs={3} className="pt-4">
+                        <Grid item xs={3} className="pt-5">
                           <FormControl
                             variant="standard"
                             sx={{ width: 300, mt: -0.8, mx: 0.75 }}
@@ -3620,13 +3641,7 @@ const EditDrawer = ({
                     )}
                     {onEdit > 0 && (
                       <>
-                        <Grid
-                          item
-                          xs={3}
-                          className={`${
-                            typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
-                          }`}
-                        >
+                        <Grid item xs={3} className="pt-5">
                           <TextField
                             label="Date of Preperation"
                             type={inputTypePreperation}
@@ -3649,13 +3664,7 @@ const EditDrawer = ({
                             }}
                           />
                         </Grid>
-                        <Grid
-                          item
-                          xs={3}
-                          className={`${
-                            typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
-                          }`}
-                        >
+                        <Grid item xs={3} className="pt-5">
                           <TextField
                             label="Date of Review"
                             disabled
