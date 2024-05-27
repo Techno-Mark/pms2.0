@@ -91,6 +91,9 @@ const UnassigneeDatatable = ({
   const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<number[]>(
     []
   );
+  const [selectedRowDepartmentId, setSelectedRowDepartmentId] = useState<
+    number[] | []
+  >([]);
   const [selectedRowId, setSelectedRowId] = useState<null | number>(null);
   const [filteredObject, setFilteredOject] =
     useState<InitialFilter>(initialFilter);
@@ -144,6 +147,19 @@ const UnassigneeDatatable = ({
         ? selectedData.map((selectedRow: any) => selectedRow?.WorkTypeId)
         : [];
     setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
+
+    const selectedWorkItemDepartmentIds: number[] | [] =
+      selectedData.length > 0
+        ? selectedData
+            .map((selectedRow: any) =>
+              selectedRow?.DepartmentId !== 0
+                ? selectedRow?.DepartmentId
+                : false
+            )
+            .filter((j: number | false): j is number => typeof j === "number")
+        : [];
+
+    setSelectedRowDepartmentId(selectedWorkItemDepartmentIds);
 
     setIsPopupOpen(allRowsSelected);
   };
@@ -492,6 +508,7 @@ const UnassigneeDatatable = ({
     selectedRowId,
     selectedRowClientId,
     selectedRowWorkTypeId,
+    selectedRowDepartmentId,
     selectedRowIds,
     onEdit,
     handleClearSelection,
