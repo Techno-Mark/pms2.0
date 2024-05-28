@@ -270,7 +270,10 @@ const EditDrawer = ({
       let departmentId: any = localStorage.getItem("departmentId");
       setIsAdmin(adminStatus);
       adminStatus === false &&
-        setDepartmentWorklogs(departmentId > 0 ? Number(departmentId) : 0);
+        onEdit <= 0 &&
+        setDepartmentWorklogs(
+          Number(departmentId) > 0 ? Number(departmentId) : 0
+        );
     }
   }, [onOpen]);
 
@@ -2322,6 +2325,12 @@ const EditDrawer = ({
         setErrorlogSignOffPending(ResponseData.ErrorlogSignedOffPending);
         setClientNameWorklogs(ResponseData.ClientId);
         setTypeOfWorkWorklogs(ResponseData.WorkTypeId);
+        let departmentId: any = localStorage.getItem("departmentId");
+        setDepartmentWorklogs(
+          ResponseData.DepartmentId !== null
+            ? ResponseData.DepartmentId
+            : departmentId
+        );
         setProjectNameWorklogs(
           ResponseData.ProjectId === null ? 0 : ResponseData.ProjectId
         );
@@ -2358,7 +2367,6 @@ const EditDrawer = ({
         );
         setAssigneeWorklogs(ResponseData.AssignedId);
         setReviewerWorklogs(ResponseData.ReviewerId);
-        setDepartmentWorklogs(ResponseData.DepartmentId);
         setManagerWorklogs(
           ResponseData.ManagerId === null ? 0 : ResponseData.ManagerId
         );
@@ -3168,7 +3176,7 @@ const EditDrawer = ({
                         }
                         value={
                           departmentWorklogsDropdownData.find(
-                            (i: LabelValue) => i.value === departmentWorklogs
+                            (i: LabelValue) => i.value == departmentWorklogs
                           ) || null
                         }
                         onChange={(e, value: LabelValue | null) => {

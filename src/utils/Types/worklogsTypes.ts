@@ -124,6 +124,7 @@ export interface WorkitemGetbyid {
   WorkTypeId: number;
   ProjectId: number;
   ProcessId: number;
+  DepartmentId: number;
   SubProcessId: number;
   StatusId: number;
   Priority: number | null;
@@ -147,7 +148,6 @@ export interface WorkitemGetbyid {
   AllInfoDate: string | null;
   ChecklistWorkpaper: boolean | null;
   ManagerId: number;
-  DepartmentId: number;
   IsCreatedByClient: boolean;
   CreatedById: number | null;
   CreatedByName: string | null;

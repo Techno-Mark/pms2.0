@@ -338,7 +338,7 @@ const Datatable = ({
     callAPI(url, params, successCallback, "POST");
   };
 
-  const handleSync = async (selectedRowId: number) => {
+  const handleSync = async (selectedRowId: number, IsDelete?: boolean) => {
     setIsLoadingWorklogsDatatable(true);
     const params = {
       workitemId: selectedRowId,
@@ -363,8 +363,11 @@ const Datatable = ({
               }
             })
           );
+          IsDelete && setStopTimerDialog(true);
           setIsLoadingWorklogsDatatable(false);
         } else {
+          IsDelete && setStopTimerDialog(false);
+          IsDelete && handleTimer(3, isRunning, workitemTimeId);
           setRunning(-1);
           getWorkItemList();
           setIsLoadingWorklogsDatatable(false);
@@ -879,12 +882,12 @@ const Datatable = ({
                           className="cursor-pointer mt-[2px]"
                           onClick={() => {
                             handleSync(
-                              tableMeta.rowData[tableMeta.rowData.length - 1]
+                              tableMeta.rowData[tableMeta.rowData.length - 1],
+                              true
                             );
                             setRunning(
                               tableMeta.rowData[tableMeta.rowData.length - 1]
                             );
-                            setStopTimerDialog(true);
                             value > estimatedTimeInSeconds
                               ? setIsTimeExceed(true)
                               : setIsTimeExceed(false);
