@@ -241,12 +241,25 @@ export const getAssigneeDropdownData = async (
   clientId: any,
   workTypeId: any
 ) => {
+  let clientIdsArray: number[];
+
+  if (Array.isArray(clientId)) {
+    clientIdsArray = clientId.map(Number);
+  } else {
+    clientIdsArray = [Number(clientId)];
+  }
+
+  // Remove duplicates without using Set and spread operator
+  const uniqueClientIdsArray = clientIdsArray.filter(
+    (value, index, self) => self.indexOf(value) === index
+  );
+
   return await postApiFunction(
     `${process.env.api_url}/user/GetAssigneeUserDropdown`,
     {
-      ClientIds: clientId,
+      ClientIds: uniqueClientIdsArray,
       WorktypeId: workTypeId,
-      IsAll: clientId.length > 1 ? true : false,
+      IsAll: uniqueClientIdsArray.length > 1,
     }
   );
 };
@@ -271,12 +284,25 @@ export const getReviewerDropdownData = async (
   clientId: any,
   workTypeId: any
 ) => {
+  let clientIdsArray: number[];
+
+  if (Array.isArray(clientId)) {
+    clientIdsArray = clientId.map(Number);
+  } else {
+    clientIdsArray = [Number(clientId)];
+  }
+
+  // Remove duplicates without using Set and spread operator
+  const uniqueClientIdsArray = clientIdsArray.filter(
+    (value, index, self) => self.indexOf(value) === index
+  );
+
   return await postApiFunction(
     `${process.env.api_url}/user/GetReviewerDropdown`,
     {
-      ClientIds: clientId,
+      ClientIds: uniqueClientIdsArray,
       WorktypeId: workTypeId,
-      IsAll: clientId.length > 1 ? true : false,
+      IsAll: clientIdsArray.length > 1 ? true : false,
     }
   );
 };
