@@ -367,7 +367,7 @@ const Datatable = ({
           setIsLoadingWorklogsDatatable(false);
         } else {
           IsDelete && setStopTimerDialog(false);
-          IsDelete && handleTimer(3, isRunning, workitemTimeId);
+          IsDelete && handleTimer(3, -1, 0);
           setRunning(-1);
           getWorkItemList();
           setIsLoadingWorklogsDatatable(false);
