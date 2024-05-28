@@ -85,6 +85,10 @@ const Sidebar = ({
           localStorage.setItem("isClient", String(ResponseData.IsClientUser));
           localStorage.setItem("UserId", String(ResponseData.UserId));
           localStorage.setItem("workTypeId", String(ResponseData.WorkTypeId));
+          localStorage.setItem(
+            "departmentId",
+            String(ResponseData.DepartmentId)
+          );
           if (localStorage.getItem("Org_Token") === null) {
             localStorage.setItem(
               "Org_Token",

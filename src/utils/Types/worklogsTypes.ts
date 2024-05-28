@@ -48,6 +48,8 @@ export interface WorkitemList {
   ReturnYear: number | null;
   PreparorTimeSec: number;
   PreparorTime: string;
+  DepartmentId: number;
+  DepartmentName: string;
 }
 
 export interface WorklogsActionBarProps {
@@ -56,6 +58,7 @@ export interface WorklogsActionBarProps {
   selectedRowsdata: WorkitemList[];
   selectedRowClientId: number[];
   selectedRowWorkTypeId: number[];
+  selectedRowDepartmentId: number[];
   selectedRowIds: number[];
   onEdit: (rowData: number) => void;
   handleClearSelection: () => void;
@@ -121,6 +124,7 @@ export interface WorkitemGetbyid {
   WorkTypeId: number;
   ProjectId: number;
   ProcessId: number;
+  DepartmentId: number;
   SubProcessId: number;
   StatusId: number;
   Priority: number | null;
@@ -144,7 +148,6 @@ export interface WorkitemGetbyid {
   AllInfoDate: string | null;
   ChecklistWorkpaper: boolean | null;
   ManagerId: number;
-  DepartmentId: number;
   IsCreatedByClient: boolean;
   CreatedById: number | null;
   CreatedByName: string | null;

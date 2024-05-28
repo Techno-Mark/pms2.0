@@ -237,8 +237,8 @@ const LogReportFilter = ({
 
   useEffect(() => {
     const filterDropdowns = async () => {
-      setClientDropdown(await getClientDropdownData());
-      setProcessDropdown(await getAllProcessDropdownData());
+      // setClientDropdown(await getClientDropdownData());
+      // setProcessDropdown(await getAllProcessDropdownData());
       setUpdatedByDropdown(
         await getCommentUserDropdownData({
           ClientId: null,

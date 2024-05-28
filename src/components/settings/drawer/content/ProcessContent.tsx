@@ -27,6 +27,7 @@ import {
 import { Delete, Edit } from "@mui/icons-material";
 import { ProcessGetByIdList } from "@/utils/Types/settingTypes";
 import { LabelValue } from "@/utils/Types/types";
+import { getDepartmentDropdownData } from "@/utils/commonDropdownApiCall";
 
 export interface ProcessContentRef {
   ProcessDataValue: () => void;
@@ -57,9 +58,16 @@ const ProcessContent = forwardRef<
     { onEdit, onOpen, onClose, onDataFetch, onChangeLoader, onValuesChange },
     ref
   ) => {
-    const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState<Options[]>([]);
+    const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState<LabelValue[]>(
+      []
+    );
     const [typeOfWork, setTypeOfWork] = useState(0);
     const [typeOfWorkError, setTypeOfWorkError] = useState(false);
+    const [departmentDropdown, setDepartmentDropdown] = useState<LabelValue[]>(
+      []
+    );
+    const [department, setDepartment] = useState<number>(0);
+    const [departmentError, setDepartmentError] = useState<boolean>(false);
     const [data, setData] = useState<Options[]>([]);
     const [hoveredItem, setHoveredItem] = useState<Options | null>(null);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -210,6 +218,7 @@ const ProcessContent = forwardRef<
         ) => {
           if (ResponseStatus === "Success" && error === false) {
             setTypeOfWork(ResponseData.WorkTypeId);
+            setDepartment(ResponseData.DepartmentId);
             setProcessValue(ResponseData.ParentId);
             setSubProcessName(ResponseData.Name);
             setReturnType(
@@ -233,7 +242,7 @@ const ProcessContent = forwardRef<
     };
 
     const getDropdownData = async () => {
-      const params = { WorkTypeId: typeOfWork };
+      const params = { WorkTypeId: typeOfWork, DepartmentId: department };
       const url = `${process.env.pms_api_url}/Process/GetDropdown`;
       const successCallback = (
         ResponseData: Options[],
@@ -249,16 +258,20 @@ const ProcessContent = forwardRef<
 
     const handleFormButtonClick = async () => {
       typeOfWork <= 0 && setTypeOfWorkError(true);
+      department <= 0 && setDepartmentError(true);
       processName.trim().length <= 0 && setProcessNameError(true);
       if (
         typeOfWork > 0 &&
         !typeOfWorkError &&
+        department > 0 &&
+        !departmentError &&
         !processNameError &&
         processName !== ""
       ) {
         const params = {
           name: processName,
           WorkTypeId: typeOfWork,
+          DepartmentId: department,
           ProcessId: processValue !== 0 ? processValue : 0,
         };
         const url = `${process.env.pms_api_url}/process/SaveParentProcess`;
@@ -286,6 +299,8 @@ const ProcessContent = forwardRef<
     const clearData = () => {
       setTypeOfWork(0);
       setTypeOfWorkDropdown([]);
+      setDepartment(0);
+      setDepartmentDropdown([]);
       setData([]);
       setSubProcessName("");
       setReturnType(0);
@@ -299,6 +314,7 @@ const ProcessContent = forwardRef<
 
     const clearError = () => {
       setTypeOfWorkError(false);
+      setDepartmentError(false);
       setProcessValueError(false);
       setSubProcessNameError(false);
       setReturnTypeError(false);
@@ -318,6 +334,7 @@ const ProcessContent = forwardRef<
     const handleSubmit = async (e: { preventDefault: () => void }) => {
       e.preventDefault();
       typeOfWork <= 0 && setTypeOfWorkError(true);
+      department <= 0 && setDepartmentError(true);
       processValue <= 0 && setProcessValueError(true);
 
       const [hours, minutes, seconds] = estTime.split(":");
@@ -348,6 +365,7 @@ const ProcessContent = forwardRef<
           IsBillable: billable,
           ParentId: processValue,
           WorkTypeId: typeOfWork,
+          DepartmentId: department,
         };
         const url = `${process.env.pms_api_url}/process/Save`;
         const successCallback = async (
@@ -379,6 +397,8 @@ const ProcessContent = forwardRef<
         typeOfWork > 0 &&
         typeOfWork === 3 &&
         !typeOfWorkError &&
+        department > 0 &&
+        !departmentError &&
         processValue > 0 &&
         subProcessName.trim().length > 0 &&
         returnType > 0 &&
@@ -396,6 +416,8 @@ const ProcessContent = forwardRef<
         typeOfWork > 0 &&
         typeOfWork !== 3 &&
         !typeOfWorkError &&
+        department > 0 &&
+        !departmentError &&
         processValue > 0 &&
         subProcessName.trim().length > 0 &&
         estTime !== "00:00:00" &&
@@ -421,7 +443,7 @@ const ProcessContent = forwardRef<
       };
       const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
       const successCallback = async (
-        ResponseData: Options[],
+        ResponseData: LabelValue[],
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -434,11 +456,17 @@ const ProcessContent = forwardRef<
       callAPI(url, params, successCallback, "POST");
     };
 
+    const getDepartmentData = async () => {
+      const data = await getDepartmentDropdownData();
+      setDepartmentDropdown(data.DepartmentList);
+    };
+
     useEffect(() => {
       clearError();
       onOpen && typeOfWorkDropdown.length <= 0 && getWorkTypeData();
-      onOpen && typeOfWork > 0 && getDropdownData();
-    }, [onEdit, onOpen, typeOfWork]);
+      onOpen && departmentDropdown.length <= 0 && getDepartmentData();
+      onOpen && typeOfWork > 0 && department > 0 && getDropdownData();
+    }, [onEdit, onOpen, typeOfWork, department]);
 
     useEffect(() => {
       // clearError();
@@ -539,7 +567,7 @@ const ProcessContent = forwardRef<
 
     return (
       <>
-        <form className="max-h-[78vh] overflow-y-auto" onSubmit={handleSubmit}>
+        <form className="max-h-[75vh] overflow-y-auto" onSubmit={handleSubmit}>
           <div className="flex flex-col my-5 px-[20px]">
             <FormControl variant="standard" error={typeOfWorkError}>
               <InputLabel id="demo-simple-select-standard-label">
@@ -552,6 +580,8 @@ const ProcessContent = forwardRef<
                 value={typeOfWork === 0 ? "" : typeOfWork}
                 onChange={(e) => {
                   setTypeOfWork(Number(e.target.value));
+                  setDepartment(0);
+                  setDepartmentError(false);
                   setProcessValue(0);
                   setProcessValueError(false);
                   setProcessNameError(false);
@@ -568,13 +598,53 @@ const ProcessContent = forwardRef<
                   }
                 }}
               >
-                {typeOfWorkDropdown.map((i: Options, index: number) => (
+                {typeOfWorkDropdown.map((i: LabelValue, index: number) => (
                   <MenuItem value={i.value} key={index}>
                     {i.label}
                   </MenuItem>
                 ))}
               </Select>
               {typeOfWorkError && (
+                <FormHelperText>This is a required field.</FormHelperText>
+              )}
+            </FormControl>
+          </div>
+
+          <div className="flex flex-col my-5 px-[20px]">
+            <FormControl variant="standard" error={departmentError}>
+              <InputLabel id="demo-simple-select-standard-label">
+                Department
+                <span className="text-defaultRed">&nbsp;*</span>
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                value={department === 0 ? "" : department}
+                onChange={(e) => {
+                  setDepartment(Number(e.target.value));
+                  setProcessValue(0);
+                  setProcessValueError(false);
+                  setProcessNameError(false);
+                  setProcessNameErrText("");
+                  setSubProcessName("");
+                  setSubProcessNameError(false);
+                  setReturnType(0);
+                  setReturnTypeError(false);
+                  Number(e.target.value) > 0 && setDepartmentError(false);
+                }}
+                onBlur={() => {
+                  if (department > 0) {
+                    setDepartmentError(false);
+                  }
+                }}
+              >
+                {departmentDropdown.map((i: LabelValue, index: number) => (
+                  <MenuItem value={i.value} key={index}>
+                    {i.label}
+                  </MenuItem>
+                ))}
+              </Select>
+              {departmentError && (
                 <FormHelperText>This is a required field.</FormHelperText>
               )}
             </FormControl>
@@ -708,6 +778,7 @@ const ProcessContent = forwardRef<
               variant="standard"
             />
           </div>
+
           {typeOfWork === 3 && (
             <div className="flex flex-col px-[20px] mt-2">
               <FormControl variant="standard" error={returnTypeError}>
@@ -738,6 +809,7 @@ const ProcessContent = forwardRef<
               </FormControl>
             </div>
           )}
+
           <div className="flex flex-col px-[20px]">
             <TextField
               label={
@@ -809,6 +881,7 @@ const ProcessContent = forwardRef<
               </>
             ))}
           </div>
+
           <span className="flex items-center pr-[20px] pl-[20px] pb-[20px] gap-[100px]">
             <CheckboxComponent
               id="p1"

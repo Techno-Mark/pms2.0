@@ -147,6 +147,7 @@ const Datatable_Worklog = ({
   }, [onCloseDrawer]);
 
   const getWorkItemList = () => {
+    setLoaded(false);
     const params = filteredObject;
     const url = `${process.env.worklog_api_url}/ClientWorkitem/getworkitemlist`;
     const successCallback = (

@@ -324,6 +324,7 @@ const Datatable = ({
         setIsLoadingApprovalsDatatable(false);
       } else {
         setIsLoadingApprovalsDatatable(false);
+        getReviewList();
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -362,6 +363,7 @@ const Datatable = ({
           setIsLoadingApprovalsDatatable(false);
         }
       } else {
+        getReviewList();
         setIsLoadingApprovalsDatatable(false);
       }
     };

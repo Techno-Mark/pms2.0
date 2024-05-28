@@ -141,6 +141,9 @@ const Datatable = ({
   const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<
     number[] | []
   >([]);
+  const [selectedRowDepartmentId, setSelectedRowDepartmentId] = useState<
+    number[] | []
+  >([]);
   const [selectedRowsdata, setSelectedRowsData] = useState<WorkitemList[] | []>(
     []
   );
@@ -158,9 +161,6 @@ const Datatable = ({
   const [commentErrText, setCommentErrText] = useState<string>("");
   const [isTimeExceed, setIsTimeExceed] = useState<boolean>(false);
 
-  useEffect(() => {
-    setIsLoadingWorklogsDatatable(setLoading);
-  }, [setLoading]);
   useEffect(() => {
     setIsLoadingWorklogsDatatable(setLoading);
   }, [setLoading]);
@@ -218,6 +218,20 @@ const Datatable = ({
         : [];
 
     setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
+
+    const selectedWorkItemDepartmentIds: number[] | [] =
+      selectedData.length > 0
+        ? selectedData
+            .map((selectedRow: WorkitemList) =>
+              selectedRow?.DepartmentId !== 0
+                ? selectedRow?.DepartmentId
+                : false
+            )
+            .filter((j: number | false): j is number => typeof j === "number")
+        : [];
+
+    setSelectedRowDepartmentId(selectedWorkItemDepartmentIds);
+
     setIsPopupOpen(allRowsSelected);
   };
 
@@ -324,7 +338,7 @@ const Datatable = ({
     callAPI(url, params, successCallback, "POST");
   };
 
-  const handleSync = async (selectedRowId: number) => {
+  const handleSync = async (selectedRowId: number, IsDelete?: boolean) => {
     setIsLoadingWorklogsDatatable(true);
     const params = {
       workitemId: selectedRowId,
@@ -349,13 +363,17 @@ const Datatable = ({
               }
             })
           );
+          IsDelete && setStopTimerDialog(true);
           setIsLoadingWorklogsDatatable(false);
         } else {
+          IsDelete && setStopTimerDialog(false);
+          IsDelete && handleTimer(3, -1, 0);
           setRunning(-1);
           getWorkItemList();
           setIsLoadingWorklogsDatatable(false);
         }
       } else {
+        getWorkItemList();
         setIsLoadingWorklogsDatatable(false);
       }
     };
@@ -864,12 +882,12 @@ const Datatable = ({
                           className="cursor-pointer mt-[2px]"
                           onClick={() => {
                             handleSync(
-                              tableMeta.rowData[tableMeta.rowData.length - 1]
+                              tableMeta.rowData[tableMeta.rowData.length - 1],
+                              true
                             );
                             setRunning(
                               tableMeta.rowData[tableMeta.rowData.length - 1]
                             );
-                            setStopTimerDialog(true);
                             value > estimatedTimeInSeconds
                               ? setIsTimeExceed(true)
                               : setIsTimeExceed(false);
@@ -1049,6 +1067,7 @@ const Datatable = ({
     selectedRowsdata,
     selectedRowClientId,
     selectedRowWorkTypeId,
+    selectedRowDepartmentId,
     selectedRowStatusName,
     selectedRowIds,
     onEdit,

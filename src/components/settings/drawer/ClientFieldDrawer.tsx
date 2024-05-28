@@ -178,12 +178,27 @@ const ClientFieldsDrawer = ({
                         i.Type === "SubProcessName" ? i.FieldId : 0
                       )
                       .filter((j: number) => j !== 0);
-                    const isProcess =
+                    const isProcess = fieldsData
+                      .map((i: List) =>
+                        i.Type === "ProcessName" ? i.FieldId : 0
+                      )
+                      .filter((j: number) => j !== 0);
+                    const isProcessTrue =
                       field.Type === "ProcessName" &&
                       field.IsChecked === true &&
                       isSubProcess.length > 0;
+                    const isDepartment =
+                      field.Type === "Department" &&
+                      field.IsChecked === true &&
+                      isProcess.length > 0;
                     field.Type !== "TypeOfWork" &&
-                      isProcess &&
+                      isDepartment &&
+                      SaveFieldByClient(isProcess[0], false);
+                    field.Type !== "TypeOfWork" &&
+                      isDepartment &&
+                      SaveFieldByClient(isSubProcess[0], false);
+                    field.Type !== "TypeOfWork" &&
+                      isProcessTrue &&
                       SaveFieldByClient(isSubProcess[0], false);
                     field.Type !== "TypeOfWork" &&
                       SaveFieldByClient(field.FieldId, toggledChecked);

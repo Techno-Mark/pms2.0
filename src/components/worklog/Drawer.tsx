@@ -34,6 +34,7 @@ import {
 } from "@/utils/commonFunction";
 import {
   getCCDropdownData,
+  getDepartmentDataByClient,
   getProcessDropdownData,
   getProjectDropdownData,
   getSubProcessDropdownData,
@@ -135,6 +136,12 @@ const Drawer = ({
     setProjectClientWorklogDropdownData,
   ] = useState<LabelValue[] | []>([]);
   const [projectNameClientWorklog, setProjectNameClientWorklog] =
+    useState<number>(0);
+  const [
+    departmentClientWorklogDropdownData,
+    setDepartmentClientWorklogDropdownData,
+  ] = useState<LabelValue[] | []>([]);
+  const [departmentNameClientWorklog, setDepartmentNameClientWorklog] =
     useState<number>(0);
   const [
     processClientWorklogDropdownData,
@@ -903,6 +910,10 @@ const Drawer = ({
           typeOfWorkClientWorklog === 0 ? null : typeOfWorkClientWorklog,
         ProjectId:
           projectNameClientWorklog === 0 ? null : projectNameClientWorklog,
+        DepartmentId:
+          departmentNameClientWorklog === 0
+            ? null
+            : departmentNameClientWorklog,
         ProcessId:
           processNameClientWorklog === 0 ? null : processNameClientWorklog,
         SubProcessId:
@@ -997,6 +1008,9 @@ const Drawer = ({
         setProjectNameClientWorklog(
           ResponseData.ProjectId === null ? 0 : ResponseData.ProjectId
         );
+        setDepartmentNameClientWorklog(
+          ResponseData.DepartmentId === null ? 0 : ResponseData.DepartmentId
+        );
         setProcessNameClientWorklog(
           ResponseData.ProcessId === null ? 0 : ResponseData.ProcessId
         );
@@ -1077,10 +1091,19 @@ const Drawer = ({
         setProjectClientWorklogDropdownData(
           await getProjectDropdownData(clientId, typeOfWorkClientWorklog)
         );
+      clientId > 0 &&
+        setDepartmentClientWorklogDropdownData(
+          await getDepartmentDataByClient(clientId)
+        );
       const processData =
         clientId > 0 &&
         typeOfWorkClientWorklog > 0 &&
-        (await getProcessDropdownData(clientId, typeOfWorkClientWorklog));
+        departmentNameClientWorklog > 0 &&
+        (await getProcessDropdownData(
+          clientId,
+          typeOfWorkClientWorklog,
+          departmentNameClientWorklog
+        ));
       processData.length > 0
         ? setProcessClientWorklogDropdownData(
             processData?.map(
@@ -1112,7 +1135,13 @@ const Drawer = ({
     }
 
     onOpen && getData();
-  }, [onOpen, onEdit, processNameClientWorklog, typeOfWorkClientWorklog]);
+  }, [
+    onOpen,
+    onEdit,
+    processNameClientWorklog,
+    typeOfWorkClientWorklog,
+    departmentNameClientWorklog,
+  ]);
 
   useEffect(() => {
     const getCommentDropdownData = async () => {
@@ -1151,6 +1180,7 @@ const Drawer = ({
     setTaskClientWorklogDrawer(true);
     setTypeOfWorkClientWorklog(0);
     setProjectNameClientWorklog(0);
+    setDepartmentNameClientWorklog(0);
     setProcessNameClientWorklog(0);
     setSubProcessNameClientWorklog(0);
     setPriorityClientWorklog(0);
@@ -1380,6 +1410,42 @@ const Drawer = ({
                             />
                           </Grid>
                         )}
+                        {type.Type === "Department" && type.IsChecked && (
+                          <Grid item xs={3} className="pt-4">
+                            <Autocomplete
+                              disablePortal
+                              id="combo-box-demo"
+                              disabled={
+                                !isCreatedByClientWorklog ||
+                                (isCompletedTaskClicked &&
+                                  onEdit > 0 &&
+                                  !isCreatedByClientWorklog) ||
+                                statusClientWorklog > 1
+                              }
+                              options={departmentClientWorklogDropdownData}
+                              value={
+                                departmentClientWorklogDropdownData.find(
+                                  (i: LabelValue) =>
+                                    i.value === departmentNameClientWorklog
+                                ) || null
+                              }
+                              onChange={(e, value: LabelValue | null) => {
+                                value &&
+                                  setDepartmentNameClientWorklog(value.value);
+                                setProcessNameClientWorklog(0);
+                                setSubProcessNameClientWorklog(0);
+                              }}
+                              sx={{ width: 300 }}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  variant="standard"
+                                  label="Department"
+                                />
+                              )}
+                            />
+                          </Grid>
+                        )}
                         {type.Type === "ProcessName" && type.IsChecked && (
                           <Grid item xs={3} className="pt-4">
                             <Autocomplete
@@ -1402,6 +1468,7 @@ const Drawer = ({
                               onChange={(e, value: LabelValue | null) => {
                                 value &&
                                   setProcessNameClientWorklog(value.value);
+                                setSubProcessNameClientWorklog(0);
                               }}
                               sx={{ width: 300 }}
                               renderInput={(params) => (

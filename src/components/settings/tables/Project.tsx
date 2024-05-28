@@ -90,6 +90,7 @@ const Project = ({
   }, [filteredObject]);
 
   const getAll = async () => {
+    setLoader(true);
     const params = filteredObject;
     const url = `${process.env.pms_api_url}/project/getall`;
     const successCallback = (
@@ -213,7 +214,7 @@ const Project = ({
       <div>
         <span
           ref={actionsRef}
-          className="w-5 h-5 cursor-pointer relative"
+          className="w-5 h-5 cursor-pointer"
           onClick={() => setOpen(!open)}
         >
           <TableActionIcon />
