@@ -59,6 +59,7 @@ export interface AppliedFilterApprovals {
   TypeOfWork: number | null;
   userId: number | null;
   ProjectId: number | null;
+  DepartmentId: number | null;
   ProcessId: number | null;
   StatusId: number | null;
   DateFilter: string | null | undefined;
@@ -111,4 +112,5 @@ export interface User {
   RoleName: string;
   ClientId: number | null;
   WorkTypeId: number | null;
+  DepartmentId: number | null;
 }

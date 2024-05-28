@@ -64,9 +64,11 @@ const Report = () => {
   useEffect(() => {
     if (localStorage.getItem("isClient") === "true") {
       if (
-        (hasPermissionWorklog("", "View", "Report") &&
+        !(
+          hasPermissionWorklog("", "View", "Report") &&
           (hasPermissionWorklog("Task", "View", "Report") ||
-            hasPermissionWorklog("Rating", "View", "Report"))) === false
+            hasPermissionWorklog("Rating", "View", "Report"))
+        )
       ) {
         router.push("/");
       }

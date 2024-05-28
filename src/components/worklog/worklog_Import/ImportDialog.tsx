@@ -73,11 +73,7 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
 
   const convertToArrayOfObjects = (data: string) => {
     let dataArray;
-    if (data.includes(",")) {
-      dataArray = data
-        .split(",")
-        .map((item, index) => ({ id: index + 1, field: item.trim() }));
-    } else if (data.includes("\n")) {
+    if (data.includes("\n")) {
       dataArray = data
         .split("\n")
         .filter((item) => item.trim() !== "")

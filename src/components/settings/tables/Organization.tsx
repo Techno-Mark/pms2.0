@@ -66,6 +66,7 @@ const Organization = ({
   }, [filteredObject]);
 
   const getAll = async () => {
+    setLoader(true);
     const params = filteredObject;
     const url = `${process.env.pms_api_url}/organization/getall`;
     const successCallback = (

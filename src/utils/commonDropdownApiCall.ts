@@ -140,9 +140,13 @@ export const getRMWiseUserDropdownData = async () => {
   );
 };
 
-export const getAllProcessDropdownData = async () => {
-  return await getApiFunction(
-    `${process.env.pms_api_url}/process/getdropdownforgroup`
+export const getAllProcessDropdownData = async (
+  WorkTypeId: any,
+  DepartmentId: any
+) => {
+  return await postApiFunction(
+    `${process.env.pms_api_url}/process/getdropdownforgroup`,
+    { WorkTypeId: WorkTypeId, DepartmentId: DepartmentId }
   );
 };
 
@@ -196,13 +200,15 @@ export const getProjectDropdownData = async (
 
 export const getProcessDropdownData = async (
   clientId: any,
-  WorkTypeId: any
+  WorkTypeId: any,
+  DepartmentId: any
 ) => {
   return await postApiFunction(
     `${process.env.pms_api_url}/Process/GetDropdownByClient`,
     {
       clientId: clientId,
       WorkTypeId: WorkTypeId,
+      DepartmentId: DepartmentId,
     }
   );
 };
@@ -235,22 +241,41 @@ export const getAssigneeDropdownData = async (
   clientId: any,
   workTypeId: any
 ) => {
+  let clientIdsArray: number[];
+
+  if (Array.isArray(clientId)) {
+    clientIdsArray = clientId.map(Number);
+  } else {
+    clientIdsArray = [Number(clientId)];
+  }
+
+  // Remove duplicates without using Set and spread operator
+  const uniqueClientIdsArray = clientIdsArray.filter(
+    (value, index, self) => self.indexOf(value) === index
+  );
+
   return await postApiFunction(
     `${process.env.api_url}/user/GetAssigneeUserDropdown`,
     {
-      ClientIds: clientId,
+      ClientIds: uniqueClientIdsArray,
       WorktypeId: workTypeId,
-      IsAll: clientId.length > 1 ? true : false,
+      IsAll: uniqueClientIdsArray.length > 1,
     }
   );
 };
 // LabelValue
 
-export const getDepartmentDropdownData = async (UserId: any) => {
+export const getDepartmentDropdownData = async () => {
+  return await getApiFunction(
+    `${process.env.pms_api_url}/department/getdropdownbyuser`
+  );
+};
+
+export const getDepartmentDataByClient = async (clientId: any) => {
   return await postApiFunction(
-    `${process.env.pms_api_url}/department/getdropdownbyuser`,
+    `${process.env.pms_api_url}/department/getdropdownbyclient`,
     {
-      UserId: UserId,
+      clientId: clientId,
     }
   );
 };
@@ -259,12 +284,25 @@ export const getReviewerDropdownData = async (
   clientId: any,
   workTypeId: any
 ) => {
+  let clientIdsArray: number[];
+
+  if (Array.isArray(clientId)) {
+    clientIdsArray = clientId.map(Number);
+  } else {
+    clientIdsArray = [Number(clientId)];
+  }
+
+  // Remove duplicates without using Set and spread operator
+  const uniqueClientIdsArray = clientIdsArray.filter(
+    (value, index, self) => self.indexOf(value) === index
+  );
+
   return await postApiFunction(
     `${process.env.api_url}/user/GetReviewerDropdown`,
     {
-      ClientIds: clientId,
+      ClientIds: uniqueClientIdsArray,
       WorktypeId: workTypeId,
-      IsAll: clientId.length > 1 ? true : false,
+      IsAll: clientIdsArray.length > 1 ? true : false,
     }
   );
 };

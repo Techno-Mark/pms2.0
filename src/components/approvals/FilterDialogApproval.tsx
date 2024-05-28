@@ -8,6 +8,7 @@ import { Autocomplete, FormControl, TextField } from "@mui/material";
 import {
   getCCDropdownData,
   getClientDropdownData,
+  getDepartmentDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
   getStatusDropdownData,
@@ -40,6 +41,7 @@ const initialFilter = {
   TypeOfWork: null,
   userId: null,
   ProjectId: null,
+  DepartmentId: null,
   ProcessId: null,
   StatusId: null,
   dueDate: null,
@@ -61,9 +63,11 @@ const FilterDialogApproval = ({
   const [userName, setUser] = useState<LabelValue | null>(null);
   const [projectName, setProjectName] = useState<LabelValue | null>(null);
   const [status, setStatus] = useState<LabelValueType | null>(null);
+  const [department, setDepartment] = useState<LabelValue | null>(null);
   const [processName, setProcessName] = useState<LabelValue | null>(null);
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [worktypeDropdownData, setWorktypeDropdownData] = useState([]);
+  const [departmentDropdownData, setDepartmentDropdownData] = useState([]);
   const [userDropdownData, setUserData] = useState([]);
   const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [statusDropdownData, setStatusDropdownData] = useState([]);
@@ -88,6 +92,7 @@ const FilterDialogApproval = ({
     setWorkType(null);
     setUser(null);
     setProjectName(null);
+    setDepartment(null);
     setProcessName(null);
     setStatus(null);
     setDate(null);
@@ -107,12 +112,24 @@ const FilterDialogApproval = ({
     setClientDropdownData(await getClientDropdownData());
     setUserData(await getCCDropdownData());
     setWorktypeDropdownData(await getTypeOfWorkDropdownData(0));
+    const department = await getDepartmentDropdownData();
+    setDepartmentDropdownData(department.DepartmentList);
   };
 
-  const getAllData = async (clientName: number, workType: number) => {
+  const getProjectData = async (clientName: number, workType: number) => {
     setProjectDropdownData(await getProjectDropdownData(clientName, workType));
+  };
 
-    const processData = await getProcessDropdownData(clientName, workType);
+  const getProcessData = async (
+    clientName: number,
+    workType: number,
+    department: number
+  ) => {
+    const processData = await getProcessDropdownData(
+      clientName,
+      workType,
+      department
+    );
     processData.length > 0
       ? setProcessDropdownData(
           processData?.map(
@@ -152,8 +169,15 @@ const FilterDialogApproval = ({
   useEffect(() => {
     clientName !== null &&
       workType !== null &&
-      getAllData(clientName?.value, workType?.value);
+      getProjectData(clientName?.value, workType?.value);
   }, [clientName, workType]);
+
+  useEffect(() => {
+    clientName !== null &&
+      workType !== null &&
+      department !== null &&
+      getProcessData(clientName?.value, workType?.value, department?.value);
+  }, [clientName, workType, department]);
 
   useEffect(() => {
     workType !== null && getAllStatusData(workType?.value);
@@ -166,6 +190,7 @@ const FilterDialogApproval = ({
       userName !== null ||
       projectName !== null ||
       status !== null ||
+      department != null ||
       processName !== null ||
       date !== null ||
       dueDate !== null ||
@@ -180,6 +205,7 @@ const FilterDialogApproval = ({
     workType,
     userName,
     projectName,
+    department,
     processName,
     status,
     date,
@@ -195,6 +221,7 @@ const FilterDialogApproval = ({
       ClientId: clientName !== null ? clientName.value : null,
       TypeOfWork: workType !== null ? workType.value : null,
       userId: userName !== null ? userName.value : null,
+      DepartmentId: department !== null ? department.value : null,
       ProjectId: projectName !== null ? projectName.value : null,
       StatusId: status !== null ? status.value : null,
       ProcessId: processName !== null ? processName.value : null,
@@ -231,6 +258,7 @@ const FilterDialogApproval = ({
     workType,
     userName,
     projectName,
+    department,
     processName,
     status,
     date,
@@ -378,6 +406,32 @@ const FilterDialogApproval = ({
               >
                 <Autocomplete
                   id="tags-standard"
+                  options={departmentDropdownData}
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(
+                    e: React.ChangeEvent<{}>,
+                    data: LabelValue | null
+                  ) => {
+                    setDepartment(data);
+                    setProcessName(null);
+                  }}
+                  value={department}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Department"
+                    />
+                  )}
+                />
+              </FormControl>
+
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+              >
+                <Autocomplete
+                  id="tags-standard"
                   options={processDropdownData}
                   getOptionLabel={(option: LabelValue) => option.label}
                   onChange={(
@@ -396,7 +450,8 @@ const FilterDialogApproval = ({
                   )}
                 />
               </FormControl>
-
+            </div>
+            <div className="flex gap-[20px]">
               <FormControl
                 variant="standard"
                 sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
@@ -417,8 +472,7 @@ const FilterDialogApproval = ({
                   )}
                 />
               </FormControl>
-            </div>
-            <div className="flex gap-[20px]">
+
               {activeTab === 1 && (
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
@@ -483,31 +537,31 @@ const FilterDialogApproval = ({
                       />
                     </LocalizationProvider>
                   </div>
-                  <div
-                    className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
-                  >
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DatePicker
-                        label="Due Date"
-                        value={dueDate === null ? null : dayjs(dueDate)}
-                        onChange={(newDate: any) => {
-                          setDueDate(newDate.$d);
-                        }}
-                        // shouldDisableDate={isWeekend}
-                        maxDate={dayjs(Date.now())}
-                        slotProps={{
-                          textField: {
-                            readOnly: true,
-                          } as Record<string, any>,
-                        }}
-                      />
-                    </LocalizationProvider>
-                  </div>
                 </>
               )}
             </div>
             {activeTab === 2 && (
               <div className="flex gap-[20px]">
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Due Date"
+                      value={dueDate === null ? null : dayjs(dueDate)}
+                      onChange={(newDate: any) => {
+                        setDueDate(newDate.$d);
+                      }}
+                      // shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now())}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >

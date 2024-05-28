@@ -97,7 +97,7 @@ const Page = () => {
 
   useEffect(() => {
     if (localStorage.getItem("isClient") === "true") {
-      if (hasPermissionWorklog("", "View", "Dashboard") === false) {
+      if (!hasPermissionWorklog("", "View", "Dashboard")) {
         router.push("/");
       }
     } else {

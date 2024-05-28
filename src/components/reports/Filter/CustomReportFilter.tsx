@@ -25,6 +25,7 @@ import {
   getAllProcessDropdownData,
   getCCDropdownData,
   getClientDropdownData,
+  getDepartmentDropdownData,
   getProjectDropdownData,
   getStatusDropdownData,
   getSubProcessDropdownData,
@@ -49,6 +50,7 @@ interface SavedFilter {
   AppliedFilter: {
     clientIdsJSON: number[];
     projectIdsJSON: number[];
+    DepartmentId?: number | null;
     processIdsJSON: number[];
     WorkTypeId?: number | null;
     assignedByIds: number[];
@@ -118,6 +120,7 @@ const CustomReportFilter = ({
   const [clients, setClients] = useState<LabelValue[]>([]);
   const [clientName, setClientName] = useState<number[]>([]);
   const [typeOfWorkName, setTypeOfWorkName] = useState<LabelValue | null>(null);
+  const [departmentName, setDepartmentName] = useState<LabelValue | null>(null);
   const [projectName, setProjectName] = useState<LabelValue | null>(null);
   const [processName, setProcessName] = useState<LabelValue | null>(null);
   const [subProcessName, setSubProcessName] = useState<LabelValue | null>(null);
@@ -152,6 +155,9 @@ const CustomReportFilter = ({
   const [typeOfWorkDropdown, setTypeOfWorkDropdown] = useState<LabelValue[]>(
     []
   );
+  const [departmentDropdownData, setDepartmentDropdownData] = useState<
+    LabelValue[]
+  >([]);
   const [projectDropdown, setProjectDropdown] = useState<LabelValue[]>([]);
   const [processDropdown, setProcessDropdown] = useState<LabelValue[]>([]);
   const [subProcessDropdown, setSubProcessDropdown] = useState<LabelValue[]>(
@@ -189,6 +195,7 @@ const CustomReportFilter = ({
     setClientName([]);
     setClients([]);
     setTypeOfWorkName(null);
+    setDepartmentName(null);
     setProjectName(null);
     setProcessName(null);
     setAssignBy([]);
@@ -235,6 +242,7 @@ const CustomReportFilter = ({
     setClientName([]);
     setClients([]);
     setTypeOfWorkName(null);
+    setDepartmentName(null);
     setProjectName(null);
     setProcessName(null);
     setAssignBy([]);
@@ -267,6 +275,7 @@ const CustomReportFilter = ({
       ...customreport_InitialFilter,
       clientIdsJSON: clientName.length > 0 ? clientName : [],
       WorkTypeId: typeOfWorkName === null ? null : typeOfWorkName.value,
+      DepartmentId: departmentName === null ? null : departmentName.value,
       projectIdsJSON: projectName === null ? [] : [projectName.value],
       processIdsJSON: processName === null ? [] : [processName.value],
       assignedByIds: assignByName.length > 0 ? assignByName : [],
@@ -373,6 +382,7 @@ const CustomReportFilter = ({
         AppliedFilter: {
           clientIdsJSON: clientName.length > 0 ? clientName : [],
           WorkTypeId: typeOfWorkName === null ? null : typeOfWorkName.value,
+          DepartmentId: departmentName === null ? null : departmentName.value,
           projectIdsJSON: projectName === null ? [] : [projectName.value],
           processIdsJSON: processName === null ? [] : [processName.value],
           assignedByIds: assignByName.length > 0 ? assignByName : [],
@@ -459,6 +469,7 @@ const CustomReportFilter = ({
     const isAnyFieldSelected =
       clientName.length > 0 ||
       typeOfWorkName !== null ||
+      departmentName !== null ||
       projectName !== null ||
       processName !== null ||
       assignByName.length > 0 ||
@@ -471,7 +482,6 @@ const CustomReportFilter = ({
       status.length > 0 ||
       priority !== null ||
       (hoursShared !== null && hoursShared.value !== null) ||
-      hoursShared !== null ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0 ||
       startDateReview.toString().trim().length > 0 ||
@@ -486,6 +496,7 @@ const CustomReportFilter = ({
   }, [
     clientName,
     typeOfWorkName,
+    departmentName,
     projectName,
     processName,
     assignByName,
@@ -515,14 +526,27 @@ const CustomReportFilter = ({
         ...(await getClientDropdownData()),
       ]);
       setTypeOfWorkDropdown(await getTypeOfWorkDropdownData(0));
+      const department = await getDepartmentDropdownData();
+      setDepartmentDropdownData(department.DepartmentList);
       setUserDropdown([
         { label: "Select All", value: ALL_USERS },
         ...(await getCCDropdownData()),
       ]);
-      setProcessDropdown(await getAllProcessDropdownData());
     };
     customDropdowns();
   }, []);
+
+  useEffect(() => {
+    const customDropdowns = async () => {
+      setProcessDropdown(
+        await getAllProcessDropdownData(
+          typeOfWorkName !== null ? typeOfWorkName.value : typeOfWorkName,
+          departmentName !== null ? departmentName.value : departmentName
+        )
+      );
+    };
+    customDropdowns();
+  }, [typeOfWorkName, departmentName]);
 
   useEffect(() => {
     const customDropdowns = async () => {
@@ -607,6 +631,14 @@ const CustomReportFilter = ({
       AppliedFilter.WorkTypeId !== null
         ? (await getTypeOfWorkDropdownData(null)).filter(
             (item: LabelValue) => item.value === AppliedFilter.WorkTypeId
+          )[0]
+        : null
+    );
+
+    setDepartmentName(
+      AppliedFilter.DepartmentId !== null
+        ? departmentDropdownData.filter(
+            (item: LabelValue) => item.value === AppliedFilter.DepartmentId
           )[0]
         : null
     );
@@ -921,6 +953,8 @@ const CustomReportFilter = ({
                     onChange={(e, data: LabelValue | null) => {
                       setTypeOfWorkName(data);
                       setStatus([]);
+                      setProcessName(null);
+                      setSubProcessName(null);
                     }}
                     value={typeOfWorkName}
                     renderInput={(params: any) => (
@@ -956,6 +990,29 @@ const CustomReportFilter = ({
                 </FormControl>
               </div>
               <div className="flex gap-[20px]">
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, minWidth: 200 }}
+                >
+                  <Autocomplete
+                    id="tags-standard"
+                    options={departmentDropdownData}
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue | null) => {
+                      setDepartmentName(data);
+                      setProcessName(null);
+                      setSubProcessName(null);
+                    }}
+                    value={departmentName}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Department"
+                      />
+                    )}
+                  />
+                </FormControl>
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -1001,6 +1058,8 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -1055,8 +1114,6 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -1163,6 +1220,8 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -1184,8 +1243,6 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -1219,6 +1276,8 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -1264,8 +1323,6 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -1305,6 +1362,8 @@ const CustomReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
+              </div>
+              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
                 >
@@ -1324,8 +1383,6 @@ const CustomReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
-              </div>
-              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
                 >
@@ -1365,6 +1422,8 @@ const CustomReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
+              </div>
+              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
                 >
@@ -1384,8 +1443,6 @@ const CustomReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
-              </div>
-              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
                 >
@@ -1422,6 +1479,8 @@ const CustomReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
+              </div>
+              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
                 >
@@ -1441,11 +1500,9 @@ const CustomReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
+                  sx={{ mx: 0.75, minWidth: 200, mt: 0.5 }}
                 >
                   <Autocomplete
                     id="tags-standard"
