@@ -2670,9 +2670,7 @@ const EditDrawer = ({
         : setDepartmentWorklogsDropdownData([]);
     };
 
-    clientNameWorklogs > 0 &&
-      departmentWorklogsDropdownData.length <= 0 &&
-      getData();
+    clientNameWorklogs > 0 && getData();
   }, [clientNameWorklogs]);
 
   const getUserDetails = async () => {
@@ -2955,6 +2953,7 @@ const EditDrawer = ({
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setClientNameWorklogs(value.value);
+                          setTypeOfWorkWorklogs(0);
                           setTypeOfWorkWorklogsErr(false);
                           setProjectNameWorklogs(0);
                           setProjectNameWorklogsErr(false);
@@ -3174,6 +3173,8 @@ const EditDrawer = ({
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setDepartmentWorklogs(value.value);
+                          setProcessNameWorklogs(0);
+                          setSubProcessWorklogs(0);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (

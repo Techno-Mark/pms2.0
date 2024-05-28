@@ -505,8 +505,28 @@ const WorklogsActionBar = ({
 
         <ConditionalComponent
           condition={
-            areAllValuesSame(selectedRowClientId) &&
-            areAllValuesSame(selectedRowWorkTypeId) &&
+            // areAllValuesSame(selectedRowClientId) &&
+            // areAllValuesSame(selectedRowWorkTypeId) &&
+            // Array.from(new Set(selectedRowWorkTypeId)).length === 1
+            hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId > 0 &&
+                i.WorkTypeId > 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length > 0 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId === 0 &&
+                i.WorkTypeId === 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
             Array.from(new Set(selectedRowWorkTypeId)).length === 1
           }
           Component={Assignee}

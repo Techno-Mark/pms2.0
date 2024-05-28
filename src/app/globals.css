@@ -210,6 +210,7 @@ input[type="time"]::-moz-time-text {
   border-color: #d32f2f !important;
 }
 
+.muiTableActionClient tbody tr,
 .muiTableAction tbody tr,
 .muiTableActionProcess tbody tr,
 .muiTableActionHeight tbody tr,
@@ -218,6 +219,7 @@ input[type="time"]::-moz-time-text {
   position: relative;
 }
 
+.muiTableActionClient thead tr th:last-child,
 .muiTableAction thead tr th:last-child,
 .muiTableActionProcess thead tr th:last-child,
 .muiTableActionHeight thead tr th:last-child,
@@ -226,6 +228,7 @@ input[type="time"]::-moz-time-text {
   width: 0px;
 }
 
+.muiTableActionClient thead tr th:last-child span,
 .muiTableAction thead tr th:last-child span,
 .muiTableActionProcess thead tr th:last-child span,
 .muiTableActionHeight thead tr th:last-child span,
@@ -233,6 +236,16 @@ input[type="time"]::-moz-time-text {
 .muiTableActionCustom thead tr th:last-child span {
   display: flex;
   justify-content: end;
+}
+
+.muiTableActionClient tbody tr td:nth-child(5) {
+  /* width: 2px !important; */
+  display: flex;
+  justify-content: center;
+  height: auto;
+  margin-top: 12px;
+  padding-bottom: 24px;
+  padding-right: 3rem;
 }
 
 .muiTableAction tbody tr td:last-child {

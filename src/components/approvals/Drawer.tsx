@@ -2949,6 +2949,8 @@ const EditDrawer = ({
                         disabled={isAdmin === false}
                         onChange={(e, value: LabelValue | null) => {
                           value && setDepartmentApprovals(value.value);
+                          setProcessNameApprovals(0);
+                          setSubProcessApprovals(0);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (

@@ -615,8 +615,8 @@ const TaskEditDrawer = ({
       const departmentData = await getDepartmentDataByClient(
         clientNameWorklogs
       );
-      departmentData.DepartmentList.length > 0
-        ? setDepartmentWorklogsDropdownData(departmentData.DepartmentList)
+      departmentData.length > 0
+        ? setDepartmentWorklogsDropdownData(departmentData)
         : setDepartmentWorklogsDropdownData([]);
     };
     clientNameWorklogs > 0 && getData();
@@ -1078,6 +1078,35 @@ const TaskEditDrawer = ({
                     <Autocomplete
                       disablePortal
                       id="combo-box-demo"
+                      options={departmentWorklogsDropdownData}
+                      disabled
+                      value={
+                        departmentWorklogsDropdownData.find(
+                          (i: LabelValue) => i.value === departmentWorklogs
+                        ) || null
+                      }
+                      sx={{
+                        width: 300,
+                        mx: 0.75,
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="standard"
+                          label={
+                            <span>
+                              Department
+                              <span className="text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={3} className="pt-4">
+                    <Autocomplete
+                      disablePortal
+                      id="combo-box-demo"
                       options={processWorklogsDropdownData}
                       value={
                         processWorklogsDropdownData.find(
@@ -1151,7 +1180,6 @@ const TaskEditDrawer = ({
                     <TextField
                       label="Description"
                       fullWidth
-                      className="pt-1"
                       value={
                         descriptionWorklogs?.trim().length <= 0
                           ? ""
@@ -1160,7 +1188,7 @@ const TaskEditDrawer = ({
                       disabled
                       margin="normal"
                       variant="standard"
-                      sx={{ mx: 0.75, width: 300, mt: -0.5 }}
+                      sx={{ mx: 0.75, width: 300, mt: -0.8 }}
                     />
                   </Grid>
                   <Grid item xs={3} className="pt-4">
@@ -1366,7 +1394,11 @@ const TaskEditDrawer = ({
                       </LocalizationProvider>
                     </div>
                   </Grid>
-                  <Grid item xs={3} className="pt-4">
+                  <Grid
+                    item
+                    xs={3}
+                    className={`${typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"}`}
+                  >
                     <Autocomplete
                       disablePortal
                       id="combo-box-demo"
@@ -1377,7 +1409,11 @@ const TaskEditDrawer = ({
                           (i: LabelValue) => i.value === assigneeWorklogs
                         ) || null
                       }
-                      sx={{ width: 300, mt: -1, mx: 0.75 }}
+                      sx={{
+                        width: 300,
+                        mt: typeOfWorkWorklogs === 3 ? 0.2 : -1,
+                        mx: 0.75,
+                      }}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -1419,40 +1455,6 @@ const TaskEditDrawer = ({
                           label={
                             <span>
                               Reviewer
-                              <span className="text-defaultRed">&nbsp;*</span>
-                            </span>
-                          }
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid
-                    item
-                    xs={3}
-                    className={`${typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"}`}
-                  >
-                    <Autocomplete
-                      disablePortal
-                      id="combo-box-demo"
-                      options={departmentWorklogsDropdownData}
-                      disabled
-                      value={
-                        departmentWorklogsDropdownData.find(
-                          (i: LabelValue) => i.value === departmentWorklogs
-                        ) || null
-                      }
-                      sx={{
-                        width: 300,
-                        mt: typeOfWorkWorklogs === 3 ? 0.2 : -1,
-                        mx: 0.75,
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="standard"
-                          label={
-                            <span>
-                              Department
                               <span className="text-defaultRed">&nbsp;*</span>
                             </span>
                           }
@@ -1523,7 +1525,7 @@ const TaskEditDrawer = ({
                           </Select>
                         </FormControl>
                       </Grid>
-                      <Grid item xs={3} className="pt-4">
+                      <Grid item xs={3} className="pt-6">
                         <TextField
                           label="No of Pages"
                           type="number"
@@ -1537,10 +1539,10 @@ const TaskEditDrawer = ({
                           sx={{ width: 300, mt: 0, mx: 0.75 }}
                         />
                       </Grid>
-                      <Grid item xs={3} className="pt-4">
+                      <Grid item xs={3} className="pt-6">
                         <FormControl
                           variant="standard"
-                          sx={{ width: 300, mt: -0.8, mx: 0.75 }}
+                          sx={{ width: 300, mt: -0.4, mx: 0.75 }}
                           disabled
                         >
                           <InputLabel id="demo-simple-select-standard-label">
@@ -1569,7 +1571,7 @@ const TaskEditDrawer = ({
                         item
                         xs={3}
                         className={`${
-                          typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
+                          typeOfWorkWorklogs === 3 ? "pt-6" : "pt-5"
                         }`}
                       >
                         <TextField
@@ -1591,7 +1593,7 @@ const TaskEditDrawer = ({
                           variant="standard"
                           sx={{
                             width: 300,
-                            mt: typeOfWorkWorklogs === 3 ? -0.4 : -1,
+                            mt: typeOfWorkWorklogs === 3 ? 0 : -1,
                             mx: 0.75,
                           }}
                         />
@@ -1600,7 +1602,7 @@ const TaskEditDrawer = ({
                         item
                         xs={3}
                         className={`${
-                          typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
+                          typeOfWorkWorklogs === 3 ? "pt-6" : "pt-5"
                         }`}
                       >
                         <TextField
@@ -1622,7 +1624,7 @@ const TaskEditDrawer = ({
                           variant="standard"
                           sx={{
                             width: 300,
-                            mt: typeOfWorkWorklogs === 3 ? -0.4 : -1,
+                            mt: typeOfWorkWorklogs === 3 ? 0 : -1,
                             mx: 0.75,
                           }}
                         />
@@ -1853,6 +1855,51 @@ const TaskEditDrawer = ({
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
+                        options={departmentWorklogsDropdownDataEdit}
+                        value={
+                          departmentWorklogsDropdownDataEdit.find(
+                            (i: LabelValue) =>
+                              i.value === departmentWorklogsEdit
+                          ) || null
+                        }
+                        onChange={(e, value: LabelValue | null) => {
+                          value && setDepartmentWorklogsEdit(value.value);
+                          setProcessNameWorklogsEdit(0);
+                          setSubProcessWorklogsEdit(0);
+                        }}
+                        sx={{
+                          width: 300,
+                          mx: 0.75,
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Department
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={departmentWorklogsEditErr}
+                            onBlur={() => {
+                              if (departmentWorklogs > 0) {
+                                setDepartmentWorklogsEditErr(false);
+                              }
+                            }}
+                            helperText={
+                              departmentWorklogsEditErr
+                                ? "This is a required field."
+                                : ""
+                            }
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
                         options={processWorklogsDropdownDataEdit}
                         value={
                           processWorklogsDropdownDataEdit.find(
@@ -1982,7 +2029,6 @@ const TaskEditDrawer = ({
                       <TextField
                         label="Description"
                         fullWidth
-                        className="pt-1"
                         value={
                           descriptionWorklogsEdit?.trim().length <= 0
                             ? ""
@@ -1993,7 +2039,7 @@ const TaskEditDrawer = ({
                         }
                         margin="normal"
                         variant="standard"
-                        sx={{ mx: 0.75, width: 300, mt: -0.5 }}
+                        sx={{ mx: 0.75, width: 300, mt: -0.8 }}
                       />
                     </Grid>
                     <Grid item xs={3} className="pt-4">
@@ -2266,7 +2312,13 @@ const TaskEditDrawer = ({
                         </LocalizationProvider>
                       </div>
                     </Grid>
-                    <Grid item xs={3} className="pt-4">
+                    <Grid
+                      item
+                      xs={3}
+                      className={`${
+                        typeOfWorkWorklogsEdit === 3 ? "pt-4" : "pt-5"
+                      }`}
+                    >
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
@@ -2278,10 +2330,12 @@ const TaskEditDrawer = ({
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setAssigneeWorklogsEdit(value.value);
-                          setDepartmentWorklogsEdit(0);
-                          setDepartmentWorklogsEditErr(false);
                         }}
-                        sx={{ width: 300, mt: -1, mx: 0.75 }}
+                        sx={{
+                          width: 300,
+                          mt: typeOfWorkWorklogsEdit === 3 ? 0.2 : -1,
+                          mx: 0.75,
+                        }}
                         renderInput={(params) => (
                           <TextField
                             {...params}
@@ -2349,56 +2403,6 @@ const TaskEditDrawer = ({
                             }}
                             helperText={
                               reviewerWorklogsEditErr
-                                ? "This is a required field."
-                                : ""
-                            }
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid
-                      item
-                      xs={3}
-                      className={`${
-                        typeOfWorkWorklogsEdit === 3 ? "pt-4" : "pt-5"
-                      }`}
-                    >
-                      <Autocomplete
-                        disablePortal
-                        id="combo-box-demo"
-                        options={departmentWorklogsDropdownDataEdit}
-                        value={
-                          departmentWorklogsDropdownDataEdit.find(
-                            (i: LabelValue) =>
-                              i.value === departmentWorklogsEdit
-                          ) || null
-                        }
-                        onChange={(e, value: LabelValue | null) => {
-                          value && setDepartmentWorklogsEdit(value.value);
-                        }}
-                        sx={{
-                          width: 300,
-                          mt: typeOfWorkWorklogsEdit === 3 ? 0.2 : -1,
-                          mx: 0.75,
-                        }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="standard"
-                            label={
-                              <span>
-                                Department
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </span>
-                            }
-                            error={departmentWorklogsEditErr}
-                            onBlur={() => {
-                              if (departmentWorklogs > 0) {
-                                setDepartmentWorklogsEditErr(false);
-                              }
-                            }}
-                            helperText={
-                              departmentWorklogsEditErr
                                 ? "This is a required field."
                                 : ""
                             }
@@ -2501,7 +2505,7 @@ const TaskEditDrawer = ({
                             )}
                           </FormControl>
                         </Grid>
-                        <Grid item xs={3} className="pt-4">
+                        <Grid item xs={3} className="pt-6">
                           <TextField
                             label="No of Pages"
                             type="number"
@@ -2519,10 +2523,10 @@ const TaskEditDrawer = ({
                             sx={{ width: 300, mt: 0, mx: 0.75 }}
                           />
                         </Grid>
-                        <Grid item xs={3} className="pt-4">
+                        <Grid item xs={3} className="pt-6">
                           <FormControl
                             variant="standard"
-                            sx={{ width: 300, mt: -0.8, mx: 0.75 }}
+                            sx={{ width: 300, mt: -0.4, mx: 0.75 }}
                             error={checklistWorkpaperWorklogsEditErr}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
