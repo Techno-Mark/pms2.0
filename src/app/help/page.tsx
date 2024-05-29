@@ -55,14 +55,14 @@ const Page = () => {
             defaults.
           </li>
           <li className="pb-1">
-            Upon returning from a break, an idle time pop-up will appear. The
-            user must click &apos;OK&apos; on the pop-up; otherwise, their idle
-            time will continue to be recorded.
+            After returning from a break, a pop-up will appear to indicate idle
+            time. The user must click &apos;OK&apos; on the pop-up; otherwise,
+            the idle time will continue to be recorded.
           </li>
           <li className="pb-1">
-            When a user returns from a break, users must click &apos;OK&apos; on
-            the idle time pop-up before clicking the break button again to avoid
-            recording both idle and break time simultaneously.
+            When returning from a break, users must click &apos;OK&apos; on the
+            idle time pop-up before clicking the break button again. This
+            ensures that idle and break times are not recorded simultaneously.
           </li>
         </ol>
       </div>
