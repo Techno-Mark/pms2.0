@@ -2551,7 +2551,7 @@ const EditDrawer = ({
     };
 
     onOpen && getData();
-  }, [clientNameWorklogs, commentSelectWorklogs, commentSelectWorklogs]);
+  }, [clientNameWorklogs, commentSelectWorklogs]);
 
   useEffect(() => {
     const getData = async () => {
