@@ -31,6 +31,7 @@ import ReportLoader from "@/components/common/ReportLoader";
 import { toast } from "react-toastify";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { sep } from "path";
+import { Spinner } from "next-ts-lib";
 
 interface HalfDayModalProps {
   onOpen: boolean;
@@ -421,7 +422,9 @@ const TimelineHalfDay = ({ onOpen, onClose }: HalfDayModalProps) => {
               />
             </ThemeProvider>
           ) : (
-            <ReportLoader />
+            <div className="h-fit !w-[55rem] flex justify-center my-[20%]">
+              <Spinner size="30px" />
+            </div>
           )}
         </DialogContent>
       </Dialog>

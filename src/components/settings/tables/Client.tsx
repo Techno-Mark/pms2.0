@@ -507,7 +507,7 @@ const Client = ({
           <ReportLoader />
         ) : (
           <>
-            <div className="muiTableActionClient">
+            <div className="muiTableAction">
               <ThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable
                   data={clientData}

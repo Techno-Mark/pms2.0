@@ -210,8 +210,8 @@ input[type="time"]::-moz-time-text {
   border-color: #d32f2f !important;
 }
 
-.muiTableActionClient tbody tr,
 .muiTableAction tbody tr,
+.muiTableActionUser tbody tr,
 .muiTableActionProcess tbody tr,
 .muiTableActionHeight tbody tr,
 .muiTableActionHeightStatus tbody tr,
@@ -219,8 +219,8 @@ input[type="time"]::-moz-time-text {
   position: relative;
 }
 
-.muiTableActionClient thead tr th:last-child,
 .muiTableAction thead tr th:last-child,
+.muiTableActionUser thead tr th:last-child,
 .muiTableActionProcess thead tr th:last-child,
 .muiTableActionHeight thead tr th:last-child,
 .muiTableActionHeightStatus thead tr th:last-child,
@@ -228,8 +228,8 @@ input[type="time"]::-moz-time-text {
   width: 0px;
 }
 
-.muiTableActionClient thead tr th:last-child span,
 .muiTableAction thead tr th:last-child span,
+.muiTableActionUser thead tr th:last-child span,
 .muiTableActionProcess thead tr th:last-child span,
 .muiTableActionHeight thead tr th:last-child span,
 .muiTableActionHeightStatus thead tr th:last-child span,
@@ -238,23 +238,25 @@ input[type="time"]::-moz-time-text {
   justify-content: end;
 }
 
-.muiTableActionClient tbody tr td:nth-child(5) {
+.muiTableAction tbody tr td:nth-child(5) {
   /* width: 2px !important; */
   display: flex;
-  justify-content: center;
+  align-items: start;
+  justify-content: start;
   height: auto;
   margin-top: 12px;
   padding-bottom: 24px;
   padding-right: 3rem;
 }
 
-.muiTableAction tbody tr td:last-child {
+.muiTableActionUser tbody tr td:nth-child(5) {
   /* width: 2px !important; */
   display: flex;
-  justify-content: center;
+  align-items: start;
+  justify-content: start;
   height: auto;
   margin-top: 12px;
-  padding-bottom: 24px;
+  padding-bottom: 28px;
   padding-right: 3rem;
 }
 

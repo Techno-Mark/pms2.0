@@ -628,7 +628,7 @@ const User = ({
           <ReportLoader />
         ) : (
           <>
-            <div className="muiTableAction">
+            <div className="muiTableActionUser">
               <ThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable
                   data={data}
