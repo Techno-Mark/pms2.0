@@ -5834,7 +5834,7 @@ const EditDrawer = ({
                                 />
                               </FormGroup>
                             )}
-                            {index === 0 ? (
+                            {index === 0 && (
                               <span
                                 className="cursor-pointer"
                                 onClick={
@@ -5857,7 +5857,8 @@ const EditDrawer = ({
                                   <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
                                 </svg>
                               </span>
-                            ) : (
+                            )}
+                            {index > 0 && !field.isSolved && (
                               <span
                                 className="cursor-pointer"
                                 onClick={

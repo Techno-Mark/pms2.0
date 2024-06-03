@@ -194,6 +194,8 @@ const Datatable_CompletedTask = ({
             title={undefined}
             options={{
               ...worklogs_Options,
+              selectableRows:
+                currentFilterData.IsSignedOff === false ? "multiple" : "none",
               tableBodyHeight: "71vh",
               selectAllRows: isPopupOpen && selectedRowsCount === 0,
               rowsSelected: selectedRows,

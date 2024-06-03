@@ -37,7 +37,7 @@ export interface DatatableWorklogProps {
   onDataFetch: (getData: () => void) => void;
   onComment: (rowData: boolean, selectedId: number) => void;
   onErrorLog: (rowData: boolean, selectedId: number) => void;
-  currentFilterData: TaskFilter | [];
+  currentFilterData: TaskFilter | [] | any;
   searchValue: string;
   onCloseDrawer: boolean;
 }
