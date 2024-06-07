@@ -11,6 +11,7 @@ const nextConfig = {
     attachment: process.env.attachment,
     sasToken: process.env.sasToken,
     redirectURLWLTR: process.env.redirectURLWLTR,
+    helpURL: process.env.helpURL,
   },
 };
 

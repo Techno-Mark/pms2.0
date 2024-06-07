@@ -105,6 +105,10 @@ input[type="number"]::-webkit-outer-spin-button {
   border-color: #dc3545;
 }
 
+.MuiMonthCalendar-root {
+  margin-left: -15px;
+}
+
 .textareaOutlineNone textarea {
   outline: none;
 }

@@ -35,7 +35,11 @@ import {
   WorkitemList,
   WorklogsActionBarProps,
 } from "@/utils/Types/worklogsTypes";
-import { IdNameEstimatedHour, LabelValue } from "@/utils/Types/types";
+import {
+  IdNameEstimatedHour,
+  LabelValue,
+  LabelValueType,
+} from "@/utils/Types/types";
 import Department from "./components/Department";
 
 const WorklogsActionBar = ({
@@ -59,7 +63,7 @@ const WorklogsActionBar = ({
     LabelValue[]
   >([]);
   const [departmentDropdownData, setDepartmentDropdownData] = useState<
-    LabelValue[]
+    LabelValueType[]
   >([]);
   const [projectDropdownData, setProjectDropdownData] = useState<LabelValue[]>(
     []
@@ -107,7 +111,7 @@ const WorklogsActionBar = ({
 
       if (adminStatus === false) {
         setDepartmentDropdownData(
-          data.filter((data: LabelValue) => data.value == department)
+          data.filter((data: LabelValueType) => data.value == department)
         );
       } else {
         setDepartmentDropdownData(data);

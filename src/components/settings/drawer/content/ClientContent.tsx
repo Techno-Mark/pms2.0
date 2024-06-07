@@ -290,13 +290,14 @@ const ClientContent = forwardRef<
                     );
 
                   if (matchingItem) {
-                    const filteredOptionsData = groupTypeData.filter(
-                      (d: LabelValue) => {
-                        return matchingItem.GroupIds.some((id: number) => {
-                          return id === Number(d.value);
-                        });
-                      }
-                    );
+                    const filteredOptionsData =
+                      matchingItem.GroupIds !== null
+                        ? groupTypeData.filter((d: LabelValue) => {
+                            return matchingItem.GroupIds.some((id: number) => {
+                              return id === Number(d.value);
+                            });
+                          })
+                        : [];
                     return {
                       ...item,
                       apiId: matchingItem.WorkTypeId,
@@ -2026,9 +2027,7 @@ const ClientContent = forwardRef<
             className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary cursor-pointer"
             type="submit"
           >
-            {onEdit > 0
-              ? "Save"
-              : `Create Client`}
+            {onEdit > 0 ? "Save" : `Create Client`}
           </Button>
         </div>
       </form>

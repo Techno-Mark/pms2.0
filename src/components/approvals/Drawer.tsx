@@ -80,7 +80,6 @@ import {
   GetManualLogByWorkitemReviewer,
   GetReviewerNoteList,
   ManualFieldsWorklogs,
-  ManualTimeFields,
   RecurringGetByWorkitem,
   ReminderGetByWorkitem,
   ReviewerNoteDetails,
@@ -129,10 +128,8 @@ const EditDrawer = ({
   const [selectedDays, setSelectedDays] = useState<any>([]);
   const [inputDateErrors, setInputDateErrors] = useState([false]);
   const [startTimeErrors, setStartTimeErrors] = useState([false]);
-  const [endTimeErrors, setEndTimeErrors] = useState([false]);
   const [inputTypeDate, setInputTypeDate] = useState(["text"]);
   const [inputTypeStartTime, setInputTypeStartTime] = useState(["text"]);
-  const [inputTypeEndTime, setInputTypeEndTime] = useState(["text"]);
   const [isAdmin, setIsAdmin] = useState(false);
 
   const toggleColor = (index: number) => {
@@ -250,7 +247,7 @@ const EditDrawer = ({
   const [reviewerApprovalsErr, setReviewerApprovalsErr] = useState(false);
   const [departmentApprovalsDropdownData, setDepartmentApprovalsDropdownData] =
     useState([]);
-  const [departmentApprovals, setDepartmentApprovals] = useState<any>(0);
+  const [departmentApprovals, setDepartmentApprovals] = useState<number>(0);
   const [departmentApprovalsErr, setDepartmentApprovalsErr] = useState(false);
   const [managerApprovalsDropdownData, setManagerApprovalsDropdownData] =
     useState<any>([]);
@@ -261,6 +258,8 @@ const EditDrawer = ({
   const [clientTaskNameApprovalsErr, setClientTaskNameApprovalsErr] =
     useState(false);
   const [descriptionApprovals, setDescriptionApprovals] = useState<string>("");
+  const [departmentApprovalsType, setDepartmentApprovalsType] =
+    useState<string>("");
   const [priorityApprovals, setPriorityApprovals] = useState<string | number>(
     0
   );
@@ -285,6 +284,14 @@ const EditDrawer = ({
     useState<any>(0);
   const [checklistWorkpaperApprovalsErr, setChecklistWorkpaperApprovalsErr] =
     useState(false);
+  const [valueMonthYearFrom, setValueMonthYearFrom] = useState<any>(null);
+  const [valueMonthYearTo, setValueMonthYearTo] = useState<any>(null);
+
+  const previousYearStartDate = dayjs()
+    .subtract(1, "year")
+    .startOf("year")
+    .toDate();
+  const currentYearEndDate = dayjs().endOf("year").toDate();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -523,9 +530,7 @@ const EditDrawer = ({
       AssigneeId: 0,
       Id: 0,
       inputDate: "",
-      startTime: "",
-      endTime: "",
-      totalTime: "",
+      startTime: 0,
       manualDesc: "",
       IsApproved: false,
     },
@@ -551,9 +556,7 @@ const EditDrawer = ({
             AssigneeId: i.AssigneeId,
             Id: i.Id,
             inputDate: i.Date,
-            startTime: i.StartTime,
-            endTime: i.EndTime,
-            totalTime: getTimeDifference(i.StartTime, i.EndTime),
+            startTime: i.Time,
             manualDesc: i.Comment,
             IsApproved: i.IsApproved,
           }))
@@ -564,9 +567,7 @@ const EditDrawer = ({
             AssigneeId: 0,
             Id: 0,
             inputDate: "",
-            startTime: "",
-            endTime: "",
-            totalTime: "",
+            startTime: 0,
             manualDesc: "",
             IsApproved: false,
           },
@@ -1041,6 +1042,7 @@ const EditDrawer = ({
       ErrorLogId: 0,
       ErrorType: 0,
       RootCause: 0,
+      Impact: 0,
       Priority: 0,
       ErrorCount: 0,
       NatureOfError: 0,
@@ -1059,6 +1061,7 @@ const EditDrawer = ({
     },
   ]);
   const [errorTypeErrApprovals, setErrorTypeErrApprovals] = useState([false]);
+  const [impactErrApprovals, setImpactErrApprovals] = useState([false]);
   const [rootCauseErrApprovals, setRootCauseErrApprovals] = useState([false]);
   const [errorLogPriorityErrApprovals, setErrorLogPriorityErrApprovals] =
     useState([false]);
@@ -1078,6 +1081,7 @@ const EditDrawer = ({
         ErrorLogId: 0,
         ErrorType: 0,
         RootCause: 0,
+        Impact: 0,
         Priority: 0,
         ErrorCount: 0,
         NatureOfError: 0,
@@ -1097,6 +1101,7 @@ const EditDrawer = ({
     ]);
     setErrorTypeErrApprovals([...errorTypeErrApprovals, false]);
     setRootCauseErrApprovals([...rootCauseErrApprovals, false]);
+    setImpactErrApprovals([...impactErrApprovals, false]);
     setErrorLogPriorityErrApprovals([...errorLogPriorityErrApprovals, false]);
     setErrorCountErrApprovals([...errorCountErrApprovals, false]);
     setNatureOfErrApprovals([...natureOfErrApprovals, false]);
@@ -1120,6 +1125,10 @@ const EditDrawer = ({
     const newRootCauseErrors = [...rootCauseErrApprovals];
     newRootCauseErrors.splice(index, 1);
     setRootCauseErrApprovals(newRootCauseErrors);
+
+    const newImpactErrors = [...impactErrApprovals];
+    newImpactErrors.splice(index, 1);
+    setImpactErrApprovals(newImpactErrors);
 
     const newPriorityErrors = [...errorLogPriorityErrApprovals];
     newPriorityErrors.splice(index, 1);
@@ -1156,6 +1165,16 @@ const EditDrawer = ({
     const newErrors = [...rootCauseErrApprovals];
     newErrors[index] = e === 0;
     setRootCauseErrApprovals(newErrors);
+  };
+
+  const handleImpactChangeApprovals = (e: number, index: number) => {
+    const newFields = [...errorLogFieldsApprovals];
+    newFields[index].Impact = e;
+    setErrorLogFieldsApprovals(newFields);
+
+    const newErrors = [...impactErrApprovals];
+    newErrors[index] = e === 0;
+    setImpactErrApprovals(newErrors);
   };
 
   const handleNatureOfErrorChangeApprovals = (e: number, index: number) => {
@@ -1244,6 +1263,7 @@ const EditDrawer = ({
                 ErrorLogId: 0,
                 ErrorType: 0,
                 RootCause: 0,
+                Impact: 0,
                 Priority: 0,
                 ErrorCount: 0,
                 NatureOfError: 0,
@@ -1268,6 +1288,7 @@ const EditDrawer = ({
                 ErrorLogId: i.ErrorLogId,
                 ErrorType: i.ErrorType,
                 RootCause: i.RootCause,
+                Impact: i.Impact,
                 Priority: i.Priority,
                 ErrorCount: i.ErrorCount,
                 NatureOfError: i.NatureOfError,
@@ -1308,6 +1329,10 @@ const EditDrawer = ({
       (field) => field.RootCause === 0
     );
     setRootCauseErrApprovals(newRootCauseErrors);
+    const newImpactErrors = errorLogFieldsApprovals.map(
+      (field) => field.Impact === 0
+    );
+    setImpactErrApprovals(newImpactErrors);
     const newNatureOfErrors = errorLogFieldsApprovals.map(
       (field) => field.NatureOfError === 0
     );
@@ -1329,6 +1354,7 @@ const EditDrawer = ({
     hasErrorLogErrors =
       newErrorTypeErrors.some((error) => error) ||
       newRootCauseErrors.some((error) => error) ||
+      newImpactErrors.some((error) => error) ||
       newNatureOfErrors.some((error) => error) ||
       newPriorityErrors.some((error) => error) ||
       newErrorCountErrors.some((error) => error) ||
@@ -1345,6 +1371,7 @@ const EditDrawer = ({
                 ErrorLogId: i.ErrorLogId,
                 ErrorType: i.ErrorType,
                 RootCause: i.RootCause,
+                Impact: i.Impact,
                 Priority: i.Priority,
                 ErrorCount: i.ErrorCount,
                 NatureOfError: i.NatureOfError,
@@ -1479,9 +1506,7 @@ const EditDrawer = ({
       AssigneeId: 0,
       Id: 0,
       inputDate: "",
-      startTime: "",
-      endTime: "",
-      totalTime: "",
+      startTime: 0,
       manualDesc: "",
       IsApproved: false,
     },
@@ -1501,38 +1526,14 @@ const EditDrawer = ({
       manualSwitch && setInputDateErrors(newInputDateErrors);
       const newStartTimeErrors = reviewermanualFields.map(
         (field) =>
-          (manualSwitch && field.startTime.trim().length === 0) ||
-          (manualSwitch && field.startTime.trim().length < 8)
+          manualSwitch &&
+          (field.startTime.toString().trim().length === 0 ||
+            field.startTime.toString().trim().length > 3 ||
+            field.startTime.toString() == "0" ||
+            field.startTime.toString() == "00" ||
+            field.startTime.toString() == "000")
       );
       manualSwitch && setStartTimeErrors(newStartTimeErrors);
-      const newEndTimeErrors = reviewermanualFields.map(
-        (field) =>
-          (manualSwitch && field.endTime.trim().length === 0) ||
-          (manualSwitch && field.endTime.trim().length < 8) ||
-          (manualSwitch && field.endTime <= field.startTime) ||
-          field.startTime
-            .split(":")
-            .reduce(
-              (acc, timePart, index) =>
-                acc + parseInt(timePart) * [3600, 60, 1][index],
-              0
-            ) +
-            "07:59:59"
-              .split(":")
-              .reduce(
-                (acc, timePart, index) =>
-                  acc + parseInt(timePart) * [3600, 60, 1][index],
-                0
-              ) <
-            field.endTime
-              .split(":")
-              .reduce(
-                (acc, timePart, index) =>
-                  acc + parseInt(timePart) * [3600, 60, 1][index],
-                0
-              )
-      );
-      manualSwitch && setEndTimeErrors(newEndTimeErrors);
       const newManualDescErrors = reviewermanualFields.map(
         (field) =>
           (manualSwitch && field.manualDesc.trim().length < 5) ||
@@ -1542,7 +1543,6 @@ const EditDrawer = ({
       hasManualErrors =
         newInputDateErrors.some((error) => error) ||
         newStartTimeErrors.some((error) => error) ||
-        newEndTimeErrors.some((error) => error) ||
         newManualDescErrors.some((error) => error);
 
       if (!hasManualErrors) {
@@ -1553,10 +1553,8 @@ const EditDrawer = ({
             (i: ManualFieldsWorklogs) =>
               new Object({
                 id: i.Id,
-                startTime:
-                  dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.startTime,
-                endTime:
-                  dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.endTime,
+                Date: i.inputDate,
+                Time: i.startTime,
                 assigneeId:
                   i.AssigneeId === 0 ? assigneeApprovals : i.AssigneeId,
                 comment: i.manualDesc,
@@ -1577,16 +1575,13 @@ const EditDrawer = ({
                 AssigneeId: 0,
                 Id: 0,
                 inputDate: "",
-                startTime: "",
-                endTime: "",
-                totalTime: "",
+                startTime: 0,
                 manualDesc: "",
                 IsApproved: false,
               },
             ]);
             setInputDateErrors([false]);
             setStartTimeErrors([false]);
-            setEndTimeErrors([false]);
             setManualDescErrors([false]);
             setDeletedManualTime([]);
             getManualTimeLogForReviewer(onEdit);
@@ -1665,9 +1660,7 @@ const EditDrawer = ({
                   AssigneeId: 0,
                   Id: 0,
                   inputDate: "",
-                  startTime: "",
-                  endTime: "",
-                  totalTime: "",
+                  startTime: 0,
                   manualDesc: "",
                   IsApproved: false,
                 },
@@ -1676,9 +1669,7 @@ const EditDrawer = ({
                 AssigneeId: i.AssigneeId,
                 Id: i.TimeId,
                 inputDate: i.Date,
-                startTime: i.StartTime,
-                endTime: i.EndTime,
-                totalTime: getTimeDifference(i.StartTime, i.EndTime),
+                startTime: i.Time,
                 manualDesc: i.Comment,
                 IsApproved: i.IsApproved,
               }))
@@ -1711,9 +1702,7 @@ const EditDrawer = ({
               AssigneeId: 0,
               Id: 0,
               inputDate: "",
-              startTime: "",
-              endTime: "",
-              totalTime: "",
+              startTime: 0,
               manualDesc: "",
               IsApproved: false,
             },
@@ -1728,10 +1717,6 @@ const EditDrawer = ({
     const newStartTimeErrors = [...startTimeErrors];
     newStartTimeErrors.splice(index, 1);
     setStartTimeErrors(newStartTimeErrors);
-
-    const newEndTimeErrors = [...endTimeErrors];
-    newEndTimeErrors.splice(index, 1);
-    setEndTimeErrors(newEndTimeErrors);
 
     const newManualDescErrors = [...manualDescErrors];
     newManualDescErrors.splice(index, 1);
@@ -1755,156 +1740,37 @@ const EditDrawer = ({
         AssigneeId: 0,
         Id: 0,
         inputDate: "",
-        startTime: "",
-        endTime: "",
-        totalTime: "",
+        startTime: 0,
         manualDesc: "",
         IsApproved: false,
       },
     ]);
     setInputDateErrors([...inputDateErrors, false]);
     setStartTimeErrors([...startTimeErrors, false]);
-    setEndTimeErrors([...endTimeErrors, false]);
     setManualDescErrors([...manualDescErrors, false]);
     setInputTypeDate([...inputTypeDate, "text"]);
     setInputTypeStartTime([...inputTypeStartTime, "text"]);
-    setInputTypeEndTime([...inputTypeEndTime, "text"]);
     setManualDisableData([
       ...reviewermanualFields,
       {
         AssigneeId: 0,
         Id: 0,
         inputDate: "",
-        startTime: "",
-        endTime: "",
-        totalTime: "",
+        startTime: 0,
         manualDesc: "",
         IsApproved: false,
       },
     ]);
   };
 
-  const handleEstTimeChange = (e: string) => {
-    let newValue = e;
-    newValue = newValue.replace(/\D/g, "");
-    if (newValue.length > 8) {
+  const handleStartTimeChange = (e: string, index: number) => {
+    if (e.length > 3) {
       return;
     }
 
-    let formattedValue = "";
-    if (newValue.length >= 1) {
-      const hours = parseInt(newValue.slice(0, 2));
-      if (hours >= 0 && hours <= 23) {
-        formattedValue = newValue.slice(0, 2);
-      } else {
-        formattedValue = "23";
-      }
-    }
-
-    if (newValue.length >= 3) {
-      const minutes = parseInt(newValue.slice(2, 4));
-      if (minutes >= 0 && minutes <= 59) {
-        formattedValue += ":" + newValue.slice(2, 4);
-      } else {
-        formattedValue += ":59";
-      }
-    }
-
-    if (newValue.length >= 5) {
-      const seconds = parseInt(newValue.slice(4, 6));
-      if (seconds >= 0 && seconds <= 59) {
-        formattedValue += ":" + newValue.slice(4, 6);
-      } else {
-        formattedValue += ":59";
-      }
-    }
-    return formattedValue;
-  };
-
-  const handleStartTimeChange = (e: string, index: number) => {
-    const newManualFields: ManualTimeFields[] = [...reviewermanualFields];
-    newManualFields[index].startTime = handleEstTimeChange(e) || "";
+    const newManualFields: ManualFieldsWorklogs[] = [...reviewermanualFields];
+    newManualFields[index].startTime = Number(e) || 0;
     setReviewerManualFields(newManualFields);
-
-    const startDate = newManualFields[index].startTime;
-    const endDate = newManualFields[index].endTime;
-    if (startDate && endDate) {
-      const startTime = newManualFields[index].startTime;
-      const endTime = newManualFields[index].endTime;
-      if (startTime && endTime) {
-        const startTimeArray = startTime.split(":");
-        const endTimeArray = endTime.split(":");
-
-        const startSeconds =
-          parseInt(startTimeArray[0]) * 3600 +
-          parseInt(startTimeArray[1]) * 60 +
-          parseInt(startTimeArray[2]);
-        const endSeconds =
-          parseInt(endTimeArray[0]) * 3600 +
-          parseInt(endTimeArray[1]) * 60 +
-          parseInt(endTimeArray[2]);
-        const totalSeconds = endSeconds - startSeconds;
-
-        if (totalSeconds >= 0) {
-          const totalHours = Math.floor(totalSeconds / 3600);
-          const totalMinutes = Math.floor((totalSeconds % 3600) / 60);
-          const totalSecondsRemaining = totalSeconds % 60;
-          const formattedTotalTime = `${totalHours
-            .toString()
-            .padStart(2, "0")}:${totalMinutes
-            .toString()
-            .padStart(2, "0")}:${totalSecondsRemaining
-            .toString()
-            .padStart(2, "0")}`;
-
-          newManualFields[index].totalTime = formattedTotalTime;
-          setReviewerManualFields(newManualFields);
-        }
-      }
-    }
-  };
-
-  const handleEndTimeChange = (e: string, index: number) => {
-    const newManualFields: ManualTimeFields[] = [...reviewermanualFields];
-    newManualFields[index].endTime = handleEstTimeChange(e) || "";
-    setReviewerManualFields(newManualFields);
-
-    const startDate = newManualFields[index].startTime;
-    const endDate = newManualFields[index].endTime;
-    if (startDate && endDate) {
-      const startTime = newManualFields[index].startTime;
-      const endTime = newManualFields[index].endTime;
-      if (startTime && endTime) {
-        const startTimeArray = startTime.split(":");
-        const endTimeArray = endTime.split(":");
-
-        const startSeconds =
-          parseInt(startTimeArray[0]) * 3600 +
-          parseInt(startTimeArray[1]) * 60 +
-          parseInt(startTimeArray[2]);
-        const endSeconds =
-          parseInt(endTimeArray[0]) * 3600 +
-          parseInt(endTimeArray[1]) * 60 +
-          parseInt(endTimeArray[2]);
-        const totalSeconds = endSeconds - startSeconds;
-
-        if (totalSeconds >= 0) {
-          const totalHours = Math.floor(totalSeconds / 3600);
-          const totalMinutes = Math.floor((totalSeconds % 3600) / 60);
-          const totalSecondsRemaining = totalSeconds % 60;
-          const formattedTotalTime = `${totalHours
-            .toString()
-            .padStart(2, "0")}:${totalMinutes
-            .toString()
-            .padStart(2, "0")}:${totalSecondsRemaining
-            .toString()
-            .padStart(2, "0")}`;
-
-          newManualFields[index].totalTime = formattedTotalTime;
-          setReviewerManualFields(newManualFields);
-        }
-      }
-    }
   };
 
   const handleManualDescChange = (e: string, index: number) => {
@@ -1927,10 +1793,12 @@ const EditDrawer = ({
     setInputDateErrors(newInputDateErrors);
   };
 
-  const setManualDisableData = (manualField: ManualTimeFields[]) => {
+  const setManualDisableData = (manualField: ManualFieldsWorklogs[]) => {
     setManualSubmitDisable(
       manualField
-        .map((i: ManualTimeFields) => (i.IsApproved === false ? false : true))
+        .map((i: ManualFieldsWorklogs) =>
+          i.IsApproved === false ? false : true
+        )
         .includes(false)
         ? false
         : true
@@ -2079,6 +1947,14 @@ const EditDrawer = ({
           : checklistWorkpaperApprovals === 2
           ? false
           : null,
+      PeriodFrom:
+        valueMonthYearFrom === null || valueMonthYearFrom === ""
+          ? null
+          : dayjs(valueMonthYearFrom).format("YYYY/MM/DD"),
+      PeriodTo:
+        valueMonthYearTo === null || valueMonthYearTo === ""
+          ? null
+          : dayjs(valueMonthYearTo).format("YYYY/MM/DD"),
       ManualTimeList: null,
       SubTaskList: null,
       RecurringObj: null,
@@ -2209,6 +2085,14 @@ const EditDrawer = ({
             : ResponseData.ChecklistWorkpaper === false
             ? 2
             : 0
+        );
+        setValueMonthYearFrom(
+          ResponseData.PeriodFrom === null
+            ? null
+            : dayjs(ResponseData.PeriodFrom)
+        );
+        setValueMonthYearTo(
+          ResponseData.PeriodTo === null ? null : dayjs(ResponseData.PeriodTo)
         );
       }
     };
@@ -2459,6 +2343,15 @@ const EditDrawer = ({
     clientNameApprovals && getData();
   }, [clientNameApprovals]);
 
+  useEffect(() => {
+    const deptType = departmentApprovalsDropdownData
+      ?.map((i: LabelValueType) =>
+        i.value === departmentApprovals ? i.Type : false
+      )
+      .filter((j: any) => j != false)[0];
+    setDepartmentApprovalsType(!!deptType ? deptType.toString() : "");
+  }, [departmentApprovals, departmentApprovalsDropdownData]);
+
   const handleClose = () => {
     // Common
     setIsLoadingApprovals(false);
@@ -2512,6 +2405,7 @@ const EditDrawer = ({
     setReviewerApprovalsErr(false);
     setDepartmentApprovalsDropdownData([]);
     setDepartmentApprovals(0);
+    setDepartmentApprovalsType("");
     setDepartmentApprovalsErr(false);
     setDateOfReviewApprovals("");
     setDateOfPreperationApprovals("");
@@ -2521,6 +2415,8 @@ const EditDrawer = ({
     setNoOfPagesApprovals(0);
     setChecklistWorkpaperApprovals(0);
     setChecklistWorkpaperApprovalsErr(false);
+    setValueMonthYearFrom(null);
+    setValueMonthYearTo(null);
 
     // Sub-Task
     setSubTaskSwitchApprovals(false);
@@ -2547,9 +2443,7 @@ const EditDrawer = ({
         AssigneeId: 0,
         Id: 0,
         inputDate: "",
-        startTime: "",
-        endTime: "",
-        totalTime: "",
+        startTime: 0,
         manualDesc: "",
         IsApproved: false,
       },
@@ -2578,16 +2472,13 @@ const EditDrawer = ({
         AssigneeId: 0,
         Id: 0,
         inputDate: "",
-        startTime: "",
-        endTime: "",
-        totalTime: "",
+        startTime: 0,
         manualDesc: "",
         IsApproved: false,
       },
     ]);
     setInputDateErrors([false]);
     setStartTimeErrors([false]);
-    setEndTimeErrors([false]);
     setManualDescErrors([false]);
     setDeletedManualTime([]);
 
@@ -2621,6 +2512,7 @@ const EditDrawer = ({
         ErrorLogId: 0,
         ErrorType: 0,
         RootCause: 0,
+        Impact: 0,
         Priority: 0,
         ErrorCount: 0,
         NatureOfError: 0,
@@ -2761,6 +2653,9 @@ const EditDrawer = ({
                           setReturnYearApprovals(0);
                           setNoOfPagesApprovals(0);
                           setChecklistWorkpaperApprovals(0);
+                          setCheckListNameApprovalsError(false);
+                          setValueMonthYearFrom(null);
+                          setValueMonthYearTo(null);
                         }}
                         disabled={isCreatedByClient && editData.ClientId > 0}
                         sx={{ mx: 0.75, width: 300 }}
@@ -2826,6 +2721,8 @@ const EditDrawer = ({
                             setSubProcessApprovalsErr(false);
                             isAdmin && setDepartmentApprovals(0);
                             isAdmin && setDepartmentApprovalsErr(false);
+                            setValueMonthYearFrom(null);
+                            setValueMonthYearTo(null);
                           }}
                           onBlur={() => {
                             if (typeOfWorkApprovals > 0) {
@@ -2943,14 +2840,17 @@ const EditDrawer = ({
                         options={departmentApprovalsDropdownData}
                         value={
                           departmentApprovalsDropdownData.find(
-                            (i: LabelValue) => i.value === departmentApprovals
+                            (i: LabelValueType) =>
+                              i.value === departmentApprovals
                           ) || null
                         }
                         disabled={isAdmin === false}
-                        onChange={(e, value: LabelValue | null) => {
+                        onChange={(e, value: LabelValueType | null) => {
                           value && setDepartmentApprovals(value.value);
                           setProcessNameApprovals(0);
                           setSubProcessApprovals(0);
+                          setValueMonthYearFrom(null);
+                          setValueMonthYearTo(null);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3311,13 +3211,15 @@ const EditDrawer = ({
                               setReceiverDateApprovalsErr(false);
                               const selectedDate = dayjs(newDate.$d);
                               let nextDate: any = selectedDate;
-                              if (selectedDate.day() === 5) {
-                                nextDate = nextDate.add(3, "day");
+                              if (selectedDate.day() === 4) {
+                                nextDate = nextDate.add(4, "day");
+                              } else if (selectedDate.day() === 5) {
+                                nextDate = nextDate.add(4, "day");
                               } else if (selectedDate.day() === 6) {
-                                nextDate = nextDate.add(3, "day");
+                                nextDate = nextDate.add(4, "day");
                               } else {
                                 nextDate = dayjs(newDate.$d)
-                                  .add(2, "day")
+                                  .add(3, "day")
                                   .toDate();
                               }
                               setDueDateApprovals(nextDate);
@@ -3533,6 +3435,68 @@ const EditDrawer = ({
                         )}
                       />
                     </Grid>
+                    {(departmentApprovalsType === "WhitelabelAccounting" ||
+                      departmentApprovalsType === "WhitelabelAustralia") && (
+                      <Grid
+                        item
+                        xs={3}
+                        className={`${
+                          typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
+                        }`}
+                      >
+                        <div
+                          className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer muiDatepickerCustomizerMonth w-full max-w-[300px]`}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              minDate={dayjs(previousYearStartDate)}
+                              maxDate={dayjs(currentYearEndDate)}
+                              views={["year", "month"]}
+                              label="Period From"
+                              value={
+                                valueMonthYearFrom === ""
+                                  ? null
+                                  : valueMonthYearFrom
+                              }
+                              onChange={(newDate: any) =>
+                                setValueMonthYearFrom(newDate.$d)
+                              }
+                            />
+                          </LocalizationProvider>
+                        </div>
+                      </Grid>
+                    )}
+                    {(departmentApprovalsType === "WhitelabelAccounting" ||
+                      departmentApprovalsType === "WhitelabelAustralia") && (
+                      <Grid
+                        item
+                        xs={3}
+                        className={`${
+                          typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
+                        }`}
+                      >
+                        <div
+                          className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer muiDatepickerCustomizerMonth w-full max-w-[300px]`}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              minDate={dayjs(previousYearStartDate)}
+                              maxDate={dayjs(currentYearEndDate)}
+                              views={["year", "month"]}
+                              label="Period To"
+                              value={
+                                valueMonthYearTo === ""
+                                  ? null
+                                  : valueMonthYearTo
+                              }
+                              onChange={(newDate: any) =>
+                                setValueMonthYearTo(newDate.$d)
+                              }
+                            />
+                          </LocalizationProvider>
+                        </div>
+                      </Grid>
+                    )}
                     {typeOfWorkApprovals === 3 && (
                       <>
                         <Grid item xs={3} className="pt-4">
@@ -4609,11 +4573,11 @@ const EditDrawer = ({
                         <TextField
                           label={
                             <span>
-                              Start Time(24h)
+                              Time in Minute
                               <span className="!text-defaultRed">&nbsp;*</span>
                             </span>
                           }
-                          placeholder="00:00:00"
+                          placeholder="000"
                           fullWidth
                           value={field.startTime}
                           InputProps={{ readOnly: true }}
@@ -4621,49 +4585,6 @@ const EditDrawer = ({
                           margin="normal"
                           variant="standard"
                           sx={{ mx: 0.75, maxWidth: 230 }}
-                        />
-                        <TextField
-                          label={
-                            <span>
-                              End Time(24h)
-                              <span className="!text-defaultRed">&nbsp;*</span>
-                            </span>
-                          }
-                          placeholder="00:00:00"
-                          fullWidth
-                          value={field.endTime}
-                          InputProps={{ readOnly: true }}
-                          inputProps={{ readOnly: true }}
-                          margin="normal"
-                          variant="standard"
-                          sx={{ mx: 0.75, maxWidth: 230 }}
-                        />
-                        {/* <TextField
-                            label="Total Time"
-                            disabled
-                            fullWidth
-                            type={
-                              field.startTime && field.endTime !== ""
-                                ? "time"
-                                : "text"
-                            }
-                            value={field.totalTime}
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 225 }}
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
-                          /> */}
-                        <TextField
-                          label="Total Time"
-                          disabled
-                          fullWidth
-                          value={field.totalTime}
-                          margin="normal"
-                          variant="standard"
-                          sx={{ mx: 0.75, maxWidth: 225 }}
-                          InputProps={{ readOnly: true }}
-                          inputProps={{ readOnly: true }}
                         />
                         <TextField
                           label={
@@ -4720,16 +4641,13 @@ const EditDrawer = ({
                           AssigneeId: 0,
                           Id: 0,
                           inputDate: "",
-                          startTime: "",
-                          endTime: "",
-                          totalTime: "",
+                          startTime: 0,
                           manualDesc: "",
                           IsApproved: false,
                         },
                       ]);
                       setInputDateErrors([false]);
                       setStartTimeErrors([false]);
-                      setEndTimeErrors([false]);
                       setManualDescErrors([false]);
                       setInputTypeDate(["text"]);
                       setManualDisableData([
@@ -4737,9 +4655,7 @@ const EditDrawer = ({
                           AssigneeId: 0,
                           Id: 0,
                           inputDate: "",
-                          startTime: "",
-                          endTime: "",
-                          totalTime: "",
+                          startTime: 0,
                           manualDesc: "",
                           IsApproved: false,
                         },
@@ -4815,11 +4731,11 @@ const EditDrawer = ({
                         <TextField
                           label={
                             <span>
-                              Start Time(24h)
+                              Time in Minute
                               <span className="!text-defaultRed">&nbsp;*</span>
                             </span>
                           }
-                          placeholder="00:00:00"
+                          placeholder="000"
                           disabled={
                             !manualSwitch ||
                             field.IsApproved ||
@@ -4832,128 +4748,41 @@ const EditDrawer = ({
                             handleStartTimeChange(e.target.value, index)
                           }
                           onBlur={(e) => {
-                            if (e.target.value.trim().length > 7) {
-                              const newStartTimeErrors = [...startTimeErrors];
-                              newStartTimeErrors[index] = false;
-                              setStartTimeErrors(newStartTimeErrors);
+                            if (
+                              e.target.value.trim().length === 0 ||
+                              e.target.value.trim().length > 3 ||
+                              e.target.value.trim().toString() == "0" ||
+                              e.target.value.trim().toString() == "00" ||
+                              e.target.value.trim().toString() == "000"
+                            ) {
+                              const newStartTimeWorklogsErrors = [
+                                ...startTimeErrors,
+                              ];
+                              newStartTimeWorklogsErrors[index] = true;
+                              setStartTimeErrors(newStartTimeWorklogsErrors);
+                            } else {
+                              const newStartTimeWorklogsErrors = [
+                                ...startTimeErrors,
+                              ];
+                              newStartTimeWorklogsErrors[index] = false;
+                              setStartTimeErrors(newStartTimeWorklogsErrors);
                             }
                           }}
                           error={startTimeErrors[index]}
                           helperText={
-                            field.startTime.trim().length > 0 &&
-                            field.startTime.trim().length < 8 &&
+                            field.startTime.toString().trim().length > 3 &&
                             startTimeErrors[index]
-                              ? "Start time must be in HH:MM:SS"
-                              : field.startTime.trim().length <= 0 &&
+                              ? "Maximum 3 characters allowed."
+                              : (field.startTime.toString() == "0" ||
+                                  field.startTime.toString() == "00" ||
+                                  field.startTime.toString() == "000") &&
+                                startTimeErrors[index]
+                              ? "Please enter valid number."
+                              : field.startTime.toString().trim().length <= 0 &&
                                 startTimeErrors[index]
                               ? "This is a required field"
                               : ""
                           }
-                          margin="normal"
-                          variant="standard"
-                          sx={{ mx: 0.75, maxWidth: 225 }}
-                        />
-                        <TextField
-                          label={
-                            <span>
-                              End Time(24h)
-                              <span className="!text-defaultRed">&nbsp;*</span>
-                            </span>
-                          }
-                          placeholder="00:00:00"
-                          disabled={
-                            !manualSwitch ||
-                            field.IsApproved ||
-                            (field.AssigneeId !== 0 &&
-                              field.AssigneeId !== userId)
-                          }
-                          fullWidth
-                          value={field.endTime}
-                          onChange={(e) =>
-                            handleEndTimeChange(e.target.value, index)
-                          }
-                          onBlur={(e) => {
-                            if (
-                              e.target.value.trim().length > 7 &&
-                              field.endTime > field.startTime &&
-                              field.startTime
-                                .split(":")
-                                .reduce(
-                                  (acc, timePart, index) =>
-                                    acc +
-                                    parseInt(timePart) * [3600, 60, 1][index],
-                                  0
-                                ) +
-                                "07:59:59"
-                                  .split(":")
-                                  .reduce(
-                                    (acc, timePart, index) =>
-                                      acc +
-                                      parseInt(timePart) * [3600, 60, 1][index],
-                                    0
-                                  ) <
-                                field.endTime
-                                  .split(":")
-                                  .reduce(
-                                    (acc, timePart, index) =>
-                                      acc +
-                                      parseInt(timePart) * [3600, 60, 1][index],
-                                    0
-                                  )
-                            ) {
-                              const newEndTimeErrors = [...endTimeErrors];
-                              newEndTimeErrors[index] = false;
-                              setEndTimeErrors(newEndTimeErrors);
-                            }
-                          }}
-                          error={endTimeErrors[index]}
-                          helperText={
-                            field.startTime
-                              .split(":")
-                              .reduce(
-                                (acc, timePart, index) =>
-                                  acc +
-                                  parseInt(timePart) * [3600, 60, 1][index],
-                                0
-                              ) +
-                              "07:59:59"
-                                .split(":")
-                                .reduce(
-                                  (acc, timePart, index) =>
-                                    acc +
-                                    parseInt(timePart) * [3600, 60, 1][index],
-                                  0
-                                ) <
-                            field.endTime
-                              .split(":")
-                              .reduce(
-                                (acc, timePart, index) =>
-                                  acc +
-                                  parseInt(timePart) * [3600, 60, 1][index],
-                                0
-                              )
-                              ? "Time must be less than 07:59:59"
-                              : field.endTime.trim().length > 0 &&
-                                field.endTime.trim().length < 8 &&
-                                endTimeErrors[index]
-                              ? "Start time must be in HH:MM:SS"
-                              : field.endTime.trim().length <= 0 &&
-                                endTimeErrors[index]
-                              ? "This is a required field"
-                              : endTimeErrors[index] &&
-                                field.endTime <= field.startTime
-                              ? "End time must be grater than start time"
-                              : ""
-                          }
-                          margin="normal"
-                          variant="standard"
-                          sx={{ mx: 0.75, maxWidth: 225 }}
-                        />
-                        <TextField
-                          label="Total Time"
-                          disabled
-                          fullWidth
-                          value={field.totalTime}
                           margin="normal"
                           variant="standard"
                           sx={{ mx: 0.75, maxWidth: 225 }}
@@ -5481,7 +5310,58 @@ const EditDrawer = ({
                           </FormControl>
                           <FormControl
                             variant="standard"
-                            sx={{ mx: 0.75, minWidth: 250 }}
+                            sx={{ mx: 0.75, minWidth: 230 }}
+                            error={impactErrApprovals[index]}
+                          >
+                            <InputLabel id="demo-simple-select-standard-label">
+                              Impact
+                              <span className="text-defaultRed">&nbsp;*</span>
+                            </InputLabel>
+                            <Select
+                              labelId="demo-simple-select-standard-label"
+                              id="demo-simple-select-standard"
+                              disabled={
+                                (!hasPermissionWorklog(
+                                  "ErrorLog",
+                                  "Save",
+                                  "WorkLogs"
+                                ) &&
+                                  hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Delete",
+                                    "WorkLogs"
+                                  )) ||
+                                field.isSolved
+                              }
+                              value={field.Impact === 0 ? "" : field.Impact}
+                              onChange={(e) =>
+                                handleImpactChangeApprovals(
+                                  Number(e.target.value),
+                                  index
+                                )
+                              }
+                              onBlur={() => {
+                                if (field.Impact > 0) {
+                                  const newImpactErrors = [
+                                    ...impactErrApprovals,
+                                  ];
+                                  newImpactErrors[index] = false;
+                                  setImpactErrApprovals(newImpactErrors);
+                                }
+                              }}
+                            >
+                              <MenuItem value={1}>Financial</MenuItem>
+                              <MenuItem value={2}>Non-Financial</MenuItem>
+                            </Select>
+                            {impactErrApprovals[index] && (
+                              <FormHelperText>
+                                This is a required field.
+                              </FormHelperText>
+                            )}
+                          </FormControl>
+                          <FormControl
+                            variant="standard"
+                            sx={{ mx: 0.75, maxWidth: 250 }}
                             error={natureOfErrApprovals[index]}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
@@ -5613,71 +5493,6 @@ const EditDrawer = ({
                               </FormHelperText>
                             )}
                           </FormControl>
-                          <TextField
-                            label={
-                              <span>
-                                Error Count
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </span>
-                            }
-                            type="number"
-                            fullWidth
-                            disabled={
-                              (!hasPermissionWorklog(
-                                "ErrorLog",
-                                "Save",
-                                "WorkLogs"
-                              ) &&
-                                hasPermissionWorklog(
-                                  "ErrorLog",
-                                  "Delete",
-                                  "WorkLogs"
-                                )) ||
-                              field.isSolved
-                            }
-                            value={
-                              field.ErrorCount === 0 ? "" : field.ErrorCount
-                            }
-                            onChange={(e) =>
-                              handleErrorCountChangeApprovals(
-                                Number(e.target.value),
-                                index
-                              )
-                            }
-                            onBlur={(e) => {
-                              if (e.target.value.length > 0) {
-                                const newErrorCountErrors = [
-                                  ...errorCountErrApprovals,
-                                ];
-                                newErrorCountErrors[index] = false;
-                                setErrorCountErrApprovals(newErrorCountErrors);
-                              }
-                            }}
-                            onFocus={(e) =>
-                              e.target.addEventListener(
-                                "wheel",
-                                function (e) {
-                                  e.preventDefault();
-                                },
-                                { passive: false }
-                              )
-                            }
-                            error={errorCountErrApprovals[index]}
-                            helperText={
-                              errorCountErrApprovals[index] &&
-                              field.ErrorCount <= 0
-                                ? "Add valid number."
-                                : errorCountErrApprovals[index] &&
-                                  field.ErrorCount.toString().length > 4
-                                ? "Maximum 4 numbers allowed."
-                                : errorCountErrApprovals[index]
-                                ? "This is a required field."
-                                : ""
-                            }
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 180, mt: 0 }}
-                          />
                           <div className="flex !ml-0">
                             <Autocomplete
                               multiple
@@ -5713,7 +5528,76 @@ const EditDrawer = ({
                                   variant="standard"
                                 />
                               )}
-                              sx={{ mx: 0.75, maxWidth: 230, mt: 1 }}
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                            />
+                            <TextField
+                              label={
+                                <span>
+                                  Error Count
+                                  <span className="text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              type="number"
+                              fullWidth
+                              disabled={
+                                (!hasPermissionWorklog(
+                                  "ErrorLog",
+                                  "Save",
+                                  "WorkLogs"
+                                ) &&
+                                  hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Delete",
+                                    "WorkLogs"
+                                  )) ||
+                                field.isSolved
+                              }
+                              value={
+                                field.ErrorCount === 0 ? "" : field.ErrorCount
+                              }
+                              onChange={(e) =>
+                                handleErrorCountChangeApprovals(
+                                  Number(e.target.value),
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                if (e.target.value.length > 0) {
+                                  const newErrorCountErrors = [
+                                    ...errorCountErrApprovals,
+                                  ];
+                                  newErrorCountErrors[index] = false;
+                                  setErrorCountErrApprovals(
+                                    newErrorCountErrors
+                                  );
+                                }
+                              }}
+                              onFocus={(e) =>
+                                e.target.addEventListener(
+                                  "wheel",
+                                  function (e) {
+                                    e.preventDefault();
+                                  },
+                                  { passive: false }
+                                )
+                              }
+                              error={errorCountErrApprovals[index]}
+                              helperText={
+                                errorCountErrApprovals[index] &&
+                                field.ErrorCount <= 0
+                                  ? "Add valid number."
+                                  : errorCountErrApprovals[index] &&
+                                    field.ErrorCount.toString().length > 4
+                                  ? "Maximum 4 numbers allowed."
+                                  : errorCountErrApprovals[index]
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                             />
                             <TextField
                               label={
@@ -5773,7 +5657,7 @@ const EditDrawer = ({
                               }
                               margin="normal"
                               variant="standard"
-                              sx={{ mx: 0.75, maxWidth: 492, mt: 1, mr: 2 }}
+                              sx={{ mx: 0.75, maxWidth: 492, mt: 1.5, mr: 2 }}
                             />
                             <div className="flex flex-col">
                               <div className="flex">

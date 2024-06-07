@@ -413,25 +413,25 @@ const Page = () => {
                 <span className="text-lightSilver">|</span>
               )}
             {hasPermissionWorklog("", "ManageAssignee", "WorkLogs") && (
-                <label
-                  onClick={() => {
-                    setGlobalSearchValue("");
-                    setSearch("");
-                    setIsTimelineClicked(false);
-                    setIsTaskClicked(false);
-                    setIsUnassigneeClicked(true);
-                    setCurrentFilterId(0);
-                    setCurrentFilterData([]);
-                  }}
-                  className={`py-[10px] text-[16px] cursor-pointer select-none ${
-                    isUnassigneeClicked
-                      ? "text-secondary font-semibold"
-                      : "text-slatyGrey"
-                  }`}
-                >
-                  Unassigned Task
-                </label>
-              )}
+              <label
+                onClick={() => {
+                  setGlobalSearchValue("");
+                  setSearch("");
+                  setIsTimelineClicked(false);
+                  setIsTaskClicked(false);
+                  setIsUnassigneeClicked(true);
+                  setCurrentFilterId(0);
+                  setCurrentFilterData([]);
+                }}
+                className={`py-[10px] text-[16px] cursor-pointer select-none ${
+                  isUnassigneeClicked
+                    ? "text-secondary font-semibold"
+                    : "text-slatyGrey"
+                }`}
+              >
+                Unassigned Task
+              </label>
+            )}
           </div>
           <div className="flex items-center justify-center gap-[10px]">
             <div className="flex flex-col items-end justify-center">
@@ -513,46 +513,44 @@ const Page = () => {
 
                     {filteredFilters.map((i: FilterWorklogsPage) => {
                       return (
-                        <>
-                          <div
-                            key={i.FilterId}
-                            className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
+                        <div
+                          key={i.FilterId}
+                          className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
+                        >
+                          <span
+                            className="pl-1"
+                            onClick={() => {
+                              setclickedFilterId(i.FilterId);
+                              handleCloseFilter();
+                            }}
                           >
+                            {i.Name}
+                          </span>
+                          <span className="flex gap-[10px] pr-[10px]">
                             <span
-                              className="pl-1"
                               onClick={() => {
-                                setclickedFilterId(i.FilterId);
+                                setCurrentFilterId(i.FilterId);
+                                setIsFilterOpen(true);
                                 handleCloseFilter();
                               }}
                             >
-                              {i.Name}
+                              <Tooltip title="Edit" placement="top" arrow>
+                                <Edit className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
+                              </Tooltip>
                             </span>
-                            <span className="flex gap-[10px] pr-[10px]">
-                              <span
-                                onClick={() => {
-                                  setCurrentFilterId(i.FilterId);
-                                  setIsFilterOpen(true);
-                                  handleCloseFilter();
-                                }}
-                              >
-                                <Tooltip title="Edit" placement="top" arrow>
-                                  <Edit className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
-                                </Tooltip>
-                              </span>
-                              <span
-                                onClick={() => {
-                                  setIsDeleteOpen(true);
-                                  setCurrentFilterId(i.FilterId);
-                                  handleCloseFilter();
-                                }}
-                              >
-                                <Tooltip title="Delete" placement="top" arrow>
-                                  <Delete className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
-                                </Tooltip>
-                              </span>
+                            <span
+                              onClick={() => {
+                                setIsDeleteOpen(true);
+                                setCurrentFilterId(i.FilterId);
+                                handleCloseFilter();
+                              }}
+                            >
+                              <Tooltip title="Delete" placement="top" arrow>
+                                <Delete className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
+                              </Tooltip>
                             </span>
-                          </div>
-                        </>
+                          </span>
+                        </div>
                       );
                     })}
                     <hr className="text-lightSilver mt-2" />

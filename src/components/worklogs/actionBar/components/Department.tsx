@@ -5,7 +5,7 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import DepartmentIcon from "@/assets/icons/worklogs/Department";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { callAPI } from "@/utils/API/callAPI";
-import { LabelValue } from "@/utils/Types/types";
+import { LabelValueType } from "@/utils/Types/types";
 
 const Department = ({
   selectedRowIds,
@@ -16,7 +16,7 @@ const Department = ({
 }: {
   selectedRowIds: number[];
   getWorkItemList: () => void;
-  departmentDropdownData: LabelValue[];
+  departmentDropdownData: LabelValueType[];
   handleClearSelection: () => void;
   getOverLay: (e: boolean) => void;
 }) => {
@@ -43,7 +43,7 @@ const Department = ({
   };
 
   const filteredDepartment = departmentDropdownData?.filter(
-    (Department: LabelValue) =>
+    (Department: LabelValueType) =>
       Department.label
         .toLowerCase()
         .includes(departmentSearchQuery.toLowerCase())
@@ -134,7 +134,7 @@ const Department = ({
                 No Data Available
               </span>
             ) : (
-              filteredDepartment.map((Department: LabelValue) => {
+              filteredDepartment.map((Department: LabelValueType) => {
                 return (
                   <span
                     key={Department.value}

@@ -71,6 +71,8 @@ interface SavedFilter {
     dueDate: string | null;
     allInfoDate: string | null;
     IsHoursShared: number | null;
+    PeriodFrom: string | null;
+    PeriodTo: string | null;
   };
 }
 
@@ -120,7 +122,9 @@ const CustomReportFilter = ({
   const [clients, setClients] = useState<LabelValue[]>([]);
   const [clientName, setClientName] = useState<number[]>([]);
   const [typeOfWorkName, setTypeOfWorkName] = useState<LabelValue | null>(null);
-  const [departmentName, setDepartmentName] = useState<LabelValue | null>(null);
+  const [departmentName, setDepartmentName] = useState<LabelValueType | null>(
+    null
+  );
   const [projectName, setProjectName] = useState<LabelValue | null>(null);
   const [processName, setProcessName] = useState<LabelValue | null>(null);
   const [subProcessName, setSubProcessName] = useState<LabelValue | null>(null);
@@ -147,6 +151,14 @@ const CustomReportFilter = ({
     label: "All",
     value: null,
   });
+  const [periodFrom, setPeriodFrom] = useState<any>(null);
+  const [periodTo, setPeriodTo] = useState<any>(null);
+  const previousYearStartDate = dayjs()
+    .subtract(1, "year")
+    .startOf("year")
+    .toDate();
+  const currentYearEndDate = dayjs().endOf("year").toDate();
+
   const [allInfoDate, setAllInfoDate] = useState<string | number>("");
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
@@ -156,7 +168,7 @@ const CustomReportFilter = ({
     []
   );
   const [departmentDropdownData, setDepartmentDropdownData] = useState<
-    LabelValue[]
+    LabelValueType[]
   >([]);
   const [projectDropdown, setProjectDropdown] = useState<LabelValue[]>([]);
   const [processDropdown, setProcessDropdown] = useState<LabelValue[]>([]);
@@ -212,6 +224,8 @@ const CustomReportFilter = ({
     setStatusName([]);
     setPriority(null);
     setHoursShared({ label: "All", value: null });
+    setPeriodFrom(null);
+    setPeriodTo(null);
     setStartDate("");
     setEndDate("");
     setStartDateReview("");
@@ -259,6 +273,8 @@ const CustomReportFilter = ({
     setStatusName([]);
     setPriority(null);
     setHoursShared({ label: "All", value: null });
+    setPeriodFrom(null);
+    setPeriodTo(null);
     setStartDate("");
     setEndDate("");
     setStartDateReview("");
@@ -288,6 +304,8 @@ const CustomReportFilter = ({
       StatusIds: statusName.length > 0 ? statusName : [],
       priority: priority === null ? null : priority.value,
       IsHoursShared: hoursShared === null ? null : hoursShared.value,
+      PeriodFrom: periodFrom === null || periodFrom === "" ? null : periodFrom,
+      PeriodTo: periodTo === null || periodTo === "" ? null : periodTo,
       startDate:
         startDate.toString().trim().length <= 0
           ? endDate.toString().trim().length <= 0
@@ -356,6 +374,8 @@ const CustomReportFilter = ({
           StatusIds: savedFilters[index].AppliedFilter.StatusIds,
           priority: savedFilters[index].AppliedFilter.priority,
           IsHoursShared: savedFilters[index].AppliedFilter.IsHoursShared,
+          PeriodFrom: savedFilters[index].AppliedFilter.PeriodFrom,
+          PeriodTo: savedFilters[index].AppliedFilter.PeriodTo,
           startDate: savedFilters[index].AppliedFilter.startDate,
           endDate: savedFilters[index].AppliedFilter.endDate,
           startDateReview: savedFilters[index].AppliedFilter.startDateReview,
@@ -396,6 +416,9 @@ const CustomReportFilter = ({
           StatusIds: statusName.length > 0 ? statusName : [],
           priority: priority === null ? null : priority.value,
           IsHoursShared: hoursShared === null ? null : hoursShared.value,
+          PeriodFrom:
+            periodFrom === null || periodFrom === "" ? null : periodFrom,
+          PeriodTo: periodTo === null || periodTo === "" ? null : periodTo,
           startDate:
             startDate.toString().trim().length <= 0
               ? endDate.toString().trim().length <= 0
@@ -482,6 +505,8 @@ const CustomReportFilter = ({
       status.length > 0 ||
       priority !== null ||
       (hoursShared !== null && hoursShared.value !== null) ||
+      periodFrom !== null ||
+      periodTo !== null ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0 ||
       startDateReview.toString().trim().length > 0 ||
@@ -509,6 +534,8 @@ const CustomReportFilter = ({
     status,
     priority,
     hoursShared,
+    periodFrom,
+    periodTo,
     startDate,
     endDate,
     startDateReview,
@@ -638,7 +665,7 @@ const CustomReportFilter = ({
     setDepartmentName(
       AppliedFilter.DepartmentId !== null
         ? departmentDropdownData.filter(
-            (item: LabelValue) => item.value === AppliedFilter.DepartmentId
+            (item: LabelValueType) => item.value === AppliedFilter.DepartmentId
           )[0]
         : null
     );
@@ -757,6 +784,8 @@ const CustomReportFilter = ({
         : null
     );
 
+    setPeriodFrom(dayjs(AppliedFilter?.PeriodFrom) || null);
+    setPeriodTo(dayjs(AppliedFilter?.PeriodTo) || null);
     setStartDate(AppliedFilter?.startDate || "");
     setEndDate(AppliedFilter?.endDate || "");
     setStartDateReview(AppliedFilter?.startDateReview || "");
@@ -997,8 +1026,8 @@ const CustomReportFilter = ({
                   <Autocomplete
                     id="tags-standard"
                     options={departmentDropdownData}
-                    getOptionLabel={(option: LabelValue) => option.label}
-                    onChange={(e, data: LabelValue | null) => {
+                    getOptionLabel={(option: LabelValueType) => option.label}
+                    onChange={(e, data: LabelValueType | null) => {
                       setDepartmentName(data);
                       setProcessName(null);
                       setSubProcessName(null);
@@ -1526,6 +1555,36 @@ const CustomReportFilter = ({
                     )}
                   />
                 </FormControl>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer muiDatepickerCustomizerMonth w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      minDate={dayjs(previousYearStartDate)}
+                      maxDate={dayjs(currentYearEndDate)}
+                      views={["year", "month"]}
+                      label="Period From"
+                      value={periodFrom === "" ? null : periodFrom}
+                      onChange={(newDate: any) => setPeriodFrom(newDate.$d)}
+                    />
+                  </LocalizationProvider>
+                </div>
+              </div>
+              <div className="flex gap-[20px]">
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer muiDatepickerCustomizerMonth w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      minDate={dayjs(previousYearStartDate)}
+                      maxDate={dayjs(currentYearEndDate)}
+                      views={["year", "month"]}
+                      label="Period To"
+                      value={periodTo === "" ? null : periodTo}
+                      onChange={(newDate: any) => setPeriodTo(newDate.$d)}
+                    />
+                  </LocalizationProvider>
+                </div>
               </div>
             </div>
           </DialogContent>
