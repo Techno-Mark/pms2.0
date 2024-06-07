@@ -832,7 +832,8 @@ const EditDrawer = ({
             field.startTime.toString().trim().length > 3 ||
             field.startTime.toString() == "0" ||
             field.startTime.toString() == "00" ||
-            field.startTime.toString() == "000")
+            field.startTime.toString() == "000" ||
+            field.startTime > 480)
       );
       manualSwitchWorklogs &&
         setStartTimeWorklogsErrors(newStartTimeWorklogsErrors);
@@ -1909,7 +1910,8 @@ const EditDrawer = ({
           field.startTime.toString().trim().length > 3 ||
           field.startTime.toString() == "0" ||
           field.startTime.toString() == "00" ||
-          field.startTime.toString() == "000")
+          field.startTime.toString() == "000" ||
+          field.startTime > 480)
     );
     manualSwitchWorklogs &&
       setStartTimeWorklogsErrors(newStartTimeWorklogsErrors);
@@ -5065,7 +5067,8 @@ const EditDrawer = ({
                               e.target.value.trim().length > 3 ||
                               e.target.value.trim().toString() == "0" ||
                               e.target.value.trim().toString() == "00" ||
-                              e.target.value.trim().toString() == "000"
+                              e.target.value.trim().toString() == "000" ||
+                              Number(e.target.value.trim()) > 480
                             ) {
                               const newStartTimeWorklogsErrors = [
                                 ...startTimeWorklogsErrors,
@@ -5089,6 +5092,9 @@ const EditDrawer = ({
                             field.startTime?.toString().trim().length > 3 &&
                             startTimeWorklogsErrors[index]
                               ? "Maximum 3 characters allowed."
+                              : field.startTime > 480 &&
+                                startTimeWorklogsErrors[index]
+                              ? "Maximum 480 minutes allowed."
                               : (field.startTime.toString() == "0" ||
                                   field.startTime.toString() == "00" ||
                                   field.startTime.toString() == "000") &&

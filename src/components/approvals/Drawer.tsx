@@ -1531,7 +1531,8 @@ const EditDrawer = ({
             field.startTime.toString().trim().length > 3 ||
             field.startTime.toString() == "0" ||
             field.startTime.toString() == "00" ||
-            field.startTime.toString() == "000")
+            field.startTime.toString() == "000" ||
+            field.startTime > 480)
       );
       manualSwitch && setStartTimeErrors(newStartTimeErrors);
       const newManualDescErrors = reviewermanualFields.map(
@@ -1804,7 +1805,6 @@ const EditDrawer = ({
         : true
     );
   };
-  console.log(deletedManualTime);
 
   useEffect(() => {
     deletedManualTime.length > 0 && setManualDisableData(deletedManualTime);
@@ -4758,7 +4758,8 @@ const EditDrawer = ({
                               e.target.value.trim().length > 3 ||
                               e.target.value.trim().toString() == "0" ||
                               e.target.value.trim().toString() == "00" ||
-                              e.target.value.trim().toString() == "000"
+                              e.target.value.trim().toString() == "000" ||
+                              Number(e.target.value.trim()) > 480
                             ) {
                               const newStartTimeWorklogsErrors = [
                                 ...startTimeErrors,
@@ -4778,6 +4779,8 @@ const EditDrawer = ({
                             field.startTime.toString().trim().length > 3 &&
                             startTimeErrors[index]
                               ? "Maximum 3 characters allowed."
+                              : field.startTime > 480 && startTimeErrors[index]
+                              ? "Maximum 480 minutes allowed."
                               : (field.startTime.toString() == "0" ||
                                   field.startTime.toString() == "00" ||
                                   field.startTime.toString() == "000") &&
