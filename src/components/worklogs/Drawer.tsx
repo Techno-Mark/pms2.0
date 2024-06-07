@@ -637,11 +637,16 @@ const EditDrawer = ({
         .map((i: ManualFieldsWorklogs) =>
           i.IsApproved === false ? false : true
         )
-        .includes(false)
+        .includes(false) || deletedManualTimeWorklogs.length > 0
         ? false
         : true
     );
   };
+
+  useEffect(() => {
+    deletedManualTimeWorklogs.length > 0 &&
+      setManualDisableData(manualFieldsWorklogs);
+  }, [deletedManualTimeWorklogs]);
 
   const addManulaFieldWorklogs = async () => {
     await setManualFieldsWorklogs([
@@ -1444,13 +1449,13 @@ const EditDrawer = ({
     setErrorLogPriorityWorklogsErr(newErrorsWorklogs);
   };
 
-  const handleErrorCountChangeWorklogs = (e: number, index: number) => {
+  const handleErrorCountChangeWorklogs = (e: string, index: number) => {
     const newFieldsWorklogs = [...errorLogFieldsWorklogs];
-    newFieldsWorklogs[index].ErrorCount = e;
+    newFieldsWorklogs[index].ErrorCount = Number(e) || 0;
     setErrorLogFieldsWorklogs(newFieldsWorklogs);
 
     const newErrorsWorklogs = [...errorCountWorklogsErr];
-    newErrorsWorklogs[index] = e < 0 || e.toString().length > 4;
+    newErrorsWorklogs[index] = Number(e) < 0 || e.toString().length > 4;
     setErrorCountWorklogsErr(newErrorsWorklogs);
   };
 
@@ -5200,7 +5205,7 @@ const EditDrawer = ({
                               </span>
                             )}
                         </div>
-                        <div className="w-[50px] ml-[-55px]">
+                        <div className="w-[50px] ml-[-35px]">
                           {index > 0 &&
                             manualSwitchWorklogs &&
                             !isIdDisabled &&
@@ -5623,7 +5628,7 @@ const EditDrawer = ({
                                       }
                                     }}
                                     readOnly={
-                                      i.RootCause > 0 ||
+                                      (i.RootCause > 0 && i.ErrorType == 1) ||
                                       i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
@@ -5671,7 +5676,7 @@ const EditDrawer = ({
                                       }
                                     }}
                                     readOnly={
-                                      i.Impact > 0 ||
+                                      (i.Impact > 0 && i.ErrorType == 1) ||
                                       i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
@@ -5687,7 +5692,11 @@ const EditDrawer = ({
                                 </FormControl>
                                 <FormControl
                                   variant="standard"
-                                  sx={{ mx: 0.75, maxWidth: 250 }}
+                                  sx={{
+                                    mx: 0.75,
+                                    minWidth: 250,
+                                    maxWidth: 250,
+                                  }}
                                   error={natureOfWorklogsErr[index]}
                                   disabled={isIdDisabled || isUnassigneeClicked}
                                 >
@@ -5723,7 +5732,8 @@ const EditDrawer = ({
                                       }
                                     }}
                                     readOnly={
-                                      i.NatureOfError > 0 ||
+                                      (i.NatureOfError > 0 &&
+                                        i.ErrorType == 1) ||
                                       i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
@@ -5795,7 +5805,7 @@ const EditDrawer = ({
                                       }
                                     }}
                                     readOnly={
-                                      i.Priority > 0 ||
+                                      (i.Priority > 0 && i.ErrorType == 1) ||
                                       i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
@@ -5819,9 +5829,7 @@ const EditDrawer = ({
                                       isIdDisabled || isUnassigneeClicked
                                     }
                                     readOnly={
-                                      cCDropdownDataWorklogs.filter(
-                                        (obj: any) => i.CC.includes(obj.value)
-                                      ).length > 0 ||
+                                      (i.CC.length > 0 && i.ErrorType == 1) ||
                                       i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
@@ -5858,7 +5866,6 @@ const EditDrawer = ({
                                     disabled={
                                       isIdDisabled || isUnassigneeClicked
                                     }
-                                    type="number"
                                     onFocus={(e) =>
                                       e.target.addEventListener(
                                         "wheel",
@@ -5869,10 +5876,12 @@ const EditDrawer = ({
                                       )
                                     }
                                     fullWidth
-                                    value={i.ErrorCount}
+                                    value={
+                                      i.ErrorCount === 0 ? "" : i.ErrorCount
+                                    }
                                     onChange={(e) =>
                                       handleErrorCountChangeWorklogs(
-                                        Number(e.target.value),
+                                        e.target.value,
                                         index
                                       )
                                     }
@@ -5905,7 +5914,8 @@ const EditDrawer = ({
                                     sx={{ ml: 1.5, maxWidth: 230, mt: 1.3 }}
                                     InputProps={{
                                       readOnly:
-                                        i.ErrorCount > 0 ||
+                                        (i.ErrorCount > 0 &&
+                                          i.ErrorType == 1) ||
                                         i.Remark.trim().length <= 0 ||
                                         i.DisableErrorLog,
                                     }}

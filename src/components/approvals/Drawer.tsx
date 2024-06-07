@@ -1197,13 +1197,13 @@ const EditDrawer = ({
     setErrorLogPriorityErrApprovals(newErrors);
   };
 
-  const handleErrorCountChangeApprovals = (e: number, index: number) => {
+  const handleErrorCountChangeApprovals = (e: string, index: number) => {
     const newFields = [...errorLogFieldsApprovals];
-    newFields[index].ErrorCount = e;
+    newFields[index].ErrorCount = Number(e) || 0;
     setErrorLogFieldsApprovals(newFields);
 
     const newErrors = [...errorCountErrApprovals];
-    newErrors[index] = e < 0 || e.toString().length > 4;
+    newErrors[index] = Number(e) < 0 || e.toString().length > 4;
     setErrorCountErrApprovals(newErrors);
   };
 
@@ -1648,7 +1648,7 @@ const EditDrawer = ({
         setManualSubmitDisable(
           ResponseData.map(
             (i: GetManualLogByWorkitemReviewer) =>
-              i.IsApproved === false && i.AssigneeId !== userId
+              i.IsApproved === false && i.AssigneeId !== Number(userId)
           ).includes(true)
             ? false
             : true
@@ -1799,11 +1799,16 @@ const EditDrawer = ({
         .map((i: ManualFieldsWorklogs) =>
           i.IsApproved === false ? false : true
         )
-        .includes(false)
+        .includes(false) || deletedManualTime.length > 0
         ? false
         : true
     );
   };
+  console.log(deletedManualTime);
+
+  useEffect(() => {
+    deletedManualTime.length > 0 && setManualDisableData(deletedManualTime);
+  }, [deletedManualTime]);
 
   // Submit task
   const handleSubmit = (e: { preventDefault: () => void }) => {
@@ -4692,7 +4697,7 @@ const EditDrawer = ({
                                   </span>
                                 </span>
                               }
-                              minDate={dayjs(recurringStartDateApprovals)}
+                              minDate={dayjs(receiverDateApprovals)}
                               maxDate={dayjs(new Date())}
                               disabled={
                                 !manualSwitch ||
@@ -4743,7 +4748,7 @@ const EditDrawer = ({
                               field.AssigneeId !== userId)
                           }
                           fullWidth
-                          value={field.startTime}
+                          value={field.startTime == 0 ? "" : field.startTime}
                           onChange={(e) =>
                             handleStartTimeChange(e.target.value, index)
                           }
@@ -5361,7 +5366,7 @@ const EditDrawer = ({
                           </FormControl>
                           <FormControl
                             variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 250 }}
+                            sx={{ mx: 0.75, minWidth: 250, maxWidth: 250 }}
                             error={natureOfErrApprovals[index]}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
@@ -5534,12 +5539,11 @@ const EditDrawer = ({
                               label={
                                 <span>
                                   Error Count
-                                  <span className="text-defaultRed">
+                                  <span className="!text-defaultRed">
                                     &nbsp;*
                                   </span>
                                 </span>
                               }
-                              type="number"
                               fullWidth
                               disabled={
                                 (!hasPermissionWorklog(
@@ -5559,7 +5563,7 @@ const EditDrawer = ({
                               }
                               onChange={(e) =>
                                 handleErrorCountChangeApprovals(
-                                  Number(e.target.value),
+                                  e.target.value,
                                   index
                                 )
                               }
@@ -5599,6 +5603,79 @@ const EditDrawer = ({
                               variant="standard"
                               sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                             />
+                            {/* <TextField
+                              label={
+                                <span>
+                                  Error Count
+                                  <span className="text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              type="number"
+                              fullWidth
+                              disabled={
+                                (!hasPermissionWorklog(
+                                  "ErrorLog",
+                                  "Save",
+                                  "WorkLogs"
+                                ) &&
+                                  hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Delete",
+                                    "WorkLogs"
+                                  )) ||
+                                field.isSolved
+                              }
+                              value={
+                                field.ErrorCount === 0 ? 0 : field.ErrorCount
+                              }
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+                                const numberValue = Number(value);
+                                if (numberValue >= 0 && value.length <= 4) {
+                                  handleErrorCountChangeApprovals(
+                                    numberValue,
+                                    index
+                                  );
+                                }
+                              }}
+                              onBlur={(e) => {
+                                if (e.target.value.length > 0) {
+                                  const newErrorCountErrors = [
+                                    ...errorCountErrApprovals,
+                                  ];
+                                  newErrorCountErrors[index] = false;
+                                  setErrorCountErrApprovals(
+                                    newErrorCountErrors
+                                  );
+                                }
+                              }}
+                              onFocus={(e) =>
+                                e.target.addEventListener(
+                                  "wheel",
+                                  function (e) {
+                                    e.preventDefault();
+                                  },
+                                  { passive: false }
+                                )
+                              }
+                              error={errorCountErrApprovals[index]}
+                              helperText={
+                                errorCountErrApprovals[index] &&
+                                field.ErrorCount <= 0
+                                  ? "Add valid number."
+                                  : errorCountErrApprovals[index] &&
+                                    field.ErrorCount.toString().length > 4
+                                  ? "Maximum 4 numbers allowed."
+                                  : errorCountErrApprovals[index]
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                            /> */}
                             <TextField
                               label={
                                 <span>

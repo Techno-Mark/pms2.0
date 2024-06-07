@@ -426,7 +426,11 @@ const Project = ({
           <ReportLoader />
         ) : (
           <>
-            <div className="muiTableAction">
+            <div
+              className={`${
+                data.length > 0 ? "muiTableActionHeight" : "muiTableAction"
+              }`}
+            >
               <ThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable
                   data={data}
