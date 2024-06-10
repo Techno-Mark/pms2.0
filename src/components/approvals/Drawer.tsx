@@ -1554,7 +1554,7 @@ const EditDrawer = ({
             (i: ManualFieldsWorklogs) =>
               new Object({
                 id: i.Id,
-                Date: i.inputDate,
+                Date: dayjs(i.inputDate).format("YYYY/MM/DD"),
                 Time: i.startTime,
                 assigneeId:
                   i.AssigneeId === 0 ? assigneeApprovals : i.AssigneeId,

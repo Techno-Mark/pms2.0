@@ -857,7 +857,7 @@ const EditDrawer = ({
             (i: ManualFieldsWorklogs) =>
               new Object({
                 id: i.Id,
-                Date: i.inputDate,
+                Date: dayjs(i.inputDate).format("YYYY/MM/DD"),
                 Time: i.startTime,
                 assigneeId:
                   i.AssigneeId === 0 ? assigneeWorklogs : i.AssigneeId,
@@ -1987,7 +1987,7 @@ const EditDrawer = ({
           ? manualFieldsWorklogs.map(
               (i: ManualFieldsWorklogs) =>
                 new Object({
-                  Date: i.inputDate,
+                  Date: dayjs(i.inputDate).format("YYYY/MM/DD"),
                   Time: i.startTime,
                   comment: i.manualDesc,
                 })
