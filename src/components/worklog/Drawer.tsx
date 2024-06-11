@@ -59,6 +59,7 @@ import {
   IdNameEstimatedHour,
   LabelValue,
   LabelValueProfileImage,
+  LabelValueType,
 } from "@/utils/Types/types";
 import { ClientWorkitemGetById, GetFields } from "@/utils/Types/clientWorklog";
 
@@ -140,7 +141,7 @@ const Drawer = ({
   const [
     departmentClientWorklogDropdownData,
     setDepartmentClientWorklogDropdownData,
-  ] = useState<LabelValue[] | []>([]);
+  ] = useState<LabelValueType[] | []>([]);
   const [departmentNameClientWorklog, setDepartmentNameClientWorklog] =
     useState<number>(0);
   const [
@@ -611,6 +612,7 @@ const Drawer = ({
         ErrorLogId: 0,
         ErrorType: 1,
         RootCause: 0,
+        Impact: 0,
         Priority: 0,
         ErrorCount: 0,
         CC: [],
@@ -640,6 +642,7 @@ const Drawer = ({
         ErrorLogId: 0,
         ErrorType: 2,
         RootCause: 0,
+        Impact: 0,
         Priority: 0,
         ErrorCount: 0,
         CC: [],
@@ -721,6 +724,7 @@ const Drawer = ({
             ErrorLogId: i.ErrorLogId,
             ErrorType: i.ErrorType,
             RootCause: i.RootCause,
+            Impact: i.Impact,
             Priority: i.Priority,
             ErrorCount: i.ErrorCount,
             NatureOfError: i.NatureOfError,
@@ -751,6 +755,7 @@ const Drawer = ({
             ErrorLogId: 0,
             ErrorType: 0,
             RootCause: 0,
+            Impact: 0,
             Priority: 0,
             ErrorCount: 0,
             CC: [],
@@ -796,6 +801,7 @@ const Drawer = ({
                 ErrorLogId: i.ErrorLogId,
                 ErrorType: 2,
                 RootCause: 0,
+                Impact: 0,
                 Priority: 0,
                 ErrorCount: 0,
                 NatureOfError: 0,
@@ -1234,6 +1240,7 @@ const Drawer = ({
         ErrorLogId: 0,
         ErrorType: 1,
         RootCause: 0,
+        Impact: 0,
         Priority: 0,
         ErrorCount: 0,
         CC: [],
@@ -1425,11 +1432,11 @@ const Drawer = ({
                               options={departmentClientWorklogDropdownData}
                               value={
                                 departmentClientWorklogDropdownData.find(
-                                  (i: LabelValue) =>
+                                  (i: LabelValueType) =>
                                     i.value === departmentNameClientWorklog
                                 ) || null
                               }
-                              onChange={(e, value: LabelValue | null) => {
+                              onChange={(e, value: LabelValueType | null) => {
                                 value &&
                                   setDepartmentNameClientWorklog(value.value);
                                 setProcessNameClientWorklog(0);
@@ -1666,13 +1673,15 @@ const Drawer = ({
                                     setReceiverDateClientWorklog(newDate.$d);
                                     const selectedDate = dayjs(newDate.$d);
                                     let nextDate: any = selectedDate;
-                                    if (selectedDate.day() === 5) {
-                                      nextDate = nextDate.add(3, "day");
+                                    if (selectedDate.day() === 4) {
+                                      nextDate = nextDate.add(4, "day");
+                                    } else if (selectedDate.day() === 5) {
+                                      nextDate = nextDate.add(4, "day");
                                     } else if (selectedDate.day() === 6) {
-                                      nextDate = nextDate.add(3, "day");
+                                      nextDate = nextDate.add(4, "day");
                                     } else {
                                       nextDate = dayjs(newDate.$d)
-                                        .add(2, "day")
+                                        .add(3, "day")
                                         .toDate();
                                     }
                                     setDueDateClientWorklog(nextDate);

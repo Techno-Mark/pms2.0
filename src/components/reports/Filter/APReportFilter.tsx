@@ -46,6 +46,8 @@ interface SavedFilter {
   };
 }
 
+const ALL_CLIENT = -1;
+
 const APReportFilter = ({
   isFiltering,
   onDialogClose,
@@ -252,7 +254,10 @@ const APReportFilter = ({
 
   useEffect(() => {
     const filterDropdowns = async () => {
-      setClientDropdown(await getClientDropdownData());
+      setClientDropdown([
+        { label: "Select All", value: ALL_CLIENT },
+        ...(await getClientDropdownData()),
+      ]);
       setUserDropdown(await getCCDropdownData());
       setDepartmentDropdown(await getDeptData());
     };
@@ -463,14 +468,33 @@ const APReportFilter = ({
                   <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={clientDropdown.filter(
-                      (option) =>
-                        !clients.find((client) => client.value === option.value)
-                    )}
+                    options={
+                      clientDropdown.length - 1 === clients.length
+                        ? []
+                        : clientDropdown.filter(
+                            (option) =>
+                              !clients.find(
+                                (client) => client.value === option.value
+                              )
+                          )
+                    }
                     getOptionLabel={(option: LabelValue) => option.label}
                     onChange={(e, data: LabelValue[]) => {
-                      setClients(data);
-                      setClientName(data.map((d: LabelValue) => d.value));
+                      if (data.some((d: LabelValue) => d.value === -1)) {
+                        setClients(
+                          clientDropdown.filter(
+                            (d: LabelValue) => d.value !== -1
+                          )
+                        );
+                        setClientName(
+                          clientDropdown
+                            .filter((d: LabelValue) => d.value !== -1)
+                            .map((d: LabelValue) => d.value)
+                        );
+                      } else {
+                        setClients(data);
+                        setClientName(data.map((d: LabelValue) => d.value));
+                      }
                     }}
                     value={clients}
                     renderInput={(params: any) => (

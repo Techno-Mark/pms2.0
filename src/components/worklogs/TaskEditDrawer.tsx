@@ -111,7 +111,8 @@ const TaskEditDrawer = ({
     useState<LabelValue[] | []>([]);
   const [departmentWorklogs, setDepartmentWorklogs] = useState(0);
   const [departmentWorklogsDropdownData, setDepartmentWorklogsDropdownData] =
-    useState<LabelValue[] | []>([]);
+    useState<LabelValueType[] | []>([]);
+  const [departmentWorklogsType, setDepartmentWorklogsType] = useState("");
   const [reviewerWorklogs, setReviewerWorklogs] = useState<number>(0);
   const [dateOfReviewWorklogs, setDateOfReviewWorklogs] = useState<string>("");
   const [dateOfPreperationWorklogs, setDateOfPreperationWorklogs] =
@@ -121,6 +122,14 @@ const TaskEditDrawer = ({
   const [noOfPagesWorklogs, setNoOfPagesWorklogs] = useState<number>(0);
   const [checklistWorkpaperWorklogs, setChecklistWorkpaperWorklogs] =
     useState<number>(0);
+  const [valueMonthYearFrom, setValueMonthYearFrom] = useState<any>(null);
+  const [valueMonthYearTo, setValueMonthYearTo] = useState<any>(null);
+
+  const previousYearStartDate = dayjs()
+    .subtract(1, "year")
+    .startOf("year")
+    .toDate();
+  const currentYearEndDate = dayjs().endOf("year").toDate();
 
   // Update
   const [taskWorklogsEditDrawer, setTaskWorklogsEditDrawer] = useState(true);
@@ -196,7 +205,9 @@ const TaskEditDrawer = ({
   const [
     departmentWorklogsDropdownDataEdit,
     setDepartmentWorklogsDropdownDataEdit,
-  ] = useState<LabelValue[] | []>([]);
+  ] = useState<LabelValueType[] | []>([]);
+  const [departmentWorklogsTypeEdit, setDepartmentWorklogsTypeEdit] =
+    useState("");
   const [estTimeDataWorklogsEdit, setEstTimeDataWorklogsEdit] = useState([]);
   const [returnYearWorklogsEdit, setReturnYearWorklogsEdit] =
     useState<number>(0);
@@ -211,6 +222,9 @@ const TaskEditDrawer = ({
   ] = useState(false);
   const [errorlogSignedOffPending, setErrorlogSignedOffPending] =
     useState(false);
+  const [valueMonthYearFromEdit, setValueMonthYearFromEdit] =
+    useState<any>(null);
+  const [valueMonthYearToEdit, setValueMonthYearToEdit] = useState<any>(null);
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -326,6 +340,14 @@ const TaskEditDrawer = ({
           : checklistWorkpaperWorklogsEdit === 2
           ? false
           : null,
+      PeriodFrom:
+        valueMonthYearFromEdit === null || valueMonthYearFromEdit === ""
+          ? null
+          : dayjs(valueMonthYearFromEdit).format("YYYY/MM/DD"),
+      PeriodTo:
+        valueMonthYearToEdit === null || valueMonthYearToEdit === ""
+          ? null
+          : dayjs(valueMonthYearToEdit).format("YYYY/MM/DD"),
       ManualTimeList: null,
       SubTaskList: null,
       RecurringObj: null,
@@ -522,6 +544,22 @@ const TaskEditDrawer = ({
             ? 2
             : 0
         );
+        setValueMonthYearFrom(
+          ResponseData.PeriodFrom === null
+            ? null
+            : dayjs(ResponseData.PeriodFrom)
+        );
+        setValueMonthYearFromEdit(
+          ResponseData.PeriodFrom === null
+            ? null
+            : dayjs(ResponseData.PeriodFrom)
+        );
+        setValueMonthYearTo(
+          ResponseData.PeriodTo === null ? null : dayjs(ResponseData.PeriodTo)
+        );
+        setValueMonthYearToEdit(
+          ResponseData.PeriodTo === null ? null : dayjs(ResponseData.PeriodTo)
+        );
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -623,6 +661,15 @@ const TaskEditDrawer = ({
   }, [clientNameWorklogs]);
 
   useEffect(() => {
+    const deptType = departmentWorklogsDropdownData
+      ?.map((i: LabelValueType) =>
+        i.value === departmentWorklogs ? i.Type : false
+      )
+      .filter((j: any) => j != false)[0];
+    setDepartmentWorklogsType(!!deptType ? deptType.toString() : "");
+  }, [departmentWorklogs, departmentWorklogsDropdownData]);
+
+  useEffect(() => {
     const getData = async () => {
       const departmentDataEdit = await getDepartmentDataByClient(
         clientNameWorklogsEdit
@@ -633,6 +680,15 @@ const TaskEditDrawer = ({
     };
     clientNameWorklogsEdit > 0 && getData();
   }, [clientNameWorklogsEdit]);
+
+  useEffect(() => {
+    const deptType = departmentWorklogsDropdownDataEdit
+      ?.map((i: LabelValueType) =>
+        i.value === departmentWorklogsEdit ? i.Type : false
+      )
+      .filter((j: any) => j != false)[0];
+    setDepartmentWorklogsTypeEdit(!!deptType ? deptType.toString() : "");
+  }, [departmentWorklogsEdit, departmentWorklogsDropdownDataEdit]);
 
   useEffect(() => {
     const getData = async () => {
@@ -850,12 +906,15 @@ const TaskEditDrawer = ({
     setAssigneeWorklogsDisable(true);
     setReviewerWorklogs(0);
     setDepartmentWorklogs(0);
+    setDepartmentWorklogsType("");
     setDateOfReviewWorklogs("");
     setDateOfPreperationWorklogs("");
     setEstTimeDataWorklogs([]);
     setReturnYearWorklogs(0);
     setNoOfPagesWorklogs(0);
     setChecklistWorkpaperWorklogs(0);
+    setValueMonthYearFrom(null);
+    setValueMonthYearTo(null);
 
     setClientNameWorklogsEdit(0);
     setClientNameWorklogsEditErr(false);
@@ -887,12 +946,15 @@ const TaskEditDrawer = ({
     setReviewerWorklogsEditErr(false);
     setDepartmentWorklogsEdit(0);
     setDepartmentWorklogsEditErr(false);
+    setDepartmentWorklogsTypeEdit("");
     setEstTimeDataWorklogsEdit([]);
     setReturnYearWorklogsEdit(0);
     setReturnYearWorklogsEditErr(false);
     setNoOfPagesWorklogsEdit(0);
     setChecklistWorkpaperWorklogsEdit(0);
     setChecklistWorkpaperWorklogsEditErr(false);
+    setValueMonthYearFromEdit(null);
+    setValueMonthYearToEdit(null);
 
     setClientWorklogsDropdownData([]);
     setTypeOfWorkWorklogsDropdownData([]);
@@ -1082,7 +1144,7 @@ const TaskEditDrawer = ({
                       disabled
                       value={
                         departmentWorklogsDropdownData.find(
-                          (i: LabelValue) => i.value === departmentWorklogs
+                          (i: LabelValueType) => i.value === departmentWorklogs
                         ) || null
                       }
                       sx={{
@@ -1496,6 +1558,68 @@ const TaskEditDrawer = ({
                       )}
                     />
                   </Grid>
+                  {(departmentWorklogsType === "WhitelabelAccounting" ||
+                    departmentWorklogsType === "WhitelabelAustralia") && (
+                    <Grid
+                      item
+                      xs={3}
+                      className={`${
+                        typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
+                      }`}
+                    >
+                      <div
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer muiDatepickerCustomizerMonth w-full max-w-[300px]`}
+                      >
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            minDate={dayjs(previousYearStartDate)}
+                            maxDate={dayjs(currentYearEndDate)}
+                            views={["year", "month"]}
+                            label="Period From"
+                            disabled
+                            value={
+                              valueMonthYearFrom === ""
+                                ? null
+                                : valueMonthYearFrom
+                            }
+                            onChange={(newDate: any) =>
+                              setValueMonthYearFrom(newDate.$d)
+                            }
+                          />
+                        </LocalizationProvider>
+                      </div>
+                    </Grid>
+                  )}
+                  {(departmentWorklogsType === "WhitelabelAccounting" ||
+                    departmentWorklogsType === "WhitelabelAustralia") && (
+                    <Grid
+                      item
+                      xs={3}
+                      className={`${
+                        typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
+                      }`}
+                    >
+                      <div
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer muiDatepickerCustomizerMonth w-full max-w-[300px]`}
+                      >
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            minDate={dayjs(previousYearStartDate)}
+                            maxDate={dayjs(currentYearEndDate)}
+                            views={["year", "month"]}
+                            label="Period To"
+                            disabled
+                            value={
+                              valueMonthYearTo === "" ? null : valueMonthYearTo
+                            }
+                            onChange={(newDate: any) =>
+                              setValueMonthYearTo(newDate.$d)
+                            }
+                          />
+                        </LocalizationProvider>
+                      </div>
+                    </Grid>
+                  )}
                   {typeOfWorkWorklogs === 3 && (
                     <>
                       <Grid item xs={3} className="pt-4">
@@ -1690,6 +1814,9 @@ const TaskEditDrawer = ({
                           setReviewerWorklogsEditErr(false);
                           setDepartmentWorklogsEdit(0);
                           setDepartmentWorklogsEditErr(false);
+                          setDepartmentWorklogsTypeEdit("");
+                          setValueMonthYearFromEdit(null);
+                          setValueMonthYearToEdit(null);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -1750,6 +1877,9 @@ const TaskEditDrawer = ({
                             setStatusWorklogsEditErr(false);
                             setDepartmentWorklogsEdit(0);
                             setDepartmentWorklogsEditErr(false);
+                            setDepartmentWorklogsTypeEdit("");
+                            setValueMonthYearFromEdit(null);
+                            setValueMonthYearToEdit(null);
                           }}
                           onBlur={() => {
                             if (typeOfWorkWorklogsEdit > 0) {
@@ -1866,6 +1996,8 @@ const TaskEditDrawer = ({
                           value && setDepartmentWorklogsEdit(value.value);
                           setProcessNameWorklogsEdit(0);
                           setSubProcessWorklogsEdit(0);
+                          setValueMonthYearFromEdit(null);
+                          setValueMonthYearToEdit(null);
                         }}
                         sx={{
                           width: 300,
@@ -2236,13 +2368,15 @@ const TaskEditDrawer = ({
                               setReceiverDateWorklogsEditErr(false);
                               const selectedDate = dayjs(newDate.$d);
                               let nextDate: any = selectedDate;
-                              if (selectedDate.day() === 5) {
-                                nextDate = nextDate.add(3, "day");
+                              if (selectedDate.day() === 4) {
+                                nextDate = nextDate.add(4, "day");
+                              } else if (selectedDate.day() === 5) {
+                                nextDate = nextDate.add(4, "day");
                               } else if (selectedDate.day() === 6) {
-                                nextDate = nextDate.add(3, "day");
+                                nextDate = nextDate.add(4, "day");
                               } else {
                                 nextDate = dayjs(newDate.$d)
-                                  .add(2, "day")
+                                  .add(3, "day")
                                   .toDate();
                               }
                               setDueDateWorklogsEdit(nextDate);
@@ -2459,6 +2593,68 @@ const TaskEditDrawer = ({
                         )}
                       />
                     </Grid>
+                    {(departmentWorklogsTypeEdit === "WhitelabelAccounting" ||
+                      departmentWorklogsTypeEdit === "WhitelabelAustralia") && (
+                      <Grid
+                        item
+                        xs={3}
+                        className={`${
+                          typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
+                        }`}
+                      >
+                        <div
+                          className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer muiDatepickerCustomizerMonth w-full max-w-[300px]`}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              minDate={dayjs(previousYearStartDate)}
+                              maxDate={dayjs(currentYearEndDate)}
+                              views={["year", "month"]}
+                              label="Period From"
+                              value={
+                                valueMonthYearFromEdit === ""
+                                  ? null
+                                  : valueMonthYearFromEdit
+                              }
+                              onChange={(newDate: any) =>
+                                setValueMonthYearFromEdit(newDate.$d)
+                              }
+                            />
+                          </LocalizationProvider>
+                        </div>
+                      </Grid>
+                    )}
+                    {(departmentWorklogsTypeEdit === "WhitelabelAccounting" ||
+                      departmentWorklogsTypeEdit === "WhitelabelAustralia") && (
+                      <Grid
+                        item
+                        xs={3}
+                        className={`${
+                          typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
+                        }`}
+                      >
+                        <div
+                          className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer muiDatepickerCustomizerMonth w-full max-w-[300px]`}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              minDate={dayjs(previousYearStartDate)}
+                              maxDate={dayjs(currentYearEndDate)}
+                              views={["year", "month"]}
+                              label="Period To"
+                              value={
+                                valueMonthYearToEdit === ""
+                                  ? null
+                                  : valueMonthYearToEdit
+                              }
+                              onChange={(newDate: any) =>
+                                setValueMonthYearToEdit(newDate.$d)
+                              }
+                            />
+                          </LocalizationProvider>
+                        </div>
+                      </Grid>
+                    )}
                     {typeOfWorkWorklogsEdit === 3 && (
                       <>
                         <Grid item xs={3} className="pt-4">

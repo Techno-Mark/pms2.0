@@ -210,6 +210,7 @@ const ProjectContent = forwardRef<
               value && setTypeOfWorks([]);
               value && setTypeOfWorkName([]);
             }}
+            disabled={onEdit > 0}
             renderInput={(params) => (
               <TextField
                 {...params}

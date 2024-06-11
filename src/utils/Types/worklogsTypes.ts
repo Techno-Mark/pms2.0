@@ -155,6 +155,8 @@ export interface WorkitemGetbyid {
   IsHasErrorlogAddedByClient: boolean;
   ErrorlogSignedOffPending: boolean;
   WorkItemId: number;
+  PeriodFrom: null | string;
+  PeriodTo: null | string;
 }
 
 export interface SubtaskGetByWorkitem {
@@ -172,21 +174,10 @@ export interface RecurringGetByWorkitem {
   IsActive: boolean;
 }
 
-export interface ManualTimeFields {
-  AssigneeId: number;
-  Id: number;
-  inputDate: string;
-  startTime: string;
-  endTime: string;
-  totalTime: string;
-  manualDesc: string;
-  IsApproved: boolean;
-}
-
 export interface GetManualLogByWorkitem {
   Id: number;
   Date: string;
-  StartTime: string;
+  Time: number;
   EndTime: string;
   AssigneeId: number;
   Comment: string;
@@ -197,8 +188,7 @@ export interface GetManualLogByWorkitem {
 export interface GetManualLogByWorkitemReviewer {
   TimeId: number;
   Date: string;
-  StartTime: string;
-  EndTime: string;
+  Time: number;
   AssigneeId: number;
   Comment: string;
   IsApproved: boolean;
@@ -209,9 +199,7 @@ export interface ManualFieldsWorklogs {
   AssigneeId: number;
   Id: number;
   inputDate: string;
-  startTime: string;
-  endTime: string;
-  totalTime: string;
+  startTime: number;
   manualDesc: string;
   IsApproved: boolean;
 }
@@ -250,6 +238,7 @@ export interface ErrorlogGetByWorkitem {
   SubmitedOn: string;
   ErrorType: number;
   RootCause: number;
+  Impact: number;
   NatureOfError: number;
   Priority: number;
   ErrorCount: number;

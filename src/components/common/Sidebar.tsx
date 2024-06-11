@@ -127,8 +127,6 @@ const Sidebar = ({
               icon: <DashboardIcon />,
             },
           hasPermissionWorklog("", "View", "WorkLogs") &&
-            (hasPermissionWorklog("", "TaskManager", "WorkLogs") ||
-              hasPermissionWorklog("", "ManageAssignee", "WorkLogs")) &&
             !isClient && {
               name: "Work Logs",
               href: "/worklogs",
