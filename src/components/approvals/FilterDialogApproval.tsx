@@ -63,7 +63,7 @@ const FilterDialogApproval = ({
   const [userName, setUser] = useState<LabelValue | null>(null);
   const [projectName, setProjectName] = useState<LabelValue | null>(null);
   const [status, setStatus] = useState<LabelValueType | null>(null);
-  const [department, setDepartment] = useState<LabelValue | null>(null);
+  const [department, setDepartment] = useState<LabelValueType | null>(null);
   const [processName, setProcessName] = useState<LabelValue | null>(null);
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [worktypeDropdownData, setWorktypeDropdownData] = useState([]);
@@ -407,10 +407,10 @@ const FilterDialogApproval = ({
                 <Autocomplete
                   id="tags-standard"
                   options={departmentDropdownData}
-                  getOptionLabel={(option: LabelValue) => option.label}
+                  getOptionLabel={(option: LabelValueType) => option.label}
                   onChange={(
                     e: React.ChangeEvent<{}>,
-                    data: LabelValue | null
+                    data: LabelValueType | null
                   ) => {
                     setDepartment(data);
                     setProcessName(null);

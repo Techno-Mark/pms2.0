@@ -351,7 +351,11 @@ const Group = ({
           <ReportLoader />
         ) : (
           <>
-            <div className="muiTableActionHeight">
+            <div
+              className={`${
+                data.length > 0 ? "muiTableActionHeight" : "muiTableAction"
+              }`}
+            >
               <ThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable
                   data={data}

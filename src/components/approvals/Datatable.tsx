@@ -337,14 +337,12 @@ const Datatable = ({
     };
     const url = `${process.env.worklog_api_url}/workitem/approval/getreviewerworkitemsync`;
     const successCallback = (
-      ResponseData: {
-        SyncTime: number;
-      },
+      ResponseData: any,
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        if (ResponseData !== null) {
+        if (ResponseData !== null && ResponseData?.SyncTime > 0) {
           setReviewList((prev: List[] | []) =>
             prev.map((data: List) => {
               if (data.SubmissionId === submissionId) {

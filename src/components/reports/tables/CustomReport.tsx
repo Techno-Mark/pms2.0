@@ -108,6 +108,8 @@ interface List {
   ReviewerActualTime: string;
   ReviewerEditedTime: string;
   HoursSharedDate: string | null;
+  PeriodFrom: string | null;
+  PeriodTo: string | null;
 }
 
 interface Response {
@@ -689,6 +691,9 @@ const CustomReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Description"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
       },
     },
     {
@@ -722,6 +727,28 @@ const CustomReport = ({
         customHeadLabelRender: () => generateCustomHeaderName("Date of Review"),
         customBodyRender: (value: string | null) => {
           return generateDateWithoutTime(value);
+        },
+      },
+    },
+    {
+      name: "PeriodFrom",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Period From"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "PeriodTo",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Period To"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
         },
       },
     },

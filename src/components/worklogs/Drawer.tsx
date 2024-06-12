@@ -42,7 +42,6 @@ import { MentionsInput, Mention } from "react-mentions";
 import mentionsInputStyle from "../../utils/worklog/mentionsInputStyle";
 import {
   extractText,
-  getTimeDifference,
   getYears,
   hasPermissionWorklog,
   isWeekend,
@@ -79,7 +78,6 @@ import {
   GetManualLogByWorkitem,
   GetReviewerNoteList,
   ManualFieldsWorklogs,
-  ManualTimeFields,
   RecurringGetByWorkitem,
   ReminderGetByWorkitem,
   ReviewerNoteDetails,
@@ -127,6 +125,9 @@ const EditDrawer = ({
   const [editDataWorklogs, setEditDataWorklogs] = useState<any>([]);
   const [isIdDisabled, setIsIdDisabled] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  let reviewerDate = new Date();
+  reviewerDate.setDate(reviewerDate.getDate() - 1);
 
   useEffect(() => {
     onRecurring && scrollToPanel(4);
@@ -250,6 +251,8 @@ const EditDrawer = ({
   const [departmentWorklogsDropdownData, setDepartmentWorklogsDropdownData] =
     useState([]);
   const [departmentWorklogs, setDepartmentWorklogs] = useState<number>(0);
+  const [departmentWorklogsType, setDepartmentWorklogsType] =
+    useState<string>("");
   const [departmentWorklogsErr, setDepartmentWorklogsErr] = useState(false);
   const [dateOfReviewWorklogs, setDateOfReviewWorklogs] = useState<string>("");
   const [dateOfPreperationWorklogs, setDateOfPreperationWorklogs] =
@@ -263,6 +266,14 @@ const EditDrawer = ({
     useState<number>(0);
   const [checklistWorkpaperWorklogsErr, setChecklistWorkpaperWorklogsErr] =
     useState(false);
+  const [valueMonthYearFrom, setValueMonthYearFrom] = useState<any>(null);
+  const [valueMonthYearTo, setValueMonthYearTo] = useState<any>(null);
+
+  const previousYearStartDate = dayjs()
+    .subtract(1, "year")
+    .startOf("year")
+    .toDate();
+  const currentYearEndDate = dayjs().endOf("year").toDate();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -596,9 +607,7 @@ const EditDrawer = ({
       AssigneeId: 0,
       Id: 0,
       inputDate: "",
-      startTime: "",
-      endTime: "",
-      totalTime: "",
+      startTime: 0,
       manualDesc: "",
       IsApproved: false,
     },
@@ -609,7 +618,6 @@ const EditDrawer = ({
   const [startTimeWorklogsErrors, setStartTimeWorklogsErrors] = useState([
     false,
   ]);
-  const [endTimeWorklogsErrors, setEndTimeWorklogsErrors] = useState([false]);
   const [manualDescWorklogsErrors, setManualDescWorklogsErrors] = useState([
     false,
   ]);
@@ -623,15 +631,22 @@ const EditDrawer = ({
   const [manualSubmitWorklogsDisable, setManualSubmitWorklogsDisable] =
     useState(true);
 
-  const setManualDisableData = (manualField: ManualTimeFields[]) => {
+  const setManualDisableData = (manualField: ManualFieldsWorklogs[]) => {
     setManualSubmitWorklogsDisable(
       manualField
-        .map((i: ManualTimeFields) => (i.IsApproved === false ? false : true))
-        .includes(false)
+        .map((i: ManualFieldsWorklogs) =>
+          i.IsApproved === false ? false : true
+        )
+        .includes(false) || deletedManualTimeWorklogs.length > 0
         ? false
         : true
     );
   };
+
+  useEffect(() => {
+    deletedManualTimeWorklogs.length > 0 &&
+      setManualDisableData(manualFieldsWorklogs);
+  }, [deletedManualTimeWorklogs]);
 
   const addManulaFieldWorklogs = async () => {
     await setManualFieldsWorklogs([
@@ -640,16 +655,13 @@ const EditDrawer = ({
         AssigneeId: 0,
         Id: 0,
         inputDate: "",
-        startTime: "",
-        endTime: "",
-        totalTime: "",
+        startTime: 0,
         manualDesc: "",
         IsApproved: false,
       },
     ]);
     setInputDateWorklogsErrors([...inputDateWorklogsErrors, false]);
     setStartTimeWorklogsErrors([...startTimeWorklogsErrors, false]);
-    setEndTimeWorklogsErrors([...endTimeWorklogsErrors, false]);
     setManualDescWorklogsErrors([...manualDescWorklogsErrors, false]);
     setInputTypeWorklogsDate([...inputTypeWorklogsDate, "text"]);
     setInputTypeStartWorklogsTime([...inputTypeStartWorklogsTime, "text"]);
@@ -660,9 +672,7 @@ const EditDrawer = ({
         AssigneeId: 0,
         Id: 0,
         inputDate: "",
-        startTime: "",
-        endTime: "",
-        totalTime: "",
+        startTime: 0,
         manualDesc: "",
         IsApproved: false,
       },
@@ -686,9 +696,7 @@ const EditDrawer = ({
               AssigneeId: 0,
               Id: 0,
               inputDate: "",
-              startTime: "",
-              endTime: "",
-              totalTime: "",
+              startTime: 0,
               manualDesc: "",
               IsApproved: false,
             },
@@ -703,10 +711,6 @@ const EditDrawer = ({
     const newStartTimeWorklogsErrors = [...startTimeWorklogsErrors];
     newStartTimeWorklogsErrors.splice(index, 1);
     setStartTimeWorklogsErrors(newStartTimeWorklogsErrors);
-
-    const newEndTimeWorklogsErrors = [...endTimeWorklogsErrors];
-    newEndTimeWorklogsErrors.splice(index, 1);
-    setEndTimeWorklogsErrors(newEndTimeWorklogsErrors);
 
     const newManualDescWorklogsErrors = [...manualDescWorklogsErrors];
     newManualDescWorklogsErrors.splice(index, 1);
@@ -736,133 +740,16 @@ const EditDrawer = ({
     setInputDateWorklogsErrors(newInputDateWorklogsErrors);
   };
 
-  const handleEstTimeChangeWorklogs = (e: string) => {
-    let newValue = e;
-    newValue = newValue.replace(/\D/g, "");
-    if (newValue.length > 8) {
+  const handleStartTimeChangeWorklogs = (e: string, index: number) => {
+    if (e.length > 3) {
       return;
     }
 
-    let formattedValue = "";
-    if (newValue.length >= 1) {
-      const hours = parseInt(newValue.slice(0, 2));
-      if (hours >= 0 && hours <= 23) {
-        formattedValue = newValue.slice(0, 2);
-      } else {
-        formattedValue = "23";
-      }
-    }
-
-    if (newValue.length >= 3) {
-      const minutes = parseInt(newValue.slice(2, 4));
-      if (minutes >= 0 && minutes <= 59) {
-        formattedValue += ":" + newValue.slice(2, 4);
-      } else {
-        formattedValue += ":59";
-      }
-    }
-
-    if (newValue.length >= 5) {
-      const seconds = parseInt(newValue.slice(4, 6));
-      if (seconds >= 0 && seconds <= 59) {
-        formattedValue += ":" + newValue.slice(4, 6);
-      } else {
-        formattedValue += ":59";
-      }
-    }
-    return formattedValue;
-  };
-
-  const handleStartTimeChangeWorklogs = (e: string, index: number) => {
-    const newManualWorklogsFields: ManualTimeFields[] = [
+    const newManualWorklogsFields: ManualFieldsWorklogs[] = [
       ...manualFieldsWorklogs,
     ];
-    newManualWorklogsFields[index].startTime =
-      handleEstTimeChangeWorklogs(e) || "";
+    newManualWorklogsFields[index].startTime = Number(e) || 0;
     setManualFieldsWorklogs(newManualWorklogsFields);
-
-    const startDate = newManualWorklogsFields[index].startTime;
-    const endDate = newManualWorklogsFields[index].endTime;
-    if (startDate && endDate) {
-      const startTime = newManualWorklogsFields[index].startTime;
-      const endTime = newManualWorklogsFields[index].endTime;
-      if (startTime && endTime) {
-        const startTimeArray = startTime.split(":");
-        const endTimeArray = endTime.split(":");
-
-        const startSeconds =
-          parseInt(startTimeArray[0]) * 3600 +
-          parseInt(startTimeArray[1]) * 60 +
-          parseInt(startTimeArray[2]);
-        const endSeconds =
-          parseInt(endTimeArray[0]) * 3600 +
-          parseInt(endTimeArray[1]) * 60 +
-          parseInt(endTimeArray[2]);
-        const totalSeconds = endSeconds - startSeconds;
-
-        if (totalSeconds >= 0) {
-          const totalHours = Math.floor(totalSeconds / 3600);
-          const totalMinutes = Math.floor((totalSeconds % 3600) / 60);
-          const totalSecondsRemaining = totalSeconds % 60;
-          const formattedTotalTime = `${totalHours
-            .toString()
-            .padStart(2, "0")}:${totalMinutes
-            .toString()
-            .padStart(2, "0")}:${totalSecondsRemaining
-            .toString()
-            .padStart(2, "0")}`;
-
-          newManualWorklogsFields[index].totalTime = formattedTotalTime;
-          setManualFieldsWorklogs(newManualWorklogsFields);
-        }
-      }
-    }
-  };
-
-  const handleEndTimeChangeWorklogs = (e: string, index: number) => {
-    const newManualWorklogsFields: ManualTimeFields[] = [
-      ...manualFieldsWorklogs,
-    ];
-    newManualWorklogsFields[index].endTime =
-      handleEstTimeChangeWorklogs(e) || "";
-    setManualFieldsWorklogs(newManualWorklogsFields);
-
-    const startDate = newManualWorklogsFields[index].startTime;
-    const endDate = newManualWorklogsFields[index].endTime;
-    if (startDate && endDate) {
-      const startTime = newManualWorklogsFields[index].startTime;
-      const endTime = newManualWorklogsFields[index].endTime;
-      if (startTime && endTime) {
-        const startTimeArray = startTime.split(":");
-        const endTimeArray = endTime.split(":");
-
-        const startSeconds =
-          parseInt(startTimeArray[0]) * 3600 +
-          parseInt(startTimeArray[1]) * 60 +
-          parseInt(startTimeArray[2]);
-        const endSeconds =
-          parseInt(endTimeArray[0]) * 3600 +
-          parseInt(endTimeArray[1]) * 60 +
-          parseInt(endTimeArray[2]);
-        const totalSeconds = endSeconds - startSeconds;
-
-        if (totalSeconds >= 0) {
-          const totalHours = Math.floor(totalSeconds / 3600);
-          const totalMinutes = Math.floor((totalSeconds % 3600) / 60);
-          const totalSecondsRemaining = totalSeconds % 60;
-          const formattedTotalTime = `${totalHours
-            .toString()
-            .padStart(2, "0")}:${totalMinutes
-            .toString()
-            .padStart(2, "0")}:${totalSecondsRemaining
-            .toString()
-            .padStart(2, "0")}`;
-
-          newManualWorklogsFields[index].totalTime = formattedTotalTime;
-          setManualFieldsWorklogs(newManualWorklogsFields);
-        }
-      }
-    }
   };
 
   const handleManualDescChangeWorklogs = (e: string, index: number) => {
@@ -904,9 +791,7 @@ const EditDrawer = ({
             AssigneeId: i.AssigneeId,
             Id: i.Id,
             inputDate: i.Date,
-            startTime: i.StartTime,
-            endTime: i.EndTime,
-            totalTime: getTimeDifference(i.StartTime, i.EndTime),
+            startTime: i.Time,
             manualDesc: i.Comment,
             IsApproved: i.IsApproved,
           }))
@@ -919,9 +804,7 @@ const EditDrawer = ({
             AssigneeId: 0,
             Id: 0,
             inputDate: "",
-            startTime: "",
-            endTime: "",
-            totalTime: "",
+            startTime: 0,
             manualDesc: "",
             IsApproved: false,
           },
@@ -944,40 +827,16 @@ const EditDrawer = ({
         setInputDateWorklogsErrors(newInputDateWorklogsErrors);
       const newStartTimeWorklogsErrors = manualFieldsWorklogs.map(
         (field) =>
-          (manualSwitchWorklogs && field.startTime.trim().length === 0) ||
-          (manualSwitchWorklogs && field.startTime.trim().length < 8)
+          manualSwitchWorklogs &&
+          (field.startTime.toString().trim().length === 0 ||
+            field.startTime.toString().trim().length > 3 ||
+            field.startTime.toString() == "0" ||
+            field.startTime.toString() == "00" ||
+            field.startTime.toString() == "000" ||
+            field.startTime > 480)
       );
       manualSwitchWorklogs &&
         setStartTimeWorklogsErrors(newStartTimeWorklogsErrors);
-      const newEndTimeWorklogsErrors = manualFieldsWorklogs.map(
-        (field) =>
-          (manualSwitchWorklogs && field.endTime.trim().length === 0) ||
-          (manualSwitchWorklogs && field.endTime.trim().length < 8) ||
-          (manualSwitchWorklogs && field.endTime <= field.startTime) ||
-          field.startTime
-            .split(":")
-            .reduce(
-              (acc, timePart, index) =>
-                acc + parseInt(timePart) * [3600, 60, 1][index],
-              0
-            ) +
-            "07:59:59"
-              .split(":")
-              .reduce(
-                (acc, timePart, index) =>
-                  acc + parseInt(timePart) * [3600, 60, 1][index],
-                0
-              ) <
-            field.endTime
-              .split(":")
-              .reduce(
-                (acc, timePart, index) =>
-                  acc + parseInt(timePart) * [3600, 60, 1][index],
-                0
-              )
-      );
-      manualSwitchWorklogs &&
-        setEndTimeWorklogsErrors(newEndTimeWorklogsErrors);
       const newManualDescWorklogsErrors = manualFieldsWorklogs.map(
         (field) =>
           (manualSwitchWorklogs && field.manualDesc.trim().length < 5) ||
@@ -988,7 +847,6 @@ const EditDrawer = ({
       hasManualErrors =
         newInputDateWorklogsErrors.some((error) => error) ||
         newStartTimeWorklogsErrors.some((error) => error) ||
-        newEndTimeWorklogsErrors.some((error) => error) ||
         newManualDescWorklogsErrors.some((error) => error);
 
       if (!hasManualErrors) {
@@ -999,10 +857,8 @@ const EditDrawer = ({
             (i: ManualFieldsWorklogs) =>
               new Object({
                 id: i.Id,
-                startTime:
-                  dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.startTime,
-                endTime:
-                  dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.endTime,
+                Date: dayjs(i.inputDate).format("YYYY/MM/DD"),
+                Time: i.startTime,
                 assigneeId:
                   i.AssigneeId === 0 ? assigneeWorklogs : i.AssigneeId,
                 comment: i.manualDesc,
@@ -1528,6 +1384,7 @@ const EditDrawer = ({
       ErrorLogId: 0,
       ErrorType: 0,
       RootCause: 0,
+      Impact: 0,
       Priority: 0,
       ErrorCount: 0,
       NatureOfError: 0,
@@ -1547,6 +1404,7 @@ const EditDrawer = ({
   ]);
   const [errorTypeWorklogsErr, setErrorTypeWorklogsErr] = useState([false]);
   const [rootCauseWorklogsErr, setRootCauseWorklogsErr] = useState([false]);
+  const [impactWorklogsErr, setImpactWorklogsErr] = useState([false]);
   const [errorLogPriorityWorklogsErr, setErrorLogPriorityWorklogsErr] =
     useState([false]);
   const [errorCountWorklogsErr, setErrorCountWorklogsErr] = useState([false]);
@@ -1560,6 +1418,16 @@ const EditDrawer = ({
     const newErrorsWorklogs = [...rootCauseWorklogsErr];
     newErrorsWorklogs[index] = e === 0;
     setRootCauseWorklogsErr(newErrorsWorklogs);
+  };
+
+  const handleImpactChangeWorklogs = (e: number, index: number) => {
+    const newFieldsWorklogs = [...errorLogFieldsWorklogs];
+    newFieldsWorklogs[index].Impact = e;
+    setErrorLogFieldsWorklogs(newFieldsWorklogs);
+
+    const newErrorsWorklogs = [...impactWorklogsErr];
+    newErrorsWorklogs[index] = e === 0;
+    setImpactWorklogsErr(newErrorsWorklogs);
   };
 
   const handleNatureOfErrorChangeWorklogs = (e: number, index: number) => {
@@ -1582,13 +1450,13 @@ const EditDrawer = ({
     setErrorLogPriorityWorklogsErr(newErrorsWorklogs);
   };
 
-  const handleErrorCountChangeWorklogs = (e: number, index: number) => {
+  const handleErrorCountChangeWorklogs = (e: string, index: number) => {
     const newFieldsWorklogs = [...errorLogFieldsWorklogs];
-    newFieldsWorklogs[index].ErrorCount = e;
+    newFieldsWorklogs[index].ErrorCount = Number(e) || 0;
     setErrorLogFieldsWorklogs(newFieldsWorklogs);
 
     const newErrorsWorklogs = [...errorCountWorklogsErr];
-    newErrorsWorklogs[index] = e < 0 || e.toString().length > 4;
+    newErrorsWorklogs[index] = Number(e) < 0 || e.toString().length > 4;
     setErrorCountWorklogsErr(newErrorsWorklogs);
   };
 
@@ -1624,6 +1492,7 @@ const EditDrawer = ({
             ErrorLogId: i.ErrorLogId,
             ErrorType: i.ErrorType,
             RootCause: i.RootCause,
+            Impact: i.Impact,
             Priority: i.Priority,
             ErrorCount: i.ErrorCount,
             NatureOfError: i.NatureOfError,
@@ -1655,6 +1524,7 @@ const EditDrawer = ({
             ErrorLogId: 0,
             ErrorType: 0,
             RootCause: 0,
+            Impact: 0,
             Priority: 0,
             ErrorCount: 0,
             NatureOfError: 0,
@@ -1692,6 +1562,10 @@ const EditDrawer = ({
       (field, i) => field.RootCause === 0 && i === index
     );
     setRootCauseWorklogsErr(newRootCauseWorklogsErrors);
+    const newImpactWorklogsErrors = errorLogFieldsWorklogs.map(
+      (field, i) => field.Impact === 0 && i === index
+    );
+    setImpactWorklogsErr(newImpactWorklogsErrors);
     const newNatureOfWorklogsErrors = errorLogFieldsWorklogs.map(
       (field, i) => field.NatureOfError === 0 && i === index
     );
@@ -1709,6 +1583,7 @@ const EditDrawer = ({
     hasErrorLogErrors =
       newErrorTypeWorklogsErrors.some((error) => error) ||
       newRootCauseWorklogsErrors.some((error) => error) ||
+      newImpactWorklogsErrors.some((error) => error) ||
       newNatureOfWorklogsErrors.some((error) => error) ||
       newPriorityErrors.some((error) => error) ||
       newErrorCountWorklogsErrors.some((error) => error);
@@ -1724,6 +1599,7 @@ const EditDrawer = ({
                 ErrorLogId: i.ErrorLogId,
                 ErrorType: i.ErrorType,
                 RootCause: i.RootCause,
+                Impact: i.Impact,
                 Priority: i.Priority,
                 ErrorCount: i.ErrorCount,
                 NatureOfError: i.NatureOfError,
@@ -2028,49 +1904,17 @@ const EditDrawer = ({
       setInputDateWorklogsErrors(newInputDateWorklogsErrors);
     const newStartTimeWorklogsErrors = manualFieldsWorklogs.map(
       (field) =>
-        (onEdit === 0 &&
-          manualSwitchWorklogs &&
-          field.startTime.trim().length === 0) ||
-        (onEdit === 0 &&
-          manualSwitchWorklogs &&
-          field.startTime.trim().length < 8)
+        onEdit === 0 &&
+        manualSwitchWorklogs &&
+        (field.startTime.toString().trim().length === 0 ||
+          field.startTime.toString().trim().length > 3 ||
+          field.startTime.toString() == "0" ||
+          field.startTime.toString() == "00" ||
+          field.startTime.toString() == "000" ||
+          field.startTime > 480)
     );
     manualSwitchWorklogs &&
       setStartTimeWorklogsErrors(newStartTimeWorklogsErrors);
-    const newEndTimeWorklogsErrors = manualFieldsWorklogs.map(
-      (field) =>
-        (onEdit === 0 &&
-          manualSwitchWorklogs &&
-          field.endTime.trim().length === 0) ||
-        (onEdit === 0 &&
-          manualSwitchWorklogs &&
-          field.endTime.trim().length < 8) ||
-        (onEdit === 0 &&
-          manualSwitchWorklogs &&
-          field.endTime <= field.startTime) ||
-        field.startTime
-          .split(":")
-          .reduce(
-            (acc, timePart, index) =>
-              acc + parseInt(timePart) * [3600, 60, 1][index],
-            0
-          ) +
-          "07:59:59"
-            .split(":")
-            .reduce(
-              (acc, timePart, index) =>
-                acc + parseInt(timePart) * [3600, 60, 1][index],
-              0
-            ) <
-          field.endTime
-            .split(":")
-            .reduce(
-              (acc, timePart, index) =>
-                acc + parseInt(timePart) * [3600, 60, 1][index],
-              0
-            )
-    );
-    manualSwitchWorklogs && setEndTimeWorklogsErrors(newEndTimeWorklogsErrors);
     const newManualDescWorklogsErrors = manualFieldsWorklogs.map(
       (field) =>
         (onEdit === 0 &&
@@ -2085,7 +1929,6 @@ const EditDrawer = ({
     hasManualErrors =
       newInputDateWorklogsErrors.some((error) => error) ||
       newStartTimeWorklogsErrors.some((error) => error) ||
-      newEndTimeWorklogsErrors.some((error) => error) ||
       newManualDescWorklogsErrors.some((error) => error);
 
     const data = {
@@ -2129,6 +1972,14 @@ const EditDrawer = ({
           : checklistWorkpaperWorklogs === 2
           ? false
           : null,
+      PeriodFrom:
+        valueMonthYearFrom === null || valueMonthYearFrom === ""
+          ? null
+          : dayjs(valueMonthYearFrom).format("YYYY/MM/DD"),
+      PeriodTo:
+        valueMonthYearTo === null || valueMonthYearTo === ""
+          ? null
+          : dayjs(valueMonthYearTo).format("YYYY/MM/DD"),
       ManualTimeList:
         onEdit > 0
           ? null
@@ -2136,11 +1987,8 @@ const EditDrawer = ({
           ? manualFieldsWorklogs.map(
               (i: ManualFieldsWorklogs) =>
                 new Object({
-                  Date: i.inputDate,
-                  startTime:
-                    dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.startTime,
-                  endTime:
-                    dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.endTime,
+                  Date: dayjs(i.inputDate).format("YYYY/MM/DD"),
+                  Time: i.startTime,
                   comment: i.manualDesc,
                 })
             )
@@ -2391,6 +2239,14 @@ const EditDrawer = ({
             ? 2
             : 0
         );
+        setValueMonthYearFrom(
+          ResponseData.PeriodFrom === null
+            ? null
+            : dayjs(ResponseData.PeriodFrom)
+        );
+        setValueMonthYearTo(
+          ResponseData.PeriodTo === null ? null : dayjs(ResponseData.PeriodTo)
+        );
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -2570,6 +2426,15 @@ const EditDrawer = ({
   }, [typeOfWorkWorklogs, clientNameWorklogs]);
 
   useEffect(() => {
+    const deptType = departmentWorklogsDropdownData
+      ?.map((i: LabelValueType) =>
+        i.value === departmentWorklogs ? i.Type : false
+      )
+      .filter((j: any) => j != false)[0];
+    setDepartmentWorklogsType(!!deptType ? deptType.toString() : "");
+  }, [departmentWorklogs, departmentWorklogsDropdownData]);
+
+  useEffect(() => {
     const getData = async () => {
       const processData =
         clientNameWorklogs > 0 &&
@@ -2738,6 +2603,7 @@ const EditDrawer = ({
     setReviewerWorklogsErr(false);
     setDepartmentWorklogs(0);
     setDepartmentWorklogsErr(false);
+    setDepartmentWorklogsType("");
     setDateOfReviewWorklogs("");
     setDateOfPreperationWorklogs("");
     setEstTimeDataWorklogs([]);
@@ -2746,6 +2612,8 @@ const EditDrawer = ({
     setNoOfPagesWorklogs(0);
     setChecklistWorkpaperWorklogs(0);
     setChecklistWorkpaperWorklogsErr(false);
+    setValueMonthYearFrom(null);
+    setValueMonthYearTo(null);
 
     // Sub-Task
     setSubTaskSwitchWorklogs(false);
@@ -2776,16 +2644,13 @@ const EditDrawer = ({
         AssigneeId: 0,
         Id: 0,
         inputDate: "",
-        startTime: "",
-        endTime: "",
-        totalTime: "",
+        startTime: 0,
         manualDesc: "",
         IsApproved: false,
       },
     ]);
     setInputDateWorklogsErrors([false]);
     setStartTimeWorklogsErrors([false]);
-    setEndTimeWorklogsErrors([false]);
     setManualDescWorklogsErrors([false]);
     setDeletedManualTimeWorklogs([]);
     setManualSubmitWorklogsDisable(true);
@@ -2815,6 +2680,7 @@ const EditDrawer = ({
         ErrorLogId: 0,
         ErrorType: 0,
         RootCause: 0,
+        Impact: 0,
         Priority: 0,
         ErrorCount: 0,
         NatureOfError: 0,
@@ -2834,6 +2700,7 @@ const EditDrawer = ({
     ]);
     setErrorTypeWorklogsErr([false]);
     setRootCauseWorklogsErr([false]);
+    setImpactWorklogsErr([false]);
     setErrorLogPriorityWorklogsErr([false]);
     setErrorCountWorklogsErr([false]);
     setNatureOfWorklogsErr([false]);
@@ -2987,6 +2854,11 @@ const EditDrawer = ({
                           setReviewerWorklogsErr(false);
                           isAdmin && setDepartmentWorklogs(0);
                           isAdmin && setDepartmentWorklogsErr(false);
+                          isAdmin && setDepartmentWorklogsType("");
+                          setChecklistWorkpaperWorklogs(0);
+                          setChecklistWorkpaperWorklogsErr(false);
+                          setValueMonthYearFrom(null);
+                          setValueMonthYearTo(null);
                         }}
                         disabled={
                           (isCreatedByClientWorklogsDrawer &&
@@ -3058,6 +2930,9 @@ const EditDrawer = ({
                             setNoOfPagesWorklogs(0);
                             isAdmin && setDepartmentWorklogs(0);
                             isAdmin && setDepartmentWorklogsErr(false);
+                            isAdmin && setDepartmentWorklogsType("");
+                            setValueMonthYearFrom(null);
+                            setValueMonthYearTo(null);
                           }}
                           onBlur={() => {
                             if (typeOfWorkWorklogs > 0) {
@@ -3176,13 +3051,15 @@ const EditDrawer = ({
                         }
                         value={
                           departmentWorklogsDropdownData.find(
-                            (i: LabelValue) => i.value == departmentWorklogs
+                            (i: LabelValueType) => i.value == departmentWorklogs
                           ) || null
                         }
-                        onChange={(e, value: LabelValue | null) => {
+                        onChange={(e, value: LabelValueType | null) => {
                           value && setDepartmentWorklogs(value.value);
                           setProcessNameWorklogs(0);
                           setSubProcessWorklogs(0);
+                          setValueMonthYearFrom(null);
+                          setValueMonthYearTo(null);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3550,13 +3427,15 @@ const EditDrawer = ({
                               setReceiverDateWorklogsErr(false);
                               const selectedDate = dayjs(newDate.$d);
                               let nextDate: any = selectedDate;
-                              if (selectedDate.day() === 5) {
-                                nextDate = nextDate.add(3, "day");
+                              if (selectedDate.day() === 4) {
+                                nextDate = nextDate.add(4, "day");
+                              } else if (selectedDate.day() === 5) {
+                                nextDate = nextDate.add(4, "day");
                               } else if (selectedDate.day() === 6) {
-                                nextDate = nextDate.add(3, "day");
+                                nextDate = nextDate.add(4, "day");
                               } else {
                                 nextDate = dayjs(newDate.$d)
-                                  .add(2, "day")
+                                  .add(3, "day")
                                   .toDate();
                               }
                               setDueDateWorklogs(nextDate);
@@ -3778,6 +3657,70 @@ const EditDrawer = ({
                         )}
                       />
                     </Grid>
+                    {(departmentWorklogsType === "WhitelabelAccounting" ||
+                      departmentWorklogsType === "WhitelabelAustralia") && (
+                      <Grid
+                        item
+                        xs={3}
+                        className={`${
+                          typeOfWorkWorklogs === 3 ? "pt-[14px]" : "pt-2"
+                        }`}
+                      >
+                        <div
+                          className={`inline-flex mx-[6px] muiDatepickerCustomizer muiDatepickerCustomizerMonth w-full max-w-[300px]`}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              minDate={dayjs(previousYearStartDate)}
+                              maxDate={dayjs(currentYearEndDate)}
+                              views={["year", "month"]}
+                              label="Period From"
+                              disabled={isIdDisabled}
+                              value={
+                                valueMonthYearFrom === ""
+                                  ? null
+                                  : valueMonthYearFrom
+                              }
+                              onChange={(newDate: any) =>
+                                setValueMonthYearFrom(newDate.$d)
+                              }
+                            />
+                          </LocalizationProvider>
+                        </div>
+                      </Grid>
+                    )}
+                    {(departmentWorklogsType === "WhitelabelAccounting" ||
+                      departmentWorklogsType === "WhitelabelAustralia") && (
+                      <Grid
+                        item
+                        xs={3}
+                        className={`${
+                          typeOfWorkWorklogs === 3 ? "pt-[12px]" : "pt-2"
+                        }`}
+                      >
+                        <div
+                          className={`inline-flex mx-[6px] muiDatepickerCustomizer muiDatepickerCustomizerMonth w-full max-w-[300px]`}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              minDate={dayjs(previousYearStartDate)}
+                              maxDate={dayjs(currentYearEndDate)}
+                              views={["year", "month"]}
+                              label="Period To"
+                              disabled={isIdDisabled}
+                              value={
+                                valueMonthYearTo === ""
+                                  ? null
+                                  : valueMonthYearTo
+                              }
+                              onChange={(newDate: any) =>
+                                setValueMonthYearTo(newDate.$d)
+                              }
+                            />
+                          </LocalizationProvider>
+                        </div>
+                      </Grid>
+                    )}
                     {typeOfWorkWorklogs === 3 && (
                       <>
                         <Grid item xs={3} className="pt-4">
@@ -3823,7 +3766,7 @@ const EditDrawer = ({
                             )}
                           </FormControl>
                         </Grid>
-                        <Grid item xs={3} className="pt-[13px]">
+                        <Grid item xs={3} className="pt-[16px]">
                           <TextField
                             label="No of Pages"
                             type="number"
@@ -3849,7 +3792,7 @@ const EditDrawer = ({
                             sx={{ width: 300, mt: 0, mx: 0.75 }}
                           />
                         </Grid>
-                        <Grid item xs={3} className="pt-4">
+                        <Grid item xs={3} className="pt-5">
                           <FormControl
                             variant="standard"
                             sx={{ width: 300, mt: -0.8, mx: 0.75 }}
@@ -4999,16 +4942,13 @@ const EditDrawer = ({
                           AssigneeId: 0,
                           Id: 0,
                           inputDate: "",
-                          startTime: "",
-                          endTime: "",
-                          totalTime: "",
+                          startTime: 0,
                           manualDesc: "",
                           IsApproved: false,
                         },
                       ]);
                       setInputDateWorklogsErrors([false]);
                       setStartTimeWorklogsErrors([false]);
-                      setEndTimeWorklogsErrors([false]);
                       setManualDescWorklogsErrors([false]);
                       setInputTypeWorklogsDate(["text"]);
                       setManualDisableData([
@@ -5016,9 +4956,7 @@ const EditDrawer = ({
                           AssigneeId: 0,
                           Id: 0,
                           inputDate: "",
-                          startTime: "",
-                          endTime: "",
-                          totalTime: "",
+                          startTime: 0,
                           manualDesc: "",
                           IsApproved: false,
                         },
@@ -5059,7 +4997,7 @@ const EditDrawer = ({
                                   </span>
                                 </span>
                               }
-                              minDate={dayjs(recurringStartDate)}
+                              minDate={dayjs(reviewerDate)}
                               maxDate={dayjs(new Date())}
                               disabled={
                                 !manualSwitchWorklogs ||
@@ -5105,11 +5043,11 @@ const EditDrawer = ({
                         <TextField
                           label={
                             <span>
-                              Start Time(24h)
+                              Time in Minute
                               <span className="!text-defaultRed">&nbsp;*</span>
                             </span>
                           }
-                          placeholder="00:00:00"
+                          placeholder="000"
                           disabled={
                             !manualSwitchWorklogs ||
                             field.IsApproved ||
@@ -5119,20 +5057,19 @@ const EditDrawer = ({
                             isUnassigneeClicked
                           }
                           fullWidth
-                          value={field.startTime}
+                          value={field.startTime === 0 ? "" : field.startTime}
                           onChange={(e) =>
                             handleStartTimeChangeWorklogs(e.target.value, index)
                           }
                           onBlur={(e) => {
-                            if (e.target.value.trim().length > 7) {
-                              const newStartTimeWorklogsErrors = [
-                                ...startTimeWorklogsErrors,
-                              ];
-                              newStartTimeWorklogsErrors[index] = false;
-                              setStartTimeWorklogsErrors(
-                                newStartTimeWorklogsErrors
-                              );
-                            } else {
+                            if (
+                              e.target.value.trim().length === 0 ||
+                              e.target.value.trim().length > 3 ||
+                              e.target.value.trim().toString() == "0" ||
+                              e.target.value.trim().toString() == "00" ||
+                              e.target.value.trim().toString() == "000" ||
+                              Number(e.target.value.trim()) > 480
+                            ) {
                               const newStartTimeWorklogsErrors = [
                                 ...startTimeWorklogsErrors,
                               ];
@@ -5140,138 +5077,34 @@ const EditDrawer = ({
                               setStartTimeWorklogsErrors(
                                 newStartTimeWorklogsErrors
                               );
+                            } else {
+                              const newStartTimeWorklogsErrors = [
+                                ...startTimeWorklogsErrors,
+                              ];
+                              newStartTimeWorklogsErrors[index] = false;
+                              setStartTimeWorklogsErrors(
+                                newStartTimeWorklogsErrors
+                              );
                             }
                           }}
                           error={startTimeWorklogsErrors[index]}
                           helperText={
-                            field.startTime.trim().length > 0 &&
-                            field.startTime.trim().length < 8 &&
+                            field.startTime?.toString().trim().length > 3 &&
                             startTimeWorklogsErrors[index]
-                              ? "Start time must be in HH:MM:SS"
-                              : field.startTime.trim().length <= 0 &&
+                              ? "Maximum 3 characters allowed."
+                              : field.startTime > 480 &&
+                                startTimeWorklogsErrors[index]
+                              ? "Maximum 480 minutes allowed."
+                              : (field.startTime.toString() == "0" ||
+                                  field.startTime.toString() == "00" ||
+                                  field.startTime.toString() == "000") &&
+                                startTimeWorklogsErrors[index]
+                              ? "Please enter valid number."
+                              : field.startTime.toString().trim().length <= 0 &&
                                 startTimeWorklogsErrors[index]
                               ? "This is a required field"
                               : ""
                           }
-                          margin="normal"
-                          variant="standard"
-                          sx={{ mx: 0.75, maxWidth: 225 }}
-                        />
-                        <TextField
-                          label={
-                            <span>
-                              End Time(24h)
-                              <span className="!text-defaultRed">&nbsp;*</span>
-                            </span>
-                          }
-                          placeholder="00:00:00"
-                          disabled={
-                            !manualSwitchWorklogs ||
-                            field.IsApproved ||
-                            (field.AssigneeId !== 0 &&
-                              field.AssigneeId !== userId) ||
-                            isIdDisabled ||
-                            isUnassigneeClicked
-                          }
-                          fullWidth
-                          value={field.endTime}
-                          onChange={(e) =>
-                            handleEndTimeChangeWorklogs(e.target.value, index)
-                          }
-                          onBlur={(e) => {
-                            if (
-                              e.target.value.trim().length > 7 &&
-                              field.endTime > field.startTime &&
-                              field.startTime
-                                .split(":")
-                                .reduce(
-                                  (acc, timePart, index) =>
-                                    acc +
-                                    parseInt(timePart) * [3600, 60, 1][index],
-                                  0
-                                ) +
-                                "07:59:59"
-                                  .split(":")
-                                  .reduce(
-                                    (acc, timePart, index) =>
-                                      acc +
-                                      parseInt(timePart) * [3600, 60, 1][index],
-                                    0
-                                  ) >
-                                field.endTime
-                                  .split(":")
-                                  .reduce(
-                                    (acc, timePart, index) =>
-                                      acc +
-                                      parseInt(timePart) * [3600, 60, 1][index],
-                                    0
-                                  )
-                            ) {
-                              const newEndTimeWorklogsErrors = [
-                                ...endTimeWorklogsErrors,
-                              ];
-                              newEndTimeWorklogsErrors[index] = false;
-                              setEndTimeWorklogsErrors(
-                                newEndTimeWorklogsErrors
-                              );
-                            } else {
-                              const newEndTimeWorklogsErrors = [
-                                ...endTimeWorklogsErrors,
-                              ];
-                              newEndTimeWorklogsErrors[index] = true;
-                              setEndTimeWorklogsErrors(
-                                newEndTimeWorklogsErrors
-                              );
-                            }
-                          }}
-                          error={endTimeWorklogsErrors[index]}
-                          helperText={
-                            field.startTime
-                              .split(":")
-                              .reduce(
-                                (acc, timePart, index) =>
-                                  acc +
-                                  parseInt(timePart) * [3600, 60, 1][index],
-                                0
-                              ) +
-                              "07:59:59"
-                                .split(":")
-                                .reduce(
-                                  (acc, timePart, index) =>
-                                    acc +
-                                    parseInt(timePart) * [3600, 60, 1][index],
-                                  0
-                                ) <
-                            field.endTime
-                              .split(":")
-                              .reduce(
-                                (acc, timePart, index) =>
-                                  acc +
-                                  parseInt(timePart) * [3600, 60, 1][index],
-                                0
-                              )
-                              ? "Time must be less than 07:59:59"
-                              : field.endTime.trim().length > 0 &&
-                                field.endTime.trim().length < 8 &&
-                                endTimeWorklogsErrors[index]
-                              ? "Start time must be in HH:MM:SS"
-                              : field.endTime.trim().length <= 0 &&
-                                endTimeWorklogsErrors[index]
-                              ? "This is a required field"
-                              : endTimeWorklogsErrors[index] &&
-                                field.endTime <= field.startTime
-                              ? "End time must be grater than start time"
-                              : ""
-                          }
-                          margin="normal"
-                          variant="standard"
-                          sx={{ mx: 0.75, maxWidth: 225 }}
-                        />
-                        <TextField
-                          label="Total Time"
-                          disabled
-                          fullWidth
-                          value={field.totalTime}
                           margin="normal"
                           variant="standard"
                           sx={{ mx: 0.75, maxWidth: 225 }}
@@ -5378,7 +5211,7 @@ const EditDrawer = ({
                               </span>
                             )}
                         </div>
-                        <div className="w-[50px] ml-[-55px]">
+                        <div className="w-[50px] ml-[-35px]">
                           {index > 0 &&
                             manualSwitchWorklogs &&
                             !isIdDisabled &&
@@ -5801,7 +5634,7 @@ const EditDrawer = ({
                                       }
                                     }}
                                     readOnly={
-                                      i.RootCause > 0 ||
+                                      (i.RootCause > 0 && i.ErrorType == 1) ||
                                       i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
@@ -5818,6 +5651,58 @@ const EditDrawer = ({
                                 <FormControl
                                   variant="standard"
                                   sx={{ mx: 0.75, minWidth: 230 }}
+                                  error={impactWorklogsErr[index]}
+                                  disabled={isIdDisabled || isUnassigneeClicked}
+                                >
+                                  <InputLabel id="demo-simple-select-standard-label">
+                                    Impact
+                                    <span className="text-defaultRed">
+                                      &nbsp;*
+                                    </span>
+                                  </InputLabel>
+                                  <Select
+                                    labelId="demo-simple-select-standard-label"
+                                    id="demo-simple-select-standard"
+                                    value={i.Impact === 0 ? "" : i.Impact}
+                                    onChange={(e) =>
+                                      handleImpactChangeWorklogs(
+                                        Number(e.target.value),
+                                        index
+                                      )
+                                    }
+                                    onBlur={() => {
+                                      if (i.Impact > 0) {
+                                        const newImpactWorklogsErrors = [
+                                          ...impactWorklogsErr,
+                                        ];
+                                        newImpactWorklogsErrors[index] = false;
+                                        setImpactWorklogsErr(
+                                          newImpactWorklogsErrors
+                                        );
+                                      }
+                                    }}
+                                    readOnly={
+                                      (i.Impact > 0 && i.ErrorType == 1) ||
+                                      i.Remark.trim().length <= 0 ||
+                                      i.DisableErrorLog
+                                    }
+                                  >
+                                    <MenuItem value={1}>Financial</MenuItem>
+                                    <MenuItem value={2}>Non-Financial</MenuItem>
+                                  </Select>
+                                  {impactWorklogsErr[index] && (
+                                    <FormHelperText>
+                                      This is a required field.
+                                    </FormHelperText>
+                                  )}
+                                </FormControl>
+                                <FormControl
+                                  variant="standard"
+                                  sx={{
+                                    mx: 0.75,
+                                    minWidth: 250,
+                                    maxWidth: 250,
+                                  }}
                                   error={natureOfWorklogsErr[index]}
                                   disabled={isIdDisabled || isUnassigneeClicked}
                                 >
@@ -5853,7 +5738,8 @@ const EditDrawer = ({
                                       }
                                     }}
                                     readOnly={
-                                      i.NatureOfError > 0 ||
+                                      (i.NatureOfError > 0 &&
+                                        i.ErrorType == 1) ||
                                       i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
@@ -5925,7 +5811,7 @@ const EditDrawer = ({
                                       }
                                     }}
                                     readOnly={
-                                      i.Priority > 0 ||
+                                      (i.Priority > 0 && i.ErrorType == 1) ||
                                       i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
@@ -5940,68 +5826,6 @@ const EditDrawer = ({
                                     </FormHelperText>
                                   )}
                                 </FormControl>
-                                <TextField
-                                  label={
-                                    <span>
-                                      Error Count
-                                      <span className="text-defaultRed">
-                                        &nbsp;*
-                                      </span>
-                                    </span>
-                                  }
-                                  disabled={isIdDisabled || isUnassigneeClicked}
-                                  type="number"
-                                  onFocus={(e) =>
-                                    e.target.addEventListener(
-                                      "wheel",
-                                      function (e) {
-                                        e.preventDefault();
-                                      },
-                                      { passive: false }
-                                    )
-                                  }
-                                  fullWidth
-                                  value={i.ErrorCount}
-                                  onChange={(e) =>
-                                    handleErrorCountChangeWorklogs(
-                                      Number(e.target.value),
-                                      index
-                                    )
-                                  }
-                                  onBlur={() => {
-                                    if (i.ErrorCount.toString().length > 0) {
-                                      const newErrorCountWorklogsErrors = [
-                                        ...errorCountWorklogsErr,
-                                      ];
-                                      newErrorCountWorklogsErrors[index] =
-                                        false;
-                                      setErrorCountWorklogsErr(
-                                        newErrorCountWorklogsErrors
-                                      );
-                                    }
-                                  }}
-                                  error={errorCountWorklogsErr[index]}
-                                  helperText={
-                                    errorCountWorklogsErr[index] &&
-                                    i.ErrorCount <= 0
-                                      ? "Add valid number."
-                                      : errorCountWorklogsErr[index] &&
-                                        i.ErrorCount.toString().length > 4
-                                      ? "Maximum 4 numbers allowed."
-                                      : errorCountWorklogsErr[index]
-                                      ? "This is a required field."
-                                      : ""
-                                  }
-                                  margin="normal"
-                                  variant="standard"
-                                  sx={{ mx: 0.75, maxWidth: 180, mt: 0.4 }}
-                                  InputProps={{
-                                    readOnly:
-                                      i.ErrorCount > 0 ||
-                                      i.Remark.trim().length <= 0 ||
-                                      i.DisableErrorLog,
-                                  }}
-                                />
                                 <div className="flex items-center justify-start ml-2">
                                   <Autocomplete
                                     multiple
@@ -6011,9 +5835,7 @@ const EditDrawer = ({
                                       isIdDisabled || isUnassigneeClicked
                                     }
                                     readOnly={
-                                      cCDropdownDataWorklogs.filter(
-                                        (obj: any) => i.CC.includes(obj.value)
-                                      ).length > 0 ||
+                                      (i.CC.length > 0 && i.ErrorType == 1) ||
                                       i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
@@ -6037,6 +5859,72 @@ const EditDrawer = ({
                                       />
                                     )}
                                     sx={{ maxWidth: 230, mt: 0.3 }}
+                                  />
+                                  <TextField
+                                    label={
+                                      <span>
+                                        Error Count
+                                        <span className="text-defaultRed">
+                                          &nbsp;*
+                                        </span>
+                                      </span>
+                                    }
+                                    disabled={
+                                      isIdDisabled || isUnassigneeClicked
+                                    }
+                                    onFocus={(e) =>
+                                      e.target.addEventListener(
+                                        "wheel",
+                                        function (e) {
+                                          e.preventDefault();
+                                        },
+                                        { passive: false }
+                                      )
+                                    }
+                                    fullWidth
+                                    value={
+                                      i.ErrorCount === 0 ? "" : i.ErrorCount
+                                    }
+                                    onChange={(e) =>
+                                      handleErrorCountChangeWorklogs(
+                                        e.target.value,
+                                        index
+                                      )
+                                    }
+                                    onBlur={() => {
+                                      if (i.ErrorCount.toString().length > 0) {
+                                        const newErrorCountWorklogsErrors = [
+                                          ...errorCountWorklogsErr,
+                                        ];
+                                        newErrorCountWorklogsErrors[index] =
+                                          false;
+                                        setErrorCountWorklogsErr(
+                                          newErrorCountWorklogsErrors
+                                        );
+                                      }
+                                    }}
+                                    error={errorCountWorklogsErr[index]}
+                                    helperText={
+                                      errorCountWorklogsErr[index] &&
+                                      i.ErrorCount <= 0
+                                        ? "Add valid number."
+                                        : errorCountWorklogsErr[index] &&
+                                          i.ErrorCount.toString().length > 4
+                                        ? "Maximum 4 numbers allowed."
+                                        : errorCountWorklogsErr[index]
+                                        ? "This is a required field."
+                                        : ""
+                                    }
+                                    margin="normal"
+                                    variant="standard"
+                                    sx={{ ml: 1.5, maxWidth: 230, mt: 1.3 }}
+                                    InputProps={{
+                                      readOnly:
+                                        (i.ErrorCount > 0 &&
+                                          i.ErrorType == 1) ||
+                                        i.Remark.trim().length <= 0 ||
+                                        i.DisableErrorLog,
+                                    }}
                                   />
                                   <TextField
                                     label={

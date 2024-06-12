@@ -26,7 +26,7 @@ import {
 } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { ProcessGetByIdList } from "@/utils/Types/settingTypes";
-import { LabelValue } from "@/utils/Types/types";
+import { LabelValue, LabelValueType } from "@/utils/Types/types";
 import { getDepartmentDropdownData } from "@/utils/commonDropdownApiCall";
 
 export interface ProcessContentRef {
@@ -63,9 +63,9 @@ const ProcessContent = forwardRef<
     );
     const [typeOfWork, setTypeOfWork] = useState(0);
     const [typeOfWorkError, setTypeOfWorkError] = useState(false);
-    const [departmentDropdown, setDepartmentDropdown] = useState<LabelValue[]>(
-      []
-    );
+    const [departmentDropdown, setDepartmentDropdown] = useState<
+      LabelValueType[]
+    >([]);
     const [department, setDepartment] = useState<number>(0);
     const [departmentError, setDepartmentError] = useState<boolean>(false);
     const [data, setData] = useState<Options[]>([]);
@@ -638,7 +638,7 @@ const ProcessContent = forwardRef<
                   }
                 }}
               >
-                {departmentDropdown.map((i: LabelValue, index: number) => (
+                {departmentDropdown.map((i: LabelValueType, index: number) => (
                   <MenuItem value={i.value} key={index}>
                     {i.label}
                   </MenuItem>

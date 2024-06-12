@@ -17,7 +17,7 @@ import OverLay from "@/components/common/OverLay";
 import { callAPI } from "@/utils/API/callAPI";
 import { Close, Save } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
-import { LabelValue } from "@/utils/Types/types";
+import { LabelValue, LabelValueType } from "@/utils/Types/types";
 import { getDepartmentDataByClient } from "@/utils/commonDropdownApiCall";
 
 interface List {
@@ -47,9 +47,9 @@ const ClientProcessDrawer = ({
     []
   );
   const [typeOfWork, setTypeOfWork] = useState(0);
-  const [departmentDropdown, setDepartmentDropdown] = useState<LabelValue[]>(
-    []
-  );
+  const [departmentDropdown, setDepartmentDropdown] = useState<
+    LabelValueType[]
+  >([]);
   const [department, setDepartment] = useState(0);
   const [clientProcessData, setClientProcessData] = useState([]);
   const [thisclientProcess, setThisClientProcess] = useState([]);
@@ -598,7 +598,7 @@ const ClientProcessDrawer = ({
                   setSearchValue("");
                 }}
               >
-                {departmentDropdown.map((i: LabelValue, index: number) => (
+                {departmentDropdown.map((i: LabelValueType, index: number) => (
                   <MenuItem value={i.value} key={index}>
                     {i.label}
                   </MenuItem>

@@ -41,11 +41,7 @@ const Home = () => {
       router.push("/admin-dashboard");
     } else if (hasPermissionWorklog("", "View", "Settings")) {
       router.push("/settings");
-    } else if (
-      hasPermissionWorklog("", "View", "WorkLogs") &&
-      (hasPermissionWorklog("", "TaskManager", "WorkLogs") ||
-        hasPermissionWorklog("", "ManageAssignee", "WorkLogs"))
-    ) {
+    } else if (hasPermissionWorklog("", "View", "WorkLogs")) {
       router.push("/worklogs");
     } else if (hasPermissionWorklog("", "View", "Approvals")) {
       router.push("/approvals");
