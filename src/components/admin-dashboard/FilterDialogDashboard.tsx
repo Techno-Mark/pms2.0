@@ -3,6 +3,7 @@ import { LabelValue, LabelValueType } from "@/utils/Types/types";
 import {
   getCCDropdownData,
   getClientDropdownData,
+  getDepartmentDropdownData,
   getStatusDropdownData,
   getTypeOfWorkDropdownData,
 } from "@/utils/commonDropdownApiCall";
@@ -35,6 +36,7 @@ interface FilterModalProps {
 }
 
 const ALL = -1;
+const ALLDepartment = -1;
 
 const FilterDialogDashboard = ({
   activeTab,
@@ -49,6 +51,7 @@ const FilterDialogDashboard = ({
   const initialFilter = {
     Clients: [],
     WorkTypeId: activeTab === 1 ? Number(workTypeIdFromLocalStorage) : null,
+    DepartmentIds: [],
     AssigneeIds: [],
     ReviewerIds: [],
     StatusIds: [],
@@ -62,6 +65,11 @@ const FilterDialogDashboard = ({
   const [workType, setWorkType] = useState<number>(3);
   const [workTypeActive, setWorkTypeActive] = useState<LabelValue | null>(null);
   const [worktypeDropdownData, setWorktypeDropdownData] = useState([]);
+  const [departments, setDepartments] = useState<LabelValueType[]>([]);
+  const [departmentName, setDepartmentName] = useState<number[]>([]);
+  const [departmentDropdownData, setDepartmentDropdownData] = useState<
+    LabelValueType[]
+  >([]);
   const [assignees, setAssignees] = useState<LabelValue[] | []>([]);
   const [assigneeName, setAssigneeName] = useState<number[] | []>([]);
   const [userDropdown, setUserDropdown] = useState<LabelValue[] | []>([]);
@@ -92,6 +100,8 @@ const FilterDialogDashboard = ({
     setClients([]);
     setWorkType(activeTab === 1 ? Number(workTypeIdFromLocalStorage) : 0);
     setWorkTypeActive(activeTab === 1 ? { label: "Tax", value: 3 } : null);
+    setDepartmentName([]);
+    setDepartments([]);
     setAssigneeName([]);
     setAssignees([]);
     setReviewerName([]);
@@ -111,6 +121,11 @@ const FilterDialogDashboard = ({
       ...(await getClientDropdownData()),
     ]);
     setWorktypeDropdownData(typeOfWorkData);
+    const departmentData = await getDepartmentDropdownData();
+    setDepartmentDropdownData([
+      { label: "Select All", value: ALLDepartment, Type: "All" },
+      ...departmentData.DepartmentList,
+    ]);
     setUserDropdown(await getCCDropdownData());
   };
 
@@ -134,12 +149,14 @@ const FilterDialogDashboard = ({
     const isAnyFieldSelected: boolean =
       clientName.length > 0 ||
       workType > 0 ||
+      departmentName.length > 0 ||
       startDate !== null ||
       endDate !== null;
 
     const isAnyFieldSelectedActive: boolean =
       clientName.length > 0 ||
       workTypeActive !== null ||
+      departmentName.length > 0 ||
       assigneeName.length > 0 ||
       reviewerName.length > 0 ||
       statusName.length > 0 ||
@@ -153,6 +170,7 @@ const FilterDialogDashboard = ({
     clientName,
     workType,
     workTypeActive,
+    departmentName,
     assigneeName,
     reviewerName,
     statusName,
@@ -164,6 +182,7 @@ const FilterDialogDashboard = ({
     const selectedFields: DashboardInitialFilter = {
       Clients: clientName,
       WorkTypeId: workType > 0 ? workType : null,
+      DepartmentIds: departmentName,
       AssigneeIds: assigneeName,
       ReviewerIds: reviewerName,
       StatusIds: statusName,
@@ -179,6 +198,7 @@ const FilterDialogDashboard = ({
     const selectedFieldsActive: DashboardInitialFilter = {
       Clients: clientName,
       WorkTypeId: workTypeActive !== null ? workTypeActive.value : null,
+      DepartmentIds: departmentName,
       AssigneeIds: assigneeName,
       ReviewerIds: reviewerName,
       StatusIds: statusName,
@@ -197,6 +217,7 @@ const FilterDialogDashboard = ({
     clientName,
     workType,
     workTypeActive,
+    departmentName,
     assigneeName,
     reviewerName,
     statusName,
@@ -334,6 +355,58 @@ const FilterDialogDashboard = ({
                   multiple
                   id="tags-standard"
                   options={
+                    departmentDropdownData.length - 1 === departments.length
+                      ? []
+                      : departmentDropdownData.filter(
+                          (option) =>
+                            !departments.find(
+                              (department) => department.value === option.value
+                            )
+                        )
+                  }
+                  getOptionLabel={(option: LabelValueType) => option.label}
+                  onChange={(
+                    e: React.ChangeEvent<{}>,
+                    data: LabelValueType[] | []
+                  ) => {
+                    if (data.some((d: LabelValueType) => d.value === -1)) {
+                      setDepartments(
+                        departmentDropdownData.filter(
+                          (d: LabelValueType) => d.value !== -1
+                        )
+                      );
+                      setDepartmentName(
+                        departmentDropdownData
+                          .filter((d: LabelValueType) => d.value !== -1)
+                          .map((d: LabelValueType) => d.value)
+                      );
+                    } else {
+                      setDepartments(data);
+                      setDepartmentName(
+                        data.map((d: LabelValueType) => d.value)
+                      );
+                    }
+                  }}
+                  value={departments}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Department"
+                    />
+                  )}
+                />
+              </FormControl>
+            </div>
+            <div className="flex gap-[20px]">
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, width: 210 }}
+              >
+                <Autocomplete
+                  multiple
+                  id="tags-standard"
+                  options={
                     userDropdown.length - 1 === assignees.length
                       ? []
                       : userDropdown.filter(
@@ -361,8 +434,6 @@ const FilterDialogDashboard = ({
                   )}
                 />
               </FormControl>
-            </div>
-            <div className="flex gap-[20px]">
               <FormControl
                 variant="standard"
                 sx={{ mx: 0.75, mt: 0.5, width: 210 }}
@@ -433,26 +504,30 @@ const FilterDialogDashboard = ({
                   />
                 </FormControl>
               )}
-              <div
-                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
-              >
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="From"
-                    value={startDate === null ? null : dayjs(startDate)}
-                    // shouldDisableDate={isWeekend}
-                    maxDate={dayjs(endDate) || dayjs(Date.now())}
-                    onChange={(newDate: any) => {
-                      setStartDate(newDate.$d);
-                    }}
-                    slotProps={{
-                      textField: {
-                        readOnly: true,
-                      } as Record<string, any>,
-                    }}
-                  />
-                </LocalizationProvider>
-              </div>
+              {activeTab === 1 && (
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="From"
+                      value={startDate === null ? null : dayjs(startDate)}
+                      // shouldDisableDate={isWeekend}
+                      maxDate={dayjs(endDate) || dayjs(Date.now())}
+                      onChange={(newDate: any) => {
+                        setStartDate(newDate.$d);
+                      }}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+              )}
+            </div>
+            <div className="flex gap-[20px]">
               {activeTab === 1 && (
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
@@ -476,30 +551,50 @@ const FilterDialogDashboard = ({
                   </LocalizationProvider>
                 </div>
               )}
-            </div>
-            <div className="flex gap-[20px]">
               {activeTab === 2 && (
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
-                >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="To"
-                      value={endDate === null ? null : dayjs(endDate)}
-                      // shouldDisableDate={isWeekend}
-                      minDate={dayjs(startDate)}
-                      maxDate={dayjs(Date.now())}
-                      onChange={(newDate: any) => {
-                        setEndDate(newDate.$d);
-                      }}
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
+                <>
+                  <div
+                    className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+                  >
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        label="From"
+                        value={startDate === null ? null : dayjs(startDate)}
+                        // shouldDisableDate={isWeekend}
+                        maxDate={dayjs(endDate) || dayjs(Date.now())}
+                        onChange={(newDate: any) => {
+                          setStartDate(newDate.$d);
+                        }}
+                        slotProps={{
+                          textField: {
+                            readOnly: true,
+                          } as Record<string, any>,
+                        }}
+                      />
+                    </LocalizationProvider>
+                  </div>
+                  <div
+                    className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+                  >
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        label="To"
+                        value={endDate === null ? null : dayjs(endDate)}
+                        // shouldDisableDate={isWeekend}
+                        minDate={dayjs(startDate)}
+                        maxDate={dayjs(Date.now())}
+                        onChange={(newDate: any) => {
+                          setEndDate(newDate.$d);
+                        }}
+                        slotProps={{
+                          textField: {
+                            readOnly: true,
+                          } as Record<string, any>,
+                        }}
+                      />
+                    </LocalizationProvider>
+                  </div>
+                </>
               )}
             </div>
           </div>

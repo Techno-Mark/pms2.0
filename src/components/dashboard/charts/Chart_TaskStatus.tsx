@@ -7,12 +7,14 @@ import { KeyValueColorCodeSequenceStatusId } from "@/utils/Types/types";
 interface TaskStatusProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
+  onSelectedDepartment: number;
   sendData: (isDialogOpen: boolean, selectedPointData: number) => void;
 }
 
 const Chart_TaskStatus = ({
   onSelectedProjectIds,
   onSelectedWorkType,
+  onSelectedDepartment,
   sendData,
 }: TaskStatusProps) => {
   const [data, setData] = useState<
@@ -30,6 +32,7 @@ const Chart_TaskStatus = ({
       const params = {
         projectIds: onSelectedProjectIds,
         typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+        DepartmentId: onSelectedDepartment === 0 ? null : onSelectedDepartment,
       };
       const url = `${process.env.report_api_url}/clientdashboard/taskstatuscount`;
       const successCallback = (
@@ -60,7 +63,7 @@ const Chart_TaskStatus = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [onSelectedProjectIds, onSelectedWorkType]);
+  }, [onSelectedProjectIds, onSelectedWorkType, onSelectedDepartment]);
 
   const chartOptions: Highcharts.Options = {
     chart: {

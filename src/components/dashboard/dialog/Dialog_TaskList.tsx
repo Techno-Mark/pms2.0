@@ -8,6 +8,7 @@ interface TaskListDialogProps {
   onClose: () => void;
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
+  onSelectedDepartment: number;
 }
 
 const Dialog_TaskList = ({
@@ -15,6 +16,7 @@ const Dialog_TaskList = ({
   onClose,
   onSelectedProjectIds,
   onSelectedWorkType,
+  onSelectedDepartment,
 }: TaskListDialogProps) => {
   const handleClose = () => {
     onClose();
@@ -33,6 +35,7 @@ const Dialog_TaskList = ({
           <Datatable_FullScreen
             onClose={handleClose}
             onSelectedWorkType={onSelectedWorkType}
+            onSelectedDepartment={onSelectedDepartment}
             onSelectedProjectIds={onSelectedProjectIds}
           />
         </DialogContent>
