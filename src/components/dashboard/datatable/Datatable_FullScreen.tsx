@@ -10,12 +10,14 @@ interface DatatableFullScreenProps {
   onClose: () => void;
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
+  onSelectedDepartment: number;
 }
 
 const Datatable_FullScreen = ({
   onClose,
   onSelectedProjectIds,
   onSelectedWorkType,
+  onSelectedDepartment,
 }: DatatableFullScreenProps) => {
   const [isOverdueClicked, setIsOverdueClicked] = useState(true);
   const [isOnHoldClicked, setIsOnHoldClicked] = useState(false);
@@ -67,6 +69,7 @@ const Datatable_FullScreen = ({
         <Datatable_Overdue
           onSelectedProjectIds={onSelectedProjectIds}
           onSelectedWorkType={onSelectedWorkType}
+          onSelectedDepartment={onSelectedDepartment}
         />
       )}
 
@@ -74,6 +77,7 @@ const Datatable_FullScreen = ({
         <Datatable_OnHold
           onSelectedProjectIds={onSelectedProjectIds}
           onSelectedWorkType={onSelectedWorkType}
+          onSelectedDepartment={onSelectedDepartment}
         />
       )}
     </div>

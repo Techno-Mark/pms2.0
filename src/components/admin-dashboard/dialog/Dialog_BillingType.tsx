@@ -103,6 +103,7 @@ const Dialog_BillingType = ({
             currentFilterData.WorkTypeId === null
               ? 0
               : currentFilterData.WorkTypeId,
+          DepartmentIds: currentFilterData.DepartmentIds,
           StartDate: currentFilterData.StartDate,
           EndDate: currentFilterData.EndDate,
           GlobalSearch: searchValue,

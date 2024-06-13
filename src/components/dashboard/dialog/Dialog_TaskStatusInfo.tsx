@@ -20,6 +20,7 @@ interface TaskStatusInfoDialogProps {
   onWorkTypeData: string[];
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
+  onSelectedDepartment: number;
   onSelectedStatusName: number;
 }
 
@@ -30,6 +31,7 @@ const Dialog_TaskStatusInfo = ({
   onSelectedProjectIds,
   onSelectedStatusName,
   onSelectedWorkType,
+  onSelectedDepartment,
 }: TaskStatusInfoDialogProps) => {
   const [workType, setWorkType] = useState<number | any>(0);
   const [allStatus, setAllStatus] = useState<
@@ -49,6 +51,7 @@ const Dialog_TaskStatusInfo = ({
     const params = {
       projectIds: onSelectedProjectIds,
       typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      DepartmentId: onSelectedDepartment === 0 ? null : onSelectedDepartment,
     };
     const url = `${process.env.report_api_url}/clientdashboard/taskstatuscount`;
     const successCallback = (
@@ -81,7 +84,7 @@ const Dialog_TaskStatusInfo = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [onSelectedProjectIds, onSelectedWorkType]);
+  }, [onSelectedProjectIds, onSelectedWorkType, onSelectedDepartment]);
 
   function getValueByLabelOrType(labelOrType: number): number {
     const status = allStatus.find(
@@ -157,6 +160,7 @@ const Dialog_TaskStatusInfo = ({
           <Datatable_TaskStatusInfo
             onSelectedProjectIds={onSelectedProjectIds}
             onSelectedWorkType={onSelectedWorkType}
+            onSelectedDepartment={onSelectedDepartment}
             onSelectedStatusId={status}
             onOpen={onOpen}
           />

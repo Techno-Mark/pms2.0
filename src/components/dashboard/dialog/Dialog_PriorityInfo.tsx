@@ -24,6 +24,7 @@ interface DialogProps {
   onSelectedProjectIds: number[];
   onSelectedPriorityName: string;
   onSelectedWorkType: number;
+  onSelectedDepartment: number;
 }
 
 const Dialog_PriorityInfo = ({
@@ -32,6 +33,7 @@ const Dialog_PriorityInfo = ({
   onSelectedProjectIds,
   onSelectedPriorityName,
   onSelectedWorkType,
+  onSelectedDepartment,
 }: DialogProps) => {
   const [priority, setPriority] = useState<number>(0);
   const [clickedPriorityName, setClickedPriorityName] = useState<string>("");
@@ -121,6 +123,7 @@ const Dialog_PriorityInfo = ({
             onSelectedProjectIds={onSelectedProjectIds}
             onSelectedPriorityId={priority}
             onSelectedWorkType={onSelectedWorkType}
+            onSelectedDepartment={onSelectedDepartment}
             onOpen={onOpen}
           />
         </DialogContent>

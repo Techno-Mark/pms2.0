@@ -18,6 +18,7 @@ interface OverallProjectSummaryDialogProps {
   onOpen: boolean;
   onClose: () => void;
   onSelectedWorkType: number;
+  onSelectedDepartment: number;
   onSelectedTaskStatus: string;
   onSelectedProjectIds: number[];
 }
@@ -26,6 +27,7 @@ const Dialog_OverallProjectSummary = ({
   onOpen,
   onClose,
   onSelectedWorkType,
+  onSelectedDepartment,
   onSelectedTaskStatus,
   onSelectedProjectIds,
 }: OverallProjectSummaryDialogProps) => {
@@ -40,6 +42,7 @@ const Dialog_OverallProjectSummary = ({
   const getTaskStatusList = () => {
     const params = {
       typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      DepartmentId: onSelectedDepartment === 0 ? null : onSelectedDepartment,
       ProjectIds: onSelectedProjectIds ? onSelectedProjectIds : [],
     };
     const url = `${process.env.report_api_url}/clientdashboard/overallprojectcompletion`;
@@ -69,7 +72,13 @@ const Dialog_OverallProjectSummary = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [onSelectedWorkType, onSelectedProjectIds, onSelectedProjectIds, onOpen]);
+  }, [
+    onSelectedWorkType,
+    onSelectedDepartment,
+    onSelectedProjectIds,
+    onSelectedProjectIds,
+    onOpen,
+  ]);
 
   return (
     <div>
@@ -109,6 +118,7 @@ const Dialog_OverallProjectSummary = ({
           <Datatable_OverallProjectSummary
             onSelectedProjectIds={onSelectedProjectIds}
             onSelectedWorkType={onSelectedWorkType}
+            onSelectedDepartment={onSelectedDepartment}
             onSelectedTaskStatus={onSelectedTaskStatus}
             onCurrselectedtaskStatus={taskStatusName}
             onOpen={onOpen}

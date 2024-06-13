@@ -17,6 +17,7 @@ interface ReturnTypeDataProps {
   onSelectedReturnTypeValue: number;
   onCurrSelectedReturnType: string | number;
   onSelectedWorkType: number;
+  onSelectedDepartment: number;
   onOpen: boolean;
 }
 
@@ -25,6 +26,7 @@ const Datatable_ReturnTypeData = ({
   onSelectedReturnTypeValue,
   onCurrSelectedReturnType,
   onSelectedWorkType,
+  onSelectedDepartment,
   onOpen,
 }: ReturnTypeDataProps) => {
   const [data, setData] = useState<ListClientDashboard[] | []>([]);
@@ -46,6 +48,7 @@ const Datatable_ReturnTypeData = ({
         IsDesc: true,
         projectIds: onSelectedProjectIds,
         typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+        DepartmentId: onSelectedDepartment === 0 ? null : onSelectedDepartment,
         priorityId: null,
         statusId: null,
         ReturnTypeId: onCurrSelectedReturnType
@@ -78,6 +81,7 @@ const Datatable_ReturnTypeData = ({
     onSelectedReturnTypeValue,
     onCurrSelectedReturnType,
     onSelectedWorkType,
+    onSelectedDepartment,
     page,
     rowsPerPage,
   ]);

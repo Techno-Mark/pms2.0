@@ -61,6 +61,7 @@ const Dialog_DashboardSummaryList = ({
         currentFilterData.WorkTypeId === null
           ? Number(workTypeIdFromLocalStorage)
           : currentFilterData.WorkTypeId,
+      DepartmentIds: currentFilterData.DepartmentIds,
       AssigneeIds: currentFilterData.AssigneeIds,
       ReviewerIds: currentFilterData.ReviewerIds,
       StartDate: currentFilterData.StartDate,
@@ -108,6 +109,7 @@ const Dialog_DashboardSummaryList = ({
             currentFilterData.WorkTypeId === null
               ? 0
               : currentFilterData.WorkTypeId,
+          DepartmentIds: currentFilterData.DepartmentIds,
           StartDate: currentFilterData.StartDate,
           EndDate: currentFilterData.EndDate,
           Key: summaryName ? summaryName : onClickedSummaryTitle,

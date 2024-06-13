@@ -16,6 +16,7 @@ interface PriorityInfoProps {
   onSelectedProjectIds: number[];
   onSelectedPriorityId: number;
   onSelectedWorkType: number;
+  onSelectedDepartment: number;
   onOpen: boolean;
 }
 
@@ -23,6 +24,7 @@ const Datatable_PriorityInfo = ({
   onSelectedProjectIds,
   onSelectedPriorityId,
   onSelectedWorkType,
+  onSelectedDepartment,
   onOpen,
 }: PriorityInfoProps) => {
   const [data, setData] = useState<ListClientDashboard[] | []>([]);
@@ -44,6 +46,7 @@ const Datatable_PriorityInfo = ({
         IsDesc: true,
         projectIds: onSelectedProjectIds,
         typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+        DepartmentId: onSelectedDepartment === 0 ? null : onSelectedDepartment,
         priorityId: onSelectedPriorityId,
         statusId: null,
         ReturnTypeId: null,
@@ -73,6 +76,7 @@ const Datatable_PriorityInfo = ({
     onSelectedProjectIds,
     onSelectedPriorityId,
     onSelectedWorkType,
+    onSelectedDepartment,
     page,
     rowsPerPage,
   ]);

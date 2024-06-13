@@ -11,12 +11,14 @@ if (typeof Highcharts === "object") {
 interface OverallProjectCompletionProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
+  onSelectedDepartment: number;
   sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
 const Chart_OverallProjectCompletion = ({
   onSelectedProjectIds,
   onSelectedWorkType,
+  onSelectedDepartment,
   sendData,
 }: OverallProjectCompletionProps) => {
   const [data, setData] = useState<ListOverallProject[] | []>([]);
@@ -27,6 +29,7 @@ const Chart_OverallProjectCompletion = ({
       const params = {
         projectIds: onSelectedProjectIds,
         typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+        DepartmentId: onSelectedDepartment === 0 ? null : onSelectedDepartment,
       };
       const url = `${process.env.report_api_url}/clientdashboard/overallprojectcompletion`;
       const successCallback = (
@@ -49,7 +52,7 @@ const Chart_OverallProjectCompletion = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [onSelectedProjectIds, onSelectedWorkType]);
+  }, [onSelectedProjectIds, onSelectedWorkType, onSelectedDepartment]);
 
   const chartOptions = {
     chart: {
