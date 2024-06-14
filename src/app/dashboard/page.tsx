@@ -84,7 +84,6 @@ const Page = () => {
   const [department, setDepartment] = useState<any | null>(0);
   const [departmentData, setDepartmentData] = useState<any[] | any>([]);
   const [projects, setProjects] = useState<any | any[]>([]);
-  const [isAllProject, setIsAllProject] = useState(true);
   const [currentProjectId, setCurrentProjectId] = useState<number[]>([]);
   const [currentProjectName, setCurrentProjectName] = useState<any>("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -125,7 +124,6 @@ const Page = () => {
   const handleOptionProjects = (id: number, name: string) => {
     setCurrentProjectId([id]);
     setCurrentProjectName(name);
-    setIsAllProject(false);
     handleCloseProjects();
   };
 
@@ -142,7 +140,6 @@ const Page = () => {
   const handleSelectAllProject = () => {
     setCurrentProjectId([]);
     setCurrentProjectName("All Projects");
-    setIsAllProject(true);
     handleCloseProjects();
   };
 
@@ -235,13 +232,6 @@ const Page = () => {
   useEffect(() => {
     getProjectSummary();
   }, [currentProjectId, workType, department]);
-
-  useEffect(() => {
-    if (!isAllProject) {
-      setWorkType(0);
-      setDepartment(0);
-    }
-  }, [isAllProject]);
 
   const statusIconMapping: any = {
     1: <TotalTaskCreated />,
@@ -410,9 +400,8 @@ const Page = () => {
                 <Select
                   labelId="workType"
                   id="workType"
-                  value={workType === 0 || !isAllProject ? 0 : workType}
+                  value={workType === 0 ? 0 : workType}
                   onChange={(e) => setWorkType(e.target.value)}
-                  disabled={!isAllProject}
                 >
                   <MenuItem value={0}>All</MenuItem>
                   {workTypeData?.length > 0 &&
@@ -433,9 +422,8 @@ const Page = () => {
                 <Select
                   labelId="department"
                   id="department"
-                  value={department === 0 || !isAllProject ? 0 : department}
+                  value={department === 0 ? 0 : department}
                   onChange={(e) => setDepartment(e.target.value)}
-                  disabled={!isAllProject}
                 >
                   <MenuItem value={0}>All</MenuItem>
                   {departmentData?.length > 0 &&

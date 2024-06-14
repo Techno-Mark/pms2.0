@@ -907,10 +907,13 @@ const WorklogsActionBar = ({
 
         <ConditionalComponent
           condition={
-            hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+            areAllValuesSame(selectedRowClientId) &&
+            areAllValuesSame(selectedRowWorkTypeId) &&
             workItemData
               .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId > 0 &&
+                i.WorkTypeId > 0 &&
                 (i.ManagerId === 0 || i.ManagerId === null)
                   ? i.WorkitemId
                   : undefined
@@ -919,11 +922,22 @@ const WorklogsActionBar = ({
             workItemData
               .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
-                (i.ManagerId > 0 || i.ManagerId !== null)
+                i.ClientId === 0 &&
+                i.WorkTypeId === 0
                   ? i.WorkitemId
                   : undefined
               )
-              .filter((j: number | undefined) => j !== undefined).length <= 0
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+            Array.from(
+              new Set(
+                workItemData
+                  .map(
+                    (i: WorkitemList) =>
+                      selectedRowIds.includes(i.WorkitemId) && i.WorkTypeId
+                  )
+                  .filter((j: number | boolean) => j !== false)
+              )
+            ).length === 1
           }
           Component={Manager}
           propsForActionBar={propsForActionBar}

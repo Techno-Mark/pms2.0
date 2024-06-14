@@ -2372,7 +2372,6 @@ const EditDrawer = ({
     const getData = async () => {
       getUserDetails();
       setClientWorklogsDropdownData(await getClientDropdownData());
-      setManagerWorklogsDropdownData(await getManagerDropdownData());
       const workTypeData =
         clientNameWorklogs > 0 &&
         (await getTypeOfWorkDropdownData(clientNameWorklogs));
@@ -2488,6 +2487,9 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
+      setManagerWorklogsDropdownData(
+        await getManagerDropdownData(typeOfWorkWorklogs)
+      );
       const assigneeData = await getAssigneeDropdownData(
         [clientNameWorklogs],
         typeOfWorkWorklogs
@@ -2933,6 +2935,8 @@ const EditDrawer = ({
                             isAdmin && setDepartmentWorklogsType("");
                             setValueMonthYearFrom(null);
                             setValueMonthYearTo(null);
+                            setManagerWorklogs(0);
+                            setManagerWorklogsErr(false);
                           }}
                           onBlur={() => {
                             if (typeOfWorkWorklogs > 0) {

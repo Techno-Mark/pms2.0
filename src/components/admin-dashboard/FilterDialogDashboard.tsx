@@ -298,7 +298,7 @@ const FilterDialogDashboard = ({
               {activeTab === 1 && (
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, mt: 0.5, width: 210 }}
+                  sx={{ mx: 0.75, mt: 0, width: 210 }}
                 >
                   <InputLabel id="demo-simple-select-standard-label">
                     Type of Work
