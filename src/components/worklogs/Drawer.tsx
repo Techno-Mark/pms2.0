@@ -2518,17 +2518,17 @@ const EditDrawer = ({
       reviewerData.length > 0
         ? setReviewerWorklogsDropdownData(reviewerData)
         : setReviewerWorklogsDropdownData([]);
-      const UserId: any = await localStorage.getItem("UserId");
-      const reviwerId =
-        reviewerData.length > 0 &&
-        reviewerData
-          .map((i: LabelValue) =>
-            i.value === parseInt(UserId) ? i.value : undefined
-          )
-          .filter((i: number | undefined) => i !== undefined)[0];
-      reviewerData.length > 0 &&
-        onEdit === 0 &&
-        setReviewerWorklogs(reviwerId === false ? 0 : reviwerId);
+      // const UserId: any = await localStorage.getItem("UserId");
+      // const reviwerId =
+      //   reviewerData.length > 0 &&
+      //   reviewerData
+      //     .map((i: LabelValue) =>
+      //       i.value === parseInt(UserId) ? i.value : undefined
+      //     )
+      //     .filter((i: number | undefined) => i !== undefined)[0];
+      // reviewerData.length > 0 &&
+      //   onEdit === 0 &&
+      //   setReviewerWorklogs(reviwerId === false ? 0 : reviwerId);
       typeOfWorkWorklogs === 3 && onEdit === 0 && setReturnYearWorklogs(2023);
     };
 
