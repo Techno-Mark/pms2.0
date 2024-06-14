@@ -2490,6 +2490,15 @@ const EditDrawer = ({
       setManagerWorklogsDropdownData(
         await getManagerDropdownData(typeOfWorkWorklogs)
       );
+
+      const reviewerData = await getReviewerDropdownData(
+        [clientNameWorklogs],
+        typeOfWorkWorklogs
+      );
+      reviewerData.length > 0
+        ? setReviewerWorklogsDropdownData(reviewerData)
+        : setReviewerWorklogsDropdownData([]);
+
       const assigneeData = await getAssigneeDropdownData(
         [clientNameWorklogs],
         typeOfWorkWorklogs
@@ -2511,13 +2520,6 @@ const EditDrawer = ({
         assigneeData.length > 0 &&
         setAssigneeWorklogs(assigneeId !== undefined ? assigneeId : 0);
 
-      const reviewerData = await getReviewerDropdownData(
-        [clientNameWorklogs],
-        typeOfWorkWorklogs
-      );
-      reviewerData.length > 0
-        ? setReviewerWorklogsDropdownData(reviewerData)
-        : setReviewerWorklogsDropdownData([]);
       // const UserId: any = await localStorage.getItem("UserId");
       // const reviwerId =
       //   reviewerData.length > 0 &&
@@ -3574,7 +3576,7 @@ const EditDrawer = ({
                         options={reviewerWorklogsDropdownData}
                         disabled={isIdDisabled}
                         value={
-                          reviewerWorklogsDropdownData.find(
+                          reviewerWorklogsDropdownData?.find(
                             (i: LabelValue) => i.value === reviewerWorklogs
                           ) || null
                         }
