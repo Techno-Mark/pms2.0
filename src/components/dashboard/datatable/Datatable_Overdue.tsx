@@ -13,6 +13,7 @@ import { callAPI } from "@/utils/API/callAPI";
 interface OverdueProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
+  onSelectedDepartment: number;
 }
 
 interface List {
@@ -29,6 +30,7 @@ interface List {
 const Datatable_Overdue = ({
   onSelectedProjectIds,
   onSelectedWorkType,
+  onSelectedDepartment,
 }: OverdueProps) => {
   const [data, setData] = useState<List[] | []>([]);
   const [page, setPage] = useState(0);
@@ -71,6 +73,7 @@ const Datatable_Overdue = ({
       IsDesc: true,
       projectIds: onSelectedProjectIds,
       typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      DepartmentId: onSelectedDepartment === 0 ? null : onSelectedDepartment,
       onHold: false,
     };
     const url = `${process.env.report_api_url}/clientdashboard/tasklistbyproject`;
@@ -95,7 +98,13 @@ const Datatable_Overdue = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [onSelectedProjectIds, onSelectedWorkType, page, rowsPerPage]);
+  }, [
+    onSelectedProjectIds,
+    onSelectedWorkType,
+    onSelectedDepartment,
+    page,
+    rowsPerPage,
+  ]);
 
   return (
     <div>

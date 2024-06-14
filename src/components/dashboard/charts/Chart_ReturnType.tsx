@@ -11,12 +11,14 @@ if (typeof Highcharts === "object") {
 interface ReturnTypeProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
+  onSelectedDepartment: number;
   sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
 const Chart_ReturnType = ({
   onSelectedProjectIds,
   onSelectedWorkType,
+  onSelectedDepartment,
   sendData,
 }: ReturnTypeProps) => {
   const [data, setData] = useState<
@@ -33,6 +35,7 @@ const Chart_ReturnType = ({
       const params = {
         projectIds: onSelectedProjectIds,
         typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+        DepartmentId: onSelectedDepartment === 0 ? null : onSelectedDepartment,
       };
       const url = `${process.env.report_api_url}/clientdashboard/taxreturncount`;
       const successCallback = (
@@ -68,7 +71,7 @@ const Chart_ReturnType = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [onSelectedProjectIds, onSelectedWorkType]);
+  }, [onSelectedProjectIds, onSelectedWorkType, onSelectedDepartment]);
 
   const drilldownData = data;
 

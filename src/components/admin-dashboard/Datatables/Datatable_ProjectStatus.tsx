@@ -57,6 +57,7 @@ const Datatable_ProjectStatus = ({
         currentFilterData.WorkTypeId === null
           ? Number(workTypeIdFromLocalStorage)
           : currentFilterData.WorkTypeId,
+      DepartmentIds: currentFilterData.DepartmentIds,
       AssigneeIds: currentFilterData.AssigneeIds,
       ReviewerIds: currentFilterData.ReviewerIds,
       StartDate: currentFilterData.StartDate,

@@ -12,12 +12,14 @@ if (typeof Highcharts === "object") {
 interface PriorityProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
+  onSelectedDepartment: number;
   sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
 }
 
 const Chart_Priority = ({
   onSelectedProjectIds,
   onSelectedWorkType,
+  onSelectedDepartment,
   sendData,
 }: PriorityProps) => {
   const [data, setData] = useState<
@@ -30,6 +32,7 @@ const Chart_Priority = ({
       const params = {
         projectIds: onSelectedProjectIds,
         typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+        DepartmentId: onSelectedDepartment === 0 ? null : onSelectedDepartment,
       };
       const url = `${process.env.report_api_url}/clientdashboard/taskprioritycount`;
       const successCallback = (
@@ -61,7 +64,7 @@ const Chart_Priority = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [onSelectedProjectIds, onSelectedWorkType]);
+  }, [onSelectedProjectIds, onSelectedWorkType, onSelectedDepartment]);
 
   const chartOptions = {
     chart: {

@@ -17,6 +17,7 @@ interface SummaryListProps {
   onOpen: boolean;
   onClose: () => void;
   onSelectedWorkType: number;
+  onSelectedDepartment: number;
   onSelectedProjectIds: number[];
   onSelectedSummaryStatus: number;
   onCurrProjectSummary: KeyValueColorCodeSequence[] | [];
@@ -26,6 +27,7 @@ const Dialog_SummaryList = ({
   onOpen,
   onClose,
   onSelectedWorkType,
+  onSelectedDepartment,
   onSelectedProjectIds,
   onSelectedSummaryStatus,
   onCurrProjectSummary,
@@ -77,6 +79,7 @@ const Dialog_SummaryList = ({
           <Datatable_SummaryList
             onSelectedProjectIds={onSelectedProjectIds}
             onSelectedWorkType={onSelectedWorkType}
+            onSelectedDepartment={onSelectedDepartment}
             onSelectedSummaryStatus={onSelectedSummaryStatus}
             onCurrSelectedSummaryStatus={taskStatusName}
             onOpen={onOpen}

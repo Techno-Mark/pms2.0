@@ -8,6 +8,7 @@ import {
   FormControl,
   IconButton,
   InputBase,
+  InputLabel,
   List,
   MenuItem,
   Popover,
@@ -38,7 +39,10 @@ import Dialog_OverallProjectSummary from "@/components/dashboard/dialog/Dialog_O
 import Dialog_SummaryList from "@/components/dashboard/dialog/Dialog_SummaryList";
 import Dialog_ReturnTypeData from "@/components/dashboard/dialog/Dialog_ReturnTypeData";
 import { callAPI } from "@/utils/API/callAPI";
-import { getTypeOfWorkDropdownData } from "@/utils/commonDropdownApiCall";
+import {
+  getDepartmentDataByClient,
+  getTypeOfWorkDropdownData,
+} from "@/utils/commonDropdownApiCall";
 import {
   KeyValueColorCode,
   KeyValueColorCodeSequence,
@@ -77,8 +81,9 @@ const Page = () => {
   const [isOnHoldClicked, setIsOnHoldClicked] = useState<boolean>(false);
   const [workType, setWorkType] = useState<any | null>(0);
   const [workTypeData, setWorkTypeData] = useState<any[] | any>([]);
+  const [department, setDepartment] = useState<any | null>(0);
+  const [departmentData, setDepartmentData] = useState<any[] | any>([]);
   const [projects, setProjects] = useState<any | any[]>([]);
-  const [isAllProject, setIsAllProject] = useState(true);
   const [currentProjectId, setCurrentProjectId] = useState<number[]>([]);
   const [currentProjectName, setCurrentProjectName] = useState<any>("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -119,7 +124,6 @@ const Page = () => {
   const handleOptionProjects = (id: number, name: string) => {
     setCurrentProjectId([id]);
     setCurrentProjectName(name);
-    setIsAllProject(false);
     handleCloseProjects();
   };
 
@@ -136,7 +140,6 @@ const Page = () => {
   const handleSelectAllProject = () => {
     setCurrentProjectId([]);
     setCurrentProjectName("All Projects");
-    setIsAllProject(true);
     handleCloseProjects();
   };
 
@@ -197,6 +200,7 @@ const Page = () => {
   const getWorkTypes = async () => {
     const ClientId = await localStorage.getItem("clientId");
     setWorkTypeData(await getTypeOfWorkDropdownData(ClientId));
+    setDepartmentData(await getDepartmentDataByClient(ClientId));
   };
 
   useEffect(() => {
@@ -208,6 +212,7 @@ const Page = () => {
     const params = {
       projectIds: currentProjectId,
       typeOfWork: workType === 0 ? null : workType,
+      DepartmentId: department === 0 ? null : department,
     };
     const url = `${process.env.report_api_url}/clientdashboard/summarybyproject`;
     const successCallback = (
@@ -226,13 +231,7 @@ const Page = () => {
 
   useEffect(() => {
     getProjectSummary();
-  }, [currentProjectId, workType]);
-
-  useEffect(() => {
-    if (!isAllProject) {
-      setWorkType(0);
-    }
-  }, [isAllProject]);
+  }, [currentProjectId, workType, department]);
 
   const statusIconMapping: any = {
     1: <TotalTaskCreated />,
@@ -390,23 +389,52 @@ const Page = () => {
               </nav>
             </Popover>
 
-            <FormControl sx={{ mx: 0.75, minWidth: 150, marginTop: 1 }}>
-              <Select
-                labelId="workType"
-                id="workType"
-                value={workType === 0 || !isAllProject ? 0 : workType}
-                onChange={(e) => setWorkType(e.target.value)}
-                disabled={!isAllProject}
+            <div>
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, minWidth: 150, marginTop: 1 }}
               >
-                <MenuItem value={0}>All</MenuItem>
-                {workTypeData?.length > 0 &&
-                  workTypeData?.map((i: LabelValue) => (
-                    <MenuItem value={i.value} key={i.value}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-              </Select>
-            </FormControl>
+                <InputLabel id="demo-simple-select-standard-label">
+                  Type Of Work
+                </InputLabel>
+                <Select
+                  labelId="workType"
+                  id="workType"
+                  value={workType === 0 ? 0 : workType}
+                  onChange={(e) => setWorkType(e.target.value)}
+                >
+                  <MenuItem value={0}>All</MenuItem>
+                  {workTypeData?.length > 0 &&
+                    workTypeData?.map((i: LabelValue) => (
+                      <MenuItem value={i.value} key={i.value}>
+                        {i.label}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, minWidth: 150, marginTop: 1 }}
+              >
+                <InputLabel id="demo-simple-select-standard-label">
+                  Department
+                </InputLabel>
+                <Select
+                  labelId="department"
+                  id="department"
+                  value={department === 0 ? 0 : department}
+                  onChange={(e) => setDepartment(e.target.value)}
+                >
+                  <MenuItem value={0}>All</MenuItem>
+                  {departmentData?.length > 0 &&
+                    departmentData?.map((i: LabelValue) => (
+                      <MenuItem value={i.value} key={i.value}>
+                        {i.label}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </div>
           </section>
 
           <section className="flex gap-[25px] items-center px-[20px] py-[10px]">
@@ -449,12 +477,14 @@ const Page = () => {
                 sendData={handleValueFromOverallProject}
                 onSelectedProjectIds={currentProjectId}
                 onSelectedWorkType={workType}
+                onSelectedDepartment={department}
               />
             </Card>
             <Card className="w-full h-[344px] mb-[40px] border border-lightSilver rounded-lg mt-10">
               <Chart_Priority
                 onSelectedProjectIds={currentProjectId}
                 onSelectedWorkType={workType}
+                onSelectedDepartment={department}
                 sendData={handleValueFromPriority}
               />
             </Card>
@@ -463,6 +493,7 @@ const Page = () => {
                 <Chart_ReturnType
                   onSelectedProjectIds={currentProjectId}
                   onSelectedWorkType={workType}
+                  onSelectedDepartment={department}
                   sendData={handleValueFromReturnType}
                 />
               </Card>
@@ -483,6 +514,7 @@ const Page = () => {
                 sendData={handleValueFromTaskStatus}
                 onSelectedProjectIds={currentProjectId}
                 onSelectedWorkType={workType}
+                onSelectedDepartment={department}
               />
             </Card>
           </section>
@@ -550,6 +582,7 @@ const Page = () => {
                   <Datatable_Overdue
                     onSelectedProjectIds={currentProjectId}
                     onSelectedWorkType={workType}
+                    onSelectedDepartment={department}
                   />
                 )}
 
@@ -557,6 +590,7 @@ const Page = () => {
                   <Datatable_OnHold
                     onSelectedProjectIds={currentProjectId}
                     onSelectedWorkType={workType}
+                    onSelectedDepartment={department}
                   />
                 )}
               </div>
@@ -568,6 +602,7 @@ const Page = () => {
           onOpen={isDatatableDialog}
           onClose={() => setIsDatatableDialog(false)}
           onSelectedWorkType={workType}
+          onSelectedDepartment={department}
           onSelectedProjectIds={currentProjectId}
         />
 
@@ -585,6 +620,7 @@ const Page = () => {
           onWorkTypeData={workTypeData}
           onSelectedProjectIds={currentProjectId}
           onSelectedWorkType={workType}
+          onSelectedDepartment={department}
           onSelectedStatusName={clickedStatusName}
         />
 
@@ -594,6 +630,7 @@ const Page = () => {
           onSelectedProjectIds={currentProjectId}
           onSelectedPriorityName={clickedPriorityName}
           onSelectedWorkType={workType}
+          onSelectedDepartment={department}
         />
 
         <Dialog_OverallProjectSummary
@@ -601,6 +638,7 @@ const Page = () => {
           onClose={() => setIsProjectStatusDialogOpen(false)}
           onSelectedProjectIds={currentProjectId}
           onSelectedWorkType={workType}
+          onSelectedDepartment={department}
           onSelectedTaskStatus={clickedProjectStatusName}
         />
 
@@ -609,6 +647,7 @@ const Page = () => {
           onClose={() => setIsSummaryListDialogOpen(false)}
           onSelectedProjectIds={currentProjectId}
           onSelectedWorkType={workType}
+          onSelectedDepartment={department}
           onSelectedSummaryStatus={summaryLabel}
           onCurrProjectSummary={projectSummary}
         />
@@ -621,6 +660,7 @@ const Page = () => {
             clickedReturnTypeValue === "Individual Return" ? 1 : 2
           }
           onSelectedWorkType={workType}
+          onSelectedDepartment={department}
         />
       </div>
     </Wrapper>

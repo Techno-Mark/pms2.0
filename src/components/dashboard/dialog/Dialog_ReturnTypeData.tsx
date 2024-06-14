@@ -18,6 +18,7 @@ interface DialogProps {
   onSelectedProjectIds: number[];
   onSelectedReturnTypeValue: number;
   onSelectedWorkType: number;
+  onSelectedDepartment: number;
 }
 
 const Dialog_ReturnTypeData = ({
@@ -26,6 +27,7 @@ const Dialog_ReturnTypeData = ({
   onSelectedProjectIds,
   onSelectedReturnTypeValue,
   onSelectedWorkType,
+  onSelectedDepartment,
 }: DialogProps) => {
   const [returnType, setReturnType] = useState<number | string>(0);
 
@@ -72,6 +74,7 @@ const Dialog_ReturnTypeData = ({
             onSelectedReturnTypeValue={onSelectedReturnTypeValue}
             onCurrSelectedReturnType={returnType}
             onSelectedWorkType={onSelectedWorkType}
+            onSelectedDepartment={onSelectedDepartment}
             onOpen={onOpen}
           />
         </DialogContent>

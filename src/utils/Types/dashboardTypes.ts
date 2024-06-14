@@ -91,6 +91,7 @@ export interface ListOverallProject {
 export interface DashboardInitialFilter {
   Clients: number[] | [];
   WorkTypeId: number | null;
+  DepartmentIds: number[] | [];
   AssigneeIds: number[] | [];
   ReviewerIds: number[] | [];
   StatusIds: number[] | [];

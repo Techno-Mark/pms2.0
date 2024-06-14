@@ -15,6 +15,7 @@ import { ListClientDashboard } from "@/utils/Types/dashboardTypes";
 interface TaskStatusInfoProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
+  onSelectedDepartment: number;
   onSelectedStatusId: number;
   onOpen: boolean;
 }
@@ -22,6 +23,7 @@ interface TaskStatusInfoProps {
 const Datatable_TaskStatusInfo = ({
   onSelectedProjectIds,
   onSelectedWorkType,
+  onSelectedDepartment,
   onSelectedStatusId,
   onOpen,
 }: TaskStatusInfoProps) => {
@@ -44,6 +46,7 @@ const Datatable_TaskStatusInfo = ({
         IsDesc: true,
         projectIds: onSelectedProjectIds,
         typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+        DepartmentId: onSelectedDepartment === 0 ? null : onSelectedDepartment,
         priorityId: null,
         statusId: onSelectedStatusId === 0 ? null : onSelectedStatusId,
         ReturnTypeId: null,
@@ -72,6 +75,7 @@ const Datatable_TaskStatusInfo = ({
   }, [
     onSelectedProjectIds,
     onSelectedWorkType,
+    onSelectedDepartment,
     onSelectedStatusId,
     page,
     rowsPerPage,

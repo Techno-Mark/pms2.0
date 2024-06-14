@@ -75,9 +75,21 @@ const Page = () => {
         </div>
         {activeTab === 1 && (
           <>
+            <div className="mx-4 px-5 mb-2 flex justify-between items-center w-[97%] h-16 bg-whiteSmoke rounded-lg shadow-xl">
+              <span>
+                <b>Step 1:</b> First, download the Microsoft Desktop Runtime and
+                install it.
+              </span>
+              <Button variant="contained" className="!bg-secondary">
+                <a href="https://pmsaea8.blob.core.windows.net/prod-help-video-setup/DotRuntimeSetup.zip">
+                  Download
+                </a>
+              </Button>
+            </div>
             <div className="mx-4 px-5 flex justify-between items-center w-[97%] h-16 bg-whiteSmoke rounded-lg shadow-xl">
               <span>
-                PMS Executable (.msi) File [Version 2.0] - May 3, 2024
+                <b>Step 2:</b> Download the PMS Executable (.msi) file and
+                install it.
               </span>
               <Button variant="contained" className="!bg-secondary">
                 <a href="https://pmsaea8.blob.core.windows.net/prod-help-video-setup/PGCTimeTracker.msi">
@@ -97,7 +109,7 @@ const Page = () => {
                 </li>
                 <li className="pb-1">
                   Ensure that the user system has the most recent version of the
-                  PMS Executable (.msi) File [Version 2.0] - May 3, 2024 and
+                  PMS Executable (.msi) File [Version 2.0] - June 12, 2024 and
                   remove any outdated version if any.
                 </li>
                 <li className="pb-1">

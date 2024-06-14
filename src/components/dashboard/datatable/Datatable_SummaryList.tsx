@@ -15,6 +15,7 @@ import { ListClientDashboard } from "@/utils/Types/dashboardTypes";
 interface SummaryListProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
+  onSelectedDepartment: number;
   onSelectedSummaryStatus: number;
   onCurrSelectedSummaryStatus: number;
   onOpen: boolean;
@@ -23,6 +24,7 @@ interface SummaryListProps {
 const Datatable_SummaryList = ({
   onSelectedProjectIds,
   onSelectedWorkType,
+  onSelectedDepartment,
   onSelectedSummaryStatus,
   onCurrSelectedSummaryStatus,
   onOpen,
@@ -44,6 +46,7 @@ const Datatable_SummaryList = ({
       SortColumn: null,
       IsDesc: true,
       TypeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      DepartmentId: onSelectedDepartment === 0 ? null : onSelectedDepartment,
       ProjectIds: onSelectedProjectIds ? onSelectedProjectIds : [],
       Key:
         onCurrSelectedSummaryStatus > 0
@@ -76,6 +79,7 @@ const Datatable_SummaryList = ({
     return () => clearTimeout(timer);
   }, [
     onSelectedWorkType,
+    onSelectedDepartment,
     onSelectedSummaryStatus,
     onSelectedProjectIds,
     onCurrSelectedSummaryStatus,

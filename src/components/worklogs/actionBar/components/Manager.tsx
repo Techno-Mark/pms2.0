@@ -11,11 +11,15 @@ import { LabelValue } from "@/utils/Types/types";
 const Manager = ({
   selectedRowIds,
   getWorkItemList,
+  selectedRowWorkTypeId,
   getOverLay,
+  areAllValuesSame,
 }: {
   selectedRowIds: number[];
   getWorkItemList: () => void;
+  selectedRowWorkTypeId: number[];
   getOverLay: (e: boolean) => void;
+  areAllValuesSame: any;
 }) => {
   const [managerSearchQuery, setManagerSearchQuery] = useState("");
   const [managerDropdownData, setManagerDropdownData] = useState([]);
@@ -25,7 +29,20 @@ const Manager = ({
 
   const handleClickManager = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorElManager(event.currentTarget);
-    getManagerData();
+    if (
+      selectedRowWorkTypeId.length > 0 &&
+      areAllValuesSame(selectedRowWorkTypeId)
+    ) {
+      const getManagerData = async () => {
+        setManagerDropdownData(
+          await getManagerDropdownData(selectedRowWorkTypeId[0])
+        );
+      };
+
+      getManagerData();
+    } else {
+      setManagerDropdownData([]);
+    }
   };
 
   const handleCloseManager = () => {
@@ -46,10 +63,6 @@ const Manager = ({
   const handleOptionManager = (id: number) => {
     updateManager(selectedRowIds, id);
     handleCloseManager();
-  };
-
-  const getManagerData = async () => {
-    setManagerDropdownData(await getManagerDropdownData());
   };
 
   const updateManager = async (id: number[], manager: number) => {

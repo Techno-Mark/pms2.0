@@ -68,6 +68,7 @@ const Dialog_ProjectStatus = ({
         currentFilterData.WorkTypeId === null
           ? Number(workTypeIdFromLocalStorage)
           : currentFilterData.WorkTypeId,
+      DepartmentIds: currentFilterData.DepartmentIds,
       AssigneeIds: currentFilterData.AssigneeIds,
       ReviewerIds: currentFilterData.ReviewerIds,
       StartDate: currentFilterData.StartDate,
@@ -126,6 +127,7 @@ const Dialog_ProjectStatus = ({
             currentFilterData.WorkTypeId === null
               ? 0
               : currentFilterData.WorkTypeId,
+          DepartmentIds: currentFilterData.DepartmentIds,
           StartDate: currentFilterData.StartDate,
           EndDate: currentFilterData.EndDate,
           ProjectId: null,

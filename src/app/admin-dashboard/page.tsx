@@ -32,7 +32,6 @@ import MUIDataTable from "mui-datatables";
 import TablePagination from "@mui/material/TablePagination";
 import {
   generateDashboardReportBodyRender,
-  generateDashboardReportBodyRenderRight,
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
@@ -142,6 +141,7 @@ const Page = () => {
     useState<DashboardInitialFilter>({
       Clients: [],
       WorkTypeId: null,
+      DepartmentIds: [],
       AssigneeIds: [],
       ReviewerIds: [],
       StatusIds: [],
@@ -153,7 +153,7 @@ const Page = () => {
     setisFilterOpen(false);
   };
 
-  const getIdFromFilterDialog = (data: DashboardInitialFilter) => {   
+  const getIdFromFilterDialog = (data: DashboardInitialFilter) => {
     setCurrentFilterData(data);
   };
 
@@ -252,6 +252,7 @@ const Page = () => {
         currentFilterData.WorkTypeId === null
           ? Number(workTypeIdFromLocalStorage)
           : currentFilterData.WorkTypeId,
+      DepartmentIds: currentFilterData.DepartmentIds,
       AssigneeIds: currentFilterData.AssigneeIds,
       ReviewerIds: currentFilterData.ReviewerIds,
       StartDate: currentFilterData.StartDate,
