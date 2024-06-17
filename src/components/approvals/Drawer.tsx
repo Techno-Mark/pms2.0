@@ -2233,7 +2233,6 @@ const EditDrawer = ({
     const getData = async () => {
       getUserDetails();
       setClientApprovalsDropdownData(await getClientDropdownData());
-      setManagerApprovalsDropdownData(await getManagerDropdownData());
       clientNameApprovals > 0 &&
         setWorkTypeApprovalsDropdownData(
           await getTypeOfWorkDropdownData(clientNameApprovals)
@@ -2318,6 +2317,9 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
+      setManagerApprovalsDropdownData(
+        await getManagerDropdownData(typeOfWorkApprovals)
+      );
       setAssigneeApprovalsDropdownData(
         await getAssigneeDropdownData(
           [clientNameApprovals],
@@ -2728,6 +2730,8 @@ const EditDrawer = ({
                             isAdmin && setDepartmentApprovalsErr(false);
                             setValueMonthYearFrom(null);
                             setValueMonthYearTo(null);
+                            setManagerApprovals(0);
+                            setManagerApprovalsErr(false);
                           }}
                           onBlur={() => {
                             if (typeOfWorkApprovals > 0) {

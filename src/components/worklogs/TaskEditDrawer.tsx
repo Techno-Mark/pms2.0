@@ -169,6 +169,8 @@ const TaskEditDrawer = ({
     useState<string>("");
   const [clientTaskNameWorklogsEditErr, setClientTaskNameWorklogsEditErr] =
     useState(false);
+  const [managerWorklogsDropdownDataEdit, setManagerWorklogsDropdownDataEdit] =
+    useState<LabelValue[] | []>([]);
   const [managerWorklogsEdit, setManagerWorklogsEdit] = useState<number>(0);
   const [managerWorklogsEditErr, setManagerWorklogsEditErr] = useState(false);
   const [statusWorklogsEdit, setStatusWorklogsEdit] = useState<number>(0);
@@ -694,7 +696,6 @@ const TaskEditDrawer = ({
     const getData = async () => {
       getUserDetails();
       setClientWorklogsDropdownData(await getClientDropdownData());
-      setManagerWorklogsDropdownData(await getManagerDropdownData());
       const workTypeData =
         clientNameWorklogs > 0 &&
         (await getTypeOfWorkDropdownData(clientNameWorklogs));
@@ -773,6 +774,9 @@ const TaskEditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
+      setManagerWorklogsDropdownData(
+        await getManagerDropdownData(typeOfWorkWorklogs)
+      );
       setAssigneeWorklogsDropdownData(
         await getAssigneeDropdownData([clientNameWorklogs], typeOfWorkWorklogs)
       );
@@ -849,6 +853,9 @@ const TaskEditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
+      setManagerWorklogsDropdownDataEdit(
+        await getManagerDropdownData(typeOfWorkWorklogsEdit)
+      );
       setAssigneeWorklogsDropdownDataEdit(
         await getAssigneeDropdownData(
           [clientNameWorklogsEdit],
@@ -1817,6 +1824,8 @@ const TaskEditDrawer = ({
                           setDepartmentWorklogsTypeEdit("");
                           setValueMonthYearFromEdit(null);
                           setValueMonthYearToEdit(null);
+                          setManagerWorklogsEdit(0);
+                          setManagerWorklogsEditErr(false);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -1880,6 +1889,8 @@ const TaskEditDrawer = ({
                             setDepartmentWorklogsTypeEdit("");
                             setValueMonthYearFromEdit(null);
                             setValueMonthYearToEdit(null);
+                            setManagerWorklogsEdit(0);
+                            setManagerWorklogsEditErr(false);
                           }}
                           onBlur={() => {
                             if (typeOfWorkWorklogsEdit > 0) {
@@ -2554,9 +2565,9 @@ const TaskEditDrawer = ({
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={managerWorklogsDropdownData}
+                        options={managerWorklogsDropdownDataEdit}
                         value={
-                          managerWorklogsDropdownData.find(
+                          managerWorklogsDropdownDataEdit.find(
                             (i: LabelValue) => i.value === managerWorklogsEdit
                           ) || null
                         }

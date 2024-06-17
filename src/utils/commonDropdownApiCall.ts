@@ -308,11 +308,6 @@ export const getReviewerDropdownData = async (
 };
 // LabelValue
 
-export const getManagerDropdownData = async () => {
-  return await getApiFunction(`${process.env.api_url}/user/getmanagerdropdown`);
-};
-// LabelValue
-
 export const getTypeOfReturnDropdownData = async () => {
   return await getApiFunction(
     `${process.env.worklog_api_url}/workitem/getformtypelist`
@@ -322,6 +317,14 @@ export const getTypeOfReturnDropdownData = async () => {
 export const getCCDropdownData = async () => {
   return await getApiFunction(`${process.env.api_url}/user/getdropdown`);
 };
+
+export const getManagerDropdownData = async (worktypeId?: number) => {
+  return await postApiFunction(
+    `${process.env.api_url}/user/getmanagerdropdown`,
+    { WorktypeId: Number(worktypeId) > 0 ? worktypeId : null }
+  );
+};
+// LabelValue
 
 export const getCommentUserDropdownData = async (fields: any) => {
   return await postApiFunction(
