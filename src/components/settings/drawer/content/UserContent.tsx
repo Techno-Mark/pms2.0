@@ -455,8 +455,7 @@ const UserContent = forwardRef<
     if (value === "Employee") {
       (firstName.trim().length <= 2 || firstName.trim().length > 50) &&
         setFirstNameError(true);
-      (lastName.trim().length <= 2 || lastName.trim().length > 50) &&
-        setLastNameError(true);
+      lastName.trim().length <= 0 && setLastNameError(true);
       email.trim().length <= 0 && setEmailError(true);
       email.trim().length > 100 && setEmailError(true);
       typeOfWork <= 0 && setTypeOfWorkError(true);
@@ -470,8 +469,7 @@ const UserContent = forwardRef<
         firstName.trim().length > 2 &&
         firstName.trim().length < 50 &&
         !lastNameError &&
-        lastName.trim().length > 2 &&
-        lastName.trim().length < 50 &&
+        lastName.trim().length > 1 &&
         !emailError &&
         email.trim().length > 0 &&
         email.trim().length < 100 &&
@@ -497,9 +495,7 @@ const UserContent = forwardRef<
       (clientFirstName.trim().length <= 2 ||
         clientFirstName.trim().length > 50) &&
         setClientFirstNameError(true);
-      (clientLastName.trim().length <= 2 ||
-        clientLastName.trim().length > 50) &&
-        setClientLastNameError(true);
+      clientLastName.trim().length <= 0 && setClientLastNameError(true);
       clientEmail.trim().length <= 0 && setClientEmailError(true);
       clientRole <= 0 && setClientRoleError(true);
 
@@ -510,8 +506,7 @@ const UserContent = forwardRef<
         clientFirstName.trim().length > 2 &&
         clientFirstName.trim().length < 50 &&
         !clientLastNameError &&
-        clientLastName.trim().length > 2 &&
-        clientLastName.trim().length < 50 &&
+        clientLastName.trim().length > 1 &&
         !clientEmailError &&
         clientEmail.trim().length > 0 &&
         clientEmail.trim().length < 100 &&
@@ -1207,4 +1202,3 @@ const UserContent = forwardRef<
 });
 
 export default UserContent;
-
