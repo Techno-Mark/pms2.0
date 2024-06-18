@@ -464,12 +464,13 @@ const UserContent = forwardRef<
       report <= 0 && parseInt(roleIdAdmin) > 1 && setReportError(true);
       selectGroupValue.length <= 0 && setGroupError(true);
       setEmailError(!regex.test(email));
+
       if (
         !firstNameError &&
         firstName.trim().length > 2 &&
         firstName.trim().length < 50 &&
         !lastNameError &&
-        lastName.trim().length > 1 &&
+        lastName.trim().length > 0 &&
         !emailError &&
         email.trim().length > 0 &&
         email.trim().length < 100 &&
@@ -506,7 +507,7 @@ const UserContent = forwardRef<
         clientFirstName.trim().length > 2 &&
         clientFirstName.trim().length < 50 &&
         !clientLastNameError &&
-        clientLastName.trim().length > 1 &&
+        clientLastName.trim().length > 0 &&
         !clientEmailError &&
         clientEmail.trim().length > 0 &&
         clientEmail.trim().length < 100 &&
@@ -650,25 +651,12 @@ const UserContent = forwardRef<
                 setLastNameError(false);
               }}
               onBlur={(e) => {
-                if (
-                  e.target.value.trim().length < 3 ||
-                  e.target.value.trim().length > 50
-                ) {
+                if (e.target.value.trim().length <= 0) {
                   setLastNameError(true);
                 }
               }}
               error={lastNameError}
-              helperText={
-                lastNameError && lastName?.trim().length > 50
-                  ? "Maximum 50 characters allowed."
-                  : lastNameError &&
-                    lastName?.trim().length > 0 &&
-                    lastName?.trim().length < 3
-                  ? "Minimum 3 characters allowed."
-                  : lastNameError
-                  ? "This is a required field."
-                  : ""
-              }
+              helperText={lastNameError ? "This is a required field." : ""}
               margin="normal"
               variant="standard"
             />
@@ -1047,24 +1035,13 @@ const UserContent = forwardRef<
                 setClientLastNameError(false);
               }}
               onBlur={(e) => {
-                if (
-                  e.target.value.trim().length < 3 ||
-                  e.target.value.trim().length > 50
-                ) {
+                if (e.target.value.trim().length <= 0) {
                   setClientLastNameError(true);
                 }
               }}
               error={clientLastNameError}
               helperText={
-                clientLastNameError && clientLastName?.trim().length > 50
-                  ? "Maximum 50 characters allowed."
-                  : clientLastNameError &&
-                    clientLastName?.trim().length > 0 &&
-                    clientLastName?.trim().length < 3
-                  ? "Minimum 3 characters allowed."
-                  : clientLastNameError
-                  ? "This is a required field."
-                  : ""
+                clientLastNameError ? "This is a required field." : ""
               }
               margin="normal"
               variant="standard"
