@@ -453,8 +453,10 @@ const UserContent = forwardRef<
     e.preventDefault();
 
     if (value === "Employee") {
-      firstName.trim().length <= 0 && setFirstNameError(true);
-      lastName.trim().length <= 0 && setLastNameError(true);
+      (firstName.trim().length <= 2 || firstName.trim().length > 50) &&
+        setFirstNameError(true);
+      (lastName.trim().length <= 2 || lastName.trim().length > 50) &&
+        setLastNameError(true);
       email.trim().length <= 0 && setEmailError(true);
       email.trim().length > 100 && setEmailError(true);
       typeOfWork <= 0 && setTypeOfWorkError(true);
@@ -492,8 +494,12 @@ const UserContent = forwardRef<
       }
     } else if (value === "Client") {
       clientName <= 0 && setClientNameError(true);
-      clientFirstName.trim().length <= 0 && setClientFirstNameError(true);
-      clientLastName.trim().length <= 0 && setClientLastNameError(true);
+      (clientFirstName.trim().length <= 2 ||
+        clientFirstName.trim().length > 50) &&
+        setClientFirstNameError(true);
+      (clientLastName.trim().length <= 2 ||
+        clientLastName.trim().length > 50) &&
+        setClientLastNameError(true);
       clientEmail.trim().length <= 0 && setClientEmailError(true);
       clientRole <= 0 && setClientRoleError(true);
 
@@ -1201,3 +1207,4 @@ const UserContent = forwardRef<
 });
 
 export default UserContent;
+
