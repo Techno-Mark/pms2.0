@@ -92,7 +92,7 @@ const Page = () => {
                 install it.
               </span>
               <Button variant="contained" className="!bg-secondary">
-                <a href="https://pmsaea8.blob.core.windows.net/prod-help-video-setup/PGCTimeTracker.msi">
+                <a href="https://pmsaea8.blob.core.windows.net/prod-help-video-setup/PGCTimeTracker2_0.msi">
                   Download
                 </a>
               </Button>
