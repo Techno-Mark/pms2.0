@@ -93,6 +93,13 @@ import {
   LabelValueType,
   User,
 } from "@/utils/Types/types";
+import {
+  errorTypeOptions,
+  impactOptions,
+  natureOfErrorOptions,
+  priorityOptions,
+  rootCauseOptions,
+} from "@/utils/staticDropdownData";
 
 interface EditDrawer {
   onOpen: boolean;
@@ -1056,6 +1063,8 @@ const EditDrawer = ({
           AttachmentPath: process.env.attachment || "",
         },
       ],
+      Amount: 0,
+      DateOfTransaction: "",
       isSolved: false,
       DisableErrorLog: false,
     },
@@ -1095,6 +1104,8 @@ const EditDrawer = ({
             AttachmentPath: process.env.attachment || "",
           },
         ],
+        Amount: 0,
+        DateOfTransaction: "",
         isSolved: false,
         DisableErrorLog: false,
       },
@@ -1226,6 +1237,18 @@ const EditDrawer = ({
     setRemarkErrApprovals(newErrors);
   };
 
+  const handleAmountChangeApprovals = (e: string, index: number) => {
+    const newFields = [...errorLogFieldsApprovals];
+    newFields[index].Amount = Number(e) || 0;
+    setErrorLogFieldsApprovals(newFields);
+  };
+
+  const handleDateOfTransactionChange = (e: any, index: number) => {
+    const newFields = [...errorLogFieldsApprovals];
+    newFields[index].DateOfTransaction = e;
+    setErrorLogFieldsApprovals(newFields);
+  };
+
   const handleAttachmentsChangeApprovals = (
     data1: string,
     data2: string,
@@ -1277,6 +1300,8 @@ const EditDrawer = ({
                     AttachmentPath: process.env.attachment || "",
                   },
                 ],
+                Amount: 0,
+                DateOfTransaction: "",
                 isSolved: false,
                 DisableErrorLog: false,
               },
@@ -1308,6 +1333,9 @@ const EditDrawer = ({
                         AttachmentPath: process.env.attachment || "",
                       },
                     ],
+                Amount: i.Amount === null ? 0 : i.Amount,
+                DateOfTransaction:
+                  i.DateOfTransaction === null ? "" : i.DateOfTransaction,
                 isSolved: i.IsSolved,
                 DisableErrorLog: i.DisableErrorLog,
               }))
@@ -1381,12 +1409,18 @@ const EditDrawer = ({
                   i.Attachments?.[0]?.SystemFileName?.length ?? 0 > 0
                     ? i.Attachments
                     : null,
+                Amount: i.Amount === 0 ? null : i.Amount,
+                DateOfTransaction:
+                  i.DateOfTransaction === ""
+                    ? null
+                    : dayjs(i.DateOfTransaction).format("YYYY/MM/DD"),
               })
           ),
           IsClientWorklog: false,
           SubmissionId: onHasId,
           DeletedErrorlogIds: deletedErrorLogApprovals,
         };
+
         const url = `${process.env.worklog_api_url}/workitem/errorlog/saveByworkitem`;
         const successCallback = (
           ResponseData: null,
@@ -2533,6 +2567,8 @@ const EditDrawer = ({
             AttachmentPath: process.env.attachment || "",
           },
         ],
+        Amount: 0,
+        DateOfTransaction: "",
         isSolved: false,
         DisableErrorLog: false,
       },
@@ -5258,8 +5294,11 @@ const EditDrawer = ({
                                 }
                               }}
                             >
-                              <MenuItem value={1}>Internal</MenuItem>
-                              <MenuItem value={2}>External</MenuItem>
+                              {errorTypeOptions.map((e: LabelValue) => (
+                                <MenuItem value={e.value} key={e.value}>
+                                  {e.label}
+                                </MenuItem>
+                              ))}
                             </Select>
                             {errorTypeErrApprovals[index] && (
                               <FormHelperText>
@@ -5311,8 +5350,11 @@ const EditDrawer = ({
                                 }
                               }}
                             >
-                              <MenuItem value={1}>Procedural</MenuItem>
-                              <MenuItem value={2}>DataEntry</MenuItem>
+                              {rootCauseOptions.map((r: LabelValue) => (
+                                <MenuItem value={r.value} key={r.value}>
+                                  {r.label}
+                                </MenuItem>
+                              ))}
                             </Select>
                             {rootCauseErrApprovals[index] && (
                               <FormHelperText>
@@ -5362,8 +5404,11 @@ const EditDrawer = ({
                                 }
                               }}
                             >
-                              <MenuItem value={1}>Financial</MenuItem>
-                              <MenuItem value={2}>Non-Financial</MenuItem>
+                              {impactOptions.map((i: LabelValue) => (
+                                <MenuItem value={i.value} key={i.value}>
+                                  {i.label}
+                                </MenuItem>
+                              ))}
                             </Select>
                             {impactErrApprovals[index] && (
                               <FormHelperText>
@@ -5419,31 +5464,11 @@ const EditDrawer = ({
                                 }
                               }}
                             >
-                              <MenuItem value={1}>
-                                Memo/Decriprion Not Updated
-                              </MenuItem>
-                              <MenuItem value={2}>
-                                Forget To Enter Vendor/PayeeName
-                              </MenuItem>
-                              <MenuItem value={3}>
-                                Wrong Categorization Incorrect GST/Sales Tex
-                              </MenuItem>
-                              <MenuItem value={4}>
-                                Deleted Reconciled Transaction
-                              </MenuItem>
-                              <MenuItem value={5}>
-                                File/Report Not Updated Correctly
-                              </MenuItem>
-                              <MenuItem value={6}>TAT Missed</MenuItem>
-                              <MenuItem value={7}>
-                                ABC Not Prepared Correctly
-                              </MenuItem>
-                              <MenuItem value={8}>
-                                OSI Not Prepared Correctly
-                              </MenuItem>
-                              <MenuItem value={9}>
-                                Review Check List Not Prepared
-                              </MenuItem>
+                              {natureOfErrorOptions.map((n: LabelValue) => (
+                                <MenuItem value={n.value} key={n.value}>
+                                  {n.label}
+                                </MenuItem>
+                              ))}
                             </Select>
                             {natureOfErrApprovals[index] && (
                               <FormHelperText>
@@ -5495,9 +5520,11 @@ const EditDrawer = ({
                                 }
                               }}
                             >
-                              <MenuItem value={1}>High</MenuItem>
-                              <MenuItem value={2}>Medium</MenuItem>
-                              <MenuItem value={3}>Low</MenuItem>
+                              {priorityOptions.map((p: LabelValue) => (
+                                <MenuItem value={p.value} key={p.value}>
+                                  {p.label}
+                                </MenuItem>
+                              ))}
                             </Select>
                             {errorLogPriorityErrApprovals[index] && (
                               <FormHelperText>
@@ -5610,79 +5637,6 @@ const EditDrawer = ({
                               variant="standard"
                               sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                             />
-                            {/* <TextField
-                              label={
-                                <span>
-                                  Error Count
-                                  <span className="text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </span>
-                              }
-                              type="number"
-                              fullWidth
-                              disabled={
-                                (!hasPermissionWorklog(
-                                  "ErrorLog",
-                                  "Save",
-                                  "WorkLogs"
-                                ) &&
-                                  hasPermissionWorklog(
-                                    "ErrorLog",
-                                    "Delete",
-                                    "WorkLogs"
-                                  )) ||
-                                field.isSolved
-                              }
-                              value={
-                                field.ErrorCount === 0 ? 0 : field.ErrorCount
-                              }
-                              onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-                                const numberValue = Number(value);
-                                if (numberValue >= 0 && value.length <= 4) {
-                                  handleErrorCountChangeApprovals(
-                                    numberValue,
-                                    index
-                                  );
-                                }
-                              }}
-                              onBlur={(e) => {
-                                if (e.target.value.length > 0) {
-                                  const newErrorCountErrors = [
-                                    ...errorCountErrApprovals,
-                                  ];
-                                  newErrorCountErrors[index] = false;
-                                  setErrorCountErrApprovals(
-                                    newErrorCountErrors
-                                  );
-                                }
-                              }}
-                              onFocus={(e) =>
-                                e.target.addEventListener(
-                                  "wheel",
-                                  function (e) {
-                                    e.preventDefault();
-                                  },
-                                  { passive: false }
-                                )
-                              }
-                              error={errorCountErrApprovals[index]}
-                              helperText={
-                                errorCountErrApprovals[index] &&
-                                field.ErrorCount <= 0
-                                  ? "Add valid number."
-                                  : errorCountErrApprovals[index] &&
-                                    field.ErrorCount.toString().length > 4
-                                  ? "Maximum 4 numbers allowed."
-                                  : errorCountErrApprovals[index]
-                                  ? "This is a required field."
-                                  : ""
-                              }
-                              margin="normal"
-                              variant="standard"
-                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
-                            /> */}
                             <TextField
                               label={
                                 <span>
@@ -5741,9 +5695,84 @@ const EditDrawer = ({
                               }
                               margin="normal"
                               variant="standard"
-                              sx={{ mx: 0.75, maxWidth: 492, mt: 1.5, mr: 2 }}
+                              sx={{ mx: 0.75, maxWidth: 492, mt: 1.5 }}
                             />
-                            <div className="flex flex-col">
+                            <TextField
+                              label="Amount"
+                              fullWidth
+                              disabled={
+                                (!hasPermissionWorklog(
+                                  "ErrorLog",
+                                  "Save",
+                                  "WorkLogs"
+                                ) &&
+                                  hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Delete",
+                                    "WorkLogs"
+                                  )) ||
+                                field.isSolved
+                              }
+                              value={field.Amount === 0 ? "" : field.Amount}
+                              onChange={(e) =>
+                                handleAmountChangeApprovals(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onFocus={(e) =>
+                                e.target.addEventListener(
+                                  "wheel",
+                                  function (e) {
+                                    e.preventDefault();
+                                  },
+                                  { passive: false }
+                                )
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                            />
+                          </div>
+                          <div className="flex !ml-0">
+                            <div className="inline-flex mt-[4px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]">
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                  label="Date of Transaction"
+                                  maxDate={dayjs(new Date())}
+                                  disabled={
+                                    (!hasPermissionWorklog(
+                                      "ErrorLog",
+                                      "Save",
+                                      "WorkLogs"
+                                    ) &&
+                                      hasPermissionWorklog(
+                                        "ErrorLog",
+                                        "Delete",
+                                        "WorkLogs"
+                                      )) ||
+                                    field.isSolved
+                                  }
+                                  value={
+                                    field.DateOfTransaction === ""
+                                      ? null
+                                      : dayjs(field.DateOfTransaction)
+                                  }
+                                  onChange={(newDate: any) => {
+                                    handleDateOfTransactionChange(
+                                      newDate.$d,
+                                      index
+                                    );
+                                  }}
+                                  slotProps={{
+                                    textField: {
+                                      readOnly: true,
+                                    } as Record<string, any>,
+                                  }}
+                                />
+                              </LocalizationProvider>
+                            </div>
+                            <div className="flex flex-col ml-4">
                               <div className="flex">
                                 <ImageUploader
                                   getData={(data1: string, data2: string) =>

@@ -578,6 +578,109 @@ const reportsAMColConfig = [
   },
 ];
 
+const reportsErrorLogColConfig = [
+  {
+    header: "TaskId",
+    label: "Task ID",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "TaskName",
+    label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ErrorTypeVal",
+    label: "Error type",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "RootCauseVal",
+    label: "Root Cause",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ImpactVal",
+    label: "Impact",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "NatureOfErrorVal",
+    label: "Nature of error",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "PriorityVal",
+    label: "Priorty",
+    bodyRenderer: generatePriorityWithColor,
+  },
+  {
+    header: "ErrorCount",
+    label: "Error count",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "Remark",
+    label: "Remarks",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ErrorLogTime",
+    label: "Error Logged time",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "AssigneeName",
+    label: "Assignee",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ReviewerName",
+    label: "Reviewer",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "DepartmentName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "DateOfTransaction",
+    label: "Date of Transaction",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "SubmittedOn",
+    label: "Date of Creation",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "DateOfReview",
+    label: "Date of Review",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ReportingManagerName",
+    label: "Reporting Manager",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ClientName",
+    label: "Client Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ProjectName",
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "Amount",
+    label: "Amount",
+    bodyRenderer: generateCommonBodyRender,
+  },
+];
+
 const generateCustomizableCols = (
   column: {
     name: string;
@@ -710,6 +813,10 @@ const reportsAMCols = reportsAMColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
 
+const reportsErrorLogCols = reportsErrorLogColConfig.map((col: any) =>
+  generateCustomColumn(col.header, col.label, col.bodyRenderer)
+);
+
 const reportsUserLogsCols: any[] = [
   {
     name: "UserName",
@@ -822,4 +929,5 @@ export {
   reportsAPCols,
   reportsKRACols,
   reportsAMCols,
+  reportsErrorLogCols,
 };

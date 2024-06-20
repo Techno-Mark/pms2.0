@@ -60,6 +60,8 @@ import AutoManualReportFilter from "@/components/reports/Filter/AutoManualReport
 import KRAReportFilter from "@/components/reports/Filter/KRAReportFilter";
 import ClientReportFilter from "@/components/reports/Filter/ClientReportFilter";
 import { DialogTransition } from "@/utils/style/DialogTransition";
+import ErrorLogReport from "@/components/reports/tables/ErrorLogReport";
+import ErrorLogReportFilter from "@/components/reports/Filter/ErrorLogReportFilter";
 
 interface Tabs {
   label: string;
@@ -84,6 +86,7 @@ const allTabs = [
   { label: "kra", value: 14, name: "Efficiency" },
   { label: "auto/manual", value: 15, name: "Auto/Manual" },
   { label: "wltr", value: 16, name: "WLTR" },
+  { label: "errorlog", value: 17, name: "Error Log" },
 ];
 
 interface MoreTabs {
@@ -109,7 +112,7 @@ const MoreTabs = ({ moreTabs, handleMoreTabsClick }: MoreTabs) => {
             } ${index === moreTabs.length - 1 ? "rounded-b" : ""}`}
             onClick={() => handleMoreTabsClick(tab, index)}
           >
-            <label className={`mx-4 my-1 flex cursor-pointer text-base`}>
+            <label className={`mx-4 my-[2px] flex cursor-pointer text-base`}>
               {tab.name}
             </label>
           </div>
@@ -172,7 +175,8 @@ const Page = () => {
         hasPermissionWorklog("client", "View", "Report") ||
         hasPermissionWorklog("kra", "View", "Report") ||
         hasPermissionWorklog("Auto/Manual", "View", "Report") ||
-        hasPermissionWorklog("wltr", "View", "Report"))
+        hasPermissionWorklog("wltr", "View", "Report") ||
+        hasPermissionWorklog("errorlog", "View", "Report"))
     );
   };
 
@@ -621,6 +625,14 @@ const Page = () => {
             onHandleExport={handleCanExport}
           />
         )}
+
+        {activeTab === 17 && (
+          <ErrorLogReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
       </div>
 
       {/* tabs filter */}
@@ -737,6 +749,13 @@ const Page = () => {
       )}
       {activeTab === 16 && (
         <WLTRReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 17 && (
+        <ErrorLogReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}

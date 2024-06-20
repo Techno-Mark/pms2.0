@@ -91,6 +91,13 @@ import {
   LabelValueType,
   User,
 } from "@/utils/Types/types";
+import {
+  errorTypeOptions,
+  impactOptions,
+  natureOfErrorOptions,
+  priorityOptions,
+  rootCauseOptions,
+} from "@/utils/staticDropdownData";
 
 interface EditDrawer {
   onOpen: boolean;
@@ -1398,6 +1405,8 @@ const EditDrawer = ({
           AttachmentPath: "",
         },
       ],
+      Amount: 0,
+      DateOfTransaction: "",
       isSolved: false,
       DisableErrorLog: false,
     },
@@ -1469,6 +1478,18 @@ const EditDrawer = ({
     setErrorLogFieldsWorklogs(newFieldsWorklogs);
   };
 
+  const handleAmountChangeApprovals = (e: string, index: number) => {
+    const newFieldsWorklogs = [...errorLogFieldsWorklogs];
+    newFieldsWorklogs[index].Amount = Number(e) || 0;
+    setErrorLogFieldsWorklogs(newFieldsWorklogs);
+  };
+
+  const handleDateOfTransactionChange = (e: any, index: number) => {
+    const newFieldsWorklogs = [...errorLogFieldsWorklogs];
+    newFieldsWorklogs[index].DateOfTransaction = e;
+    setErrorLogFieldsWorklogs(newFieldsWorklogs);
+  };
+
   const getErrorLogDataWorklogs = async () => {
     const params = {
       WorkitemId: onEdit,
@@ -1512,6 +1533,9 @@ const EditDrawer = ({
                     AttachmentPath: process.env.attachment || "",
                   },
                 ],
+            Amount: i.Amount === null ? 0 : i.Amount,
+            DateOfTransaction:
+              i.DateOfTransaction === null ? "" : i.DateOfTransaction,
             isSolved: i.IsSolved,
             DisableErrorLog: i.DisableErrorLog,
           }))
@@ -1538,6 +1562,8 @@ const EditDrawer = ({
                 AttachmentPath: "",
               },
             ],
+            Amount: 0,
+            DateOfTransaction: "",
             isSolved: false,
             DisableErrorLog: false,
           },
@@ -1609,6 +1635,11 @@ const EditDrawer = ({
                   i.Attachments?.[0]?.UserFileName?.length ?? 0 > 0
                     ? i.Attachments
                     : null,
+                Amount: i.Amount === 0 ? null : i.Amount,
+                DateOfTransaction:
+                  i.DateOfTransaction === ""
+                    ? null
+                    : dayjs(i.DateOfTransaction).format("YYYY/MM/DD"),
               })
           ),
           IsClientWorklog: false,
@@ -2698,6 +2729,8 @@ const EditDrawer = ({
             AttachmentPath: "",
           },
         ],
+        Amount: 0,
+        DateOfTransaction: "",
         isSolved: false,
         DisableErrorLog: false,
       },
@@ -5596,8 +5629,11 @@ const EditDrawer = ({
                                       i.DisableErrorLog
                                     }
                                   >
-                                    <MenuItem value={1}>Internal</MenuItem>
-                                    <MenuItem value={2}>External</MenuItem>
+                                    {errorTypeOptions.map((e: LabelValue) => (
+                                      <MenuItem value={e.value} key={e.value}>
+                                        {e.label}
+                                      </MenuItem>
+                                    ))}
                                   </Select>
                                   {errorTypeWorklogsErr[index] && (
                                     <FormHelperText>
@@ -5645,8 +5681,11 @@ const EditDrawer = ({
                                       i.DisableErrorLog
                                     }
                                   >
-                                    <MenuItem value={1}>Procedural</MenuItem>
-                                    <MenuItem value={2}>DataEntry</MenuItem>
+                                    {rootCauseOptions.map((r: LabelValue) => (
+                                      <MenuItem value={r.value} key={r.value}>
+                                        {r.label}
+                                      </MenuItem>
+                                    ))}
                                   </Select>
                                   {rootCauseWorklogsErr[index] && (
                                     <FormHelperText>
@@ -5693,8 +5732,11 @@ const EditDrawer = ({
                                       i.DisableErrorLog
                                     }
                                   >
-                                    <MenuItem value={1}>Financial</MenuItem>
-                                    <MenuItem value={2}>Non-Financial</MenuItem>
+                                    {impactOptions.map((i: LabelValue) => (
+                                      <MenuItem value={i.value} key={i.value}>
+                                        {i.label}
+                                      </MenuItem>
+                                    ))}
                                   </Select>
                                   {impactWorklogsErr[index] && (
                                     <FormHelperText>
@@ -5750,32 +5792,13 @@ const EditDrawer = ({
                                       i.DisableErrorLog
                                     }
                                   >
-                                    <MenuItem value={1}>
-                                      Memo/Decriprion Not Updated
-                                    </MenuItem>
-                                    <MenuItem value={2}>
-                                      Forget To Enter Vendor/PayeeName
-                                    </MenuItem>
-                                    <MenuItem value={3}>
-                                      Wrong Categorization Incorrect GST/Sales
-                                      Tex
-                                    </MenuItem>
-                                    <MenuItem value={4}>
-                                      Deleted Reconciled Transaction
-                                    </MenuItem>
-                                    <MenuItem value={5}>
-                                      File/Report Not Updated Correctly
-                                    </MenuItem>
-                                    <MenuItem value={6}>TAT Missed</MenuItem>
-                                    <MenuItem value={7}>
-                                      ABC Not Prepared Correctly
-                                    </MenuItem>
-                                    <MenuItem value={8}>
-                                      OSI Not Prepared Correctly
-                                    </MenuItem>
-                                    <MenuItem value={9}>
-                                      Review Check List Not Prepared
-                                    </MenuItem>
+                                    {natureOfErrorOptions.map(
+                                      (n: LabelValue) => (
+                                        <MenuItem value={n.value} key={n.value}>
+                                          {n.label}
+                                        </MenuItem>
+                                      )
+                                    )}
                                   </Select>
                                   {natureOfWorklogsErr[index] && (
                                     <FormHelperText>
@@ -5822,9 +5845,11 @@ const EditDrawer = ({
                                       i.DisableErrorLog
                                     }
                                   >
-                                    <MenuItem value={1}>High</MenuItem>
-                                    <MenuItem value={2}>Medium</MenuItem>
-                                    <MenuItem value={3}>Low</MenuItem>
+                                    {priorityOptions.map((p: LabelValue) => (
+                                      <MenuItem value={p.value} key={p.value}>
+                                        {p.label}
+                                      </MenuItem>
+                                    ))}
                                   </Select>
                                   {errorLogPriorityWorklogsErr[index] && (
                                     <FormHelperText>
@@ -5832,7 +5857,7 @@ const EditDrawer = ({
                                     </FormHelperText>
                                   )}
                                 </FormControl>
-                                <div className="flex items-center justify-start ml-2">
+                                <div className="flex items-center justify-start ml-2 mt-2">
                                   <Autocomplete
                                     multiple
                                     limitTags={2}
@@ -5950,14 +5975,70 @@ const EditDrawer = ({
                                     variant="standard"
                                     sx={{
                                       mx: 0.75,
-                                      maxWidth: 485,
-                                      mt: 1,
+                                      maxWidth: 490,
+                                      mt: 1.2,
                                       ml: 1.5,
-                                      mr: 1.5,
                                     }}
                                     InputProps={{ readOnly: true }}
                                     inputProps={{ readOnly: true }}
                                   />
+                                  <TextField
+                                    label="Amount"
+                                    fullWidth
+                                    disabled={
+                                      isIdDisabled || isUnassigneeClicked
+                                    }
+                                    value={i.Amount === 0 ? "" : i.Amount}
+                                    onChange={(e) =>
+                                      handleAmountChangeApprovals(
+                                        e.target.value,
+                                        index
+                                      )
+                                    }
+                                    onFocus={(e) =>
+                                      e.target.addEventListener(
+                                        "wheel",
+                                        function (e) {
+                                          e.preventDefault();
+                                        },
+                                        { passive: false }
+                                      )
+                                    }
+                                    margin="normal"
+                                    variant="standard"
+                                    sx={{ mx: 0.75, maxWidth: 230, mt: 1.2 }}
+                                  />
+                                </div>
+                                <div className="flex items-center justify-start ml-2 mt-2">
+                                  <div className="inline-flex mt-[4px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]">
+                                    <LocalizationProvider
+                                      dateAdapter={AdapterDayjs}
+                                    >
+                                      <DatePicker
+                                        label="Date of Transaction"
+                                        maxDate={dayjs(new Date())}
+                                        disabled={
+                                          isIdDisabled || isUnassigneeClicked
+                                        }
+                                        value={
+                                          i.DateOfTransaction === ""
+                                            ? null
+                                            : dayjs(i.DateOfTransaction)
+                                        }
+                                        onChange={(newDate: any) => {
+                                          handleDateOfTransactionChange(
+                                            newDate.$d,
+                                            index
+                                          );
+                                        }}
+                                        slotProps={{
+                                          textField: {
+                                            readOnly: true,
+                                          } as Record<string, any>,
+                                        }}
+                                      />
+                                    </LocalizationProvider>
+                                  </div>
                                   <div className="flex flex-col">
                                     <div className="flex">
                                       <ImageUploader isDisable={true} />

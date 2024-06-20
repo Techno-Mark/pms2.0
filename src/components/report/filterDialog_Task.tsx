@@ -20,6 +20,7 @@ import {
 } from "@/utils/commonDropdownApiCall";
 import { getFormattedDate } from "@/utils/timerFunctions";
 import { LabelValue } from "@/utils/Types/types";
+import { priorityOptions } from "@/utils/staticDropdownData";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -215,11 +216,7 @@ const FilterDialog_Task = ({
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
                 <Autocomplete
                   id="tags-standard"
-                  options={[
-                    { label: "High", value: 1 },
-                    { label: "Medium", value: 2 },
-                    { label: "Low", value: 3 },
-                  ]}
+                  options={priorityOptions}
                   getOptionLabel={(option: LabelValue) => option.label}
                   onChange={(e, data: LabelValue | null) => {
                     setPriorityFilterTask(data);
