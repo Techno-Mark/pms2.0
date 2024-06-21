@@ -630,7 +630,7 @@ const reportsErrorLogColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    header: "ReveiwerErrorTime",
+    header: "ReviewerErrorTime",
     label: "Reveiwer Error Logged time",
     bodyRenderer: generateCommonBodyRender,
   },
