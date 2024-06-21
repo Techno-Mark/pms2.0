@@ -362,7 +362,7 @@ const User = ({
           filter: true,
           viewColumns: true,
           sort: true,
-          display: false,
+          display: true,
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
           customBodyRender: (value: boolean, tableMeta: any) => {
             const activeUser = async () => {
@@ -426,6 +426,26 @@ const User = ({
                     </Avatar>
                   ))}
                 </AvatarGroup>
+              </div>
+            );
+          },
+        },
+      };
+    } else if (column.label === "Mobile") {
+      return {
+        name: "ContactNo",
+        options: {
+          filter: true,
+          viewColumns: true,
+          sort: true,
+          display: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Mobile"),
+          customBodyRender: (value: any) => {
+            return (
+              <div className="ml-2">
+                {!value || value === "0" || value === null || value === "null"
+                  ? "-"
+                  : value}
               </div>
             );
           },
