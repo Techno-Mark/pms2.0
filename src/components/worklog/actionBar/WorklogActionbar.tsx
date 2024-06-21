@@ -15,6 +15,7 @@ import { getStatusDropdownData } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
 import { DatatableWorklog } from "@/utils/Types/clientWorklog";
 import { LabelValueType } from "@/utils/Types/types";
+import { priorityOptions } from "@/utils/staticDropdownData";
 
 interface Props {
   selectedRowsCount: number;
@@ -30,12 +31,6 @@ interface Props {
   isCreatedByClient: null | boolean;
   getOverLay: (e: boolean) => void;
 }
-
-const priorityOptions = [
-  { id: 3, text: "Low" },
-  { id: 2, text: "Medium" },
-  { id: 1, text: "High" },
-];
 
 const WorklogActionbar = ({
   selectedRowsCount,
@@ -335,16 +330,16 @@ const WorklogActionbar = ({
                   <nav className="!w-52">
                     <List>
                       {priorityOptions.map(
-                        (option: { id: number; text: string }) => (
+                        (option: { value: number; label: string }) => (
                           <span
-                            key={option.id}
+                            key={option.value}
                             className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                           >
                             <span
                               className="p-1 cursor-pointer"
-                              onClick={() => handleOptionPriority(option.id)}
+                              onClick={() => handleOptionPriority(option.value)}
                             >
-                              {option.text}
+                              {option.label}
                             </span>
                           </span>
                         )

@@ -43,6 +43,7 @@ import {
   LabelValueProfileImage,
   LabelValueType,
 } from "@/utils/Types/types";
+import { priorityOptions } from "@/utils/staticDropdownData";
 
 interface SavedFilter {
   FilterId: number;
@@ -95,21 +96,6 @@ const hoursDropdown = [
   { label: "All", value: null },
   { label: "Hours Shared", value: 1 },
   { label: "Hours Pending", value: 0 },
-];
-
-const priorityDropdown = [
-  {
-    label: "High",
-    value: 1,
-  },
-  {
-    label: "Medium",
-    value: 2,
-  },
-  {
-    label: "Low",
-    value: 3,
-  },
 ];
 
 const CustomReportFilter = ({
@@ -770,7 +756,7 @@ const CustomReportFilter = ({
 
     setPriority(
       AppliedFilter.priority !== null
-        ? priorityDropdown.filter(
+        ? priorityOptions.filter(
             (item: LabelValue) => item.value === AppliedFilter.priority
           )[0]
         : null
@@ -1358,7 +1344,7 @@ const CustomReportFilter = ({
                 >
                   <Autocomplete
                     id="tags-standard"
-                    options={priorityDropdown}
+                    options={priorityOptions}
                     getOptionLabel={(option: LabelValue) => option.label}
                     onChange={(e, data: LabelValue | null) => {
                       setPriority(data);

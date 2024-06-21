@@ -246,6 +246,8 @@ export interface ErrorlogGetByWorkitem {
   Remark: string;
   Attachment?: CommentAttachment[] | [];
   Attachments?: CommentAttachment[] | [];
+  Amount: number | null;
+  DateOfTransaction: string | null;
   IsSolved?: boolean;
   isSolved?: boolean;
   DisableErrorLog?: boolean;

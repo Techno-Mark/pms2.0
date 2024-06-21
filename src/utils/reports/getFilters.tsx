@@ -249,6 +249,25 @@ export const wltr_InitialFilter = {
   Clients: [],
 };
 
+export const errorLog_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  sortColumn: "",
+  IsDesc: true,
+  GlobalSearch: "",
+  ErrorType: [],
+  RootCause: [],
+  Impact: [],
+  NatureOfError: [],
+  Priority: [],
+  Assignee: [],
+  Reviewer: [],
+  ReceivedFrom: null,
+  ReceivedTo: null,
+  ResolvedOn: null,
+  IsDownload: false,
+};
+
 export const getCurrentTabDetails = (activeTab: number, getBody?: boolean) => {
   if (activeTab === 1) {
     return getBody ? client_project_InitialFilter : "project";
@@ -297,5 +316,8 @@ export const getCurrentTabDetails = (activeTab: number, getBody?: boolean) => {
   }
   if (activeTab === 16) {
     return getBody ? wltr_InitialFilter : "wltr";
+  }
+  if (activeTab === 17) {
+    return getBody ? errorLog_InitialFilter : "errorLog";
   }
 };

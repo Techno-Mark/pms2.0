@@ -187,7 +187,7 @@ const ProjectContent = forwardRef<
           );
           clearAllFields();
           onDataFetch?.();
-          onClose();
+          !addMoreClicked && onClose();
         }
       };
       callAPI(url, params, successCallback, "POST");
@@ -345,6 +345,7 @@ const ProjectContent = forwardRef<
               variant="outlined"
               className="rounded-[4px] !h-[36px] !text-secondary cursor-pointer"
               onClick={() => setAddMoreClicked(true)}
+              type="submit"
             >
               Add More
             </Button>

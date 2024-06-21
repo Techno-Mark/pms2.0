@@ -62,6 +62,7 @@ import {
   LabelValueType,
 } from "@/utils/Types/types";
 import { ClientWorkitemGetById, GetFields } from "@/utils/Types/clientWorklog";
+import { priorityOptions } from "@/utils/staticDropdownData";
 
 interface DrawerProps {
   onOpen: boolean;
@@ -156,11 +157,6 @@ const Drawer = ({
   ] = useState([]);
   const [subProcessNameClientWorklog, setSubProcessNameClientWorklog] =
     useState<number>(0);
-  const priorityClientWorklogDropdownData = [
-    { label: "High", value: 1 },
-    { label: "Medium", value: 2 },
-    { label: "Low", value: 3 },
-  ];
   const [priorityClientWorklog, setPriorityClientWorklog] = useState<number>(0);
   const [quantityClientWorklog, setQuantityClientWorklog] = useState<number>(1);
   const [receiverDateClientWorklog, setReceiverDateClientWorklog] =
@@ -626,6 +622,8 @@ const Drawer = ({
             AttachmentPath: process.env.attachment || "",
           },
         ],
+        Amount: 0,
+        DateOfTransaction: "",
         isSolved: false,
       },
     ]);
@@ -656,6 +654,8 @@ const Drawer = ({
             AttachmentPath: process.env.attachment || "",
           },
         ],
+        Amount: 0,
+        DateOfTransaction: "",
         isSolved: false,
       },
     ]);
@@ -744,6 +744,9 @@ const Drawer = ({
                     AttachmentPath: process.env.attachment || "",
                   },
                 ],
+            Amount: i.Amount === null ? 0 : i.Amount,
+            DateOfTransaction:
+              i.DateOfTransaction === null ? "" : i.DateOfTransaction,
             isSolved: i.IsSolved,
           }))
         );
@@ -769,6 +772,8 @@ const Drawer = ({
                 AttachmentPath: process.env.attachment || "",
               },
             ],
+            Amount: 0,
+            DateOfTransaction: "",
             isSolved: false,
           },
         ]);
@@ -1254,6 +1259,8 @@ const Drawer = ({
             AttachmentPath: process.env.attachment || "",
           },
         ],
+        Amount: 0,
+        DateOfTransaction: "",
         isSolved: false,
       },
     ]);
@@ -1594,9 +1601,9 @@ const Drawer = ({
                                   !isCreatedByClientWorklog) ||
                                 statusClientWorklog > 1
                               }
-                              options={priorityClientWorklogDropdownData}
+                              options={priorityOptions}
                               value={
-                                priorityClientWorklogDropdownData.find(
+                                priorityOptions.find(
                                   (i: LabelValue) =>
                                     i.value === priorityClientWorklog
                                 ) || null

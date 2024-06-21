@@ -81,7 +81,7 @@ const Page = () => {
                 install it.
               </span>
               <Button variant="contained" className="!bg-secondary">
-                <a href="https://pmsaea8.blob.core.windows.net/prod-help-video-setup/DotRuntimeSetup.zip">
+                <a href="https://pmsaea8.blob.core.windows.net/prod-help-video-setup/DotNetRuntime.msi">
                   Download
                 </a>
               </Button>
@@ -109,7 +109,7 @@ const Page = () => {
                 </li>
                 <li className="pb-1">
                   Ensure that the user system has the most recent version of the
-                  PMS Executable (.msi) File [Version 2.0] - June 12, 2024 and
+                  PMS Executable (.msi) File [Version 2.0] - June 18, 2024 and
                   remove any outdated version if any.
                 </li>
                 <li className="pb-1">
