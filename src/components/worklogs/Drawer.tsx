@@ -5990,6 +5990,7 @@ const EditDrawer = ({
                                     }
                                     value={i.Amount === 0 ? "" : i.Amount}
                                     onChange={(e) =>
+                                      e.target.value.length <= 7 &&
                                       handleAmountChangeApprovals(
                                         e.target.value,
                                         index

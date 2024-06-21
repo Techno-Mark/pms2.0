@@ -68,7 +68,8 @@ interface Response {
         SubmittedOn: string | null;
         ResolvedBy: string | null;
         ResolvedOn: null;
-        ErrorLogTime: string | null;
+        PreparorErrorTime: string | null;
+        ReveiwerErrorTime: string | null;
         DateOfReview: string | null;
       }[]
     | [];

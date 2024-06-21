@@ -5715,6 +5715,7 @@ const EditDrawer = ({
                               }
                               value={field.Amount === 0 ? "" : field.Amount}
                               onChange={(e) =>
+                                e.target.value.length <= 7 &&
                                 handleAmountChangeApprovals(
                                   e.target.value,
                                   index
