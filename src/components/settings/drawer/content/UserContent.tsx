@@ -464,7 +464,7 @@ const UserContent = forwardRef<
       report <= 0 && parseInt(roleIdAdmin) > 1 && setReportError(true);
       selectGroupValue.length <= 0 && setGroupError(true);
       setEmailError(!regex.test(email));
-
+      
       if (
         !firstNameError &&
         firstName.trim().length > 2 &&
