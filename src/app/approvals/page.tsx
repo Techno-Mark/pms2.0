@@ -6,7 +6,7 @@ import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
-import { InputBase } from "@mui/material";
+import { Button, InputBase, Popover, Tooltip } from "@mui/material";
 import Drawer from "@/components/approvals/Drawer";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -17,9 +17,12 @@ import Loading from "@/assets/icons/reports/Loading";
 import axios from "axios";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
-import {
-  AppliedFilterApprovals,
-} from "@/utils/Types/types";
+import { AppliedFilterApprovals } from "@/utils/Types/types";
+import { Delete, Edit } from "@mui/icons-material";
+import { FilterWorklogsPage } from "@/utils/Types/worklogsTypes";
+import { callAPI } from "@/utils/API/callAPI";
+import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+import FilterDialog from "@/components/approvals/FilterDialog";
 
 const exportBody = {
   pageNo: 1,
@@ -30,11 +33,32 @@ const exportBody = {
   userId: null,
   ClientId: null,
   projectId: null,
+  IsShowAll: 1,
+  DepartmentId: null,
   startDate: null,
   endDate: null,
   dueDate: null,
   StatusId: null,
   ProcessId: null,
+  startDateReview: null,
+  endDateReview: null,
+};
+
+const initialFilter = {
+  ClientId: null,
+  TypeOfWork: null,
+  userId: null,
+  ProjectId: null,
+  IsShowAll: 1,
+  DepartmentId: null,
+  ProcessId: null,
+  StatusId: null,
+  dueDate: null,
+  startDate: null,
+  endDate: null,
+  DateFilter: null,
+  startDateReview: null,
+  endDateReview: null,
 };
 
 const Page = () => {
@@ -45,9 +69,14 @@ const Page = () => {
   const [hasEditId, setHasEditId] = useState(0);
   const [iconIndex, setIconIndex] = useState<number>(0);
   const [hasId, setHasId] = useState<number>(0);
+  const [search, setSearch] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [globalSearchValue, setGlobalSearchValue] = useState("");
-  const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
+  const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
+  const [currentFilterId, setCurrentFilterId] = useState<number>(0);
+  const [clickedFilterId, setclickedFilterId] = useState<number>(0);
+  const [filterList, setFilterList] = useState<FilterWorklogsPage[] | []>([]);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
   const [currentFilterData, setCurrentFilterData] = useState<
     AppliedFilterApprovals | []
@@ -58,9 +87,80 @@ const Page = () => {
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [canExport, setCanExport] = useState<boolean>(false);
 
-  const handleCloseFilter = () => {
-    setisFilterOpen(false);
+  const [anchorElFilter, setAnchorElFilter] =
+    React.useState<HTMLButtonElement | null>(null);
+
+  const openFilter = Boolean(anchorElFilter);
+  const idFilter = openFilter ? "simple-popover" : undefined;
+
+  const handleClickFilter = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorElFilter(event.currentTarget);
   };
+
+  const filteredFilters = filterList.filter((filter: FilterWorklogsPage) =>
+    filter.Name.toLowerCase().includes(searchValue.toLowerCase())
+  );
+
+  const handleCloseAllFilter = () => {
+    setAnchorElFilter(null);
+  };
+
+  const handleSearchChangeWorklog = (e: string) => {
+    setSearchValue(e);
+  };
+
+  const handleCloseFilter = () => {
+    setIsFilterOpen(false);
+  };
+
+  const closeDeleteModal = () => {
+    setIsDeleteOpen(false);
+  };
+
+  const closeFilterModal = () => {
+    setIsFilterOpen(false);
+  };
+
+  const getFilterList = async () => {
+    const params = {
+      type: 21,
+    };
+    const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+    const successCallback = (
+      ResponseData: FilterWorklogsPage[] | [],
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setFilterList(ResponseData);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  const deleteFilter = async (FilterId: number) => {
+    const params = {
+      filterId: FilterId,
+    };
+    const url = `${process.env.worklog_api_url}/filter/delete`;
+    const successCallback = (
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Filter has been deleted successfully.");
+        setCurrentFilterId(0);
+        getFilterList();
+        setCurrentFilterData(initialFilter);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  useEffect(() => {
+    getFilterList();
+  }, []);
 
   const getIdFromFilterDialog = (data: AppliedFilterApprovals) => {
     setCurrentFilterData(data);
@@ -88,7 +188,7 @@ const Page = () => {
     setHasManual(false);
     setHasId(0);
     setGlobalSearchValue("");
-    setSearchValue("");
+    setSearch("");
   };
 
   const handleEdit = (rowId: number, Id: number, iconIndex?: number) => {
@@ -134,7 +234,7 @@ const Page = () => {
       {
         ...exportBody,
         ...currentFilterData,
-        globalSearch: searchValue,
+        globalSearch: search,
         isDownload: true,
       },
       {
@@ -175,7 +275,7 @@ const Page = () => {
   };
 
   const handleSearchChange = (e: string) => {
-    setSearchValue(e);
+    setSearch(e);
     const timer = setTimeout(() => {
       setGlobalSearchValue(e.trim());
     }, 500);
@@ -199,7 +299,7 @@ const Page = () => {
                 setActiveTab(1);
                 // setCurrentFilterData({ PageNo: 1, PageSize: 10 });
                 setGlobalSearchValue("");
-                setSearchValue("");
+                setSearch("");
               }}
             >
               Review
@@ -215,7 +315,7 @@ const Page = () => {
                 setActiveTab(2);
                 // setCurrentFilterData({ PageNo: 1, PageSize: 10 });
                 setGlobalSearchValue("");
-                setSearchValue("");
+                setSearch("");
               }}
             >
               All Task
@@ -231,21 +331,141 @@ const Page = () => {
               <InputBase
                 className="pl-1 pr-7 border-b border-b-lightSilver w-52"
                 placeholder="Search"
-                value={searchValue}
+                value={search}
                 onChange={(e) => handleSearchChange(e.target.value)}
               />
               <span className="absolute top-2 right-2 text-slatyGrey">
                 <SearchIcon />
               </span>
             </div>
-            <ColorToolTip title="Filter" placement="top" arrow>
+            {/* <ColorToolTip title="Filter" placement="top" arrow>
               <span
                 className="cursor-pointer"
-                onClick={() => setisFilterOpen(true)}
+                onClick={() => setIsFilterOpen(true)}
               >
                 <FilterIcon />
               </span>
-            </ColorToolTip>
+            </ColorToolTip> */}
+
+            {filterList.length > 0 && activeTab === 2 ? (
+              <div>
+                <span
+                  aria-describedby={idFilter}
+                  onClick={handleClickFilter}
+                  className="cursor-pointer"
+                >
+                  <FilterIcon />
+                </span>
+
+                <Popover
+                  id={idFilter}
+                  open={openFilter}
+                  anchorEl={anchorElFilter}
+                  onClose={handleCloseAllFilter}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right",
+                  }}
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                >
+                  <div className="flex flex-col py-2 w-[250px]">
+                    <span
+                      className="p-2 cursor-pointer hover:bg-lightGray"
+                      onClick={() => {
+                        setIsFilterOpen(true);
+                        setCurrentFilterId(0);
+                        handleCloseAllFilter();
+                      }}
+                    >
+                      Default Filter
+                    </span>
+                    <hr className="text-lightSilver mt-2" />
+
+                    <span className="py-3 px-2 relative">
+                      <InputBase
+                        className="pr-7 border-b border-b-slatyGrey w-full"
+                        placeholder="Search saved filters"
+                        inputProps={{ "aria-label": "search" }}
+                        value={searchValue}
+                        onChange={(e) =>
+                          handleSearchChangeWorklog(e.target.value)
+                        }
+                        sx={{ fontSize: 14 }}
+                      />
+                      <span className="absolute top-4 right-3 text-slatyGrey">
+                        <SearchIcon />
+                      </span>
+                    </span>
+
+                    {filteredFilters.map((i: FilterWorklogsPage) => {
+                      return (
+                        <div
+                          key={i.FilterId}
+                          className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
+                        >
+                          <span
+                            className="pl-1"
+                            onClick={() => {
+                              setclickedFilterId(i.FilterId);
+                              handleCloseAllFilter();
+                            }}
+                          >
+                            {i.Name}
+                          </span>
+                          <span className="flex gap-[10px] pr-[10px]">
+                            <span
+                              onClick={() => {
+                                setCurrentFilterId(i.FilterId);
+                                setIsFilterOpen(true);
+                                handleCloseAllFilter();
+                              }}
+                            >
+                              <Tooltip title="Edit" placement="top" arrow>
+                                <Edit className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
+                              </Tooltip>
+                            </span>
+                            <span
+                              onClick={() => {
+                                setIsDeleteOpen(true);
+                                setCurrentFilterId(i.FilterId);
+                                handleCloseAllFilter();
+                              }}
+                            >
+                              <Tooltip title="Delete" placement="top" arrow>
+                                <Delete className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
+                              </Tooltip>
+                            </span>
+                          </span>
+                        </div>
+                      );
+                    })}
+                    <hr className="text-lightSilver mt-2" />
+                    <Button
+                      onClick={() => {
+                        setclickedFilterId(0);
+                        handleCloseAllFilter();
+                      }}
+                      className="mt-2"
+                      color="error"
+                    >
+                      clear all
+                    </Button>
+                  </div>
+                </Popover>
+              </div>
+            ) : (
+              <ColorToolTip title="Filter" placement="top" arrow>
+                <span
+                  className="cursor-pointer"
+                  onClick={() => setIsFilterOpen(true)}
+                >
+                  <FilterIcon />
+                </span>
+              </ColorToolTip>
+            )}
 
             <ColorToolTip title="Export" placement="top" arrow>
               <span
@@ -267,6 +487,7 @@ const Page = () => {
           onDataFetch={handleDataFetch}
           onEdit={handleEdit}
           // onDrawerOpen={handleDrawerOpen}
+          onCurrentFilterId={clickedFilterId}
           currentFilterData={currentFilterData}
           onFilterOpen={isFilterOpen}
           onCloseDrawer={openDrawer}
@@ -290,13 +511,43 @@ const Page = () => {
           onManualTime={hasManual}
         />
 
-        <FilterDialogApproval
-          activeTab={activeTab}
-          onOpen={isFilterOpen}
-          onClose={handleCloseFilter}
-          onDataFetch={() => {}}
-          currentFilterData={getIdFromFilterDialog}
-        />
+        {activeTab === 1 && (
+          <FilterDialogApproval
+            activeTab={activeTab}
+            onOpen={isFilterOpen}
+            onClose={handleCloseFilter}
+            onDataFetch={() => {}}
+            currentFilterData={getIdFromFilterDialog}
+          />
+        )}
+
+        {activeTab === 2 && (
+          <FilterDialog
+            getIdFromFilterDialog={getIdFromFilterDialog}
+            onOpen={isFilterOpen}
+            onClose={closeFilterModal}
+            onActionClick={() => {}}
+            onDataFetch={getFilterList}
+            onCurrentFilterId={currentFilterId}
+            currentFilterData={currentFilterData}
+          />
+        )}
+
+        {/* Delete Dialog Box */}
+        {activeTab === 2 && (
+          <DeleteDialog
+            isOpen={isDeleteOpen}
+            onClose={closeDeleteModal}
+            onActionClick={() => {
+              deleteFilter(currentFilterId);
+            }}
+            Title={"Delete Filter"}
+            firstContent={"Are you sure you want to delete this saved filter?"}
+            secondContent={
+              "If you delete this, you will permanently loose this saved filter and selected fields."
+            }
+          />
+        )}
       </div>
     </Wrapper>
   );
