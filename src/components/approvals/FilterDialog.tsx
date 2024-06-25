@@ -37,7 +37,7 @@ interface FilterModalProps {
   onActionClick?: () => void;
   onDataFetch: () => void;
   onCurrentFilterId: number;
-  //   currentFilterData?: (data: AppliedFilterWorklogsPage) => void;
+  getIdFromFilterDialog?: (data: any) => void;
   currentFilterData?: any;
 }
 
@@ -63,6 +63,7 @@ const FilterDialog = ({
   onClose,
   onDataFetch,
   onCurrentFilterId,
+  getIdFromFilterDialog,
   currentFilterData,
 }: FilterModalProps) => {
   const [clientName, setClientName] = useState<LabelValue | null>(null);
@@ -108,7 +109,7 @@ const FilterDialog = ({
   }
 
   const sendFilterToPage = () => {
-    currentFilterData?.(currSelectedFields);
+    getIdFromFilterDialog?.(currSelectedFields);
     onClose();
   };
 
@@ -153,7 +154,7 @@ const FilterDialog = ({
     setSaveFilter(false);
     setFilterName("");
     setAnyFieldSelected(false);
-    currentFilterData?.(initialFilter);
+    getIdFromFilterDialog?.(initialFilter);
     setStatusDropdownData([]);
     setError("");
   };
@@ -330,7 +331,27 @@ const FilterDialog = ({
       workType !== null ||
       userName !== null ||
       projectName !== null ||
-      (reviewer !== null && reviewer.value !== 1) ||
+      (reviewer !== null && reviewer.value !== currentFilterData.IsShowAll) ||
+      status !== null ||
+      department != null ||
+      processName !== null ||
+      date !== null ||
+      dueDate !== null ||
+      startDate !== null ||
+      endDate !== null ||
+      startDateReview !== null ||
+      endDateReview !== null;
+
+    setAnyFieldSelected(isAnyFieldSelected);
+  }, []);
+
+  useEffect(() => {
+    const isAnyFieldSelected =
+      clientName !== null ||
+      workType !== null ||
+      userName !== null ||
+      projectName !== null ||
+      (reviewer !== null && reviewer.value !== currentFilterData.IsShowAll) ||
       status !== null ||
       department != null ||
       processName !== null ||

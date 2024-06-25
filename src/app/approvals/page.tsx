@@ -523,12 +523,13 @@ const Page = () => {
 
         {activeTab === 2 && (
           <FilterDialog
-            currentFilterData={getIdFromFilterDialog}
+            getIdFromFilterDialog={getIdFromFilterDialog}
             onOpen={isFilterOpen}
             onClose={closeFilterModal}
             onActionClick={() => {}}
             onDataFetch={getFilterList}
             onCurrentFilterId={currentFilterId}
+            currentFilterData={currentFilterData}
           />
         )}
 
