@@ -160,7 +160,7 @@ const FilterDialog = ({
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setAssignedByDropdownData(ResponseData);
-        setAssignedToDropdownData(ResponseData);
+        // setAssignedToDropdownData(ResponseData);
       }
     };
     callAPI(url, params, successCallback, "GET");

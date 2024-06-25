@@ -238,6 +238,8 @@ const EditDrawer = ({
   const [editStatusWorklogs, setEditStatusWorklogs] = useState<number>(0);
   const [statusWorklogsErr, setStatusWorklogsErr] = useState(false);
   const [descriptionWorklogs, setDescriptionWorklogs] = useState<string>("");
+  const [descriptionWorklogsErr, setDescriptionWorklogsErr] =
+    useState<boolean>(false);
   const [priorityWorklogs, setPriorityWorklogs] = useState<string | number>(0);
   const [quantityWorklogs, setQuantityWorklogs] = useState<number>(1);
   const [quantityWorklogsErr, setQuantityWorklogsErr] = useState(false);
@@ -1795,6 +1797,8 @@ const EditDrawer = ({
       processName: validateField(processNameWorklogs),
       subProcess: validateField(subProcessWorklogs),
       clientTaskName: validateField(clientTaskNameWorklogs),
+      descriptionWorklogs:
+        departmentWorklogs !== 15 && validateField(descriptionWorklogs),
       quantity: validateField(quantityWorklogs),
       receiverDate: validateField(receiverDateWorklogs),
       assignee: assigneeWorklogsDisable && validateField(assigneeWorklogs),
@@ -1826,6 +1830,8 @@ const EditDrawer = ({
     setProcessNameWorklogsErr(fieldValidations.processName);
     setSubProcessWorklogsErr(fieldValidations.subProcess);
     setClientTaskNameWorklogsErr(fieldValidations.clientTaskName);
+    departmentWorklogs !== 15 &&
+      setDescriptionWorklogsErr(fieldValidations.descriptionWorklogs);
     setQuantityWorklogsErr(fieldValidations.quantity);
     setReceiverDateWorklogsErr(fieldValidations.receiverDate);
     assigneeWorklogsDisable &&
@@ -1883,6 +1889,8 @@ const EditDrawer = ({
       processName: validateField(processNameWorklogs),
       subProcess: validateField(subProcessWorklogs),
       clientTaskName: validateField(clientTaskNameWorklogs),
+      descriptionWorklogs:
+        departmentWorklogs !== 15 && validateField(descriptionWorklogs),
       quantity: validateField(quantityWorklogs),
       receiverDate: validateField(receiverDateWorklogs),
       dueDate: validateField(dueDateWorklogs),
@@ -2408,10 +2416,15 @@ const EditDrawer = ({
         (await getTypeOfWorkDropdownData(clientNameWorklogs));
       workTypeData.length > 0 &&
         setTypeOfWorkWorklogsDropdownData(workTypeData);
+      const workTypeId = localStorage.getItem("workTypeId");
       workTypeData.length > 0 &&
         onEdit === 0 &&
         setTypeOfWorkWorklogs(
-          workTypeData.map((i: LabelValue) => i.value).includes(3)
+          workTypeData
+            .map((i: LabelValue) => i.value)
+            .includes(Number(workTypeId))
+            ? Number(workTypeId)
+            : workTypeData.map((i: LabelValue) => i.value).includes(3)
             ? 3
             : workTypeData.map((i: LabelValue) => i.value).includes(1)
             ? 1
@@ -2624,6 +2637,7 @@ const EditDrawer = ({
     setStatusWorklogs(0);
     setStatusWorklogsErr(false);
     setDescriptionWorklogs("");
+    setDescriptionWorklogsErr(false);
     setPriorityWorklogs(0);
     setQuantityWorklogs(1);
     setQuantityWorklogsErr(false);
@@ -2865,6 +2879,7 @@ const EditDrawer = ({
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setClientNameWorklogs(value.value);
+                          setClientNameWorklogsErr(false);
                           setTypeOfWorkWorklogs(0);
                           setTypeOfWorkWorklogsErr(false);
                           setProjectNameWorklogs(0);
@@ -2876,6 +2891,7 @@ const EditDrawer = ({
                           setSubProcessWorklogs(0);
                           setSubProcessWorklogsErr(false);
                           setDescriptionWorklogs("");
+                          setDescriptionWorklogsErr(false);
                           setManagerWorklogs(0);
                           setManagerWorklogsErr(false);
                           setPriorityWorklogs(0);
@@ -2896,6 +2912,8 @@ const EditDrawer = ({
                           setChecklistWorkpaperWorklogsErr(false);
                           setValueMonthYearFrom(null);
                           setValueMonthYearTo(null);
+                          setClientTaskNameWorklogsErr(false);
+                          setStatusWorklogsErr(false);
                         }}
                         disabled={
                           (isCreatedByClientWorklogsDrawer &&
@@ -3099,6 +3117,9 @@ const EditDrawer = ({
                           setSubProcessWorklogs(0);
                           setValueMonthYearFrom(null);
                           setValueMonthYearTo(null);
+                          setDescriptionWorklogs("");
+                          setDescriptionWorklogsErr(false);
+                          setAllInfoDateWorklogs("");
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3143,7 +3164,9 @@ const EditDrawer = ({
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setProcessNameWorklogs(value.value);
+                          setProcessNameWorklogsErr(false);
                           value && setSubProcessWorklogs(0);
+                          setSubProcessWorklogsErr(false);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3188,6 +3211,7 @@ const EditDrawer = ({
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setSubProcessWorklogs(value.value);
+                          setSubProcessWorklogsErr(false);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3236,14 +3260,11 @@ const EditDrawer = ({
                           setClientTaskNameWorklogsErr(false);
                         }}
                         onBlur={(e) => {
-                          if (e.target.value.trim().length > 4) {
-                            setClientTaskNameWorklogsErr(false);
-                          }
                           if (
-                            e.target.value.trim().length > 4 &&
-                            e.target.value.trim().length < 50
+                            e.target.value.trim().length < 4 ||
+                            e.target.value.trim().length > 50
                           ) {
-                            setClientTaskNameWorklogsErr(false);
+                            setClientTaskNameWorklogsErr(true);
                           }
                         }}
                         error={clientTaskNameWorklogsErr}
@@ -3266,7 +3287,16 @@ const EditDrawer = ({
                     </Grid>
                     <Grid item xs={3} className="pt-[14px]">
                       <TextField
-                        label="Description"
+                        label={
+                          departmentWorklogs === 15 ? (
+                            "Description"
+                          ) : (
+                            <span>
+                              Description
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          )
+                        }
                         fullWidth
                         value={
                           descriptionWorklogs?.trim().length <= 0
@@ -3274,7 +3304,29 @@ const EditDrawer = ({
                             : descriptionWorklogs
                         }
                         disabled={isIdDisabled}
-                        onChange={(e) => setDescriptionWorklogs(e.target.value)}
+                        onChange={(e) => {
+                          setDescriptionWorklogs(e.target.value);
+                          setDescriptionWorklogsErr(false);
+                        }}
+                        onBlur={(e) => {
+                          if (departmentWorklogs === 15) {
+                            setDescriptionWorklogsErr(false);
+                          } else if (
+                            e.target.value.trim().length <= 0 ||
+                            e.target.value.trim().length > 100
+                          ) {
+                            setDescriptionWorklogsErr(true);
+                          }
+                        }}
+                        error={descriptionWorklogsErr}
+                        helperText={
+                          descriptionWorklogsErr &&
+                          descriptionWorklogs?.trim().length > 100
+                            ? "Maximum 100 characters allowed."
+                            : descriptionWorklogsErr
+                            ? "This is a required field."
+                            : ""
+                        }
                         margin="normal"
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -0.5 }}
@@ -3525,32 +3577,41 @@ const EditDrawer = ({
                         </LocalizationProvider>
                       </div>
                     </Grid>
-                    <Grid item xs={3} className="pt-4">
-                      <div
-                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
-                      >
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker
-                            label="All Info Date"
-                            disabled={isIdDisabled}
-                            shouldDisableDate={isWeekend}
-                            value={
-                              allInfoDateWorklogs === ""
-                                ? null
-                                : dayjs(allInfoDateWorklogs)
-                            }
-                            onChange={(newDate: any) =>
-                              setAllInfoDateWorklogs(newDate.$d)
-                            }
-                          />
-                        </LocalizationProvider>
-                      </div>
-                    </Grid>
+                    {departmentWorklogs === 15 && (
+                      <Grid item xs={3} className="pt-4">
+                        <div
+                          className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              label="All Info Date"
+                              disabled={isIdDisabled}
+                              shouldDisableDate={isWeekend}
+                              value={
+                                allInfoDateWorklogs === ""
+                                  ? null
+                                  : dayjs(allInfoDateWorklogs)
+                              }
+                              onChange={(newDate: any) =>
+                                setAllInfoDateWorklogs(newDate.$d)
+                              }
+                            />
+                          </LocalizationProvider>
+                        </div>
+                      </Grid>
+                    )}
                     <Grid
                       item
                       xs={3}
                       className={`${
-                        typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
+                        typeOfWorkWorklogs === 3 && departmentWorklogs !== 15
+                          ? "pt-2"
+                          : typeOfWorkWorklogs === 3 &&
+                            departmentWorklogs === 15
+                          ? "pt-4"
+                          : departmentWorklogs !== 15
+                          ? "pt-[17px]"
+                          : "pt-5"
                       }`}
                     >
                       <Autocomplete
@@ -3665,6 +3726,7 @@ const EditDrawer = ({
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setManagerWorklogs(value.value);
+                          setManagerWorklogsErr(false);
                         }}
                         sx={{
                           width: 300,
@@ -5036,7 +5098,16 @@ const EditDrawer = ({
                                   </span>
                                 </span>
                               }
-                              minDate={dayjs(reviewerDate)}
+                              minDate={
+                                !manualSwitchWorklogs ||
+                                field.IsApproved ||
+                                (field.AssigneeId !== 0 &&
+                                  field.AssigneeId !== userId) ||
+                                isIdDisabled ||
+                                isUnassigneeClicked
+                                  ? ""
+                                  : dayjs(reviewerDate)
+                              }
                               maxDate={dayjs(new Date())}
                               disabled={
                                 !manualSwitchWorklogs ||
