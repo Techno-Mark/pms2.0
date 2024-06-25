@@ -233,6 +233,10 @@ const FilterDialog = ({
     }
   };
 
+  useEffect(() => {
+    onCurrentFilterId === 0 && handleResetAll();
+  }, [onCurrentFilterId]);
+
   const getFilterList = async (filterId: number) => {
     const params = {
       type: 1,

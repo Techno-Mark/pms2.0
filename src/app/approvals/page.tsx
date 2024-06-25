@@ -487,6 +487,7 @@ const Page = () => {
           onDataFetch={handleDataFetch}
           onEdit={handleEdit}
           // onDrawerOpen={handleDrawerOpen}
+          onCurrentFilterId={clickedFilterId}
           currentFilterData={currentFilterData}
           onFilterOpen={isFilterOpen}
           onCloseDrawer={openDrawer}

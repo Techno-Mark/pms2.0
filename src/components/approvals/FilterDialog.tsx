@@ -163,6 +163,10 @@ const FilterDialog = ({
     onClose();
   };
 
+  useEffect(() => {
+    onCurrentFilterId === 0 && handleResetAll();
+  }, [onCurrentFilterId]);
+
   const getDropdownData = async () => {
     setClientDropdownData(await getClientDropdownData());
     setUserDropdownData(await getCCDropdownData());

@@ -50,6 +50,7 @@ interface DatatableProps {
   onEdit: (rowId: number, Id: number, iconIndex?: number) => void;
   onDataFetch: (getData: () => void) => void;
   currentFilterData: AppliedFilterApprovals | [];
+  onCurrentFilterId: number;
   onFilterOpen: boolean;
   onCloseDrawer: boolean;
   onComment: (rowData: boolean, selectedId: number) => void;
@@ -72,9 +73,14 @@ const initialFilter = {
   userId: null,
   ClientId: null,
   TypeOfWork: null,
+  DepartmentId: null,
+  IsShowAll: 1,
   projectId: null,
+  ProjectId: null,
   startDate: null,
   endDate: null,
+  startDateReview: null,
+  endDateReview: null,
   dueDate: null,
   StatusId: null,
   ProcessId: null,
@@ -87,6 +93,7 @@ const Datatable = ({
   onDataFetch,
   currentFilterData,
   onFilterOpen,
+  onCurrentFilterId,
   onCloseDrawer,
   onComment,
   onErrorLog,
@@ -152,6 +159,105 @@ const Datatable = ({
     setPage(0);
     setRowsPerPage(10);
   }, [activeTab]);
+
+  const getFilterList = async (filterId: number) => {
+    console.log(filterId);
+    if (filterId === 0) {
+      setFilteredOject(initialFilter);
+    } else {
+      const params = {
+        type: 21,
+      };
+      const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+      const successCallback = (
+        ResponseData: any[] | [],
+        error: boolean,
+        ResponseStatus: string
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          const filteredData = ResponseData.filter(
+            (filter: any) => filter.FilterId === filterId
+          );
+
+          if (filteredData.length > 0) {
+            const appliedFilterData = filteredData[0].AppliedFilter;
+            setFilteredOject({
+              ...filteredObject,
+              ClientId:
+                appliedFilterData.ClientId === 0 ||
+                appliedFilterData.ClientId === null
+                  ? null
+                  : appliedFilterData.ClientId,
+              TypeOfWork:
+                appliedFilterData.TypeOfWork === 0 ||
+                appliedFilterData.TypeOfWork === null
+                  ? null
+                  : appliedFilterData.TypeOfWork,
+              DepartmentId:
+                appliedFilterData.DepartmentId === 0 ||
+                appliedFilterData.DepartmentId === null
+                  ? null
+                  : appliedFilterData.DepartmentId,
+              IsShowAll:
+                appliedFilterData.IsShowAll === null
+                  ? null
+                  : appliedFilterData.IsShowAll,
+              StatusId:
+                appliedFilterData.Status === 0 ||
+                appliedFilterData.Status === null
+                  ? null
+                  : appliedFilterData.Status,
+              ProcessId:
+                appliedFilterData.ProcessId === 0 ||
+                appliedFilterData.ProcessId === null
+                  ? null
+                  : appliedFilterData.ProcessId,
+              ProjectId:
+                appliedFilterData.ProjectId === 0 ||
+                appliedFilterData.ProjectId === null
+                  ? null
+                  : appliedFilterData.ProjectId,
+              dueDate:
+                appliedFilterData.dueDate === "" ||
+                appliedFilterData.dueDate === null
+                  ? null
+                  : appliedFilterData.dueDate,
+              startDate:
+                appliedFilterData.startDate === "" ||
+                appliedFilterData.startDate === null
+                  ? null
+                  : appliedFilterData.startDate,
+              endDate:
+                appliedFilterData.endDate === "" ||
+                appliedFilterData.endDate === null
+                  ? null
+                  : appliedFilterData.endDate,
+              startDateReview:
+                appliedFilterData.startDateReview === "" ||
+                appliedFilterData.startDateReview === null
+                  ? null
+                  : appliedFilterData.startDateReview,
+              endDateReview:
+                appliedFilterData.endDateReview === "" ||
+                appliedFilterData.endDateReview === null
+                  ? null
+                  : appliedFilterData.endDateReview,
+              userId:
+                appliedFilterData.userId === 0 ||
+                appliedFilterData.userId === null
+                  ? null
+                  : appliedFilterData.userId,
+            });
+          }
+        }
+      };
+      callAPI(url, params, successCallback, "POST");
+    }
+  };
+
+  useEffect(() => {
+    getFilterList(onCurrentFilterId);
+  }, [onCurrentFilterId]);
 
   const getReviewList = () => {
     setLoaded(false);
