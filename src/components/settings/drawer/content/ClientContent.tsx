@@ -542,7 +542,7 @@ const ClientContent = forwardRef<
     e.preventDefault();
 
     clientName.trim().length < 2 && setClientNameError(true);
-    clientName.trim().length > 50 && setClientNameError(true);
+    clientName.trim().length > 100 && setClientNameError(true);
     address.trim().length <= 0 && setAddressError(true);
     address.trim().length > 300 && setAddressError(true);
     email.trim().length <= 0 && setEmailError(true);
@@ -1106,15 +1106,15 @@ const ClientContent = forwardRef<
                 onBlur={(e) => {
                   if (
                     e.target.value.trim().length < 2 ||
-                    e.target.value.trim().length > 50
+                    e.target.value.trim().length > 100
                   ) {
                     setClientNameError(true);
                   }
                 }}
                 error={clientNameError}
                 helperText={
-                  clientNameError && clientName?.trim().length > 50
-                    ? "Maximum 50 characters allowed."
+                  clientNameError && clientName?.trim().length > 100
+                    ? "Maximum 100 characters allowed."
                     : clientNameError &&
                       clientName?.trim().length > 0 &&
                       clientName?.trim().length < 2
