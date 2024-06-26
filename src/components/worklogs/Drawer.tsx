@@ -1798,7 +1798,8 @@ const EditDrawer = ({
       subProcess: validateField(subProcessWorklogs),
       clientTaskName: validateField(clientTaskNameWorklogs),
       descriptionWorklogs:
-        departmentWorklogs !== 15 && validateField(descriptionWorklogs),
+        departmentWorklogsType !== "WhitelabelTaxation" &&
+        validateField(descriptionWorklogs),
       quantity: validateField(quantityWorklogs),
       receiverDate: validateField(receiverDateWorklogs),
       assignee: assigneeWorklogsDisable && validateField(assigneeWorklogs),
@@ -1830,7 +1831,7 @@ const EditDrawer = ({
     setProcessNameWorklogsErr(fieldValidations.processName);
     setSubProcessWorklogsErr(fieldValidations.subProcess);
     setClientTaskNameWorklogsErr(fieldValidations.clientTaskName);
-    departmentWorklogs !== 15 &&
+    departmentWorklogsType !== "WhitelabelTaxation" &&
       setDescriptionWorklogsErr(fieldValidations.descriptionWorklogs);
     setQuantityWorklogsErr(fieldValidations.quantity);
     setReceiverDateWorklogsErr(fieldValidations.receiverDate);
@@ -1890,7 +1891,8 @@ const EditDrawer = ({
       subProcess: validateField(subProcessWorklogs),
       clientTaskName: validateField(clientTaskNameWorklogs),
       descriptionWorklogs:
-        departmentWorklogs !== 15 && validateField(descriptionWorklogs),
+        departmentWorklogsType !== "WhitelabelTaxation" &&
+        validateField(descriptionWorklogs),
       quantity: validateField(quantityWorklogs),
       receiverDate: validateField(receiverDateWorklogs),
       dueDate: validateField(dueDateWorklogs),
@@ -3288,7 +3290,7 @@ const EditDrawer = ({
                     <Grid item xs={3} className="pt-[14px]">
                       <TextField
                         label={
-                          departmentWorklogs === 15 ? (
+                          departmentWorklogsType === "WhitelabelTaxation" ? (
                             "Description"
                           ) : (
                             <span>
@@ -3309,7 +3311,7 @@ const EditDrawer = ({
                           setDescriptionWorklogsErr(false);
                         }}
                         onBlur={(e) => {
-                          if (departmentWorklogs === 15) {
+                          if (departmentWorklogsType === "WhitelabelTaxation") {
                             setDescriptionWorklogsErr(false);
                           } else if (
                             e.target.value.trim().length <= 0 ||
@@ -3577,7 +3579,7 @@ const EditDrawer = ({
                         </LocalizationProvider>
                       </div>
                     </Grid>
-                    {departmentWorklogs === 15 && (
+                    {departmentWorklogsType === "WhitelabelTaxation" && (
                       <Grid item xs={3} className="pt-4">
                         <div
                           className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
@@ -3604,12 +3606,13 @@ const EditDrawer = ({
                       item
                       xs={3}
                       className={`${
-                        typeOfWorkWorklogs === 3 && departmentWorklogs !== 15
+                        typeOfWorkWorklogs === 3 &&
+                        departmentWorklogsType !== "WhitelabelTaxation"
                           ? "pt-2"
                           : typeOfWorkWorklogs === 3 &&
-                            departmentWorklogs === 15
+                            departmentWorklogsType === "WhitelabelTaxation"
                           ? "pt-4"
-                          : departmentWorklogs !== 15
+                          : departmentWorklogsType !== "WhitelabelTaxation"
                           ? "pt-[17px]"
                           : "pt-5"
                       }`}
