@@ -255,6 +255,8 @@ const EditDrawer = ({
   const [departmentApprovalsDropdownData, setDepartmentApprovalsDropdownData] =
     useState([]);
   const [departmentApprovals, setDepartmentApprovals] = useState<number>(0);
+  const [departmentApprovalsType, setDepartmentApprovalsType] =
+    useState<string>("");
   const [departmentApprovalsErr, setDepartmentApprovalsErr] = useState(false);
   const [managerApprovalsDropdownData, setManagerApprovalsDropdownData] =
     useState<any>([]);
@@ -267,8 +269,6 @@ const EditDrawer = ({
   const [descriptionApprovals, setDescriptionApprovals] = useState<string>("");
   const [descriptionApprovalsErr, setDescriptionApprovalsErr] =
     useState<boolean>(false);
-  const [departmentApprovalsType, setDepartmentApprovalsType] =
-    useState<string>("");
   const [priorityApprovals, setPriorityApprovals] = useState<string | number>(
     0
   );
@@ -1859,7 +1859,8 @@ const EditDrawer = ({
       subProcess: validateField(subProcessApprovals),
       clientTaskName: validateField(clientTaskNameApprovals),
       descriptionApprovals:
-        departmentApprovals !== 15 && validateField(descriptionApprovals),
+        departmentApprovalsType !== "WhitelabelTaxation" &&
+        validateField(descriptionApprovals),
       quantity: validateField(quantityApprovals),
       receiverDate: validateField(receiverDateApprovals),
       dueDate: validateField(dueDateApprovals),
@@ -1888,7 +1889,7 @@ const EditDrawer = ({
     setProcessNameApprovalsErr(fieldValidations.processName);
     setSubProcessApprovalsErr(fieldValidations.subProcess);
     setClientTaskNameApprovalsErr(fieldValidations.clientTaskName);
-    departmentApprovals !== 15 &&
+    departmentApprovalsType !== "WhitelabelTaxation" &&
       setDescriptionApprovalsErr(fieldValidations.descriptionApprovals);
     setQuantityApprovalsErr(fieldValidations.quantity);
     setReceiverDateApprovalsErr(fieldValidations.receiverDate);
@@ -1935,7 +1936,8 @@ const EditDrawer = ({
       subProcess: validateField(subProcessApprovals),
       clientTaskName: validateField(clientTaskNameApprovals),
       descriptionApprovals:
-        departmentApprovals !== 15 && validateField(descriptionApprovals),
+        departmentApprovalsType !== "WhitelabelTaxation" &&
+        validateField(descriptionApprovals),
       status: validateField(statusApprovals),
       quantity: validateField(quantityApprovals),
       receiverDate: validateField(receiverDateApprovals),
@@ -3071,7 +3073,7 @@ const EditDrawer = ({
                     <Grid item xs={3} className="pt-4">
                       <TextField
                         label={
-                          departmentApprovals === 15 ? (
+                          departmentApprovalsType === "WhitelabelTaxation" ? (
                             "Description"
                           ) : (
                             <span>
@@ -3092,7 +3094,9 @@ const EditDrawer = ({
                           setDescriptionApprovalsErr(false);
                         }}
                         onBlur={(e) => {
-                          if (departmentApprovals === 15) {
+                          if (
+                            departmentApprovalsType === "WhitelabelTaxation"
+                          ) {
                             setDescriptionApprovalsErr(false);
                           } else if (
                             e.target.value.trim().length <= 0 ||
@@ -3355,7 +3359,7 @@ const EditDrawer = ({
                         </LocalizationProvider>
                       </div>
                     </Grid>
-                    {departmentApprovals === 15 && (
+                    {departmentApprovalsType === "WhitelabelTaxation" && (
                       <Grid item xs={3} className="pt-4">
                         <div
                           className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
@@ -3381,12 +3385,13 @@ const EditDrawer = ({
                       item
                       xs={3}
                       className={`${
-                        typeOfWorkApprovals === 3 && departmentApprovals !== 15
+                        typeOfWorkApprovals === 3 &&
+                        departmentApprovalsType !== "WhitelabelTaxation"
                           ? "pt-2"
                           : typeOfWorkApprovals === 3 &&
-                            departmentApprovals === 15
+                            departmentApprovalsType === "WhitelabelTaxation"
                           ? "pt-4"
-                          : departmentApprovals !== 15
+                          : departmentApprovalsType !== "WhitelabelTaxation"
                           ? "pt-[17px]"
                           : "pt-5"
                       }`}
