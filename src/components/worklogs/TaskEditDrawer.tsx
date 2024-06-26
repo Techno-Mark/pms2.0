@@ -253,7 +253,8 @@ const TaskEditDrawer = ({
       subProcess: validateField(subProcessWorklogsEdit),
       clientTaskName: validateField(clientTaskNameWorklogsEdit),
       descriptionWorklogs:
-        departmentWorklogsEdit !== 15 && validateField(descriptionWorklogsEdit),
+        departmentWorklogsTypeEdit !== "WhitelabelTaxation" &&
+        validateField(descriptionWorklogsEdit),
       status: validateField(statusWorklogsEdit),
       quantity: validateField(quantityWorklogsEdit),
       receiverDate: validateField(receiverDateWorklogsEdit),
@@ -276,7 +277,7 @@ const TaskEditDrawer = ({
     setProcessNameWorklogsEditErr(fieldValidationsEdit.processName);
     setSubProcessWorklogsEditErr(fieldValidationsEdit.subProcess);
     setClientTaskNameWorklogsEditErr(fieldValidationsEdit.clientTaskName);
-    departmentWorklogsEdit !== 15 &&
+    departmentWorklogsTypeEdit !== "WhitelabelTaxation" &&
       setDescriptionWorklogsEditErr(fieldValidationsEdit.descriptionWorklogs);
     setQuantityWorklogsEditErr(fieldValidationsEdit.quantity);
     setReceiverDateWorklogsEditErr(fieldValidationsEdit.receiverDate);
@@ -1254,7 +1255,7 @@ const TaskEditDrawer = ({
                   <Grid item xs={3} className="pt-4">
                     <TextField
                       label={
-                        departmentWorklogs === 15 ? (
+                        departmentWorklogsType === "WhitelabelTaxation" ? (
                           "Description"
                         ) : (
                           <span>
@@ -1461,7 +1462,7 @@ const TaskEditDrawer = ({
                       </LocalizationProvider>
                     </div>
                   </Grid>
-                  {departmentWorklogs === 15 && (
+                  {departmentWorklogsType === "WhitelabelTaxation" && (
                     <Grid item xs={3} className="pt-4">
                       <div
                         className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
@@ -1484,11 +1485,13 @@ const TaskEditDrawer = ({
                     item
                     xs={3}
                     className={`${
-                      typeOfWorkWorklogs === 3 && departmentWorklogs !== 15
+                      typeOfWorkWorklogs === 3 &&
+                      departmentWorklogsType !== "WhitelabelTaxation"
                         ? "pt-2"
-                        : typeOfWorkWorklogs === 3 && departmentWorklogs === 15
+                        : typeOfWorkWorklogs === 3 &&
+                          departmentWorklogsType === "WhitelabelTaxation"
                         ? "pt-4"
-                        : departmentWorklogs !== 15
+                        : departmentWorklogsType !== "WhitelabelTaxation"
                         ? "pt-[17px]"
                         : "pt-5"
                     }`}
@@ -2202,7 +2205,8 @@ const TaskEditDrawer = ({
                     <Grid item xs={3} className="pt-4">
                       <TextField
                         label={
-                          departmentWorklogsEdit === 15 ? (
+                          departmentWorklogsTypeEdit ===
+                          "WhitelabelTaxation" ? (
                             "Description"
                           ) : (
                             <span>
@@ -2222,7 +2226,9 @@ const TaskEditDrawer = ({
                           setDescriptionWorklogsEditErr(false);
                         }}
                         onBlur={(e) => {
-                          if (departmentWorklogsEdit === 15) {
+                          if (
+                            departmentWorklogsTypeEdit === "WhitelabelTaxation"
+                          ) {
                             setDescriptionWorklogsEditErr(false);
                           } else if (
                             e.target.value.trim().length <= 0 ||
@@ -2497,7 +2503,7 @@ const TaskEditDrawer = ({
                         </LocalizationProvider>
                       </div>
                     </Grid>
-                    {departmentWorklogsEdit === 15 && (
+                    {departmentWorklogsTypeEdit === "WhitelabelTaxation" && (
                       <Grid item xs={3} className="pt-4">
                         <div
                           className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
@@ -2524,12 +2530,12 @@ const TaskEditDrawer = ({
                       xs={3}
                       className={`${
                         typeOfWorkWorklogsEdit === 3 &&
-                        departmentWorklogsEdit !== 15
+                        departmentWorklogsTypeEdit !== "WhitelabelTaxation"
                           ? "pt-2"
                           : typeOfWorkWorklogsEdit === 3 &&
-                            departmentWorklogsEdit === 15
+                            departmentWorklogsTypeEdit === "WhitelabelTaxation"
                           ? "pt-4"
-                          : departmentWorklogsEdit !== 15
+                          : departmentWorklogsTypeEdit !== "WhitelabelTaxation"
                           ? "pt-[17px]"
                           : "pt-5"
                       }`}
