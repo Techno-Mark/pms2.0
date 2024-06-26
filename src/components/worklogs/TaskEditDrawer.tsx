@@ -177,6 +177,8 @@ const TaskEditDrawer = ({
   const [statusWorklogsEditErr, setStatusWorklogsEditErr] = useState(false);
   const [descriptionWorklogsEdit, setDescriptionWorklogsEdit] =
     useState<string>("");
+  const [descriptionWorklogsEditErr, setDescriptionWorklogsEditErr] =
+    useState<boolean>(false);
   const [priorityWorklogsEdit, setPriorityWorklogsEdit] = useState<
     string | number
   >(0);
@@ -250,6 +252,8 @@ const TaskEditDrawer = ({
       processName: validateField(processNameWorklogsEdit),
       subProcess: validateField(subProcessWorklogsEdit),
       clientTaskName: validateField(clientTaskNameWorklogsEdit),
+      descriptionWorklogs:
+        departmentWorklogsEdit !== 15 && validateField(descriptionWorklogsEdit),
       status: validateField(statusWorklogsEdit),
       quantity: validateField(quantityWorklogsEdit),
       receiverDate: validateField(receiverDateWorklogsEdit),
@@ -272,6 +276,8 @@ const TaskEditDrawer = ({
     setProcessNameWorklogsEditErr(fieldValidationsEdit.processName);
     setSubProcessWorklogsEditErr(fieldValidationsEdit.subProcess);
     setClientTaskNameWorklogsEditErr(fieldValidationsEdit.clientTaskName);
+    departmentWorklogsEdit !== 15 &&
+      setDescriptionWorklogsEditErr(fieldValidationsEdit.descriptionWorklogs);
     setQuantityWorklogsEditErr(fieldValidationsEdit.quantity);
     setReceiverDateWorklogsEditErr(fieldValidationsEdit.receiverDate);
     assigneeWorklogsDisable &&
@@ -815,11 +821,11 @@ const TaskEditDrawer = ({
       const processData =
         clientNameWorklogsEdit > 0 &&
         typeOfWorkWorklogsEdit > 0 &&
-        departmentWorklogs > 0 &&
+        departmentWorklogsEdit > 0 &&
         (await getProcessDropdownData(
           clientNameWorklogsEdit,
           typeOfWorkWorklogsEdit,
-          departmentWorklogs
+          departmentWorklogsEdit
         ));
       processData.length > 0
         ? setProcessWorklogsDropdownDataEdit(
@@ -849,7 +855,7 @@ const TaskEditDrawer = ({
     };
 
     getData();
-  }, [processNameWorklogsEdit, typeOfWorkWorklogsEdit, departmentWorklogs]);
+  }, [processNameWorklogsEdit, typeOfWorkWorklogsEdit, departmentWorklogsEdit]);
 
   useEffect(() => {
     const getData = async () => {
@@ -1247,7 +1253,16 @@ const TaskEditDrawer = ({
                   </Grid>
                   <Grid item xs={3} className="pt-4">
                     <TextField
-                      label="Description"
+                      label={
+                        departmentWorklogs === 15 ? (
+                          "Description"
+                        ) : (
+                          <span>
+                            Description
+                            <span className="!text-defaultRed">&nbsp;*</span>
+                          </span>
+                        )
+                      }
                       fullWidth
                       value={
                         descriptionWorklogs?.trim().length <= 0
@@ -1446,27 +1461,37 @@ const TaskEditDrawer = ({
                       </LocalizationProvider>
                     </div>
                   </Grid>
-                  <Grid item xs={3} className="pt-4">
-                    <div
-                      className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
-                    >
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          label="All Info Date"
-                          disabled
-                          value={
-                            allInfoDateWorklogs === ""
-                              ? null
-                              : dayjs(allInfoDateWorklogs)
-                          }
-                        />
-                      </LocalizationProvider>
-                    </div>
-                  </Grid>
+                  {departmentWorklogs === 15 && (
+                    <Grid item xs={3} className="pt-4">
+                      <div
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                      >
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            label="All Info Date"
+                            disabled
+                            value={
+                              allInfoDateWorklogs === ""
+                                ? null
+                                : dayjs(allInfoDateWorklogs)
+                            }
+                          />
+                        </LocalizationProvider>
+                      </div>
+                    </Grid>
+                  )}
                   <Grid
                     item
                     xs={3}
-                    className={`${typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"}`}
+                    className={`${
+                      typeOfWorkWorklogs === 3 && departmentWorklogs !== 15
+                        ? "pt-2"
+                        : typeOfWorkWorklogs === 3 && departmentWorklogs === 15
+                        ? "pt-4"
+                        : departmentWorklogs !== 15
+                        ? "pt-[17px]"
+                        : "pt-5"
+                    }`}
                   >
                     <Autocomplete
                       disablePortal
@@ -2009,6 +2034,9 @@ const TaskEditDrawer = ({
                           setSubProcessWorklogsEdit(0);
                           setValueMonthYearFromEdit(null);
                           setValueMonthYearToEdit(null);
+                          setDescriptionWorklogsEdit("");
+                          setDescriptionWorklogsEditErr(false);
+                          setAllInfoDateWorklogsEdit("");
                         }}
                         sx={{
                           width: 300,
@@ -2052,7 +2080,9 @@ const TaskEditDrawer = ({
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setProcessNameWorklogsEdit(value.value);
+                          setProcessNameWorklogsEditErr(false);
                           value && setSubProcessWorklogsEdit(0);
+                          setSubProcessWorklogsEditErr(false);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -2093,6 +2123,7 @@ const TaskEditDrawer = ({
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setSubProcessWorklogsEdit(value.value);
+                          setSubProcessWorklogsEditErr(false);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -2170,15 +2201,44 @@ const TaskEditDrawer = ({
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <TextField
-                        label="Description"
+                        label={
+                          departmentWorklogsEdit === 15 ? (
+                            "Description"
+                          ) : (
+                            <span>
+                              Description
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          )
+                        }
                         fullWidth
                         value={
                           descriptionWorklogsEdit?.trim().length <= 0
                             ? ""
                             : descriptionWorklogsEdit
                         }
-                        onChange={(e) =>
-                          setDescriptionWorklogsEdit(e.target.value)
+                        onChange={(e) => {
+                          setDescriptionWorklogsEdit(e.target.value);
+                          setDescriptionWorklogsEditErr(false);
+                        }}
+                        onBlur={(e) => {
+                          if (departmentWorklogsEdit === 15) {
+                            setDescriptionWorklogsEditErr(false);
+                          } else if (
+                            e.target.value.trim().length <= 0 ||
+                            e.target.value.trim().length > 100
+                          ) {
+                            setDescriptionWorklogsEditErr(true);
+                          }
+                        }}
+                        error={descriptionWorklogsEditErr}
+                        helperText={
+                          descriptionWorklogsEditErr &&
+                          descriptionWorklogsEdit?.trim().length > 100
+                            ? "Maximum 100 characters allowed."
+                            : descriptionWorklogsEditErr
+                            ? "This is a required field."
+                            : ""
                         }
                         margin="normal"
                         variant="standard"
@@ -2437,31 +2497,41 @@ const TaskEditDrawer = ({
                         </LocalizationProvider>
                       </div>
                     </Grid>
-                    <Grid item xs={3} className="pt-4">
-                      <div
-                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
-                      >
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker
-                            label="All Info Date"
-                            shouldDisableDate={isWeekend}
-                            value={
-                              allInfoDateWorklogsEdit === ""
-                                ? null
-                                : dayjs(allInfoDateWorklogsEdit)
-                            }
-                            onChange={(newDate: any) =>
-                              setAllInfoDateWorklogsEdit(newDate.$d)
-                            }
-                          />
-                        </LocalizationProvider>
-                      </div>
-                    </Grid>
+                    {departmentWorklogsEdit === 15 && (
+                      <Grid item xs={3} className="pt-4">
+                        <div
+                          className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              label="All Info Date"
+                              shouldDisableDate={isWeekend}
+                              value={
+                                allInfoDateWorklogsEdit === ""
+                                  ? null
+                                  : dayjs(allInfoDateWorklogsEdit)
+                              }
+                              onChange={(newDate: any) =>
+                                setAllInfoDateWorklogsEdit(newDate.$d)
+                              }
+                            />
+                          </LocalizationProvider>
+                        </div>
+                      </Grid>
+                    )}
                     <Grid
                       item
                       xs={3}
                       className={`${
-                        typeOfWorkWorklogsEdit === 3 ? "pt-4" : "pt-5"
+                        typeOfWorkWorklogsEdit === 3 &&
+                        departmentWorklogsEdit !== 15
+                          ? "pt-2"
+                          : typeOfWorkWorklogsEdit === 3 &&
+                            departmentWorklogsEdit === 15
+                          ? "pt-4"
+                          : departmentWorklogsEdit !== 15
+                          ? "pt-[17px]"
+                          : "pt-5"
                       }`}
                     >
                       <Autocomplete

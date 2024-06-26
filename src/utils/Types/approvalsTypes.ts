@@ -78,12 +78,17 @@ export interface InitialFilterApprovals {
   globalSearch: string;
   userId: number | null;
   ClientId: number | null;
+  IsShowAll: number | null;
+  DepartmentId: number | null;
   TypeOfWork: number | null;
+  ProjectId: number | null;
   projectId: number | null;
   StatusId: number | null;
   ProcessId: number | null;
   startDate: string | null | undefined;
   endDate: string | null | undefined;
+  startDateReview: string | null | undefined;
+  endDateReview: string | null | undefined;
   dueDate: string | null | undefined;
   DateFilter: string | null | undefined;
 }

@@ -265,6 +265,8 @@ const EditDrawer = ({
   const [clientTaskNameApprovalsErr, setClientTaskNameApprovalsErr] =
     useState(false);
   const [descriptionApprovals, setDescriptionApprovals] = useState<string>("");
+  const [descriptionApprovalsErr, setDescriptionApprovalsErr] =
+    useState<boolean>(false);
   const [departmentApprovalsType, setDepartmentApprovalsType] =
     useState<string>("");
   const [priorityApprovals, setPriorityApprovals] = useState<string | number>(
@@ -1856,6 +1858,8 @@ const EditDrawer = ({
       processName: validateField(processNameApprovals),
       subProcess: validateField(subProcessApprovals),
       clientTaskName: validateField(clientTaskNameApprovals),
+      descriptionApprovals:
+        departmentApprovals !== 15 && validateField(descriptionApprovals),
       quantity: validateField(quantityApprovals),
       receiverDate: validateField(receiverDateApprovals),
       dueDate: validateField(dueDateApprovals),
@@ -1884,6 +1888,8 @@ const EditDrawer = ({
     setProcessNameApprovalsErr(fieldValidations.processName);
     setSubProcessApprovalsErr(fieldValidations.subProcess);
     setClientTaskNameApprovalsErr(fieldValidations.clientTaskName);
+    departmentApprovals !== 15 &&
+      setDescriptionApprovalsErr(fieldValidations.descriptionApprovals);
     setQuantityApprovalsErr(fieldValidations.quantity);
     setReceiverDateApprovalsErr(fieldValidations.receiverDate);
     assigneeDisableApprovals &&
@@ -1928,6 +1934,8 @@ const EditDrawer = ({
       processName: validateField(processNameApprovals),
       subProcess: validateField(subProcessApprovals),
       clientTaskName: validateField(clientTaskNameApprovals),
+      descriptionApprovals:
+        departmentApprovals !== 15 && validateField(descriptionApprovals),
       status: validateField(statusApprovals),
       quantity: validateField(quantityApprovals),
       receiverDate: validateField(receiverDateApprovals),
@@ -2892,8 +2900,14 @@ const EditDrawer = ({
                         disabled={isAdmin === false}
                         onChange={(e, value: LabelValueType | null) => {
                           value && setDepartmentApprovals(value.value);
+                          setDepartmentApprovalsErr(false);
                           setProcessNameApprovals(0);
+                          setProcessNameApprovalsErr(false);
                           setSubProcessApprovals(0);
+                          setSubProcessApprovalsErr(false);
+                          setDescriptionApprovals("");
+                          setDescriptionApprovalsErr(false);
+                          setAllInfoDateApprovals("");
                           setValueMonthYearFrom(null);
                           setValueMonthYearTo(null);
                         }}
@@ -3056,7 +3070,16 @@ const EditDrawer = ({
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <TextField
-                        label="Description"
+                        label={
+                          departmentApprovals === 15 ? (
+                            "Description"
+                          ) : (
+                            <span>
+                              Description
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          )
+                        }
                         fullWidth
                         className="pt-1"
                         value={
@@ -3064,8 +3087,28 @@ const EditDrawer = ({
                             ? ""
                             : descriptionApprovals
                         }
-                        onChange={(e) =>
-                          setDescriptionApprovals(e.target.value)
+                        onChange={(e) => {
+                          setDescriptionApprovals(e.target.value);
+                          setDescriptionApprovalsErr(false);
+                        }}
+                        onBlur={(e) => {
+                          if (departmentApprovals === 15) {
+                            setDescriptionApprovalsErr(false);
+                          } else if (
+                            e.target.value.trim().length <= 0 ||
+                            e.target.value.trim().length > 100
+                          ) {
+                            setDescriptionApprovalsErr(true);
+                          }
+                        }}
+                        error={descriptionApprovalsErr}
+                        helperText={
+                          descriptionApprovalsErr &&
+                          descriptionApprovals?.trim().length > 100
+                            ? "Maximum 100 characters allowed."
+                            : descriptionApprovalsErr
+                            ? "This is a required field."
+                            : ""
                         }
                         margin="normal"
                         variant="standard"
@@ -3312,31 +3355,40 @@ const EditDrawer = ({
                         </LocalizationProvider>
                       </div>
                     </Grid>
-                    <Grid item xs={3} className="pt-4">
-                      <div
-                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
-                      >
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker
-                            label="All Info Date"
-                            shouldDisableDate={isWeekend}
-                            value={
-                              allInfoDateApprovals === ""
-                                ? null
-                                : dayjs(allInfoDateApprovals)
-                            }
-                            onChange={(newDate: any) =>
-                              setAllInfoDateApprovals(newDate.$d)
-                            }
-                          />
-                        </LocalizationProvider>
-                      </div>
-                    </Grid>
+                    {departmentApprovals === 15 && (
+                      <Grid item xs={3} className="pt-4">
+                        <div
+                          className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              label="All Info Date"
+                              shouldDisableDate={isWeekend}
+                              value={
+                                allInfoDateApprovals === ""
+                                  ? null
+                                  : dayjs(allInfoDateApprovals)
+                              }
+                              onChange={(newDate: any) =>
+                                setAllInfoDateApprovals(newDate.$d)
+                              }
+                            />
+                          </LocalizationProvider>
+                        </div>
+                      </Grid>
+                    )}
                     <Grid
                       item
                       xs={3}
                       className={`${
-                        typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
+                        typeOfWorkApprovals === 3 && departmentApprovals !== 15
+                          ? "pt-2"
+                          : typeOfWorkApprovals === 3 &&
+                            departmentApprovals === 15
+                          ? "pt-4"
+                          : departmentApprovals !== 15
+                          ? "pt-[17px]"
+                          : "pt-5"
                       }`}
                     >
                       <Autocomplete

@@ -59,6 +59,7 @@ export interface AppliedFilterApprovals {
   TypeOfWork: number | null;
   userId: number | null;
   ProjectId: number | null;
+  IsShowAll: number | null;
   DepartmentId: number | null;
   ProcessId: number | null;
   StatusId: number | null;
