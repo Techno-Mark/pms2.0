@@ -26,7 +26,6 @@ import {
   generateStatusWithColor,
   handlePageChangeWithFilter,
   handleChangeRowsPerPageWithFilter,
-  generateCustomeTaskIdwithErrorLogs,
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme, ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
@@ -69,10 +68,10 @@ interface InitialFilter {
   SortColumn: string;
   IsDesc: boolean;
   GlobalSearch: string;
-  ClientId: number | null;
+  ClientId: number[] | null;
   TypeOfWork: number | null;
   ProjectId: number | null;
-  StatusId: number | null;
+  StatusId: number[] | null;
   AssignedTo: number | null;
   AssignedBy: number | null;
   DueDate: string | null;
@@ -403,9 +402,8 @@ const Datatable = ({
             setFilteredOject({
               ...filteredObject,
               ClientId:
-                appliedFilterData.ClientId === 0 ||
-                appliedFilterData.ClientId === null
-                  ? null
+                appliedFilterData.ClientId.length === 0
+                  ? []
                   : appliedFilterData.ClientId,
               TypeOfWork:
                 appliedFilterData.TypeOfWork === 0 ||
@@ -418,9 +416,8 @@ const Datatable = ({
                   ? null
                   : appliedFilterData.ProjectId,
               StatusId:
-                appliedFilterData.Status === 0 ||
-                appliedFilterData.Status === null
-                  ? null
+                appliedFilterData.Status.length === 0
+                  ? []
                   : appliedFilterData.Status,
               AssignedTo:
                 appliedFilterData.AssignedTo === 0 ||
@@ -694,6 +691,13 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "WorkTypeId",
+      options: {
+        display: false,
+        viewColumns: false,
+      },
+    },
+    {
       name: "IsHasErrorlog",
       options: {
         display: false,
@@ -736,6 +740,38 @@ const Datatable = ({
       },
     },
   ];
+
+  const generateCustomeTaskIdwithErrorLogs = (
+    bodyValue: number,
+    TableMeta: any,
+    RowIndex: number
+  ) => {
+    const IsHasErrorlog = TableMeta.rowData[RowIndex];
+
+    return (
+      <div
+        className={`${
+          TableMeta.rowData[20] == 1 && TableMeta.rowData[24] === "Submitted"
+            ? ""
+            : "text-[#0592C6] cursor-pointer"
+        }`}
+        onClick={() =>
+          TableMeta.rowData[20] == 1 && TableMeta.rowData[24] === "Submitted"
+            ? ""
+            : onEdit(bodyValue)
+        }
+      >
+        {IsHasErrorlog && (
+          <div
+            className={
+              "w-[10px] h-[10px] rounded-full inline-block mr-2 bg-defaultRed"
+            }
+          ></div>
+        )}
+        {bodyValue === null ? "-" : bodyValue}
+      </div>
+    );
+  };
 
   const generateConditionalColumn = (column: {
     name: string;
@@ -993,6 +1029,14 @@ const Datatable = ({
           customBodyRender: (value: string, tableMeta: any) => {
             return generateCustomTaskNameBody(value, tableMeta);
           },
+        },
+      };
+    } else if (column.name === "WorkTypeId") {
+      return {
+        name: "WorkTypeId",
+        options: {
+          display: false,
+          viewColumns: false,
         },
       };
     } else if (column.name === "IsHasErrorlog") {

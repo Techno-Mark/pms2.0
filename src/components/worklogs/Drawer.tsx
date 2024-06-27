@@ -767,7 +767,8 @@ const EditDrawer = ({
     setManualFieldsWorklogs(newManualWorklogsFields);
 
     const newManualDescWorklogsErrors = [...manualDescWorklogsErrors];
-    newManualDescWorklogsErrors[index] = e.trim().length === 0;
+    newManualDescWorklogsErrors[index] =
+      e.trim().length === 0 || e.trim().length > 500;
     setManualDescWorklogsErrors(newManualDescWorklogsErrors);
   };
 
@@ -848,7 +849,7 @@ const EditDrawer = ({
         setStartTimeWorklogsErrors(newStartTimeWorklogsErrors);
       const newManualDescWorklogsErrors = manualFieldsWorklogs.map(
         (field) =>
-          (manualSwitchWorklogs && field.manualDesc.trim().length < 5) ||
+          (manualSwitchWorklogs && field.manualDesc.trim().length < 1) ||
           (manualSwitchWorklogs && field.manualDesc.trim().length > 500)
       );
       manualSwitchWorklogs &&
@@ -1871,7 +1872,7 @@ const EditDrawer = ({
 
     setClientTaskNameWorklogsErr(
       clientTaskNameWorklogs.trim().length < 4 ||
-        clientTaskNameWorklogs.trim().length > 50
+        clientTaskNameWorklogs.trim().length > 100
     );
     setQuantityWorklogsErr(
       quantityWorklogs.toString().length <= 0 ||
@@ -1960,7 +1961,7 @@ const EditDrawer = ({
       (field) =>
         (onEdit === 0 &&
           manualSwitchWorklogs &&
-          field.manualDesc.trim().length < 5) ||
+          field.manualDesc.trim().length < 1) ||
         (onEdit === 0 &&
           manualSwitchWorklogs &&
           field.manualDesc.trim().length > 500)
@@ -2117,7 +2118,7 @@ const EditDrawer = ({
       !hasSubErrors &&
       !hasManualErrors &&
       clientTaskNameWorklogs.trim().length > 3 &&
-      clientTaskNameWorklogs.trim().length < 50 &&
+      clientTaskNameWorklogs.trim().length <= 100 &&
       !quantityWorklogsErr &&
       quantityWorklogs > 0 &&
       quantityWorklogs < 10000 &&
@@ -2137,7 +2138,7 @@ const EditDrawer = ({
       !hasSubErrors &&
       !hasManualErrors &&
       clientTaskNameWorklogs.trim().length > 3 &&
-      clientTaskNameWorklogs.trim().length < 50 &&
+      clientTaskNameWorklogs.trim().length <= 100 &&
       !quantityWorklogsErr &&
       quantityWorklogs > 0 &&
       quantityWorklogs < 10000 &&
@@ -2155,7 +2156,7 @@ const EditDrawer = ({
       typeOfWorkWorklogs !== 3 &&
       !hasEditErrors &&
       clientTaskNameWorklogs.trim().length > 3 &&
-      clientTaskNameWorklogs.trim().length < 50 &&
+      clientTaskNameWorklogs.trim().length <= 100 &&
       quantityWorklogs > 0 &&
       quantityWorklogs < 10000 &&
       !quantityWorklogsErr &&
@@ -2172,7 +2173,7 @@ const EditDrawer = ({
       typeOfWorkWorklogs === 3 &&
       !hasEditErrors &&
       clientTaskNameWorklogs.trim().length > 3 &&
-      clientTaskNameWorklogs.trim().length < 50 &&
+      clientTaskNameWorklogs.trim().length <= 100 &&
       quantityWorklogs > 0 &&
       quantityWorklogs < 10000 &&
       !quantityWorklogsErr &&
@@ -2810,6 +2811,30 @@ const EditDrawer = ({
     }
   };
 
+  useEffect(() => {
+    if (onEdit === 0) {
+      if (typeOfWorkWorklogs > 0 && typeOfWorkWorklogs !== 3) {
+        const reviewerDate = dayjs();
+        setReceiverDateWorklogs(reviewerDate.toISOString());
+        setReceiverDateWorklogsErr(false);
+        let nextDate: any = reviewerDate;
+        if (reviewerDate.day() === 4) {
+          nextDate = nextDate.add(4, "day");
+        } else if (reviewerDate.day() === 5) {
+          nextDate = nextDate.add(4, "day");
+        } else if (reviewerDate.day() === 6) {
+          nextDate = nextDate.add(4, "day");
+        } else {
+          nextDate = dayjs(reviewerDate).add(3, "day").toDate();
+        }
+        setDueDateWorklogs(nextDate);
+      } else {
+        setReceiverDateWorklogs("");
+        setDueDateWorklogs("");
+      }
+    }
+  }, [typeOfWorkWorklogs]);
+
   return (
     <>
       <div
@@ -3264,7 +3289,7 @@ const EditDrawer = ({
                         onBlur={(e) => {
                           if (
                             e.target.value.trim().length < 4 ||
-                            e.target.value.trim().length > 50
+                            e.target.value.trim().length > 100
                           ) {
                             setClientTaskNameWorklogsErr(true);
                           }
@@ -3276,8 +3301,8 @@ const EditDrawer = ({
                           clientTaskNameWorklogs?.trim().length < 4
                             ? "Minimum 4 characters required."
                             : clientTaskNameWorklogsErr &&
-                              clientTaskNameWorklogs?.trim().length > 50
-                            ? "Maximum 50 characters allowed."
+                              clientTaskNameWorklogs?.trim().length > 100
+                            ? "Maximum 100 characters allowed."
                             : clientTaskNameWorklogsErr
                             ? "This is a required field."
                             : ""
@@ -5247,7 +5272,10 @@ const EditDrawer = ({
                             )
                           }
                           onBlur={(e) => {
-                            if (e.target.value.trim().length < 5) {
+                            if (
+                              e.target.value.trim().length < 1 ||
+                              e.target.value.trim().length > 500
+                            ) {
                               const newManualDescWorklogsErrors = [
                                 ...manualDescWorklogsErrors,
                               ];
@@ -5268,11 +5296,7 @@ const EditDrawer = ({
                           error={manualDescWorklogsErrors[index]}
                           helperText={
                             manualDescWorklogsErrors[index] &&
-                            field.manualDesc.length > 0 &&
-                            field.manualDesc.length < 5
-                              ? "Minumum 5 characters required."
-                              : manualDescWorklogsErrors[index] &&
-                                field.manualDesc.length > 500
+                            field.manualDesc.length > 500
                               ? "Maximum 500 characters allowed."
                               : manualDescWorklogsErrors[index]
                               ? "This is a required field."

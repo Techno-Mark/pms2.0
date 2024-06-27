@@ -37,6 +37,9 @@ const UserContent = forwardRef<
 
   // for Employee
   const [userId, setUserId] = useState(0);
+  const [empCode, setEmpCode] = useState("");
+  const [empCodeError, setEmpCodeError] = useState(false);
+  const [userCreationDate, setUserCreationDate] = useState("");
   const [firstName, setFirstName] = useState("");
   const [firstNameError, setFirstNameError] = useState(false);
   const [lastName, setLastName] = useState("");
@@ -109,6 +112,7 @@ const UserContent = forwardRef<
                 setValue("Employee");
                 setEmailConfirmed(data.EmailConfirmed);
                 setUserId(data.UserId);
+                setEmpCode(data.EmployeeCode);
                 setFirstName(data.FirstName);
                 setLastName(data.LastName);
                 setEmail(data.Email);
@@ -119,6 +123,7 @@ const UserContent = forwardRef<
                 setReport(
                   data.ReportingManagerId === null ? 0 : data.ReportingManagerId
                 );
+                setUserCreationDate(data.DateOfCreation);
                 setSelectGroupValue(data.GroupIds);
               } else {
                 setValue("Client");
@@ -154,6 +159,7 @@ const UserContent = forwardRef<
 
       getData();
     } else {
+      setEmpCode("");
       setFirstName("");
       setLastName("");
       setEmail("");
@@ -271,6 +277,8 @@ const UserContent = forwardRef<
 
   const clearDataEmployee = () => {
     setUserId(0);
+    setEmpCode("");
+    setEmpCodeError(false);
     setFirstName("");
     setFirstNameError(false);
     setLastName("");
@@ -303,6 +311,7 @@ const UserContent = forwardRef<
         {
           UserId: userId,
           ClientId: 0,
+          EmployeeCode: empCode.trim(),
           FirstName: firstName.trim(),
           LastName: lastName.trim(),
           Email: email.trim(),
@@ -386,6 +395,7 @@ const UserContent = forwardRef<
         {
           UserId: userId,
           ClientId: clientName,
+          EmployeeCode: null,
           FirstName: clientFirstName.trim(),
           LastName: clientLastName.trim(),
           Email: clientEmail.trim(),
@@ -453,6 +463,8 @@ const UserContent = forwardRef<
     e.preventDefault();
 
     if (value === "Employee") {
+      (empCode.trim().length <= 0 || empCode.trim().length > 5) &&
+        setEmpCodeError(true);
       (firstName.trim().length <= 2 || firstName.trim().length > 50) &&
         setFirstNameError(true);
       lastName.trim().length <= 0 && setLastNameError(true);
@@ -464,8 +476,11 @@ const UserContent = forwardRef<
       report <= 0 && parseInt(roleIdAdmin) > 1 && setReportError(true);
       selectGroupValue.length <= 0 && setGroupError(true);
       setEmailError(!regex.test(email));
-      
+
       if (
+        !empCodeError &&
+        empCode.trim().length > 0 &&
+        empCode.trim().length < 5 &&
         !firstNameError &&
         firstName.trim().length > 2 &&
         firstName.trim().length < 50 &&
@@ -582,7 +597,10 @@ const UserContent = forwardRef<
               checked={value === "Employee" ? true : false}
               id="Employee"
               name="user"
-              onChange={(e) => setValue(e.target.id)}
+              onChange={(e) => {
+                setValue(e.target.id);
+                clearDataEmployee();
+              }}
             />
             <span className="mr-32">
               <Radio
@@ -590,7 +608,10 @@ const UserContent = forwardRef<
                 checked={value === "Client" ? true : false}
                 id="Client"
                 name="user"
-                onChange={(e) => setValue(e.target.id)}
+                onChange={(e) => {
+                  setValue(e.target.id);
+                  clearDataClient();
+                }}
               />
             </span>
           </>
@@ -600,6 +621,86 @@ const UserContent = forwardRef<
       <div className="flex flex-col px-[20px] max-h-[64vh] overflow-y-auto">
         {value === "Employee" && (
           <>
+            {/* <TextField
+              label={
+                <span>
+                  Emp Code
+                  <span className="!text-defaultRed">&nbsp;*</span>
+                </span>
+              }
+              onFocus={(e) =>
+                e.target.addEventListener(
+                  "wheel",
+                  function (e) {
+                    e.preventDefault();
+                  },
+                  { passive: false }
+                )
+              }
+              sx={{ mb: "12px" }}
+              type="number"
+              fullWidth
+              value={empCode === 0 ? "" : empCode}
+              onChange={(e) => {
+                setEmpCode(Number(e.target.value));
+                setEmpCodeError(false);
+              }}
+              onBlur={(e) => {
+                if (
+                  e.target.value.trim().length > 0 &&
+                  e.target.value.trim().length < 5 &&
+                  !e.target.value.trim().includes(".")
+                ) {
+                  setEmpCodeError(false);
+                }
+              }}
+              error={empCodeError}
+              helperText={
+                empCodeError && empCode.toString().includes(".")
+                  ? "Only intiger value allowed."
+                  : empCodeError && empCode.toString() === ""
+                  ? "This is a required field."
+                  : empCodeError && empCode <= 0
+                  ? "Enter valid number."
+                  : empCodeError && empCode.toString().length > 5
+                  ? "Maximum 5 numbers allowed."
+                  : ""
+              }
+              margin="normal"
+              variant="standard"
+            /> */}
+            <TextField
+              label={
+                <span>
+                  Emp Code
+                  <span className="!text-defaultRed">&nbsp;*</span>
+                </span>
+              }
+              fullWidth
+              value={empCode?.trim().length <= 0 ? "" : empCode}
+              onChange={(e) => {
+                setEmpCode(e.target.value);
+                setEmpCodeError(false);
+              }}
+              onBlur={(e) => {
+                if (
+                  e.target.value.trim().length <= 0 ||
+                  e.target.value.trim().length > 5
+                ) {
+                  setEmpCodeError(true);
+                }
+              }}
+              error={empCodeError}
+              helperText={
+                empCodeError && empCode?.trim().length > 5
+                  ? "Maximum 5 characters allowed."
+                  : empCodeError
+                  ? "This is a required field."
+                  : ""
+              }
+              margin="normal"
+              variant="standard"
+            />
             <TextField
               label={
                 <span>
@@ -929,6 +1030,24 @@ const UserContent = forwardRef<
                 />
               )}
             />
+            {onEdit > 0 && (
+              <TextField
+                label="Date of Creation"
+                fullWidth
+                value={
+                  userCreationDate?.trim().length <= 0 ||
+                  userCreationDate === null
+                    ? ""
+                    : userCreationDate
+                }
+                onChange={() => {}}
+                margin="normal"
+                variant="standard"
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            )}
             {/* <MultiSelectChip
                 type="checkbox"
                 options={groupDropdownData}

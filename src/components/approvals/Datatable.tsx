@@ -1186,7 +1186,14 @@ const Datatable = ({
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
           customBodyRender: (value: number) => {
-            return generateCommonBodyRender(value);
+            return (
+              <div
+                className="text-[#0592C6] cursor-pointer"
+                onClick={() => onEdit(value, workitemId, id)}
+              >
+                {value === null ? "-" : value}
+              </div>
+            );
           },
         },
       };

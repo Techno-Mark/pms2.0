@@ -1573,7 +1573,7 @@ const EditDrawer = ({
       manualSwitch && setStartTimeErrors(newStartTimeErrors);
       const newManualDescErrors = reviewermanualFields.map(
         (field) =>
-          (manualSwitch && field.manualDesc.trim().length < 5) ||
+          (manualSwitch && field.manualDesc.trim().length < 1) ||
           (manualSwitch && field.manualDesc.trim().length > 500)
       );
       manualSwitch && setManualDescErrors(newManualDescErrors);
@@ -1816,7 +1816,7 @@ const EditDrawer = ({
     setReviewerManualFields(newManualFields);
 
     const newManualDescErrors = [...manualDescErrors];
-    newManualDescErrors[index] = e.trim().length === 0;
+    newManualDescErrors[index] = e.trim().length === 0 || e.trim().length > 500;
     setManualDescErrors(newManualDescErrors);
   };
 
@@ -1915,12 +1915,10 @@ const EditDrawer = ({
       reminderCheckboxValueApprovals === 2 &&
       setReminderDateApprovalsErr(fieldValidations.reminderDate);
 
-    onEdit === 0 &&
-      receiverDateApprovals.length > 0 &&
-      setClientTaskNameApprovalsErr(
-        clientTaskNameApprovals.trim().length < 4 ||
-          clientTaskNameApprovals.trim().length > 50
-      );
+    setClientTaskNameApprovalsErr(
+      clientTaskNameApprovals.trim().length < 4 ||
+        clientTaskNameApprovals.trim().length > 100
+    );
     setQuantityApprovalsErr(
       quantityApprovals.length <= 0 ||
         quantityApprovals.length > 4 ||
@@ -2046,7 +2044,7 @@ const EditDrawer = ({
       onEdit > 0 &&
       !hasEditErrors &&
       clientTaskNameApprovals.trim().length > 3 &&
-      clientTaskNameApprovals.trim().length < 50 &&
+      clientTaskNameApprovals.trim().length <= 100 &&
       quantityApprovals > 0 &&
       quantityApprovals < 10000 &&
       !quantityApprovalsErr &&
@@ -2606,6 +2604,28 @@ const EditDrawer = ({
     onClose();
   };
 
+  // useEffect(() => {
+  //   if (typeOfWorkApprovals > 0 && typeOfWorkApprovals !== 3) {
+  //     const reviewerDate = dayjs();
+  //     setReceiverDateApprovals(reviewerDate.toISOString());
+  //     setReceiverDateApprovalsErr(false);
+  //     let nextDate: any = reviewerDate;
+  //     if (reviewerDate.day() === 4) {
+  //       nextDate = nextDate.add(4, "day");
+  //     } else if (reviewerDate.day() === 5) {
+  //       nextDate = nextDate.add(4, "day");
+  //     } else if (reviewerDate.day() === 6) {
+  //       nextDate = nextDate.add(4, "day");
+  //     } else {
+  //       nextDate = dayjs(reviewerDate).add(3, "day").toDate();
+  //     }
+  //     setDueDateApprovals(nextDate);
+  //   } else {
+  //     setReceiverDateApprovals("");
+  //     setDueDateApprovals("");
+  //   }
+  // }, [typeOfWorkApprovals]);
+
   return (
     <>
       <div
@@ -3042,14 +3062,11 @@ const EditDrawer = ({
                           setClientTaskNameApprovalsErr(false);
                         }}
                         onBlur={(e) => {
-                          if (e.target.value.trim().length > 4) {
-                            setClientTaskNameApprovalsErr(false);
-                          }
                           if (
-                            e.target.value.trim().length > 4 &&
-                            e.target.value.trim().length < 50
+                            e.target.value.trim().length < 4 ||
+                            e.target.value.trim().length > 100
                           ) {
-                            setClientTaskNameApprovalsErr(false);
+                            setClientTaskNameApprovalsErr(true);
                           }
                         }}
                         error={clientTaskNameApprovalsErr}
@@ -3059,8 +3076,8 @@ const EditDrawer = ({
                           clientTaskNameApprovals?.trim().length < 4
                             ? "Minimum 4 characters required."
                             : clientTaskNameApprovalsErr &&
-                              clientTaskNameApprovals?.trim().length > 50
-                            ? "Maximum 50 characters allowed."
+                              clientTaskNameApprovals?.trim().length > 100
+                            ? "Maximum 100 characters allowed."
                             : clientTaskNameApprovalsErr
                             ? "This is a required field."
                             : ""
@@ -4912,20 +4929,19 @@ const EditDrawer = ({
                             handleManualDescChange(e.target.value, index)
                           }
                           onBlur={(e) => {
-                            if (e.target.value.trim().length > 0) {
+                            if (
+                              e.target.value.trim().length < 1 ||
+                              e.target.value.trim().length > 500
+                            ) {
                               const newManualDescErrors = [...manualDescErrors];
-                              newManualDescErrors[index] = false;
+                              newManualDescErrors[index] = true;
                               setManualDescErrors(newManualDescErrors);
                             }
                           }}
                           error={manualDescErrors[index]}
                           helperText={
                             manualDescErrors[index] &&
-                            field.manualDesc.length > 0 &&
-                            field.manualDesc.length < 5
-                              ? "Minumum 5 characters required."
-                              : manualDescErrors[index] &&
-                                field.manualDesc.length > 500
+                            field.manualDesc.length > 500
                               ? "Maximum 500 characters allowed."
                               : manualDescErrors[index]
                               ? "This is a required field."

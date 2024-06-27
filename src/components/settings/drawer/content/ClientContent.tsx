@@ -123,6 +123,7 @@ const ClientContent = forwardRef<
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [tel, setTel] = useState("");
+  const [clientCreationDate, setClientCreationDate] = useState("");
 
   const [addMoreClicked, setAddMoreClicked] = useState(false);
   const [isAddClientClicked, setIsAddClientClicked] = useState(true);
@@ -272,6 +273,7 @@ const ClientContent = forwardRef<
               );
               setDeptName(response.data.ResponseData.DepartmentIds);
               setTel(response.data.ResponseData.ContactNo);
+              setClientCreationDate(response.data.ResponseData.DateOfCreation);
               setId(response.data.ResponseData.Id);
               const updatedFirstArray = departmentDataObj.map(
                 (item: DepartmentDataObj) => {
@@ -542,7 +544,7 @@ const ClientContent = forwardRef<
     e.preventDefault();
 
     clientName.trim().length < 2 && setClientNameError(true);
-    clientName.trim().length > 50 && setClientNameError(true);
+    clientName.trim().length > 100 && setClientNameError(true);
     address.trim().length <= 0 && setAddressError(true);
     address.trim().length > 300 && setAddressError(true);
     email.trim().length <= 0 && setEmailError(true);
@@ -1106,15 +1108,15 @@ const ClientContent = forwardRef<
                 onBlur={(e) => {
                   if (
                     e.target.value.trim().length < 2 ||
-                    e.target.value.trim().length > 50
+                    e.target.value.trim().length > 100
                   ) {
                     setClientNameError(true);
                   }
                 }}
                 error={clientNameError}
                 helperText={
-                  clientNameError && clientName?.trim().length > 50
-                    ? "Maximum 50 characters allowed."
+                  clientNameError && clientName?.trim().length > 100
+                    ? "Maximum 100 characters allowed."
                     : clientNameError &&
                       clientName?.trim().length > 0 &&
                       clientName?.trim().length < 2
@@ -1247,6 +1249,25 @@ const ClientContent = forwardRef<
                   )
                 }
               />
+              {onEdit > 0 && (
+                <TextField
+                  label="Date of Creation"
+                  sx={{ mt: "-10px" }}
+                  fullWidth
+                  value={
+                    clientCreationDate?.trim().length <= 0 ||
+                    clientCreationDate === null
+                      ? ""
+                      : clientCreationDate
+                  }
+                  onChange={() => {}}
+                  margin="normal"
+                  variant="standard"
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              )}
 
               {/* Checkbox selection */}
               {departmentDataObj.map((i: DepartmentDataObj, index: number) => (
