@@ -401,6 +401,11 @@ const Client = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "DateOfCreation",
+      label: "Date of Creation",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "IsActive",
       label: "Status",
       bodyRenderer: generateCommonBodyRender,

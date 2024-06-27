@@ -112,6 +112,13 @@ export interface AppliedFilterWorklogsPage {
   ReviewStatus: number | null;
 }
 
+export interface AppliedFilterHalfDayPage {
+  ClientId: number | null;
+  ProjectId: number | null;
+  StartDate: string | null;
+  EndDate: string | null;
+}
+
 export interface FilterWorklogsPage {
   FilterId: number;
   Name: string;

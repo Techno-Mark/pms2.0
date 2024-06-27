@@ -31,6 +31,7 @@ import TimelineHalfDay from "@/components/worklogs/HalfDay/TimelineHalfDay";
 import UnassigneeFilterDialog from "@/components/worklogs/Unassignee/UnassigneeFilterDialog";
 import TimelineDatatable from "@/components/worklogs/HalfDay/TimelineDatatable";
 import {
+  AppliedFilterHalfDayPage,
   AppliedFilterWorklogsPage,
   FilterWorklogsPage,
 } from "@/utils/Types/worklogsTypes";
@@ -108,6 +109,9 @@ const Page = () => {
   const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [currentFilterData, setCurrentFilterData] = useState<
     AppliedFilterWorklogsPage | any
+  >([]);
+  const [currentFilterHalfDayData, setCurrentFilterHalfDayData] = useState<
+    AppliedFilterHalfDayPage | any
   >([]);
   const [breakId, setBreakID] = useState<number>(0);
   const [loaded, setLoaded] = useState(false);
@@ -253,6 +257,10 @@ const Page = () => {
     setCurrentFilterData(data);
   };
 
+  const getIdFromFilterHalfDayDialog = (data: AppliedFilterHalfDayPage) => {
+    setCurrentFilterHalfDayData(data);
+  };
+
   const getBreakData = async () => {
     const params = {};
     const url = `${process.env.worklog_api_url}/workitem/break/getbyuser`;
@@ -380,6 +388,7 @@ const Page = () => {
                 setIsUnassigneeClicked(false);
                 setCurrentFilterId(0);
                 setCurrentFilterData([]);
+                setCurrentFilterHalfDayData([]);
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 isTimelineClicked
@@ -399,6 +408,7 @@ const Page = () => {
                 setIsUnassigneeClicked(false);
                 setCurrentFilterId(0);
                 setCurrentFilterData([]);
+                setCurrentFilterHalfDayData([]);
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 isTaskClicked
@@ -422,6 +432,7 @@ const Page = () => {
                   setIsUnassigneeClicked(true);
                   setCurrentFilterId(0);
                   setCurrentFilterData([]);
+                  setCurrentFilterHalfDayData([]);
                 }}
                 className={`py-[10px] text-[16px] cursor-pointer select-none ${
                   isUnassigneeClicked
@@ -703,7 +714,7 @@ const Page = () => {
 
         {isTimelineClicked && (
           <TimelineDatatable
-            currentFilterData={currentFilterData}
+            currentFilterData={currentFilterHalfDayData}
             onDataFetch={handleDataFetch}
             searchValue={globalSearchValue.trim()}
             onHandleExport={handleCanExport}
@@ -754,7 +765,7 @@ const Page = () => {
           <TimelineFilterDialog
             onOpen={isFilterOpen}
             onClose={closeFilterModal}
-            currentFilterData={getIdFromFilterDialog}
+            currentFilterData={getIdFromFilterHalfDayDialog}
           />
         )}
         {isTimelineClicked && (
