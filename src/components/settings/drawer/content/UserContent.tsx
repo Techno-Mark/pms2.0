@@ -135,6 +135,7 @@ const UserContent = forwardRef<
                 setClientEmail(data.Email);
                 setClientTel(data.ContactNo);
                 setClientRole(data.RoleId);
+                setUserCreationDate(data.DateOfCreation);
               }
             } else {
               const data = response.data.Message;
@@ -1261,6 +1262,24 @@ const UserContent = forwardRef<
                 )
               }
             />
+            {onEdit > 0 && (
+              <TextField
+                label="Date of Creation"
+                fullWidth
+                value={
+                  userCreationDate?.trim().length <= 0 ||
+                  userCreationDate === null
+                    ? ""
+                    : userCreationDate
+                }
+                onChange={() => {}}
+                margin="normal"
+                variant="standard"
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            )}
           </>
         )}
       </div>
