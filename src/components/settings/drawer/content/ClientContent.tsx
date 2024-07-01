@@ -500,13 +500,15 @@ const ClientContent = forwardRef<
             ? {
                 ...i,
                 contHrs: e,
-                contHrsErr: e.toString().length > 0 ? false : true,
+                contHrsErr:
+                  e.toString().length > 0 || i.billingType === 7 ? false : true,
                 allFields:
                   i.billingType > 0 &&
                   i.selectGroupValue.length > 0 &&
-                  Number(i.actHrs) > 0 &&
-                  e.toString().length > 0 &&
-                  e.toString().length <= 5
+                  ((Number(i.actHrs) > 0 &&
+                    e.toString().length > 0 &&
+                    e.toString().length <= 5) ||
+                    i.billingType === 7)
                     ? false
                     : true,
               }
@@ -524,13 +526,15 @@ const ClientContent = forwardRef<
             ? {
                 ...i,
                 actHrs: e,
-                actHrsErr: e.toString().length > 0 ? false : true,
+                actHrsErr:
+                  e.toString().length > 0 || i.billingType === 7 ? false : true,
                 allFields:
                   i.billingType > 0 &&
                   i.selectGroupValue.length > 0 &&
-                  Number(i.contHrs) > 0 &&
-                  e.toString().length > 0 &&
-                  e.toString().length <= 5
+                  ((Number(i.contHrs) > 0 &&
+                    e.toString().length > 0 &&
+                    e.toString().length <= 5) ||
+                    i.billingType === 7)
                     ? false
                     : true,
               }
@@ -538,6 +542,69 @@ const ClientContent = forwardRef<
         ),
       ]);
     }
+  };
+
+  const validateDepartmentData = () => {
+    return [
+      ...departmentDataObj.map((i: DepartmentDataObj) =>
+        i.checkbox === true
+          ? {
+              ...i,
+              billingErr: i.billingType <= 0 ? true : false,
+              groupErr: i.selectGroupValue.length <= 0 ? true : false,
+              contHrsErr:
+                i.billingType !== 7 && Number(i.contHrs) <= 0
+                  ? true
+                  : i.billingType !== 7 &&
+                    (i.contHrs === "0" ||
+                      i.contHrs === "00" ||
+                      i.contHrs === "000" ||
+                      i.contHrs === "0000" ||
+                      i.contHrs === "00000" ||
+                      i.contHrs === "-0" ||
+                      i.contHrs === "-00" ||
+                      i.contHrs === "-000" ||
+                      i.contHrs === "-0000" ||
+                      i.contHrs === "-00000")
+                  ? true
+                  : i.billingType !== 7 &&
+                    (i.contHrs.toString().includes(".") ||
+                      i.contHrs.toString().includes(","))
+                  ? true
+                  : false,
+              actHrsErr:
+                i.billingType !== 7 && Number(i.actHrs) <= 0
+                  ? true
+                  : i.billingType !== 7 && Number(i.actHrs) > Number(i.contHrs)
+                  ? true
+                  : i.billingType !== 7 &&
+                    (i.actHrs === "0" ||
+                      i.actHrs === "00" ||
+                      i.actHrs === "000" ||
+                      i.actHrs === "0000" ||
+                      i.actHrs === "00000" ||
+                      i.actHrs === "-0" ||
+                      i.actHrs === "-00" ||
+                      i.actHrs === "-000" ||
+                      i.actHrs === "-0000" ||
+                      i.actHrs === "-00000")
+                  ? true
+                  : i.billingType !== 7 &&
+                    (i.actHrs.toString().includes(".") ||
+                      i.actHrs.toString().includes(","))
+                  ? true
+                  : false,
+              allFields:
+                i.billingType > 0 &&
+                i.selectGroupValue.length > 0 &&
+                ((Number(i.contHrs) > 0 && Number(i.actHrs) > 0) ||
+                  i.billingType === 7)
+                  ? false
+                  : true,
+            }
+          : i
+      ),
+    ];
   };
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
@@ -552,76 +619,25 @@ const ClientContent = forwardRef<
     setEmailError(!regex.test(email));
     setDeptError(deptName.length <= 0);
 
-    setDepartmentDataObj([
-      ...departmentDataObj.map((i: DepartmentDataObj) =>
-        i.checkbox === true
-          ? {
-              ...i,
-              billingErr: i.billingType <= 0 ? true : false,
-              groupErr: i.selectGroupValue.length <= 0 ? true : false,
-              contHrsErr:
-                Number(i.contHrs) <= 0
-                  ? true
-                  : i.contHrs === "0" ||
-                    i.contHrs === "00" ||
-                    i.contHrs === "000" ||
-                    i.contHrs === "0000" ||
-                    i.contHrs === "00000" ||
-                    i.contHrs === "-0" ||
-                    i.contHrs === "-00" ||
-                    i.contHrs === "-000" ||
-                    i.contHrs === "-0000" ||
-                    i.contHrs === "-00000"
-                  ? true
-                  : i.contHrs.toString().includes(".") ||
-                    i.contHrs.toString().includes(",")
-                  ? true
-                  : false,
-              actHrsErr:
-                Number(i.actHrs) <= 0
-                  ? true
-                  : Number(i.actHrs) > Number(i.contHrs)
-                  ? true
-                  : i.actHrs === "0" ||
-                    i.actHrs === "00" ||
-                    i.actHrs === "000" ||
-                    i.actHrs === "0000" ||
-                    i.actHrs === "00000" ||
-                    i.actHrs === "-0" ||
-                    i.actHrs === "-00" ||
-                    i.actHrs === "-000" ||
-                    i.actHrs === "-0000" ||
-                    i.actHrs === "-00000"
-                  ? true
-                  : i.actHrs.toString().includes(".") ||
-                    i.actHrs.toString().includes(",")
-                  ? true
-                  : false,
-              allFields:
-                i.billingType > 0 &&
-                i.selectGroupValue.length > 0 &&
-                Number(i.contHrs) > 0 &&
-                Number(i.actHrs) > 0
-                  ? false
-                  : true,
-            }
-          : i
-      ),
-    ]);
+    const data = validateDepartmentData();
+    setDepartmentDataObj(data);
 
-    const allFieldsCheck = departmentDataObj
+    const allFieldsCheck = data
       .map((i: DepartmentDataObj) => i.allFields)
       .includes(true);
 
-    const timeGrater = departmentDataObj
-      .map((i: DepartmentDataObj) => Number(i.actHrs) > Number(i.contHrs))
+    const timeGrater = data
+      .map(
+        (i: DepartmentDataObj) =>
+          i.billingType !== 7 && Number(i.actHrs) > Number(i.contHrs)
+      )
       .includes(true);
 
-    const isChecked = departmentDataObj
+    const isChecked = data
       .map((i: DepartmentDataObj) => (i.checkbox === true ? i.index : false))
       .filter((j: number | boolean) => j !== false);
 
-    const hasError = departmentDataObj.map((i: DepartmentDataObj) =>
+    const hasError = data.map((i: DepartmentDataObj) =>
       !i.billingErr && !i.groupErr && !i.contHrsErr && !i.actHrsErr
         ? i.index
         : false
@@ -1044,10 +1060,11 @@ const ClientContent = forwardRef<
                 allFields:
                   i.billingType > 0 &&
                   selectedValue.length > 0 &&
-                  Number(i.actHrs) > 0 &&
-                  Number(i.actHrs) <= 5 &&
-                  Number(i.contHrs) > 0 &&
-                  Number(i.contHrs) <= 5
+                  ((Number(i.actHrs) > 0 &&
+                    Number(i.actHrs) <= 5 &&
+                    Number(i.contHrs) > 0 &&
+                    Number(i.contHrs) <= 5) ||
+                    i.billingType === 7)
                     ? false
                     : true,
               }
@@ -1327,6 +1344,14 @@ const ClientContent = forwardRef<
                               Number(e.target.value);
                             updatedDepartmentDataObj[index].billingErr =
                               Number(e.target.value) <= 0;
+                            updatedDepartmentDataObj[index].contHrs =
+                              Number(e.target.value) === 7
+                                ? 0
+                                : updatedDepartmentDataObj[index].contHrs;
+                            updatedDepartmentDataObj[index].actHrs =
+                              Number(e.target.value) === 7
+                                ? 0
+                                : updatedDepartmentDataObj[index].actHrs;
                             Number(e.target.value) > 0 &&
                               setDepartmentDataObj(updatedDepartmentDataObj);
                           }}
@@ -1426,9 +1451,12 @@ const ClientContent = forwardRef<
                         label={
                           <span>
                             Contracted Hours
-                            <span className="!text-defaultRed">&nbsp;*</span>
+                            {i.billingType !== 7 && (
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            )}
                           </span>
                         }
+                        disabled={i.billingType === 7}
                         onFocus={(e) =>
                           e.target.addEventListener(
                             "wheel",
@@ -1447,11 +1475,12 @@ const ClientContent = forwardRef<
                         }
                         onBlur={(e) => {
                           if (
-                            Number(e.target.value) <= 0 ||
-                            Number(e.target.value) >= 10000 ||
-                            e.target.value.trim().length < 0 ||
-                            e.target.value.trim().length > 5 ||
-                            e.target.value.trim().includes(".")
+                            i.billingType !== 7 &&
+                            (Number(e.target.value) <= 0 ||
+                              Number(e.target.value) >= 10000 ||
+                              e.target.value.trim().length < 0 ||
+                              e.target.value.trim().length > 5 ||
+                              e.target.value.trim().includes("."))
                           ) {
                             const updatedDepartmentDataObj = [
                               ...departmentDataObj,
@@ -1496,9 +1525,12 @@ const ClientContent = forwardRef<
                         label={
                           <span>
                             Internal Hours
-                            <span className="!text-defaultRed">&nbsp;*</span>
+                            {i.billingType !== 7 && (
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            )}
                           </span>
                         }
+                        disabled={i.billingType === 7}
                         onFocus={(e) =>
                           e.target.addEventListener(
                             "wheel",
@@ -1517,10 +1549,11 @@ const ClientContent = forwardRef<
                         }
                         onBlur={(e) => {
                           if (
-                            Number(e.target.value) <= 0 ||
-                            Number(e.target.value) >= 10000 ||
-                            e.target.value.trim().length > 5 ||
-                            e.target.value.trim().includes(".")
+                            i.billingType !== 7 &&
+                            (Number(e.target.value) <= 0 ||
+                              Number(e.target.value) >= 10000 ||
+                              e.target.value.trim().length > 5 ||
+                              e.target.value.trim().includes("."))
                           ) {
                             const updatedDepartmentDataObj = [
                               ...departmentDataObj,

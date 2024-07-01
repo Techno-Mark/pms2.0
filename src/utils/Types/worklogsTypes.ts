@@ -50,6 +50,7 @@ export interface WorkitemList {
   PreparorTime: string;
   DepartmentId: number;
   DepartmentName: string;
+  TaskType: string | null;
 }
 
 export interface WorklogsActionBarProps {

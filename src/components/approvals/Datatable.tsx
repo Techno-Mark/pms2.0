@@ -161,7 +161,6 @@ const Datatable = ({
   }, [activeTab]);
 
   const getFilterList = async (filterId: number) => {
-    console.log(filterId);
     if (filterId === 0) {
       setFilteredOject(initialFilter);
     } else {

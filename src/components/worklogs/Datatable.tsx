@@ -698,6 +698,13 @@ const Datatable = ({
       },
     },
     {
+      name: "TaskType",
+      options: {
+        display: false,
+        viewColumns: false,
+      },
+    },
+    {
       name: "IsHasErrorlog",
       options: {
         display: false,
@@ -744,31 +751,62 @@ const Datatable = ({
   const generateCustomeTaskIdwithErrorLogs = (
     bodyValue: number,
     TableMeta: any,
-    RowIndex: number
+    RowIndex: number,
+    TaskType: any
   ) => {
     const IsHasErrorlog = TableMeta.rowData[RowIndex];
+    const TaskTypeData = TableMeta.rowData[TaskType];
 
     return (
       <div
         className={`${
-          TableMeta.rowData[20] == 1 && TableMeta.rowData[24] === "Submitted"
+          TableMeta.rowData[20] == 1 && TableMeta.rowData[25] === "Submitted"
             ? ""
-            : "text-[#0592C6] cursor-pointer"
-        }`}
-        onClick={() =>
-          TableMeta.rowData[20] == 1 && TableMeta.rowData[24] === "Submitted"
-            ? ""
-            : onEdit(bodyValue)
-        }
+            : "text-[#0592C6]"
+        } flex items-center justify-center gap-2`}
       >
         {IsHasErrorlog && (
           <div
             className={
-              "w-[10px] h-[10px] rounded-full inline-block mr-2 bg-defaultRed"
+              "w-[10px] h-[10px] rounded-full inline-block bg-defaultRed"
             }
           ></div>
         )}
-        {bodyValue === null ? "-" : bodyValue}
+        {TaskTypeData && (
+          <ColorToolTip
+            title={`${
+              TaskTypeData === "A"
+                ? "Auto"
+                : TaskTypeData === "M"
+                ? "Manual"
+                : "Hybrid"
+            }`}
+            placement="top"
+            arrow
+          >
+            <span
+              className={`w-6 h-6 rounded-full flex items-center justify-center text-white ${
+                TaskTypeData === "A"
+                  ? "bg-[#0CC6AA]"
+                  : TaskTypeData === "M"
+                  ? "bg-[#FDB663]"
+                  : "bg-[#2323434D]"
+              }`}
+            >
+              {TaskTypeData}
+            </span>
+          </ColorToolTip>
+        )}
+        <span
+          onClick={() =>
+            TableMeta.rowData[20] == 1 && TableMeta.rowData[25] === "Submitted"
+              ? ""
+              : onEdit(bodyValue)
+          }
+          className="cursor-pointer"
+        >
+          {bodyValue === null ? "-" : bodyValue}
+        </span>
       </div>
     );
   };
@@ -966,7 +1004,8 @@ const Datatable = ({
             return generateCustomeTaskIdwithErrorLogs(
               value,
               tableMeta,
-              tableMeta.rowData.length - 6
+              tableMeta.rowData.length - 6,
+              tableMeta.rowData.length - 7
             );
           },
         },
@@ -1034,6 +1073,14 @@ const Datatable = ({
     } else if (column.name === "WorkTypeId") {
       return {
         name: "WorkTypeId",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
+    } else if (column.name === "TaskType") {
+      return {
+        name: "TaskType",
         options: {
           display: false,
           viewColumns: false,

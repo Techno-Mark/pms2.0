@@ -98,6 +98,7 @@ import {
   priorityOptions,
   rootCauseOptions,
 } from "@/utils/staticDropdownData";
+import TypeOfWork from "./actionBar/components/TypeOfWork";
 
 interface EditDrawer {
   onOpen: boolean;
@@ -2553,17 +2554,14 @@ const EditDrawer = ({
       assigneeData.length > 0
         ? setAssigneeWorklogsDropdownData(assigneeData)
         : setAssigneeWorklogsDropdownData([]);
+      const userId: any = localStorage.getItem("UserId");
       const assigneeId =
-        onEdit > 0 &&
-        assigneeWorklogs > 0 &&
+        onEdit === 0 &&
         assigneeData.length > 0 &&
         assigneeData
-          .map((i: LabelValue) =>
-            i.value === assigneeWorklogs ? assigneeWorklogs : false
-          )
+          .map((i: LabelValue) => (i.value == userId ? i.value : false))
           .filter((j: number | boolean) => j !== false)[0];
-      onEdit > 0 &&
-        assigneeWorklogs > 0 &&
+      onEdit === 0 &&
         assigneeData.length > 0 &&
         setAssigneeWorklogs(assigneeId !== undefined ? assigneeId : 0);
 
@@ -2592,10 +2590,22 @@ const EditDrawer = ({
       departmentData.length > 0
         ? setDepartmentWorklogsDropdownData(departmentData)
         : setDepartmentWorklogsDropdownData([]);
+      const departmentID: any = localStorage.getItem("departmentId");
+      const departmentId =
+        onEdit === 0 &&
+        departmentData.length > 0 &&
+        departmentData
+          .map((i: LabelValueType) =>
+            i.value == departmentID ? i.value : false
+          )
+          .filter((j: number | boolean) => j !== false)[0];
+      onEdit === 0 &&
+        departmentData.length > 0 &&
+        setDepartmentWorklogs(departmentId !== undefined ? departmentId : 0);
     };
 
     clientNameWorklogs > 0 && getData();
-  }, [clientNameWorklogs]);
+  }, [clientNameWorklogs, typeOfWorkWorklogs]);
 
   const getUserDetails = async () => {
     const params = {};

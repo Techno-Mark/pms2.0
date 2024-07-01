@@ -581,7 +581,9 @@ const FilterDialog = ({
               </FormControl>
 
               <div
-                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+                className={`inline-flex mx-[6px] muiDatepickerCustomizer ${
+                  status.length > 2 ? "min-w-[210px]" : "w-[210px]"
+                } max-w-[300px]`}
               >
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
