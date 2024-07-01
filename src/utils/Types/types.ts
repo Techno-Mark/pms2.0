@@ -114,4 +114,6 @@ export interface User {
   ClientId: number | null;
   WorkTypeId: number | null;
   DepartmentId: number | null;
+  ReportingManagerId: number | null;
+  ManagerId: number | null;
 }

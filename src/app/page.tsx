@@ -77,6 +77,8 @@ const Home = () => {
     localStorage.setItem("clientId", String(response.ClientId));
     localStorage.setItem("workTypeId", String(response.WorkTypeId));
     localStorage.setItem("departmentId", String(response.DepartmentId));
+    localStorage.setItem("reviewerId", String(response.ReportingManagerId));
+    localStorage.setItem("managerId", String(response.ManagerId));
 
     if (localStorage.getItem("Org_Token") === null) {
       localStorage.setItem("Org_Token", response.Organizations[0].Token);

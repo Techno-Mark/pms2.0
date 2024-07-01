@@ -2535,9 +2535,18 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
-      setManagerWorklogsDropdownData(
-        await getManagerDropdownData(typeOfWorkWorklogs)
-      );
+      const managerData = await getManagerDropdownData(typeOfWorkWorklogs);
+      setManagerWorklogsDropdownData(managerData);
+      const managerID: any = localStorage.getItem("ManagerId");
+      const managerId: any =
+        onEdit === 0 &&
+        managerData.length > 0 &&
+        managerData
+          .map((i: LabelValue) => (i.value == managerID ? i.value : false))
+          .filter((j: number | boolean) => j !== false)[0];
+      onEdit === 0 &&
+        managerData.length > 0 &&
+        setManagerWorklogs(managerId !== undefined ? managerId : 0);
 
       const reviewerData = await getReviewerDropdownData(
         [clientNameWorklogs],
@@ -2546,6 +2555,20 @@ const EditDrawer = ({
       reviewerData.length > 0
         ? setReviewerWorklogsDropdownData(reviewerData)
         : setReviewerWorklogsDropdownData([]);
+      const reportingManagerId: any =
+        localStorage.getItem("ReportingManagerId");
+      const reviewerId: any =
+        onEdit === 0 &&
+        reviewerData.length > 0 &&
+        reviewerData
+          .map((i: LabelValue) =>
+            i.value == reportingManagerId ? i.value : false
+          )
+          .filter((j: number | boolean) => j !== false)[0];
+
+      onEdit === 0 &&
+        reviewerData.length > 0 &&
+        setReviewerWorklogs(reviewerId !== undefined ? reviewerId : 0);
 
       const assigneeData = await getAssigneeDropdownData(
         [clientNameWorklogs],

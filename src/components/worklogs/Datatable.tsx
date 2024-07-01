@@ -803,7 +803,11 @@ const Datatable = ({
               ? ""
               : onEdit(bodyValue)
           }
-          className="cursor-pointer"
+          className={`${
+            TableMeta.rowData[20] == 1 && TableMeta.rowData[25] === "Submitted"
+              ? ""
+              : "cursor-pointer"
+          }`}
         >
           {bodyValue === null ? "-" : bodyValue}
         </span>

@@ -87,6 +87,11 @@ const Navbar = (props: NavbarPropsType) => {
         localStorage.setItem("clientId", String(ResponseData.ClientId));
         localStorage.setItem("workTypeId", String(ResponseData.WorkTypeId));
         localStorage.setItem("departmentId", String(ResponseData.DepartmentId));
+        localStorage.setItem(
+          "reviewerId",
+          String(ResponseData.ReportingManagerId)
+        );
+        localStorage.setItem("managerId", String(ResponseData.ManagerId));
         if (localStorage.getItem("Org_Token") === null) {
           localStorage.setItem(
             "Org_Token",
