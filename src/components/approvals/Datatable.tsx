@@ -1008,8 +1008,9 @@ const Datatable = ({
                     {timerValue}
                   </span>
                 </ColorToolTip>
-                {reviewList[tableMeta.rowIndex].ReviewerId ==
-                  Number(localStorage.getItem("UserId")) &&
+                {activeTab === 1 &&
+                  reviewList[tableMeta.rowIndex].ReviewerId ==
+                    Number(localStorage.getItem("UserId")) &&
                   reviewList.length > 0 &&
                   (reviewList[tableMeta.rowIndex].StatusType ===
                     "InReviewWithClients" ||
@@ -1047,6 +1048,7 @@ const Datatable = ({
                       </span>
                     </ColorToolTip>
                   ) : (
+                    activeTab === 1 &&
                     tableMeta.rowData[tableMeta.rowData.length - 2] === 2 && (
                       <ColorToolTip title="Resume" placement="top" arrow>
                         <span
@@ -1066,8 +1068,9 @@ const Datatable = ({
                       </ColorToolTip>
                     )
                   ))}
-                {reviewList[tableMeta.rowIndex].ReviewerId ==
-                  Number(localStorage.getItem("UserId")) &&
+                {activeTab === 1 &&
+                  reviewList[tableMeta.rowIndex].ReviewerId ==
+                    Number(localStorage.getItem("UserId")) &&
                   (tableMeta.rowData[tableMeta.rowData.length - 2] === 1 ||
                     tableMeta.rowData[tableMeta.rowData.length - 1] ===
                       isRunning) && (
@@ -1128,7 +1131,8 @@ const Datatable = ({
                     "ReworkSubmitted") &&
                   reviewList[tableMeta.rowIndex].ReviewerId ==
                     Number(localStorage.getItem("UserId")) &&
-                  tableMeta.rowData[tableMeta.rowData.length - 4] !== false && (
+                  tableMeta.rowData[tableMeta.rowData.length - 4] !== false &&
+                  activeTab === 1 && (
                     <ColorToolTip
                       title="Reviewer Manual Time"
                       placement="top"
