@@ -367,7 +367,7 @@ const EditDrawer = ({
     setSubTaskFieldsApprovals(newTaskFields);
 
     const newTaskErrors = [...taskNameApprovalsErr];
-    newTaskErrors[index] = e.trim().length === 0;
+    newTaskErrors[index] = e.trim().length < 5 || e.trim().length > 50;
     setTaskNameApprovalsErr(newTaskErrors);
   };
 
@@ -380,7 +380,8 @@ const EditDrawer = ({
     setSubTaskFieldsApprovals(newTaskFields);
 
     const newSubTaskDescErrors = [...subTaskDescriptionApprovalsErr];
-    newSubTaskDescErrors[index] = e.trim().length === 0;
+    newSubTaskDescErrors[index] =
+      e.trim().length === 0 || e.trim().length > 500;
     setSubTaskDescriptionApprovalsErr(newSubTaskDescErrors);
   };
 
@@ -422,12 +423,12 @@ const EditDrawer = ({
     const newTaskErrors = subTaskFieldsApprovals.map(
       (field) =>
         (subTaskSwitchApprovals && field.Title.trim().length < 5) ||
-        (subTaskSwitchApprovals && field.Title.trim().length > 500)
+        (subTaskSwitchApprovals && field.Title.trim().length > 50)
     );
     subTaskSwitchApprovals && setTaskNameApprovalsErr(newTaskErrors);
     const newSubTaskDescErrors = subTaskFieldsApprovals.map(
       (field) =>
-        (subTaskSwitchApprovals && field.Description.trim().length < 5) ||
+        (subTaskSwitchApprovals && field.Description.trim().length <= 0) ||
         (subTaskSwitchApprovals && field.Description.trim().length > 500)
     );
     subTaskSwitchApprovals &&
@@ -3852,7 +3853,10 @@ const EditDrawer = ({
                             handleSubTaskChangeApprovals(e.target.value, index)
                           }
                           onBlur={(e) => {
-                            if (e.target.value.trim().length > 0) {
+                            if (
+                              e.target.value.trim().length > 5 &&
+                              e.target.value.trim().length <= 50
+                            ) {
                               const newTaskNameErrors = [
                                 ...taskNameApprovalsErr,
                               ];
@@ -3867,8 +3871,8 @@ const EditDrawer = ({
                             field.Title.length < 5
                               ? "Minumum 5 characters required."
                               : taskNameApprovalsErr[index] &&
-                                field.Title.length > 500
-                              ? "Maximum 500 characters allowed."
+                                field.Title.length > 50
+                              ? "Maximum 50 characters allowed."
                               : taskNameApprovalsErr[index]
                               ? "This is a required field."
                               : ""
@@ -3894,7 +3898,10 @@ const EditDrawer = ({
                             )
                           }
                           onBlur={(e) => {
-                            if (e.target.value.trim().length > 0) {
+                            if (
+                              e.target.value.trim().length > 0 &&
+                              e.target.value.trim().length <= 500
+                            ) {
                               const newSubTaskDescErrors = [
                                 ...subTaskDescriptionApprovalsErr,
                               ];
@@ -3907,11 +3914,7 @@ const EditDrawer = ({
                           error={subTaskDescriptionApprovalsErr[index]}
                           helperText={
                             subTaskDescriptionApprovalsErr[index] &&
-                            field.Description.length > 0 &&
-                            field.Description.length < 5
-                              ? "Minumum 5 characters required."
-                              : subTaskDescriptionApprovalsErr[index] &&
-                                field.Description.length > 500
+                            field.Description.length > 500
                               ? "Maximum 500 characters allowed."
                               : subTaskDescriptionApprovalsErr[index]
                               ? "This is a required field."
