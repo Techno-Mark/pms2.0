@@ -169,8 +169,20 @@ const FilterDialog = ({
       ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        setAssignedByDropdownData(ResponseData);
-        // setAssignedToDropdownData(ResponseData);
+        const userId = localStorage.getItem("UserId");
+        setAssignedByDropdownData(
+          ResponseData.length > 0
+            ? [
+                {
+                  label: "Me",
+                  value: Number(userId),
+                },
+                ...ResponseData,
+              ]
+            : []
+        );
+      } else {
+        setAssignedToDropdownData([]);
       }
     };
     callAPI(url, params, successCallback, "GET");
