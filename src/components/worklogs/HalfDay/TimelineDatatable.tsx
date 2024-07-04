@@ -12,11 +12,11 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import { callAPI } from "@/utils/API/callAPI";
 import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
-import { AppliedFilterWorklogsPage } from "@/utils/Types/worklogsTypes";
+import { AppliedFilterHalfDayPage } from "@/utils/Types/worklogsTypes";
 
 interface Props {
   onDataFetch: (getData: () => void) => void;
-  currentFilterData: AppliedFilterWorklogsPage | [];
+  currentFilterData: AppliedFilterHalfDayPage | [];
   searchValue: string;
   onHandleExport: (arg1: boolean) => void;
   getTotalTime: (e: string | null) => void;

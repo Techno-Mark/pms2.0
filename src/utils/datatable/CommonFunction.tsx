@@ -232,27 +232,6 @@ export const generateIsLoggedInBodyRender = (bodyValue: any) => {
   return bodyValue === 0 ? <div>No</div> : bodyValue === 1 && <div>Yes</div>;
 };
 
-export const generateCustomeTaskIdwithErrorLogs = (
-  bodyValue: number,
-  TableMeta: any,
-  RowIndex: number
-) => {
-  const IsHasErrorlog = TableMeta.rowData[RowIndex];
-
-  return (
-    <div>
-      {IsHasErrorlog && (
-        <div
-          className={
-            "w-[10px] h-[10px] rounded-full inline-block mr-2 bg-defaultRed"
-          }
-        ></div>
-      )}
-      {bodyValue === null ? "-" : bodyValue}
-    </div>
-  );
-};
-
 export const handleChangePage = (
   event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   newPage: number,

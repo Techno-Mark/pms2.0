@@ -98,6 +98,7 @@ import {
   priorityOptions,
   rootCauseOptions,
 } from "@/utils/staticDropdownData";
+import TypeOfWork from "./actionBar/components/TypeOfWork";
 
 interface EditDrawer {
   onOpen: boolean;
@@ -354,7 +355,7 @@ const EditDrawer = ({
     setSubTaskFieldsWorklogs(newTaskWorklogsFields);
 
     const newTaskWorklogsErrors = [...taskNameWorklogsErr];
-    newTaskWorklogsErrors[index] = e.trim().length === 0;
+    newTaskWorklogsErrors[index] = e.trim().length < 5 || e.trim().length > 50;
     setTaskNameWorklogsErr(newTaskWorklogsErrors);
   };
 
@@ -364,7 +365,8 @@ const EditDrawer = ({
     setSubTaskFieldsWorklogs(newTaskWorklogsFields);
 
     const newSubTaskDescWorklogsErrors = [...subTaskDescriptionWorklogsErr];
-    newSubTaskDescWorklogsErrors[index] = e.trim().length === 0;
+    newSubTaskDescWorklogsErrors[index] =
+      e.trim().length === 0 || e.trim().length > 500;
     setSubTaskDescriptionWorklogsErr(newSubTaskDescWorklogsErrors);
   };
 
@@ -406,12 +408,12 @@ const EditDrawer = ({
     const newTaskErrors = subTaskFieldsWorklogs.map(
       (field) =>
         (subTaskSwitchWorklogs && field.Title.trim().length < 5) ||
-        (subTaskSwitchWorklogs && field.Title.trim().length > 500)
+        (subTaskSwitchWorklogs && field.Title.trim().length > 50)
     );
     subTaskSwitchWorklogs && setTaskNameWorklogsErr(newTaskErrors);
     const newSubTaskDescErrors = subTaskFieldsWorklogs.map(
       (field) =>
-        (subTaskSwitchWorklogs && field.Description.trim().length < 5) ||
+        (subTaskSwitchWorklogs && field.Description.trim().length <= 0) ||
         (subTaskSwitchWorklogs && field.Description.trim().length > 500)
     );
     subTaskSwitchWorklogs &&
@@ -767,7 +769,8 @@ const EditDrawer = ({
     setManualFieldsWorklogs(newManualWorklogsFields);
 
     const newManualDescWorklogsErrors = [...manualDescWorklogsErrors];
-    newManualDescWorklogsErrors[index] = e.trim().length === 0;
+    newManualDescWorklogsErrors[index] =
+      e.trim().length === 0 || e.trim().length > 500;
     setManualDescWorklogsErrors(newManualDescWorklogsErrors);
   };
 
@@ -848,7 +851,7 @@ const EditDrawer = ({
         setStartTimeWorklogsErrors(newStartTimeWorklogsErrors);
       const newManualDescWorklogsErrors = manualFieldsWorklogs.map(
         (field) =>
-          (manualSwitchWorklogs && field.manualDesc.trim().length < 5) ||
+          (manualSwitchWorklogs && field.manualDesc.trim().length < 1) ||
           (manualSwitchWorklogs && field.manualDesc.trim().length > 500)
       );
       manualSwitchWorklogs &&
@@ -1871,7 +1874,7 @@ const EditDrawer = ({
 
     setClientTaskNameWorklogsErr(
       clientTaskNameWorklogs.trim().length < 4 ||
-        clientTaskNameWorklogs.trim().length > 50
+        clientTaskNameWorklogs.trim().length > 100
     );
     setQuantityWorklogsErr(
       quantityWorklogs.toString().length <= 0 ||
@@ -1918,14 +1921,14 @@ const EditDrawer = ({
           field.Title.trim().length < 5) ||
         (onEdit === 0 &&
           subTaskSwitchWorklogs &&
-          field.Title.trim().length > 500)
+          field.Title.trim().length > 50)
     );
     subTaskSwitchWorklogs && setTaskNameWorklogsErr(newTaskErrors);
     const newSubTaskDescErrors = subTaskFieldsWorklogs.map(
       (field) =>
         (onEdit === 0 &&
           subTaskSwitchWorklogs &&
-          field.Description.trim().length < 5) ||
+          field.Description.trim().length <= 0) ||
         (onEdit === 0 &&
           subTaskSwitchWorklogs &&
           field.Description.trim().length > 500)
@@ -1960,7 +1963,7 @@ const EditDrawer = ({
       (field) =>
         (onEdit === 0 &&
           manualSwitchWorklogs &&
-          field.manualDesc.trim().length < 5) ||
+          field.manualDesc.trim().length < 1) ||
         (onEdit === 0 &&
           manualSwitchWorklogs &&
           field.manualDesc.trim().length > 500)
@@ -2117,7 +2120,7 @@ const EditDrawer = ({
       !hasSubErrors &&
       !hasManualErrors &&
       clientTaskNameWorklogs.trim().length > 3 &&
-      clientTaskNameWorklogs.trim().length < 50 &&
+      clientTaskNameWorklogs.trim().length <= 100 &&
       !quantityWorklogsErr &&
       quantityWorklogs > 0 &&
       quantityWorklogs < 10000 &&
@@ -2137,7 +2140,7 @@ const EditDrawer = ({
       !hasSubErrors &&
       !hasManualErrors &&
       clientTaskNameWorklogs.trim().length > 3 &&
-      clientTaskNameWorklogs.trim().length < 50 &&
+      clientTaskNameWorklogs.trim().length <= 100 &&
       !quantityWorklogsErr &&
       quantityWorklogs > 0 &&
       quantityWorklogs < 10000 &&
@@ -2155,7 +2158,7 @@ const EditDrawer = ({
       typeOfWorkWorklogs !== 3 &&
       !hasEditErrors &&
       clientTaskNameWorklogs.trim().length > 3 &&
-      clientTaskNameWorklogs.trim().length < 50 &&
+      clientTaskNameWorklogs.trim().length <= 100 &&
       quantityWorklogs > 0 &&
       quantityWorklogs < 10000 &&
       !quantityWorklogsErr &&
@@ -2172,7 +2175,7 @@ const EditDrawer = ({
       typeOfWorkWorklogs === 3 &&
       !hasEditErrors &&
       clientTaskNameWorklogs.trim().length > 3 &&
-      clientTaskNameWorklogs.trim().length < 50 &&
+      clientTaskNameWorklogs.trim().length <= 100 &&
       quantityWorklogs > 0 &&
       quantityWorklogs < 10000 &&
       !quantityWorklogsErr &&
@@ -2416,8 +2419,9 @@ const EditDrawer = ({
       const workTypeData =
         clientNameWorklogs > 0 &&
         (await getTypeOfWorkDropdownData(clientNameWorklogs));
-      workTypeData.length > 0 &&
-        setTypeOfWorkWorklogsDropdownData(workTypeData);
+      workTypeData.length > 0
+        ? setTypeOfWorkWorklogsDropdownData(workTypeData)
+        : setTypeOfWorkWorklogsDropdownData([]);
       const workTypeId = localStorage.getItem("workTypeId");
       workTypeData.length > 0 &&
         onEdit === 0 &&
@@ -2460,7 +2464,9 @@ const EditDrawer = ({
         clientNameWorklogs > 0 &&
         typeOfWorkWorklogs > 0 &&
         (await getProjectDropdownData(clientNameWorklogs, typeOfWorkWorklogs));
-      projectData.length > 0 && setProjectWorklogsDropdownData(projectData);
+      projectData.length > 0
+        ? setProjectWorklogsDropdownData(projectData)
+        : setProjectWorklogsDropdownData([]);
       projectData.length > 0 &&
         projectData.length === 1 &&
         onEdit === 0 &&
@@ -2517,7 +2523,9 @@ const EditDrawer = ({
           typeOfWorkWorklogs,
           processNameWorklogs
         ));
-      data.length > 0 && setEstTimeDataWorklogs(data);
+      data.length > 0
+        ? setEstTimeDataWorklogs(data)
+        : setEstTimeDataWorklogs([]);
       data.length > 0
         ? setSubProcessWorklogsDropdownData(
             data.map(
@@ -2533,9 +2541,18 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
-      setManagerWorklogsDropdownData(
-        await getManagerDropdownData(typeOfWorkWorklogs)
-      );
+      const managerData = await getManagerDropdownData(typeOfWorkWorklogs);
+      setManagerWorklogsDropdownData(managerData);
+      const managerID: any = localStorage.getItem("managerId");
+      const managerId: any =
+        onEdit === 0 &&
+        managerData.length > 0 &&
+        managerData
+          .map((i: LabelValue) => (i.value == managerID ? i.value : false))
+          .filter((j: number | boolean) => j !== false)[0];
+      onEdit === 0 &&
+        managerData.length > 0 &&
+        setManagerWorklogs(managerId !== undefined ? managerId : 0);
 
       const reviewerData = await getReviewerDropdownData(
         [clientNameWorklogs],
@@ -2544,6 +2561,19 @@ const EditDrawer = ({
       reviewerData.length > 0
         ? setReviewerWorklogsDropdownData(reviewerData)
         : setReviewerWorklogsDropdownData([]);
+      const reportingManagerId: any = localStorage.getItem("reviewerId");
+      const reviewerId: any =
+        onEdit === 0 &&
+        reviewerData.length > 0 &&
+        reviewerData
+          .map((i: LabelValue) =>
+            i.value == reportingManagerId ? i.value : false
+          )
+          .filter((j: number | boolean) => j !== false)[0];
+
+      onEdit === 0 &&
+        reviewerData.length > 0 &&
+        setReviewerWorklogs(reviewerId !== undefined ? reviewerId : 0);
 
       const assigneeData = await getAssigneeDropdownData(
         [clientNameWorklogs],
@@ -2552,31 +2582,17 @@ const EditDrawer = ({
       assigneeData.length > 0
         ? setAssigneeWorklogsDropdownData(assigneeData)
         : setAssigneeWorklogsDropdownData([]);
+      const userId: any = localStorage.getItem("UserId");
       const assigneeId =
-        onEdit > 0 &&
-        assigneeWorklogs > 0 &&
+        onEdit === 0 &&
         assigneeData.length > 0 &&
         assigneeData
-          .map((i: LabelValue) =>
-            i.value === assigneeWorklogs ? assigneeWorklogs : false
-          )
+          .map((i: LabelValue) => (i.value == userId ? i.value : false))
           .filter((j: number | boolean) => j !== false)[0];
-      onEdit > 0 &&
-        assigneeWorklogs > 0 &&
+      onEdit === 0 &&
         assigneeData.length > 0 &&
         setAssigneeWorklogs(assigneeId !== undefined ? assigneeId : 0);
 
-      // const UserId: any = await localStorage.getItem("UserId");
-      // const reviwerId =
-      //   reviewerData.length > 0 &&
-      //   reviewerData
-      //     .map((i: LabelValue) =>
-      //       i.value === parseInt(UserId) ? i.value : undefined
-      //     )
-      //     .filter((i: number | undefined) => i !== undefined)[0];
-      // reviewerData.length > 0 &&
-      //   onEdit === 0 &&
-      //   setReviewerWorklogs(reviwerId === false ? 0 : reviwerId);
       typeOfWorkWorklogs === 3 && onEdit === 0 && setReturnYearWorklogs(2023);
     };
 
@@ -2591,10 +2607,22 @@ const EditDrawer = ({
       departmentData.length > 0
         ? setDepartmentWorklogsDropdownData(departmentData)
         : setDepartmentWorklogsDropdownData([]);
+      const departmentID: any = localStorage.getItem("departmentId");
+      const departmentId =
+        onEdit === 0 &&
+        departmentData.length > 0 &&
+        departmentData
+          .map((i: LabelValueType) =>
+            i.value == departmentID ? i.value : false
+          )
+          .filter((j: number | boolean) => j !== false)[0];
+      onEdit === 0 &&
+        departmentData.length > 0 &&
+        setDepartmentWorklogs(departmentId !== undefined ? departmentId : 0);
     };
 
     clientNameWorklogs > 0 && getData();
-  }, [clientNameWorklogs]);
+  }, [clientNameWorklogs, typeOfWorkWorklogs]);
 
   const getUserDetails = async () => {
     const params = {};
@@ -2809,6 +2837,30 @@ const EditDrawer = ({
       }
     }
   };
+
+  useEffect(() => {
+    if (onEdit === 0) {
+      if (typeOfWorkWorklogs > 0 && typeOfWorkWorklogs !== 3) {
+        const reviewerDate = dayjs();
+        setReceiverDateWorklogs(reviewerDate.toISOString());
+        setReceiverDateWorklogsErr(false);
+        let nextDate: any = reviewerDate;
+        if (reviewerDate.day() === 4) {
+          nextDate = nextDate.add(4, "day");
+        } else if (reviewerDate.day() === 5) {
+          nextDate = nextDate.add(4, "day");
+        } else if (reviewerDate.day() === 6) {
+          nextDate = nextDate.add(4, "day");
+        } else {
+          nextDate = dayjs(reviewerDate).add(3, "day").toDate();
+        }
+        setDueDateWorklogs(nextDate);
+      } else {
+        setReceiverDateWorklogs("");
+        setDueDateWorklogs("");
+      }
+    }
+  }, [typeOfWorkWorklogs]);
 
   return (
     <>
@@ -3264,7 +3316,7 @@ const EditDrawer = ({
                         onBlur={(e) => {
                           if (
                             e.target.value.trim().length < 4 ||
-                            e.target.value.trim().length > 50
+                            e.target.value.trim().length > 100
                           ) {
                             setClientTaskNameWorklogsErr(true);
                           }
@@ -3276,8 +3328,8 @@ const EditDrawer = ({
                           clientTaskNameWorklogs?.trim().length < 4
                             ? "Minimum 4 characters required."
                             : clientTaskNameWorklogsErr &&
-                              clientTaskNameWorklogs?.trim().length > 50
-                            ? "Maximum 50 characters allowed."
+                              clientTaskNameWorklogs?.trim().length > 100
+                            ? "Maximum 100 characters allowed."
                             : clientTaskNameWorklogsErr
                             ? "This is a required field."
                             : ""
@@ -4082,7 +4134,10 @@ const EditDrawer = ({
                             handleSubTaskChangeWorklogs(e.target.value, index)
                           }
                           onBlur={(e) => {
-                            if (e.target.value.trim().length > 0) {
+                            if (
+                              e.target.value.trim().length > 5 &&
+                              e.target.value.trim().length <= 50
+                            ) {
                               const newTaskNameWorklogsErrors = [
                                 ...taskNameWorklogsErr,
                               ];
@@ -4097,8 +4152,8 @@ const EditDrawer = ({
                             field.Title.length < 5
                               ? "Minumum 5 characters required."
                               : taskNameWorklogsErr[index] &&
-                                field.Title.length > 500
-                              ? "Maximum 500 characters allowed."
+                                field.Title.length > 50
+                              ? "Maximum 50 characters allowed."
                               : taskNameWorklogsErr[index]
                               ? "This is a required field."
                               : ""
@@ -4124,7 +4179,10 @@ const EditDrawer = ({
                             )
                           }
                           onBlur={(e) => {
-                            if (e.target.value.trim().length > 0) {
+                            if (
+                              e.target.value.trim().length > 0 &&
+                              e.target.value.trim().length <= 500
+                            ) {
                               const newSubTaskDescErrors = [
                                 ...subTaskDescriptionWorklogsErr,
                               ];
@@ -4137,11 +4195,7 @@ const EditDrawer = ({
                           error={subTaskDescriptionWorklogsErr[index]}
                           helperText={
                             subTaskDescriptionWorklogsErr[index] &&
-                            field.Description.length > 0 &&
-                            field.Description.length < 5
-                              ? "Minumum 5 characters required."
-                              : subTaskDescriptionWorklogsErr[index] &&
-                                field.Description.length > 500
+                            field.Description.length > 500
                               ? "Maximum 500 characters allowed."
                               : subTaskDescriptionWorklogsErr[index]
                               ? "This is a required field."
@@ -5247,7 +5301,10 @@ const EditDrawer = ({
                             )
                           }
                           onBlur={(e) => {
-                            if (e.target.value.trim().length < 5) {
+                            if (
+                              e.target.value.trim().length < 1 ||
+                              e.target.value.trim().length > 500
+                            ) {
                               const newManualDescWorklogsErrors = [
                                 ...manualDescWorklogsErrors,
                               ];
@@ -5268,11 +5325,7 @@ const EditDrawer = ({
                           error={manualDescWorklogsErrors[index]}
                           helperText={
                             manualDescWorklogsErrors[index] &&
-                            field.manualDesc.length > 0 &&
-                            field.manualDesc.length < 5
-                              ? "Minumum 5 characters required."
-                              : manualDescWorklogsErrors[index] &&
-                                field.manualDesc.length > 500
+                            field.manualDesc.length > 500
                               ? "Maximum 500 characters allowed."
                               : manualDescWorklogsErrors[index]
                               ? "This is a required field."

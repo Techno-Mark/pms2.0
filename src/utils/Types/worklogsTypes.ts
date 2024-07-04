@@ -50,6 +50,7 @@ export interface WorkitemList {
   PreparorTime: string;
   DepartmentId: number;
   DepartmentName: string;
+  TaskType: string | null;
 }
 
 export interface WorklogsActionBarProps {
@@ -80,10 +81,10 @@ export interface Response {
 }
 
 export interface AppliedFilter {
-  ClientId: number | null;
+  ClientId: number[];
   TypeOfWork: number | null;
   ProjectId: number | null;
-  Status: number | null;
+  Status: number[];
   AssignedTo: number | null;
   AssignedBy: number | null;
   DueDate: string | null;
@@ -99,10 +100,10 @@ export interface FilterData {
 }
 
 export interface AppliedFilterWorklogsPage {
-  ClientId: number | null;
+  ClientId: number[] | null;
   TypeOfWork: number | null;
   ProjectId: number | null;
-  StatusId?: number | null;
+  StatusId?: number[] | null;
   Status?: number | null;
   AssignedTo: number | null;
   AssignedBy: number | null;
@@ -110,6 +111,13 @@ export interface AppliedFilterWorklogsPage {
   StartDate: string | null;
   EndDate: string | null;
   ReviewStatus: number | null;
+}
+
+export interface AppliedFilterHalfDayPage {
+  ClientId: number | null;
+  ProjectId: number | null;
+  StartDate: string | null;
+  EndDate: string | null;
 }
 
 export interface FilterWorklogsPage {

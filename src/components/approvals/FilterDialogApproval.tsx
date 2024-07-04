@@ -455,7 +455,7 @@ const FilterDialogApproval = ({
                   ) => {
                     setProcessName(data);
                   }}
-                  value={userName}
+                  value={processName}
                   renderInput={(params: any) => (
                     <TextField
                       {...params}

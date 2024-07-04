@@ -532,6 +532,11 @@ const User = ({
 
   const column = [
     {
+      name: "EmployeeCode",
+      label: "Employee Code",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "FullName",
       label: "User Name",
       bodyRenderer: generateCommonBodyRender,
@@ -569,6 +574,11 @@ const User = ({
     {
       name: "GroupNames",
       label: "Group",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "DateOfCreation",
+      label: "Date of Creation",
       bodyRenderer: generateCommonBodyRender,
     },
     {
@@ -619,7 +629,7 @@ const User = ({
   ];
 
   const userColumns = column.map((col: any) => {
-    return generateConditionalColumn(col, 10);
+    return generateConditionalColumn(col, 12);
   });
 
   const options: any = {

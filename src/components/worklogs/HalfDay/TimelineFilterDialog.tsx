@@ -1,5 +1,4 @@
 import { LabelValue } from "@/utils/Types/types";
-import { AppliedFilterWorklogsPage } from "@/utils/Types/worklogsTypes";
 import {
   getClientDropdownData,
   getProjectDropdownData,

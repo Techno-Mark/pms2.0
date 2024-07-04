@@ -154,6 +154,7 @@ const ProjectContent = forwardRef<
     client <= 0 && setClientError(true);
     typeOfWorks.length <= 0 && setTypeOfWorkNameError(true);
     projectName.toString().trim().length <= 0 && setProjectNameError(true);
+    projectName.toString().trim().length > 100 && setProjectNameError(true);
 
     if (
       !clientError &&
@@ -161,7 +162,8 @@ const ProjectContent = forwardRef<
       !typeOfWorkNameError &&
       typeOfWorkName.length > 0 &&
       !projectNameError &&
-      projectName.trim().length > 0
+      projectName.trim().length > 0 &&
+      projectName.trim().length < 100
     ) {
       const params = {
         ClientId: client,
@@ -300,15 +302,15 @@ const ProjectContent = forwardRef<
             onBlur={(e) => {
               if (
                 e.target.value.trim().length <= 0 ||
-                e.target.value.trim().length > 50
+                e.target.value.trim().length > 100
               ) {
                 setProjectNameError(true);
               }
             }}
             error={projectNameError}
             helperText={
-              projectNameError && projectName?.trim().length > 50
-                ? "Maximum 50 characters allowed."
+              projectNameError && projectName?.trim().length > 100
+                ? "Maximum 100 characters allowed."
                 : projectNameError
                 ? "This is a required field."
                 : ""

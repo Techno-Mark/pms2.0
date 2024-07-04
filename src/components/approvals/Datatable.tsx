@@ -161,7 +161,6 @@ const Datatable = ({
   }, [activeTab]);
 
   const getFilterList = async (filterId: number) => {
-    console.log(filterId);
     if (filterId === 0) {
       setFilteredOject(initialFilter);
     } else {
@@ -1009,8 +1008,9 @@ const Datatable = ({
                     {timerValue}
                   </span>
                 </ColorToolTip>
-                {reviewList[tableMeta.rowIndex].ReviewerId ==
-                  Number(localStorage.getItem("UserId")) &&
+                {activeTab === 1 &&
+                  reviewList[tableMeta.rowIndex].ReviewerId ==
+                    Number(localStorage.getItem("UserId")) &&
                   reviewList.length > 0 &&
                   (reviewList[tableMeta.rowIndex].StatusType ===
                     "InReviewWithClients" ||
@@ -1048,6 +1048,7 @@ const Datatable = ({
                       </span>
                     </ColorToolTip>
                   ) : (
+                    activeTab === 1 &&
                     tableMeta.rowData[tableMeta.rowData.length - 2] === 2 && (
                       <ColorToolTip title="Resume" placement="top" arrow>
                         <span
@@ -1067,8 +1068,9 @@ const Datatable = ({
                       </ColorToolTip>
                     )
                   ))}
-                {reviewList[tableMeta.rowIndex].ReviewerId ==
-                  Number(localStorage.getItem("UserId")) &&
+                {activeTab === 1 &&
+                  reviewList[tableMeta.rowIndex].ReviewerId ==
+                    Number(localStorage.getItem("UserId")) &&
                   (tableMeta.rowData[tableMeta.rowData.length - 2] === 1 ||
                     tableMeta.rowData[tableMeta.rowData.length - 1] ===
                       isRunning) && (
@@ -1129,7 +1131,8 @@ const Datatable = ({
                     "ReworkSubmitted") &&
                   reviewList[tableMeta.rowIndex].ReviewerId ==
                     Number(localStorage.getItem("UserId")) &&
-                  tableMeta.rowData[tableMeta.rowData.length - 4] !== false && (
+                  tableMeta.rowData[tableMeta.rowData.length - 4] !== false &&
+                  activeTab === 1 && (
                     <ColorToolTip
                       title="Reviewer Manual Time"
                       placement="top"
@@ -1186,7 +1189,14 @@ const Datatable = ({
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
           customBodyRender: (value: number) => {
-            return generateCommonBodyRender(value);
+            return (
+              <div
+                className="text-[#0592C6] cursor-pointer"
+                onClick={() => onEdit(value, workitemId, id)}
+              >
+                {value === null ? "-" : value}
+              </div>
+            );
           },
         },
       };
@@ -1506,13 +1516,15 @@ const Datatable = ({
               <div className="px-5 w-full flex items-center justify-between">
                 <div className="my-5 flex items-center">
                   <div className="mr-[10px]">
-                    <label className="text-sm font-normal font-proxima text-slatyGrey capitalize mr-[5px]">
-                      User Name:
-                    </label>
+                    {reviewListInsideData[0]?.UserName.length > 0 && (
+                      <label className="text-sm font-normal font-proxima text-slatyGrey capitalize mr-[5px]">
+                        User Name:
+                      </label>
+                    )}
                     <label className="text-sm font-bold font-proxima capitalize">
                       {reviewListInsideData[0]?.UserName.length > 0
                         ? reviewListInsideData[0]?.UserName
-                        : "-"}
+                        : " "}
                     </label>
                   </div>
                 </div>
