@@ -1516,13 +1516,15 @@ const Datatable = ({
               <div className="px-5 w-full flex items-center justify-between">
                 <div className="my-5 flex items-center">
                   <div className="mr-[10px]">
-                    <label className="text-sm font-normal font-proxima text-slatyGrey capitalize mr-[5px]">
-                      User Name:
-                    </label>
+                    {reviewListInsideData[0]?.UserName.length > 0 && (
+                      <label className="text-sm font-normal font-proxima text-slatyGrey capitalize mr-[5px]">
+                        User Name:
+                      </label>
+                    )}
                     <label className="text-sm font-bold font-proxima capitalize">
                       {reviewListInsideData[0]?.UserName.length > 0
                         ? reviewListInsideData[0]?.UserName
-                        : "-"}
+                        : " "}
                     </label>
                   </div>
                 </div>
