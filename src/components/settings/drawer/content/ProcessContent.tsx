@@ -17,17 +17,28 @@ import {
   DialogContentText,
   DialogTitle,
   FormControl,
+  FormControlLabel,
   FormHelperText,
+  FormLabel,
   InputLabel,
   MenuItem,
+  Radio,
+  RadioGroup,
   Select,
   TextField,
   createFilterOptions,
 } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import { ProcessGetByIdList } from "@/utils/Types/settingTypes";
-import { LabelValue, LabelValueType } from "@/utils/Types/types";
-import { getDepartmentDropdownData } from "@/utils/commonDropdownApiCall";
+import {
+  LabelValue,
+  LabelValueProfileImage,
+  LabelValueType,
+} from "@/utils/Types/types";
+import {
+  getCCDropdownData,
+  getDepartmentDropdownData,
+} from "@/utils/commonDropdownApiCall";
 
 export interface ProcessContentRef {
   ProcessDataValue: () => void;
@@ -104,6 +115,11 @@ const ProcessContent = forwardRef<
     const [productive, setProductive] = useState<boolean>(true);
     const [billable, setBillable] = useState<boolean>(true);
     const [activity, setActivity] = useState<string[]>([]);
+    const [user, setUser] = useState(0);
+    const [userDrpdown, setUserDrpdown] = useState<LabelValueProfileImage[]>(
+      []
+    );
+    const [checkbox, setCheckbox] = useState<string>("no");
 
     const handleEstTimeChange = (
       event: React.ChangeEvent<HTMLInputElement>
@@ -219,6 +235,8 @@ const ProcessContent = forwardRef<
           if (ResponseStatus === "Success" && error === false) {
             setTypeOfWork(ResponseData.WorkTypeId);
             setDepartment(ResponseData.DepartmentId);
+            setUser(!!ResponseData.RequestedBy ? ResponseData.RequestedBy : 0);
+            setCheckbox(ResponseData.MapAllClients === false ? "no" : "yes");
             setProcessValue(ResponseData.ParentId);
             setSubProcessName(ResponseData.Name);
             setReturnType(
@@ -308,6 +326,8 @@ const ProcessContent = forwardRef<
       setInputList([]);
       setProcessValue(0);
       setActivity([]);
+      setUser(0);
+      setCheckbox("no");
       setEstTime("");
       clearError();
     };
@@ -366,6 +386,8 @@ const ProcessContent = forwardRef<
           ParentId: processValue,
           WorkTypeId: typeOfWork,
           DepartmentId: department,
+          RequestedBy: !!user ? user : null,
+          MapAllClients: checkbox === "no" ? false : true,
         };
         const url = `${process.env.pms_api_url}/process/Save`;
         const successCallback = async (
@@ -461,8 +483,13 @@ const ProcessContent = forwardRef<
       setDepartmentDropdown(data.DepartmentList);
     };
 
+    const getUserList = async () => {
+      setUserDrpdown(await getCCDropdownData());
+    };
+
     useEffect(() => {
       clearError();
+      onOpen && userDrpdown.length <= 0 && getUserList();
       onOpen && typeOfWorkDropdown.length <= 0 && getWorkTypeData();
       onOpen && departmentDropdown.length <= 0 && getDepartmentData();
       onOpen && typeOfWork > 0 && department > 0 && getDropdownData();
@@ -920,6 +947,80 @@ const ProcessContent = forwardRef<
               disabled={!productive}
             />
           </span>
+          <div className="flex flex-col mb-4 px-[20px]">
+            <Autocomplete
+              id="tags-standard"
+              options={userDrpdown}
+              value={
+                userDrpdown?.find(
+                  (i: LabelValueProfileImage) => i.value === user
+                ) || null
+              }
+              onChange={(e, value: LabelValueProfileImage | null) => {
+                !!value ? setUser(value.value) : setUser(0);
+              }}
+              renderInput={(params: any) => (
+                <TextField
+                  {...params}
+                  variant="standard"
+                  label="Requested by"
+                />
+              )}
+            />
+          </div>
+          <FormControl className="ml-5">
+            <FormLabel id="demo-radio-buttons-group-label">
+              Add to Client
+            </FormLabel>
+            <span className="flex items-center gap-2">
+              <CheckboxComponent
+                id="yes"
+                name="checkbox"
+                checked={checkbox === "yes"}
+                onChangeFunction={() => setCheckbox("yes")}
+                value="yes"
+                label="Yes"
+                disabled={onEdit > 0}
+              />
+              <CheckboxComponent
+                id="no"
+                name="checkbox"
+                checked={checkbox === "no"}
+                onChangeFunction={() => setCheckbox("no")}
+                value="no"
+                label="No"
+                disabled={onEdit > 0}
+              />
+            </span>
+            {/* <RadioGroup
+              aria-labelledby="demo-radio-buttons-group-label"
+              defaultValue="no"
+              name="radio-buttons-group"
+            >
+              <div className="flex item-center">
+                <FormControlLabel
+                  value="yes"
+                  control={
+                    <Radio
+                      onChange={(e) => setCheckbox(e.target.value)}
+                      checked={checkbox === "yes"}
+                    />
+                  }
+                  label="Yes"
+                />
+                <FormControlLabel
+                  value="no"
+                  control={
+                    <Radio
+                      onChange={(e) => setCheckbox(e.target.value)}
+                      checked={checkbox === "no"}
+                    />
+                  }
+                  label="No"
+                />
+              </div>
+            </RadioGroup> */}
+          </FormControl>
 
           {/* Footer */}
           <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">

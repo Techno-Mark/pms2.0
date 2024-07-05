@@ -316,6 +316,7 @@ export interface ProjectGetByIdList {
   WorkTypeIds: number[];
   IsActive: boolean;
   ProjectId: number;
+  RequestedBy: number | null;
 }
 
 //Process
@@ -331,6 +332,8 @@ export interface ProcessGetByIdList {
   WorkTypeId: number;
   DepartmentId: number;
   ProcessId: number;
+  RequestedBy: number | null;
+  MapAllClients: boolean;
 }
 
 //Group

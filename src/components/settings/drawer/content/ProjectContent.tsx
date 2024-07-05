@@ -1,6 +1,7 @@
 import { callAPI } from "@/utils/API/callAPI";
 import { ProjectGetByIdList } from "@/utils/Types/settingTypes";
-import { LabelValue } from "@/utils/Types/types";
+import { LabelValue, LabelValueProfileImage } from "@/utils/Types/types";
+import { getCCDropdownData } from "@/utils/commonDropdownApiCall";
 import { Autocomplete, Button, TextField } from "@mui/material";
 import React, {
   forwardRef,
@@ -43,8 +44,12 @@ const ProjectContent = forwardRef<
   const [projectName, setProjectName] = useState("");
   const [projectNameError, setProjectNameError] = useState(false);
 
+  const [user, setUser] = useState(0);
+  const [userDrpdown, setUserDrpdown] = useState<LabelValueProfileImage[]>([]);
+
   useEffect(() => {
     const getData = async () => {
+      setUserDrpdown(await getCCDropdownData());
       const params = {};
       const url = `${process.env.pms_api_url}/client/getdropdown`;
       const successCallback = (
@@ -85,6 +90,9 @@ const ProjectContent = forwardRef<
             setProjectName(ResponseData.ProjectName);
             setSubProject(ResponseData.SubProjectName);
             setSubProjectId(ResponseData.SubProjectId);
+            setUser(
+              ResponseData.RequestedBy === null ? 0 : ResponseData.RequestedBy
+            );
           }
         };
         callAPI(url, params, successCallback, "POST");
@@ -121,21 +129,26 @@ const ProjectContent = forwardRef<
   };
 
   useEffect(() => {
+    clearErors();
     onOpen && client > 0 && getWorktypeData();
   }, [client, onOpen, typeOfWorkName]);
 
   const clearAllFields = () => {
     setClient(0);
-    setClientError(false);
     setTypeOfWorkDropdown([]);
     setTypeOfWorkName([]);
     setTypeOfWorks([]);
-    setTypeOfWorkNameError(false);
     setSubProject("");
-
     setProjectName("");
-    setProjectNameError(false);
     setProjectValue(0);
+    setUser(0);
+    clearErors();
+  };
+
+  const clearErors = () => {
+    setClientError(false);
+    setTypeOfWorkNameError(false);
+    setProjectNameError(false);
   };
 
   const clearAllData = async () => {
@@ -170,6 +183,7 @@ const ProjectContent = forwardRef<
         WorkTypeIds: typeOfWorkName,
         ProjectId: projectValue !== 0 ? projectValue : null,
         ProjectName: projectName.toString().trim(),
+        RequestedBy: !!user ? user : null,
       };
       const url = `${process.env.pms_api_url}/project/saveproject`;
       const successCallback = async (
@@ -233,6 +247,7 @@ const ProjectContent = forwardRef<
               />
             )}
           />
+
           <Autocomplete
             multiple
             id="tags-standard"
@@ -319,6 +334,23 @@ const ProjectContent = forwardRef<
             variant="standard"
             autoComplete="off"
             sx={{ marginTop: "-3px" }}
+          />
+
+          <Autocomplete
+            id="tags-standard"
+            sx={{ marginTop: "-12px" }}
+            options={userDrpdown}
+            value={
+              userDrpdown?.find(
+                (i: LabelValueProfileImage) => i.value === user
+              ) || null
+            }
+            onChange={(e, value: LabelValueProfileImage | null) => {
+              !!value ? setUser(value.value) : setUser(0);
+            }}
+            renderInput={(params: any) => (
+              <TextField {...params} variant="standard" label="Requested by" />
+            )}
           />
 
           {/* {!textFieldOpen && (

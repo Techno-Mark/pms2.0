@@ -25,9 +25,13 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getFormattedDate } from "@/utils/timerFunctions";
-import { getBillingTypeData, getDeptData } from "@/utils/commonDropdownApiCall";
+import {
+  getBillingTypeData,
+  getCCDropdownData,
+  getDeptData,
+} from "@/utils/commonDropdownApiCall";
 import { DepartmentDataObj } from "@/utils/Types/settingTypes";
-import { LabelValue } from "@/utils/Types/types";
+import { LabelValue, LabelValueProfileImage } from "@/utils/Types/types";
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -124,6 +128,8 @@ const ClientContent = forwardRef<
   const [emailError, setEmailError] = useState(false);
   const [tel, setTel] = useState("");
   const [clientCreationDate, setClientCreationDate] = useState("");
+  const [user, setUser] = useState(0);
+  const [userDrpdown, setUserDrpdown] = useState<LabelValueProfileImage[]>([]);
 
   const [addMoreClicked, setAddMoreClicked] = useState(false);
   const [isAddClientClicked, setIsAddClientClicked] = useState(true);
@@ -271,7 +277,12 @@ const ClientContent = forwardRef<
                       )
                     )
               );
-              setDeptName(response.data.ResponseData.DepartmentIds);
+              setDeptName(
+                !!response.data.ResponseData.DepartmentIds
+                  ? response.data.ResponseData.DepartmentIds
+                  : 0
+              );
+              setUser(response.data.ResponseData.RequestedBy);
               setTel(response.data.ResponseData.ContactNo);
               setClientCreationDate(response.data.ResponseData.DateOfCreation);
               setId(response.data.ResponseData.Id);
@@ -682,6 +693,7 @@ const ClientContent = forwardRef<
     setDepts([]);
     setDeptName([]);
     setDeptError(false);
+    setUser(0);
     setTel("");
     departmentDataObj.length < 3 &&
       setDepartmentDataObj([
@@ -803,6 +815,7 @@ const ClientContent = forwardRef<
           Name: clientName,
           email: email.trim(),
           DepartmentIds: deptName,
+          RequestedBy: !!user ? user : null,
           contactNo: tel,
           address: address.trim(),
           isActive: true,
@@ -977,6 +990,7 @@ const ClientContent = forwardRef<
 
   const getBillingTypesData = async () => {
     setDepartmentDropdown(await getDeptData());
+    setUserDrpdown(await getCCDropdownData());
     setBillingTypeData(await getBillingTypeData());
   };
 
@@ -1106,7 +1120,7 @@ const ClientContent = forwardRef<
             Additional Fields
           </label>
         </span>
-        <div className="flex gap-[20px] flex-col px-[20px] pb-[50px] max-h-[73.5vh] overflow-y-auto">
+        <div className="flex gap-[20px] flex-col px-[20px] pb-[50px] max-h-[73vh] overflow-y-auto">
           {isAddClientClicked && (
             <>
               <TextField
@@ -1599,6 +1613,27 @@ const ClientContent = forwardRef<
                   </div>
                 </div>
               ))}
+
+              <Autocomplete
+                id="tags-standard"
+                sx={{ marginTop: "-4px" }}
+                options={userDrpdown}
+                value={
+                  userDrpdown?.find(
+                    (i: LabelValueProfileImage) => i.value === user
+                  ) || null
+                }
+                onChange={(e, value: LabelValueProfileImage | null) => {
+                  !!value ? setUser(value.value) : setUser(0);
+                }}
+                renderInput={(params: any) => (
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    label="Requested by"
+                  />
+                )}
+              />
             </>
           )}
 

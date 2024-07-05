@@ -84,6 +84,7 @@ export interface AppliedFilter {
   ClientId: number[];
   TypeOfWork: number | null;
   ProjectId: number | null;
+  StatusId: number[];
   Status: number[];
   AssignedTo: number | null;
   AssignedBy: number | null;
