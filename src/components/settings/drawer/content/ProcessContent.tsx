@@ -387,7 +387,7 @@ const ProcessContent = forwardRef<
           WorkTypeId: typeOfWork,
           DepartmentId: department,
           RequestedBy: !!user ? user : null,
-          MapAllClients: "no" ? false : true,
+          MapAllClients: checkbox === "no" ? false : true,
         };
         const url = `${process.env.pms_api_url}/process/Save`;
         const successCallback = async (
@@ -980,6 +980,7 @@ const ProcessContent = forwardRef<
                 onChangeFunction={() => setCheckbox("yes")}
                 value="yes"
                 label="Yes"
+                disabled={onEdit > 0}
               />
               <CheckboxComponent
                 id="no"
@@ -988,6 +989,7 @@ const ProcessContent = forwardRef<
                 onChangeFunction={() => setCheckbox("no")}
                 value="no"
                 label="No"
+                disabled={onEdit > 0}
               />
             </span>
             {/* <RadioGroup
