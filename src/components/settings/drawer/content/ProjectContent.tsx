@@ -346,7 +346,7 @@ const ProjectContent = forwardRef<
               ) || null
             }
             onChange={(e, value: LabelValueProfileImage | null) => {
-              value && setUser(value.value);
+              !!value ? setUser(value.value) : setUser(0);
             }}
             renderInput={(params: any) => (
               <TextField {...params} variant="standard" label="Requested by" />
