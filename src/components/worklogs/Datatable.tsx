@@ -416,9 +416,9 @@ const Datatable = ({
                   ? null
                   : appliedFilterData.ProjectId,
               StatusId:
-                appliedFilterData.Status.length === 0
+                appliedFilterData.StatusId.length === 0
                   ? []
-                  : appliedFilterData.Status,
+                  : appliedFilterData.StatusId,
               AssignedTo:
                 appliedFilterData.AssignedTo === 0 ||
                 appliedFilterData.AssignedTo === null
