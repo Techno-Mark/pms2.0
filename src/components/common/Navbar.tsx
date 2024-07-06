@@ -87,6 +87,11 @@ const Navbar = (props: NavbarPropsType) => {
         localStorage.setItem("clientId", String(ResponseData.ClientId));
         localStorage.setItem("workTypeId", String(ResponseData.WorkTypeId));
         localStorage.setItem("departmentId", String(ResponseData.DepartmentId));
+        localStorage.setItem(
+          "reviewerId",
+          String(ResponseData.ReportingManagerId)
+        );
+        localStorage.setItem("managerId", String(ResponseData.ManagerId));
         if (localStorage.getItem("Org_Token") === null) {
           localStorage.setItem(
             "Org_Token",
@@ -206,11 +211,12 @@ const Navbar = (props: NavbarPropsType) => {
               />
             ) : null
           ) : (
-            <div className="text-sm w-[78%] text-[#C40F0F]">
-              If you already have PMS 2.0 exe file installed on your system,
-              please log in. If not, contact ICT to have it installed before the
-              end of this week.
-            </div>
+            <div></div>
+            // <div className="text-sm w-[78%] text-[#C40F0F]">
+            //   If you already have PMS 2.0 exe file installed on your system,
+            //   please log in. If not, contact ICT to have it installed before the
+            //   end of this week.
+            // </div>
           )}
 
           <span className="flex items-center gap-[15px]">

@@ -294,7 +294,7 @@ const TaskEditDrawer = ({
       );
     setClientTaskNameWorklogsEditErr(
       clientTaskNameWorklogsEdit.trim().length < 4 ||
-        clientTaskNameWorklogsEdit.trim().length > 50
+        clientTaskNameWorklogsEdit.trim().length > 100
     );
     setQuantityWorklogsEditErr(
       quantityWorklogsEdit.toString().length <= 0 ||
@@ -391,7 +391,7 @@ const TaskEditDrawer = ({
       typeOfWorkWorklogsEdit !== 3 &&
       !hasEditErrors &&
       clientTaskNameWorklogsEdit.trim().length > 3 &&
-      clientTaskNameWorklogsEdit.trim().length < 50 &&
+      clientTaskNameWorklogsEdit.trim().length <= 100 &&
       quantityWorklogsEdit > 0 &&
       quantityWorklogsEdit < 10000 &&
       !quantityWorklogsEditErr &&
@@ -408,7 +408,7 @@ const TaskEditDrawer = ({
       typeOfWorkWorklogsEdit === 3 &&
       !hasEditErrors &&
       clientTaskNameWorklogsEdit.trim().length > 3 &&
-      clientTaskNameWorklogsEdit.trim().length < 50 &&
+      clientTaskNameWorklogsEdit.trim().length <= 100 &&
       quantityWorklogsEdit > 0 &&
       quantityWorklogsEdit < 10000 &&
       !quantityWorklogsEditErr &&
@@ -1000,6 +1000,28 @@ const TaskEditDrawer = ({
       }
     }
   };
+
+  // useEffect(() => {
+  //   if (typeOfWorkWorklogsEdit > 0 && typeOfWorkWorklogsEdit !== 3) {
+  //     const reviewerDate = dayjs();
+  //     setReceiverDateWorklogsEdit(reviewerDate.toISOString());
+  //     setReceiverDateWorklogsEditErr(false);
+  //     let nextDate: any = reviewerDate;
+  //     if (reviewerDate.day() === 4) {
+  //       nextDate = nextDate.add(4, "day");
+  //     } else if (reviewerDate.day() === 5) {
+  //       nextDate = nextDate.add(4, "day");
+  //     } else if (reviewerDate.day() === 6) {
+  //       nextDate = nextDate.add(4, "day");
+  //     } else {
+  //       nextDate = dayjs(reviewerDate).add(3, "day").toDate();
+  //     }
+  //     setDueDateWorklogsEdit(nextDate);
+  //   } else {
+  //     setReceiverDateWorklogsEdit("");
+  //     setDueDateWorklogsEdit("");
+  //   }
+  // }, [typeOfWorkWorklogsEdit]);
 
   return (
     <>
@@ -2174,14 +2196,11 @@ const TaskEditDrawer = ({
                           setClientTaskNameWorklogsEditErr(false);
                         }}
                         onBlur={(e) => {
-                          if (e.target.value.trim().length > 4) {
-                            setClientTaskNameWorklogsEditErr(false);
-                          }
                           if (
-                            e.target.value.trim().length > 4 &&
-                            e.target.value.trim().length < 50
+                            e.target.value.trim().length < 4 ||
+                            e.target.value.trim().length > 100
                           ) {
-                            setClientTaskNameWorklogsEditErr(false);
+                            setClientTaskNameWorklogsEditErr(true);
                           }
                         }}
                         error={clientTaskNameWorklogsEditErr}
@@ -2191,8 +2210,8 @@ const TaskEditDrawer = ({
                           clientTaskNameWorklogsEdit?.trim().length < 4
                             ? "Minimum 4 characters required."
                             : clientTaskNameWorklogsEditErr &&
-                              clientTaskNameWorklogsEdit?.trim().length > 50
-                            ? "Maximum 50 characters allowed."
+                              clientTaskNameWorklogsEdit?.trim().length > 100
+                            ? "Maximum 100 characters allowed."
                             : clientTaskNameWorklogsEditErr
                             ? "This is a required field."
                             : ""

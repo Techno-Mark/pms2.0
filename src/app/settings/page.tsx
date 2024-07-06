@@ -82,7 +82,6 @@ const Page = () => {
   const [getUserDataFunction, setUserGetDataFunction] = useState<
     (() => void) | null
   >(null);
-
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [currentFilterData, setCurrentFilterData] = useState<any>([]);
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
@@ -677,7 +676,7 @@ const Page = () => {
                       <div
                         className={`${
                           hasPermissionWorklog(tab, "import", "settings")
-                            ? ""
+                            ? "cursor-pointer"
                             : "opacity-50 pointer-events-none"
                         }`}
                         onClick={() => {
@@ -1063,7 +1062,9 @@ const Page = () => {
       <ImportDialog
         onOpen={isImportOpen}
         onClose={() => setIsImportOpen(false)}
-        onDataFetch={getDataFunction}
+        onDataFetch={
+          tab.toLowerCase() === "user" ? getDataFunction : getUserDataFunction
+        }
         tab={tab}
       />
 

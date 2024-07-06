@@ -480,7 +480,23 @@ const WorklogsActionBar = ({
         <ConditionalComponent
           condition={
             hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
-            selectedRowsCount === 1
+            selectedRowsCount === 1 &&
+            (workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.StatusType !== "Submitted" &&
+                i.WorkTypeId === 1
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length > 0 ||
+              workItemData
+                .map((i: WorkitemList) =>
+                  selectedRowIds.includes(i.WorkitemId) && i.WorkTypeId !== 1
+                    ? i.WorkitemId
+                    : undefined
+                )
+                .filter((j: number | undefined) => j !== undefined).length > 0)
           }
           className="text-slatyGrey"
           Component={Edit}
@@ -490,7 +506,16 @@ const WorklogsActionBar = ({
         <ConditionalComponent
           condition={
             hasPermissionWorklog("Task/SubTask", "Delete", "WorkLogs") &&
-            !isUnassigneeClicked
+            !isUnassigneeClicked &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.StatusType === "Submitted" &&
+                i.WorkTypeId === 1
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           Component={Delete}
           propsForActionBar={propsForActionBar}
