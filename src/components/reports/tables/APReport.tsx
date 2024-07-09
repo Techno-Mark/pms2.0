@@ -5,10 +5,18 @@ import { TablePagination, ThemeProvider } from "@mui/material";
 import MUIDataTable from "mui-datatables";
 import { options } from "@/utils/datatable/TableOptions";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
-import { reportsAPCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 import { ap_InitialFilter } from "@/utils/reports/getFilters";
 import { callAPI } from "@/utils/API/callAPI";
 import { ReportProps } from "@/utils/Types/reports";
+import {
+  generateCommonBodyRender,
+  generateCommonBodyRenderPercentage,
+  generateCustomHeaderName,
+  generateDateWithoutTime,
+  generateInitialTimer,
+  generateStatusWithColor,
+} from "@/utils/datatable/CommonFunction";
+import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 
 interface FilteredData {
   PageNo: number;
@@ -54,6 +62,15 @@ interface Response {
         Difference: number | null;
         DepartmentId: number | null;
         DepartmentName: string | null;
+        PreparorTotalTime: string | null;
+        PreparorAutoTime: string | null;
+        PreparorManualTime: string | null;
+        ReviewerTotalTime: string | null;
+        ReviewerAutoTime: string | null;
+        ReviewerManualTime: string | null;
+        ReviewerStatusId: number | null;
+        ReviewerStatusName: string | null;
+        ReviewerStatusColorCode: string | null;
       }[]
     | [];
   TotalCount: number;
@@ -163,6 +180,185 @@ const APReport = ({
       return () => clearTimeout(timer);
     }
   }, [filteredData, searchValue]);
+
+  const reportsAPColConfig = [
+    {
+      name: "WorkItemId",
+      label: "Task ID",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ClientName",
+      label: "Client Name",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ProjectName",
+      label: "Project Name",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ProcessName",
+      label: "Process",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "SubProcessName",
+      label: "Sub-Process",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ReviewerStatusName",
+      label: "Reviewer Status",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "DepartmentName",
+      label: "Department",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "TaskDate",
+      label: "Created On",
+      bodyRenderer: generateDateWithoutTime,
+    },
+    {
+      name: "Description",
+      label: "Description",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "AssignedTo",
+      label: "Assign To",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ReportingTo",
+      label: "Reporting To",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "Quantity",
+      label: "QTY",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "StdTime",
+      label: "STD Time",
+      bodyRenderer: generateInitialTimer,
+    },
+    {
+      name: "PreparorAutoTime",
+      label: "Preparor Auto Time",
+      bodyRenderer: generateInitialTimer,
+    },
+    {
+      name: "PreparorManualTime",
+      label: "Preparor Manual Time",
+      bodyRenderer: generateInitialTimer,
+    },
+    {
+      name: "PreparorTotalTime",
+      label: "Preparor Total Time",
+      bodyRenderer: generateInitialTimer,
+    },
+    {
+      name: "ReviewerAutoTime",
+      label: "Reviewer Auto Time",
+      bodyRenderer: generateInitialTimer,
+    },
+    {
+      name: "ReviewerManualTime",
+      label: "Reviewer Manual Time",
+      bodyRenderer: generateInitialTimer,
+    },
+    {
+      name: "ReviewerTotalTime",
+      label: "Reviewer Total Time",
+      bodyRenderer: generateInitialTimer,
+    },
+    {
+      name: "TotalTime",
+      label: "Total Time",
+      bodyRenderer: generateInitialTimer,
+    },
+    {
+      name: "Difference",
+      label: "Difference (%)",
+      bodyRenderer: generateCommonBodyRenderPercentage,
+    },
+    {
+      name: "Comment",
+      label: "Reviewer's Note",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ReviewerStatusColorCode",
+      options: {
+        filter: false,
+        sort: false,
+        display: false,
+        viewColumns: false,
+      },
+    },
+  ];
+
+  const generateConditionalColumn = (column: {
+    name: string;
+    label: string;
+    bodyRenderer: (arg0: any) => any;
+  }) => {
+    if (column.name === "ReviewerStatusColorCode") {
+      return {
+        name: "ReviewerStatusColorCode",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
+    } else if (column.name === "ReviewerStatusName") {
+      return {
+        name: "ReviewerStatusName",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          customHeadLabelRender: () =>
+            generateCustomHeaderName("Reviewer Status"),
+          customBodyRender: (value: string, tableMeta: any) => {
+            const statusColorCode =
+              tableMeta.rowData[tableMeta.rowData.length - 1];
+
+            return (
+              <div>
+                {value === null || value === "" || value === "0" ? (
+                  "-"
+                ) : (
+                  <div className="inline-block mr-1">
+                    <div
+                      className="w-[10px] h-[10px] rounded-full inline-block mr-2"
+                      style={{ backgroundColor: statusColorCode }}
+                    ></div>
+                    {value}
+                  </div>
+                )}
+              </div>
+            );
+          },
+        },
+      };
+    } else {
+      return generateCustomColumn(
+        column.name,
+        column.label,
+        column.bodyRenderer
+      );
+    }
+  };
+
+  const reportsAPCols = reportsAPColConfig.map((col: any) =>
+    generateConditionalColumn(col)
+  );
 
   return apFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
