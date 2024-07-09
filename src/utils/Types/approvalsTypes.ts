@@ -109,4 +109,5 @@ export interface ApprovalsActionBarData {
   getInitialPagePerRows: () => void;
   handleClearSelection: () => void;
   getOverLay?: (e: boolean) => void;
+  activeTab: number;
 }

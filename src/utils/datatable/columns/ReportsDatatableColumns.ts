@@ -441,19 +441,44 @@ const reportsAPColConfig = [
     bodyRenderer: generateInitialTimer,
   },
   {
-    header: "AutoTime",
-    label: "Auto Time",
+    header: "PreparorAutoTime",
+    label: "Preparor Auto Time",
     bodyRenderer: generateInitialTimer,
   },
   {
-    header: "ManualTime",
-    label: "Manual Time",
+    header: "PreparorManualTime",
+    label: "Preparor Manual Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "PreparorTotalTime",
+    label: "Preparor Total Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "ReviewerAutoTime",
+    label: "Reviewer Auto Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "ReviewerManualTime",
+    label: "Reviewer Manual Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "ReviewerTotalTime",
+    label: "Reviewer Total Time",
     bodyRenderer: generateInitialTimer,
   },
   {
     header: "TotalTime",
     label: "Total Time",
     bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "ReviewerStatusName",
+    label: "Approval Status",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "Difference",

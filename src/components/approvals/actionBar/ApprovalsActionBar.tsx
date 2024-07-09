@@ -80,6 +80,7 @@ const ApprovalsActionBar = ({
   getInitialPagePerRows,
   handleClearSelection,
   getOverLay,
+  activeTab,
 }: ApprovalsActionBarData) => {
   const [editClicked, setEditClicked] = useState(false);
 
@@ -187,6 +188,7 @@ const ApprovalsActionBar = ({
     settingSelectedId,
     handleEditClicked,
     editClicked,
+    activeTab,
   };
 
   useEffect(() => handleEditClicked(false), [selectedRowIds]);
@@ -216,7 +218,8 @@ const ApprovalsActionBar = ({
               (i: List) =>
                 i.WorkitemId === workitemId &&
                 i.StatusType !== "PartialSubmitted"
-            ).length > 0
+            ).length > 0 &&
+            activeTab === 1
           }
           Component={Accept}
           propsForActionBar={propsForActionBar}
@@ -231,7 +234,8 @@ const ApprovalsActionBar = ({
               (i: List) =>
                 i.WorkitemId === workitemId &&
                 i.StatusType !== "PartialSubmitted"
-            ).length > 0
+            ).length > 0 &&
+            activeTab === 1
           }
           Component={AcceptWithNotes}
           propsForActionBar={propsForActionBar}
@@ -247,7 +251,8 @@ const ApprovalsActionBar = ({
               (i: List) =>
                 i.WorkitemId === workitemId &&
                 i.StatusType !== "PartialSubmitted"
-            ).length > 0
+            ).length > 0 &&
+            activeTab === 1
           }
           Component={Reject}
           propsForActionBar={propsForActionBar}
@@ -266,7 +271,8 @@ const ApprovalsActionBar = ({
         <ConditionalComponent
           condition={
             hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
-            Array.from(new Set(selectedRowWorkTypeId)).length === 1
+            Array.from(new Set(selectedRowWorkTypeId)).length === 1 &&
+            activeTab === 1
           }
           Component={Status}
           propsForActionBar={propsForActionBar}
@@ -315,7 +321,8 @@ const ApprovalsActionBar = ({
             hasPermissionWorklog("ErrorLog", "View", "WorkLogs") &&
             selectedRowsCount === 1 &&
             isNotReviewer.length === 0 &&
-            isReviewer.length > 0
+            isReviewer.length > 0 &&
+            activeTab === 1
           }
           className=""
           Component={ErrorLogs}
@@ -329,7 +336,8 @@ const ApprovalsActionBar = ({
             isNotReviewer.length === 0 &&
             isReviewer.length > 0 &&
             reviewList.filter((i: List) => i.WorkitemId === workitemId)[0]
-              .IsFinalSubmited
+              .IsFinalSubmited &&
+            activeTab === 1
           }
           className=""
           Component={EditTime}

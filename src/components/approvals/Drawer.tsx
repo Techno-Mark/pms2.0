@@ -2731,7 +2731,10 @@ const EditDrawer = ({
                           setValueMonthYearFrom(null);
                           setValueMonthYearTo(null);
                         }}
-                        disabled={isCreatedByClient && editData.ClientId > 0}
+                        disabled={
+                          (isCreatedByClient && editData.ClientId > 0) ||
+                          activeTab === 2
+                        }
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
                           <TextField
@@ -2763,7 +2766,10 @@ const EditDrawer = ({
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -0.3 }}
                         error={typeOfWorkApprovalsErr}
-                        disabled={isCreatedByClient && editData.WorkTypeId > 0}
+                        disabled={
+                          (isCreatedByClient && editData.WorkTypeId > 0) ||
+                          activeTab === 2
+                        }
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           Type of Work
@@ -2831,7 +2837,10 @@ const EditDrawer = ({
                             (i: LabelValue) => i.value === projectNameApprovals
                           ) || null
                         }
-                        disabled={isCreatedByClient && editData.ProjectId > 0}
+                        disabled={
+                          (isCreatedByClient && editData.ProjectId > 0) ||
+                          activeTab === 2
+                        }
                         onChange={(e, value: LabelValue | null) => {
                           value && setProjectNameApprovals(value.value);
                         }}
@@ -2865,12 +2874,12 @@ const EditDrawer = ({
                       <Autocomplete
                         id="combo-box-demo"
                         options={
-                          onEdit === 0
+                          activeTab === 2
                             ? statusApprovalsDropdownData
                             : statusApprovalsDropdownDataUse
                         }
                         value={
-                          onEdit === 0
+                          activeTab === 2
                             ? statusApprovalsDropdownData.find(
                                 (i: LabelValueType) =>
                                   i.value === statusApprovals
@@ -2883,6 +2892,10 @@ const EditDrawer = ({
                         onChange={(e, value: LabelValueType | null) => {
                           value && setStatusApprovals(value.value);
                         }}
+                        disabled={
+                          (isCreatedByClient && editData.ProjectId > 0) ||
+                          activeTab === 2
+                        }
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
                           <TextField
@@ -2920,7 +2933,11 @@ const EditDrawer = ({
                               i.value === departmentApprovals
                           ) || null
                         }
-                        disabled={isAdmin === false}
+                        disabled={
+                          (isCreatedByClient && editData.ProjectId > 0) ||
+                          isAdmin === false ||
+                          activeTab === 2
+                        }
                         onChange={(e, value: LabelValueType | null) => {
                           value && setDepartmentApprovals(value.value);
                           setDepartmentApprovalsErr(false);
@@ -2970,7 +2987,10 @@ const EditDrawer = ({
                             (i: LabelValue) => i.value === processNameApprovals
                           ) || null
                         }
-                        disabled={isCreatedByClient && editData.ProcessId > 0}
+                        disabled={
+                          (isCreatedByClient && editData.ProcessId > 0) ||
+                          activeTab === 2
+                        }
                         onChange={(e, value: LabelValue | null) => {
                           value && setProcessNameApprovals(value.value);
                           value && setSubProcessApprovals(0);
@@ -3012,7 +3032,8 @@ const EditDrawer = ({
                           ) || null
                         }
                         disabled={
-                          isCreatedByClient && editData.SubProcessId > 0
+                          (isCreatedByClient && editData.SubProcessId > 0) ||
+                          activeTab === 2
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setSubProcessApprovals(value.value);
@@ -3050,6 +3071,10 @@ const EditDrawer = ({
                             Task Name
                             <span className="!text-defaultRed">&nbsp;*</span>
                           </span>
+                        }
+                        disabled={
+                          (isCreatedByClient && editData.SubProcessId > 0) ||
+                          activeTab === 2
                         }
                         fullWidth
                         className="pt-1"
@@ -3135,12 +3160,20 @@ const EditDrawer = ({
                         margin="normal"
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -1.4 }}
+                        disabled={
+                          (isCreatedByClient && editData.SubProcessId > 0) ||
+                          activeTab === 2
+                        }
                       />
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -1.2 }}
+                        disabled={
+                          (isCreatedByClient && editData.SubProcessId > 0) ||
+                          activeTab === 2
+                        }
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           Priority
@@ -3246,6 +3279,10 @@ const EditDrawer = ({
                         margin="normal"
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -0.8 }}
+                        disabled={
+                          (isCreatedByClient && editData.SubProcessId > 0) ||
+                          activeTab === 2
+                        }
                       />
                     </Grid>
                     <Grid item xs={3} className="pt-4">
@@ -3315,6 +3352,11 @@ const EditDrawer = ({
                                 : dayjs(receiverDateApprovals)
                             }
                             // shouldDisableDate={isWeekend}
+                            disabled={
+                              (isCreatedByClient &&
+                                editData.SubProcessId > 0) ||
+                              activeTab === 2
+                            }
                             maxDate={dayjs(Date.now())}
                             onChange={(newDate: any) => {
                               setReceiverDateApprovals(newDate.$d);
@@ -3363,7 +3405,12 @@ const EditDrawer = ({
                                 ? null
                                 : dayjs(dueDateApprovals)
                             }
-                            shouldDisableDate={isWeekend}
+                            // shouldDisableDate={isWeekend}
+                            disabled={
+                              (isCreatedByClient &&
+                                editData.SubProcessId > 0) ||
+                              activeTab === 2
+                            }
                             onChange={(newDate: any) => {
                               setDueDateApprovals(newDate.$d);
                             }}
@@ -3385,7 +3432,12 @@ const EditDrawer = ({
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
                               label="All Info Date"
-                              shouldDisableDate={isWeekend}
+                              // shouldDisableDate={isWeekend}
+                              disabled={
+                                (isCreatedByClient &&
+                                  editData.SubProcessId > 0) ||
+                                activeTab === 2
+                              }
                               value={
                                 allInfoDateApprovals === ""
                                   ? null
@@ -3418,7 +3470,11 @@ const EditDrawer = ({
                         disablePortal
                         id="combo-box-demo"
                         options={assigneeApprovalsDropdownData}
-                        disabled={!assigneeDisableApprovals}
+                        disabled={
+                          !assigneeDisableApprovals ||
+                          (isCreatedByClient && editData.SubProcessId > 0) ||
+                          activeTab === 2
+                        }
                         value={
                           assigneeApprovalsDropdownData.find(
                             (i: LabelValue) => i.value === assigneeApprovals
@@ -3502,6 +3558,11 @@ const EditDrawer = ({
                                 ? "This is a required field."
                                 : ""
                             }
+                            disabled={
+                              (isCreatedByClient &&
+                                editData.SubProcessId > 0) ||
+                              activeTab === 2
+                            }
                           />
                         )}
                       />
@@ -3551,6 +3612,11 @@ const EditDrawer = ({
                                 ? "This is a required field."
                                 : ""
                             }
+                            disabled={
+                              (isCreatedByClient &&
+                                editData.SubProcessId > 0) ||
+                              activeTab === 2
+                            }
                           />
                         )}
                       />
@@ -3580,6 +3646,11 @@ const EditDrawer = ({
                               }
                               onChange={(newDate: any) =>
                                 setValueMonthYearFrom(newDate.$d)
+                              }
+                              disabled={
+                                (isCreatedByClient &&
+                                  editData.SubProcessId > 0) ||
+                                activeTab === 2
                               }
                             />
                           </LocalizationProvider>
@@ -3612,6 +3683,11 @@ const EditDrawer = ({
                               onChange={(newDate: any) =>
                                 setValueMonthYearTo(newDate.$d)
                               }
+                              disabled={
+                                (isCreatedByClient &&
+                                  editData.SubProcessId > 0) ||
+                                activeTab === 2
+                              }
                             />
                           </LocalizationProvider>
                         </div>
@@ -3624,6 +3700,11 @@ const EditDrawer = ({
                             variant="standard"
                             sx={{ width: 300, mt: -0.3, mx: 0.75 }}
                             error={returnYearApprovalsErr}
+                            disabled={
+                              (isCreatedByClient &&
+                                editData.SubProcessId > 0) ||
+                              activeTab === 2
+                            }
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Return Year
@@ -3681,6 +3762,11 @@ const EditDrawer = ({
                                 { passive: false }
                               )
                             }
+                            disabled={
+                              (isCreatedByClient &&
+                                editData.SubProcessId > 0) ||
+                              activeTab === 2
+                            }
                             margin="normal"
                             variant="standard"
                             sx={{ width: 300, mt: 0, mx: 0.75 }}
@@ -3691,6 +3777,11 @@ const EditDrawer = ({
                             variant="standard"
                             sx={{ width: 300, mt: -0.8, mx: 0.75 }}
                             error={checklistWorkpaperApprovalsErr}
+                            disabled={
+                              (isCreatedByClient &&
+                                editData.SubProcessId > 0) ||
+                              activeTab === 2
+                            }
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Checklist/Workpaper
@@ -3788,15 +3879,17 @@ const EditDrawer = ({
                     <span className="ml-[21px]">Sub-Task</span>
                   </span>
                   <span className="flex items-center">
-                    {onEdit > 0 && subTaskSwitchApprovals && (
-                      <Button
-                        variant="contained"
-                        className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
-                        onClick={handleSubmitSubTaskApprovals}
-                      >
-                        Update
-                      </Button>
-                    )}
+                    {onEdit > 0 &&
+                      subTaskSwitchApprovals &&
+                      activeTab === 1 && (
+                        <Button
+                          variant="contained"
+                          className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
+                          onClick={handleSubmitSubTaskApprovals}
+                        >
+                          Update
+                        </Button>
+                      )}
                     {hasPermissionWorklog(
                       "Task/SubTask",
                       "Save",
@@ -3819,6 +3912,7 @@ const EditDrawer = ({
                             setSubTaskDescriptionApprovalsErr([false]);
                           onEdit === 0 && setDeletedSubTaskApprovals([]);
                         }}
+                        disabled={activeTab === 2}
                       />
                     ) : (
                       <></>
@@ -3847,7 +3941,7 @@ const EditDrawer = ({
                             </span>
                           }
                           fullWidth
-                          disabled={!subTaskSwitchApprovals}
+                          disabled={!subTaskSwitchApprovals || activeTab === 2}
                           value={field.Title}
                           onChange={(e) =>
                             handleSubTaskChangeApprovals(e.target.value, index)
@@ -3889,7 +3983,7 @@ const EditDrawer = ({
                             </span>
                           }
                           fullWidth
-                          disabled={!subTaskSwitchApprovals}
+                          disabled={!subTaskSwitchApprovals || activeTab === 2}
                           value={field.Description}
                           onChange={(e) =>
                             handleSubTaskDescriptionChangeApprovals(
@@ -4032,6 +4126,7 @@ const EditDrawer = ({
                                         j.Title
                                       )
                                     }
+                                    disabled={activeTab === 2}
                                   />
                                 }
                                 label={j.Title}
@@ -4045,9 +4140,8 @@ const EditDrawer = ({
                           "WorkLogs"
                         ) &&
                           itemStatesApprovals[index] &&
-                          !itemStatesApprovals[
-                            `addChecklistField_${index}`
-                          ] && (
+                          !itemStatesApprovals[`addChecklistField_${index}`] &&
+                          activeTab === 1 && (
                             <span
                               className="flex items-center gap-3 ml-8 cursor-pointer text-[#6E6D7A]"
                               onClick={() => toggleAddChecklistField(index)}
@@ -4056,7 +4150,8 @@ const EditDrawer = ({
                             </span>
                           )}
                         {itemStatesApprovals[index] &&
-                          itemStatesApprovals[`addChecklistField_${index}`] && (
+                          itemStatesApprovals[`addChecklistField_${index}`] &&
+                          activeTab === 1 && (
                             <>
                               <TextField
                                 label={
@@ -4508,6 +4603,7 @@ const EditDrawer = ({
                                 : dayjs(recurringStartDateApprovals)
                             }
                             readOnly
+                            disabled={activeTab === 2}
                           />
                         </LocalizationProvider>
                       </div>
@@ -4531,6 +4627,7 @@ const EditDrawer = ({
                                 : dayjs(recurringEndDateApprovals)
                             }
                             readOnly
+                            disabled={activeTab === 2}
                           />
                         </LocalizationProvider>
                       </div>
@@ -4539,6 +4636,7 @@ const EditDrawer = ({
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, minWidth: 145 }}
+                        disabled={activeTab === 2}
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           {recurringTimeApprovals === 1 ? (
@@ -4584,7 +4682,9 @@ const EditDrawer = ({
                                 ? "text-pureWhite bg-secondary"
                                 : "text-slatyGrey"
                             }`}
-                            onClick={() => toggleColor(index)}
+                            onClick={() =>
+                              activeTab === 1 && toggleColor(index)
+                            }
                           >
                             {day[0]}
                           </div>
@@ -4603,6 +4703,7 @@ const EditDrawer = ({
                               ? recurringMonthApprovals
                               : []
                           }
+                          disabled={activeTab === 2}
                           getOptionLabel={(option) => option.label}
                           disableCloseOnSelect
                           onChange={handleMultiSelectMonth}
@@ -4689,6 +4790,7 @@ const EditDrawer = ({
                                   : dayjs(field.inputDate)
                               }
                               readOnly
+                              disabled={activeTab === 2}
                             />
                           </LocalizationProvider>
                         </div>
@@ -4707,6 +4809,7 @@ const EditDrawer = ({
                           margin="normal"
                           variant="standard"
                           sx={{ mx: 0.75, maxWidth: 230 }}
+                          disabled={activeTab === 2}
                         />
                         <TextField
                           label={
@@ -4723,6 +4826,7 @@ const EditDrawer = ({
                           margin="normal"
                           variant="standard"
                           sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
+                          disabled={activeTab === 2}
                         />
                       </div>
                     ))}
@@ -4738,7 +4842,7 @@ const EditDrawer = ({
                   <span className="ml-[21px]">Reviewer Manual Time</span>
                 </span>
                 <span className="flex items-center">
-                  {onEdit > 0 && manualSwitch && (
+                  {onEdit > 0 && manualSwitch && activeTab === 1 && (
                     <Button
                       variant="contained"
                       className={`rounded-[4px] !h-[36px] mr-6 ${
@@ -4783,6 +4887,7 @@ const EditDrawer = ({
                         },
                       ]);
                     }}
+                    disabled={activeTab === 2}
                   />
                   <span
                     className={`cursor-pointer ${
@@ -4820,7 +4925,8 @@ const EditDrawer = ({
                                 !manualSwitch ||
                                 field.IsApproved ||
                                 (field.AssigneeId !== 0 &&
-                                  field.AssigneeId !== userId)
+                                  field.AssigneeId !== userId) ||
+                                activeTab === 2
                               }
                               onError={() => {
                                 if (field.inputDate[index]?.trim().length > 0) {
@@ -4862,7 +4968,8 @@ const EditDrawer = ({
                             !manualSwitch ||
                             field.IsApproved ||
                             (field.AssigneeId !== 0 &&
-                              field.AssigneeId !== userId)
+                              field.AssigneeId !== userId) ||
+                            activeTab === 2
                           }
                           fullWidth
                           value={field.startTime == 0 ? "" : field.startTime}
@@ -4924,7 +5031,8 @@ const EditDrawer = ({
                             !manualSwitch ||
                             field.IsApproved ||
                             (field.AssigneeId !== 0 &&
-                              field.AssigneeId !== userId)
+                              field.AssigneeId !== userId) ||
+                            activeTab === 2
                           }
                           fullWidth
                           value={field.manualDesc}
@@ -4957,7 +5065,8 @@ const EditDrawer = ({
                         {index === 0 &&
                           manualSwitch &&
                           !field.IsApproved &&
-                          field.Id > 0 && (
+                          field.Id > 0 &&
+                          activeTab === 1 && (
                             <span
                               className="cursor-pointer"
                               onClick={() => removePhoneField(index)}
@@ -4973,7 +5082,7 @@ const EditDrawer = ({
                               </svg>
                             </span>
                           )}
-                        {index === 0 && manualSwitch && (
+                        {index === 0 && manualSwitch && activeTab === 1 && (
                           <span
                             className="cursor-pointer"
                             onClick={addManualField}
@@ -4989,22 +5098,25 @@ const EditDrawer = ({
                             </svg>
                           </span>
                         )}
-                        {index > 0 && manualSwitch && !field.IsApproved && (
-                          <span
-                            className="cursor-pointer"
-                            onClick={() => removePhoneField(index)}
-                          >
-                            <svg
-                              className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                              focusable="false"
-                              aria-hidden="true"
-                              viewBox="0 0 24 24"
-                              data-testid="RemoveIcon"
+                        {index > 0 &&
+                          manualSwitch &&
+                          !field.IsApproved &&
+                          activeTab === 1 && (
+                            <span
+                              className="cursor-pointer"
+                              onClick={() => removePhoneField(index)}
                             >
-                              <path d="M19 13H5v-2h14v2z"></path>
-                            </svg>
-                          </span>
-                        )}
+                              <svg
+                                className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                focusable="false"
+                                aria-hidden="true"
+                                viewBox="0 0 24 24"
+                                data-testid="RemoveIcon"
+                              >
+                                <path d="M19 13H5v-2h14v2z"></path>
+                              </svg>
+                            </span>
+                          )}
                       </div>
                     ))}
                   </div>
@@ -5020,15 +5132,17 @@ const EditDrawer = ({
                     <span className="ml-[21px]">Reminder</span>
                   </span>
                   <span className="flex items-center">
-                    {onEdit > 0 && reminderSwitchApprovals && (
-                      <Button
-                        variant="contained"
-                        className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
-                        onClick={handleSubmitReminderApprovals}
-                      >
-                        Update
-                      </Button>
-                    )}
+                    {onEdit > 0 &&
+                      reminderSwitchApprovals &&
+                      activeTab === 1 && (
+                        <Button
+                          variant="contained"
+                          className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
+                          onClick={handleSubmitReminderApprovals}
+                        >
+                          Update
+                        </Button>
+                      )}
                     {hasPermissionWorklog("Reminder", "Save", "WorkLogs") ? (
                       <Switch
                         checked={reminderSwitchApprovals}
@@ -5041,6 +5155,7 @@ const EditDrawer = ({
                           setReminderNotificationApprovals(0);
                           setReminderNotificationApprovalsErr(false);
                         }}
+                        disabled={activeTab === 2}
                       />
                     ) : (
                       <></>
@@ -5079,25 +5194,25 @@ const EditDrawer = ({
                         }}
                       >
                         <FormControlLabel
-                          disabled={!reminderSwitchApprovals}
+                          disabled={!reminderSwitchApprovals || activeTab === 2}
                           value={1}
                           control={<Radio />}
                           label="Due Date"
                         />
                         <FormControlLabel
-                          disabled={!reminderSwitchApprovals}
+                          disabled={!reminderSwitchApprovals || activeTab === 2}
                           value={2}
                           control={<Radio />}
                           label="Specific Date"
                         />
                         <FormControlLabel
-                          disabled={!reminderSwitchApprovals}
+                          disabled={!reminderSwitchApprovals || activeTab === 2}
                           value={3}
                           control={<Radio />}
                           label="Daily"
                         />
                         <FormControlLabel
-                          disabled={!reminderSwitchApprovals}
+                          disabled={!reminderSwitchApprovals || activeTab === 2}
                           value={4}
                           control={<Radio />}
                           label="Days Before Due Date"
@@ -5121,7 +5236,9 @@ const EditDrawer = ({
                                   </span>
                                 </span>
                               }
-                              disabled={!reminderSwitchApprovals}
+                              disabled={
+                                !reminderSwitchApprovals || activeTab === 2
+                              }
                               onError={() => setReminderDateApprovalsErr(false)}
                               value={
                                 reminderDateApprovals === ""
@@ -5161,7 +5278,9 @@ const EditDrawer = ({
                                   </span>
                                 </span>
                               }
-                              disabled={!reminderSwitchApprovals}
+                              disabled={
+                                !reminderSwitchApprovals || activeTab === 2
+                              }
                               onError={() => setReminderDateApprovalsErr(false)}
                               value={
                                 reminderDateApprovals === ""
@@ -5197,7 +5316,7 @@ const EditDrawer = ({
                         <Select
                           labelId="demo-simple-select-standard-label"
                           id="demo-simple-select-standard"
-                          disabled={!reminderSwitchApprovals}
+                          disabled={!reminderSwitchApprovals || activeTab === 2}
                           value={
                             reminderTimeApprovals === 0
                               ? ""
@@ -5228,7 +5347,7 @@ const EditDrawer = ({
                         multiple
                         limitTags={2}
                         id="checkboxes-tags-demo"
-                        disabled={!reminderSwitchApprovals}
+                        disabled={!reminderSwitchApprovals || activeTab === 2}
                         options={
                           Array.isArray(assigneeApprovalsDropdownData)
                             ? assigneeApprovalsDropdownData
@@ -5283,7 +5402,8 @@ const EditDrawer = ({
                   </span>
                   <span className="flex items-center">
                     {hasPermissionWorklog("ErrorLog", "Save", "WorkLogs") &&
-                      onEdit > 0 && (
+                      onEdit > 0 &&
+                      activeTab === 1 && (
                         <Button
                           variant="contained"
                           className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
@@ -5349,7 +5469,8 @@ const EditDrawer = ({
                                     "Delete",
                                     "WorkLogs"
                                   )) ||
-                                field.isSolved
+                                field.isSolved ||
+                                activeTab === 2
                               }
                               value={
                                 field.ErrorType === 0 ? "" : field.ErrorType
@@ -5405,7 +5526,8 @@ const EditDrawer = ({
                                     "Delete",
                                     "WorkLogs"
                                   )) ||
-                                field.isSolved
+                                field.isSolved ||
+                                activeTab === 2
                               }
                               value={
                                 field.RootCause === 0 ? "" : field.RootCause
@@ -5461,7 +5583,8 @@ const EditDrawer = ({
                                     "Delete",
                                     "WorkLogs"
                                   )) ||
-                                field.isSolved
+                                field.isSolved ||
+                                activeTab === 2
                               }
                               value={field.Impact === 0 ? "" : field.Impact}
                               onChange={(e) =>
@@ -5515,7 +5638,8 @@ const EditDrawer = ({
                                     "Delete",
                                     "WorkLogs"
                                   )) ||
-                                field.isSolved
+                                field.isSolved ||
+                                activeTab === 2
                               }
                               value={
                                 field.NatureOfError === 0
@@ -5575,7 +5699,8 @@ const EditDrawer = ({
                                     "Delete",
                                     "WorkLogs"
                                   )) ||
-                                field.isSolved
+                                field.isSolved ||
+                                activeTab === 2
                               }
                               value={field.Priority === 0 ? "" : field.Priority}
                               onChange={(e) =>
@@ -5629,7 +5754,8 @@ const EditDrawer = ({
                                     "Delete",
                                     "WorkLogs"
                                   )) ||
-                                field.isSolved
+                                field.isSolved ||
+                                activeTab === 2
                               }
                               value={field.CC}
                               onChange={(e, newValue) =>
@@ -5666,7 +5792,8 @@ const EditDrawer = ({
                                     "Delete",
                                     "WorkLogs"
                                   )) ||
-                                field.isSolved
+                                field.isSolved ||
+                                activeTab === 2
                               }
                               value={
                                 field.ErrorCount === 0 ? "" : field.ErrorCount
@@ -5734,7 +5861,8 @@ const EditDrawer = ({
                                     "Delete",
                                     "WorkLogs"
                                   )) ||
-                                field.isSolved
+                                field.isSolved ||
+                                activeTab === 2
                               }
                               value={
                                 field.Remark.trim().length === 0
@@ -5787,7 +5915,8 @@ const EditDrawer = ({
                                     "Delete",
                                     "WorkLogs"
                                   )) ||
-                                field.isSolved
+                                field.isSolved ||
+                                activeTab === 2
                               }
                               value={field.Amount === 0 ? "" : field.Amount}
                               onChange={(e) =>
@@ -5828,7 +5957,8 @@ const EditDrawer = ({
                                         "Delete",
                                         "WorkLogs"
                                       )) ||
-                                    field.isSolved
+                                    field.isSolved ||
+                                    activeTab === 2
                                   }
                                   value={
                                     field.DateOfTransaction === ""
@@ -5862,7 +5992,7 @@ const EditDrawer = ({
                                         )
                                       : undefined
                                   }
-                                  isDisable={field.isSolved}
+                                  isDisable={field.isSolved || activeTab === 2}
                                 />
                                 {field.Attachments &&
                                   field.Attachments.length > 0 &&
@@ -5908,7 +6038,7 @@ const EditDrawer = ({
                                 />
                               </FormGroup>
                             )}
-                            {index === 0 && (
+                            {index === 0 && activeTab === 1 && (
                               <span
                                 className="cursor-pointer"
                                 onClick={
@@ -5932,35 +6062,38 @@ const EditDrawer = ({
                                 </svg>
                               </span>
                             )}
-                            {index > 0 && !field.isSolved && (
-                              <span
-                                className="cursor-pointer"
-                                onClick={
-                                  hasPermissionWorklog(
-                                    "ErrorLog",
-                                    "Delete",
-                                    "WorkLogs"
-                                  ) ||
-                                  hasPermissionWorklog(
-                                    "ErrorLog",
-                                    "Save",
-                                    "WorkLogs"
-                                  )
-                                    ? () => removeErrorLogFieldApprovals(index)
-                                    : undefined
-                                }
-                              >
-                                <svg
-                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                  focusable="false"
-                                  aria-hidden="true"
-                                  viewBox="0 0 24 24"
-                                  data-testid="RemoveIcon"
+                            {index > 0 &&
+                              !field.isSolved &&
+                              activeTab === 1 && (
+                                <span
+                                  className="cursor-pointer"
+                                  onClick={
+                                    hasPermissionWorklog(
+                                      "ErrorLog",
+                                      "Delete",
+                                      "WorkLogs"
+                                    ) ||
+                                    hasPermissionWorklog(
+                                      "ErrorLog",
+                                      "Save",
+                                      "WorkLogs"
+                                    )
+                                      ? () =>
+                                          removeErrorLogFieldApprovals(index)
+                                      : undefined
+                                  }
                                 >
-                                  <path d="M19 13H5v-2h14v2z"></path>
-                                </svg>
-                              </span>
-                            )}
+                                  <svg
+                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    focusable="false"
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    data-testid="RemoveIcon"
+                                  >
+                                    <path d="M19 13H5v-2h14v2z"></path>
+                                  </svg>
+                                </span>
+                              )}
                           </div>
                         </div>
                       ))}
@@ -6134,15 +6267,17 @@ const EditDrawer = ({
                     Close
                   </span>
                 </Button>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary"
-                >
-                  <span className="flex items-center justify-center gap-[10px] px-[5px]">
-                    {onEdit > 0 ? "Save Task" : "Create Task"}
-                  </span>
-                </Button>
+                {activeTab === 1 && (
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary"
+                  >
+                    <span className="flex items-center justify-center gap-[10px] px-[5px]">
+                      {onEdit > 0 ? "Save Task" : "Create Task"}
+                    </span>
+                  </Button>
+                )}
               </div>
             </div>
           </form>
