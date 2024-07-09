@@ -59,6 +59,7 @@ interface DatatableProps {
   onHandleExport: (arg1: boolean) => void;
   searchValue: string;
   onChangeLoader: (e: string | null) => void;
+  onChangePreperorLoader: (e: string | null) => void;
 }
 
 const pageNo = 1;
@@ -101,6 +102,7 @@ const Datatable = ({
   onHandleExport,
   searchValue,
   onChangeLoader,
+  onChangePreperorLoader,
 }: DatatableProps) => {
   const workloadAnchorElFilter: HTMLButtonElement | null = null;
   const openWorkloadFilter = Boolean(workloadAnchorElFilter);
@@ -276,6 +278,7 @@ const Datatable = ({
         List: List[];
         TotalTime?: string;
         TotalCount: number;
+        PreparorTotalTime?: string;
       },
       error: boolean,
       ResponseStatus: string
@@ -283,6 +286,8 @@ const Datatable = ({
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         const totalTime = ResponseData.TotalTime || "00:00:00";
         onChangeLoader(totalTime);
+        const reviewerTotalTime = ResponseData.PreparorTotalTime || "00:00:00";
+        onChangePreperorLoader(reviewerTotalTime);
         onHandleExport(ResponseData.List.length > 0 ? true : false);
         setLoaded(true);
         setReviewList(ResponseData.List);

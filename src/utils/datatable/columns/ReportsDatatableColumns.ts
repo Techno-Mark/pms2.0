@@ -379,6 +379,119 @@ const reportsActivityColConfig = [
   },
 ];
 
+const reportsAPColConfig = [
+  {
+    header: "WorkItemId",
+    label: "Task ID",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ClientName",
+    label: "Client Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ProjectName",
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ProcessName",
+    label: "Process",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "SubProcessName",
+    label: "Sub-Process",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "DepartmentName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "TaskDate",
+    label: "Created On",
+    bodyRenderer: generateDateWithoutTime,
+  },
+  {
+    header: "Description",
+    label: "Description",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "AssignedTo",
+    label: "Assign To",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ReportingTo",
+    label: "Reporting To",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "Quantity",
+    label: "QTY",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "StdTime",
+    label: "STD Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "PreparorAutoTime",
+    label: "Preparor Auto Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "PreparorManualTime",
+    label: "Preparor Manual Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "PreparorTotalTime",
+    label: "Preparor Total Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "ReviewerAutoTime",
+    label: "Reviewer Auto Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "ReviewerManualTime",
+    label: "Reviewer Manual Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "ReviewerTotalTime",
+    label: "Reviewer Total Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "ReviewerStatusName",
+    label: "Approval Status",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "Difference",
+    label: "Difference (%)",
+    bodyRenderer: generateCommonBodyRenderPercentage,
+  },
+  {
+    header: "Comment",
+    label: "Reviewer's Note",
+    bodyRenderer: generateCommonBodyRender,
+  },
+];
+
 const reportsKRAColConfig = [
   {
     header: "WorkItemId",
@@ -718,6 +831,10 @@ const reportsActivityCols = reportsActivityColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
 
+const reportsAPCols = reportsAPColConfig.map((col: any) =>
+  generateCustomColumn(col.header, col.label, col.bodyRenderer)
+);
+
 const reportsKRACols = reportsKRAColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
@@ -839,6 +956,7 @@ export {
   reportsUserLogsCols,
   reportsLogCols,
   reportsActivityCols,
+  reportsAPCols,
   reportsKRACols,
   reportsAMCols,
   reportsErrorLogCols,

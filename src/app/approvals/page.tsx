@@ -64,6 +64,9 @@ const initialFilter = {
 const Page = () => {
   const router = useRouter();
   const [timeValue, setTimeValue] = useState<string | null>(null);
+  const [preperorTimeValue, setPreperorTimeValue] = useState<string | null>(
+    null
+  );
   const [activeTab, setActiveTab] = useState<number>(1);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEditId, setHasEditId] = useState(0);
@@ -323,9 +326,14 @@ const Page = () => {
           </div>
           <div className="flex gap-[20px] items-center">
             {activeTab === 1 && (
-              <span className="text-secondary font-light">
-                Total time: {timeValue}
-              </span>
+              <div className="flex flex-col items-end justify-center text-sm">
+                <span className="text-secondary font-light">
+                  Reviewer Total time: {timeValue}
+                </span>
+                <span className="text-secondary font-light">
+                  Preparor Total time: {preperorTimeValue}
+                </span>
+              </div>
             )}
             <div className="relative">
               <InputBase
@@ -496,6 +504,7 @@ const Page = () => {
           onManualTime={handleSetManual}
           onHandleExport={handleCanExport}
           onChangeLoader={(e: string | null) => setTimeValue(e)}
+          onChangePreperorLoader={(e: string | null) => setPreperorTimeValue(e)}
         />
 
         <Drawer
