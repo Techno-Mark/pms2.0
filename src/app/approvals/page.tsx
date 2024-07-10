@@ -331,7 +331,7 @@ const Page = () => {
                   Reviewer Total time: {timeValue}
                 </span>
                 <span className="text-secondary font-light">
-                  Preparor Total time: {preperorTimeValue}
+                  Preparer Total time: {preperorTimeValue}
                 </span>
               </div>
             )}

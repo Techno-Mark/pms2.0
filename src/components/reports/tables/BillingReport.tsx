@@ -543,7 +543,7 @@ const BillingReport = ({
     },
     {
       name: "EditedHours",
-      label: "Preparor Edited Time",
+      label: "Preparer Edited Time",
       bodyRenderer: generateInitialTimer,
     },
     {
@@ -733,7 +733,7 @@ const BillingReport = ({
         sort: false,
         filter: true,
         customHeadLabelRender: () =>
-          generateCustomHeaderName("Preparor Edited Time"),
+          generateCustomHeaderName("Preparer Edited Time"),
         customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
