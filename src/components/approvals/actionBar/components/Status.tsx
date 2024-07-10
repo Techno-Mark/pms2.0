@@ -19,6 +19,7 @@ interface Status {
   selectedRowClientId: number[] | [];
   selectedRowWorkTypeId: number[] | [];
   getOverLay?: (e: boolean) => void;
+  activeTab: number;
 }
 
 const Status = ({
@@ -29,6 +30,7 @@ const Status = ({
   selectedRowClientId,
   selectedRowWorkTypeId,
   getOverLay,
+  activeTab,
 }: Status) => {
   const [allStatus, setAllStatus] = useState<LabelValueType[] | []>([]);
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -92,7 +94,7 @@ const Status = ({
     }
     handleCloseStatus();
   };
-
+  
   const getAllStatus = async () => {
     let isRework: any = [];
     let isNotRework: any = [];
@@ -109,28 +111,29 @@ const Status = ({
       Array.from(new Set(selectedRowWorkTypeId))[0]
     );
 
-    data.length > 0 &&
-      setAllStatus(
-        data.filter(
-          (item: LabelValueType) =>
-            item.Type === "InReviewWithClients" ||
-            item.Type === "Rework" ||
-            (isNotRework.length > 0
-              ? item.Type === "InReview" ||
-                item.Type === "Submitted" 
-                // ||
-                // item.Type === "Accept"
-              : item.Type === "ReworkInReview" ||
-                item.Type === "ReworkSubmitted" 
-                // ||
-                // item.Type === "ReworkAccept"
-              ) ||
-            item.Type === "SecondManagerReview" ||
-            item.Type === "OnHoldFromClient" ||
-            item.Type === "WithDraw" ||
-            item.Type === "WithdrawnbyClient"
+    data.length > 0 && activeTab === 1
+      ? setAllStatus(
+          data.filter(
+            (item: LabelValueType) =>
+              item.Type === "InReviewWithClients" ||
+              item.Type === "Rework" ||
+              (isNotRework.length > 0
+                ? item.Type === "InReview" || item.Type === "Submitted"
+                : // ||
+                  // item.Type === "Accept"
+                  item.Type === "ReworkInReview" ||
+                  item.Type === "ReworkSubmitted") ||
+              // ||
+              // item.Type === "ReworkAccept"
+              item.Type === "SecondManagerReview" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient"
+          )
         )
-      );
+      : data.length > 0 && activeTab === 2
+      ? setAllStatus(data)
+      : setAllStatus([]);
   };
 
   const updateStatus = async (

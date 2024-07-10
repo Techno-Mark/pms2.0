@@ -59,6 +59,7 @@ interface DatatableProps {
   onHandleExport: (arg1: boolean) => void;
   searchValue: string;
   onChangeLoader: (e: string | null) => void;
+  onChangePreperorLoader: (e: string | null) => void;
 }
 
 const pageNo = 1;
@@ -101,6 +102,7 @@ const Datatable = ({
   onHandleExport,
   searchValue,
   onChangeLoader,
+  onChangePreperorLoader,
 }: DatatableProps) => {
   const workloadAnchorElFilter: HTMLButtonElement | null = null;
   const openWorkloadFilter = Boolean(workloadAnchorElFilter);
@@ -276,6 +278,7 @@ const Datatable = ({
         List: List[];
         TotalTime?: string;
         TotalCount: number;
+        PreparorTotalTime?: string;
       },
       error: boolean,
       ResponseStatus: string
@@ -283,6 +286,8 @@ const Datatable = ({
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         const totalTime = ResponseData.TotalTime || "00:00:00";
         onChangeLoader(totalTime);
+        const reviewerTotalTime = ResponseData.PreparorTotalTime || "00:00:00";
+        onChangePreperorLoader(reviewerTotalTime);
         onHandleExport(ResponseData.List.length > 0 ? true : false);
         setLoaded(true);
         setReviewList(ResponseData.List);
@@ -656,7 +661,7 @@ const Datatable = ({
     },
     {
       name: "StatusName",
-      label: "Status",
+      label: "Reviewer Status",
       bodyRenderer: (value: string, tableMeta: any) =>
         generateStatusWithColor(value, tableMeta.rowData[11]),
     },
@@ -841,7 +846,7 @@ const Datatable = ({
     },
     {
       name: "StatusName",
-      label: "Status",
+      label: "Reviewer Status",
       bodyRenderer: (value: string, tableMeta: any) =>
         generateStatusWithColor(value, tableMeta.rowData[10]),
     },
@@ -1190,12 +1195,18 @@ const Datatable = ({
           customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
           customBodyRender: (value: number) => {
             return (
-              <div
-                className="text-[#0592C6] cursor-pointer"
-                onClick={() => onEdit(value, workitemId, id)}
-              >
-                {value === null ? "-" : value}
-              </div>
+              <>
+                {activeTab === 1 ? (
+                  <div
+                    className="text-[#0592C6] cursor-pointer"
+                    onClick={() => onEdit(value, workitemId, id)}
+                  >
+                    {value === null ? "-" : value}
+                  </div>
+                ) : (
+                  <>{value === null ? "-" : value}</>
+                )}
+              </>
             );
           },
         },
@@ -1227,7 +1238,8 @@ const Datatable = ({
           filter: true,
           sort: true,
           viewColumns: false,
-          customHeadLabelRender: () => generateCustomHeaderName("Status"),
+          customHeadLabelRender: () =>
+            generateCustomHeaderName("Reviewer Status"),
           customBodyRender: (value: string, tableMeta: any) => {
             const statusColorCode =
               tableMeta.rowData[activeTab === 1 ? 11 : 10];
@@ -1437,6 +1449,7 @@ const Datatable = ({
     getReviewList,
     getInitialPagePerRows,
     handleClearSelection,
+    activeTab,
   };
 
   return (

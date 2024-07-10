@@ -389,6 +389,7 @@ const Page = () => {
                 setCurrentFilterId(0);
                 setCurrentFilterData([]);
                 setCurrentFilterHalfDayData([]);
+                setclickedFilterId(0);
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 isTimelineClicked
@@ -409,6 +410,7 @@ const Page = () => {
                 setCurrentFilterId(0);
                 setCurrentFilterData([]);
                 setCurrentFilterHalfDayData([]);
+                setclickedFilterId(0);
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 isTaskClicked
@@ -433,6 +435,7 @@ const Page = () => {
                   setCurrentFilterId(0);
                   setCurrentFilterData([]);
                   setCurrentFilterHalfDayData([]);
+                  setclickedFilterId(0);
                 }}
                 className={`py-[10px] text-[16px] cursor-pointer select-none ${
                   isUnassigneeClicked

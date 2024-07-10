@@ -54,6 +54,15 @@ interface Response {
         Difference: number | null;
         DepartmentId: number | null;
         DepartmentName: string | null;
+        PreparorTotalTime: string | null;
+        PreparorAutoTime: string | null;
+        PreparorManualTime: string | null;
+        ReviewerTotalTime: string | null;
+        ReviewerAutoTime: string | null;
+        ReviewerManualTime: string | null;
+        ReviewerStatusId: number | null;
+        ReviewerStatusName: string | null;
+        ReviewerStatusColorCode: string | null;
       }[]
     | [];
   TotalCount: number;
