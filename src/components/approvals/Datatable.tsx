@@ -734,7 +734,7 @@ const Datatable = ({
     },
     {
       name: "ManagerHours",
-      label: "Preparor Edited Time",
+      label: "Preparer Edited Time",
       bodyRenderer: generateManualTimeBodyRender,
     },
     {
@@ -924,7 +924,7 @@ const Datatable = ({
     },
     {
       name: "ManagerHours",
-      label: "Preparor Edited Time",
+      label: "Preparer Edited Time",
       bodyRenderer: generateManualTimeBodyRender,
     },
     {

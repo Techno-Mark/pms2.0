@@ -442,17 +442,17 @@ const reportsAPColConfig = [
   },
   {
     header: "PreparorAutoTime",
-    label: "Preparor Auto Time",
+    label: "Preparer Auto Time",
     bodyRenderer: generateInitialTimer,
   },
   {
     header: "PreparorManualTime",
-    label: "Preparor Manual Time",
+    label: "Preparer Manual Time",
     bodyRenderer: generateInitialTimer,
   },
   {
     header: "PreparorTotalTime",
-    label: "Preparor Total Time",
+    label: "Preparer Total Time",
     bodyRenderer: generateInitialTimer,
   },
   {
@@ -651,7 +651,7 @@ const reportsErrorLogColConfig = [
   },
   {
     header: "PreparorErrorTime",
-    label: "Preparor Error Logged time",
+    label: "Preparer Error Logged time",
     bodyRenderer: generateCommonBodyRender,
   },
   {

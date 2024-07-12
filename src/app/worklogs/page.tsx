@@ -31,10 +31,11 @@ import TimelineHalfDay from "@/components/worklogs/HalfDay/TimelineHalfDay";
 import UnassigneeFilterDialog from "@/components/worklogs/Unassignee/UnassigneeFilterDialog";
 import TimelineDatatable from "@/components/worklogs/HalfDay/TimelineDatatable";
 import {
-  AppliedFilterHalfDayPage,
   AppliedFilterWorklogsPage,
   FilterWorklogsPage,
 } from "@/utils/Types/worklogsTypes";
+import HistoryDatatable from "@/components/worklogs/TaskHistory/HistoryDatatable";
+import HistoryFilterDialog from "@/components/worklogs/TaskHistory/HistoryFilterDialog";
 
 interface BreakData {
   BreakId: null | number;
@@ -86,6 +87,25 @@ const exportBodyTimeline = {
   IsDownload: true,
 };
 
+const exportBodyHistory = {
+  PageNo: 1,
+  PageSize: 50000,
+  SortColumn: "",
+  IsDesc: true,
+  GlobalSearch: "",
+  ClientId: null,
+  ProjectId: null,
+  TypeOfWork: null,
+  Department: null,
+  ProcessId: null,
+  StatusIds: [],
+  AssignedBy: null,
+  ReviewerId: null,
+  ManagerId: null,
+  StartDate: null,
+  EndDate: null,
+};
+
 const Page = () => {
   const router = useRouter();
   const [isLoadingWorklogsDatatable, setIsLoadingWorklogsDatatable] =
@@ -110,14 +130,14 @@ const Page = () => {
   const [currentFilterData, setCurrentFilterData] = useState<
     AppliedFilterWorklogsPage | any
   >([]);
-  const [currentFilterHalfDayData, setCurrentFilterHalfDayData] = useState<
-    AppliedFilterHalfDayPage | any
-  >([]);
+  const [currentFilterWithoutSaveData, setCurrentFilterWithoutSaveData] =
+    useState<any>([]);
   const [breakId, setBreakID] = useState<number>(0);
   const [loaded, setLoaded] = useState(false);
   const [isTimelineClicked, setIsTimelineClicked] = useState(false);
   const [isTaskClicked, setIsTaskClicked] = useState(true);
   const [isUnassigneeClicked, setIsUnassigneeClicked] = useState(false);
+  const [isHistoryClicked, setIsHistoryClicked] = useState(false);
   const [hasId, setHasId] = useState("");
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
@@ -257,8 +277,8 @@ const Page = () => {
     setCurrentFilterData(data);
   };
 
-  const getIdFromFilterHalfDayDialog = (data: AppliedFilterHalfDayPage) => {
-    setCurrentFilterHalfDayData(data);
+  const getIdFromFilterWithoutSaveDialog = (data: any) => {
+    setCurrentFilterWithoutSaveData(data);
   };
 
   const getBreakData = async () => {
@@ -317,9 +337,15 @@ const Page = () => {
     const Org_Token = localStorage.getItem("Org_Token");
     const api = isTaskClicked
       ? "workitem/getexportexcellist"
-      : "workitem/timeline/export";
+      : isTimelineClicked
+      ? "workitem/timeline/export"
+      : "workitem/history/export";
 
-    const exportBody = isTaskClicked ? exportBodyTask : exportBodyTimeline;
+    const exportBody = isTaskClicked
+      ? exportBodyTask
+      : isTimelineClicked
+      ? exportBodyTimeline
+      : exportBodyHistory;
 
     const response = await axios.post(
       `${process.env.worklog_api_url}/${api}`,
@@ -348,7 +374,11 @@ const Page = () => {
         const a = document.createElement("a");
         a.href = url;
         a.download = `${
-          isTaskClicked ? "Worklog_report.xlsx" : "Timeline_report.xlsx"
+          isTaskClicked
+            ? "Worklog_report.xlsx"
+            : isTimelineClicked
+            ? "Timeline_report.xlsx"
+            : "History_report.xlsx"
         }`;
         document.body.appendChild(a);
         a.click();
@@ -378,7 +408,7 @@ const Page = () => {
       <div>
         <Navbar onUserDetailsFetch={handleUserDetailsFetch} />
         <div className="bg-white flex justify-between items-center px-[20px]">
-          <div className="flex gap-[16px] items-center py-[6.5px]">
+          <div className="flex gap-[10px] items-center py-[6.5px]">
             <label
               onClick={() => {
                 setGlobalSearchValue("");
@@ -386,9 +416,10 @@ const Page = () => {
                 setIsTimelineClicked(true);
                 setIsTaskClicked(false);
                 setIsUnassigneeClicked(false);
+                setIsHistoryClicked(false);
                 setCurrentFilterId(0);
                 setCurrentFilterData([]);
-                setCurrentFilterHalfDayData([]);
+                setCurrentFilterWithoutSaveData([]);
                 setclickedFilterId(0);
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
@@ -407,9 +438,10 @@ const Page = () => {
                 setIsTimelineClicked(false);
                 setIsTaskClicked(true);
                 setIsUnassigneeClicked(false);
+                setIsHistoryClicked(false);
                 setCurrentFilterId(0);
                 setCurrentFilterData([]);
-                setCurrentFilterHalfDayData([]);
+                setCurrentFilterWithoutSaveData([]);
                 setclickedFilterId(0);
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
@@ -432,9 +464,10 @@ const Page = () => {
                   setIsTimelineClicked(false);
                   setIsTaskClicked(false);
                   setIsUnassigneeClicked(true);
+                  setIsHistoryClicked(false);
                   setCurrentFilterId(0);
                   setCurrentFilterData([]);
-                  setCurrentFilterHalfDayData([]);
+                  setCurrentFilterWithoutSaveData([]);
                   setclickedFilterId(0);
                 }}
                 className={`py-[10px] text-[16px] cursor-pointer select-none ${
@@ -446,6 +479,28 @@ const Page = () => {
                 Unassigned Task
               </label>
             )}
+            <span className="text-lightSilver">|</span>
+            <label
+              onClick={() => {
+                setGlobalSearchValue("");
+                setSearch("");
+                setIsTimelineClicked(false);
+                setIsTaskClicked(false);
+                setIsUnassigneeClicked(false);
+                setIsHistoryClicked(true);
+                setCurrentFilterId(0);
+                setCurrentFilterData([]);
+                setCurrentFilterWithoutSaveData([]);
+                setclickedFilterId(0);
+              }}
+              className={`py-[10px] text-[16px] cursor-pointer select-none ${
+                isHistoryClicked
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
+              }`}
+            >
+              History
+            </label>
           </div>
           <div className="flex items-center justify-center gap-[10px]">
             <div className="flex flex-col items-end justify-center">
@@ -605,7 +660,7 @@ const Page = () => {
             ) : (
               <></>
             )}
-            {isTaskClicked || isTimelineClicked ? (
+            {isTaskClicked || isTimelineClicked || isHistoryClicked ? (
               <ColorToolTip title="Export" placement="top" arrow>
                 <span
                   className={
@@ -717,11 +772,20 @@ const Page = () => {
 
         {isTimelineClicked && (
           <TimelineDatatable
-            currentFilterData={currentFilterHalfDayData}
+            currentFilterData={currentFilterWithoutSaveData}
             onDataFetch={handleDataFetch}
             searchValue={globalSearchValue.trim()}
             onHandleExport={handleCanExport}
             getTotalTime={(e: string | null) => setTimeValue(e)}
+          />
+        )}
+
+        {isHistoryClicked && (
+          <HistoryDatatable
+            currentFilterData={currentFilterWithoutSaveData}
+            onDataFetch={handleDataFetch}
+            searchValue={globalSearchValue.trim()}
+            // onHandleExport={handleCanExport}
           />
         )}
 
@@ -768,11 +832,18 @@ const Page = () => {
           <TimelineFilterDialog
             onOpen={isFilterOpen}
             onClose={closeFilterModal}
-            currentFilterData={getIdFromFilterHalfDayDialog}
+            currentFilterData={getIdFromFilterWithoutSaveDialog}
           />
         )}
         {isTimelineClicked && (
           <TimelineHalfDay onOpen={isHalfDay} onClose={closeHalfDayModal} />
+        )}
+        {isHistoryClicked && (
+          <HistoryFilterDialog
+            onOpen={isFilterOpen}
+            onClose={closeFilterModal}
+            currentFilterData={getIdFromFilterWithoutSaveDialog}
+          />
         )}
       </div>
 

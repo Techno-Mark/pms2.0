@@ -793,7 +793,7 @@ const CustomReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () =>
-          generateCustomHeaderName("Preparor Auto Time"),
+          generateCustomHeaderName("Preparer Auto Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -805,7 +805,7 @@ const CustomReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () =>
-          generateCustomHeaderName("Preparor Manual Time"),
+          generateCustomHeaderName("Preparer Manual Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -817,7 +817,7 @@ const CustomReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () =>
-          generateCustomHeaderName("Preparor Time Tracked"),
+          generateCustomHeaderName("Preparer Time Tracked"),
         customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },
