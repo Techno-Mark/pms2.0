@@ -110,7 +110,6 @@ const QuantityField = ({ historyData, setHistoryData, tableMeta }: any) => {
           : historyData[tableMeta.rowIndex].Quantity
       }
       onChange={(e: any) => {
-        Number(e.target.value) > 0 &&
           Number(e.target.value) < 10000 &&
           setHistoryData((prevData: any) =>
             prevData.map((data: any, index: number) =>
