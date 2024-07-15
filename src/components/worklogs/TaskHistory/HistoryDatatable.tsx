@@ -50,7 +50,7 @@ interface List {
   ManagerName: string;
   PriorityId: number | null;
   PriorityName: string | null;
-  Description: string | null;
+  Description: any;
   Quantity: number | null;
 }
 
@@ -248,12 +248,16 @@ const HistoryDatatable = ({
           type="button"
           className={`${
             historyData[TableMeta.rowIndex].Description !== null &&
+            historyData[TableMeta.rowIndex].Description?.toString().trim()
+              .length > 0 &&
             historyData[TableMeta.rowIndex].Quantity !== null
               ? "!bg-secondary cursor-pointer"
               : "!bg-gray-300 cursor-not-allowed"
           } text-white border rounded-md px-[4px]`}
           disabled={
             historyData[TableMeta.rowIndex].Description === null ||
+            historyData[TableMeta.rowIndex].Description?.toString().trim()
+              .length < 0 ||
             historyData[TableMeta.rowIndex].Quantity === null
           }
           onClick={() =>
@@ -275,7 +279,7 @@ const HistoryDatatable = ({
     const params = {
       WorkItemId: data.WorkItemId,
       Quantity: data.Quantity,
-      Description: data.Description,
+      Description: data.Description.trim(),
     };
     const url = `${process.env.worklog_api_url}/workitem/history/savebyworkitem`;
     const successCallback = (
