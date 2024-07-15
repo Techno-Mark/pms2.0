@@ -51,8 +51,8 @@ const TimelineFilterDialog = ({
     | {
         ClientId: number | null;
         ProjectId: number | null;
-        StartDate: string | null;
-        EndDate: string | null;
+        StartDate: string | null | undefined;
+        EndDate: string | null | undefined;
       }
     | []
   >([]);
@@ -84,8 +84,18 @@ const TimelineFilterDialog = ({
     const selectedFields = {
       ClientId: clientName !== null ? clientName.value : null,
       ProjectId: project !== null ? project.value : null,
-      StartDate: startDate !== null ? getFormattedDate(startDate) || "" : null,
-      EndDate: endDate !== null ? getFormattedDate(endDate) || "" : null,
+      StartDate:
+        startDate === null
+          ? endDate === null
+            ? null
+            : getFormattedDate(endDate)
+          : getFormattedDate(startDate),
+      EndDate:
+        endDate === null
+          ? startDate === null
+            ? null
+            : getFormattedDate(startDate)
+          : getFormattedDate(endDate),
     };
     setCurrSelectedFileds(selectedFields);
   }, [clientName, project, startDate, endDate]);

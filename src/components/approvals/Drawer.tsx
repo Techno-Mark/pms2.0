@@ -841,8 +841,10 @@ const EditDrawer = ({
   >([]);
   const [value, setValue] = useState("");
   const [valueError, setValueError] = useState(false);
+  const [fileHasError, setFileHasError] = useState(false);
   const [valueEdit, setValueEdit] = useState("");
   const [valueEditError, setValueEditError] = useState(false);
+  const [fileEditHasError, setFileEditHasError] = useState(false);
   const [mention, setMention] = useState<any>([]);
   const [editingCommentIndexApprovals, setEditingCommentIndexApprovals] =
     useState(-1);
@@ -880,7 +882,7 @@ const EditDrawer = ({
     setValueEditError(valueEdit.trim().length < 1);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (valueEdit.trim().length > 1 && !valueEditError) {
+      if (valueEdit.trim().length > 1 && !valueEditError && !fileEditHasError) {
         setIsLoadingApprovals(true);
         const params = {
           workitemId: onEdit,
@@ -947,14 +949,24 @@ const EditDrawer = ({
     data2: string,
     commentAttachment: CommentAttachment[]
   ) => {
-    const Attachment = [
-      {
-        AttachmentId: commentAttachment[0].AttachmentId,
-        UserFileName: data1,
-        SystemFileName: data2,
-        AttachmentPath: process.env.attachment || "",
-      },
-    ];
+    const Attachment =
+      data1 === null || data2 === null
+        ? [
+            {
+              AttachmentId: 0,
+              UserFileName: "",
+              SystemFileName: "",
+              AttachmentPath: process.env.attachment || "",
+            },
+          ]
+        : [
+            {
+              AttachmentId: commentAttachment[0].AttachmentId,
+              UserFileName: data1,
+              SystemFileName: data2,
+              AttachmentPath: process.env.attachment || "",
+            },
+          ];
     setCommentAttachmentApprovals(Attachment);
   };
 
@@ -991,7 +1003,7 @@ const EditDrawer = ({
     setValueError(value.trim().length < 5);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (value.trim().length >= 5 && !valueError) {
+      if (value.trim().length >= 5 && !valueError && !fileHasError) {
         setIsLoadingApprovals(true);
         const params = {
           workitemId: onEdit,
@@ -2536,8 +2548,10 @@ const EditDrawer = ({
     setCommentDataApprovals([]);
     setValue("");
     setValueError(false);
+    setFileHasError(false);
     setValueEdit("");
     setValueEditError(false);
+    setFileEditHasError(false);
     setMention([]);
     setEditingCommentIndexApprovals(-1);
     setCommentSelectApprovals(1);
@@ -4327,6 +4341,9 @@ const EditDrawer = ({
                                                 )
                                               }
                                               isDisable={false}
+                                              fileHasError={(error: boolean) =>
+                                                setFileEditHasError(error)
+                                              }
                                             />
                                           </div>
                                         </div>
@@ -4366,6 +4383,13 @@ const EditDrawer = ({
                                             This is a required field.
                                           </span>
                                         )}
+                                        {!valueEditError &&
+                                          fileEditHasError && (
+                                            <span className="text-defaultRed text-[14px]">
+                                              File size shouldn&apos;t be more
+                                              than 5MB.
+                                            </span>
+                                          )}
                                       </div>
                                     </div>
                                     <button
@@ -4500,6 +4524,9 @@ const EditDrawer = ({
                                 )
                               }
                               isDisable={false}
+                              fileHasError={(error: boolean) =>
+                                setFileHasError(error)
+                              }
                             />
                           </div>
                         </div>
@@ -4521,12 +4548,16 @@ const EditDrawer = ({
                             <span className="text-defaultRed text-[14px] ml-20">
                               Minimum 5 characters required.
                             </span>
+                          ) : valueError ? (
+                            <span className="text-defaultRed text-[14px] ml-20">
+                              This is a required field.
+                            </span>
+                          ) : !valueError && fileHasError ? (
+                            <span className="text-defaultRed text-[14px] ml-20">
+                              File size shouldn&apos;t be more than 5MB.
+                            </span>
                           ) : (
-                            valueError && (
-                              <span className="text-defaultRed text-[14px] ml-20">
-                                This is a required field.
-                              </span>
-                            )
+                            ""
                           )}
                         </div>
                         {commentAttachmentApprovals[0].AttachmentId === 0 &&

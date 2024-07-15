@@ -15,7 +15,7 @@ export default function ImageUploader({
     const fileData = event.target.files[0];
     const fileSizeInMB = parseFloat((fileData.size / 1024 / 1024).toFixed(2));
 
-    if (fileSizeInMB > 5) {
+    if (fileSizeInMB > 4) {
       fileHasError(true);
       getData(null, null);
       return;

@@ -394,12 +394,14 @@ const Drawer = ({
     useState("");
   const [commentValueClientWorklogError, setCommentValueClientWorklogError] =
     useState(false);
+  const [fileHasError, setFileHasError] = useState(false);
   const [commentValueClientWorklogEdit, setCommentValueClientWorklogEdit] =
     useState("");
   const [
     commentValueClientWorklogEditError,
     setCommentValueClientWorklogEditError,
   ] = useState(false);
+  const [fileEditHasError, setFileEditHasError] = useState(false);
   const [mentionClientWorklog, setMentionClientWorklog] = useState<any>([]);
   const [commentAttachmentClientWorklog, setCommentAttachmentClientWorklog] =
     useState([
@@ -455,7 +457,8 @@ const Drawer = ({
     );
     if (
       commentValueClientWorklogEdit.trim().length > 5 &&
-      !commentValueClientWorklogEditError
+      !commentValueClientWorklogEditError &&
+      !fileEditHasError
     ) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
         const params = {
@@ -502,14 +505,24 @@ const Drawer = ({
     data2: string,
     commentAttachment: CommentAttachment[]
   ) => {
-    const Attachment = [
-      {
-        AttachmentId: commentAttachment[0].AttachmentId,
-        UserFileName: data1,
-        SystemFileName: data2,
-        AttachmentPath: process.env.attachment || "",
-      },
-    ];
+    const Attachment =
+      data1 === null || data2 === null
+        ? [
+            {
+              AttachmentId: 0,
+              UserFileName: "",
+              SystemFileName: "",
+              AttachmentPath: process.env.attachment || "",
+            },
+          ]
+        : [
+            {
+              AttachmentId: commentAttachment[0].AttachmentId,
+              UserFileName: data1,
+              SystemFileName: data2,
+              AttachmentPath: process.env.attachment || "",
+            },
+          ];
     setCommentAttachmentClientWorklog(Attachment);
   };
 
@@ -547,7 +560,8 @@ const Drawer = ({
     );
     if (
       commentValueClientWorklog.trim().length >= 5 &&
-      !commentValueClientWorklogError
+      !commentValueClientWorklogError &&
+      !fileHasError
     ) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
         setIsLoadingClientWorklog(true);
@@ -1222,8 +1236,10 @@ const Drawer = ({
     setCommentDataClientWorklog([]);
     setCommentValueClientWorklog("");
     setCommentValueClientWorklogError(false);
+    setFileHasError(false);
     setCommentValueClientWorklogEdit("");
     setCommentValueClientWorklogEditError(false);
+    setFileEditHasError(false);
     setMentionClientWorklog([]);
     setCommentAttachmentClientWorklog([
       {
@@ -2107,6 +2123,9 @@ const Drawer = ({
                                                   )
                                                 }
                                                 isDisable={false}
+                                                fileHasError={(
+                                                  error: boolean
+                                                ) => setFileEditHasError(error)}
                                               />
                                             </div>
                                           </div>
@@ -2156,6 +2175,13 @@ const Drawer = ({
                                               </span>
                                             )
                                           )}
+                                          {!commentValueClientWorklogEditError &&
+                                            fileEditHasError && (
+                                              <span className="text-defaultRed text-[14px]">
+                                                File size shouldn&apos;t be more
+                                                than 5MB.
+                                              </span>
+                                            )}
                                         </div>
                                       </div>
                                       <button
@@ -2294,6 +2320,9 @@ const Drawer = ({
                                   )
                                 }
                                 isDisable={false}
+                                fileHasError={(error: boolean) =>
+                                  setFileHasError(error)
+                                }
                               />
                             </div>
                           </div>
@@ -2313,12 +2342,17 @@ const Drawer = ({
                               <span className="text-defaultRed text-[14px] ml-20">
                                 Minimum 5 characters required.
                               </span>
+                            ) : commentValueClientWorklogError ? (
+                              <span className="text-defaultRed text-[14px] ml-20">
+                                This is a required field.
+                              </span>
+                            ) : !commentValueClientWorklogError &&
+                              fileHasError ? (
+                              <span className="text-defaultRed text-[14px] ml-20">
+                                File size shouldn&apos;t be more than 5MB.
+                              </span>
                             ) : (
-                              commentValueClientWorklogError && (
-                                <span className="text-defaultRed text-[14px] ml-20">
-                                  This is a required field.
-                                </span>
-                              )
+                              ""
                             )}
                           </div>
                           {commentAttachmentClientWorklog[0].AttachmentId ===

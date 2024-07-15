@@ -4604,7 +4604,7 @@ const EditDrawer = ({
                                           )}
                                           {!valueEditWorklogsError &&
                                             fileEditHasError && (
-                                              <span className="text-defaultRed text-[14px] ml-20">
+                                              <span className="text-defaultRed text-[14px]">
                                                 File size shouldn&apos;t be more
                                                 than 5MB.
                                               </span>
@@ -4786,7 +4786,7 @@ const EditDrawer = ({
                               <span className="text-defaultRed text-[14px] ml-20">
                                 This is a required field.
                               </span>
-                            ) : fileHasError ? (
+                            ) : !valueWorklogsError && fileHasError ? (
                               <span className="text-defaultRed text-[14px] ml-20">
                                 File size shouldn&apos;t be more than 5MB.
                               </span>
