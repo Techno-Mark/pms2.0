@@ -1186,8 +1186,10 @@ const EditDrawer = ({
   >([]);
   const [valueWorklogs, setValueWorklogs] = useState("");
   const [valueWorklogsError, setValueWorklogsError] = useState(false);
+  const [fileHasError, setFileHasError] = useState(false);
   const [valueEditWorklogs, setValueEditWorklogs] = useState("");
   const [valueEditWorklogsError, setValueEditWorklogsError] = useState(false);
+  const [fileEditHasError, setFileEditHasError] = useState(false);
   const [mentionWorklogs, setMentionWorklogs] = useState<any>([]);
   const [editingCommentIndexWorklogs, setEditingCommentIndexWorklogs] =
     useState(-1);
@@ -1225,7 +1227,11 @@ const EditDrawer = ({
     setValueEditWorklogsError(valueEditWorklogs.trim().length < 1);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (valueEditWorklogs.trim().length >= 1 && !valueEditWorklogsError) {
+      if (
+        valueEditWorklogs.trim().length >= 1 &&
+        !valueEditWorklogsError &&
+        !fileEditHasError
+      ) {
         setIsLoadingWorklogs(true);
         const params = {
           workitemId: onEdit,
@@ -1292,14 +1298,24 @@ const EditDrawer = ({
     data2: string,
     commentAttachment: CommentAttachment[]
   ) => {
-    const Attachment = [
-      {
-        AttachmentId: commentAttachment[0].AttachmentId,
-        UserFileName: data1,
-        SystemFileName: data2,
-        AttachmentPath: process.env.attachment || "",
-      },
-    ];
+    const Attachment =
+      data1 === null || data2 === null
+        ? [
+            {
+              AttachmentId: 0,
+              UserFileName: "",
+              SystemFileName: "",
+              AttachmentPath: process.env.attachment || "",
+            },
+          ]
+        : [
+            {
+              AttachmentId: commentAttachment[0].AttachmentId,
+              UserFileName: data1,
+              SystemFileName: data2,
+              AttachmentPath: process.env.attachment || "",
+            },
+          ];
     setCommentAttachmentWorklogs(Attachment);
   };
 
@@ -1336,7 +1352,11 @@ const EditDrawer = ({
     setValueWorklogsError(valueWorklogs.trim().length < 5);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (valueWorklogs.trim().length >= 5 && !valueWorklogsError) {
+      if (
+        valueWorklogs.trim().length >= 5 &&
+        !valueWorklogsError &&
+        !fileHasError
+      ) {
         setIsLoadingWorklogs(true);
         const params = {
           workitemId: onEdit,
@@ -2790,8 +2810,10 @@ const EditDrawer = ({
     setCommentDataWorklogs([]);
     setValueWorklogs("");
     setValueWorklogsError(false);
+    setFileHasError(false);
     setValueEditWorklogs("");
     setValueEditWorklogsError(false);
+    setFileEditHasError(false);
     setMentionWorklogs([]);
     setEditingCommentIndexWorklogs(-1);
     setCommentSelectWorklogs(1);
@@ -4538,6 +4560,9 @@ const EditDrawer = ({
                                                   )
                                                 }
                                                 isDisable={false}
+                                                fileHasError={(
+                                                  error: boolean
+                                                ) => setFileEditHasError(error)}
                                               />
                                             </div>
                                           </div>
@@ -4577,6 +4602,13 @@ const EditDrawer = ({
                                               This is a required field.
                                             </span>
                                           )}
+                                          {!valueEditWorklogsError &&
+                                            fileEditHasError && (
+                                              <span className="text-defaultRed text-[14px] ml-20">
+                                                File size shouldn&apos;t be more
+                                                than 5MB.
+                                              </span>
+                                            )}
                                         </div>
                                       </div>
                                       <button
@@ -4718,6 +4750,9 @@ const EditDrawer = ({
                                   )
                                 }
                                 isDisable={isUnassigneeClicked}
+                                fileHasError={(error: boolean) =>
+                                  setFileHasError(error)
+                                }
                               />
                             </div>
                           </div>
@@ -4747,12 +4782,16 @@ const EditDrawer = ({
                               <span className="text-defaultRed text-[14px] ml-20">
                                 Minimum 5 characters required.
                               </span>
+                            ) : valueWorklogsError ? (
+                              <span className="text-defaultRed text-[14px] ml-20">
+                                This is a required field.
+                              </span>
+                            ) : fileHasError ? (
+                              <span className="text-defaultRed text-[14px] ml-20">
+                                File size shouldn&apos;t be more than 5MB.
+                              </span>
                             ) : (
-                              valueWorklogsError && (
-                                <span className="text-defaultRed text-[14px] ml-20">
-                                  This is a required field.
-                                </span>
-                              )
+                              ""
                             )}
                           </div>
                           {commentAttachmentWorklogs[0].AttachmentId === 0 &&

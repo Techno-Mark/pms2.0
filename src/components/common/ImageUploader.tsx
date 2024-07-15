@@ -5,9 +5,24 @@ import { BlobServiceClient, BlockBlobClient } from "@azure/storage-blob";
 import { Tooltip, TooltipProps, tooltipClasses } from "@mui/material";
 import styled from "@emotion/styled";
 
-export default function ImageUploader({ getData, isDisable, className }: any) {
+export default function ImageUploader({
+  getData,
+  isDisable,
+  className,
+  fileHasError,
+}: any) {
   const handleImageChange = async (event: any) => {
     const fileData = event.target.files[0];
+    const fileSizeInMB = parseFloat((fileData.size / 1024 / 1024).toFixed(2));
+
+    if (fileSizeInMB > 5) {
+      fileHasError(true);
+      getData(null, null);
+      return;
+    } else {
+      fileHasError(false);
+    }
+
     const uuidv4 = () => {
       return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
         /[xy]/g,

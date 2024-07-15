@@ -13,6 +13,7 @@ import { Save } from "@mui/icons-material";
 import { TablePagination, TextField, ThemeProvider } from "@mui/material";
 import MUIDataTable from "mui-datatables";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 interface Props {
   onDataFetch: (getData: () => void) => void;
@@ -52,6 +53,7 @@ interface List {
   PriorityName: string | null;
   Description: any;
   Quantity: number | null;
+  descError?: boolean;
 }
 
 interface Interface {
@@ -110,7 +112,7 @@ const QuantityField = ({ historyData, setHistoryData, tableMeta }: any) => {
           : historyData[tableMeta.rowIndex].Quantity
       }
       onChange={(e: any) => {
-          Number(e.target.value) < 10000 &&
+        Number(e.target.value) < 10000 &&
           setHistoryData((prevData: any) =>
             prevData.map((data: any, index: number) =>
               index === tableMeta.rowIndex
@@ -142,15 +144,69 @@ const DescriptionField = ({ historyData, setHistoryData, tableMeta }: any) => {
       onChange={(e: any) => {
         setHistoryData((prevData: any) =>
           prevData.map((data: any, index: number) =>
-            index === tableMeta.rowIndex && e.target.value.trimStart().length < 100
+            index === tableMeta.rowIndex
               ? {
                   ...data,
                   Description: e.target.value,
+                  descError: false,
                 }
               : { ...data }
           )
         );
       }}
+      onBlur={(e) => {
+        if (
+          e.target.value.trim().length <= 0 ||
+          e.target.value.trim().length > 100
+        ) {
+          setHistoryData((prevData: any) =>
+            prevData.map((data: any, index: number) =>
+              index === tableMeta.rowIndex
+                ? {
+                    ...data,
+                    descError: true,
+                  }
+                : { ...data, descError: false }
+            )
+          );
+        } else {
+          setHistoryData((prevData: any) =>
+            prevData.map((data: any, index: number) =>
+              index === tableMeta.rowIndex &&
+              e.target.value.trimStart().length < 100
+                ? {
+                    ...data,
+                    Description: e.target.value,
+                  }
+                : { ...data }
+            )
+          );
+        }
+      }}
+      error={
+        historyData
+          .map((data: any, index: number) =>
+            index === tableMeta.rowIndex ? data.descError : "false"
+          )
+          .filter((value: string) => value !== "false")[0]
+      }
+      helperText={historyData.map((data: any, index: number) =>
+        index === tableMeta.rowIndex &&
+        data.Description !== null &&
+        data.Description.trim().length > 100 &&
+        data.descError
+          ? "Maximum 100 characters allowed."
+          : index === tableMeta.rowIndex &&
+            data.Description !== null &&
+            data.Description.trim().length <= 0 &&
+            data.descError
+          ? "This is a required field"
+          : index === tableMeta.rowIndex &&
+            data.Description === null &&
+            data.descError
+          ? "This is a required field"
+          : ""
+      )}
     />
   );
 };
@@ -199,7 +255,9 @@ const HistoryDatatable = ({
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setLoaded(true);
-        setHistoryData(ResponseData.List);
+        setHistoryData(
+          ResponseData.List.map((list: List) => ({ ...list, descError: false }))
+        );
         setTableDataCount(ResponseData.TotalCount);
       } else {
         setLoaded(true);
@@ -211,7 +269,6 @@ const HistoryDatatable = ({
   useEffect(() => {
     const fetchData = async () => {
       await getHistoryList();
-      setLoaded(true);
       onDataFetch(() => fetchData());
     };
     const timer = setTimeout(() => {
@@ -274,7 +331,10 @@ const HistoryDatatable = ({
   };
 
   const handleSaveTask = (data: any) => {
-    setLoaded(true);
+    if (data.descError) {
+      return;
+    }
+    setLoaded(false);
     const params = {
       WorkItemId: data.WorkItemId,
       Quantity: data.Quantity,
@@ -287,11 +347,12 @@ const HistoryDatatable = ({
       ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        console.log(ResponseData);
+        toast.success("Task has been created successfully");
         setLoaded(true);
         getHistoryList();
       } else {
         setLoaded(true);
+        getHistoryList();
       }
     };
     callAPI(url, params, successCallback, "POST");
