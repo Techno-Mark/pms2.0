@@ -143,7 +143,7 @@ const DescriptionField = ({ historyData, setHistoryData, tableMeta }: any) => {
       onChange={(e: any) => {
         setHistoryData((prevData: any) =>
           prevData.map((data: any, index: number) =>
-            index === tableMeta.rowIndex
+            index === tableMeta.rowIndex && e.target.value.trimStart().length < 100
               ? {
                   ...data,
                   Description: e.target.value,
