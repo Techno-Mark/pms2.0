@@ -213,12 +213,12 @@ const TimelineDatatable = ({
     },
     {
       name: "StartDate",
-      label: "Start Date",
+      label: "Received Date",
       bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "EndDate",
-      label: "End Date",
+      label: "Due Date",
       bodyRenderer: generateCommonBodyRender,
     },
     {
