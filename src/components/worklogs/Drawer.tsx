@@ -5202,6 +5202,9 @@ const EditDrawer = ({
                                 isIdDisabled ||
                                 isUnassigneeClicked
                                   ? ""
+                                  : dayjs(receiverDateWorklogs) >
+                                    dayjs(reviewerDate)
+                                  ? dayjs(new Date())
                                   : dayjs(reviewerDate)
                               }
                               maxDate={dayjs(new Date())}
