@@ -1092,6 +1092,7 @@ const EditDrawer = ({
   const [errorCountErrApprovals, setErrorCountErrApprovals] = useState([false]);
   const [natureOfErrApprovals, setNatureOfErrApprovals] = useState([false]);
   const [remarkErrApprovals, setRemarkErrApprovals] = useState([false]);
+  const [imageErrApprovals, setImageErrApprovals] = useState([false]);
   const [deletedErrorLogApprovals, setDeletedErrorLogApprovals] = useState<any>(
     []
   );
@@ -1132,13 +1133,18 @@ const EditDrawer = ({
     setErrorCountErrApprovals([...errorCountErrApprovals, false]);
     setNatureOfErrApprovals([...natureOfErrApprovals, false]);
     setRemarkErrApprovals([...remarkErrApprovals, false]);
+    setImageErrApprovals([...imageErrApprovals, false]);
   };
 
   const removeErrorLogFieldApprovals = (index: number) => {
-    setDeletedErrorLogApprovals([
-      ...deletedErrorLogApprovals,
-      errorLogFieldsApprovals[index].ErrorLogId,
-    ]);
+    setDeletedErrorLogApprovals(
+      errorLogFieldsApprovals[index].ErrorLogId !== 0
+        ? [
+            ...deletedErrorLogApprovals,
+            errorLogFieldsApprovals[index].ErrorLogId,
+          ]
+        : [...deletedErrorLogApprovals]
+    );
 
     const newErrorLogFields = [...errorLogFieldsApprovals];
     newErrorLogFields.splice(index, 1);
@@ -1171,6 +1177,10 @@ const EditDrawer = ({
     const newRemarkErrors = [...remarkErrApprovals];
     newRemarkErrors.splice(index, 1);
     setRemarkErrApprovals(newRemarkErrors);
+
+    const newImageErrors = [...imageErrApprovals];
+    newImageErrors.splice(index, 1);
+    setImageErrApprovals(newImageErrors);
   };
 
   const handleErrorTypeChangeApprovals = (e: number, index: number) => {
@@ -1271,14 +1281,24 @@ const EditDrawer = ({
     index: number
   ) => {
     const newFields = [...errorLogFieldsApprovals];
-    newFields[index].Attachments = [
-      {
-        AttachmentId: Attachments[0].AttachmentId,
-        UserFileName: data1,
-        SystemFileName: data2,
-        AttachmentPath: process.env.attachment || "",
-      },
-    ];
+    newFields[index].Attachments =
+      data1 === null || data2 === null
+        ? [
+            {
+              AttachmentId: 0,
+              UserFileName: "",
+              SystemFileName: "",
+              AttachmentPath: process.env.attachment || "",
+            },
+          ]
+        : [
+            {
+              AttachmentId: Attachments[0].AttachmentId,
+              UserFileName: data1,
+              SystemFileName: data2,
+              AttachmentPath: process.env.attachment || "",
+            },
+          ];
     setErrorLogFieldsApprovals(newFields);
   };
 
@@ -1401,7 +1421,8 @@ const EditDrawer = ({
       newNatureOfErrors.some((error) => error) ||
       newPriorityErrors.some((error) => error) ||
       newErrorCountErrors.some((error) => error) ||
-      newRemarkErrors.some((error) => error);
+      newRemarkErrors.some((error) => error) ||
+      imageErrApprovals.includes(true);
 
     if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
       if (hasErrorLogErrors === false) {
@@ -2602,6 +2623,7 @@ const EditDrawer = ({
     setErrorCountErrApprovals([false]);
     setNatureOfErrApprovals([false]);
     setRemarkErrApprovals([false]);
+    setImageErrApprovals([false]);
     setDeletedErrorLogApprovals([]);
 
     // Logs
@@ -6011,51 +6033,65 @@ const EditDrawer = ({
                               </LocalizationProvider>
                             </div>
                             <div className="flex flex-col ml-4">
-                              <div className="flex">
-                                <ImageUploader
-                                  getData={(data1: string, data2: string) =>
-                                    field.Attachments
-                                      ? handleAttachmentsChangeApprovals(
-                                          data1,
-                                          data2,
-                                          field.Attachments,
-                                          index
-                                        )
-                                      : undefined
-                                  }
-                                  isDisable={field.isSolved || activeTab === 2}
-                                />
-                                {field.Attachments &&
-                                  field.Attachments.length > 0 &&
-                                  field.Attachments[0]?.SystemFileName.length >
-                                    0 && (
-                                    <div className="flex items-center justify-center gap-2">
-                                      <span className="mt-6 ml-2 cursor-pointer">
-                                        {field.Attachments[0]?.UserFileName}
-                                      </span>
-                                      <span
-                                        className="mt-6"
-                                        onClick={() =>
-                                          field.Attachments
-                                            ? getFileFromBlob(
-                                                field.Attachments[0]
-                                                  ?.SystemFileName,
-                                                field.Attachments[0]
-                                                  ?.UserFileName
-                                              )
-                                            : undefined
-                                        }
-                                      >
-                                        <ColorToolTip
-                                          title="Download"
-                                          placement="top"
-                                          arrow
+                              <div className="flex flex-col items-start justify-start">
+                                <div className="flex">
+                                  <ImageUploader
+                                    getData={(data1: string, data2: string) =>
+                                      field.Attachments
+                                        ? handleAttachmentsChangeApprovals(
+                                            data1,
+                                            data2,
+                                            field.Attachments,
+                                            index
+                                          )
+                                        : undefined
+                                    }
+                                    isDisable={
+                                      field.isSolved || activeTab === 2
+                                    }
+                                    fileHasError={(error: boolean) => {
+                                      const newErrors = [...imageErrApprovals];
+                                      newErrors[index] = error;
+                                      setImageErrApprovals(newErrors);
+                                    }}
+                                  />
+                                  {field.Attachments &&
+                                    field.Attachments.length > 0 &&
+                                    field.Attachments[0]?.SystemFileName
+                                      .length > 0 && (
+                                      <div className="flex items-center justify-center gap-2">
+                                        <span className="mt-6 ml-2 cursor-pointer">
+                                          {field.Attachments[0]?.UserFileName}
+                                        </span>
+                                        <span
+                                          className="mt-6"
+                                          onClick={() =>
+                                            field.Attachments
+                                              ? getFileFromBlob(
+                                                  field.Attachments[0]
+                                                    ?.SystemFileName,
+                                                  field.Attachments[0]
+                                                    ?.UserFileName
+                                                )
+                                              : undefined
+                                          }
                                         >
-                                          <Download />
-                                        </ColorToolTip>
-                                      </span>
-                                    </div>
-                                  )}
+                                          <ColorToolTip
+                                            title="Download"
+                                            placement="top"
+                                            arrow
+                                          >
+                                            <Download />
+                                          </ColorToolTip>
+                                        </span>
+                                      </div>
+                                    )}
+                                </div>
+                                {imageErrApprovals[index] && (
+                                  <span className="text-defaultRed text-[14px] mt-1">
+                                    File size shouldn&apos;t be more than 5MB.
+                                  </span>
+                                )}
                               </div>
                             </div>
                             {field.isSolved && (

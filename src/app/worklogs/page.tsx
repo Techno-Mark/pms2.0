@@ -84,6 +84,8 @@ const exportBodyTimeline = {
   ProjectId: null,
   StartDate: null,
   EndDate: null,
+  ReceivedFrom: null,
+  ReceivedTo: null,
   IsDownload: true,
 };
 
@@ -342,10 +344,10 @@ const Page = () => {
       : "workitem/history/export";
 
     const exportBody = isTaskClicked
-      ? exportBodyTask
+      ? { ...exportBodyTask, ...currentFilterData }
       : isTimelineClicked
-      ? exportBodyTimeline
-      : exportBodyHistory;
+      ? { ...exportBodyTimeline, ...currentFilterWithoutSaveData }
+      : { ...exportBodyHistory, ...currentFilterWithoutSaveData };
 
     const response = await axios.post(
       `${process.env.worklog_api_url}/${api}`,
@@ -590,6 +592,7 @@ const Page = () => {
                             className="pl-1"
                             onClick={() => {
                               setclickedFilterId(i.FilterId);
+                              setCurrentFilterData(i.AppliedFilter);
                               handleCloseFilter();
                             }}
                           >
@@ -627,6 +630,7 @@ const Page = () => {
                       onClick={() => {
                         setclickedFilterId(0);
                         handleCloseFilter();
+                        setCurrentFilterData(initialFilter);
                       }}
                       className="mt-2"
                       color="error"

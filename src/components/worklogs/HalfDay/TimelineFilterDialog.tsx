@@ -32,6 +32,8 @@ const initialFilter = {
   ProjectId: null,
   StartDate: null,
   EndDate: null,
+  ReceivedFrom: null,
+  ReceivedTo: null,
 };
 
 const TimelineFilterDialog = ({
@@ -46,6 +48,8 @@ const TimelineFilterDialog = ({
   const [project, setProject] = useState<LabelValue | null>(null);
   const [startDate, setStartDate] = useState<null | string>(null);
   const [endDate, setEndDate] = useState<null | string>(null);
+  const [receivedFromDate, setReceivedFromDate] = useState<null | string>(null);
+  const [receivedToDate, setReceivedToDate] = useState<null | string>(null);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currSelectedFields, setCurrSelectedFileds] = useState<
     | {
@@ -53,6 +57,8 @@ const TimelineFilterDialog = ({
         ProjectId: number | null;
         StartDate: string | null | undefined;
         EndDate: string | null | undefined;
+        ReceivedFrom: string | null | undefined;
+        ReceivedTo: string | null | undefined;
       }
     | []
   >([]);
@@ -67,6 +73,8 @@ const TimelineFilterDialog = ({
     setProject(null);
     setStartDate(null);
     setEndDate(null);
+    setReceivedFromDate(null);
+    setReceivedToDate(null);
     currentFilterData?.(initialFilter);
   };
 
@@ -75,10 +83,19 @@ const TimelineFilterDialog = ({
       clientName !== null ||
       project !== null ||
       startDate !== null ||
-      endDate !== null;
+      endDate !== null ||
+      receivedFromDate !== null ||
+      receivedToDate !== null;
 
     setAnyFieldSelected(isAnyFieldSelected);
-  }, [clientName, project, startDate, endDate]);
+  }, [
+    clientName,
+    project,
+    startDate,
+    endDate,
+    receivedFromDate,
+    receivedToDate,
+  ]);
 
   useEffect(() => {
     const selectedFields = {
@@ -96,9 +113,28 @@ const TimelineFilterDialog = ({
             ? null
             : getFormattedDate(startDate)
           : getFormattedDate(endDate),
+      ReceivedFrom:
+        receivedFromDate === null
+          ? receivedToDate === null
+            ? null
+            : getFormattedDate(receivedToDate)
+          : getFormattedDate(receivedFromDate),
+      ReceivedTo:
+        receivedToDate === null
+          ? receivedFromDate === null
+            ? null
+            : getFormattedDate(receivedFromDate)
+          : getFormattedDate(receivedToDate),
     };
     setCurrSelectedFileds(selectedFields);
-  }, [clientName, project, startDate, endDate]);
+  }, [
+    clientName,
+    project,
+    startDate,
+    endDate,
+    receivedFromDate,
+    receivedToDate,
+  ]);
 
   const sendFilterToPage = () => {
     currentFilterData(currSelectedFields);
@@ -175,6 +211,28 @@ const TimelineFilterDialog = ({
                   )}
                 />
               </FormControl>
+              <div
+                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+              >
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Received From"
+                    value={
+                      receivedFromDate === null ? null : dayjs(receivedFromDate)
+                    }
+                    // shouldDisableDate={isWeekend}
+                    maxDate={dayjs(Date.now())}
+                    onChange={(newDate: any) => {
+                      setReceivedFromDate(newDate.$d);
+                    }}
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      } as Record<string, any>,
+                    }}
+                  />
+                </LocalizationProvider>
+              </div>
             </div>
 
             <div className="flex gap-[20px]">
@@ -183,7 +241,29 @@ const TimelineFilterDialog = ({
               >
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label="From"
+                    label="Received To"
+                    value={
+                      receivedToDate === null ? null : dayjs(receivedToDate)
+                    }
+                    // shouldDisableDate={isWeekend}
+                    maxDate={dayjs(Date.now())}
+                    onChange={(newDate: any) => {
+                      setReceivedToDate(newDate.$d);
+                    }}
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      } as Record<string, any>,
+                    }}
+                  />
+                </LocalizationProvider>
+              </div>
+              <div
+                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+              >
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Logged From"
                     value={startDate === null ? null : dayjs(startDate)}
                     // shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
@@ -203,7 +283,7 @@ const TimelineFilterDialog = ({
               >
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label="To"
+                    label="Logged To"
                     value={endDate === null ? null : dayjs(endDate)}
                     // shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}

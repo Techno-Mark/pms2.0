@@ -54,6 +54,8 @@ interface Interface {
   ProjectId: number | null;
   StartDate: string | null;
   EndDate: string | null;
+  ReceivedFrom: string | null;
+  ReceivedTo: string | null;
   IsDownload: boolean;
 }
 
@@ -81,6 +83,8 @@ const initialFilter = {
   ProjectId: null,
   StartDate: null,
   EndDate: null,
+  ReceivedFrom: null,
+  ReceivedTo: null,
   IsDownload: false,
 };
 

@@ -642,6 +642,7 @@ const Drawer = ({
       },
     ]);
   const [remarkClientWorklogErr, setRemarkClientWorklogErr] = useState([false]);
+  const [imageErrApprovals, setImageErrApprovals] = useState([false]);
   const [deletedErrorLogClientWorklog, setDeletedErrorLogClientWorklog] =
     useState<number[] | []>([]);
 
@@ -674,6 +675,7 @@ const Drawer = ({
       },
     ]);
     setRemarkClientWorklogErr([...remarkClientWorklogErr, false]);
+    setImageErrApprovals([...imageErrApprovals, false]);
   };
 
   const removeErrorLogFieldClientWorklog = (index: number) => {
@@ -684,9 +686,14 @@ const Drawer = ({
     const newErrorLogClientWorklogFields = [...errorLogClientWorklogFields];
     newErrorLogClientWorklogFields.splice(index, 1);
     setErrorLogClientWorklogFields(newErrorLogClientWorklogFields);
+
     const newRemarkClientWorklogErrors = [...remarkClientWorklogErr];
     newRemarkClientWorklogErrors.splice(index, 1);
     setRemarkClientWorklogErr(newRemarkClientWorklogErrors);
+
+    const newImageErrors = [...imageErrApprovals];
+    newImageErrors.splice(index, 1);
+    setImageErrApprovals(newImageErrors);
   };
 
   const handleRemarksChangeClientWorklog = (e: string, index: number) => {
@@ -705,14 +712,24 @@ const Drawer = ({
     index: number
   ) => {
     const newFields = [...errorLogClientWorklogFields];
-    newFields[index].Attachments = [
-      {
-        AttachmentId: Attachments[0].AttachmentId,
-        UserFileName: data1,
-        SystemFileName: data2,
-        AttachmentPath: process.env.attachment || "",
-      },
-    ];
+    newFields[index].Attachments =
+      data1 === null || data2 === null
+        ? [
+            {
+              AttachmentId: 0,
+              UserFileName: "",
+              SystemFileName: "",
+              AttachmentPath: process.env.attachment || "",
+            },
+          ]
+        : [
+            {
+              AttachmentId: Attachments[0].AttachmentId,
+              UserFileName: data1,
+              SystemFileName: data2,
+              AttachmentPath: process.env.attachment || "",
+            },
+          ];
     setErrorLogClientWorklogFields(newFields);
   };
 
@@ -807,7 +824,9 @@ const Drawer = ({
     );
     setRemarkClientWorklogErr(newRemarkClientWorklogErrors);
 
-    hasErrorLogErrors = newRemarkClientWorklogErrors.some((error) => error);
+    hasErrorLogErrors =
+      newRemarkClientWorklogErrors.some((error) => error) ||
+      imageErrApprovals.includes(true);
 
     if (!hasErrorLogErrors) {
       if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
@@ -1281,6 +1300,7 @@ const Drawer = ({
       },
     ]);
     setRemarkClientWorklogErr([false]);
+    setImageErrApprovals([false]);
     setDeletedErrorLogClientWorklog([]);
 
     onDataFetch?.();
@@ -2519,6 +2539,13 @@ const Drawer = ({
                                             : undefined
                                         }
                                         isDisable={field.isSolved}
+                                        fileHasError={(error: boolean) => {
+                                          const newErrors = [
+                                            ...imageErrApprovals,
+                                          ];
+                                          newErrors[index] = error;
+                                          setImageErrApprovals(newErrors);
+                                        }}
                                       />
                                       {field.Attachments &&
                                         field.Attachments.length > 0 &&
@@ -2555,6 +2582,12 @@ const Drawer = ({
                                           </div>
                                         )}
                                     </div>
+                                    {imageErrApprovals[index] && (
+                                      <span className="text-defaultRed text-[14px] mt-1">
+                                        File size shouldn&apos;t be more than
+                                        5MB.
+                                      </span>
+                                    )}
                                   </div>
                                   {field.isSolved && (
                                     <FormGroup>
