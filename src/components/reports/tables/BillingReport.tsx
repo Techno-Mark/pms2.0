@@ -478,7 +478,7 @@ const BillingReport = ({
     },
     {
       name: "AssigneeName",
-      label: "Prepared/Assignee",
+      label: "Preparer/Assignee",
       bodyRenderer: generateCommonBodyRender,
     },
     {

@@ -481,15 +481,15 @@ const UserContent = forwardRef<
       if (
         !empCodeError &&
         empCode.trim().length > 0 &&
-        empCode.trim().length < 5 &&
+        empCode.trim().length <= 5 &&
         !firstNameError &&
         firstName.trim().length > 2 &&
-        firstName.trim().length < 50 &&
+        firstName.trim().length <= 50 &&
         !lastNameError &&
         lastName.trim().length > 0 &&
         !emailError &&
         email.trim().length > 0 &&
-        email.trim().length < 100 &&
+        email.trim().length <= 100 &&
         typeOfWork > 0 &&
         !typeOfWorkError &&
         role !== 0 &&
@@ -514,6 +514,7 @@ const UserContent = forwardRef<
         setClientFirstNameError(true);
       clientLastName.trim().length <= 0 && setClientLastNameError(true);
       clientEmail.trim().length <= 0 && setClientEmailError(true);
+      clientEmail.trim().length > 100 && setClientEmailError(true);
       clientRole <= 0 && setClientRoleError(true);
 
       if (
@@ -526,7 +527,7 @@ const UserContent = forwardRef<
         clientLastName.trim().length > 0 &&
         !clientEmailError &&
         clientEmail.trim().length > 0 &&
-        clientEmail.trim().length < 100 &&
+        clientEmail.trim().length <= 100 &&
         !clientRoleError &&
         clientRole > 0
       ) {

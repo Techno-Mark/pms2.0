@@ -841,8 +841,10 @@ const EditDrawer = ({
   >([]);
   const [value, setValue] = useState("");
   const [valueError, setValueError] = useState(false);
+  const [fileHasError, setFileHasError] = useState(false);
   const [valueEdit, setValueEdit] = useState("");
   const [valueEditError, setValueEditError] = useState(false);
+  const [fileEditHasError, setFileEditHasError] = useState(false);
   const [mention, setMention] = useState<any>([]);
   const [editingCommentIndexApprovals, setEditingCommentIndexApprovals] =
     useState(-1);
@@ -880,7 +882,7 @@ const EditDrawer = ({
     setValueEditError(valueEdit.trim().length < 1);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (valueEdit.trim().length > 1 && !valueEditError) {
+      if (valueEdit.trim().length > 1 && !valueEditError && !fileEditHasError) {
         setIsLoadingApprovals(true);
         const params = {
           workitemId: onEdit,
@@ -947,14 +949,24 @@ const EditDrawer = ({
     data2: string,
     commentAttachment: CommentAttachment[]
   ) => {
-    const Attachment = [
-      {
-        AttachmentId: commentAttachment[0].AttachmentId,
-        UserFileName: data1,
-        SystemFileName: data2,
-        AttachmentPath: process.env.attachment || "",
-      },
-    ];
+    const Attachment =
+      data1 === null || data2 === null
+        ? [
+            {
+              AttachmentId: 0,
+              UserFileName: "",
+              SystemFileName: "",
+              AttachmentPath: process.env.attachment || "",
+            },
+          ]
+        : [
+            {
+              AttachmentId: commentAttachment[0].AttachmentId,
+              UserFileName: data1,
+              SystemFileName: data2,
+              AttachmentPath: process.env.attachment || "",
+            },
+          ];
     setCommentAttachmentApprovals(Attachment);
   };
 
@@ -991,7 +1003,7 @@ const EditDrawer = ({
     setValueError(value.trim().length < 5);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (value.trim().length >= 5 && !valueError) {
+      if (value.trim().length >= 5 && !valueError && !fileHasError) {
         setIsLoadingApprovals(true);
         const params = {
           workitemId: onEdit,
@@ -1080,6 +1092,7 @@ const EditDrawer = ({
   const [errorCountErrApprovals, setErrorCountErrApprovals] = useState([false]);
   const [natureOfErrApprovals, setNatureOfErrApprovals] = useState([false]);
   const [remarkErrApprovals, setRemarkErrApprovals] = useState([false]);
+  const [imageErrApprovals, setImageErrApprovals] = useState([false]);
   const [deletedErrorLogApprovals, setDeletedErrorLogApprovals] = useState<any>(
     []
   );
@@ -1120,13 +1133,18 @@ const EditDrawer = ({
     setErrorCountErrApprovals([...errorCountErrApprovals, false]);
     setNatureOfErrApprovals([...natureOfErrApprovals, false]);
     setRemarkErrApprovals([...remarkErrApprovals, false]);
+    setImageErrApprovals([...imageErrApprovals, false]);
   };
 
   const removeErrorLogFieldApprovals = (index: number) => {
-    setDeletedErrorLogApprovals([
-      ...deletedErrorLogApprovals,
-      errorLogFieldsApprovals[index].ErrorLogId,
-    ]);
+    setDeletedErrorLogApprovals(
+      errorLogFieldsApprovals[index].ErrorLogId !== 0
+        ? [
+            ...deletedErrorLogApprovals,
+            errorLogFieldsApprovals[index].ErrorLogId,
+          ]
+        : [...deletedErrorLogApprovals]
+    );
 
     const newErrorLogFields = [...errorLogFieldsApprovals];
     newErrorLogFields.splice(index, 1);
@@ -1159,6 +1177,10 @@ const EditDrawer = ({
     const newRemarkErrors = [...remarkErrApprovals];
     newRemarkErrors.splice(index, 1);
     setRemarkErrApprovals(newRemarkErrors);
+
+    const newImageErrors = [...imageErrApprovals];
+    newImageErrors.splice(index, 1);
+    setImageErrApprovals(newImageErrors);
   };
 
   const handleErrorTypeChangeApprovals = (e: number, index: number) => {
@@ -1259,14 +1281,24 @@ const EditDrawer = ({
     index: number
   ) => {
     const newFields = [...errorLogFieldsApprovals];
-    newFields[index].Attachments = [
-      {
-        AttachmentId: Attachments[0].AttachmentId,
-        UserFileName: data1,
-        SystemFileName: data2,
-        AttachmentPath: process.env.attachment || "",
-      },
-    ];
+    newFields[index].Attachments =
+      data1 === null || data2 === null
+        ? [
+            {
+              AttachmentId: 0,
+              UserFileName: "",
+              SystemFileName: "",
+              AttachmentPath: process.env.attachment || "",
+            },
+          ]
+        : [
+            {
+              AttachmentId: Attachments[0].AttachmentId,
+              UserFileName: data1,
+              SystemFileName: data2,
+              AttachmentPath: process.env.attachment || "",
+            },
+          ];
     setErrorLogFieldsApprovals(newFields);
   };
 
@@ -1389,7 +1421,8 @@ const EditDrawer = ({
       newNatureOfErrors.some((error) => error) ||
       newPriorityErrors.some((error) => error) ||
       newErrorCountErrors.some((error) => error) ||
-      newRemarkErrors.some((error) => error);
+      newRemarkErrors.some((error) => error) ||
+      imageErrApprovals.includes(true);
 
     if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
       if (hasErrorLogErrors === false) {
@@ -2536,8 +2569,10 @@ const EditDrawer = ({
     setCommentDataApprovals([]);
     setValue("");
     setValueError(false);
+    setFileHasError(false);
     setValueEdit("");
     setValueEditError(false);
+    setFileEditHasError(false);
     setMention([]);
     setEditingCommentIndexApprovals(-1);
     setCommentSelectApprovals(1);
@@ -2588,6 +2623,7 @@ const EditDrawer = ({
     setErrorCountErrApprovals([false]);
     setNatureOfErrApprovals([false]);
     setRemarkErrApprovals([false]);
+    setImageErrApprovals([false]);
     setDeletedErrorLogApprovals([]);
 
     // Logs
@@ -4327,6 +4363,9 @@ const EditDrawer = ({
                                                 )
                                               }
                                               isDisable={false}
+                                              fileHasError={(error: boolean) =>
+                                                setFileEditHasError(error)
+                                              }
                                             />
                                           </div>
                                         </div>
@@ -4366,6 +4405,13 @@ const EditDrawer = ({
                                             This is a required field.
                                           </span>
                                         )}
+                                        {!valueEditError &&
+                                          fileEditHasError && (
+                                            <span className="text-defaultRed text-[14px]">
+                                              File size shouldn&apos;t be more
+                                              than 5MB.
+                                            </span>
+                                          )}
                                       </div>
                                     </div>
                                     <button
@@ -4500,6 +4546,9 @@ const EditDrawer = ({
                                 )
                               }
                               isDisable={false}
+                              fileHasError={(error: boolean) =>
+                                setFileHasError(error)
+                              }
                             />
                           </div>
                         </div>
@@ -4521,12 +4570,16 @@ const EditDrawer = ({
                             <span className="text-defaultRed text-[14px] ml-20">
                               Minimum 5 characters required.
                             </span>
+                          ) : valueError ? (
+                            <span className="text-defaultRed text-[14px] ml-20">
+                              This is a required field.
+                            </span>
+                          ) : !valueError && fileHasError ? (
+                            <span className="text-defaultRed text-[14px] ml-20">
+                              File size shouldn&apos;t be more than 5MB.
+                            </span>
                           ) : (
-                            valueError && (
-                              <span className="text-defaultRed text-[14px] ml-20">
-                                This is a required field.
-                              </span>
-                            )
+                            ""
                           )}
                         </div>
                         {commentAttachmentApprovals[0].AttachmentId === 0 &&
@@ -5980,51 +6033,65 @@ const EditDrawer = ({
                               </LocalizationProvider>
                             </div>
                             <div className="flex flex-col ml-4">
-                              <div className="flex">
-                                <ImageUploader
-                                  getData={(data1: string, data2: string) =>
-                                    field.Attachments
-                                      ? handleAttachmentsChangeApprovals(
-                                          data1,
-                                          data2,
-                                          field.Attachments,
-                                          index
-                                        )
-                                      : undefined
-                                  }
-                                  isDisable={field.isSolved || activeTab === 2}
-                                />
-                                {field.Attachments &&
-                                  field.Attachments.length > 0 &&
-                                  field.Attachments[0]?.SystemFileName.length >
-                                    0 && (
-                                    <div className="flex items-center justify-center gap-2">
-                                      <span className="mt-6 ml-2 cursor-pointer">
-                                        {field.Attachments[0]?.UserFileName}
-                                      </span>
-                                      <span
-                                        className="mt-6"
-                                        onClick={() =>
-                                          field.Attachments
-                                            ? getFileFromBlob(
-                                                field.Attachments[0]
-                                                  ?.SystemFileName,
-                                                field.Attachments[0]
-                                                  ?.UserFileName
-                                              )
-                                            : undefined
-                                        }
-                                      >
-                                        <ColorToolTip
-                                          title="Download"
-                                          placement="top"
-                                          arrow
+                              <div className="flex flex-col items-start justify-start">
+                                <div className="flex">
+                                  <ImageUploader
+                                    getData={(data1: string, data2: string) =>
+                                      field.Attachments
+                                        ? handleAttachmentsChangeApprovals(
+                                            data1,
+                                            data2,
+                                            field.Attachments,
+                                            index
+                                          )
+                                        : undefined
+                                    }
+                                    isDisable={
+                                      field.isSolved || activeTab === 2
+                                    }
+                                    fileHasError={(error: boolean) => {
+                                      const newErrors = [...imageErrApprovals];
+                                      newErrors[index] = error;
+                                      setImageErrApprovals(newErrors);
+                                    }}
+                                  />
+                                  {field.Attachments &&
+                                    field.Attachments.length > 0 &&
+                                    field.Attachments[0]?.SystemFileName
+                                      .length > 0 && (
+                                      <div className="flex items-center justify-center gap-2">
+                                        <span className="mt-6 ml-2 cursor-pointer">
+                                          {field.Attachments[0]?.UserFileName}
+                                        </span>
+                                        <span
+                                          className="mt-6"
+                                          onClick={() =>
+                                            field.Attachments
+                                              ? getFileFromBlob(
+                                                  field.Attachments[0]
+                                                    ?.SystemFileName,
+                                                  field.Attachments[0]
+                                                    ?.UserFileName
+                                                )
+                                              : undefined
+                                          }
                                         >
-                                          <Download />
-                                        </ColorToolTip>
-                                      </span>
-                                    </div>
-                                  )}
+                                          <ColorToolTip
+                                            title="Download"
+                                            placement="top"
+                                            arrow
+                                          >
+                                            <Download />
+                                          </ColorToolTip>
+                                        </span>
+                                      </div>
+                                    )}
+                                </div>
+                                {imageErrApprovals[index] && (
+                                  <span className="text-defaultRed text-[14px] mt-1">
+                                    File size shouldn&apos;t be more than 5MB.
+                                  </span>
+                                )}
                               </div>
                             </div>
                             {field.isSolved && (

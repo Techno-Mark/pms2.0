@@ -121,6 +121,15 @@ export interface AppliedFilterHalfDayPage {
   EndDate: string | null;
 }
 
+export interface AppliedFilterHistoryPage {
+  ClientId: number | null;
+  ProjectId: number | null;
+  ProcessId: number | null;
+  Department: number | null;
+  StartDate: string | null | undefined;
+  EndDate: string | null | undefined;
+}
+
 export interface FilterWorklogsPage {
   FilterId: number;
   Name: string;
