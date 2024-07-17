@@ -598,7 +598,7 @@ const APReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="Start Date"
+                      label="Logged From"
                       // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(endDate)}
                       value={startDate === "" ? null : dayjs(startDate)}
@@ -616,7 +616,7 @@ const APReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="End Date"
+                      label="Logged To"
                       // shouldDisableDate={isWeekend}
                       minDate={dayjs(startDate)}
                       maxDate={dayjs(Date.now())}
