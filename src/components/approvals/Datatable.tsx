@@ -734,7 +734,7 @@ const Datatable = ({
     },
     {
       name: "ManagerHours",
-      label: "Preparor Edited Time",
+      label: "Preparer Edited Time",
       bodyRenderer: generateManualTimeBodyRender,
     },
     {
@@ -924,7 +924,7 @@ const Datatable = ({
     },
     {
       name: "ManagerHours",
-      label: "Preparor Edited Time",
+      label: "Preparer Edited Time",
       bodyRenderer: generateManualTimeBodyRender,
     },
     {
@@ -1193,13 +1193,19 @@ const Datatable = ({
           viewColumns: false,
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
-          customBodyRender: (value: number) => {
+          customBodyRender: (value: number, tableMeta: any) => {
             return (
               <>
                 {activeTab === 1 ? (
                   <div
                     className="text-[#0592C6] cursor-pointer"
-                    onClick={() => onEdit(value, workitemId, id)}
+                    onClick={() =>
+                      onEdit(
+                        value,
+                        tableMeta.rowData[tableMeta.rowData.length - 3],
+                        id
+                      )
+                    }
                   >
                     {value === null ? "-" : value}
                   </div>

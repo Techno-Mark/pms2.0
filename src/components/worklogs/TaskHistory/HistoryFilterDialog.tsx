@@ -1,11 +1,17 @@
-import { LabelValue } from "@/utils/Types/types";
 import {
   getClientDropdownData,
+  getDepartmentDropdownData,
+  getProcessDropdownData,
   getProjectDropdownData,
 } from "@/utils/commonDropdownApiCall";
-import { isWeekend } from "@/utils/commonFunction";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { getFormattedDate } from "@/utils/timerFunctions";
+import {
+  IdNameEstimatedHour,
+  LabelValue,
+  LabelValueType,
+} from "@/utils/Types/types";
+import { AppliedFilterHistoryPage } from "@/utils/Types/worklogsTypes";
 import {
   Autocomplete,
   Button,
@@ -30,51 +36,42 @@ interface FilterModalProps {
 const initialFilter = {
   ClientId: null,
   ProjectId: null,
+  ProcessId: null,
+  Department: null,
   StartDate: null,
   EndDate: null,
-  ReceivedFrom: null,
-  ReceivedTo: null,
 };
 
-const TimelineFilterDialog = ({
+const HistoryFilterDialog = ({
   onOpen,
   onClose,
   currentFilterData,
 }: FilterModalProps) => {
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [projectDropdownData, setProjectDropdownData] = useState([]);
+  const [processDropdownData, setProcessDropdownData] = useState([]);
+  const [departmentDropdownData, setDepartmentDropdownData] = useState<
+    LabelValueType[]
+  >([]);
 
   const [clientName, setClientName] = useState<LabelValue | null>(null);
   const [project, setProject] = useState<LabelValue | null>(null);
+  const [process, setProcess] = useState<LabelValue | null>(null);
+  const [department, setDepartment] = useState<LabelValueType | null>(null);
   const [startDate, setStartDate] = useState<null | string>(null);
   const [endDate, setEndDate] = useState<null | string>(null);
-  const [receivedFromDate, setReceivedFromDate] = useState<null | string>(null);
-  const [receivedToDate, setReceivedToDate] = useState<null | string>(null);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currSelectedFields, setCurrSelectedFileds] = useState<
-    | {
-        ClientId: number | null;
-        ProjectId: number | null;
-        StartDate: string | null | undefined;
-        EndDate: string | null | undefined;
-        ReceivedFrom: string | null | undefined;
-        ReceivedTo: string | null | undefined;
-      }
-    | []
+    AppliedFilterHistoryPage | []
   >([]);
-
-  const handleClose = () => {
-    handleResetAll();
-    onClose();
-  };
 
   const handleResetAll = () => {
     setClientName(null);
     setProject(null);
+    setProcess(null);
+    setDepartment(null);
     setStartDate(null);
     setEndDate(null);
-    setReceivedFromDate(null);
-    setReceivedToDate(null);
     currentFilterData?.(initialFilter);
   };
 
@@ -82,25 +79,20 @@ const TimelineFilterDialog = ({
     const isAnyFieldSelected =
       clientName !== null ||
       project !== null ||
+      process !== null ||
+      department !== null ||
       startDate !== null ||
-      endDate !== null ||
-      receivedFromDate !== null ||
-      receivedToDate !== null;
+      endDate !== null;
 
     setAnyFieldSelected(isAnyFieldSelected);
-  }, [
-    clientName,
-    project,
-    startDate,
-    endDate,
-    receivedFromDate,
-    receivedToDate,
-  ]);
+  }, [clientName, project, process, department, startDate, endDate]);
 
   useEffect(() => {
     const selectedFields = {
       ClientId: clientName !== null ? clientName.value : null,
       ProjectId: project !== null ? project.value : null,
+      ProcessId: process !== null ? process.value : null,
+      Department: department !== null ? department.value : null,
       StartDate:
         startDate === null
           ? endDate === null
@@ -113,52 +105,48 @@ const TimelineFilterDialog = ({
             ? null
             : getFormattedDate(startDate)
           : getFormattedDate(endDate),
-      ReceivedFrom:
-        receivedFromDate === null
-          ? receivedToDate === null
-            ? null
-            : getFormattedDate(receivedToDate)
-          : getFormattedDate(receivedFromDate),
-      ReceivedTo:
-        receivedToDate === null
-          ? receivedFromDate === null
-            ? null
-            : getFormattedDate(receivedFromDate)
-          : getFormattedDate(receivedToDate),
     };
     setCurrSelectedFileds(selectedFields);
-  }, [
-    clientName,
-    project,
-    startDate,
-    endDate,
-    receivedFromDate,
-    receivedToDate,
-  ]);
+  }, [clientName, project, process, department, startDate, endDate]);
 
   const sendFilterToPage = () => {
     currentFilterData(currSelectedFields);
     onClose();
   };
 
-  const getClientData = async () => {
+  const getData = async () => {
     setClientDropdownData(await getClientDropdownData());
+    const departmentData = await getDepartmentDropdownData();
+    setDepartmentDropdownData(departmentData.DepartmentList);
   };
 
   const getProjectData = async (clientName: string | number) => {
     setProjectDropdownData(await getProjectDropdownData(clientName, null));
   };
 
+  const getProcessData = async (clientName: string | number) => {
+    setProcessDropdownData(
+      (await getProcessDropdownData(clientName, null, null))?.map(
+        (i: IdNameEstimatedHour) => new Object({ label: i.Name, value: i.Id })
+      )
+    );
+  };
+
   useEffect(() => {
     if (onOpen === true) {
-      getClientData();
+      getData();
     }
   }, [onOpen]);
 
   useEffect(() => {
-    clientName !== null && getProjectData(clientName?.value);
+    clientName !== null
+      ? getProjectData(clientName?.value)
+      : setProjectDropdownData([]);
+    clientName !== null
+      ? getProcessData(clientName?.value)
+      : setProcessDropdownData([]);
   }, [clientName]);
-
+  
   return (
     <div>
       <Dialog
@@ -166,7 +154,7 @@ const TimelineFilterDialog = ({
         TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="md"
-        onClose={handleClose}
+        onClose={() => onClose()}
       >
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
           <span className="text-lg font-medium">Filter</span>
@@ -185,6 +173,7 @@ const TimelineFilterDialog = ({
                   onChange={(e, data: LabelValue | null) => {
                     setClientName(data);
                     setProject(null);
+                    setProcess(null);
                   }}
                   value={clientName}
                   renderInput={(params: any) => (
@@ -211,59 +200,53 @@ const TimelineFilterDialog = ({
                   )}
                 />
               </FormControl>
-              <div
-                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
-              >
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Received From"
-                    value={
-                      receivedFromDate === null ? null : dayjs(receivedFromDate)
-                    }
-                    // shouldDisableDate={isWeekend}
-                    maxDate={dayjs(Date.now())}
-                    onChange={(newDate: any) => {
-                      setReceivedFromDate(newDate.$d);
-                    }}
-                    slotProps={{
-                      textField: {
-                        readOnly: true,
-                      } as Record<string, any>,
-                    }}
-                  />
-                </LocalizationProvider>
-              </div>
+
+              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
+                <Autocomplete
+                  id="tags-standard"
+                  options={processDropdownData}
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(e, data: LabelValue | null) => {
+                    setProcess(data);
+                  }}
+                  value={process}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Process Name"
+                    />
+                  )}
+                />
+              </FormControl>
             </div>
 
             <div className="flex gap-[20px]">
+              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
+                <Autocomplete
+                  id="tags-standard"
+                  options={departmentDropdownData}
+                  getOptionLabel={(option: LabelValueType) => option.label}
+                  onChange={(e, data: LabelValueType | null) => {
+                    setDepartment(data);
+                  }}
+                  value={department}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Department"
+                    />
+                  )}
+                />
+              </FormControl>
+
               <div
-                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+                className={`inline-flex mt-[-4px] mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
               >
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label="Received To"
-                    value={
-                      receivedToDate === null ? null : dayjs(receivedToDate)
-                    }
-                    // shouldDisableDate={isWeekend}
-                    maxDate={dayjs(Date.now())}
-                    onChange={(newDate: any) => {
-                      setReceivedToDate(newDate.$d);
-                    }}
-                    slotProps={{
-                      textField: {
-                        readOnly: true,
-                      } as Record<string, any>,
-                    }}
-                  />
-                </LocalizationProvider>
-              </div>
-              <div
-                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
-              >
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Logged From"
+                    label="Start Date"
                     value={startDate === null ? null : dayjs(startDate)}
                     // shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
@@ -278,12 +261,13 @@ const TimelineFilterDialog = ({
                   />
                 </LocalizationProvider>
               </div>
+
               <div
-                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+                className={`inline-flex mt-[-4px] mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
               >
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label="Logged To"
+                    label="End Date"
                     value={endDate === null ? null : dayjs(endDate)}
                     // shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
@@ -312,7 +296,7 @@ const TimelineFilterDialog = ({
             Apply Filter
           </Button>
 
-          <Button variant="outlined" color="info" onClick={handleClose}>
+          <Button variant="outlined" color="info" onClick={() => onClose()}>
             Cancel
           </Button>
         </DialogActions>
@@ -321,4 +305,4 @@ const TimelineFilterDialog = ({
   );
 };
 
-export default TimelineFilterDialog;
+export default HistoryFilterDialog;

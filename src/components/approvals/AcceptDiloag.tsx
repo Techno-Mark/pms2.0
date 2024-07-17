@@ -51,7 +51,7 @@ const AcceptDiloag = ({
               </p>
               {data.length > 0 && (
                 <>
-                  <div>Preperor Time: {data[0].PreparorTime}</div>
+                  <div>Preparer Time: {data[0].PreparorTime}</div>
                   <div>Reviewer Time: {toHoursAndMinutes(data[0].Timer)}</div>
                 </>
               )}
