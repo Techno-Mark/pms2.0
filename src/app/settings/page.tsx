@@ -1063,7 +1063,7 @@ const Page = () => {
         onOpen={isImportOpen}
         onClose={() => setIsImportOpen(false)}
         onDataFetch={
-          tab.toLowerCase() === "user" ? getDataFunction : getUserDataFunction
+          tab.toLowerCase() === "user" ? getUserDataFunction : getDataFunction
         }
         tab={tab}
       />

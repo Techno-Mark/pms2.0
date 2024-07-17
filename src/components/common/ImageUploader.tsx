@@ -15,7 +15,7 @@ export default function ImageUploader({
     const fileData = event.target.files[0];
     const fileSizeInMB = parseFloat((fileData.size / 1024 / 1024).toFixed(2));
 
-    if (fileSizeInMB > 4) {
+    if (fileSizeInMB > 5) {
       fileHasError(true);
       getData(null, null);
       return;
@@ -83,7 +83,9 @@ export default function ImageUploader({
     <div className="flex gap-2">
       {isDisable ? (
         <span
-          className={`text-white cursor-pointer max-w-1 mt-6 ${className}`}
+          className={`text-white ${
+            isDisable ? "cursor-not-allowed" : "cursor-pointer"
+          } max-w-1 mt-6 ${className}`}
           onClick={() => fileInputRef.current?.click()}
         >
           <FileIcon />
