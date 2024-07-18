@@ -3658,7 +3658,8 @@ const EditDrawer = ({
                       />
                     </Grid>
                     {(departmentApprovalsType === "WhitelabelAccounting" ||
-                      departmentApprovalsType === "WhitelabelAustralia") && (
+                      departmentApprovalsType === "WhitelabelAustralia" ||
+                      departmentApprovalsType === "UK") && (
                       <Grid
                         item
                         xs={3}
@@ -3694,7 +3695,8 @@ const EditDrawer = ({
                       </Grid>
                     )}
                     {(departmentApprovalsType === "WhitelabelAccounting" ||
-                      departmentApprovalsType === "WhitelabelAustralia") && (
+                      departmentApprovalsType === "WhitelabelAustralia" ||
+                      departmentApprovalsType === "UK") && (
                       <Grid
                         item
                         xs={3}
