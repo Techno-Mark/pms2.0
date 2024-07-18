@@ -146,6 +146,7 @@ const HistoryFilterDialog = ({
       ? getProcessData(clientName?.value)
       : setProcessDropdownData([]);
   }, [clientName]);
+  
   return (
     <div>
       <Dialog
