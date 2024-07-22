@@ -1616,7 +1616,8 @@ const TaskEditDrawer = ({
                     />
                   </Grid>
                   {(departmentWorklogsType === "WhitelabelAccounting" ||
-                    departmentWorklogsType === "WhitelabelAustralia") && (
+                    departmentWorklogsType === "WhitelabelAustralia" ||
+                    departmentWorklogsType === "UK") && (
                     <Grid
                       item
                       xs={3}
@@ -1648,7 +1649,8 @@ const TaskEditDrawer = ({
                     </Grid>
                   )}
                   {(departmentWorklogsType === "WhitelabelAccounting" ||
-                    departmentWorklogsType === "WhitelabelAustralia") && (
+                    departmentWorklogsType === "WhitelabelAustralia" ||
+                    departmentWorklogsType === "UK") && (
                     <Grid
                       item
                       xs={3}
@@ -2700,7 +2702,8 @@ const TaskEditDrawer = ({
                       />
                     </Grid>
                     {(departmentWorklogsTypeEdit === "WhitelabelAccounting" ||
-                      departmentWorklogsTypeEdit === "WhitelabelAustralia") && (
+                      departmentWorklogsTypeEdit === "WhitelabelAustralia" ||
+                      departmentWorklogsTypeEdit === "UK") && (
                       <Grid
                         item
                         xs={3}
@@ -2731,7 +2734,8 @@ const TaskEditDrawer = ({
                       </Grid>
                     )}
                     {(departmentWorklogsTypeEdit === "WhitelabelAccounting" ||
-                      departmentWorklogsTypeEdit === "WhitelabelAustralia") && (
+                      departmentWorklogsTypeEdit === "WhitelabelAustralia" ||
+                      departmentWorklogsTypeEdit === "UK") && (
                       <Grid
                         item
                         xs={3}
