@@ -46,6 +46,7 @@ const ProjectContent = forwardRef<
 
   const [user, setUser] = useState(0);
   const [userDrpdown, setUserDrpdown] = useState<LabelValueProfileImage[]>([]);
+  const [projectCreationDate, setProjectCreationDate] = useState("");
 
   useEffect(() => {
     const getData = async () => {
@@ -93,6 +94,7 @@ const ProjectContent = forwardRef<
             setUser(
               ResponseData.RequestedBy === null ? 0 : ResponseData.RequestedBy
             );
+            setProjectCreationDate(ResponseData.DateOfCreation);
           }
         };
         callAPI(url, params, successCallback, "POST");
@@ -352,6 +354,26 @@ const ProjectContent = forwardRef<
               <TextField {...params} variant="standard" label="Requested by" />
             )}
           />
+
+          {onEdit > 0 && (
+            <TextField
+              label="Date of Creation"
+              sx={{ mt: "-5px" }}
+              fullWidth
+              value={
+                projectCreationDate?.trim().length <= 0 ||
+                projectCreationDate === null
+                  ? ""
+                  : projectCreationDate
+              }
+              onChange={() => {}}
+              margin="normal"
+              variant="standard"
+              InputProps={{
+                readOnly: true,
+              }}
+            />
+          )}
 
           {/* {!textFieldOpen && (
               <TextField

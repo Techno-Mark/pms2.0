@@ -693,6 +693,7 @@ const ClientContent = forwardRef<
     setDepts([]);
     setDeptName([]);
     setDeptError(false);
+    setClientCreationDate("");
     setUser(0);
     setTel("");
     departmentDataObj.length < 3 &&
