@@ -47,6 +47,8 @@ const initialFilter = {
   ReviewStatus: null,
 };
 
+const ALL_STATUS = -1;
+
 const FilterDialog = ({
   onOpen,
   onClose,
@@ -154,7 +156,10 @@ const FilterDialog = ({
 
   const getAllStatus = async (workType: number) => {
     workType > 0 &&
-      setStatusDropdownData(await getStatusDropdownData(workType));
+      setStatusDropdownData([
+        { label: "Select All", value: ALL_STATUS },
+        ...(await getStatusDropdownData(workType)),
+      ]);
   };
 
   const getAssignee = async () => {
@@ -359,9 +364,10 @@ const FilterDialog = ({
         const statusid = StatusId || [];
         setStatus(
           TypeOfWork !== null && TypeOfWork > 0 && StatusId !== null
-            ? (await getStatusDropdownData(TypeOfWork)).filter(
-                (item: LabelValueType) => statusid.includes(item.value)
-              )
+            ? [
+                { label: "Select All", value: ALL_STATUS },
+                ...(await getStatusDropdownData(TypeOfWork)),
+              ].filter((item: LabelValueType) => statusid.includes(item.value))
             : []
         );
         setStatusName(statusid);
@@ -537,13 +543,31 @@ const FilterDialog = ({
                 <Autocomplete
                   multiple
                   id="tags-standard"
-                  options={statusDropdownData.filter(
-                    (option) => !status.find((s) => s.value === option.value)
-                  )}
+                  options={
+                    statusDropdownData.length - 1 === status.length
+                      ? []
+                      : statusDropdownData.filter(
+                          (option) =>
+                            !status.find((s) => s.value === option.value)
+                        )
+                  }
                   getOptionLabel={(option: LabelValueType) => option.label}
                   onChange={(e, data: LabelValueType[]) => {
-                    setStatus(data);
-                    setStatusName(data.map((d: LabelValueType) => d.value));
+                    if (data.some((d: LabelValueType) => d.value === -1)) {
+                      setStatus(
+                        statusDropdownData.filter(
+                          (d: LabelValueType) => d.value !== -1
+                        )
+                      );
+                      setStatusName(
+                        statusDropdownData
+                          .filter((d: LabelValueType) => d.value !== -1)
+                          .map((d: LabelValueType) => d.value)
+                      );
+                    } else {
+                      setStatus(data);
+                      setStatusName(data.map((d: LabelValueType) => d.value));
+                    }
                   }}
                   value={status}
                   renderInput={(params: any) => (

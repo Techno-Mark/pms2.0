@@ -52,7 +52,7 @@ const ClientContent = forwardRef<
 >(({ onEdit, onClose, onOpen, onDataFetch, onChangeLoader }, ref) => {
   const [departmentData, setDepartmentData] = useState([
     "Tax",
-    "Acounting",
+    "Accounting",
     "Audit",
   ]);
   const [departmentDataObj, setDepartmentDataObj] = useState<
@@ -693,6 +693,7 @@ const ClientContent = forwardRef<
     setDepts([]);
     setDeptName([]);
     setDeptError(false);
+    setClientCreationDate("");
     setUser(0);
     setTel("");
     departmentDataObj.length < 3 &&

@@ -29,6 +29,7 @@ const StatusContent = forwardRef<
   const [typeErr, setTypeErr] = useState(false);
   const [colorName, setColorName] = useState("");
   const [isDefualt, setIsDefualt] = useState(false);
+  const [statusCreationDate, setStatusCreationDate] = useState("");
 
   const [typeOfWorks, setTypeOfWorks] = useState<LabelValue[]>([]);
   const [typeOfWorkName, setTypeOfWorkName] = useState<number[]>([]);
@@ -86,6 +87,7 @@ const StatusContent = forwardRef<
             )
           );
           setDisplayNames(ResponseData.WorkTypeDetails);
+          setStatusCreationDate(ResponseData.DateOfCreation);
         } else {
           setStatusName("");
           setColorName("");
@@ -124,6 +126,7 @@ const StatusContent = forwardRef<
     setTypeOfWorks([]);
     setTypeOfWorkNameError(false);
     setDisplayNames([]);
+    setStatusCreationDate("");
   };
 
   const clearStatusData = async () => {
@@ -442,6 +445,28 @@ const StatusContent = forwardRef<
             setColorName(e);
           }}
         />
+
+        {onEdit > 0 && (
+          <div className="flex flex-col my-5">
+            <TextField
+              label="Date of Creation"
+              sx={{ mt: "-5px" }}
+              fullWidth
+              value={
+                statusCreationDate?.trim().length <= 0 ||
+                statusCreationDate === null
+                  ? ""
+                  : statusCreationDate
+              }
+              onChange={() => {}}
+              margin="normal"
+              variant="standard"
+              InputProps={{
+                readOnly: true,
+              }}
+            />
+          </div>
+        )}
 
         {/* Footer */}
         <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">

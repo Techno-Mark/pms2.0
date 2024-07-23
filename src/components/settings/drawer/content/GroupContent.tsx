@@ -40,6 +40,7 @@ const GroupContent = forwardRef<
   const [groupNameErr, setGroupNameErr] = useState(false);
   const [selectValue, setSelectValue] = useState<number[]>([]);
   const [selectedOptions, setSelectOptions] = useState<Options[]>([]);
+  const [groupCreationDate, setGroupCreationDate] = useState("");
 
   useEffect(() => {
     data.length <= 0 && getDropdownData();
@@ -72,6 +73,7 @@ const GroupContent = forwardRef<
           } else {
             setSelectOptions(filteredOptionsData);
             setSelectValue(ResponseData.GroupUserIds);
+            setGroupCreationDate(ResponseData.DateOfCreation);
           }
         } else {
           setGroupName("");
@@ -104,6 +106,7 @@ const GroupContent = forwardRef<
       setSelectValue([]);
       setSelectOptions([]);
       setGroupNameErr(false);
+      setGroupCreationDate("");
     };
     await clearData();
   };
@@ -275,6 +278,24 @@ const GroupContent = forwardRef<
             />
           )}
         />
+        {onEdit > 0 && (
+          <TextField
+            label="Date of Creation"
+            fullWidth
+            value={
+              groupCreationDate?.trim().length <= 0 ||
+              groupCreationDate === null
+                ? ""
+                : groupCreationDate
+            }
+            onChange={() => {}}
+            margin="normal"
+            variant="standard"
+            InputProps={{
+              readOnly: true,
+            }}
+          />
+        )}
       </div>
 
       <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
