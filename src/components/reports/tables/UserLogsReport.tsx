@@ -28,6 +28,7 @@ interface Response {
   UserLogReportFilters: any | null;
   List:
     | {
+        EmployeeCode: string;
         LoginTime: string | null;
         LogoutTime: string | null;
         TotalBreakTime: string | null;

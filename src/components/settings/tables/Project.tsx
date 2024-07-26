@@ -21,6 +21,7 @@ import {
   SettingAction,
   SettingProps,
 } from "@/utils/Types/settingTypes";
+import ToggleSwitch from "../drawer/content/ToggleSwitch";
 import LogDrawer from "../drawer/LogDrawer";
 import DrawerOverlay from "../drawer/DrawerOverlay";
 
@@ -157,10 +158,11 @@ const Project = ({
     await setIsOpenSwitchModal(false);
   };
 
-  const handleToggleProject = async () => {
+  const handleToggleProject = async (id: number) => {
     const params = {
       isActive: switchActive,
       ProjectId: switchId,
+      RequestedBy: id > 0 ? id : null,
     };
     const url = `${process.env.pms_api_url}/project/activeinactive`;
     const successCallback = (
@@ -504,6 +506,13 @@ const Project = ({
               </ThemeProvider>
             </div>
 
+            <LogDrawer
+              onOpen={isLogOpen}
+              onClose={closeLogModal}
+              selectedRowId={selectedRowId}
+              type="Project"
+            />
+
             {/* Delete Modal */}
             {isDeleteOpen && (
               <DeleteDialog
@@ -518,15 +527,10 @@ const Project = ({
               />
             )}
 
-            <LogDrawer
-              onOpen={isLogOpen}
-              onClose={closeLogModal}
-              selectedRowId={selectedRowId}
-              type="Project"
-            />
+            <DrawerOverlay isOpen={isLogOpen} onClose={() => {}} />
 
             {isOpenSwitchModal && (
-              <SwitchModal
+              <ToggleSwitch
                 isOpen={isOpenSwitchModal}
                 onClose={closeSwitchModal}
                 title={`${
@@ -539,8 +543,6 @@ const Project = ({
                 } Project?`}
               />
             )}
-
-            <DrawerOverlay isOpen={isLogOpen} onClose={() => {}} />
           </>
         )
       ) : (

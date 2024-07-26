@@ -62,6 +62,7 @@ interface LogDetails {
 
 interface List {
   DateWiseLogs: LogDetails[];
+  EmployeeCode: string;
   StdShiftHours: string;
   PresentDays: number;
   TotalTimeSpentByUser: string;
@@ -629,6 +630,14 @@ const TimeSheetReport = ({
   };
 
   const columns: any[] = [
+    {
+      name: "EmployeeCode",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Employee Code"),
+      },
+    },
     {
       name: "UserName",
       options: {

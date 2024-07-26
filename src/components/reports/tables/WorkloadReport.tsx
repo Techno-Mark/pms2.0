@@ -34,6 +34,7 @@ interface Response {
   List:
     | {
         UserId: number;
+        EmployeeCode: string;
         CreatedDate: string;
         workitemId: number;
         TaskName: string;
@@ -198,6 +199,14 @@ const WorkloadReport = ({
   };
 
   const columns = [
+    {
+      name: "EmployeeCode",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Employee Code"),
+      },
+    },
     {
       name: "UserName",
       options: {

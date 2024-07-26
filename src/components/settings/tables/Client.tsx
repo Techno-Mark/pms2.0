@@ -36,6 +36,7 @@ import {
   SettingAction,
   SettingProps,
 } from "@/utils/Types/settingTypes";
+import ToggleSwitch from "../drawer/content/ToggleSwitch";
 import LogDrawer from "../drawer/LogDrawer";
 
 const pageNo = 1;
@@ -158,10 +159,12 @@ const Client = ({
     }
   };
 
-  const handleToggleClient = async () => {
+  const handleToggleClient = async (id: number) => {
+    setIsOpenSwitchModal(false);
     const params = {
       clientId: switchId,
       isActive: switchActive,
+      RequestedBy: id > 0 ? id : null,
     };
     const url = `${process.env.pms_api_url}/client/activeinactive`;
     const successCallback = (
@@ -600,7 +603,7 @@ const Client = ({
             )}
 
             {isOpenSwitchModal && (
-              <SwitchModal
+              <ToggleSwitch
                 isOpen={isOpenSwitchModal}
                 onClose={closeSwitchModal}
                 title={`${
