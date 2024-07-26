@@ -21,6 +21,8 @@ import {
   SettingAction,
   SettingProps,
 } from "@/utils/Types/settingTypes";
+import LogDrawer from "../drawer/LogDrawer";
+import DrawerOverlay from "../drawer/DrawerOverlay";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -51,6 +53,7 @@ const Project = ({
   const [loader, setLoader] = useState(true);
   const [data, setData] = useState<ProjectList[]>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isLogOpen, setIsLogOpen] = useState(false);
   const [isOpenSwitchModal, setIsOpenSwitchModal] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [switchId, setSwitchId] = useState(0);
@@ -114,6 +117,11 @@ const Project = ({
 
   const closeModal = () => {
     setIsDeleteOpen(false);
+  };
+
+  const closeLogModal = () => {
+    setIsLogOpen(false);
+    setSelectedRowId(null);
   };
 
   const handleDeleteRow = async () => {
@@ -182,6 +190,9 @@ const Project = ({
     if (actionId.toLowerCase() === "delete") {
       setIsDeleteOpen(true);
     }
+    if (actionId.toLowerCase() === "log") {
+      setIsLogOpen(true);
+    }
   };
 
   const Actions = ({ actions, id }: SettingAction) => {
@@ -207,7 +218,8 @@ const Project = ({
     const actionPermissions = actions.filter(
       (action: string) =>
         (action.toLowerCase() === "edit" && canEdit) ||
-        (action.toLowerCase() === "delete" && canDelete)
+        (action.toLowerCase() === "delete" && canDelete) ||
+        action.toLowerCase() === "log"
     );
 
     return actionPermissions.length > 0 ? (
@@ -291,7 +303,7 @@ const Project = ({
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Actions"),
           customBodyRender: (value: number) => {
-            return <Actions actions={["Edit", "Delete"]} id={value} />;
+            return <Actions actions={["Edit", "Delete", "Log"]} id={value} />;
           },
         },
       };
@@ -506,6 +518,13 @@ const Project = ({
               />
             )}
 
+            <LogDrawer
+              onOpen={isLogOpen}
+              onClose={closeLogModal}
+              selectedRowId={selectedRowId}
+              type="Project"
+            />
+
             {isOpenSwitchModal && (
               <SwitchModal
                 isOpen={isOpenSwitchModal}
@@ -520,6 +539,8 @@ const Project = ({
                 } Project?`}
               />
             )}
+
+            <DrawerOverlay isOpen={isLogOpen} onClose={() => {}} />
           </>
         )
       ) : (
