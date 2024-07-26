@@ -587,6 +587,11 @@ const reportsKRAColConfig = [
 
 const reportsAMColConfig = [
   {
+    header: "EmployeeCode",
+    label: "Employee Code",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     header: "UserName",
     label: "User Name",
     bodyRenderer: generateCommonBodyRender,
