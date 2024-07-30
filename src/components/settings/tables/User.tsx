@@ -474,8 +474,8 @@ const User = ({
                 roleId={tableMeta.rowData[tableMeta.rowData.length - 2]}
                 firstName={tableMeta.rowData[tableMeta.rowData.length - 4]}
                 lastName={tableMeta.rowData[tableMeta.rowData.length - 3]}
-                email={tableMeta.rowData[3]}
-                userType={tableMeta.rowData[1]}
+                email={tableMeta.rowData[4]}
+                userType={tableMeta.rowData[3]}
               />
             );
           },

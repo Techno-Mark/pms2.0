@@ -120,6 +120,7 @@ const ProcessContent = forwardRef<
       []
     );
     const [checkbox, setCheckbox] = useState<string>("no");
+    const [processCreationDate, setProcessCreationDate] = useState("");
 
     const handleEstTimeChange = (
       event: React.ChangeEvent<HTMLInputElement>
@@ -253,6 +254,7 @@ const ProcessContent = forwardRef<
             setActivity(ResponseData.ActivityList);
             setProductive(ResponseData.IsProductive);
             setBillable(ResponseData.IsBillable);
+            setProcessCreationDate(ResponseData.DateOfCreation);
           }
         };
         callAPI(url, params, successCallback, "POST");
@@ -329,6 +331,7 @@ const ProcessContent = forwardRef<
       setUser(0);
       setCheckbox("no");
       setEstTime("");
+      setProcessCreationDate("");
       clearError();
     };
 
@@ -1021,6 +1024,28 @@ const ProcessContent = forwardRef<
               </div>
             </RadioGroup> */}
           </FormControl>
+
+          {onEdit > 0 && (
+            <div className="flex flex-col my-5 px-[20px]">
+              <TextField
+                label="Date of Creation"
+                sx={{ mt: "-5px" }}
+                fullWidth
+                value={
+                  processCreationDate?.trim().length <= 0 ||
+                  processCreationDate === null
+                    ? ""
+                    : processCreationDate
+                }
+                onChange={() => {}}
+                margin="normal"
+                variant="standard"
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            </div>
+          )}
 
           {/* Footer */}
           <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">

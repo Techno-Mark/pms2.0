@@ -52,7 +52,7 @@ const ClientContent = forwardRef<
 >(({ onEdit, onClose, onOpen, onDataFetch, onChangeLoader }, ref) => {
   const [departmentData, setDepartmentData] = useState([
     "Tax",
-    "Acounting",
+    "Accounting",
     "Audit",
   ]);
   const [departmentDataObj, setDepartmentDataObj] = useState<
@@ -63,7 +63,7 @@ const ClientContent = forwardRef<
     setDepartmentDataObj([
       ...departmentData.map((i: string, index: number) => ({
         id: 0,
-        apiId: i === "Acounting" ? 1 : i === "Audit" ? 2 : i === "Tax" ? 3 : 0,
+        apiId: i === "Accounting" ? 1 : i === "Audit" ? 2 : i === "Tax" ? 3 : 0,
         index: index,
         label: i,
         checkbox: false,
@@ -90,7 +90,7 @@ const ClientContent = forwardRef<
         ...departmentData.map((i: string, index: number) => ({
           id: 0,
           apiId:
-            i === "Acounting" ? 1 : i === "Audit" ? 2 : i === "Tax" ? 3 : 0,
+            i === "Accounting" ? 1 : i === "Audit" ? 2 : i === "Tax" ? 3 : 0,
           index: index,
           label: i,
           checkbox: false,
@@ -701,7 +701,7 @@ const ClientContent = forwardRef<
         ...departmentData.map((i: string, index: number) => ({
           id: 0,
           apiId:
-            i === "Acounting" ? 1 : i === "Audit" ? 2 : i === "Tax" ? 3 : 0,
+            i === "Accounting" ? 1 : i === "Audit" ? 2 : i === "Tax" ? 3 : 0,
           index: index,
           label: i,
           checkbox: false,
@@ -754,6 +754,7 @@ const ClientContent = forwardRef<
     setNoOfLogin("");
     setIsAdditionalFieldsClicked(false);
     setIsAddClientClicked(true);
+    setClientCreationDate("");
   };
 
   const saveClient = async () => {

@@ -44,6 +44,7 @@ interface Response {
   UserReportFilters: any | null;
   List:
     | {
+        EmployeeCode: string;
         DateTimeLogs: DateTimeLog[] | [];
         PresentDays: number | null;
         TotalTimeSpentByUser: string;
@@ -205,6 +206,14 @@ const UserReport = ({
   };
 
   const columns: any[] = [
+    {
+      name: "EmployeeCode",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Employee Code"),
+      },
+    },
     {
       name: "UserName",
       options: {

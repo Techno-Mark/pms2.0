@@ -136,6 +136,16 @@ const reportTaskColConfig = [
 
 const auditColConfig = [
   {
+    header: "TaskId",
+    label: "Task ID",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "EmployeeCode",
+    label: "Employee Code",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     header: "UserName",
     label: "User Name",
     bodyRenderer: generateCommonBodyRender,
@@ -168,6 +178,11 @@ const auditColConfig = [
   {
     header: "ProjectName",
     label: "Project",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "TaskName",
+    label: "Task Name",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -342,6 +357,11 @@ const reportsRatingColConfig = [
 ];
 
 const reportsActivityColConfig = [
+  {
+    header: "EmployeeCode",
+    label: "Employee Code",
+    bodyRenderer: generateCommonBodyRender,
+  },
   {
     header: "UserName",
     label: "User Name",
@@ -566,6 +586,11 @@ const reportsKRAColConfig = [
 ];
 
 const reportsAMColConfig = [
+  {
+    header: "EmployeeCode",
+    label: "Employee Code",
+    bodyRenderer: generateCommonBodyRender,
+  },
   {
     header: "UserName",
     label: "User Name",
@@ -848,6 +873,17 @@ const reportsErrorLogCols = reportsErrorLogColConfig.map((col: any) =>
 );
 
 const reportsUserLogsCols: any[] = [
+  {
+    name: "EmployeeCode",
+    options: {
+      sort: true,
+      filter: true,
+      customHeadLabelRender: () => generateCustomHeaderName("Employee Code"),
+      customBodyRender: (value: string) => {
+        return generateCommonBodyRender(value);
+      },
+    },
+  },
   {
     name: "UserName",
     options: {

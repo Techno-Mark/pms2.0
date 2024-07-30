@@ -38,6 +38,7 @@ const OrganizationContent = forwardRef<
     const [subProcessNameErr, setSubProcessNameErr] = useState(false);
     const [organizationName, setOrganizationName] = useState("");
     const [organizationNameErr, setOrganizationNameErr] = useState(false);
+    const [orgCreationDate, setOrgCreationDate] = useState("");
 
     useEffect(() => {
       setClientName("Client");
@@ -62,6 +63,7 @@ const OrganizationContent = forwardRef<
             setProjectName(ResponseData.ProjectModuleName);
             setProcessName(ResponseData.ProcessModuleName);
             setSubProcessName(ResponseData.SubProcessModuleName);
+            setOrgCreationDate(ResponseData.DateOfCreation);
           } else {
             setOrganizationId(0);
             setOrganizationName("");
@@ -69,6 +71,7 @@ const OrganizationContent = forwardRef<
             setProjectName("");
             setProcessName("");
             setSubProcessName("");
+            setOrgCreationDate("");
           }
         };
         callAPI(url, params, successCallback, "POST");
@@ -94,6 +97,7 @@ const OrganizationContent = forwardRef<
       setSubProcessNameErr(false);
       setOrganizationName("");
       setOrganizationNameErr(false);
+      setOrgCreationDate("");
     };
 
     const clearOrganizationData = async () => {
@@ -368,6 +372,27 @@ const OrganizationContent = forwardRef<
             </div>
           </div>
         </div>
+
+        {onEdit > 0 && (
+          <div className="flex flex-col my-5 px-5">
+            <TextField
+              label="Date of Creation"
+              sx={{ mt: "-5px" }}
+              fullWidth
+              value={
+                orgCreationDate?.trim().length <= 0 || orgCreationDate === null
+                  ? ""
+                  : orgCreationDate
+              }
+              onChange={() => {}}
+              margin="normal"
+              variant="standard"
+              InputProps={{
+                readOnly: true,
+              }}
+            />
+          </div>
+        )}
 
         <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
           <>

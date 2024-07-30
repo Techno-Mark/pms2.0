@@ -317,6 +317,7 @@ export interface ProjectGetByIdList {
   IsActive: boolean;
   ProjectId: number;
   RequestedBy: number | null;
+  DateOfCreation: string;
 }
 
 //Process
@@ -334,6 +335,7 @@ export interface ProcessGetByIdList {
   ProcessId: number;
   RequestedBy: number | null;
   MapAllClients: boolean;
+  DateOfCreation: string;
 }
 
 //Group
@@ -342,6 +344,7 @@ export interface GroupGetByIdList {
   Name: string;
   GroupUserIds: number[];
   Status: number | string;
+  DateOfCreation: string;
 }
 
 //Status
@@ -358,6 +361,7 @@ export interface StatusGetById {
   Type: string;
   WorkTypeDetails: StatusDisplayName[];
   StatusId: number;
+  DateOfCreation: string;
 }
 
 //Org
@@ -368,4 +372,5 @@ export interface OrgGetByIdList {
   ProjectModuleName: string;
   ProcessModuleName: string;
   SubProcessModuleName: string;
+  DateOfCreation: string;
 }
