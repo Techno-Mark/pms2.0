@@ -185,6 +185,17 @@ const DateWiseLogsContent = ({
 
   const datewiselogsColumn = [
     {
+      name: "WorkItemId",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
       name: "TaskName",
       options: {
         filter: true,
