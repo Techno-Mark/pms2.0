@@ -36,6 +36,8 @@ import {
   SettingAction,
   SettingProps,
 } from "@/utils/Types/settingTypes";
+import ToggleSwitch from "../drawer/content/ToggleSwitch";
+import LogDrawer from "../drawer/LogDrawer";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -75,6 +77,7 @@ const Client = ({
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [openProcessDrawer, setOpenProcessDrawer] = useState(false);
   const [openFieldsDrawer, setOpenFieldsDrawer] = useState(false);
+  const [openLogDrawer, setOpenLogDrawer] = useState(false);
 
   useEffect(() => {
     if (onSearchData.trim().length >= 0) {
@@ -156,10 +159,12 @@ const Client = ({
     }
   };
 
-  const handleToggleClient = async () => {
+  const handleToggleClient = async (id: number) => {
+    setIsOpenSwitchModal(false);
     const params = {
       clientId: switchId,
       isActive: switchActive,
+      RequestedBy: id > 0 ? id : null,
     };
     const url = `${process.env.pms_api_url}/client/activeinactive`;
     const successCallback = (
@@ -197,6 +202,11 @@ const Client = ({
     setOpenFieldsDrawer(false);
   };
 
+  const handleCloseLogDrawer = () => {
+    setOpenLogDrawer(false);
+    setSelectedRowId(null);
+  };
+
   const handleActionValue = async (actionId: string, id: number) => {
     setSelectedRowId(id);
     if (actionId.toLowerCase() === "edit") {
@@ -210,6 +220,9 @@ const Client = ({
     }
     if (actionId.toLowerCase() === "fields") {
       setOpenFieldsDrawer(true);
+    }
+    if (actionId.toLowerCase() === "log") {
+      setOpenLogDrawer(true);
     }
   };
 
@@ -238,7 +251,8 @@ const Client = ({
         (action.toLowerCase() === "edit" && canEdit) ||
         (action.toLowerCase() === "delete" && canDelete) ||
         (action.toLowerCase() === "process" && canProcess) ||
-        action.toLowerCase() === "fields"
+        action.toLowerCase() === "fields" ||
+        action.toLowerCase() === "log"
     );
 
     return actionPermissions.length > 0 ? (
@@ -324,7 +338,7 @@ const Client = ({
           customBodyRender: (value: number) => {
             return (
               <Actions
-                actions={["Edit", "Process", "Fields", "Delete"]}
+                actions={["Edit", "Process", "Fields", "Delete", "Log"]}
                 id={value}
               />
             );
@@ -589,7 +603,7 @@ const Client = ({
             )}
 
             {isOpenSwitchModal && (
-              <SwitchModal
+              <ToggleSwitch
                 isOpen={isOpenSwitchModal}
                 onClose={closeSwitchModal}
                 title={`${
@@ -616,8 +630,15 @@ const Client = ({
               selectedRowId={selectedRowId}
             />
 
+            <LogDrawer
+              onOpen={openLogDrawer}
+              onClose={handleCloseLogDrawer}
+              selectedRowId={selectedRowId}
+              type="Client"
+            />
+
             <DrawerOverlay
-              isOpen={openProcessDrawer || openFieldsDrawer}
+              isOpen={openProcessDrawer || openFieldsDrawer || openLogDrawer}
               onClose={handleCloseProcessDrawer}
             />
           </>

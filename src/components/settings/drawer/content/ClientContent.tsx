@@ -63,7 +63,7 @@ const ClientContent = forwardRef<
     setDepartmentDataObj([
       ...departmentData.map((i: string, index: number) => ({
         id: 0,
-        apiId: i === "Acounting" ? 1 : i === "Audit" ? 2 : i === "Tax" ? 3 : 0,
+        apiId: i === "Accounting" ? 1 : i === "Audit" ? 2 : i === "Tax" ? 3 : 0,
         index: index,
         label: i,
         checkbox: false,
@@ -90,7 +90,7 @@ const ClientContent = forwardRef<
         ...departmentData.map((i: string, index: number) => ({
           id: 0,
           apiId:
-            i === "Acounting" ? 1 : i === "Audit" ? 2 : i === "Tax" ? 3 : 0,
+            i === "Accounting" ? 1 : i === "Audit" ? 2 : i === "Tax" ? 3 : 0,
           index: index,
           label: i,
           checkbox: false,
@@ -693,7 +693,6 @@ const ClientContent = forwardRef<
     setDepts([]);
     setDeptName([]);
     setDeptError(false);
-    setClientCreationDate("");
     setUser(0);
     setTel("");
     departmentDataObj.length < 3 &&
@@ -702,7 +701,7 @@ const ClientContent = forwardRef<
         ...departmentData.map((i: string, index: number) => ({
           id: 0,
           apiId:
-            i === "Acounting" ? 1 : i === "Audit" ? 2 : i === "Tax" ? 3 : 0,
+            i === "Accounting" ? 1 : i === "Audit" ? 2 : i === "Tax" ? 3 : 0,
           index: index,
           label: i,
           checkbox: false,
@@ -755,6 +754,7 @@ const ClientContent = forwardRef<
     setNoOfLogin("");
     setIsAdditionalFieldsClicked(false);
     setIsAddClientClicked(true);
+    setClientCreationDate("");
   };
 
   const saveClient = async () => {

@@ -21,6 +21,9 @@ import {
   SettingAction,
   SettingProps,
 } from "@/utils/Types/settingTypes";
+import ToggleSwitch from "../drawer/content/ToggleSwitch";
+import LogDrawer from "../drawer/LogDrawer";
+import DrawerOverlay from "../drawer/DrawerOverlay";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -51,6 +54,7 @@ const Project = ({
   const [loader, setLoader] = useState(true);
   const [data, setData] = useState<ProjectList[]>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isLogOpen, setIsLogOpen] = useState(false);
   const [isOpenSwitchModal, setIsOpenSwitchModal] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [switchId, setSwitchId] = useState(0);
@@ -116,6 +120,11 @@ const Project = ({
     setIsDeleteOpen(false);
   };
 
+  const closeLogModal = () => {
+    setIsLogOpen(false);
+    setSelectedRowId(null);
+  };
+
   const handleDeleteRow = async () => {
     const params = {
       ProjectId: selectedRowId,
@@ -149,10 +158,11 @@ const Project = ({
     await setIsOpenSwitchModal(false);
   };
 
-  const handleToggleProject = async () => {
+  const handleToggleProject = async (id: number) => {
     const params = {
       isActive: switchActive,
       ProjectId: switchId,
+      RequestedBy: id > 0 ? id : null,
     };
     const url = `${process.env.pms_api_url}/project/activeinactive`;
     const successCallback = (
@@ -182,6 +192,9 @@ const Project = ({
     if (actionId.toLowerCase() === "delete") {
       setIsDeleteOpen(true);
     }
+    if (actionId.toLowerCase() === "log") {
+      setIsLogOpen(true);
+    }
   };
 
   const Actions = ({ actions, id }: SettingAction) => {
@@ -207,7 +220,8 @@ const Project = ({
     const actionPermissions = actions.filter(
       (action: string) =>
         (action.toLowerCase() === "edit" && canEdit) ||
-        (action.toLowerCase() === "delete" && canDelete)
+        (action.toLowerCase() === "delete" && canDelete) ||
+        action.toLowerCase() === "log"
     );
 
     return actionPermissions.length > 0 ? (
@@ -291,7 +305,7 @@ const Project = ({
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Actions"),
           customBodyRender: (value: number) => {
-            return <Actions actions={["Edit", "Delete"]} id={value} />;
+            return <Actions actions={["Edit", "Delete", "Log"]} id={value} />;
           },
         },
       };
@@ -492,6 +506,13 @@ const Project = ({
               </ThemeProvider>
             </div>
 
+            <LogDrawer
+              onOpen={isLogOpen}
+              onClose={closeLogModal}
+              selectedRowId={selectedRowId}
+              type="Project"
+            />
+
             {/* Delete Modal */}
             {isDeleteOpen && (
               <DeleteDialog
@@ -506,8 +527,10 @@ const Project = ({
               />
             )}
 
+            <DrawerOverlay isOpen={isLogOpen} onClose={() => {}} />
+
             {isOpenSwitchModal && (
-              <SwitchModal
+              <ToggleSwitch
                 isOpen={isOpenSwitchModal}
                 onClose={closeSwitchModal}
                 title={`${

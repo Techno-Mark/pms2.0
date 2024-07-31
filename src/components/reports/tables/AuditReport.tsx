@@ -28,6 +28,8 @@ interface Response {
   ActualPlannedReportFilters: any | null;
   List:
     | {
+        TaskId: string;
+        EmployeeCode: string;
         ClientName: string;
         ProjectName: string | null;
         TaskDate: string | null;

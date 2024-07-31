@@ -62,6 +62,7 @@ interface LogDetails {
 
 interface List {
   DateWiseLogs: LogDetails[];
+  EmployeeCode: string;
   StdShiftHours: string;
   PresentDays: number;
   TotalTimeSpentByUser: string;
@@ -183,6 +184,17 @@ const DateWiseLogsContent = ({
   };
 
   const datewiselogsColumn = [
+    {
+      name: "WorkItemId",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
     {
       name: "TaskName",
       options: {
@@ -630,6 +642,14 @@ const TimeSheetReport = ({
 
   const columns: any[] = [
     {
+      name: "EmployeeCode",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Employee Code"),
+      },
+    },
+    {
       name: "UserName",
       options: {
         filter: true,
@@ -738,6 +758,30 @@ const TimeSheetReport = ({
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Average Idle Time"),
+        customBodyRender: (value: string) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "NewAvgTotalTime",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("New Avg Total Time"),
+        customBodyRender: (value: string) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "NewPresentDays",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("New Present Days"),
         customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },
