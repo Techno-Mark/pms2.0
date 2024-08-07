@@ -1,9 +1,10 @@
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 import { LabelValue, LabelValueType } from "@/utils/Types/types";
 import {
-  getCCDropdownData,
+  getAssigneeDropdownDataByHierarchy,
   getClientDropdownData,
   getDepartmentDropdownData,
+  getReviewerDropdownDataByHierarchy,
   getStatusDropdownData,
   getTypeOfWorkDropdownData,
 } from "@/utils/commonDropdownApiCall";
@@ -72,7 +73,10 @@ const FilterDialogDashboard = ({
   >([]);
   const [assignees, setAssignees] = useState<LabelValue[] | []>([]);
   const [assigneeName, setAssigneeName] = useState<number[] | []>([]);
-  const [userDropdown, setUserDropdown] = useState<LabelValue[] | []>([]);
+  const [assigneeDropdown, setAssigneeDropdown] = useState<LabelValue[] | []>(
+    []
+  );
+  const [reviewerDropdown, setReviewerDropdown] = useState<LabelValue[]>([]);
   const [reviewers, setReviewers] = useState<LabelValue[] | []>([]);
   const [reviewerName, setReviewerName] = useState<number[] | []>([]);
   const [status, setStatus] = useState<LabelValueType[] | []>([]);
@@ -126,18 +130,27 @@ const FilterDialogDashboard = ({
       { label: "Select All", value: ALLDepartment, Type: "All" },
       ...departmentData.DepartmentList,
     ]);
-    setUserDropdown(await getCCDropdownData());
+  };
+
+  const getDropdowns = async (workType: any) => {
+    setAssigneeDropdown(await getAssigneeDropdownDataByHierarchy(workType));
+    setReviewerDropdown(await getReviewerDropdownDataByHierarchy(workType));
   };
 
   useEffect(() => {
     const customDropdowns = async () => {
       setStatusDropdown(await getStatusDropdownData(workTypeActive?.value));
+      getDropdowns(workTypeActive?.value);
     };
     workTypeActive !== null &&
       workTypeActive?.value > 0 &&
       activeTab === 2 &&
       customDropdowns();
   }, [workTypeActive]);
+
+  useEffect(() => {
+    workTypeActive !== null && workType > 0 && getDropdowns(workType);
+  }, [workTypeActive, workType]);
 
   useEffect(() => {
     if (onOpen === true) {
@@ -406,16 +419,12 @@ const FilterDialogDashboard = ({
                 <Autocomplete
                   multiple
                   id="tags-standard"
-                  options={
-                    userDropdown.length - 1 === assignees.length
-                      ? []
-                      : userDropdown.filter(
-                          (option) =>
-                            !assignees.find(
-                              (assignee) => assignee.value === option.value
-                            )
-                        )
-                  }
+                  options={assigneeDropdown.filter(
+                    (option) =>
+                      !assignees.find(
+                        (assignee) => assignee.value === option.value
+                      )
+                  )}
                   getOptionLabel={(option: LabelValue) => option.label}
                   onChange={(
                     e: React.ChangeEvent<{}>,
@@ -441,16 +450,12 @@ const FilterDialogDashboard = ({
                 <Autocomplete
                   multiple
                   id="tags-standard"
-                  options={
-                    userDropdown.length - 1 === reviewers.length
-                      ? []
-                      : userDropdown.filter(
-                          (option) =>
-                            !reviewers.find(
-                              (reviewer) => reviewer.value === option.value
-                            )
-                        )
-                  }
+                  options={reviewerDropdown.filter(
+                    (option) =>
+                      !reviewers.find(
+                        (reviewer) => reviewer.value === option.value
+                      )
+                  )}
                   getOptionLabel={(option: LabelValue) => option.label}
                   onChange={(
                     e: React.ChangeEvent<{}>,

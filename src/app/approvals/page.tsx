@@ -23,6 +23,7 @@ import { FilterWorklogsPage } from "@/utils/Types/worklogsTypes";
 import { callAPI } from "@/utils/API/callAPI";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import FilterDialog from "@/components/approvals/FilterDialog";
+import WrapperNavbar from "@/components/common/WrapperNavbar";
 
 const exportBody = {
   pageNo: 1,
@@ -286,67 +287,65 @@ const Page = () => {
   };
 
   return (
-    <Wrapper>
+    <WrapperNavbar>
       <IdleTimer onIdle={() => window.location.reload()} />
-      <div>
-        <Navbar />
-        <div className="bg-white flex justify-between items-center px-[20px]">
-          <div className="flex gap-[10px] items-center py-[6.5px]">
-            <span
-              className={`py-[10px] cursor-pointer select-none text-[16px] ${
-                activeTab === 1
-                  ? "text-secondary font-semibold"
-                  : "text-slatyGrey"
-              }`}
-              onClick={() => {
-                setActiveTab(1);
-                // setCurrentFilterData({ PageNo: 1, PageSize: 10 });
-                setGlobalSearchValue("");
-                setSearch("");
-              }}
-            >
-              Review
-            </span>
-            <span className="text-lightSilver">|</span>
-            <span
-              className={`py-[10px] cursor-pointer select-none text-[16px] ${
-                activeTab === 2
-                  ? "text-secondary font-semibold"
-                  : "text-slatyGrey"
-              }`}
-              onClick={() => {
-                setActiveTab(2);
-                // setCurrentFilterData({ PageNo: 1, PageSize: 10 });
-                setGlobalSearchValue("");
-                setSearch("");
-              }}
-            >
-              All Task
-            </span>
-          </div>
-          <div className="flex gap-[20px] items-center">
-            {activeTab === 1 && (
-              <div className="flex flex-col items-end justify-center text-sm">
-                <span className="text-secondary font-light">
-                  Reviewer Total time: {timeValue}
-                </span>
-                <span className="text-secondary font-light">
-                  Preparer Total time: {preperorTimeValue}
-                </span>
-              </div>
-            )}
-            <div className="relative">
-              <InputBase
-                className="pl-1 pr-7 border-b border-b-lightSilver w-52"
-                placeholder="Search"
-                value={search}
-                onChange={(e) => handleSearchChange(e.target.value)}
-              />
-              <span className="absolute top-2 right-2 text-slatyGrey">
-                <SearchIcon />
+      <div className="bg-white flex justify-between items-center px-[20px]">
+        <div className="flex gap-[10px] items-center py-[6.5px]">
+          <span
+            className={`py-[10px] cursor-pointer select-none text-[16px] ${
+              activeTab === 1
+                ? "text-secondary font-semibold"
+                : "text-slatyGrey"
+            }`}
+            onClick={() => {
+              setActiveTab(1);
+              // setCurrentFilterData({ PageNo: 1, PageSize: 10 });
+              setGlobalSearchValue("");
+              setSearch("");
+            }}
+          >
+            Review
+          </span>
+          <span className="text-lightSilver">|</span>
+          <span
+            className={`py-[10px] cursor-pointer select-none text-[16px] ${
+              activeTab === 2
+                ? "text-secondary font-semibold"
+                : "text-slatyGrey"
+            }`}
+            onClick={() => {
+              setActiveTab(2);
+              // setCurrentFilterData({ PageNo: 1, PageSize: 10 });
+              setGlobalSearchValue("");
+              setSearch("");
+            }}
+          >
+            All Task
+          </span>
+        </div>
+        <div className="flex gap-[20px] items-center">
+          {activeTab === 1 && (
+            <div className="flex flex-col items-end justify-center text-sm">
+              <span className="text-secondary font-light">
+                Reviewer Total time: {timeValue}
+              </span>
+              <span className="text-secondary font-light">
+                Preparer Total time: {preperorTimeValue}
               </span>
             </div>
-            {/* <ColorToolTip title="Filter" placement="top" arrow>
+          )}
+          <div className="relative">
+            <InputBase
+              className="pl-1 pr-7 border-b border-b-lightSilver w-52"
+              placeholder="Search"
+              value={search}
+              onChange={(e) => handleSearchChange(e.target.value)}
+            />
+            <span className="absolute top-2 right-2 text-slatyGrey">
+              <SearchIcon />
+            </span>
+          </div>
+          {/* <ColorToolTip title="Filter" placement="top" arrow>
               <span
                 className="cursor-pointer"
                 onClick={() => setIsFilterOpen(true)}
@@ -355,210 +354,207 @@ const Page = () => {
               </span>
             </ColorToolTip> */}
 
-            {filterList.length > 0 && activeTab === 2 ? (
-              <div>
-                <span
-                  aria-describedby={idFilter}
-                  onClick={handleClickFilter}
-                  className="cursor-pointer"
-                >
-                  <FilterIcon />
-                </span>
+          {filterList.length > 0 && activeTab === 2 ? (
+            <div>
+              <span
+                aria-describedby={idFilter}
+                onClick={handleClickFilter}
+                className="cursor-pointer"
+              >
+                <FilterIcon />
+              </span>
 
-                <Popover
-                  id={idFilter}
-                  open={openFilter}
-                  anchorEl={anchorElFilter}
-                  onClose={handleCloseAllFilter}
-                  anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "right",
-                  }}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                >
-                  <div className="flex flex-col py-2 w-[250px]">
-                    <span
-                      className="p-2 cursor-pointer hover:bg-lightGray"
-                      onClick={() => {
-                        setIsFilterOpen(true);
-                        setCurrentFilterId(0);
-                        handleCloseAllFilter();
-                      }}
-                    >
-                      Default Filter
+              <Popover
+                id={idFilter}
+                open={openFilter}
+                anchorEl={anchorElFilter}
+                onClose={handleCloseAllFilter}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+              >
+                <div className="flex flex-col py-2 w-[250px]">
+                  <span
+                    className="p-2 cursor-pointer hover:bg-lightGray"
+                    onClick={() => {
+                      setIsFilterOpen(true);
+                      setCurrentFilterId(0);
+                      handleCloseAllFilter();
+                    }}
+                  >
+                    Default Filter
+                  </span>
+                  <hr className="text-lightSilver mt-2" />
+
+                  <span className="py-3 px-2 relative">
+                    <InputBase
+                      className="pr-7 border-b border-b-slatyGrey w-full"
+                      placeholder="Search saved filters"
+                      inputProps={{ "aria-label": "search" }}
+                      value={searchValue}
+                      onChange={(e) =>
+                        handleSearchChangeWorklog(e.target.value)
+                      }
+                      sx={{ fontSize: 14 }}
+                    />
+                    <span className="absolute top-4 right-3 text-slatyGrey">
+                      <SearchIcon />
                     </span>
-                    <hr className="text-lightSilver mt-2" />
+                  </span>
 
-                    <span className="py-3 px-2 relative">
-                      <InputBase
-                        className="pr-7 border-b border-b-slatyGrey w-full"
-                        placeholder="Search saved filters"
-                        inputProps={{ "aria-label": "search" }}
-                        value={searchValue}
-                        onChange={(e) =>
-                          handleSearchChangeWorklog(e.target.value)
-                        }
-                        sx={{ fontSize: 14 }}
-                      />
-                      <span className="absolute top-4 right-3 text-slatyGrey">
-                        <SearchIcon />
-                      </span>
-                    </span>
-
-                    {filteredFilters.map((i: FilterWorklogsPage) => {
-                      return (
-                        <div
-                          key={i.FilterId}
-                          className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
+                  {filteredFilters.map((i: FilterWorklogsPage) => {
+                    return (
+                      <div
+                        key={i.FilterId}
+                        className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
+                      >
+                        <span
+                          className="pl-1"
+                          onClick={() => {
+                            setclickedFilterId(i.FilterId);
+                            handleCloseAllFilter();
+                          }}
                         >
+                          {i.Name}
+                        </span>
+                        <span className="flex gap-[10px] pr-[10px]">
                           <span
-                            className="pl-1"
                             onClick={() => {
-                              setclickedFilterId(i.FilterId);
+                              setCurrentFilterId(i.FilterId);
+                              setIsFilterOpen(true);
                               handleCloseAllFilter();
                             }}
                           >
-                            {i.Name}
+                            <Tooltip title="Edit" placement="top" arrow>
+                              <Edit className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
+                            </Tooltip>
                           </span>
-                          <span className="flex gap-[10px] pr-[10px]">
-                            <span
-                              onClick={() => {
-                                setCurrentFilterId(i.FilterId);
-                                setIsFilterOpen(true);
-                                handleCloseAllFilter();
-                              }}
-                            >
-                              <Tooltip title="Edit" placement="top" arrow>
-                                <Edit className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
-                              </Tooltip>
-                            </span>
-                            <span
-                              onClick={() => {
-                                setIsDeleteOpen(true);
-                                setCurrentFilterId(i.FilterId);
-                                handleCloseAllFilter();
-                              }}
-                            >
-                              <Tooltip title="Delete" placement="top" arrow>
-                                <Delete className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
-                              </Tooltip>
-                            </span>
+                          <span
+                            onClick={() => {
+                              setIsDeleteOpen(true);
+                              setCurrentFilterId(i.FilterId);
+                              handleCloseAllFilter();
+                            }}
+                          >
+                            <Tooltip title="Delete" placement="top" arrow>
+                              <Delete className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
+                            </Tooltip>
                           </span>
-                        </div>
-                      );
-                    })}
-                    <hr className="text-lightSilver mt-2" />
-                    <Button
-                      onClick={() => {
-                        setclickedFilterId(0);
-                        handleCloseAllFilter();
-                      }}
-                      className="mt-2"
-                      color="error"
-                    >
-                      clear all
-                    </Button>
-                  </div>
-                </Popover>
-              </div>
-            ) : (
-              <ColorToolTip title="Filter" placement="top" arrow>
-                <span
-                  className="cursor-pointer"
-                  onClick={() => setIsFilterOpen(true)}
-                >
-                  <FilterIcon />
-                </span>
-              </ColorToolTip>
-            )}
-
-            <ColorToolTip title="Export" placement="top" arrow>
+                        </span>
+                      </div>
+                    );
+                  })}
+                  <hr className="text-lightSilver mt-2" />
+                  <Button
+                    onClick={() => {
+                      setclickedFilterId(0);
+                      handleCloseAllFilter();
+                    }}
+                    className="mt-2"
+                    color="error"
+                  >
+                    clear all
+                  </Button>
+                </div>
+              </Popover>
+            </div>
+          ) : (
+            <ColorToolTip title="Filter" placement="top" arrow>
               <span
-                className={
-                  canExport
-                    ? "cursor-pointer"
-                    : "pointer-events-none opacity-50"
-                }
-                onClick={canExport ? handleExport : undefined}
+                className="cursor-pointer"
+                onClick={() => setIsFilterOpen(true)}
               >
-                {isExporting ? <Loading /> : <ExportIcon />}
+                <FilterIcon />
               </span>
             </ColorToolTip>
-          </div>
+          )}
+
+          <ColorToolTip title="Export" placement="top" arrow>
+            <span
+              className={
+                canExport ? "cursor-pointer" : "pointer-events-none opacity-50"
+              }
+              onClick={canExport ? handleExport : undefined}
+            >
+              {isExporting ? <Loading /> : <ExportIcon />}
+            </span>
+          </ColorToolTip>
         </div>
-        <Datatable
-          activeTab={activeTab}
-          searchValue={globalSearchValue}
-          onDataFetch={handleDataFetch}
-          onEdit={handleEdit}
-          // onDrawerOpen={handleDrawerOpen}
-          onCurrentFilterId={clickedFilterId}
-          currentFilterData={currentFilterData}
-          onFilterOpen={isFilterOpen}
-          onCloseDrawer={openDrawer}
-          onComment={handleSetComments}
-          onErrorLog={handleSetError}
-          onManualTime={handleSetManual}
-          onHandleExport={handleCanExport}
-          onChangeLoader={(e: string | null) => setTimeValue(e)}
-          onChangePreperorLoader={(e: string | null) => setPreperorTimeValue(e)}
-        />
-
-        <Drawer
-          activeTab={activeTab}
-          onDataFetch={dataFunction}
-          onOpen={openDrawer}
-          onClose={handleDrawerClose}
-          onEdit={hasEditId}
-          // hasIconIndex={iconIndex > 0 ? iconIndex : 0}
-          onHasId={hasId}
-          onComment={hasComment}
-          onErrorLog={hasError}
-          onManualTime={hasManual}
-        />
-
-        {activeTab === 1 && (
-          <FilterDialogApproval
-            activeTab={activeTab}
-            onOpen={isFilterOpen}
-            onClose={handleCloseFilter}
-            onDataFetch={() => {}}
-            currentFilterData={getIdFromFilterDialog}
-          />
-        )}
-
-        {activeTab === 2 && (
-          <FilterDialog
-            getIdFromFilterDialog={getIdFromFilterDialog}
-            onOpen={isFilterOpen}
-            onClose={closeFilterModal}
-            onActionClick={() => {}}
-            onDataFetch={getFilterList}
-            onCurrentFilterId={currentFilterId}
-            currentFilterData={currentFilterData}
-          />
-        )}
-
-        {/* Delete Dialog Box */}
-        {activeTab === 2 && (
-          <DeleteDialog
-            isOpen={isDeleteOpen}
-            onClose={closeDeleteModal}
-            onActionClick={() => {
-              deleteFilter(currentFilterId);
-            }}
-            Title={"Delete Filter"}
-            firstContent={"Are you sure you want to delete this saved filter?"}
-            secondContent={
-              "If you delete this, you will permanently loose this saved filter and selected fields."
-            }
-          />
-        )}
       </div>
-    </Wrapper>
+      <Datatable
+        activeTab={activeTab}
+        searchValue={globalSearchValue}
+        onDataFetch={handleDataFetch}
+        onEdit={handleEdit}
+        // onDrawerOpen={handleDrawerOpen}
+        onCurrentFilterId={clickedFilterId}
+        currentFilterData={currentFilterData}
+        onFilterOpen={isFilterOpen}
+        onCloseDrawer={openDrawer}
+        onComment={handleSetComments}
+        onErrorLog={handleSetError}
+        onManualTime={handleSetManual}
+        onHandleExport={handleCanExport}
+        onChangeLoader={(e: string | null) => setTimeValue(e)}
+        onChangePreperorLoader={(e: string | null) => setPreperorTimeValue(e)}
+      />
+
+      <Drawer
+        activeTab={activeTab}
+        onDataFetch={dataFunction}
+        onOpen={openDrawer}
+        onClose={handleDrawerClose}
+        onEdit={hasEditId}
+        // hasIconIndex={iconIndex > 0 ? iconIndex : 0}
+        onHasId={hasId}
+        onComment={hasComment}
+        onErrorLog={hasError}
+        onManualTime={hasManual}
+      />
+
+      {activeTab === 1 && (
+        <FilterDialogApproval
+          activeTab={activeTab}
+          onOpen={isFilterOpen}
+          onClose={handleCloseFilter}
+          onDataFetch={() => {}}
+          currentFilterData={getIdFromFilterDialog}
+        />
+      )}
+
+      {activeTab === 2 && (
+        <FilterDialog
+          getIdFromFilterDialog={getIdFromFilterDialog}
+          onOpen={isFilterOpen}
+          onClose={closeFilterModal}
+          onActionClick={() => {}}
+          onDataFetch={getFilterList}
+          onCurrentFilterId={currentFilterId}
+          currentFilterData={currentFilterData}
+        />
+      )}
+
+      {/* Delete Dialog Box */}
+      {activeTab === 2 && (
+        <DeleteDialog
+          isOpen={isDeleteOpen}
+          onClose={closeDeleteModal}
+          onActionClick={() => {
+            deleteFilter(currentFilterId);
+          }}
+          Title={"Delete Filter"}
+          firstContent={"Are you sure you want to delete this saved filter?"}
+          secondContent={
+            "If you delete this, you will permanently loose this saved filter and selected fields."
+          }
+        />
+      )}
+    </WrapperNavbar>
   );
 };
 

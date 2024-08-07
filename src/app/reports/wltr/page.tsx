@@ -3,6 +3,7 @@ import FilterIcon from "@/assets/icons/FilterIcon";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
+import WrapperNavbar from "@/components/common/WrapperNavbar";
 import WltrProjectReportFilter from "@/components/reports/Filter/WltrProjectReportFilter";
 import WltrProjectReport from "@/components/reports/tables/WltrProjectReport";
 import { WLTRProjectInitialParmas } from "@/utils/Types/reportTypes";
@@ -37,65 +38,62 @@ const Page = () => {
   };
 
   return (
-    <Wrapper>
-      <div>
-        <Navbar />
-        <div className="w-full pr-5 flex items-center justify-between my-3">
-          <div className="flex items-center justify-center gap-5 ml-4 text-darkCharcoal text-[14px]">
-            <p>
-              <span className="text-secondary font-semibold">Total QTY.: </span>
-              {totalQuantity}
-            </p>
-            <p>
-              <span className="text-secondary font-semibold">
-                Total STD Time:
-              </span>
-              {totalSTDTime}
-            </p>
-            <p>
-              <span className="text-secondary font-semibold">Total Time: </span>
-              {totalTime}
-            </p>
-          </div>
-          <div className="h-full flex items-center gap-5">
-            <div className="relative">
-              <InputBase
-                className="pl-1 pr-7 border-b border-b-lightSilver w-52"
-                placeholder="Search"
-                value={search}
-                onChange={(e) => handleSearchChange(e.target.value)}
-              />
-              <span className="absolute top-2 right-2 text-slatyGrey">
-                <SearchIcon />
-              </span>
-            </div>
-
-            <ColorToolTip title="Filter" placement="top" arrow>
-              <span
-                className="cursor-pointer relative"
-                onClick={() => {
-                  setIsFiltering(true);
-                }}
-              >
-                <FilterIcon />
-              </span>
-            </ColorToolTip>
-          </div>
+    <WrapperNavbar>
+      <div className="w-full pr-5 flex items-center justify-between my-3">
+        <div className="flex items-center justify-center gap-5 ml-4 text-darkCharcoal text-[14px]">
+          <p>
+            <span className="text-secondary font-semibold">Total QTY.: </span>
+            {totalQuantity}
+          </p>
+          <p>
+            <span className="text-secondary font-semibold">
+              Total STD Time:
+            </span>
+            {totalSTDTime}
+          </p>
+          <p>
+            <span className="text-secondary font-semibold">Total Time: </span>
+            {totalTime}
+          </p>
         </div>
-        <WltrProjectReport
-          searchValue={searchValue}
-          filteredData={filteredData}
-          getTotalQuanitiy={(e: string | null | number) => setTotalQuantity(e)}
-          getTotalTime={(e: string | null) => setTotalTime(e)}
-          getTotalSTDTime={(e: string | null) => setTotalSTDTime(e)}
-        />
-        <WltrProjectReportFilter
-          isFiltering={isFiltering}
-          sendFilterToPage={handleFilterData}
-          onDialogClose={handleFilter}
-        />
+        <div className="h-full flex items-center gap-5">
+          <div className="relative">
+            <InputBase
+              className="pl-1 pr-7 border-b border-b-lightSilver w-52"
+              placeholder="Search"
+              value={search}
+              onChange={(e) => handleSearchChange(e.target.value)}
+            />
+            <span className="absolute top-2 right-2 text-slatyGrey">
+              <SearchIcon />
+            </span>
+          </div>
+
+          <ColorToolTip title="Filter" placement="top" arrow>
+            <span
+              className="cursor-pointer relative"
+              onClick={() => {
+                setIsFiltering(true);
+              }}
+            >
+              <FilterIcon />
+            </span>
+          </ColorToolTip>
+        </div>
       </div>
-    </Wrapper>
+      <WltrProjectReport
+        searchValue={searchValue}
+        filteredData={filteredData}
+        getTotalQuanitiy={(e: string | null | number) => setTotalQuantity(e)}
+        getTotalTime={(e: string | null) => setTotalTime(e)}
+        getTotalSTDTime={(e: string | null) => setTotalSTDTime(e)}
+      />
+      <WltrProjectReportFilter
+        isFiltering={isFiltering}
+        sendFilterToPage={handleFilterData}
+        onDialogClose={handleFilter}
+      />
+    </WrapperNavbar>
   );
 };
 

@@ -145,6 +145,7 @@ const Page = () => {
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [canExport, setCanExport] = useState<boolean>(false);
   const [isHalfDay, setIsHalfDay] = useState<boolean>(false);
+  const [emailNotificationOpen, setEmailNotificationOpen] = useState(false);
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
@@ -408,7 +409,10 @@ const Page = () => {
     <Wrapper>
       <IdleTimer onIdle={() => window.location.reload()} />
       <div>
-        <Navbar onUserDetailsFetch={handleUserDetailsFetch} />
+        <Navbar
+          onUserDetailsFetch={handleUserDetailsFetch}
+          setEmailNotificationOpen={setEmailNotificationOpen}
+        />
         <div className="bg-white flex justify-between items-center px-[20px]">
           <div className="flex gap-[10px] items-center py-[6.5px]">
             <label
@@ -870,6 +874,7 @@ const Page = () => {
           "If you delete this, you will permanently loose this saved filter and selected fields."
         }
       />
+      <DrawerOverlay isOpen={emailNotificationOpen} onClose={() => {}} />
     </Wrapper>
   );
 };

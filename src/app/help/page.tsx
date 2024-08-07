@@ -1,11 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Wrapper from "@/components/common/Wrapper";
-import Navbar from "@/components/common/Navbar";
 import { Button, Grid } from "@mui/material";
 import ReactPlayer from "react-player";
 import { callAPI } from "@/utils/API/callAPI";
 import ReportLoader from "@/components/common/ReportLoader";
+import WrapperNavbar from "@/components/common/WrapperNavbar";
 
 const Page = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -41,9 +40,8 @@ const Page = () => {
     activeTab === 2 && getVideos();
   }, [activeTab]);
   return (
-    <Wrapper>
-      <div className="h-screen overflow-x-hidden overflow-y-auto">
-        <Navbar />
+    <WrapperNavbar>
+      <div className="h-screen overflow-x-hidden overflow-y-auto pb-4">
         <div className="bg-white flex justify-between items-center px-[20px]">
           <div className="flex gap-[10px] items-center py-[6.5px]">
             <label
@@ -169,7 +167,7 @@ const Page = () => {
           </Grid>
         )}
       </div>
-    </Wrapper>
+    </WrapperNavbar>
   );
 };
 
