@@ -13,7 +13,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
+  return ( 
     <html lang="en">
       <body className={`!font-proxima select-none !p-0 overflow-hidden`}>
         <MainWrapper>{children}</MainWrapper>
