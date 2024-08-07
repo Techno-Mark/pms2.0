@@ -41,7 +41,7 @@ const Page = () => {
   }, [activeTab]);
   return (
     <WrapperNavbar>
-      <div className="h-screen overflow-x-hidden overflow-y-auto pb-4">
+      <div className="h-[90vh] overflow-x-hidden overflow-y-scroll pb-4">
         <div className="bg-white flex justify-between items-center px-[20px]">
           <div className="flex gap-[10px] items-center py-[6.5px]">
             <label

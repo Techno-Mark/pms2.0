@@ -36,6 +36,7 @@ import {
 } from "@/utils/Types/worklogsTypes";
 import HistoryDatatable from "@/components/worklogs/TaskHistory/HistoryDatatable";
 import HistoryFilterDialog from "@/components/worklogs/TaskHistory/HistoryFilterDialog";
+import NotificationDrawer from "@/components/common/NotificationDrawer";
 
 interface BreakData {
   BreakId: null | number;
@@ -873,6 +874,10 @@ const Page = () => {
         secondContent={
           "If you delete this, you will permanently loose this saved filter and selected fields."
         }
+      />
+      <NotificationDrawer
+        emailNotificationOpen={emailNotificationOpen}
+        setEmailNotificationOpen={setEmailNotificationOpen}
       />
       <DrawerOverlay isOpen={emailNotificationOpen} onClose={() => {}} />
     </Wrapper>

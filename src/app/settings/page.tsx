@@ -50,6 +50,7 @@ import {
 } from "@/utils/Types/types";
 import { getDepartmentDropdownData } from "@/utils/commonDropdownApiCall";
 import Notification from "@/components/settings/tables/Notification";
+import NotificationDrawer from "@/components/common/NotificationDrawer";
 
 interface Tabs {
   id: string;
@@ -1221,6 +1222,10 @@ const Page = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <NotificationDrawer
+        emailNotificationOpen={emailNotificationOpen}
+        setEmailNotificationOpen={setEmailNotificationOpen}
+      />
       <DrawerOverlay isOpen={emailNotificationOpen} onClose={() => {}} />
     </Wrapper>
   );
