@@ -1,5 +1,6 @@
 import ReportLoader from "@/components/common/ReportLoader";
 import { callAPI } from "@/utils/API/callAPI";
+import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { NotificationProps } from "@/utils/Types/settingTypes";
 import {
   Table,
@@ -12,6 +13,7 @@ import {
   TableContainer,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 const Notification = ({
   onOpen,
@@ -97,6 +99,7 @@ const Notification = ({
       if (ResponseStatus === "Success" && error === false) {
         setChangedNotifications([]);
         setSaveDepartmentData(false);
+        toast.success("Notification updated successfully.");
       }
       setLoading(false);
     };
@@ -133,6 +136,13 @@ const Notification = ({
                   <TableCell align="center" sx={{ width: "500px" }}>
                     <Checkbox
                       checked={notification.IsChecked}
+                      disabled={
+                        !hasPermissionWorklog(
+                          "Notification",
+                          "save",
+                          "settings"
+                        )
+                      }
                       onChange={() =>
                         handleCheckboxChange(notification.NotificationId)
                       }

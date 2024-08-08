@@ -416,8 +416,8 @@ const Page = () => {
     });
 
     setTabs(updatedTabs);
-    setVisibleTabs(updatedTabs.slice(0, 8));
-    setDropdownTabs(updatedTabs.slice(8));
+    setVisibleTabs(updatedTabs.slice(0, 9));
+    setDropdownTabs(updatedTabs.slice(9));
   };
 
   useEffect(() => {
@@ -622,7 +622,7 @@ const Page = () => {
     }, 500);
     return () => clearTimeout(timer);
   };
-
+  
   return (
     <Wrapper className="min-h-screen overflow-y-auto">
       <Navbar
@@ -646,7 +646,7 @@ const Page = () => {
                     key={tab.id}
                     onClick={() => handleTabClick(tab.id, index)}
                     className={`text-[16px] ${
-                      array.length === 8 ? "px-2" : "px-4"
+                      array.length === 9 ? "px-1" : "px-2"
                     } cursor-pointer select-none flex items-center justify-center ${
                       selectedTabIndex === index
                         ? "text-[#0592C6] font-semibold"
@@ -654,7 +654,7 @@ const Page = () => {
                     } ${
                       index < array.length - 1
                         ? "border-r border-r-lightSilver h-3"
-                        : `${array.length === 8 ? "px-2" : "px-4"}`
+                        : `${array.length === 9 ? "px-1" : "px-2"}`
                     }`}
                   >
                     {tab.label}

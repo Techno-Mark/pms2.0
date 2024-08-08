@@ -12,6 +12,7 @@ import {
 import { Close } from "@mui/icons-material";
 import { callAPI } from "@/utils/API/callAPI";
 import ReportLoader from "@/components/common/ReportLoader";
+import { hasPermissionWorklog } from "@/utils/commonFunction";
 
 const NotificationDrawer = ({
   emailNotificationOpen,
@@ -131,6 +132,13 @@ const NotificationDrawer = ({
                     <TableCell align="center">
                       <Checkbox
                         checked={notification.IsChecked}
+                        disabled={
+                          !hasPermissionWorklog(
+                            "Notification",
+                            "save",
+                            "settings"
+                          )
+                        }
                         onChange={() =>
                           handleCheckboxChange(notification.NotificationId)
                         }
