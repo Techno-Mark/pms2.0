@@ -4,7 +4,7 @@ import LogoutIcon from "@/assets/icons/LogoutIcon";
 import { Avatar } from "@mui/material";
 import Dropdown from "./Dropdown";
 import { useRouter } from "next/navigation";
-import { handleLogoutUtil, hasPermissionWorklog } from "@/utils/commonFunction";
+import { handleLogoutUtil } from "@/utils/commonFunction";
 import { callAPI } from "@/utils/API/callAPI";
 import { LabelValueType, Organization, User } from "@/utils/Types/types";
 import Notification from "@/assets/icons/Notification";
@@ -258,15 +258,7 @@ const Navbar = (props: NavbarPropsType) => {
                 </Avatar>
               </span>
               {openLogoutNavbar && (
-                <div
-                  className={`absolute top-[55px] rounded-md -right-2 w-50 px-5 flex flex-col whitespace-nowrap gap-2 items-start justify-center bg-pureWhite shadow-xl z-50 ${
-                    !!userDataNavbar &&
-                    userDataNavbar.IsClientUser == false &&
-                    hasPermissionWorklog("Notification", "view", "settings")
-                      ? "h-20"
-                      : "h-12"
-                  }`}
-                >
+                <div className="absolute top-[55px] rounded-md -right-2 w-50 px-5 flex flex-col whitespace-nowrap gap-2 items-start justify-center bg-pureWhite shadow-xl z-50 h-20">
                   <span
                     onClick={handleLogout}
                     className="flex items-center justify-start cursor-pointer hover:text-defaultRed"
@@ -276,25 +268,23 @@ const Navbar = (props: NavbarPropsType) => {
                     </span>
                     &nbsp;Logout
                   </span>
-                  {hasPermissionWorklog("Notification", "view", "settings") && (
-                    <div>
-                      {!!userDataNavbar &&
-                        userDataNavbar.IsClientUser == false && (
-                          <span
-                            onClick={() => {
-                              props.setEmailNotificationOpen(true);
-                              setOpenLogoutNavbar(false);
-                            }}
-                            className="flex items-center justify-start cursor-pointer hover:text-defaultRed"
-                          >
-                            <span className="!rotate-0">
-                              <Notification />
-                            </span>
-                            &nbsp;Email Notification
+                  <div>
+                    {!!userDataNavbar &&
+                      userDataNavbar.IsClientUser == false && (
+                        <span
+                          onClick={() => {
+                            props.setEmailNotificationOpen(true);
+                            setOpenLogoutNavbar(false);
+                          }}
+                          className="flex items-center justify-start cursor-pointer hover:text-defaultRed"
+                        >
+                          <span className="!rotate-0">
+                            <Notification />
                           </span>
-                        )}
-                    </div>
-                  )}
+                          &nbsp;Email Notification
+                        </span>
+                      )}
+                  </div>
                 </div>
               )}
             </div>

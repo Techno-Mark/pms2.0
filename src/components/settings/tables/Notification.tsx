@@ -99,7 +99,7 @@ const Notification = ({
       if (ResponseStatus === "Success" && error === false) {
         setChangedNotifications([]);
         setSaveDepartmentData(false);
-        toast.success("Notification updated successfully.");
+        toast.success("Notification updated successfully.")
       }
       setLoading(false);
     };

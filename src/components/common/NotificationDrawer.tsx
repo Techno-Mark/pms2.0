@@ -97,8 +97,8 @@ const NotificationDrawer = ({
           emailNotificationOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 ease-in-out`}
       >
-        <div className="sticky top-0 !h-[7%] bg-whiteSmoke border-b z-30 border-lightSilver">
-          <div className="flex p-[6px] justify-between items-center">
+        <div className="sticky top-0 !h-[7%] flex items-center justify-between w-full bg-whiteSmoke border-b z-30 border-lightSilver">
+          <div className="flex p-[6px] justify-between items-center w-full">
             <div className="flex items-center py-[6.5px] pl-[5px]">
               Email Notifications
             </div>
@@ -132,13 +132,13 @@ const NotificationDrawer = ({
                     <TableCell align="center">
                       <Checkbox
                         checked={notification.IsChecked}
-                        disabled={
-                          !hasPermissionWorklog(
-                            "Notification",
-                            "save",
-                            "settings"
-                          )
-                        }
+                        // disabled={
+                        //   !hasPermissionWorklog(
+                        //     "Notification",
+                        //     "save",
+                        //     "settings"
+                        //   )
+                        // }
                         onChange={() =>
                           handleCheckboxChange(notification.NotificationId)
                         }
