@@ -8,6 +8,8 @@ import {
   TableHead,
   TableRow,
   Checkbox,
+  TableContainer,
+  Paper,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { callAPI } from "@/utils/API/callAPI";
@@ -35,7 +37,7 @@ const NotificationDrawer = ({
       ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        setData(ResponseData);
+        setData(!!ResponseData ? ResponseData : []);
       }
       setLoading(false);
     };
@@ -112,43 +114,54 @@ const NotificationDrawer = ({
             </Tooltip>
           </div>
         </div>
-        <div className="!h-[91%] p-4">
+        <div className="!h-[93%]">
           {loading && <ReportLoader />}
           {!loading && data.length === 0 && <p>No data found</p>}
           {!loading && data.length > 0 && (
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell style={{ width: "auto" }}>Name</TableCell>
-                  <TableCell align="center" style={{ width: "50px" }}>
-                    IsChecked
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {notificationList.map((notification) => (
-                  <TableRow key={notification.NotificationId}>
-                    <TableCell>{notification.Name}</TableCell>
-                    <TableCell align="center">
-                      <Checkbox
-                        checked={notification.IsChecked}
-                        // disabled={
-                        //   !hasPermissionWorklog(
-                        //     "Notification",
-                        //     "save",
-                        //     "settings"
-                        //   )
-                        // }
-                        onChange={() =>
-                          handleCheckboxChange(notification.NotificationId)
-                        }
-                        style={{ marginLeft: "auto", marginRight: "auto" }}
-                      />
+            <TableContainer component={Paper} style={{ maxHeight: "100%" }}>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <TableCell
+                      style={{ width: "auto", padding: "20px 20px" }}
+                      className="font-bold"
+                    >
+                      Name
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      style={{ width: "50px" }}
+                      className="font-bold"
+                    >
+                      IsChecked
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {notificationList.map((notification) => (
+                    <TableRow key={notification.NotificationId}>
+                      <TableCell>{notification.Name}</TableCell>
+                      <TableCell align="center">
+                        <Checkbox
+                          checked={notification.IsChecked}
+                          // disabled={
+                          //   !hasPermissionWorklog(
+                          //     "Notification",
+                          //     "save",
+                          //     "settings"
+                          //   )
+                          // }
+                          onChange={() =>
+                            handleCheckboxChange(notification.NotificationId)
+                          }
+                          style={{ marginLeft: "auto", marginRight: "auto" }}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           )}
         </div>
       </div>
