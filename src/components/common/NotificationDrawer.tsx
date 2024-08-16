@@ -107,7 +107,10 @@ const NotificationDrawer = ({
             <Tooltip title="Close" placement="left" arrow>
               <IconButton
                 className="mr-[10px]"
-                onClick={() => setEmailNotificationOpen(false)}
+                onClick={() => {
+                  setEmailNotificationOpen(false);
+                  setData([]);
+                }}
               >
                 <Close />
               </IconButton>
