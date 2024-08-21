@@ -44,9 +44,13 @@ import { Delete, Edit } from "@mui/icons-material";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import {
   LabelValue,
+  LabelValueType,
   LabelValueTypeIsDefault,
   MenuItem,
 } from "@/utils/Types/types";
+import { getDepartmentDropdownData } from "@/utils/commonDropdownApiCall";
+import Notification from "@/components/settings/tables/Notification";
+import NotificationDrawer from "@/components/common/NotificationDrawer";
 
 interface Tabs {
   id: string;
@@ -64,6 +68,7 @@ const initialTabs = [
   { id: "Process", label: "Process", canView: false },
   { id: "Status", label: "Status", canView: false },
   { id: "Permission", label: "Permissions", canView: false },
+  { id: "Notification", label: "Notification", canView: false },
   { id: "Organization", label: "Organization", canView: true },
 ];
 
@@ -124,6 +129,10 @@ const Page = () => {
     MenuItem[] | []
   >([]);
 
+  const [departmentValue, setDepartmentValue] = useState<number>(0);
+  const [departmentDropdown, setDepartmentDropdown] = useState([]);
+  const [saveDepartmentData, setSaveDepartmentData] = useState(false);
+
   const [permissionValueError, setPermissionValueError] = useState(false);
   const [permissionValueErrText, setPermissionValueErrText] = useState<string>(
     "This field is required."
@@ -147,6 +156,7 @@ const Page = () => {
   const [search, setSearch] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [canExport, setCanExport] = useState<boolean>(false);
+  const [emailNotificationOpen, setEmailNotificationOpen] = useState(false);
 
   useEffect(() => {
     if (localStorage.getItem("isClient") === "false") {
@@ -158,6 +168,7 @@ const Page = () => {
           !hasPermissionWorklog("Process", "View", "Settings") ||
           !hasPermissionWorklog("Group", "View", "Settings") ||
           !hasPermissionWorklog("Permission", "View", "Settings") ||
+          !hasPermissionWorklog("Notification", "View", "Settings") ||
           !hasPermissionWorklog("Status", "View", "Settings"))
       ) {
         router.push("/");
@@ -207,6 +218,8 @@ const Page = () => {
         setSelectedTabIndex(index);
         setSearch("");
         setSearchValue("");
+        setDepartmentValue(0);
+        setPermissionValue(0);
         return;
       }
 
@@ -254,8 +267,14 @@ const Page = () => {
     callAPI(url, params, successCallback, "GET");
   };
 
+  const getDepartmentData = async () => {
+    const departmentData = await getDepartmentDropdownData();
+    setDepartmentDropdown(departmentData.DepartmentList);
+  };
+
   useEffect(() => {
     tab === "Permission" && getPermissionDropdown();
+    tab === "Notification" && getDepartmentData();
   }, [tab]);
 
   const handleSavePermissionData = (e: { preventDefault: () => void }) => {
@@ -373,6 +392,17 @@ const Page = () => {
             ),
           };
           break;
+        case "notification":
+          return {
+            ...tab,
+            canView: hasPermissionWorklog(
+              tab.id.toLowerCase(),
+              "view",
+              "settings"
+            ),
+          };
+          break;
+          Notification;
         case "organization":
           return {
             ...tab,
@@ -386,8 +416,8 @@ const Page = () => {
     });
 
     setTabs(updatedTabs);
-    setVisibleTabs(updatedTabs.slice(0, 8));
-    setDropdownTabs(updatedTabs.slice(8));
+    setVisibleTabs(updatedTabs.slice(0, 9));
+    setDropdownTabs(updatedTabs.slice(9));
   };
 
   useEffect(() => {
@@ -592,12 +622,13 @@ const Page = () => {
     }, 500);
     return () => clearTimeout(timer);
   };
-
+  
   return (
     <Wrapper className="min-h-screen overflow-y-auto">
       <Navbar
         onUserDetailsFetch={handleUserDetailsFetch}
         onHandleModuleNames={handleModuleNames}
+        setEmailNotificationOpen={setEmailNotificationOpen}
       />
 
       <div>
@@ -615,7 +646,7 @@ const Page = () => {
                     key={tab.id}
                     onClick={() => handleTabClick(tab.id, index)}
                     className={`text-[16px] ${
-                      array.length === 8 ? "px-2" : "px-4"
+                      array.length === 9 ? "px-1" : "px-2"
                     } cursor-pointer select-none flex items-center justify-center ${
                       selectedTabIndex === index
                         ? "text-[#0592C6] font-semibold"
@@ -623,7 +654,7 @@ const Page = () => {
                     } ${
                       index < array.length - 1
                         ? "border-r border-r-lightSilver h-3"
-                        : `${array.length === 8 ? "px-2" : "px-4"}`
+                        : `${array.length === 9 ? "px-1" : "px-2"}`
                     }`}
                   >
                     {tab.label}
@@ -636,7 +667,7 @@ const Page = () => {
                 tab === "Permissions" ? "gap-[5px]" : "gap-[10px]"
               }`}
             >
-              {tab !== "Permission" ? (
+              {tab !== "Permission" && tab !== "Notification" ? (
                 <>
                   {(tab === "Client" ||
                     tab === "Project" ||
@@ -732,6 +763,55 @@ const Page = () => {
                       </span>
                     </div>
                   </ColorToolTip>
+                </>
+              ) : tab === "Notification" ? (
+                <>
+                  <Autocomplete
+                    disablePortal
+                    id="combo-box-demo"
+                    options={departmentDropdown}
+                    value={
+                      departmentDropdown.find(
+                        (i: LabelValueType) => i.value == departmentValue
+                      ) || null
+                    }
+                    onChange={(e, value: LabelValueType | null) => {
+                      value && setDepartmentValue(value.value);
+                    }}
+                    sx={{ mx: 0.75, width: 300 }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label={
+                          <span>
+                            Department
+                            <span className="text-defaultRed">&nbsp;*</span>
+                          </span>
+                        }
+                      />
+                    )}
+                  />
+                  <div className="w-[60px] mr-5">
+                    <Button
+                      variant="contained"
+                      color="info"
+                      className={`rounded-md !bg-secondary ${
+                        departmentValue === 0 ||
+                        !hasPermissionWorklog(tab, "save", "settings")
+                          ? "opacity-50 pointer-events-none uppercase"
+                          : ""
+                      } ${
+                        departmentValue === 0 ||
+                        !hasPermissionWorklog(tab, "save", "settings")
+                          ? "cursor-not-allowed"
+                          : ""
+                      }`}
+                      onClick={() => setSaveDepartmentData(true)}
+                    >
+                      Save
+                    </Button>
+                  </div>
                 </>
               ) : (
                 <div className="flex items-center justify-center gap-3 mr-4">
@@ -852,45 +932,47 @@ const Page = () => {
                   </div>
                 </div>
               )}
-              <Button
-                type="submit"
-                variant="contained"
-                color="info"
-                className={`${
-                  tab === "Permissions"
-                    ? "rounded-[4px] !h-[45px] "
-                    : "rounded-[4px] !h-[36px] text-sm"
-                } ${
-                  isLoaded &&
-                  (hasPermissionWorklog(tab, "save", "settings") ||
+              {tab !== "Notification" && (
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="info"
+                  className={`${
+                    tab === "Permissions"
+                      ? "rounded-[4px] !h-[45px] "
+                      : "rounded-[4px] !h-[36px] text-sm"
+                  } ${
+                    isLoaded &&
+                    (hasPermissionWorklog(tab, "save", "settings") ||
+                      tabs.filter(
+                        (i: Tabs) => i.label.toLowerCase() === "organization"
+                      )[0].canView)
+                      ? ""
+                      : "cursor-not-allowed"
+                  } !bg-secondary`}
+                  onClick={
+                    hasPermissionWorklog(tab, "save", "settings") ||
                     tabs.filter(
                       (i: Tabs) => i.label.toLowerCase() === "organization"
-                    )[0].canView)
-                    ? ""
-                    : "cursor-not-allowed"
-                } !bg-secondary`}
-                onClick={
-                  hasPermissionWorklog(tab, "save", "settings") ||
-                  tabs.filter(
-                    (i: Tabs) => i.label.toLowerCase() === "organization"
-                  )[0].canView
-                    ? handleDrawerOpen
-                    : undefined
-                }
-              >
-                <span
-                  className={`flex items-center justify-center ${
-                    tab === "Permissions" ? "text-sm" : ""
-                  }`}
+                    )[0].canView
+                      ? handleDrawerOpen
+                      : undefined
+                  }
                 >
-                  <span className="mr-2">
-                    <AddPlusIcon />
+                  <span
+                    className={`flex items-center justify-center ${
+                      tab === "Permissions" ? "text-sm" : ""
+                    }`}
+                  >
+                    <span className="mr-2">
+                      <AddPlusIcon />
+                    </span>
+                    <span className="uppercase">
+                      Create {tab === "Permission" ? "Role" : tab}
+                    </span>
                   </span>
-                  <span className="uppercase">
-                    Create {tab === "Permission" ? "Role" : tab}
-                  </span>
-                </span>
-              </Button>
+                </Button>
+              )}
             </div>
           </div>
         )}
@@ -1043,6 +1125,19 @@ const Page = () => {
             loading={isLoading}
           />
         )}
+        {tab === "Notification" && (
+          <Notification
+            onOpen={
+              hasPermissionWorklog(tab, "save", "settings")
+                ? handleDrawerOpen
+                : undefined
+            }
+            departmentValue={departmentValue}
+            saveDepartmentData={saveDepartmentData}
+            canView={hasPermissionWorklog("notification", "view", "settings")}
+            setSaveDepartmentData={setSaveDepartmentData}
+          />
+        )}
         {tab === "Organization" && (
           <Organization
             onOpen={
@@ -1127,6 +1222,11 @@ const Page = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <NotificationDrawer
+        emailNotificationOpen={emailNotificationOpen}
+        setEmailNotificationOpen={setEmailNotificationOpen}
+      />
+      <DrawerOverlay isOpen={emailNotificationOpen} onClose={() => {}} />
     </Wrapper>
   );
 };

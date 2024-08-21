@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { handleLogoutUtil } from "@/utils/commonFunction";
 import { callAPI } from "@/utils/API/callAPI";
 import { LabelValueType, Organization, User } from "@/utils/Types/types";
+import Notification from "@/assets/icons/Notification";
 
 type NavbarPropsType = {
   onUserDetailsFetch?: (arg1: any) => void;
@@ -17,6 +18,7 @@ type NavbarPropsType = {
     d: string,
     e: string
   ) => void;
+  setEmailNotificationOpen: any;
 };
 
 const Navbar = (props: NavbarPropsType) => {
@@ -256,16 +258,33 @@ const Navbar = (props: NavbarPropsType) => {
                 </Avatar>
               </span>
               {openLogoutNavbar && (
-                <div className="absolute top-[55px] rounded-md -right-2 w-50 h-12 px-5 flex items-center justify-center bg-pureWhite shadow-xl z-50">
+                <div className="absolute top-[55px] rounded-md -right-2 w-50 px-5 flex flex-col whitespace-nowrap gap-2 items-start justify-center bg-pureWhite shadow-xl z-50 h-20">
                   <span
                     onClick={handleLogout}
-                    className="flex items-center justify-center cursor-pointer hover:text-defaultRed"
+                    className="flex items-center justify-start cursor-pointer hover:text-defaultRed"
                   >
                     <span className="!rotate-0">
                       <LogoutIcon />
                     </span>
                     &nbsp;Logout
                   </span>
+                  <div>
+                    {!!userDataNavbar &&
+                      userDataNavbar.IsClientUser == false && (
+                        <span
+                          onClick={() => {
+                            props.setEmailNotificationOpen(true);
+                            setOpenLogoutNavbar(false);
+                          }}
+                          className="flex items-center justify-start cursor-pointer hover:text-defaultRed"
+                        >
+                          <span className="!rotate-0">
+                            <Notification />
+                          </span>
+                          &nbsp;Email Notification
+                        </span>
+                      )}
+                  </div>
                 </div>
               )}
             </div>

@@ -1,8 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import "next-ts-lib/dist/index.css";
-import Wrapper from "@/components/common/Wrapper";
-import Navbar from "@/components/common/Navbar";
 import { toast } from "react-toastify";
 import { InputBase } from "@mui/material";
 import FilterIcon from "@/assets/icons/FilterIcon";
@@ -17,6 +15,7 @@ import { useRouter } from "next/navigation";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import WrapperNavbar from "@/components/common/WrapperNavbar";
 
 const task_InitialFilter = {
   pageNo: 1,
@@ -192,8 +191,7 @@ const Report = () => {
   };
 
   return (
-    <Wrapper>
-      <Navbar />
+    <WrapperNavbar>
       <div className="bg-white flex justify-between items-center px-[20px]">
         <div className="flex gap-[20px] items-center py-[6.5px]">
           {hasPermissionWorklog("Task", "View", "Report") && (
@@ -302,7 +300,7 @@ const Report = () => {
           currentFilterData={getIdFromFilterDialog}
         />
       )}
-    </Wrapper>
+    </WrapperNavbar>
   );
 };
 export default Report;

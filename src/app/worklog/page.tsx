@@ -2,8 +2,6 @@
 import React, { useEffect, useState } from "react";
 import DrawerOverlay from "@/components/settings/drawer/DrawerOverlay";
 import Drawer from "@/components/worklog/Drawer";
-import Navbar from "@/components/common/Navbar";
-import Wrapper from "@/components/common/Wrapper";
 import Datatable_Worklog from "@/components/worklog/Datatable_Worklog";
 import Datatable_CompletedTask from "@/components/worklog/Datatable_CompletedTask";
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
@@ -18,6 +16,7 @@ import { useRouter } from "next/navigation";
 import ImportDialog from "@/components/worklog/worklog_Import/ImportDialog";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { TaskFilter } from "@/utils/Types/clientWorklog";
+import WrapperNavbar from "@/components/common/WrapperNavbar";
 
 const Worklog = () => {
   const router = useRouter();
@@ -103,8 +102,7 @@ const Worklog = () => {
   };
 
   return (
-    <Wrapper>
-      <Navbar />
+    <WrapperNavbar>
       <div className="bg-white flex justify-between items-center px-[20px]">
         <div className="flex gap-[16px] items-center py-[6.5px]">
           {hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && (
@@ -253,7 +251,7 @@ const Worklog = () => {
         onClose={() => setIsImportOpen(false)}
         onDataFetch={dataFunction}
       />
-    </Wrapper>
+    </WrapperNavbar>
   );
 };
 

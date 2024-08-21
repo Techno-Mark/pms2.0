@@ -763,6 +763,30 @@ const TimeSheetReport = ({
         },
       },
     },
+    {
+      name: "NewAvgTotalTime",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("New Avg Total Time"),
+        customBodyRender: (value: string) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "NewPresentDays",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("New Present Days"),
+        customBodyRender: (value: string) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
     ...dates.map(
       (date: string) =>
         new Object({

@@ -62,6 +62,7 @@ import ClientReportFilter from "@/components/reports/Filter/ClientReportFilter";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import ErrorLogReport from "@/components/reports/tables/ErrorLogReport";
 import ErrorLogReportFilter from "@/components/reports/Filter/ErrorLogReportFilter";
+import WrapperNavbar from "@/components/common/WrapperNavbar";
 
 interface Tabs {
   label: string;
@@ -333,307 +334,304 @@ const Page = () => {
   };
 
   return (
-    <Wrapper>
-      <div>
-        <Navbar />
-        <div className="w-full pr-5 flex items-center justify-between">
-          <div className="flex justify-between items-center">
-            <div
-              className={`flex justify-center items-center ${
-                moreTabs.length <= 0 ? "my-2" : ""
-              }`}
-            >
-              {activeTabs
-                .filter((tab: Tabs | boolean) => tab !== false)
-                .map((tab: Tabs, index: number) => (
-                  <Fragment key={tab.value}>
-                    <label
-                      className={`mx-4 cursor-pointer text-base ${
-                        activeTab === tab.value
-                          ? "text-secondary font-semibold"
-                          : "text-slatyGrey"
-                      }`}
-                      onClick={() => handleTabChange(tab.value)}
-                    >
-                      {tab.name}
-                    </label>
-                    <LineIcon />
-                  </Fragment>
-                ))}
-            </div>
-            <div className="cursor-pointer relative">
-              {moreTabs.length > 0 && (
-                <div
-                  ref={moreTabsRef}
-                  onClick={() => setShowMoreTabs(!showMoreTabs)}
-                >
-                  <MoreIcon />
-                </div>
-              )}
-              {showMoreTabs && (
-                <MoreTabs
-                  moreTabs={moreTabs}
-                  handleMoreTabsClick={handleMoreTabsClick}
-                />
-              )}
-            </div>
+    <WrapperNavbar>
+      <div className="w-full pr-5 flex items-center justify-between">
+        <div className="flex justify-between items-center">
+          <div
+            className={`flex justify-center items-center ${
+              moreTabs.length <= 0 ? "my-2" : ""
+            }`}
+          >
+            {activeTabs
+              .filter((tab: boolean) => tab !== false)
+              .map((tab: Tabs, index: number) => (
+                <Fragment key={tab.value}>
+                  <label
+                    className={`mx-4 cursor-pointer text-base ${
+                      activeTab === tab.value
+                        ? "text-secondary font-semibold"
+                        : "text-slatyGrey"
+                    }`}
+                    onClick={() => handleTabChange(tab.value)}
+                  >
+                    {tab.name}
+                  </label>
+                  <LineIcon />
+                </Fragment>
+              ))}
           </div>
-
-          <div className="h-full flex items-center gap-5">
-            <div className="relative">
-              <InputBase
-                className="pl-1 pr-7 border-b border-b-lightSilver w-52"
-                placeholder="Search"
-                value={search}
-                onChange={(e) => handleSearchChange(e.target.value)}
-              />
-              <span className="absolute top-2 right-2 text-slatyGrey">
-                <SearchIcon />
-              </span>
-            </div>
-
-            <ColorToolTip title="Filter" placement="top" arrow>
-              <span
-                className="cursor-pointer relative"
-                onClick={() => {
-                  setIsFiltering(true);
-                }}
+          <div className="cursor-pointer relative">
+            {moreTabs.length > 0 && (
+              <div
+                ref={moreTabsRef}
+                onClick={() => setShowMoreTabs(!showMoreTabs)}
               >
-                <FilterIcon />
-              </span>
-            </ColorToolTip>
-            <ColorToolTip title="Export" placement="top" arrow>
-              <span
-                className={`${
-                  isExporting ? "cursor-default" : "cursor-pointer"
-                } ${
-                  !canExport ||
-                  (getCurrentTabDetails(activeTab).toLowerCase() === "custom" &&
-                    (filteredData === null ||
-                      haveSameData(customreport_InitialFilter, filteredData)))
-                    ? "opacity-50 pointer-events-none"
-                    : ""
-                } `}
-                onClick={
-                  !canExport ||
-                  (getCurrentTabDetails(activeTab).toLowerCase() === "custom" &&
-                    (filteredData === null ||
-                      haveSameData(customreport_InitialFilter, filteredData)))
-                    ? undefined
-                    : handleExport
-                }
-              >
-                {isExporting ? <Loading /> : <ExportIcon />}
-              </span>
-            </ColorToolTip>
-
-            {activeTab === 7 && (
-              <Button
-                type="submit"
-                variant="contained"
-                color="info"
-                disabled={!hasRaisedInvoiceData}
-                className={`whitespace-nowrap ${
-                  hasRaisedInvoiceData ? "!bg-secondary" : ""
-                }`}
-                onClick={() => setSaveBTCData(true)}
-              >
-                {filteredData !== null && filteredData?.IsBTC
-                  ? "Invoice UnRaise"
-                  : "Invoice Raise"}
-              </Button>
+                <MoreIcon />
+              </div>
             )}
-
-            {activeTab === 8 && (
-              <Button
-                type="submit"
-                variant="contained"
-                color="info"
-                disabled={!hasHoursShared}
-                className={`whitespace-nowrap ${
-                  hasHoursShared ? "!bg-secondary" : ""
-                }`}
-                onClick={() => setIsDeleting(true)}
-              >
-                Hours Shared
-              </Button>
+            {showMoreTabs && (
+              <MoreTabs
+                moreTabs={moreTabs}
+                handleMoreTabsClick={handleMoreTabsClick}
+              />
             )}
           </div>
         </div>
 
-        <Dialog
-          open={isDeleting}
-          TransitionComponent={DialogTransition}
-          onClose={() => setIsDeleting(false)}
-        >
-          <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
-            <span className="text-lg font-medium">Share Hours</span>
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              <div className="flex flex-col mr-20 mb-8 mt-4">
-                Are you sure you want to Share Hours?
-              </div>
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">
-            <Button
-              variant="outlined"
-              color="error"
-              onClick={() => setIsDeleting(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="!bg-secondary"
-              variant="contained"
+        <div className="h-full flex items-center gap-5">
+          <div className="relative">
+            <InputBase
+              className="pl-1 pr-7 border-b border-b-lightSilver w-52"
+              placeholder="Search"
+              value={search}
+              onChange={(e) => handleSearchChange(e.target.value)}
+            />
+            <span className="absolute top-2 right-2 text-slatyGrey">
+              <SearchIcon />
+            </span>
+          </div>
+
+          <ColorToolTip title="Filter" placement="top" arrow>
+            <span
+              className="cursor-pointer relative"
               onClick={() => {
-                setSaveHourData(true);
-                setIsDeleting(false);
+                setIsFiltering(true);
               }}
             >
-              Yes
+              <FilterIcon />
+            </span>
+          </ColorToolTip>
+          <ColorToolTip title="Export" placement="top" arrow>
+            <span
+              className={`${
+                isExporting ? "cursor-default" : "cursor-pointer"
+              } ${
+                !canExport ||
+                (getCurrentTabDetails(activeTab).toLowerCase() === "custom" &&
+                  (filteredData === null ||
+                    haveSameData(customreport_InitialFilter, filteredData)))
+                  ? "opacity-50 pointer-events-none"
+                  : ""
+              } `}
+              onClick={
+                !canExport ||
+                (getCurrentTabDetails(activeTab).toLowerCase() === "custom" &&
+                  (filteredData === null ||
+                    haveSameData(customreport_InitialFilter, filteredData)))
+                  ? undefined
+                  : handleExport
+              }
+            >
+              {isExporting ? <Loading /> : <ExportIcon />}
+            </span>
+          </ColorToolTip>
+
+          {activeTab === 7 && (
+            <Button
+              type="submit"
+              variant="contained"
+              color="info"
+              disabled={!hasRaisedInvoiceData}
+              className={`whitespace-nowrap ${
+                hasRaisedInvoiceData ? "!bg-secondary" : ""
+              }`}
+              onClick={() => setSaveBTCData(true)}
+            >
+              {filteredData !== null && filteredData?.IsBTC
+                ? "Invoice UnRaise"
+                : "Invoice Raise"}
             </Button>
-          </DialogActions>
-        </Dialog>
+          )}
 
-        {/* tabs */}
-        {activeTab === 1 && (
-          <ProjectReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            onHandleExport={handleCanExport}
-          />
-        )}
-        {activeTab === 2 && (
-          <UserReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            onHandleExport={handleCanExport}
-          />
-        )}
-        {activeTab === 3 && (
-          <TimeSheetReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            onHandleExport={handleCanExport}
-          />
-        )}
-        {activeTab === 4 && (
-          <WorkloadReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            onHandleExport={handleCanExport}
-          />
-        )}
-        {activeTab === 5 && (
-          <UserLogsReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            onHandleExport={handleCanExport}
-          />
-        )}
-        {activeTab === 6 && (
-          <AuditReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            onHandleExport={handleCanExport}
-          />
-        )}
-        {activeTab === 7 && (
-          <BillingReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            hasRaisedInvoiceData={(arg1: boolean) =>
-              setHasRaisedInvoiceData(arg1)
-            }
-            isSavingBTCData={saveBTCData}
-            onSaveBTCDataComplete={() => setSaveBTCData(false)}
-            onHandleExport={handleCanExport}
-          />
-        )}
-        {activeTab === 8 && (
-          <CustomReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            hasHoursShared={(arg1: boolean) => setHasHoursShared(arg1)}
-            isSavingHourData={saveHourData}
-            onSaveHourDataComplete={() => setSaveHourData(false)}
-            onHandleExport={handleCanExport}
-          />
-        )}
-        {activeTab === 9 && (
-          <RatingReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            onHandleExport={handleCanExport}
-          />
-        )}
-
-        {activeTab === 10 && (
-          <LogReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            onHandleExport={handleCanExport}
-          />
-        )}
-
-        {activeTab === 11 && (
-          <ActivityReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            onHandleExport={handleCanExport}
-          />
-        )}
-
-        {activeTab === 12 && (
-          <APReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            onHandleExport={handleCanExport}
-          />
-        )}
-
-        {activeTab === 13 && (
-          <ClientReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            onHandleExport={handleCanExport}
-          />
-        )}
-
-        {activeTab === 14 && (
-          <KRAReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            onHandleExport={handleCanExport}
-          />
-        )}
-
-        {activeTab === 15 && (
-          <AutoManualReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            onHandleExport={handleCanExport}
-          />
-        )}
-
-        {activeTab === 16 && (
-          <WLTRReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            onHandleExport={handleCanExport}
-          />
-        )}
-
-        {activeTab === 17 && (
-          <ErrorLogReport
-            searchValue={searchValue}
-            filteredData={filteredData}
-            onHandleExport={handleCanExport}
-          />
-        )}
+          {activeTab === 8 && (
+            <Button
+              type="submit"
+              variant="contained"
+              color="info"
+              disabled={!hasHoursShared}
+              className={`whitespace-nowrap ${
+                hasHoursShared ? "!bg-secondary" : ""
+              }`}
+              onClick={() => setIsDeleting(true)}
+            >
+              Hours Shared
+            </Button>
+          )}
+        </div>
       </div>
+
+      <Dialog
+        open={isDeleting}
+        TransitionComponent={DialogTransition}
+        onClose={() => setIsDeleting(false)}
+      >
+        <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
+          <span className="text-lg font-medium">Share Hours</span>
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            <div className="flex flex-col mr-20 mb-8 mt-4">
+              Are you sure you want to Share Hours?
+            </div>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={() => setIsDeleting(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            className="!bg-secondary"
+            variant="contained"
+            onClick={() => {
+              setSaveHourData(true);
+              setIsDeleting(false);
+            }}
+          >
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* tabs */}
+      {activeTab === 1 && (
+        <ProjectReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onHandleExport={handleCanExport}
+        />
+      )}
+      {activeTab === 2 && (
+        <UserReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onHandleExport={handleCanExport}
+        />
+      )}
+      {activeTab === 3 && (
+        <TimeSheetReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onHandleExport={handleCanExport}
+        />
+      )}
+      {activeTab === 4 && (
+        <WorkloadReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onHandleExport={handleCanExport}
+        />
+      )}
+      {activeTab === 5 && (
+        <UserLogsReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onHandleExport={handleCanExport}
+        />
+      )}
+      {activeTab === 6 && (
+        <AuditReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onHandleExport={handleCanExport}
+        />
+      )}
+      {activeTab === 7 && (
+        <BillingReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          hasRaisedInvoiceData={(arg1: boolean) =>
+            setHasRaisedInvoiceData(arg1)
+          }
+          isSavingBTCData={saveBTCData}
+          onSaveBTCDataComplete={() => setSaveBTCData(false)}
+          onHandleExport={handleCanExport}
+        />
+      )}
+      {activeTab === 8 && (
+        <CustomReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          hasHoursShared={(arg1: boolean) => setHasHoursShared(arg1)}
+          isSavingHourData={saveHourData}
+          onSaveHourDataComplete={() => setSaveHourData(false)}
+          onHandleExport={handleCanExport}
+        />
+      )}
+      {activeTab === 9 && (
+        <RatingReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onHandleExport={handleCanExport}
+        />
+      )}
+
+      {activeTab === 10 && (
+        <LogReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onHandleExport={handleCanExport}
+        />
+      )}
+
+      {activeTab === 11 && (
+        <ActivityReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onHandleExport={handleCanExport}
+        />
+      )}
+
+      {activeTab === 12 && (
+        <APReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onHandleExport={handleCanExport}
+        />
+      )}
+
+      {activeTab === 13 && (
+        <ClientReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onHandleExport={handleCanExport}
+        />
+      )}
+
+      {activeTab === 14 && (
+        <KRAReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onHandleExport={handleCanExport}
+        />
+      )}
+
+      {activeTab === 15 && (
+        <AutoManualReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onHandleExport={handleCanExport}
+        />
+      )}
+
+      {activeTab === 16 && (
+        <WLTRReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onHandleExport={handleCanExport}
+        />
+      )}
+
+      {activeTab === 17 && (
+        <ErrorLogReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onHandleExport={handleCanExport}
+        />
+      )}
 
       {/* tabs filter */}
       {activeTab === 1 && (
@@ -761,7 +759,7 @@ const Page = () => {
           onDialogClose={handleFilter}
         />
       )}
-    </Wrapper>
+    </WrapperNavbar>
   );
 };
 
