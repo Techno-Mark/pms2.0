@@ -119,7 +119,7 @@ const NotificationDrawer = ({
         </div>
         <div className="!h-[93%]">
           {loading && <ReportLoader />}
-          {!loading && data.length === 0 && <p>No data found</p>}
+          {!loading && data.length === 0 && <p className="flex items-center justify-center w-full mt-5">No data found</p>}
           {!loading && data.length > 0 && (
             <TableContainer component={Paper} style={{ maxHeight: "100%" }}>
               <Table stickyHeader>
