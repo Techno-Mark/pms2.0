@@ -3,8 +3,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import Navbar from "@/components/common/Navbar";
-import Wrapper from "@/components/common/Wrapper";
 import { Card, Grid, ThemeProvider } from "@mui/material";
 import { toast } from "react-toastify";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
@@ -46,6 +44,7 @@ import FilterDialogDashboard from "@/components/admin-dashboard/FilterDialogDash
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import ReportLoader from "@/components/common/ReportLoader";
+import WrapperNavbar from "@/components/common/WrapperNavbar";
 
 interface ClientSummaryStatus {
   ClientName: string;
@@ -350,9 +349,7 @@ const Page = () => {
   };
 
   return (
-    <Wrapper className="min-h-screen overflow-y-auto">
-      <Navbar />
-
+    <WrapperNavbar className="min-h-screen overflow-y-auto">
       <div className="flex items-center justify-between w-full px-6">
         <div className="flex gap-[16px] items-center py-[6.5px]">
           <label
@@ -675,7 +672,7 @@ const Page = () => {
         onClose={handleCloseFilter}
         currentFilterData={getIdFromFilterDialog}
       />
-    </Wrapper>
+    </WrapperNavbar>
   );
 };
 

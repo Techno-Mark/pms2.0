@@ -2004,7 +2004,7 @@ const EditDrawer = ({
       ProcessId: processNameWorklogs === 0 ? null : processNameWorklogs,
       SubProcessId: subProcessWorklogs === 0 ? null : subProcessWorklogs,
       StatusId: statusWorklogs,
-      Priority: priorityWorklogs === 0 ? 0 : priorityWorklogs,
+      Priority: priorityWorklogs === 0 ? null : priorityWorklogs,
       Quantity: quantityWorklogs <= 0 ? null : quantityWorklogs,
       Description:
         descriptionWorklogs.toString().length <= 0
@@ -2363,6 +2363,7 @@ const EditDrawer = ({
         (await setStatusWorklogsDropdownData(statusData));
       onOpen &&
         onEdit === 0 &&
+        !!statusData &&
         (await setStatusWorklogsDropdownDataUse(
           statusData.filter(
             (item: LabelValueType) =>
@@ -2384,6 +2385,7 @@ const EditDrawer = ({
 
       onOpen &&
         onEdit > 0 &&
+        !!statusData &&
         !errorlogSignedOffPending &&
         setStatusWorklogsDropdownDataUse(
           statusData.filter(
@@ -2403,6 +2405,7 @@ const EditDrawer = ({
         );
       onOpen &&
         onEdit > 0 &&
+        !!statusData &&
         errorlogSignedOffPending &&
         setStatusWorklogsDropdownDataUse(
           statusData.filter(
@@ -5527,6 +5530,7 @@ const EditDrawer = ({
                             isUnassigneeClicked
                           }
                           value={1}
+                          checked={reminderCheckboxValue == 1}
                           control={<Radio />}
                           label="Due Date"
                         />
@@ -5537,6 +5541,7 @@ const EditDrawer = ({
                             isUnassigneeClicked
                           }
                           value={2}
+                          checked={reminderCheckboxValue == 2}
                           control={<Radio />}
                           label="Specific Date"
                         />
@@ -5547,6 +5552,7 @@ const EditDrawer = ({
                             isUnassigneeClicked
                           }
                           value={3}
+                          checked={reminderCheckboxValue == 3}
                           control={<Radio />}
                           label="Daily"
                         />
@@ -5557,6 +5563,7 @@ const EditDrawer = ({
                             isUnassigneeClicked
                           }
                           value={4}
+                          checked={reminderCheckboxValue == 4}
                           control={<Radio />}
                           label="Days Before Due Date"
                         />

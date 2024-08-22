@@ -344,3 +344,18 @@ export const getDeptData = async () => {
     `${process.env.pms_api_url}/department/getdropdown`
   );
 };
+
+export const getAssigneeDropdownDataByHierarchy = async (workTypeId: any) => {
+  return await postApiFunction(`${process.env.api_url}/user/getbyhierarchy`, {
+    WorktypeId: workTypeId,
+  });
+};
+
+export const getReviewerDropdownDataByHierarchy = async (workTypeId: any) => {
+  return await postApiFunction(
+    `${process.env.api_url}/user/GetReviewerDropdownByHierarchy`,
+    {
+      WorktypeId: workTypeId,
+    }
+  );
+};

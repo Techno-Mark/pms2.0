@@ -250,6 +250,15 @@ export interface PermissionsMenuItem {
   ActionList: PermissionsAction[];
 }
 
+//Notification
+export interface NotificationProps {
+  onOpen: (() => void) | undefined;
+  departmentValue: number;
+  canView: boolean;
+  saveDepartmentData: boolean;
+  setSaveDepartmentData: any;
+}
+
 //Org
 export interface OrgProps {
   onOpen: (() => void) | undefined;
