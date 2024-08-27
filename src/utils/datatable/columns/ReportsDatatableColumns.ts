@@ -940,6 +940,28 @@ const reportsUserLogsCols: any[] = [
     },
   },
   {
+    name: "TotalProductiveTime",
+    options: {
+      sort: true,
+      filter: true,
+      customHeadLabelRender: () => generateCustomHeaderName("Auto Time"),
+      customBodyRender: (value: string) => {
+        return generateInitialTimer(value);
+      },
+    },
+  },
+  {
+    name: "TotalManualTime",
+    options: {
+      sort: true,
+      filter: true,
+      customHeadLabelRender: () => generateCustomHeaderName("Manual Time"),
+      customBodyRender: (value: string) => {
+        return generateInitialTimer(value);
+      },
+    },
+  },
+  {
     name: "TotalIdleTime",
     options: {
       sort: true,
