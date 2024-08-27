@@ -940,7 +940,7 @@ const reportsUserLogsCols: any[] = [
     },
   },
   {
-    name: "TotalProductiveTime",
+    name: "TotalTrackedTime",
     options: {
       sort: true,
       filter: true,
