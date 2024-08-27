@@ -510,7 +510,7 @@ const DateWiseLogsContent = ({
               </b>
             </div>
             <div>
-              Total Idel Time:&nbsp;
+              Total Idle Time:&nbsp;
               <b>
                 {dateWiseLogsData.length > 0
                   ? dateWiseLogsData[0].TotalIdleTime
