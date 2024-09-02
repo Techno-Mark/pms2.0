@@ -293,7 +293,7 @@ const WorklogActionbar = ({
                       </span>
                     </ColorToolTip>
                   )}
-                {hasPermissionWorklog("Task/SubTask", "Delete", "WorkLogs") && (
+                {/* {hasPermissionWorklog("Task/SubTask", "Delete", "WorkLogs") && (
                   <ColorToolTip title="Delete" arrow>
                     <span
                       className="pl-2 pr-2 pt-1 cursor-pointer border-l border-lightSilver"
@@ -302,7 +302,7 @@ const WorklogActionbar = ({
                       <Delete />
                     </span>
                   </ColorToolTip>
-                )}
+                )} */}
                 <ColorToolTip title="Priority" arrow>
                   <span
                     aria-describedby={idPriority}
