@@ -258,7 +258,13 @@ const Navbar = (props: NavbarPropsType) => {
                 </Avatar>
               </span>
               {openLogoutNavbar && (
-                <div className="absolute top-[55px] rounded-md -right-2 w-50 px-5 flex flex-col whitespace-nowrap gap-2 items-start justify-center bg-pureWhite shadow-xl z-50 h-20">
+                <div
+                  className={`absolute top-[55px] rounded-md -right-2 w-50 px-5 flex flex-col whitespace-nowrap gap-2 items-start justify-center bg-pureWhite shadow-xl z-50 ${
+                    !!userDataNavbar && userDataNavbar.IsClientUser == false
+                      ? "h-20"
+                      : "h-10"
+                  }`}
+                >
                   <span
                     onClick={handleLogout}
                     className="flex items-center justify-start cursor-pointer hover:text-defaultRed"
