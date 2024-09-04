@@ -278,6 +278,9 @@ const EditDrawer = ({
     useState(false);
   const [valueMonthYearFrom, setValueMonthYearFrom] = useState<any>(null);
   const [valueMonthYearTo, setValueMonthYearTo] = useState<any>(null);
+  const [reworkReceiverDateWorklogs, setReworkReceiverDateWorklogs] =
+    useState("");
+  const [reworkDueDateWorklogs, setReworkDueDateWorklogs] = useState("");
 
   const previousYearStartDate = dayjs()
     .subtract(1, "year")
@@ -2036,6 +2039,10 @@ const EditDrawer = ({
           : checklistWorkpaperWorklogs === 2
           ? false
           : null,
+      ReworkReceivedDate: dayjs(reworkReceiverDateWorklogs).format(
+        "YYYY/MM/DD"
+      ),
+      ReworkDueDate: dayjs(reworkDueDateWorklogs).format("YYYY/MM/DD"),
       PeriodFrom:
         valueMonthYearFrom === null || valueMonthYearFrom === ""
           ? null
@@ -2310,6 +2317,14 @@ const EditDrawer = ({
         );
         setValueMonthYearTo(
           ResponseData.PeriodTo === null ? null : dayjs(ResponseData.PeriodTo)
+        );
+        setReworkReceiverDateWorklogs(
+          !!ResponseData.ReworkReceivedDate
+            ? ResponseData.ReworkReceivedDate
+            : ""
+        );
+        setReworkDueDateWorklogs(
+          !!ResponseData.ReworkDueDate ? ResponseData.ReworkDueDate : ""
         );
       }
     };
@@ -4019,13 +4034,7 @@ const EditDrawer = ({
                     )}
                     {onEdit > 0 && (
                       <>
-                        <Grid
-                          item
-                          xs={3}
-                          className={`${
-                            typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
-                          }`}
-                        >
+                        <Grid item xs={3} className={`pt-5`}>
                           <TextField
                             label="Date of Preperation"
                             type={inputTypePreperationWorklogsDrawer}
@@ -4050,13 +4059,7 @@ const EditDrawer = ({
                             }}
                           />
                         </Grid>
-                        <Grid
-                          item
-                          xs={3}
-                          className={`${
-                            typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
-                          }`}
-                        >
+                        <Grid item xs={3} className={`pt-5`}>
                           <TextField
                             label="Date of Review"
                             disabled
@@ -4081,6 +4084,84 @@ const EditDrawer = ({
                             }}
                           />
                         </Grid>
+                        {!!reworkReceiverDateWorklogs && (
+                          <Grid item xs={3} className="pt-5">
+                            <div
+                              className={`inline-flex -mt-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                            >
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                  label={
+                                    <span>
+                                      Rework Received Date
+                                      <span className="!text-defaultRed">
+                                        &nbsp;*
+                                      </span>
+                                    </span>
+                                  }
+                                  disabled={isIdDisabled}
+                                  value={
+                                    reworkReceiverDateWorklogs === ""
+                                      ? null
+                                      : dayjs(reworkReceiverDateWorklogs)
+                                  }
+                                  // shouldDisableDate={isWeekend}
+                                  maxDate={dayjs(Date.now())}
+                                  onChange={(newDate: any) => {
+                                    setReworkReceiverDateWorklogs(newDate.$d);
+                                    const selectedDate = dayjs(newDate.$d);
+                                    let nextDate: any = selectedDate;
+                                    nextDate = dayjs(newDate.$d)
+                                      .add(1, "day")
+                                      .toDate();
+                                    setReworkDueDateWorklogs(nextDate);
+                                  }}
+                                  slotProps={{
+                                    textField: {
+                                      readOnly: true,
+                                    } as Record<string, any>,
+                                  }}
+                                />
+                              </LocalizationProvider>
+                            </div>
+                          </Grid>
+                        )}
+                        {!!reworkDueDateWorklogs && (
+                          <Grid item xs={3} className="pt-5">
+                            <div
+                              className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                            >
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                  label={
+                                    <span>
+                                      Rework Due Date
+                                      <span className="!text-defaultRed">
+                                        &nbsp;*
+                                      </span>
+                                    </span>
+                                  }
+                                  value={
+                                    reworkDueDateWorklogs === ""
+                                      ? null
+                                      : dayjs(reworkDueDateWorklogs)
+                                  }
+                                  disabled={isIdDisabled}
+                                  minDate={dayjs(reworkReceiverDateWorklogs)}
+                                  shouldDisableDate={isWeekend}
+                                  onChange={(newDate: any) => {
+                                    setReworkDueDateWorklogs(newDate.$d);
+                                  }}
+                                  slotProps={{
+                                    textField: {
+                                      readOnly: true,
+                                    } as Record<string, any>,
+                                  }}
+                                />
+                              </LocalizationProvider>
+                            </div>
+                          </Grid>
+                        )}
                       </>
                     )}
                   </Grid>

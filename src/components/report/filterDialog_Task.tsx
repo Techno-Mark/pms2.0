@@ -35,6 +35,8 @@ interface FilterData {
   DueDate: string | null;
   StartDate: string | null;
   EndDate: string | null;
+  ReworkReceivedDate: string | null;
+  ReworkDueDate: string | null;
 }
 
 const initialTaskFilter = {
@@ -43,6 +45,8 @@ const initialTaskFilter = {
   Priority: null,
   StartDate: null,
   EndDate: null,
+  ReworkReceivedDate: null,
+  ReworkDueDate: null,
 };
 
 const FilterDialog_Task = ({
@@ -77,6 +81,8 @@ const FilterDialog_Task = ({
   const [endDateFilterTask, setEndDateFilterTask] = useState<null | string>(
     null
   );
+  const [reworkStartDate, setReworkStartDate] = useState<string | null>(null);
+  const [reworkEndDate, setReworkEndDate] = useState<string | null>(null);
 
   const handleTaskResetAll = () => {
     setProjectFilterTask(null);
@@ -85,6 +91,8 @@ const FilterDialog_Task = ({
     setDueDateFilterTask(null);
     setStartDateFilterTask(null);
     setEndDateFilterTask(null);
+    setReworkStartDate(null);
+    setReworkEndDate(null);
     setAnyTaskFieldSelected(false);
     currentFilterData?.(initialTaskFilter);
   };
@@ -96,7 +104,9 @@ const FilterDialog_Task = ({
       priorityFilterTask !== null ||
       dueDateFilterTask !== null ||
       startDateFilterTask !== null ||
-      endDateFilterTask !== null;
+      endDateFilterTask !== null ||
+      reworkStartDate !== null ||
+      reworkEndDate !== null;
 
     setAnyTaskFieldSelected(isAnyTaskFieldSelected);
   }, [
@@ -106,6 +116,8 @@ const FilterDialog_Task = ({
     dueDateFilterTask,
     startDateFilterTask,
     endDateFilterTask,
+    reworkStartDate,
+    reworkEndDate,
   ]);
 
   useEffect(() => {
@@ -131,6 +143,18 @@ const FilterDialog_Task = ({
             ? null
             : getFormattedDate(startDateFilterTask) || ""
           : getFormattedDate(endDateFilterTask) || "",
+      ReworkReceivedDate:
+        reworkStartDate === null
+          ? reworkEndDate === null
+            ? null
+            : getFormattedDate(reworkEndDate) || ""
+          : getFormattedDate(reworkStartDate) || "",
+      ReworkDueDate:
+        reworkEndDate === null
+          ? reworkStartDate === null
+            ? null
+            : getFormattedDate(reworkStartDate) || ""
+          : getFormattedDate(reworkEndDate) || "",
     };
     setCurrSelectedTaskFileds(selectedFields);
   }, [
@@ -140,6 +164,8 @@ const FilterDialog_Task = ({
     dueDateFilterTask,
     startDateFilterTask,
     endDateFilterTask,
+    reworkStartDate,
+    reworkEndDate,
   ]);
 
   const sendTaskFilterToPage = () => {
@@ -290,6 +316,41 @@ const FilterDialog_Task = ({
                     onChange={(newDate: any) =>
                       setEndDateFilterTask(newDate.$d)
                     }
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      } as Record<string, any>,
+                    }}
+                  />
+                </LocalizationProvider>
+              </div>
+
+              <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Rework Received From"
+                    maxDate={dayjs(Date.now())}
+                    value={
+                      reworkStartDate === null ? null : dayjs(reworkStartDate)
+                    }
+                    onChange={(newDate: any) => setReworkStartDate(newDate.$d)}
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      } as Record<string, any>,
+                    }}
+                  />
+                </LocalizationProvider>
+              </div>
+            </div>
+            <div className="flex gap-[20px]">
+              <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Rework Received To"
+                    maxDate={dayjs(Date.now())}
+                    value={reworkEndDate === null ? null : dayjs(reworkEndDate)}
+                    onChange={(newDate: any) => setReworkEndDate(newDate.$d)}
                     slotProps={{
                       textField: {
                         readOnly: true,

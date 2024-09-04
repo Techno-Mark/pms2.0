@@ -51,6 +51,8 @@ export interface WorkitemList {
   DepartmentId: number;
   DepartmentName: string;
   TaskType: string | null;
+  ReworkReceivedDate: string | null;
+  ReworkDueDate: string | null;
 }
 
 export interface WorklogsActionBarProps {
@@ -111,6 +113,8 @@ export interface AppliedFilterWorklogsPage {
   DueDate: string | null;
   StartDate: string | null;
   EndDate: string | null;
+  ReworkReceivedDate: string | null;
+  ReworkDueDate: string | null;
   ReviewStatus: number | null;
 }
 
@@ -175,6 +179,8 @@ export interface WorkitemGetbyid {
   WorkItemId: number;
   PeriodFrom: null | string;
   PeriodTo: null | string;
+  ReworkReceivedDate: null | string;
+  ReworkDueDate: null | string;
 }
 
 export interface SubtaskGetByWorkitem {
