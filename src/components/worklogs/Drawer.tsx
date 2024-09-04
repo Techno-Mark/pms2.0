@@ -2039,10 +2039,12 @@ const EditDrawer = ({
           : checklistWorkpaperWorklogs === 2
           ? false
           : null,
-      ReworkReceivedDate: dayjs(reworkReceiverDateWorklogs).format(
-        "YYYY/MM/DD"
-      ),
-      ReworkDueDate: dayjs(reworkDueDateWorklogs).format("YYYY/MM/DD"),
+      ReworkReceivedDate: !!reworkReceiverDateWorklogs
+        ? dayjs(reworkReceiverDateWorklogs).format("YYYY/MM/DD")
+        : null,
+      ReworkDueDate: !!reworkDueDateWorklogs
+        ? dayjs(reworkDueDateWorklogs).format("YYYY/MM/DD")
+        : null,
       PeriodFrom:
         valueMonthYearFrom === null || valueMonthYearFrom === ""
           ? null
