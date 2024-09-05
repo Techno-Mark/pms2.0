@@ -2997,6 +2997,7 @@ const TaskEditDrawer = ({
                                   ? null
                                   : dayjs(reworkReceiverDateWorklogsEdit)
                               }
+                              minDate={dayjs(receiverDateWorklogsEdit)}
                               maxDate={dayjs(Date.now())}
                               onChange={(newDate: any) => {
                                 setReworkReceiverDateWorklogsEdit(newDate.$d);
@@ -3043,7 +3044,7 @@ const TaskEditDrawer = ({
                                   ? null
                                   : dayjs(reworkDueDateWorklogsEdit)
                               }
-                              minDate={dayjs(reworkDueDateWorklogsEdit)}
+                              minDate={dayjs(reworkReceiverDateWorklogsEdit)}
                               shouldDisableDate={isWeekend}
                               onChange={(newDate: any) => {
                                 setReworkDueDateWorklogsEdit(newDate.$d);

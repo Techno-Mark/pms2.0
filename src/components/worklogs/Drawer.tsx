@@ -4108,6 +4108,7 @@ const EditDrawer = ({
                                       : dayjs(reworkReceiverDateWorklogs)
                                   }
                                   // shouldDisableDate={isWeekend}
+                                  minDate={dayjs(receiverDateWorklogs)}
                                   maxDate={dayjs(Date.now())}
                                   onChange={(newDate: any) => {
                                     setReworkReceiverDateWorklogs(newDate.$d);

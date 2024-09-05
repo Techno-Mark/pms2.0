@@ -63,8 +63,18 @@ const dashboardDatatableColsConfig = [
     bodyRenderer: generateCustomFormatDate,
   },
   {
+    name: "ReworkReceivedDate",
+    label: "Rework Received Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "ReworkDueDate",
+    label: "Rework Due Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
     name: "DueFrom",
-    label: "On Hold From",
+    label: "Due From",
     bodyRenderer: generateDaysBodyRender,
   },
 ];
