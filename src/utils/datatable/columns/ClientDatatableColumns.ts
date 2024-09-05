@@ -41,7 +41,7 @@ const generateCustomizableCols = (column: {
   }
 };
 
-const dashboardDatatableColsConfig = [
+const dashboardOverdueDatatableColsConfig = [
   {
     name: "ProjectName",
     label: "Project Name",
@@ -70,6 +70,34 @@ const dashboardDatatableColsConfig = [
   {
     name: "ReworkDueDate",
     label: "Rework Due Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "DueFrom",
+    label: "Due From",
+    bodyRenderer: generateDaysBodyRender,
+  },
+];
+
+const dashboardOnholdDatatableColsConfig = [
+  {
+    name: "ProjectName",
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TaskName",
+    label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "StartDate",
+    label: "Start Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "DueDate",
+    label: "Due Date",
     bodyRenderer: generateCustomFormatDate,
   },
   {
@@ -272,8 +300,12 @@ const WorklogColsConfig = [
   },
 ];
 
-const dashboardOnHoldAndOverdueCols = dashboardDatatableColsConfig.map(
+const dashboardOverdueCols = dashboardOverdueDatatableColsConfig.map(
   (col: any) => generateCustomizableCols(col)
+);
+
+const dashboardOnHoldCols = dashboardOnholdDatatableColsConfig.map((col: any) =>
+  generateCustomizableCols(col)
 );
 
 const dashboardOverallProjectSumCols = OverallProjectColsConfig.map(
@@ -289,7 +321,8 @@ const datatableWorklogCols = WorklogColsConfig.map((column: any) =>
 );
 
 export {
-  dashboardOnHoldAndOverdueCols,
+  dashboardOverdueCols,
+  dashboardOnHoldCols,
   dashboardOverallProjectSumCols,
   datatableWorklogCols,
   dashboardPriorityReturnTaskInfoCols,

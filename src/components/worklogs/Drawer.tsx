@@ -280,6 +280,8 @@ const EditDrawer = ({
   const [valueMonthYearTo, setValueMonthYearTo] = useState<any>(null);
   const [reworkReceiverDateWorklogs, setReworkReceiverDateWorklogs] =
     useState("");
+  const [reworkReceiverDateWorklogsErr, setReworkReceiverDateWorklogsErr] =
+    useState(false);
   const [reworkDueDateWorklogs, setReworkDueDateWorklogs] = useState("");
 
   const previousYearStartDate = dayjs()
@@ -2153,7 +2155,8 @@ const EditDrawer = ({
       !quantityWorklogsErr &&
       quantityWorklogs > 0 &&
       quantityWorklogs < 10000 &&
-      !quantityWorklogs.toString().includes(".")
+      !quantityWorklogs.toString().includes(".") &&
+      !reworkReceiverDateWorklogsErr
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
@@ -2173,7 +2176,8 @@ const EditDrawer = ({
       !quantityWorklogsErr &&
       quantityWorklogs > 0 &&
       quantityWorklogs < 10000 &&
-      !quantityWorklogs.toString().includes(".")
+      !quantityWorklogs.toString().includes(".") &&
+      !reworkReceiverDateWorklogsErr
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
@@ -2191,7 +2195,8 @@ const EditDrawer = ({
       quantityWorklogs > 0 &&
       quantityWorklogs < 10000 &&
       !quantityWorklogsErr &&
-      !quantityWorklogs.toString().includes(".")
+      !quantityWorklogs.toString().includes(".") &&
+      !reworkReceiverDateWorklogsErr
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
@@ -2208,7 +2213,8 @@ const EditDrawer = ({
       quantityWorklogs > 0 &&
       quantityWorklogs < 10000 &&
       !quantityWorklogsErr &&
-      !quantityWorklogs.toString().includes(".")
+      !quantityWorklogs.toString().includes(".") &&
+      !reworkReceiverDateWorklogsErr
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
@@ -3626,6 +3632,11 @@ const EditDrawer = ({
                                   .toDate();
                               }
                               setDueDateWorklogs(nextDate);
+                              !!reworkReceiverDateWorklogs &&
+                              new Date(reworkReceiverDateWorklogs) <
+                                new Date(newDate.$d)
+                                ? setReworkReceiverDateWorklogsErr(true)
+                                : setReworkReceiverDateWorklogsErr(false);
                             }}
                             slotProps={{
                               textField: {
@@ -4036,7 +4047,17 @@ const EditDrawer = ({
                     )}
                     {onEdit > 0 && (
                       <>
-                        <Grid item xs={3} className={`pt-5`}>
+                        <Grid
+                          item
+                          xs={3}
+                          className={`${
+                            departmentWorklogsType == "UK" ||
+                            departmentWorklogsType == "WhitelabelAccounting" ||
+                            departmentWorklogsType == "WhitelabelAustralia"
+                              ? "pt-6"
+                              : "pt-5"
+                          }`}
+                        >
                           <TextField
                             label="Date of Preperation"
                             type={inputTypePreperationWorklogsDrawer}
@@ -4061,7 +4082,18 @@ const EditDrawer = ({
                             }}
                           />
                         </Grid>
-                        <Grid item xs={3} className={`pt-5`}>
+                        <Grid
+                          item
+                          xs={3}
+                          className={`${
+                            departmentWorklogsType == "UK" ||
+                            departmentWorklogsType == "WhitelabelAccounting" ||
+                            departmentWorklogsType == "WhitelabelAustralia" ||
+                            departmentWorklogsType == "WhitelabelTaxation"
+                              ? "pt-6"
+                              : "pt-5"
+                          }`}
+                        >
                           <TextField
                             label="Date of Review"
                             disabled
@@ -4118,6 +4150,11 @@ const EditDrawer = ({
                                       .add(1, "day")
                                       .toDate();
                                     setReworkDueDateWorklogs(nextDate);
+                                    !!receiverDateWorklogs &&
+                                    new Date(receiverDateWorklogs) >
+                                      new Date(newDate.$d)
+                                      ? setReworkReceiverDateWorklogsErr(true)
+                                      : setReworkReceiverDateWorklogsErr(false);
                                   }}
                                   slotProps={{
                                     textField: {
@@ -4132,7 +4169,7 @@ const EditDrawer = ({
                         {!!reworkDueDateWorklogs && (
                           <Grid item xs={3} className="pt-5">
                             <div
-                              className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                              className={`inline-flex -mt-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
                             >
                               <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DatePicker

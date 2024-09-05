@@ -234,6 +234,10 @@ const TaskEditDrawer = ({
   const [valueMonthYearToEdit, setValueMonthYearToEdit] = useState<any>(null);
   const [reworkReceiverDateWorklogsEdit, setReworkReceiverDateWorklogsEdit] =
     useState<any>("");
+  const [
+    reworkReceiverDateWorklogsEditErr,
+    setReworkReceiverDateWorklogsEditErr,
+  ] = useState(false);
   const [reworkDueDateWorklogsEdit, setReworkDueDateWorklogsEdit] =
     useState<any>("");
 
@@ -408,7 +412,8 @@ const TaskEditDrawer = ({
       quantityWorklogsEdit > 0 &&
       quantityWorklogsEdit < 10000 &&
       !quantityWorklogsEditErr &&
-      !quantityWorklogsEdit.toString().includes(".")
+      !quantityWorklogsEdit.toString().includes(".") &&
+      !reworkReceiverDateWorklogsEditErr
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
@@ -425,7 +430,8 @@ const TaskEditDrawer = ({
       quantityWorklogsEdit > 0 &&
       quantityWorklogsEdit < 10000 &&
       !quantityWorklogsEditErr &&
-      !quantityWorklogsEdit.toString().includes(".")
+      !quantityWorklogsEdit.toString().includes(".") &&
+      !reworkReceiverDateWorklogsEditErr
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
@@ -2579,6 +2585,11 @@ const TaskEditDrawer = ({
                                   .toDate();
                               }
                               setDueDateWorklogsEdit(nextDate);
+                              !!reworkDueDateWorklogsEdit &&
+                              new Date(reworkDueDateWorklogsEdit) <
+                                new Date(newDate.$d)
+                                ? setReworkReceiverDateWorklogsEditErr(true)
+                                : setReworkReceiverDateWorklogsEditErr(false);
                             }}
                             slotProps={{
                               textField: {
@@ -3007,6 +3018,11 @@ const TaskEditDrawer = ({
                                   .add(1, "day")
                                   .toDate();
                                 setReworkDueDateWorklogsEdit(nextDate);
+                                !!receiverDateWorklogsEdit &&
+                                new Date(receiverDateWorklogsEdit) >
+                                  new Date(newDate.$d)
+                                  ? setReworkReceiverDateWorklogsEditErr(true)
+                                  : setReworkReceiverDateWorklogsEditErr(false);
                               }}
                               slotProps={{
                                 textField: {

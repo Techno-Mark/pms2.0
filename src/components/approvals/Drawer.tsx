@@ -297,6 +297,8 @@ const EditDrawer = ({
   const [valueMonthYearTo, setValueMonthYearTo] = useState<any>(null);
   const [reworkReceiverDateWorklogs, setReworkReceiverDateWorklogs] =
     useState("");
+  const [reworkReceiverDateWorklogsErr, setReworkReceiverDateWorklogsErr] =
+    useState(false);
   const [reworkDueDateWorklogs, setReworkDueDateWorklogs] = useState("");
 
   const previousYearStartDate = dayjs()
@@ -2091,7 +2093,8 @@ const EditDrawer = ({
       quantityApprovals > 0 &&
       quantityApprovals < 10000 &&
       !quantityApprovalsErr &&
-      !quantityApprovals.toString().includes(".")
+      !quantityApprovals.toString().includes(".") &&
+      !reworkReceiverDateWorklogsErr
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
@@ -3428,6 +3431,11 @@ const EditDrawer = ({
                                   .toDate();
                               }
                               setDueDateApprovals(nextDate);
+                              !!reworkReceiverDateWorklogs &&
+                              new Date(reworkReceiverDateWorklogs) <
+                                new Date(newDate.$d)
+                                ? setReworkReceiverDateWorklogsErr(true)
+                                : setReworkReceiverDateWorklogsErr(false);
                             }}
                             slotProps={{
                               textField: {
@@ -3955,6 +3963,11 @@ const EditDrawer = ({
                                       .add(1, "day")
                                       .toDate();
                                     setReworkDueDateWorklogs(nextDate);
+                                    !!receiverDateApprovals &&
+                                    new Date(receiverDateApprovals) >
+                                      new Date(newDate.$d)
+                                      ? setReworkReceiverDateWorklogsErr(true)
+                                      : setReworkReceiverDateWorklogsErr(false);
                                   }}
                                   slotProps={{
                                     textField: {
