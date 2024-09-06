@@ -3881,7 +3881,20 @@ const EditDrawer = ({
                     )}
                     {onEdit > 0 && (
                       <>
-                        <Grid item xs={3} className="pt-5">
+                        <Grid
+                          item
+                          xs={3}
+                          className={`${
+                            (departmentApprovalsType == "UK" ||
+                              departmentApprovalsType ==
+                                "WhitelabelAccounting" ||
+                              departmentApprovalsType ==
+                                "WhitelabelAustralia") &&
+                            typeOfWorkApprovals !== 3
+                              ? "pt-6"
+                              : "pt-5"
+                          }`}
+                        >
                           <TextField
                             label="Date of Preperation"
                             type={inputTypePreperation}
@@ -3904,7 +3917,22 @@ const EditDrawer = ({
                             }}
                           />
                         </Grid>
-                        <Grid item xs={3} className="pt-5">
+                        <Grid
+                          item
+                          xs={3}
+                          className={`${
+                            (departmentApprovalsType == "UK" ||
+                              departmentApprovalsType ==
+                                "WhitelabelAccounting" ||
+                              departmentApprovalsType ==
+                                "WhitelabelAustralia" ||
+                              departmentApprovalsType ==
+                                "WhitelabelTaxation") &&
+                            typeOfWorkApprovals !== 3
+                              ? "pt-6"
+                              : "pt-5"
+                          }`}
+                        >
                           <TextField
                             label="Date of Review"
                             disabled

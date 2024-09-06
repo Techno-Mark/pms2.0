@@ -3906,7 +3906,7 @@ const EditDrawer = ({
                         item
                         xs={3}
                         className={`${
-                          typeOfWorkWorklogs === 3 ? "pt-[12px]" : "pt-2"
+                          typeOfWorkWorklogs === 3 ? "pt-[14px]" : "pt-2"
                         }`}
                       >
                         <div
@@ -4051,9 +4051,12 @@ const EditDrawer = ({
                           item
                           xs={3}
                           className={`${
-                            departmentWorklogsType == "UK" ||
-                            departmentWorklogsType == "WhitelabelAccounting" ||
-                            departmentWorklogsType == "WhitelabelAustralia"
+                            (departmentWorklogsType == "UK" ||
+                              departmentWorklogsType ==
+                                "WhitelabelAccounting" ||
+                              departmentWorklogsType ==
+                                "WhitelabelAustralia") &&
+                            typeOfWorkWorklogs !== 3
                               ? "pt-6"
                               : "pt-5"
                           }`}
@@ -4086,10 +4089,12 @@ const EditDrawer = ({
                           item
                           xs={3}
                           className={`${
-                            departmentWorklogsType == "UK" ||
-                            departmentWorklogsType == "WhitelabelAccounting" ||
-                            departmentWorklogsType == "WhitelabelAustralia" ||
-                            departmentWorklogsType == "WhitelabelTaxation"
+                            (departmentWorklogsType == "UK" ||
+                              departmentWorklogsType ==
+                                "WhitelabelAccounting" ||
+                              departmentWorklogsType == "WhitelabelAustralia" ||
+                              departmentWorklogsType == "WhitelabelTaxation") &&
+                            typeOfWorkWorklogs !== 3
                               ? "pt-6"
                               : "pt-5"
                           }`}
