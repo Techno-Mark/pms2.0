@@ -46,7 +46,10 @@ const Status = ({
   );
 
   const handleOptionReviewer = (id: number) => {
-    updateStatus(56, id);
+    const data = allStatus.find(
+      (i: LabelValueType) => i.Type == "SecondManagerReview"
+    );
+    !!data && updateStatus(data.value, id);
   };
 
   const [anchorElStatus, setAnchorElStatus] =
@@ -79,8 +82,8 @@ const Status = ({
   const openSecondPopover = Boolean(anchorElSecondPopover);
   const idSecondPopover = openSecondPopover ? "simple-popover" : undefined;
 
-  const handleOptionStatus = async (id: number) => {
-    if (id == 56) {
+  const handleOptionStatus = async (Type: string | number, id: number) => {
+    if (Type == "SecondManagerReview") {
       setReviewer(
         await getReviewerDropdownData(
           selectedRowClientId,
@@ -94,7 +97,7 @@ const Status = ({
     }
     handleCloseStatus();
   };
-  
+
   const getAllStatus = async () => {
     let isRework: any = [];
     let isNotRework: any = [];
@@ -218,7 +221,9 @@ const Status = ({
                 >
                   <span
                     className="p-1 cursor-pointer"
-                    onClick={() => handleOptionStatus(option.value)}
+                    onClick={() =>
+                      handleOptionStatus(option.Type, option.value)
+                    }
                   >
                     {option.label}
                   </span>

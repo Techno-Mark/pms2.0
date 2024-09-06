@@ -293,16 +293,25 @@ const WorklogActionbar = ({
                       </span>
                     </ColorToolTip>
                   )}
-                {hasPermissionWorklog("Task/SubTask", "Delete", "WorkLogs") && (
-                  <ColorToolTip title="Delete" arrow>
-                    <span
-                      className="pl-2 pr-2 pt-1 cursor-pointer border-l border-lightSilver"
-                      onClick={() => setIsDeleteOpen(true)}
-                    >
-                      <Delete />
-                    </span>
-                  </ColorToolTip>
-                )}
+                {hasPermissionWorklog("Task/SubTask", "Delete", "WorkLogs") &&
+                  workItemData
+                    .map((i: DatatableWorklog) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      i.AssignedToId !== null
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: number | undefined) => j !== undefined)
+                    .length <= 0 && (
+                    <ColorToolTip title="Delete" arrow>
+                      <span
+                        className="pl-2 pr-2 pt-1 cursor-pointer border-l border-lightSilver"
+                        onClick={() => setIsDeleteOpen(true)}
+                      >
+                        <Delete />
+                      </span>
+                    </ColorToolTip>
+                  )}
                 <ColorToolTip title="Priority" arrow>
                   <span
                     aria-describedby={idPriority}

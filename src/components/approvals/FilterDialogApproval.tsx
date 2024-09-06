@@ -488,168 +488,27 @@ const FilterDialogApproval = ({
                 />
               </FormControl>
 
-              {activeTab === 1 && (
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
-                >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="Date"
-                      value={date === null ? null : dayjs(date)}
-                      onChange={(newDate: any) => {
-                        setDate(newDate.$d);
-                      }}
-                      // shouldDisableDate={isWeekend}
-                      maxDate={dayjs(Date.now())}
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
-              )}
-              {activeTab === 2 && (
-                <>
-                  <FormControl
-                    variant="standard"
-                    sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
-                  >
-                    <Autocomplete
-                      id="tags-standard"
-                      options={reviewerDropdown}
-                      getOptionLabel={(option: LabelValueProfileImage) =>
-                        option.label
-                      }
-                      onChange={(
-                        e: React.ChangeEvent<{}>,
-                        data: LabelValueProfileImage | null
-                      ) => {
-                        setReviewer(data);
-                      }}
-                      value={reviewer}
-                      renderInput={(params: any) => (
-                        <TextField
-                          {...params}
-                          variant="standard"
-                          label="Reviewer"
-                        />
-                      )}
-                    />
-                  </FormControl>
-                  <div
-                    className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
-                  >
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DatePicker
-                        label="Due Date"
-                        value={dueDate === null ? null : dayjs(dueDate)}
-                        onChange={(newDate: any) => {
-                          setDueDate(newDate.$d);
-                        }}
-                        // shouldDisableDate={isWeekend}
-                        maxDate={dayjs(Date.now())}
-                        slotProps={{
-                          textField: {
-                            readOnly: true,
-                          } as Record<string, any>,
-                        }}
-                      />
-                    </LocalizationProvider>
-                  </div>
-                </>
-              )}
+              <div
+                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+              >
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Date"
+                    value={date === null ? null : dayjs(date)}
+                    onChange={(newDate: any) => {
+                      setDate(newDate.$d);
+                    }}
+                    // shouldDisableDate={isWeekend}
+                    maxDate={dayjs(Date.now())}
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      } as Record<string, any>,
+                    }}
+                  />
+                </LocalizationProvider>
+              </div>
             </div>
-            {activeTab === 2 && (
-              <div className="flex gap-[20px]">
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
-                >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="Preparation From"
-                      value={startDate === null ? null : dayjs(startDate)}
-                      // shouldDisableDate={isWeekend}
-                      maxDate={dayjs(Date.now())}
-                      onChange={(newDate: any) => {
-                        setStartDate(newDate.$d);
-                      }}
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
-                >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="Preparation To"
-                      value={endDate === null ? null : dayjs(endDate)}
-                      // shouldDisableDate={isWeekend}
-                      maxDate={dayjs(Date.now())}
-                      onChange={(newDate: any) => {
-                        setEndDate(newDate.$d);
-                      }}
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
-                >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="Review From"
-                      // shouldDisableDate={isWeekend}
-                      maxDate={dayjs(Date.now()) || dayjs(endDateReview)}
-                      value={
-                        startDateReview === null ? null : dayjs(startDateReview)
-                      }
-                      onChange={(newValue: any) => setStartDateReview(newValue)}
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
-              </div>
-            )}
-            {activeTab === 2 && (
-              <div className="flex gap-[20px]">
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
-                >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="Review To"
-                      // shouldDisableDate={isWeekend}
-                      minDate={dayjs(startDateReview)}
-                      maxDate={dayjs(Date.now())}
-                      value={
-                        endDateReview === null ? null : dayjs(endDateReview)
-                      }
-                      onChange={(newValue: any) => setEndDateReview(newValue)}
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
-              </div>
-            )}
           </div>
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">

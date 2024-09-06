@@ -54,6 +54,8 @@ const initialFilter = {
   WorkTypeId: null,
   StartDate: null,
   EndDate: null,
+  ReworkReceivedDate: null,
+  ReworkDueDate: null,
   DueDate: null,
   AssignedTo: null,
   OverdueBy: null,
@@ -85,6 +87,8 @@ const FilterDialog = ({
   const [overDue, setOverDue] = useState<LabelValue | null>(null);
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
+  const [reworkStartDate, setReworkStartDate] = useState<string | null>(null);
+  const [reworkEndDate, setReworkEndDate] = useState<string | null>(null);
   const [dueDate, setDueDate] = useState<string | null>(null);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currSelectedFields, setCurrSelectedFileds] =
@@ -104,6 +108,8 @@ const FilterDialog = ({
     setDueDate(null);
     setStartDate(null);
     setEndDate(null);
+    setReworkStartDate(null);
+    setReworkEndDate(null);
     setAssignee(null);
     setOverDue(null);
     setIsChecked(false);
@@ -122,6 +128,8 @@ const FilterDialog = ({
       dueDate !== null ||
       startDate !== null ||
       endDate !== null ||
+      reworkStartDate !== null ||
+      reworkEndDate !== null ||
       assignee !== null ||
       overDue !== null ||
       isChecked !== false;
@@ -135,6 +143,8 @@ const FilterDialog = ({
     dueDate,
     startDate,
     endDate,
+    reworkStartDate,
+    reworkEndDate,
     assignee,
     overDue,
     isChecked,
@@ -149,6 +159,12 @@ const FilterDialog = ({
       DueDate: dueDate !== null ? getFormattedDate(dueDate) || "" : null,
       StartDate: startDate !== null ? getFormattedDate(startDate) || "" : null,
       EndDate: endDate !== null ? getFormattedDate(endDate) || "" : null,
+      ReworkReceivedDate:
+        reworkStartDate !== null
+          ? getFormattedDate(reworkStartDate) || ""
+          : null,
+      ReworkDueDate:
+        reworkEndDate !== null ? getFormattedDate(reworkEndDate) || "" : null,
       AssignedTo: assignee !== null ? assignee.value : null,
       OverdueBy: overDue !== null ? overDue.value : null,
       IsSignedOff: isChecked,
@@ -162,6 +178,8 @@ const FilterDialog = ({
     dueDate,
     startDate,
     endDate,
+    reworkStartDate,
+    reworkEndDate,
     assignee,
     overDue,
     isChecked,
@@ -412,6 +430,41 @@ const FilterDialog = ({
                     maxDate={dayjs(Date.now())}
                     value={dueDate === null ? null : dayjs(dueDate)}
                     onChange={(newDate: any) => setDueDate(newDate.$d)}
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      } as Record<string, any>,
+                    }}
+                  />
+                </LocalizationProvider>
+              </div>
+            </div>
+            <div className="flex gap-[20px]">
+              <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Rework Received From"
+                    maxDate={dayjs(Date.now())}
+                    value={
+                      reworkStartDate === null ? null : dayjs(reworkStartDate)
+                    }
+                    onChange={(newDate: any) => setReworkStartDate(newDate.$d)}
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      } as Record<string, any>,
+                    }}
+                  />
+                </LocalizationProvider>
+              </div>
+
+              <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Rework Received To"
+                    maxDate={dayjs(Date.now())}
+                    value={reworkEndDate === null ? null : dayjs(reworkEndDate)}
+                    onChange={(newDate: any) => setReworkEndDate(newDate.$d)}
                     slotProps={{
                       textField: {
                         readOnly: true,

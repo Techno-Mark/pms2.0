@@ -36,6 +36,8 @@ const initialFilter = {
   AssignedTo: null,
   StartDate: null,
   EndDate: null,
+  ReworkReceivedDate: null,
+  ReworkDueDate: null,
   DueDate: null,
   IsCreatedByClient: null,
   IsCompletedTaskPage: false,

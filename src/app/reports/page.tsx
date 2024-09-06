@@ -309,7 +309,8 @@ const Page = () => {
             .map((i: Tabs) => (i.value === activeTab ? i.name : false))
             .filter((j: string | boolean) => j !== false)[0]
         }_report.${
-          getCurrentTabDetails(activeTab).toLowerCase() === "billing"
+          getCurrentTabDetails(activeTab).toLowerCase() === "billing" ||
+          getCurrentTabDetails(activeTab).toLowerCase() === "timesheet"
             ? "zip"
             : "xlsx"
         }`;

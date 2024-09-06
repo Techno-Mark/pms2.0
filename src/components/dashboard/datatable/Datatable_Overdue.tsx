@@ -7,7 +7,7 @@ import {
   handleChangeRowsPerPage,
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
-import { dashboardOnHoldAndOverdueCols } from "@/utils/datatable/columns/ClientDatatableColumns";
+import { dashboardOverdueCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
 
 interface OverdueProps {
@@ -111,7 +111,7 @@ const Datatable_Overdue = ({
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
-          columns={dashboardOnHoldAndOverdueCols}
+          columns={dashboardOverdueCols}
           title={undefined}
           options={{ ...options, tableBodyHeight: "78vh" }}
           data-tableid="dashboard_Overdue_Datatable"

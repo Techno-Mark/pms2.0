@@ -44,6 +44,8 @@ const initialFilter = {
   DueDate: null,
   StartDate: null,
   EndDate: null,
+  ReworkReceivedDate: null,
+  ReworkDueDate: null,
   ReviewStatus: null,
 };
 
@@ -68,6 +70,8 @@ const FilterDialog = ({
   const [dueDate, setDueDate] = useState<null | string>(null);
   const [startDate, setStartDate] = useState<null | string>(null);
   const [endDate, setEndDate] = useState<null | string>(null);
+  const [reworkStartDate, setReworkStartDate] = useState<null | string>(null);
+  const [reworkEndDate, setReworkEndDate] = useState<null | string>(null);
   const [ReviewStatus, setReviewStatus] = useState<number>(0);
   const [filterName, setFilterName] = useState("");
   const [appliedFilterData, setAppliedFilterData] = useState<
@@ -110,6 +114,8 @@ const FilterDialog = ({
     setDueDate(null);
     setStartDate(null);
     setEndDate(null);
+    setReworkStartDate(null);
+    setReworkEndDate(null);
     setReviewStatus(0);
     setSaveFilter(false);
     setFilterName("");
@@ -128,6 +134,8 @@ const FilterDialog = ({
     setDueDate(null);
     setStartDate(null);
     setEndDate(null);
+    setReworkStartDate(null);
+    setReworkEndDate(null);
     setReviewStatus(0);
     setSaveFilter(false);
     setFilterName("");
@@ -225,13 +233,30 @@ const FilterDialog = ({
           AssignedTo: assignedTo !== null ? assignedTo.value : null,
           AssignedBy: assignedBy !== null ? assignedBy.value : null,
           DueDate: dueDate !== null ? getFormattedDate(dueDate) : null,
-          StartDate: startDate !== null ? getFormattedDate(startDate) : null,
+          StartDate:
+            startDate === null
+              ? endDate === null
+                ? null
+                : getFormattedDate(endDate)
+              : getFormattedDate(startDate),
           EndDate:
             endDate === null
               ? startDate === null
                 ? null
                 : getFormattedDate(startDate)
               : getFormattedDate(endDate),
+          ReworkReceivedDate:
+            reworkStartDate === null
+              ? reworkEndDate === null
+                ? null
+                : getFormattedDate(reworkEndDate)
+              : getFormattedDate(reworkStartDate),
+          ReworkDueDate:
+            reworkEndDate === null
+              ? reworkStartDate === null
+                ? null
+                : getFormattedDate(reworkStartDate)
+              : getFormattedDate(reworkEndDate),
           ReviewStatus: ReviewStatus || 0,
         },
         type: 1,
@@ -297,6 +322,8 @@ const FilterDialog = ({
       dueDate !== null ||
       startDate !== null ||
       endDate !== null ||
+      reworkStartDate !== null ||
+      reworkEndDate !== null ||
       ReviewStatus !== 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
@@ -310,6 +337,8 @@ const FilterDialog = ({
     dueDate,
     startDate,
     endDate,
+    reworkStartDate,
+    reworkEndDate,
     ReviewStatus,
   ]);
 
@@ -333,6 +362,8 @@ const FilterDialog = ({
           DueDate,
           StartDate,
           EndDate,
+          ReworkReceivedDate,
+          ReworkDueDate,
           ReviewStatus,
         } = appliedFilter;
 
@@ -389,6 +420,8 @@ const FilterDialog = ({
         setDueDate(DueDate ?? null);
         setStartDate(StartDate ?? null);
         setEndDate(EndDate ?? null);
+        setReworkStartDate(ReworkReceivedDate ?? null);
+        setReworkEndDate(ReworkDueDate ?? null);
         setReviewStatus(
           ReviewStatus !== null && ReviewStatus > 0 ? ReviewStatus : 0
         );
@@ -413,13 +446,30 @@ const FilterDialog = ({
       AssignedTo: assignedTo !== null ? assignedTo.value : null,
       AssignedBy: assignedBy !== null ? assignedBy.value : null,
       DueDate: dueDate !== null ? getFormattedDate(dueDate) || "" : null,
-      StartDate: startDate !== null ? getFormattedDate(startDate) || "" : null,
+      StartDate:
+        startDate === null
+          ? endDate === null
+            ? null
+            : getFormattedDate(endDate) || ""
+          : getFormattedDate(startDate) || "",
       EndDate:
         endDate === null
           ? startDate === null
             ? null
             : getFormattedDate(startDate) || ""
           : getFormattedDate(endDate) || "",
+      ReworkReceivedDate:
+        reworkStartDate === null
+          ? reworkEndDate === null
+            ? null
+            : getFormattedDate(reworkEndDate) || ""
+          : getFormattedDate(reworkStartDate) || "",
+      ReworkDueDate:
+        reworkEndDate === null
+          ? reworkStartDate === null
+            ? null
+            : getFormattedDate(reworkStartDate) || ""
+          : getFormattedDate(reworkEndDate) || "",
       ReviewStatus: ReviewStatus || null,
     };
     setCurrSelectedFileds(selectedFields);
@@ -433,6 +483,8 @@ const FilterDialog = ({
     dueDate,
     startDate,
     endDate,
+    reworkStartDate,
+    reworkEndDate,
     ReviewStatus,
   ]);
 
@@ -678,6 +730,47 @@ const FilterDialog = ({
                     // shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
                     onChange={(newDate: any) => setEndDate(newDate.$d)}
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      } as Record<string, any>,
+                    }}
+                  />
+                </LocalizationProvider>
+              </div>
+            </div>
+
+            <div className="flex gap-[20px]">
+              <div
+                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+              >
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Rework Received From"
+                    value={
+                      reworkStartDate === null ? null : dayjs(reworkStartDate)
+                    }
+                    // shouldDisableDate={isWeekend}
+                    maxDate={dayjs(Date.now())}
+                    onChange={(newDate: any) => setReworkStartDate(newDate.$d)}
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      } as Record<string, any>,
+                    }}
+                  />
+                </LocalizationProvider>
+              </div>
+              <div
+                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+              >
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Rework Received To"
+                    value={reworkEndDate === null ? null : dayjs(reworkEndDate)}
+                    // shouldDisableDate={isWeekend}
+                    maxDate={dayjs(Date.now())}
+                    onChange={(newDate: any) => setReworkEndDate(newDate.$d)}
                     slotProps={{
                       textField: {
                         readOnly: true,

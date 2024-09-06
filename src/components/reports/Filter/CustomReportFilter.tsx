@@ -74,6 +74,8 @@ interface SavedFilter {
     IsHoursShared: number | null;
     PeriodFrom: string | null;
     PeriodTo: string | null;
+    ReworkReceivedDate: string | null;
+    ReworkDueDate: string | null;
   };
 }
 
@@ -128,6 +130,8 @@ const CustomReportFilter = ({
   const [priority, setPriority] = useState<LabelValue | null>(null);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
+  const [reworkStartDate, setReworkStartDate] = useState<string | number>("");
+  const [reworkEndDate, setReworkEndDate] = useState<string | number>("");
   const [startDateReview, setStartDateReview] = useState<string | number>("");
   const [endDateReview, setEndDateReview] = useState<string | number>("");
   const [startDateLogged, setStartDateLogged] = useState<string | number>("");
@@ -214,6 +218,8 @@ const CustomReportFilter = ({
     setPeriodTo(null);
     setStartDate("");
     setEndDate("");
+    setReworkStartDate("");
+    setReworkEndDate("");
     setStartDateReview("");
     setEndDateReview("");
     setStartDateLogged("");
@@ -263,6 +269,8 @@ const CustomReportFilter = ({
     setPeriodTo(null);
     setStartDate("");
     setEndDate("");
+    setReworkStartDate("");
+    setReworkEndDate("");
     setStartDateReview("");
     setEndDateReview("");
     setStartDateLogged("");
@@ -304,6 +312,18 @@ const CustomReportFilter = ({
             ? null
             : getFormattedDate(startDate)
           : getFormattedDate(endDate),
+      ReworkReceivedDate:
+        reworkStartDate.toString().trim().length <= 0
+          ? reworkEndDate.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(reworkEndDate)
+          : getFormattedDate(reworkStartDate),
+      ReworkDueDate:
+        reworkEndDate.toString().trim().length <= 0
+          ? reworkStartDate.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(reworkStartDate)
+          : getFormattedDate(reworkEndDate),
       startDateReview:
         startDateReview.toString().trim().length <= 0
           ? endDateReview.toString().trim().length <= 0
@@ -364,6 +384,9 @@ const CustomReportFilter = ({
           PeriodTo: savedFilters[index].AppliedFilter.PeriodTo,
           startDate: savedFilters[index].AppliedFilter.startDate,
           endDate: savedFilters[index].AppliedFilter.endDate,
+          ReworkReceivedDate:
+            savedFilters[index].AppliedFilter.ReworkReceivedDate,
+          ReworkDueDate: savedFilters[index].AppliedFilter.ReworkDueDate,
           startDateReview: savedFilters[index].AppliedFilter.startDateReview,
           endDateReview: savedFilters[index].AppliedFilter.endDateReview,
           dueDate: savedFilters[index].AppliedFilter.dueDate,
@@ -417,6 +440,18 @@ const CustomReportFilter = ({
                 ? null
                 : getFormattedDate(startDate)
               : getFormattedDate(endDate),
+          ReworkReceivedDate:
+            reworkStartDate.toString().trim().length <= 0
+              ? reworkEndDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(reworkEndDate)
+              : getFormattedDate(reworkStartDate),
+          ReworkDueDate:
+            reworkEndDate.toString().trim().length <= 0
+              ? reworkStartDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(reworkStartDate)
+              : getFormattedDate(reworkEndDate),
           startDateReview:
             startDateReview.toString().trim().length <= 0
               ? endDateReview.toString().trim().length <= 0
@@ -495,6 +530,8 @@ const CustomReportFilter = ({
       periodTo !== null ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0 ||
+      reworkStartDate.toString().trim().length > 0 ||
+      reworkEndDate.toString().trim().length > 0 ||
       startDateReview.toString().trim().length > 0 ||
       endDateReview.toString().trim().length > 0 ||
       startDateLogged.toString().trim().length > 0 ||
@@ -524,6 +561,8 @@ const CustomReportFilter = ({
     periodTo,
     startDate,
     endDate,
+    reworkStartDate,
+    reworkEndDate,
     startDateReview,
     endDateReview,
     startDateLogged,
@@ -774,6 +813,8 @@ const CustomReportFilter = ({
     setPeriodTo(dayjs(AppliedFilter?.PeriodTo) || null);
     setStartDate(AppliedFilter?.startDate || "");
     setEndDate(AppliedFilter?.endDate || "");
+    setReworkStartDate(AppliedFilter?.ReworkReceivedDate || "");
+    setReworkEndDate(AppliedFilter?.ReworkDueDate || "");
     setStartDateReview(AppliedFilter?.startDateReview || "");
     setEndDateReview(AppliedFilter?.endDateReview || "");
     setStartDateLogged(AppliedFilter.startDateLogged ?? "");
@@ -1364,7 +1405,7 @@ const CustomReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="Recieved From"
+                      label="Received From"
                       value={startDate === "" ? null : dayjs(startDate)}
                       // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
@@ -1384,7 +1425,7 @@ const CustomReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="Recieved To"
+                      label="Received To"
                       value={endDate === "" ? null : dayjs(endDate)}
                       // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
@@ -1568,6 +1609,42 @@ const CustomReportFilter = ({
                       label="Period To"
                       value={periodTo === "" ? null : periodTo}
                       onChange={(newDate: any) => setPeriodTo(newDate.$d)}
+                    />
+                  </LocalizationProvider>
+                </div>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Rework Received From"
+                      value={
+                        reworkStartDate === "" ? null : dayjs(reworkStartDate)
+                      }
+                      maxDate={dayjs(Date.now())}
+                      onChange={(newValue: any) => setReworkStartDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Rework Received To"
+                      value={reworkEndDate === "" ? null : dayjs(reworkEndDate)}
+                      maxDate={dayjs(Date.now())}
+                      onChange={(newValue: any) => setReworkEndDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
                     />
                   </LocalizationProvider>
                 </div>

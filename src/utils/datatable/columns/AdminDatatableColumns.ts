@@ -81,7 +81,7 @@ const SummaryColConfig = [
     name: "StatusName",
     label: "Status",
     bodyRenderer: (value: any, tableMeta: any) =>
-      generateStatusWithColor(value, tableMeta.rowData[11]),
+      generateStatusWithColor(value, tableMeta.rowData[13]),
   },
   {
     name: "TaxReturnTypeName",
@@ -101,6 +101,16 @@ const SummaryColConfig = [
   {
     name: "EndDate",
     label: "Due Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "ReworkReceivedDate",
+    label: "Rework Received Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "ReworkDueDate",
+    label: "Rework Due Date",
     bodyRenderer: generateCustomFormatDate,
   },
   {
@@ -129,15 +139,15 @@ const SummaryColConfig = [
 ];
 
 const adminDashboardSummaryCols = SummaryColConfig.map((column: any) =>
-  generateStatusColumn(column, 11)
+  generateStatusColumn(column, 13)
 );
 
 const adminDashboardProjectStatusCols = SummaryColConfig.map((column: any) =>
-  generateStatusColumn(column, 11)
+  generateStatusColumn(column, 13)
 );
 
 const adminDashboardTaskStatusCols = SummaryColConfig.map((column: any) =>
-  generateStatusColumn(column, 11)
+  generateStatusColumn(column, 13)
 );
 
 export {

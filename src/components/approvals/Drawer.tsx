@@ -295,6 +295,11 @@ const EditDrawer = ({
     useState(false);
   const [valueMonthYearFrom, setValueMonthYearFrom] = useState<any>(null);
   const [valueMonthYearTo, setValueMonthYearTo] = useState<any>(null);
+  const [reworkReceiverDateWorklogs, setReworkReceiverDateWorklogs] =
+    useState("");
+  const [reworkReceiverDateWorklogsErr, setReworkReceiverDateWorklogsErr] =
+    useState(false);
+  const [reworkDueDateWorklogs, setReworkDueDateWorklogs] = useState("");
 
   const previousYearStartDate = dayjs()
     .subtract(1, "year")
@@ -2028,6 +2033,12 @@ const EditDrawer = ({
           : checklistWorkpaperApprovals === 2
           ? false
           : null,
+      ReworkReceivedDate: !!reworkReceiverDateWorklogs
+        ? dayjs(reworkReceiverDateWorklogs).format("YYYY/MM/DD")
+        : null,
+      ReworkDueDate: !!reworkDueDateWorklogs
+        ? dayjs(reworkDueDateWorklogs).format("YYYY/MM/DD")
+        : null,
       PeriodFrom:
         valueMonthYearFrom === null || valueMonthYearFrom === ""
           ? null
@@ -2082,7 +2093,8 @@ const EditDrawer = ({
       quantityApprovals > 0 &&
       quantityApprovals < 10000 &&
       !quantityApprovalsErr &&
-      !quantityApprovals.toString().includes(".")
+      !quantityApprovals.toString().includes(".") &&
+      !reworkReceiverDateWorklogsErr
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
@@ -2174,6 +2186,14 @@ const EditDrawer = ({
         );
         setValueMonthYearTo(
           ResponseData.PeriodTo === null ? null : dayjs(ResponseData.PeriodTo)
+        );
+        setReworkReceiverDateWorklogs(
+          !!ResponseData.ReworkReceivedDate
+            ? ResponseData.ReworkReceivedDate
+            : ""
+        );
+        setReworkDueDateWorklogs(
+          !!ResponseData.ReworkDueDate ? ResponseData.ReworkDueDate : ""
         );
       }
     };
@@ -3195,7 +3215,7 @@ const EditDrawer = ({
                         }
                         margin="normal"
                         variant="standard"
-                        sx={{ mx: 0.75, width: 300, mt: -1.4 }}
+                        sx={{ mx: 0.75, width: 300, mt: -1.5 }}
                         disabled={
                           (isCreatedByClient && editData.SubProcessId > 0) ||
                           activeTab === 2
@@ -3411,6 +3431,11 @@ const EditDrawer = ({
                                   .toDate();
                               }
                               setDueDateApprovals(nextDate);
+                              !!reworkReceiverDateWorklogs &&
+                              new Date(reworkReceiverDateWorklogs) <
+                                new Date(newDate.$d)
+                                ? setReworkReceiverDateWorklogsErr(true)
+                                : setReworkReceiverDateWorklogsErr(false);
                             }}
                             slotProps={{
                               textField: {
@@ -3856,7 +3881,20 @@ const EditDrawer = ({
                     )}
                     {onEdit > 0 && (
                       <>
-                        <Grid item xs={3} className="pt-5">
+                        <Grid
+                          item
+                          xs={3}
+                          className={`${
+                            (departmentApprovalsType == "UK" ||
+                              departmentApprovalsType ==
+                                "WhitelabelAccounting" ||
+                              departmentApprovalsType ==
+                                "WhitelabelAustralia") &&
+                            typeOfWorkApprovals !== 3
+                              ? "pt-6"
+                              : "pt-5"
+                          }`}
+                        >
                           <TextField
                             label="Date of Preperation"
                             type={inputTypePreperation}
@@ -3879,7 +3917,22 @@ const EditDrawer = ({
                             }}
                           />
                         </Grid>
-                        <Grid item xs={3} className="pt-5">
+                        <Grid
+                          item
+                          xs={3}
+                          className={`${
+                            (departmentApprovalsType == "UK" ||
+                              departmentApprovalsType ==
+                                "WhitelabelAccounting" ||
+                              departmentApprovalsType ==
+                                "WhitelabelAustralia" ||
+                              departmentApprovalsType ==
+                                "WhitelabelTaxation") &&
+                            typeOfWorkApprovals !== 3
+                              ? "pt-6"
+                              : "pt-5"
+                          }`}
+                        >
                           <TextField
                             label="Date of Review"
                             disabled
@@ -3902,6 +3955,102 @@ const EditDrawer = ({
                             }}
                           />
                         </Grid>
+                        {!!reworkReceiverDateWorklogs && (
+                          <Grid item xs={3} className="pt-5">
+                            <div
+                              className={`inline-flex -mt-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                            >
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                  label={
+                                    <span>
+                                      Rework Received Date
+                                      <span className="!text-defaultRed">
+                                        &nbsp;*
+                                      </span>
+                                    </span>
+                                  }
+                                  disabled={
+                                    (isCreatedByClient &&
+                                      editData.SubProcessId > 0) ||
+                                    activeTab === 2
+                                  }
+                                  value={
+                                    reworkReceiverDateWorklogs === ""
+                                      ? null
+                                      : dayjs(reworkReceiverDateWorklogs)
+                                  }
+                                  // shouldDisableDate={isWeekend}
+                                  minDate={dayjs(receiverDateApprovals)}
+                                  maxDate={dayjs(Date.now())}
+                                  onChange={(newDate: any) => {
+                                    setReworkReceiverDateWorklogs(newDate.$d);
+                                    const selectedDate = dayjs(newDate.$d);
+                                    let nextDate: any = selectedDate;
+                                    nextDate = dayjs(newDate.$d)
+                                      .add(1, "day")
+                                      .toDate();
+                                    setReworkDueDateWorklogs(nextDate);
+                                    !!receiverDateApprovals &&
+                                    new Date(receiverDateApprovals) >
+                                      new Date(newDate.$d)
+                                      ? setReworkReceiverDateWorklogsErr(true)
+                                      : setReworkReceiverDateWorklogsErr(false);
+                                  }}
+                                  slotProps={{
+                                    textField: {
+                                      readOnly: true,
+                                    } as Record<string, any>,
+                                  }}
+                                />
+                              </LocalizationProvider>
+                            </div>
+                          </Grid>
+                        )}
+                        {!!reworkDueDateWorklogs && (
+                          <Grid item xs={3} className="pt-5">
+                            <div
+                              className={`inline-flex ${
+                                typeOfWorkApprovals === 3
+                                  ? "-mt-[11px]"
+                                  : "-mt-[8px]"
+                              } mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                            >
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                  label={
+                                    <span>
+                                      Rework Due Date
+                                      <span className="!text-defaultRed">
+                                        &nbsp;*
+                                      </span>
+                                    </span>
+                                  }
+                                  value={
+                                    reworkDueDateWorklogs === ""
+                                      ? null
+                                      : dayjs(reworkDueDateWorklogs)
+                                  }
+                                  disabled={
+                                    (isCreatedByClient &&
+                                      editData.SubProcessId > 0) ||
+                                    activeTab === 2
+                                  }
+                                  minDate={dayjs(reworkReceiverDateWorklogs)}
+                                  shouldDisableDate={isWeekend}
+                                  onChange={(newDate: any) => {
+                                    setReworkDueDateWorklogs(newDate.$d);
+                                  }}
+                                  slotProps={{
+                                    textField: {
+                                      readOnly: true,
+                                    } as Record<string, any>,
+                                  }}
+                                />
+                              </LocalizationProvider>
+                            </div>
+                          </Grid>
+                        )}
                       </>
                     )}
                   </Grid>

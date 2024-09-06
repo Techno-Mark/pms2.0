@@ -127,6 +127,16 @@ const reportTaskColConfig = [
     bodyRenderer: generateCustomFormatDate,
   },
   {
+    name: "ReworkReceivedDate",
+    label: "Rework Received Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "ReworkDueDate",
+    label: "Rework Due Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
     name: "ColorCode",
     options: {
       display: false,
@@ -833,7 +843,7 @@ const reportDatatatbleRatingCols = RatingReportColsConfig.map((col: any) =>
 );
 
 const reportDatatableTaskCols = reportTaskColConfig.map((col: any) =>
-  generateCustomizableCols(col, 10)
+  generateCustomizableCols(col, 12)
 );
 
 const reportsAuditCols = auditColConfig.map((col: any) =>
@@ -936,6 +946,28 @@ const reportsUserLogsCols: any[] = [
       customHeadLabelRender: () => generateCustomHeaderName("Logout"),
       customBodyRender: (value: string | null) => {
         return generateDateWithTime(value);
+      },
+    },
+  },
+  {
+    name: "TotalTrackedTime",
+    options: {
+      sort: true,
+      filter: true,
+      customHeadLabelRender: () => generateCustomHeaderName("Auto Time"),
+      customBodyRender: (value: string) => {
+        return generateInitialTimer(value);
+      },
+    },
+  },
+  {
+    name: "TotalManualTime",
+    options: {
+      sort: true,
+      filter: true,
+      customHeadLabelRender: () => generateCustomHeaderName("Manual Time"),
+      customBodyRender: (value: string) => {
+        return generateInitialTimer(value);
       },
     },
   },

@@ -51,6 +51,8 @@ interface FilteredData {
   endDateReview: string | null;
   startDateLogged: string | null;
   endDateLogged: string | null;
+  ReworkReceivedDate: string | null;
+  ReworkDueDate: string | null;
   isDownload: boolean;
 }
 
@@ -110,6 +112,8 @@ interface List {
   HoursSharedDate: string | null;
   PeriodFrom: string | null;
   PeriodTo: string | null;
+  ReworkReceivedDate: string | null;
+  ReworkDueDate: string | null;
 }
 
 interface Response {
@@ -681,6 +685,30 @@ const CustomReport = ({
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("All Info Date"),
         customBodyRender: (value: string | null) => {
+          return generateDateWithoutTime(value);
+        },
+      },
+    },
+    {
+      name: "ReworkReceivedDate",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Rework Recieved Date"),
+        customBodyRender: (value: string) => {
+          return generateDateWithoutTime(value);
+        },
+      },
+    },
+    {
+      name: "ReworkDueDate",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Rework Due Date"),
+        customBodyRender: (value: string) => {
           return generateDateWithoutTime(value);
         },
       },

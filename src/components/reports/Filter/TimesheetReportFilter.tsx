@@ -422,10 +422,13 @@ const TimesheetReportFilter = ({
                       option.label
                     }
                     onChange={(e, data: LabelValueProfileImage[]) => {
-                      setTimesheetUserNames(
-                        data.map((d: LabelValueProfileImage) => d.value)
-                      );
-                      setTimesheetUsers(data);
+                      if (data.length <= 20) {
+                        // Limit to 10 selections
+                        setTimesheetUserNames(
+                          data.map((d: LabelValueProfileImage) => d.value)
+                        );
+                        setTimesheetUsers(data);
+                      }
                     }}
                     value={timesheetUsers}
                     renderInput={(params: any) => (
