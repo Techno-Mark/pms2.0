@@ -681,6 +681,16 @@ const Datatable = ({
       bodyRenderer: generateCustomFormatDate,
     },
     {
+      name: "ReworkReceivedDate",
+      label: "Rework Received Date",
+      bodyRenderer: generateCustomFormatDate,
+    },
+    {
+      name: "ReworkDueDate",
+      label: "Rework Due Date",
+      bodyRenderer: generateCustomFormatDate,
+    },
+    {
       name: "AssignedByName",
       label: "Assigned By",
       bodyRenderer: generateCommonBodyRender,

@@ -175,14 +175,6 @@ const DateWiseLogsContent = ({
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
 
-  const generateIsManualHeaderRender = (headerName: string) => {
-    return (
-      <div className="font-bold text-sm capitalize !w-[100px]">
-        {headerName}
-      </div>
-    );
-  };
-
   const datewiselogsColumn = [
     {
       name: "WorkItemId",
@@ -339,12 +331,38 @@ const DateWiseLogsContent = ({
       },
     },
     {
+      name: "TotalTrackedTimeLogHrs",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => {
+          return generateCustomHeaderName("Auto Time");
+        },
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "TotalManualTimeLogHrs",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => {
+          return generateCustomHeaderName("Manual Time");
+        },
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
       name: "TotalTimeSpent",
       options: {
         filter: true,
         sort: true,
         customHeadLabelRender: () => {
-          return generateIsManualHeaderRender("total time");
+          return generateCustomHeaderName("Total Time");
         },
         customBodyRender: (value: string) => {
           return generateCommonBodyRender(value);
@@ -474,13 +492,31 @@ const DateWiseLogsContent = ({
         }}
       >
         <div className="my-4 px-4 w-full flex items-center justify-between">
-          <div>
-            User Name:&nbsp;
-            <b>
-              {dateWiseLogsData.length > 0
-                ? dateWiseLogsData[0].LogsDetails[0].UserName
-                : []}
-            </b>
+          <div className="flex items-center justify-center gap-4">
+            <div>
+              User Name:&nbsp;
+              <b>
+                {dateWiseLogsData.length > 0
+                  ? dateWiseLogsData[0].LogsDetails[0].UserName
+                  : []}
+              </b>
+            </div>
+            <div>
+              Total Break Time:&nbsp;
+              <b>
+                {dateWiseLogsData.length > 0
+                  ? dateWiseLogsData[0].TotalBreakTime
+                  : "00:00:00"}
+              </b>
+            </div>
+            <div>
+              Total Idle Time:&nbsp;
+              <b>
+                {dateWiseLogsData.length > 0
+                  ? dateWiseLogsData[0].TotalIdleTime
+                  : "00:00:00"}
+              </b>
+            </div>
           </div>
           <div
             className="cursor-pointer"
@@ -624,11 +660,7 @@ const TimeSheetReport = ({
   };
 
   const generateUserNameHeaderRender = (headerValue: string) => {
-    return (
-      <div className="font-bold text-sm capitalize !w-[100px]">
-        {headerValue}
-      </div>
-    );
+    return <span className="font-extrabold capitalize">{headerValue}</span>;
   };
 
   const generateUserNameBodyRender = (bodyValue: string, TableMeta: any) => {
@@ -647,6 +679,9 @@ const TimeSheetReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Employee Code"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
       },
     },
     {
@@ -665,7 +700,10 @@ const TimeSheetReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => generateUserNameHeaderRender("Department"),
+        customHeadLabelRender: () => generateCustomHeaderName("Department"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
       },
     },
     {
@@ -674,6 +712,9 @@ const TimeSheetReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("designation"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
       },
     },
     {
@@ -683,6 +724,9 @@ const TimeSheetReport = ({
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Reporting Manager"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
       },
     },
     {

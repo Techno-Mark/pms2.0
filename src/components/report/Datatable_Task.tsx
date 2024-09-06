@@ -27,6 +27,8 @@ interface List {
   HoursLogged: string | null;
   StartDate: string;
   DueDate: string;
+  ReworkReceivedDate: null,
+  ReworkDueDate: null,
 }
 
 interface Response {

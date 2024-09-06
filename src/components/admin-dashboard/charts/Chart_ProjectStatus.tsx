@@ -88,7 +88,7 @@ const Chart_ProjectStatus = ({
     chart: {
       type: "variablepie",
       width: 480,
-      height: 240,
+      height: 260,
       spacingTop: 10,
     },
     title: {

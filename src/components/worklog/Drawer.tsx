@@ -1697,7 +1697,7 @@ const Drawer = ({
                             >
                               <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DatePicker
-                                  label="Received Date"
+                                  label="Created Date"
                                   value={
                                     receiverDateClientWorklog === ""
                                       ? null

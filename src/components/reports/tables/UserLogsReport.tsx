@@ -34,6 +34,8 @@ interface Response {
         TotalBreakTime: string | null;
         TotalIdleTime: string | null;
         TotalProductiveTime: string | null;
+        TotalManualTime: string | null;
+        TotalTrackedTime: string | null;
         IsLoggedIn: number | null;
         UserId: number;
         UserName: string;
