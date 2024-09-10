@@ -76,6 +76,8 @@ export interface ClientWorkType {
   BillingTypeName: string;
   InternalHrs: number;
   ContractHrs: number;
+  ClientPotentialityId: number;
+  ClientPotentiality: string | null;
 }
 
 //Project
@@ -307,6 +309,8 @@ export interface DepartmentDataObj {
   billingErr: boolean;
   group: LabelValue[];
   groupErr: boolean;
+  clientPotentiality: number;
+  clientPotentialityErr: boolean;
   selectGroupValue: number[];
   contHrs: number | string;
   contHrsErr: boolean;
