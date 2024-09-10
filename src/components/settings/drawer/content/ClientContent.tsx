@@ -72,6 +72,8 @@ const ClientContent = forwardRef<
         billingErr: false,
         group: [],
         groupErr: false,
+        clientPotentiality: 0,
+        clientPotentialityErr: false,
         selectGroupValue: [],
         contHrs: 0,
         contHrsErr: false,
@@ -99,6 +101,8 @@ const ClientContent = forwardRef<
           billingErr: false,
           group: [],
           groupErr: false,
+          clientPotentiality: 0,
+          clientPotentialityErr: false,
           selectGroupValue: [],
           contHrs: 0,
           contHrsErr: false,
@@ -111,6 +115,12 @@ const ClientContent = forwardRef<
 
   const [billingTypeData, setBillingTypeData] = useState([]);
   const [groupTypeData, setGroupTypeData] = useState([]);
+  const clientPotentialityData = [
+    // { label: "None", value: 0 },
+    { label: "Tire 1", value: 1 },
+    { label: "Tire 2", value: 2 },
+    { label: "Tire 3", value: 3 },
+  ];
 
   const [Id, setId] = useState(0);
   const [clientName, setClientName] = useState("");
@@ -233,6 +243,7 @@ const ClientContent = forwardRef<
                   isOpen: checked,
                   billingErr: checked,
                   groupErr: checked,
+                  clientPotentialityErr: i.label == "Tax" ? checked : false,
                   contHrsErr: checked,
                   actHrsErr: checked,
                   allFields: false,
@@ -295,6 +306,7 @@ const ClientContent = forwardRef<
                         WorkTypeId: number;
                         BillingTypeId: number;
                         GroupIds: number[];
+                        clientPotentiality: null | number;
                         LayoutId: number;
                         InternalHrs: number;
                         ContractHrs: number;
@@ -319,6 +331,9 @@ const ClientContent = forwardRef<
                       isOpen: true,
                       billingType: matchingItem.BillingTypeId,
                       group: filteredOptionsData,
+                      clientPotentiality: !!matchingItem.ClientPotentiality
+                        ? matchingItem.ClientPotentiality
+                        : 0,
                       selectGroupValue: matchingItem.GroupIds,
                       contHrs: matchingItem.ContractHrs,
                       actHrs: matchingItem.InternalHrs,
@@ -516,6 +531,8 @@ const ClientContent = forwardRef<
                 allFields:
                   i.billingType > 0 &&
                   i.selectGroupValue.length > 0 &&
+                  (i.label !== "Tax" ||
+                    (i.label === "Tax" && i.clientPotentiality > 0)) &&
                   ((Number(i.actHrs) > 0 &&
                     e.toString().length > 0 &&
                     e.toString().length <= 5) ||
@@ -542,6 +559,8 @@ const ClientContent = forwardRef<
                 allFields:
                   i.billingType > 0 &&
                   i.selectGroupValue.length > 0 &&
+                  (i.label !== "Tax" ||
+                    (i.label === "Tax" && i.clientPotentiality > 0)) &&
                   ((Number(i.contHrs) > 0 &&
                     e.toString().length > 0 &&
                     e.toString().length <= 5) ||
@@ -563,6 +582,8 @@ const ClientContent = forwardRef<
               ...i,
               billingErr: i.billingType <= 0 ? true : false,
               groupErr: i.selectGroupValue.length <= 0 ? true : false,
+              clientPotentialityErr:
+                i.label == "Tax" && i.clientPotentiality <= 0 ? true : false,
               contHrsErr:
                 i.billingType !== 7 && Number(i.contHrs) <= 0
                   ? true
@@ -608,6 +629,8 @@ const ClientContent = forwardRef<
               allFields:
                 i.billingType > 0 &&
                 i.selectGroupValue.length > 0 &&
+                (i.label !== "Tax" ||
+                  (i.label === "Tax" && i.clientPotentiality > 0)) &&
                 ((Number(i.contHrs) > 0 && Number(i.actHrs) > 0) ||
                   i.billingType === 7)
                   ? false
@@ -649,7 +672,11 @@ const ClientContent = forwardRef<
       .filter((j: number | boolean) => j !== false);
 
     const hasError = data.map((i: DepartmentDataObj) =>
-      !i.billingErr && !i.groupErr && !i.contHrsErr && !i.actHrsErr
+      !i.billingErr &&
+      !i.groupErr &&
+      !i.clientPotentialityErr &&
+      !i.contHrsErr &&
+      !i.actHrsErr
         ? i.index
         : false
     );
@@ -710,6 +737,8 @@ const ClientContent = forwardRef<
           billingErr: false,
           group: [],
           groupErr: false,
+          clientPotentiality: 0,
+          clientPotentialityErr: false,
           selectGroupValue: [],
           contHrs: 0,
           contHrsErr: false,
@@ -777,6 +806,7 @@ const ClientContent = forwardRef<
                 workTypeId: i.apiId,
                 billingTypeId: i.billingType,
                 groupIds: i.selectGroupValue,
+                ClientPotentiality: i.clientPotentiality,
                 layoutId: 1,
                 internalHrs: i.actHrs,
                 contractHrs: i.contHrs,
@@ -791,6 +821,7 @@ const ClientContent = forwardRef<
                   workTypeId: number;
                   billingTypeId: number;
                   groupIds: number[];
+                  ClientPotentiality: number;
                   layoutId: number;
                   internalHrs: number | string;
                   contractHrs: number | string;
@@ -1075,6 +1106,8 @@ const ClientContent = forwardRef<
                 allFields:
                   i.billingType > 0 &&
                   selectedValue.length > 0 &&
+                  (i.label !== "Tax" ||
+                    (i.label === "Tax" && i.clientPotentiality > 0)) &&
                   ((Number(i.actHrs) > 0 &&
                     Number(i.actHrs) <= 5 &&
                     Number(i.contHrs) > 0 &&
@@ -1462,6 +1495,68 @@ const ClientContent = forwardRef<
                           />
                         )}
                       />
+                      {i.label == "Tax" && (
+                        <FormControl
+                          variant="standard"
+                          error={i.clientPotentialityErr}
+                        >
+                          <InputLabel id="demo-simple-select-standard-label">
+                            Client Potentiality
+                            <span className="text-defaultRed">&nbsp;*</span>
+                          </InputLabel>
+                          <Select
+                            labelId="demo-simple-select-standard-label"
+                            id="demo-simple-select-standard"
+                            value={
+                              i.clientPotentiality === 0
+                                ? ""
+                                : i.clientPotentiality
+                            }
+                            onChange={(e) => {
+                              const updatedDepartmentDataObj = [
+                                ...departmentDataObj,
+                              ];
+                              updatedDepartmentDataObj[
+                                index
+                              ].clientPotentiality = Number(e.target.value);
+                              Number(e.target.value) > 0 &&
+                                setDepartmentDataObj(updatedDepartmentDataObj);
+                            }}
+                            onBlur={() => {
+                              if (i.billingType > 0) {
+                                const updatedDepartmentDataObj = [
+                                  ...departmentDataObj,
+                                ];
+                                updatedDepartmentDataObj[
+                                  index
+                                ].clientPotentialityErr = false;
+                                setDepartmentDataObj(updatedDepartmentDataObj);
+                              } else {
+                                const updatedDepartmentDataObj = [
+                                  ...departmentDataObj,
+                                ];
+                                updatedDepartmentDataObj[
+                                  index
+                                ].clientPotentialityErr = true;
+                                setDepartmentDataObj(updatedDepartmentDataObj);
+                              }
+                            }}
+                          >
+                            {clientPotentialityData.map(
+                              (i: LabelValue, index: number) => (
+                                <MenuItem value={i.value} key={i.value + index}>
+                                  {i.label}
+                                </MenuItem>
+                              )
+                            )}
+                          </Select>
+                          {i.clientPotentialityErr && (
+                            <FormHelperText>
+                              This is a required field.
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      )}
                       <TextField
                         label={
                           <span>
