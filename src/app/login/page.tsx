@@ -90,7 +90,7 @@ const Page = () => {
     <div className="flex flex-col justify-center min-h-screen relative">
       <div className="flex items-center justify-between max-h-screen min-w-full relative">
         <Image
-          src="https://staging-tms.azurewebsites.net/assets/images/pages/login-v2.svg"
+          src="/login-v2.svg"
           alt="Login"
           className="w-[50%]"
           width={500}
