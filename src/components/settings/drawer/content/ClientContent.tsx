@@ -117,9 +117,9 @@ const ClientContent = forwardRef<
   const [groupTypeData, setGroupTypeData] = useState([]);
   const clientPotentialityData = [
     // { label: "None", value: 0 },
-    { label: "Tire 1", value: 1 },
-    { label: "Tire 2", value: 2 },
-    { label: "Tire 3", value: 3 },
+    { label: "Tier 1", value: 1 },
+    { label: "Tier 2", value: 2 },
+    { label: "Tier 3", value: 3 },
   ];
 
   const [Id, setId] = useState(0);
@@ -1495,68 +1495,70 @@ const ClientContent = forwardRef<
                           />
                         )}
                       />
-                      {i.label == "Tax" && (
-                        <FormControl
-                          variant="standard"
-                          error={i.clientPotentialityErr}
-                        >
-                          <InputLabel id="demo-simple-select-standard-label">
-                            Client Potentiality
+                      <FormControl
+                        variant="standard"
+                        error={i.clientPotentialityErr}
+                      >
+                        <InputLabel id="demo-simple-select-standard-label">
+                          Client Potentiality
+                          {i.label == "Tax" && (
                             <span className="text-defaultRed">&nbsp;*</span>
-                          </InputLabel>
-                          <Select
-                            labelId="demo-simple-select-standard-label"
-                            id="demo-simple-select-standard"
-                            value={
-                              i.clientPotentiality === 0
-                                ? ""
-                                : i.clientPotentiality
-                            }
-                            onChange={(e) => {
+                          )}
+                        </InputLabel>
+                        <Select
+                          labelId="demo-simple-select-standard-label"
+                          id="demo-simple-select-standard"
+                          value={
+                            i.clientPotentiality === 0
+                              ? ""
+                              : i.clientPotentiality
+                          }
+                          onChange={(e) => {
+                            const updatedDepartmentDataObj = [
+                              ...departmentDataObj,
+                            ];
+                            updatedDepartmentDataObj[index].clientPotentiality =
+                              Number(e.target.value);
+                            updatedDepartmentDataObj[
+                              index
+                            ].clientPotentialityErr = false;
+                            Number(e.target.value) > 0 &&
+                              setDepartmentDataObj(updatedDepartmentDataObj);
+                          }}
+                          onBlur={() => {
+                            if (i.clientPotentiality > 0 || i.label !== "Tax") {
                               const updatedDepartmentDataObj = [
                                 ...departmentDataObj,
                               ];
                               updatedDepartmentDataObj[
                                 index
-                              ].clientPotentiality = Number(e.target.value);
-                              Number(e.target.value) > 0 &&
-                                setDepartmentDataObj(updatedDepartmentDataObj);
-                            }}
-                            onBlur={() => {
-                              if (i.billingType > 0) {
-                                const updatedDepartmentDataObj = [
-                                  ...departmentDataObj,
-                                ];
-                                updatedDepartmentDataObj[
-                                  index
-                                ].clientPotentialityErr = false;
-                                setDepartmentDataObj(updatedDepartmentDataObj);
-                              } else {
-                                const updatedDepartmentDataObj = [
-                                  ...departmentDataObj,
-                                ];
-                                updatedDepartmentDataObj[
-                                  index
-                                ].clientPotentialityErr = true;
-                                setDepartmentDataObj(updatedDepartmentDataObj);
-                              }
-                            }}
-                          >
-                            {clientPotentialityData.map(
-                              (i: LabelValue, index: number) => (
-                                <MenuItem value={i.value} key={i.value + index}>
-                                  {i.label}
-                                </MenuItem>
-                              )
-                            )}
-                          </Select>
-                          {i.clientPotentialityErr && (
-                            <FormHelperText>
-                              This is a required field.
-                            </FormHelperText>
+                              ].clientPotentialityErr = false;
+                              setDepartmentDataObj(updatedDepartmentDataObj);
+                            } else {
+                              const updatedDepartmentDataObj = [
+                                ...departmentDataObj,
+                              ];
+                              updatedDepartmentDataObj[
+                                index
+                              ].clientPotentialityErr = true;
+                              setDepartmentDataObj(updatedDepartmentDataObj);
+                            }
+                          }}
+                        >
+                          {clientPotentialityData.map(
+                            (i: LabelValue, index: number) => (
+                              <MenuItem value={i.value} key={i.value + index}>
+                                {i.label}
+                              </MenuItem>
+                            )
                           )}
-                        </FormControl>
-                      )}
+                        </Select>
+                        {i.clientPotentialityErr && i.label == "Tax" && (
+                          <FormHelperText>
+                            This is a required field.
+                          </FormHelperText>
+                        )}
+                      </FormControl>
                       <TextField
                         label={
                           <span>
