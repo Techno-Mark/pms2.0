@@ -1519,11 +1519,14 @@ const ClientContent = forwardRef<
                             ];
                             updatedDepartmentDataObj[index].clientPotentiality =
                               Number(e.target.value);
+                            updatedDepartmentDataObj[
+                              index
+                            ].clientPotentialityErr = false;
                             Number(e.target.value) > 0 &&
                               setDepartmentDataObj(updatedDepartmentDataObj);
                           }}
                           onBlur={() => {
-                            if (i.billingType > 0 || i.label !== "Tax") {
+                            if (i.clientPotentiality > 0 || i.label !== "Tax") {
                               const updatedDepartmentDataObj = [
                                 ...departmentDataObj,
                               ];
