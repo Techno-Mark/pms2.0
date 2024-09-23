@@ -7,6 +7,7 @@ import SearchIcon from "@/assets/icons/SearchIcon";
 import { getReviewerDropdownData } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
 import { LabelValue } from "@/utils/Types/types";
+import ConfirmationDiloag from "@/components/common/ConfirmationDiloag";
 
 interface Reviewer {
   selectedWorkItemIds: number[];
@@ -27,6 +28,8 @@ const Reviewer = ({
 }: Reviewer) => {
   const [searchQueryRW, setSearchQueryRW] = useState("");
   const [reviewer, setReviewer] = useState<LabelValue[] | []>([]);
+  const [reviewerName, setReviewerName] = useState<LabelValue | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const [anchorElReviewer, setAnchorElReviewer] =
     React.useState<HTMLButtonElement | null>(null);
@@ -58,15 +61,10 @@ const Reviewer = ({
     reviewer.label.toLowerCase().includes(searchQueryRW.toLowerCase())
   );
 
-  const handleOptionReviewer = (id: number) => {
-    updateReviewer(selectedWorkItemIds, id);
-    handleCloseReviewer();
-  };
-
-  const updateReviewer = async (id: number[], reviewerId: number) => {
+  const updateReviewer = async (reviewerId: number) => {
     getOverLay?.(true);
     const params = {
-      workitemIds: id,
+      workitemIds: selectedWorkItemIds,
       ReviewerId: reviewerId,
     };
     const url = `${process.env.worklog_api_url}/workitem/UpdateReviewer`;
@@ -80,14 +78,20 @@ const Reviewer = ({
         handleClearSelection();
         getReviewList();
         getOverLay?.(false);
+        setDialogOpen(false);
+        setReviewerName(null);
       } else if (ResponseStatus === "Warning" && error === false) {
         toast.warning(ResponseData);
         handleClearSelection();
         getReviewList();
         getOverLay?.(false);
+        setDialogOpen(false);
+        setReviewerName(null);
       } else {
         getReviewList();
         getOverLay?.(false);
+        setDialogOpen(false);
+        setReviewerName(null);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -152,7 +156,11 @@ const Reviewer = ({
                   >
                     <span
                       className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
-                      onClick={() => handleOptionReviewer(reviewer.value)}
+                      onClick={() => {
+                        setDialogOpen(true);
+                        setReviewerName(reviewer);
+                        handleCloseReviewer();
+                      }}
                     >
                       <Avatar sx={{ width: 32, height: 32, fontSize: 14 }}>
                         {reviewer.label
@@ -170,6 +178,18 @@ const Reviewer = ({
           </List>
         </nav>
       </Popover>
+
+      <ConfirmationDiloag
+        onOpen={dialogOpen}
+        onClose={() => {
+          setDialogOpen(false);
+          setReviewerName(null);
+        }}
+        heading="Change Reviewer"
+        title={`Are you sure you want to change reviewer to ${reviewerName?.label} ?`}
+        data={reviewerName}
+        updateData={updateReviewer}
+      />
     </div>
   );
 };
