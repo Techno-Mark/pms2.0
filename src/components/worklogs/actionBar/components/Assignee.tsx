@@ -8,6 +8,7 @@ import { getAssigneeDropdownData } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
 import { LabelValue } from "@/utils/Types/types";
 import { WorkitemList } from "@/utils/Types/worklogsTypes";
+import ConfirmationDiloag from "@/components/common/ConfirmationDiloag";
 
 const Assignee = ({
   selectedRowIds,
@@ -30,6 +31,8 @@ const Assignee = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [assignee, setAssignee] = useState<LabelValue[]>([]);
+  const [assigneeName, setAssigneeName] = useState<LabelValue | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const [anchorElAssignee, setAnchorElAssignee] =
     React.useState<HTMLButtonElement | null>(null);
@@ -72,15 +75,10 @@ const Assignee = ({
     assignee.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleOptionAssignee = (id: number) => {
-    updateAssignee(selectedRowIds, id);
-    handleCloseAssignee();
-  };
-
-  const updateAssignee = (id: number[], assigneeId: number) => {
+  const updateAssignee = (assigneeId: number) => {
     const isRunning = workItemData
       .map((item: WorkitemList) =>
-        id.includes(item.WorkitemId) && item.IsActive === true
+        selectedRowIds.includes(item.WorkitemId) && item.IsActive === true
           ? item.WorkitemId
           : false
       )
@@ -88,7 +86,7 @@ const Assignee = ({
 
     const isNotRunning = workItemData
       .map((item: WorkitemList) =>
-        id.includes(item.WorkitemId) && item.IsActive !== true
+        selectedRowIds.includes(item.WorkitemId) && item.IsActive !== true
           ? item.WorkitemId
           : false
       )
@@ -112,13 +110,19 @@ const Assignee = ({
           handleClearSelection();
           getWorkItemList();
           getOverLay(false);
+          setDialogOpen(false);
+          setAssigneeName(null);
         } else if (ResponseStatus === "Warning" && error === false) {
           toast.warning(ResponseData);
           handleClearSelection();
           getWorkItemList();
           getOverLay(false);
+          setDialogOpen(false);
+          setAssigneeName(null);
         } else {
           getOverLay(false);
+          setDialogOpen(false);
+          setAssigneeName(null);
         }
       };
       callAPI(url, params, successCallback, "POST");
@@ -184,7 +188,11 @@ const Assignee = ({
                   >
                     <span
                       className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
-                      onClick={() => handleOptionAssignee(assignee.value)}
+                      onClick={() => {
+                        setDialogOpen(true);
+                        setAssigneeName(assignee);
+                        handleCloseAssignee();
+                      }}
                     >
                       <Avatar sx={{ width: 32, height: 32, fontSize: 14 }}>
                         {assignee.label
@@ -202,6 +210,18 @@ const Assignee = ({
           </List>
         </nav>
       </Popover>
+
+      <ConfirmationDiloag
+        onOpen={dialogOpen}
+        onClose={() => {
+          setDialogOpen(false);
+          setAssigneeName(null);
+        }}
+        heading="Change Assignee"
+        title={`Are you sure you want to change assignee to ${assigneeName?.label} ?`}
+        data={assigneeName}
+        updateData={updateAssignee}
+      />
     </div>
   );
 };
