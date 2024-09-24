@@ -116,7 +116,7 @@ const ClientContent = forwardRef<
   const [billingTypeData, setBillingTypeData] = useState([]);
   const [groupTypeData, setGroupTypeData] = useState([]);
   const clientPotentialityData = [
-    // { label: "None", value: 0 },
+    { label: "None", value: 4 },
     { label: "Tier 1", value: 1 },
     { label: "Tier 2", value: 2 },
     { label: "Tier 3", value: 3 },
@@ -332,8 +332,10 @@ const ClientContent = forwardRef<
                       billingType: matchingItem.BillingTypeId,
                       group: filteredOptionsData,
                       clientPotentiality: !!matchingItem.ClientPotentiality
-                        ? matchingItem.ClientPotentiality
-                        : 0,
+                        ? matchingItem.ClientPotentiality === 0
+                          ? 4
+                          : matchingItem.ClientPotentiality
+                        : 4,
                       selectGroupValue: matchingItem.GroupIds,
                       contHrs: matchingItem.ContractHrs,
                       actHrs: matchingItem.InternalHrs,
@@ -806,7 +808,8 @@ const ClientContent = forwardRef<
                 workTypeId: i.apiId,
                 billingTypeId: i.billingType,
                 groupIds: i.selectGroupValue,
-                ClientPotentiality: i.clientPotentiality,
+                ClientPotentiality:
+                  i.clientPotentiality === 4 ? 0 : i.clientPotentiality,
                 layoutId: 1,
                 internalHrs: i.actHrs,
                 contractHrs: i.contHrs,
@@ -1519,11 +1522,14 @@ const ClientContent = forwardRef<
                             ];
                             updatedDepartmentDataObj[index].clientPotentiality =
                               Number(e.target.value);
+                            updatedDepartmentDataObj[
+                              index
+                            ].clientPotentialityErr = false;
                             Number(e.target.value) > 0 &&
                               setDepartmentDataObj(updatedDepartmentDataObj);
                           }}
                           onBlur={() => {
-                            if (i.billingType > 0 || i.label !== "Tax") {
+                            if (i.clientPotentiality > 0 || i.label !== "Tax") {
                               const updatedDepartmentDataObj = [
                                 ...departmentDataObj,
                               ];

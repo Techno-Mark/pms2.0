@@ -496,7 +496,7 @@ const Client = ({
                               {i.BillingTypeName}
                             </TableCell>
                             <TableCell className="w-[17.5rem]">
-                              {i.ClientPotentialityId !== 0
+                              {!!i.ClientPotentiality
                                 ? i.ClientPotentiality
                                 : "-"}
                             </TableCell>

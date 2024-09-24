@@ -1,3 +1,4 @@
+import { callAPI } from "@/utils/API/callAPI";
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 import { LabelValue, LabelValueType } from "@/utils/Types/types";
 import {
@@ -27,6 +28,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 interface FilterModalProps {
   activeTab: number;
@@ -34,6 +36,8 @@ interface FilterModalProps {
   onClose: () => void;
   onActionClick?: () => void;
   currentFilterData?: (data: DashboardInitialFilter) => void;
+  onCurrentFilterId: number;
+  getFilterList: () => void;
 }
 
 const ALL = -1;
@@ -44,6 +48,8 @@ const FilterDialogDashboard = ({
   onOpen,
   onClose,
   currentFilterData,
+  onCurrentFilterId,
+  getFilterList,
 }: FilterModalProps) => {
   const workTypeIdFromLocalStorage =
     typeof localStorage !== "undefined"
@@ -65,7 +71,9 @@ const FilterDialogDashboard = ({
   const [clientDropdown, setClientDropdown] = useState<LabelValue[] | []>([]);
   const [workType, setWorkType] = useState<number>(3);
   const [workTypeActive, setWorkTypeActive] = useState<LabelValue | null>(null);
-  const [worktypeDropdownData, setWorktypeDropdownData] = useState([]);
+  const [worktypeDropdownData, setWorktypeDropdownData] = useState<
+    LabelValue[]
+  >([]);
   const [departments, setDepartments] = useState<LabelValueType[]>([]);
   const [departmentName, setDepartmentName] = useState<number[]>([]);
   const [departmentDropdownData, setDepartmentDropdownData] = useState<
@@ -89,8 +97,12 @@ const FilterDialogDashboard = ({
   const [anyFieldSelected, setAnyFieldSelected] = useState<boolean>(false);
   const [currSelectedFields, setCurrSelectedFileds] =
     useState<DashboardInitialFilter>(initialFilter);
+  const [filterName, setFilterName] = useState("");
+  const [saveFilter, setSaveFilter] = useState(false);
+  const [error, setError] = useState("");
 
   const sendFilterToPage = () => {
+    console.log("currSelectedFields", currSelectedFields);
     currentFilterData?.(currSelectedFields);
     onClose();
   };
@@ -116,6 +128,9 @@ const FilterDialogDashboard = ({
     setStartDate(null);
     setEndDate(null);
     currentFilterData?.(initialFilter);
+    setFilterName("");
+    setSaveFilter(false);
+    setError("");
   };
 
   const getDropdownData = async () => {
@@ -153,10 +168,10 @@ const FilterDialogDashboard = ({
   }, [workTypeActive, workType]);
 
   useEffect(() => {
-    if (onOpen === true) {
-      getDropdownData();
-    }
-  }, [onOpen]);
+    onOpen && getDropdownData();
+
+    onCurrentFilterId > 0 && onOpen && getFilterListById(onCurrentFilterId);
+  }, [onOpen, onCurrentFilterId]);
 
   useEffect(() => {
     const isAnyFieldSelected: boolean =
@@ -241,6 +256,144 @@ const FilterDialogDashboard = ({
   useEffect(() => {
     handleResetAll();
   }, [activeTab]);
+
+  const saveCurrentFilter = async () => {
+    if (filterName.trim().length === 0) {
+      setError("This is required field!");
+    } else if (filterName.trim().length > 15) {
+      setError("Max 15 characters allowed!");
+    } else {
+      setError("");
+      const params = {
+        filterId: onCurrentFilterId !== 0 ? onCurrentFilterId : null,
+        name: filterName,
+        AppliedFilter: currSelectedFields,
+        type: activeTab === 1 ? 23 : 24,
+      };
+      const url = `${process.env.worklog_api_url}/filter/savefilter`;
+      const successCallback = (
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success(
+            `Filter has been ${
+              onCurrentFilterId > 0 ? "updated" : "saved"
+            } successully.`
+          );
+          setSaveFilter(false);
+          sendFilterToPage();
+          getFilterList();
+          handleResetAll();
+          onClose();
+        }
+      };
+      callAPI(url, params, successCallback, "POST");
+    }
+  };
+
+  const getFilterListById = async (filterId: number) => {
+    const params = {
+      type: activeTab === 1 ? 23 : 24,
+    };
+    const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+    const successCallback = async (
+      ResponseData: any,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        const filteredData = ResponseData.filter(
+          (filter: any) => filter.FilterId === filterId
+        );
+
+        if (filteredData.length > 0) {
+          const data = filteredData[0].AppliedFilter;
+          setFilterName(filteredData[0].Name);
+          const typeOfWorkData = await getTypeOfWorkDropdownData(0);
+          const clientDropdown = [
+            { label: "Select All", value: ALL },
+            ...(await getClientDropdownData()),
+          ];
+          setClients(
+            data.Clients.length > 0
+              ? clientDropdown.filter((client: LabelValue) =>
+                  data.Clients.includes(client.value)
+                )
+              : []
+          );
+          setClientName(data.Clients);
+          activeTab === 1
+            ? setWorkType(
+                !!data.WorkTypeId && data.WorkTypeId > 0 ? data.WorkTypeId : 0
+              )
+            : setWorkType(
+                activeTab === 1 ? Number(workTypeIdFromLocalStorage) : 0
+              );
+          activeTab === 2
+            ? setWorkTypeActive(
+                !!data.WorkTypeId &&
+                  data.WorkTypeId > 0 &&
+                  typeOfWorkData.length > 0
+                  ? typeOfWorkData.filter(
+                      (w: LabelValue) => w.value == data.WorkTypeId
+                    )[0]
+                  : null
+              )
+            : setWorkTypeActive(null);
+          const departmentData = await getDepartmentDropdownData();
+          setDepartments(
+            data.DepartmentIds.length > 0
+              ? departmentData.filter((dep: LabelValue) =>
+                  data.DepartmentIds.includes(dep.value)
+                )
+              : []
+          );
+          setDepartmentName(data.DepartmentIds);
+          setAssignees(
+            data.AssigneeIds.length > 0
+              ? assigneeDropdown.filter((a: LabelValue) =>
+                  data.AssigneeIds.includes(a.value)
+                )
+              : []
+          );
+          setAssigneeName(data.AssigneeIds);
+          setReviewers(
+            data.ReviewerIds.length > 0
+              ? reviewerDropdown.filter((r: LabelValue) =>
+                  data.ReviewerIds.includes(r.value)
+                )
+              : []
+          );
+          setReviewerName(data.ReviewerIds);
+          const statusDropdown =
+            activeTab === 2 && data.WorkTypeId > 0
+              ? await getStatusDropdownData(data.WorkTypeId)
+              : [];
+          setStatus(
+            activeTab === 2 &&
+              data.WorkTypeId > 0 &&
+              data.StatusIds.length > 0 &&
+              statusDropdown.length > 0
+              ? statusDropdown.filter((s: LabelValue) =>
+                  data.StatusIds.includes(s.value)
+                )
+              : []
+          );
+          setStatusName(data.StatusIds);
+          setStartDate(data.StartDate !== null ? data.StartDate : null);
+          setEndDate(data.EndDate !== null ? data.EndDate : null);
+        }
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  const handleResetAllClose = () => {
+    handleResetAll();
+    onClose();
+  };
 
   return (
     <div>
@@ -605,17 +758,70 @@ const FilterDialogDashboard = ({
           </div>
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">
-          <Button
-            variant="contained"
-            color="info"
-            className={`${anyFieldSelected && "!bg-secondary"}`}
-            disabled={!anyFieldSelected}
-            onClick={sendFilterToPage}
-          >
-            Apply Filter
-          </Button>
+          {!saveFilter ? (
+            <>
+              <Button
+                variant="contained"
+                color="info"
+                className={`${anyFieldSelected && "!bg-secondary"}`}
+                disabled={!anyFieldSelected}
+                onClick={sendFilterToPage}
+              >
+                Apply Filter
+              </Button>
 
-          <Button variant="outlined" color="info" onClick={() => onClose()}>
+              <Button
+                variant="contained"
+                color="info"
+                className={`${anyFieldSelected && "!bg-secondary"}`}
+                onClick={() => setSaveFilter(true)}
+                disabled={!anyFieldSelected}
+              >
+                Save Filter
+              </Button>
+            </>
+          ) : (
+            <>
+              <FormControl
+                variant="standard"
+                sx={{ marginRight: 3, minWidth: 400 }}
+              >
+                <TextField
+                  placeholder="Enter Filter Name"
+                  fullWidth
+                  required
+                  variant="standard"
+                  value={filterName}
+                  onChange={(e) => {
+                    setFilterName(e.target.value);
+                    setError("");
+                  }}
+                  error={Boolean(error)}
+                  helperText={error}
+                />
+              </FormControl>
+              <Button
+                variant="contained"
+                color="info"
+                onClick={() => {
+                  saveCurrentFilter();
+                }}
+                className="!bg-secondary"
+              >
+                Save & Apply
+              </Button>
+            </>
+          )}
+
+          <Button
+            variant="outlined"
+            color="info"
+            onClick={() =>
+              onCurrentFilterId > 0 || !!onCurrentFilterId
+                ? handleResetAllClose()
+                : onClose()
+            }
+          >
             Cancel
           </Button>
         </DialogActions>
