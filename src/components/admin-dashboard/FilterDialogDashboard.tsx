@@ -102,12 +102,11 @@ const FilterDialogDashboard = ({
   const [error, setError] = useState("");
 
   const sendFilterToPage = () => {
-    console.log("currSelectedFields", currSelectedFields);
     currentFilterData?.(currSelectedFields);
     onClose();
   };
 
-  const handleResetAll = () => {
+  const handleReset = () => {
     const workTypeIdFromLocalStorage =
       typeof localStorage !== "undefined"
         ? localStorage.getItem("workTypeId")
@@ -127,10 +126,14 @@ const FilterDialogDashboard = ({
     setStatusDropdown([]);
     setStartDate(null);
     setEndDate(null);
-    currentFilterData?.(initialFilter);
     setFilterName("");
     setSaveFilter(false);
     setError("");
+  };
+
+  const handleResetAll = () => {
+    handleReset();
+    currentFilterData?.(initialFilter);
   };
 
   const getDropdownData = async () => {
@@ -285,7 +288,7 @@ const FilterDialogDashboard = ({
           setSaveFilter(false);
           sendFilterToPage();
           getFilterList();
-          handleResetAll();
+          handleReset();
           onClose();
         }
       };
