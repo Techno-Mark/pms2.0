@@ -3868,7 +3868,8 @@ const EditDrawer = ({
                     </Grid>
                     {(departmentWorklogsType === "WhitelabelAccounting" ||
                       departmentWorklogsType === "WhitelabelAustralia" ||
-                      departmentWorklogsType === "UK") && (
+                      departmentWorklogsType === "UK" ||
+                      departmentWorklogsType === "Germany") && (
                       <Grid
                         item
                         xs={3}
@@ -3901,7 +3902,8 @@ const EditDrawer = ({
                     )}
                     {(departmentWorklogsType === "WhitelabelAccounting" ||
                       departmentWorklogsType === "WhitelabelAustralia" ||
-                      departmentWorklogsType === "UK") && (
+                      departmentWorklogsType === "UK" ||
+                      departmentWorklogsType === "Germany") && (
                       <Grid
                         item
                         xs={3}
@@ -4054,8 +4056,8 @@ const EditDrawer = ({
                             (departmentWorklogsType == "UK" ||
                               departmentWorklogsType ==
                                 "WhitelabelAccounting" ||
-                              departmentWorklogsType ==
-                                "WhitelabelAustralia") &&
+                              departmentWorklogsType == "WhitelabelAustralia" ||
+                              departmentWorklogsType === "Germany") &&
                             typeOfWorkWorklogs !== 3
                               ? "pt-6"
                               : "pt-5"
@@ -4093,7 +4095,8 @@ const EditDrawer = ({
                               departmentWorklogsType ==
                                 "WhitelabelAccounting" ||
                               departmentWorklogsType == "WhitelabelAustralia" ||
-                              departmentWorklogsType == "WhitelabelTaxation") &&
+                              departmentWorklogsType == "WhitelabelTaxation" ||
+                              departmentWorklogsType === "Germany") &&
                             typeOfWorkWorklogs !== 3
                               ? "pt-6"
                               : "pt-5"

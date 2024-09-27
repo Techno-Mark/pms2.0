@@ -3684,7 +3684,8 @@ const EditDrawer = ({
                     </Grid>
                     {(departmentApprovalsType === "WhitelabelAccounting" ||
                       departmentApprovalsType === "WhitelabelAustralia" ||
-                      departmentApprovalsType === "UK") && (
+                      departmentApprovalsType === "UK" ||
+                      departmentApprovalsType === "Germany") && (
                       <Grid
                         item
                         xs={3}
@@ -3721,7 +3722,8 @@ const EditDrawer = ({
                     )}
                     {(departmentApprovalsType === "WhitelabelAccounting" ||
                       departmentApprovalsType === "WhitelabelAustralia" ||
-                      departmentApprovalsType === "UK") && (
+                      departmentApprovalsType === "UK" ||
+                      departmentApprovalsType === "Germany") && (
                       <Grid
                         item
                         xs={3}
@@ -3889,7 +3891,8 @@ const EditDrawer = ({
                               departmentApprovalsType ==
                                 "WhitelabelAccounting" ||
                               departmentApprovalsType ==
-                                "WhitelabelAustralia") &&
+                                "WhitelabelAustralia" ||
+                              departmentApprovalsType === "Germany") &&
                             typeOfWorkApprovals !== 3
                               ? "pt-6"
                               : "pt-5"
@@ -3926,8 +3929,8 @@ const EditDrawer = ({
                                 "WhitelabelAccounting" ||
                               departmentApprovalsType ==
                                 "WhitelabelAustralia" ||
-                              departmentApprovalsType ==
-                                "WhitelabelTaxation") &&
+                              departmentApprovalsType == "WhitelabelTaxation" ||
+                              departmentApprovalsType === "Germany") &&
                             typeOfWorkApprovals !== 3
                               ? "pt-6"
                               : "pt-5"

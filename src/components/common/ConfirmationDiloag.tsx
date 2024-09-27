@@ -25,11 +25,11 @@ const ConfirmationDiloag = ({
   updateData
 }: ConfirmationDiloagModalProps) => {
   const handleClose = () => {
-    updateData(data.value);
     onClose();
   };
 
   const handleSaveAndApply = () => {
+    updateData(data.value);
     handleClose();
   };
   return (

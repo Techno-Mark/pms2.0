@@ -316,7 +316,7 @@ const Status = ({
           setDialogOpen(false);
           setStatusName(null);
         }}
-        heading="Change Assignee"
+        heading="Change Reviewer"
         title={`Are you sure you want to change reviewer to ${statusName?.label} ?`}
         data={statusName}
         updateData={(id: any) => {
