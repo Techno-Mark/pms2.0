@@ -1838,15 +1838,30 @@ const EditDrawer = ({
       },
     ]);
   };
-
+  
   const handleStartTimeChange = (e: string, index: number) => {
+    if (e.length === 0) {
+      const newManualWorklogsFields: ManualFieldsWorklogs[] = [
+        ...reviewermanualFields,
+      ];
+      newManualWorklogsFields[index].startTime = 0;
+      setReviewerManualFields(newManualWorklogsFields);
+      return;
+    }
+  
+    if (e.length > 1 && !/^[0-9]+$/.test(e)) {
+      return;
+    }
+  
     if (e.length > 3) {
       return;
     }
-
-    const newManualFields: ManualFieldsWorklogs[] = [...reviewermanualFields];
-    newManualFields[index].startTime = Number(e) || 0;
-    setReviewerManualFields(newManualFields);
+  
+    const newManualWorklogsFields: ManualFieldsWorklogs[] = [
+      ...reviewermanualFields,
+    ];
+    newManualWorklogsFields[index].startTime = Number(e) || 0;
+    setReviewerManualFields(newManualWorklogsFields);
   };
 
   const handleManualDescChange = (e: string, index: number) => {

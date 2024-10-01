@@ -757,10 +757,23 @@ const EditDrawer = ({
   };
 
   const handleStartTimeChangeWorklogs = (e: string, index: number) => {
+    if (e.length === 0) {
+      const newManualWorklogsFields: ManualFieldsWorklogs[] = [
+        ...manualFieldsWorklogs,
+      ];
+      newManualWorklogsFields[index].startTime = 0;
+      setManualFieldsWorklogs(newManualWorklogsFields);
+      return;
+    }
+  
+    if (e.length > 1 && !/^[0-9]+$/.test(e)) {
+      return;
+    }
+  
     if (e.length > 3) {
       return;
     }
-
+  
     const newManualWorklogsFields: ManualFieldsWorklogs[] = [
       ...manualFieldsWorklogs,
     ];
