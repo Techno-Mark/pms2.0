@@ -60,6 +60,7 @@ const initialFilter = {
   DateFilter: null,
   startDateReview: null,
   endDateReview: null,
+  QAId: null,
 };
 
 const Page = () => {
