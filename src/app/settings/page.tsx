@@ -51,6 +51,7 @@ import {
 import { getDepartmentDropdownData } from "@/utils/commonDropdownApiCall";
 import Notification from "@/components/settings/tables/Notification";
 import NotificationDrawer from "@/components/common/NotificationDrawer";
+import NatureOfError from "@/components/settings/tables/NatureOfError";
 
 interface Tabs {
   id: string;
@@ -69,6 +70,7 @@ const initialTabs = [
   { id: "Status", label: "Status", canView: false },
   { id: "Permission", label: "Permissions", canView: false },
   { id: "Notification", label: "Notification", canView: false },
+  { id: "NatureOfError", label: "Nature Of Error", canView: false },
   { id: "Organization", label: "Organization", canView: true },
 ];
 
@@ -169,6 +171,7 @@ const Page = () => {
           !hasPermissionWorklog("Group", "View", "Settings") ||
           !hasPermissionWorklog("Permission", "View", "Settings") ||
           !hasPermissionWorklog("Notification", "View", "Settings") ||
+          !hasPermissionWorklog("NatureOfError", "View", "Settings") ||
           !hasPermissionWorklog("Status", "View", "Settings"))
       ) {
         router.push("/");
@@ -402,7 +405,16 @@ const Page = () => {
             ),
           };
           break;
-          Notification;
+        case "natureoferror":
+          return {
+            ...tab,
+            canView: hasPermissionWorklog(
+              tab.id.toLowerCase(),
+              "view",
+              "settings"
+            ),
+          };
+          break;
         case "organization":
           return {
             ...tab,
@@ -416,8 +428,8 @@ const Page = () => {
     });
 
     setTabs(updatedTabs);
-    setVisibleTabs(updatedTabs.slice(0, 9));
-    setDropdownTabs(updatedTabs.slice(9));
+    setVisibleTabs(updatedTabs.slice(0, 10));
+    setDropdownTabs(updatedTabs.slice(10));
   };
 
   useEffect(() => {
@@ -622,11 +634,10 @@ const Page = () => {
     }, 500);
     return () => clearTimeout(timer);
   };
-  
+
   return (
     <Wrapper className="min-h-screen overflow-y-auto">
       <Navbar
-        onUserDetailsFetch={handleUserDetailsFetch}
         onHandleModuleNames={handleModuleNames}
         setEmailNotificationOpen={setEmailNotificationOpen}
       />
@@ -645,8 +656,10 @@ const Page = () => {
                   <label
                     key={tab.id}
                     onClick={() => handleTabClick(tab.id, index)}
-                    className={`text-[16px] ${
-                      array.length === 9 ? "px-1" : "px-2"
+                    className={`${
+                      array.length === 10
+                        ? "text-[15px] px-1"
+                        : "text-[16px] px-[6px]"
                     } cursor-pointer select-none flex items-center justify-center ${
                       selectedTabIndex === index
                         ? "text-[#0592C6] font-semibold"
@@ -675,6 +688,7 @@ const Page = () => {
                     tab === "Process" ||
                     tab === "Group" ||
                     tab === "Status" ||
+                    tab === "NatureOfError" ||
                     tab === "Organization") && (
                     <div className="relative">
                       <InputBase
@@ -744,6 +758,7 @@ const Page = () => {
                                   Status: "status",
                                   User: "user",
                                   Organization: "organization",
+                                  NatureOfError: "natureOfError",
                                 };
 
                                 const selectedTab = tabMappings[tab];
@@ -942,7 +957,7 @@ const Page = () => {
                       ? "rounded-[4px] !h-[45px] "
                       : "rounded-[4px] !h-[36px] text-sm"
                   } ${
-                    isLoaded &&
+                    // isLoaded &&
                     (hasPermissionWorklog(tab, "save", "settings") ||
                       tabs.filter(
                         (i: Tabs) => i.label.toLowerCase() === "organization"
@@ -968,7 +983,12 @@ const Page = () => {
                       <AddPlusIcon />
                     </span>
                     <span className="uppercase">
-                      Create {tab === "Permission" ? "Role" : tab}
+                      Create{" "}
+                      {tab === "Permission"
+                        ? "Role"
+                        : tab === "NatureOfError"
+                        ? "Nature of Error"
+                        : tab}
                     </span>
                   </span>
                 </Button>
@@ -1136,6 +1156,29 @@ const Page = () => {
             saveDepartmentData={saveDepartmentData}
             canView={hasPermissionWorklog("notification", "view", "settings")}
             setSaveDepartmentData={setSaveDepartmentData}
+          />
+        )}
+
+        {tab === "NatureOfError" && (
+          <NatureOfError
+            onOpen={
+              hasPermissionWorklog(tab, "save", "settings")
+                ? handleDrawerOpen
+                : undefined
+            }
+            onEdit={handleEdit}
+            onDataFetch={handleDataFetch}
+            getOrgDetailsFunction={getOrgDetailsFunction}
+            canView={hasPermissionWorklog("NatureOfError", "view", "settings")}
+            canEdit={hasPermissionWorklog("NatureOfError", "save", "settings")}
+            canDelete={hasPermissionWorklog(
+              "NatureOfError",
+              "delete",
+              "settings"
+            )}
+            onSearchData={searchValue}
+            onSearchClear={clearSearchValue}
+            onHandleExport={handleCanExport}
           />
         )}
         {tab === "Organization" && (

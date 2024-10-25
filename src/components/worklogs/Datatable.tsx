@@ -154,7 +154,7 @@ const Datatable = ({
   const [tableDataCount, setTableDataCount] = useState(0);
 
   const [isRunning, setRunning] = useState<number>(-1);
-  const [workitemTimeId, setWorkitemTimeId] = useState<number>(-1);
+  const [workitemTimeId, setWorkitemTimeId] = useState<any>(-1);
   const [stopTimerDialog, setStopTimerDialog] = useState<boolean>(false);
   const [comment, setComment] = useState<string>("");
   const [commentErrText, setCommentErrText] = useState<string>("");
@@ -321,7 +321,7 @@ const Datatable = ({
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setComment("");
-        setWorkitemTimeId((prev) =>
+        setWorkitemTimeId((prev: number) =>
           ResponseData !== prev ? ResponseData : -1
         );
         setRunning((prev) => (selectedRowId !== prev ? selectedRowId : -1));
@@ -766,11 +766,14 @@ const Datatable = ({
   ) => {
     const IsHasErrorlog = TableMeta.rowData[RowIndex];
     const TaskTypeData = TableMeta.rowData[TaskType];
-
     return (
       <div
         className={`${
-          TableMeta.rowData[20] == 1 && TableMeta.rowData[25] === "Submitted"
+          (TableMeta.rowData[22] == 1 &&
+            TableMeta.rowData[27] === "Submitted") ||
+          TableMeta.rowData[27] === "QAInProgress" ||
+          TableMeta.rowData[27] === "QACompleted" ||
+          TableMeta.rowData[27] === "QASubmitted"
             ? ""
             : "text-[#0592C6]"
         } flex items-center justify-center gap-2`}
@@ -809,12 +812,20 @@ const Datatable = ({
         )}
         <span
           onClick={() =>
-            TableMeta.rowData[20] == 1 && TableMeta.rowData[25] === "Submitted"
+            (TableMeta.rowData[22] == 1 &&
+              TableMeta.rowData[27] === "Submitted") ||
+            TableMeta.rowData[27] === "QAInProgress" ||
+            TableMeta.rowData[27] === "QACompleted" ||
+            TableMeta.rowData[27] === "QASubmitted"
               ? ""
               : onEdit(bodyValue)
           }
           className={`${
-            TableMeta.rowData[20] == 1 && TableMeta.rowData[25] === "Submitted"
+            (TableMeta.rowData[22] == 1 &&
+              TableMeta.rowData[27] === "Submitted") ||
+            TableMeta.rowData[27] === "QAInProgress" ||
+            TableMeta.rowData[27] === "QACompleted" ||
+            TableMeta.rowData[27] === "QASubmitted"
               ? ""
               : "cursor-pointer"
           }`}

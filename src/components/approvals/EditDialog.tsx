@@ -44,6 +44,11 @@ interface Response {
   IsReviewerPercent: boolean | null;
   ReviewerPercentage: number | null;
   ReviewerActualTime: number;
+  QAEditedTime: number;
+  IsQAPercent: boolean | null;
+  QAPercentage: number | null;
+  QAActualTime: number;
+  IsTaskQA: number;
 }
 
 const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
@@ -83,6 +88,13 @@ const EditDialog = ({
     useState<boolean>(false);
   const [reviewerInitialEditTime, setReviewerInitialEditTime] =
     useState<string>("00:00:00");
+  const [qaActualTime, setQaActualTime] = useState<string>("00:00:00");
+  const [qaEditTime, setQaEditTime] = useState<string>("00:00:00");
+  const [qaPercentage, setQaPercentage] = useState<number>(0);
+  const [qaCheckboxClicked, setQaCheckboxClicked] = useState<boolean>(false);
+  const [qaInitialEditTime, setQaInitialEditTime] =
+    useState<string>("00:00:00");
+  const [isQaTask, setIsQaTask] = useState<boolean>(false);
 
   const handleClose = () => {
     setEditTime("00:00:00");
@@ -91,13 +103,17 @@ const EditDialog = ({
     setReviewerEditTime("00:00:00");
     setReviewerCheckboxClicked(false);
     setReviewerPercentage(0);
+    setQaEditTime("00:00:00");
+    setQaCheckboxClicked(false);
+    setQaPercentage(0);
+    setIsQaTask(false);
     onClose();
     // onReviewerDataFetch?.();
   };
 
   const handleEditTimeChange = (
     event: React.ChangeEvent<HTMLInputElement>,
-    IsPreperor: boolean
+    IsPreperor: number
   ) => {
     let newValue = event.target.value;
     newValue = newValue.replace(/\D/g, "");
@@ -143,9 +159,11 @@ const EditDialog = ({
       totalSeconds = hours * 3600 + minutes * 60 + seconds;
     }
 
-    IsPreperor
+    IsPreperor == 1
       ? setEditTime(formattedValue)
-      : setReviewerEditTime(formattedValue);
+      : IsPreperor == 2
+      ? setReviewerEditTime(formattedValue)
+      : setQaEditTime(formattedValue);
   };
 
   function formatTime(seconds: number) {
@@ -202,6 +220,18 @@ const EditDialog = ({
                 ? 0
                 : ResponseData.ReviewerPercentage
             );
+            setQaActualTime(formatTime(ResponseData.QAActualTime));
+            setQaInitialEditTime(formatTime(ResponseData.QAEditedTime));
+            setQaEditTime(formatTime(ResponseData.QAEditedTime));
+            setQaCheckboxClicked(
+              ResponseData.IsQAPercent === null
+                ? false
+                : ResponseData.IsQAPercent
+            );
+            setQaPercentage(
+              ResponseData.QAPercentage === null ? 0 : ResponseData.QAPercentage
+            );
+            setIsQaTask(ResponseData.IsTaskQA === 1 ? true : false);
           }
         };
         callAPI(url, params, successCallback, "POST");
@@ -221,19 +251,37 @@ const EditDialog = ({
       parseInt(reviewerHours) * 3600 +
       parseInt(reviewerMinutes) * 60 +
       parseInt(reviewerSeconds);
+    const [qaHours, qaMinutes, qaSeconds] = qaEditTime.split(":");
+    const convertedQaEditTime =
+      parseInt(qaHours) * 3600 + parseInt(qaMinutes) * 60 + parseInt(qaSeconds);
 
     getOverLay?.(true);
     const params = {
       WorkItemId: onSelectWorkItemId,
       SubmissionId: onSelectedSubmissionId,
-      ManagerTime: convertedEditTime,
+      ManagerTime: checkboxClicked
+        ? convertedEditTime
+        : convertedEditTime > 0
+        ? convertedEditTime
+        : null,
       IsPercent: checkboxClicked,
       Percentage: checkboxClicked ? percentage.toString() : null,
-      ReviewerEditedTime: convertedReviewerEditTime,
+      ReviewerEditedTime: reviewerCheckboxClicked
+        ? convertedReviewerEditTime
+        : convertedReviewerEditTime > 0
+        ? convertedReviewerEditTime
+        : null,
       IsReviewerPercent: reviewerCheckboxClicked,
       ReviewerPercentage: reviewerCheckboxClicked
         ? reviewerPercentage.toString()
         : null,
+      QAEditedTime: qaCheckboxClicked
+        ? convertedQaEditTime
+        : convertedQaEditTime > 0
+        ? convertedQaEditTime
+        : null,
+      IsQAPercent: qaCheckboxClicked,
+      QAPercentage: qaCheckboxClicked ? qaPercentage.toString() : null,
     };
 
     const url = `${process.env.worklog_api_url}/workitem/approval/updateManualTime`;
@@ -261,29 +309,38 @@ const EditDialog = ({
       editTime !== initialEditTime ||
       (checkboxClicked && percentage > 0) ||
       reviewerEditTime !== reviewerInitialEditTime ||
-      (reviewerCheckboxClicked && reviewerPercentage > 0)
+      (reviewerCheckboxClicked && reviewerPercentage > 0) ||
+      qaEditTime !== qaInitialEditTime ||
+      (qaCheckboxClicked && qaPercentage > 0)
     );
   };
 
-  const handleCheckboxChange = (e: boolean, IsPreperor: boolean) => {
-    if (IsPreperor) {
+  const handleCheckboxChange = (e: boolean, IsPreperor: number) => {
+    if (IsPreperor == 1) {
       setCheckboxClicked(e);
 
       if (e === false) {
         setEditTime("00:00:00");
         setPercentage(0);
       }
-    } else {
+    } else if (IsPreperor == 2) {
       setReviewerCheckboxClicked(e);
 
       if (e === false) {
         setReviewerEditTime("00:00:00");
         setReviewerPercentage(0);
       }
+    } else {
+      setQaCheckboxClicked(e);
+
+      if (e === false) {
+        setQaEditTime("00:00:00");
+        setQaPercentage(0);
+      }
     }
   };
 
-  const handleInputChange = (inputValue: number, IsPreperor: boolean) => {
+  const handleInputChange = (inputValue: number, IsPreperor: number) => {
     const digitRegex = /^\d*\.?\d*$/;
 
     if (digitRegex.test(inputValue.toString()) && inputValue <= 99.99) {
@@ -293,17 +350,27 @@ const EditDialog = ({
         : "";
 
       if (!hasDecimal || (hasDecimal && decimalPart.length <= 2)) {
-        IsPreperor
+        IsPreperor == 1
           ? setPercentage(inputValue)
-          : setReviewerPercentage(inputValue);
+          : IsPreperor == 2
+          ? setReviewerPercentage(inputValue)
+          : setQaPercentage(inputValue);
         const total: number | undefined = toSeconds(
-          IsPreperor ? actualTime : reviewerActualTime
+          IsPreperor == 1
+            ? actualTime
+            : IsPreperor == 2
+            ? reviewerActualTime
+            : qaActualTime
         );
         const time =
           total !== undefined && total > 0
             ? toHoursAndMinutes(Math.round((inputValue * total) / 100))
             : "00:00:00";
-        IsPreperor ? setEditTime(time) : setReviewerEditTime(time);
+        IsPreperor == 1
+          ? setEditTime(time)
+          : IsPreperor == 2
+          ? setReviewerEditTime(time)
+          : setQaEditTime(time);
       }
     }
   };
@@ -389,7 +456,7 @@ const EditDialog = ({
                 fullWidth
                 disabled={checkboxClicked}
                 value={editTime}
-                onChange={(e: any) => handleEditTimeChange(e, true)}
+                onChange={(e: any) => handleEditTimeChange(e, 1)}
                 sx={{ mx: 0.75, maxWidth: 100 }}
               />
             </FormControl>
@@ -402,9 +469,7 @@ const EditDialog = ({
                   fullWidth
                   disabled={!checkboxClicked}
                   value={percentage <= 0 ? "-" : percentage}
-                  onChange={(e) =>
-                    handleInputChange(Number(e.target.value), true)
-                  }
+                  onChange={(e) => handleInputChange(Number(e.target.value), 1)}
                   onFocus={(e) =>
                     e.target.addEventListener(
                       "wheel",
@@ -423,9 +488,7 @@ const EditDialog = ({
                 control={
                   <Checkbox
                     checked={checkboxClicked}
-                    onChange={(e) =>
-                      handleCheckboxChange(e.target.checked, true)
-                    }
+                    onChange={(e) => handleCheckboxChange(e.target.checked, 1)}
                   />
                 }
                 label="Add In %"
@@ -448,7 +511,7 @@ const EditDialog = ({
                   reviewerCheckboxClicked || reviewerActualTime === "00:00:00"
                 }
                 value={reviewerEditTime}
-                onChange={(e: any) => handleEditTimeChange(e, false)}
+                onChange={(e: any) => handleEditTimeChange(e, 2)}
                 sx={{ mx: 0.75, maxWidth: 100 }}
               />
             </FormControl>
@@ -461,9 +524,7 @@ const EditDialog = ({
                   fullWidth
                   disabled={!reviewerCheckboxClicked}
                   value={reviewerPercentage <= 0 ? "-" : reviewerPercentage}
-                  onChange={(e) =>
-                    handleInputChange(Number(e.target.value), false)
-                  }
+                  onChange={(e) => handleInputChange(Number(e.target.value), 2)}
                   onFocus={(e) =>
                     e.target.addEventListener(
                       "wheel",
@@ -483,15 +544,72 @@ const EditDialog = ({
                 control={
                   <Checkbox
                     checked={reviewerCheckboxClicked}
-                    onChange={(e) =>
-                      handleCheckboxChange(e.target.checked, false)
-                    }
+                    onChange={(e) => handleCheckboxChange(e.target.checked, 2)}
                   />
                 }
                 label="Add In %"
               />
             </span>
           </div>
+          {isQaTask && (
+            <>
+              <p className="mb-2 font-extrabold">Qa Time</p>
+              <div className="flex gap-[20px]">
+                <CommonField totalTime={totalTime} actualTime={qaActualTime} />
+                <FormControl variant="standard">
+                  <TextField
+                    label="Edited Time"
+                    placeholder="00:00:00"
+                    variant="standard"
+                    fullWidth
+                    disabled={qaCheckboxClicked || qaActualTime === "00:00:00"}
+                    value={qaEditTime}
+                    onChange={(e: any) => handleEditTimeChange(e, 3)}
+                    sx={{ mx: 0.75, maxWidth: 100 }}
+                  />
+                </FormControl>
+                <span className="flex flex-col items-start justify-center">
+                  <FormControl variant="standard">
+                    <TextField
+                      type="number"
+                      label="Percentage"
+                      variant="standard"
+                      fullWidth
+                      disabled={!qaCheckboxClicked}
+                      value={qaPercentage <= 0 ? "-" : qaPercentage}
+                      onChange={(e) =>
+                        handleInputChange(Number(e.target.value), 3)
+                      }
+                      onFocus={(e) =>
+                        e.target.addEventListener(
+                          "wheel",
+                          function (e) {
+                            e.preventDefault();
+                          },
+                          { passive: false }
+                        )
+                      }
+                      autoComplete="off"
+                      inputProps={{ step: "any" }}
+                      sx={{ mx: 0.75, maxWidth: 100 }}
+                    />
+                  </FormControl>
+                  <FormControlLabel
+                    disabled={qaActualTime === "00:00:00"}
+                    control={
+                      <Checkbox
+                        checked={qaCheckboxClicked}
+                        onChange={(e) =>
+                          handleCheckboxChange(e.target.checked, 3)
+                        }
+                      />
+                    }
+                    label="Add In %"
+                  />
+                </span>
+              </div>
+            </>
+          )}
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">
           <Button variant="outlined" color="error" onClick={handleClose}>

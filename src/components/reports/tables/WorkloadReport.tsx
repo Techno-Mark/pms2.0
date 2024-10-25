@@ -355,6 +355,17 @@ const WorkloadReport = ({
         },
       },
     },
+    {
+      name: "TotalTime",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
+        customBodyRender: (value: string) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
   ];
 
   return workloadFields.loaded ? (

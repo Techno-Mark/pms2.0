@@ -71,6 +71,11 @@ interface Response {
         PreparorErrorTime: string | null;
         ReveiwerErrorTime: string | null;
         DateOfReview: string | null;
+        RootCauseAnalysis: string | null;
+        MitigationPlan: string | null;
+        ContigencyPlan: string | null;
+        VendorName: string | null;
+        DocumentNumber: string | null;
       }[]
     | [];
   TotalCount: number;

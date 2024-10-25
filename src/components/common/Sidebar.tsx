@@ -15,6 +15,7 @@ import Link from "next/link";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { callAPI } from "@/utils/API/callAPI";
 import { MenuItem, User } from "@/utils/Types/types";
+import QaLensIcon from "@/assets/icons/QaLensIcon";
 
 const DashboardItems = ({ pathname, isCollapsed, sidebarItems }: any) => {
   return (
@@ -132,6 +133,12 @@ const Sidebar = ({
               href: "/worklogs",
               icon: <Worklogs />,
             },
+          hasPermissionWorklog("", "View", "QA") &&
+            !isClient && {
+              name: "QA Lens",
+              href: "/qa",
+              icon: <QaLensIcon />,
+            },
           hasPermissionWorklog("", "View", "Approvals") &&
             !isClient && {
               name: "Approvals",
@@ -169,6 +176,7 @@ const Sidebar = ({
               hasPermissionWorklog("Group", "View", "Settings") ||
               hasPermissionWorklog("Permission", "View", "Settings") ||
               !hasPermissionWorklog("Notification", "View", "Settings") ||
+              !hasPermissionWorklog("NatureOfError", "View", "Settings") ||
               hasPermissionWorklog("Status", "View", "Settings")) &&
             !isClient && {
               name: "Settings",

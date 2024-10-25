@@ -23,6 +23,7 @@ import { customReport } from "../Enum/Filtertype";
 import { customreport_InitialFilter } from "@/utils/reports/getFilters";
 import {
   getAllProcessDropdownData,
+  getApiFunction,
   getCCDropdownData,
   getClientDropdownData,
   getDepartmentDropdownData,
@@ -76,6 +77,7 @@ interface SavedFilter {
     PeriodTo: string | null;
     ReworkReceivedDate: string | null;
     ReworkDueDate: string | null;
+    QAId: number | null;
   };
 }
 
@@ -177,6 +179,8 @@ const CustomReportFilter = ({
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [error, setError] = useState("");
   const [idFilter, setIdFilter] = useState<string | undefined>(undefined);
+  const [qaId, setQaId] = useState<LabelValue | null>(null);
+  const [qaDropdown, setQaDropdown] = useState<LabelValue[]>([]);
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
@@ -233,6 +237,7 @@ const CustomReportFilter = ({
     setSubProcessDropdown([]);
     setStatusDropdown([]);
     setProjectDropdown([]);
+    setQaId(null);
     close && setDefaultFilter(false);
     close && onDialogClose(false);
 
@@ -278,6 +283,7 @@ const CustomReportFilter = ({
     setDueDate("");
     setAllInfoDate("");
     setError("");
+    setQaId(null);
   };
 
   const handleFilterApply = () => {
@@ -286,6 +292,7 @@ const CustomReportFilter = ({
       clientIdsJSON: clientName.length > 0 ? clientName : [],
       WorkTypeId: typeOfWorkName === null ? null : typeOfWorkName.value,
       DepartmentId: departmentName === null ? null : departmentName.value,
+      QAId: qaId !== null ? qaId.value : null,
       projectIdsJSON: projectName === null ? [] : [projectName.value],
       processIdsJSON: processName === null ? [] : [processName.value],
       assignedByIds: assignByName.length > 0 ? assignByName : [],
@@ -370,6 +377,7 @@ const CustomReportFilter = ({
           WorkTypeId: savedFilters[index].AppliedFilter.WorkTypeId,
           projectIdsJSON: savedFilters[index].AppliedFilter.projectIdsJSON,
           processIdsJSON: savedFilters[index].AppliedFilter.processIdsJSON,
+          QAId: savedFilters[index].AppliedFilter.QAId,
           assignedByIds: savedFilters[index].AppliedFilter.assignedByIds,
           assigneeIds: savedFilters[index].AppliedFilter.assigneeIds,
           reviewerIds: savedFilters[index].AppliedFilter.reviewerIds,
@@ -412,6 +420,7 @@ const CustomReportFilter = ({
           clientIdsJSON: clientName.length > 0 ? clientName : [],
           WorkTypeId: typeOfWorkName === null ? null : typeOfWorkName.value,
           DepartmentId: departmentName === null ? null : departmentName.value,
+          QAId: qaId !== null ? qaId.value : null,
           projectIdsJSON: projectName === null ? [] : [projectName.value],
           processIdsJSON: processName === null ? [] : [processName.value],
           assignedByIds: assignByName.length > 0 ? assignByName : [],
@@ -516,6 +525,7 @@ const CustomReportFilter = ({
       departmentName !== null ||
       projectName !== null ||
       processName !== null ||
+      qaId !== null ||
       assignByName.length > 0 ||
       assigneeName.length > 0 ||
       reviewerName.length > 0 ||
@@ -547,6 +557,7 @@ const CustomReportFilter = ({
     departmentName,
     projectName,
     processName,
+    qaId,
     assignByName,
     assigneeName,
     reviewerName,
@@ -577,6 +588,10 @@ const CustomReportFilter = ({
         { label: "Select All", value: ALL_CLIENT },
         ...(await getClientDropdownData()),
       ]);
+      const QaData = await getApiFunction(
+        `${process.env.api_url}/user/GetQAUsersDropdown`
+      );
+      QaData.length > 0 && setQaDropdown(QaData);
       setTypeOfWorkDropdown(await getTypeOfWorkDropdownData(0));
       const department = await getDepartmentDropdownData();
       setDepartmentDropdownData(department.DepartmentList);
@@ -712,6 +727,14 @@ const CustomReportFilter = ({
           )[0]
         : null
     );
+    setQaId(
+      savedFilters[index].AppliedFilter.QAId === null
+        ? null
+        : qaDropdown.filter(
+            (item: LabelValue) =>
+              item.value === savedFilters[index].AppliedFilter.QAId
+          )[0]
+    );
 
     setSubProcessName(
       AppliedFilter.subProcessId !== null &&
@@ -809,8 +832,12 @@ const CustomReportFilter = ({
         : null
     );
 
-    setPeriodFrom(dayjs(AppliedFilter?.PeriodFrom) || null);
-    setPeriodTo(dayjs(AppliedFilter?.PeriodTo) || null);
+    setPeriodFrom(
+      !!AppliedFilter?.PeriodFrom ? dayjs(AppliedFilter?.PeriodFrom) : null
+    );
+    setPeriodTo(
+      AppliedFilter?.PeriodTo ? dayjs(AppliedFilter?.PeriodTo) : null
+    );
     setStartDate(AppliedFilter?.startDate || "");
     setEndDate(AppliedFilter?.endDate || "");
     setReworkStartDate(AppliedFilter?.ReworkReceivedDate || "");
@@ -1648,6 +1675,25 @@ const CustomReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
+              </div>
+              <div className="flex gap-[20px]">
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, minWidth: 210 }}
+                >
+                  <Autocomplete
+                    id="tags-standard"
+                    options={qaDropdown}
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue | null) => {
+                      setQaId(data);
+                    }}
+                    value={qaId}
+                    renderInput={(params: any) => (
+                      <TextField {...params} variant="standard" label="QA" />
+                    )}
+                  />
+                </FormControl>
               </div>
             </div>
           </DialogContent>

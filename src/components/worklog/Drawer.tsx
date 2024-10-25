@@ -627,6 +627,11 @@ const Drawer = ({
         ErrorCount: 0,
         CC: [],
         NatureOfError: 0,
+        DocumentNumber: "",
+        VendorName: "",
+        RootCauseAnalysis: "",
+        MitigationPlan: "",
+        ContigencyPlan: "",
         Remark: "",
         Attachments: [
           {
@@ -659,6 +664,11 @@ const Drawer = ({
         Priority: 0,
         ErrorCount: 0,
         CC: [],
+        DocumentNumber: "",
+        VendorName: "",
+        RootCauseAnalysis: "",
+        MitigationPlan: "",
+        ContigencyPlan: "",
         NatureOfError: 0,
         Remark: "",
         Attachments: [
@@ -765,6 +775,13 @@ const Drawer = ({
               )
             ).filter(Boolean),
             Remark: i.Remark,
+            DocumentNumber: !!i.DocumentNumber ? i.DocumentNumber : "",
+            VendorName: !!i.VendorName ? i.VendorName : "",
+            RootCauseAnalysis: i.RootCauseAnalysis
+              ? i.RootCauseAnalysis
+              : "",
+            MitigationPlan: !!i.MitigationPlan ? i.MitigationPlan : "",
+            ContigencyPlan: !!i.ContigencyPlan ? i.ContigencyPlan : "",
             Attachments: i.Attachment?.length
               ? i.Attachment
               : [
@@ -794,6 +811,11 @@ const Drawer = ({
             ErrorCount: 0,
             CC: [],
             NatureOfError: 0,
+            DocumentNumber: "",
+            VendorName: "",
+            RootCauseAnalysis: "",
+            MitigationPlan: "",
+            ContigencyPlan: "",
             Remark: "",
             Attachments: [
               {
@@ -844,6 +866,11 @@ const Drawer = ({
                 ErrorCount: 0,
                 NatureOfError: 0,
                 CC: [],
+                DocumentNumber: "",
+                VendorName: "",
+                RootCauseAnalysis: "",
+                MitigationPlan: "",
+                ContigencyPlan: "",
                 Remark: i.Remark.trim(),
                 Attachments:
                   i.Attachments?.[0]?.SystemFileName?.length ?? 0 > 0
@@ -851,7 +878,7 @@ const Drawer = ({
                     : null,
               })
           ),
-          IsClientWorklog: true,
+          IsClientWorklog: 1,
           SubmissionId: null,
           DeletedErrorlogIds: deletedErrorLogClientWorklog,
         };
@@ -1285,6 +1312,11 @@ const Drawer = ({
         ErrorCount: 0,
         CC: [],
         NatureOfError: 0,
+        DocumentNumber: "",
+        VendorName: "",
+        RootCauseAnalysis: "",
+        MitigationPlan: "",
+        ContigencyPlan: "",
         Remark: "",
         Attachments: [
           {

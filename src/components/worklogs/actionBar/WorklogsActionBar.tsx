@@ -496,7 +496,18 @@ const WorklogsActionBar = ({
                     ? i.WorkitemId
                     : undefined
                 )
-                .filter((j: number | undefined) => j !== undefined).length > 0)
+                .filter((j: number | undefined) => j !== undefined).length >
+                0) &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.StatusType === "QAInProgress" ||
+                  i.StatusType === "QACompleted" ||
+                  i.StatusType === "QASubmitted")
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           className="text-slatyGrey"
           Component={Edit}
@@ -512,6 +523,16 @@ const WorklogsActionBar = ({
                 selectedRowIds.includes(i.WorkitemId) &&
                 i.StatusType === "Submitted" &&
                 i.WorkTypeId === 1
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.StatusType === "QAInProgress" ||
+                  i.StatusType === "QACompleted" ||
+                  i.StatusType === "QASubmitted")
                   ? i.WorkitemId
                   : undefined
               )
@@ -556,7 +577,17 @@ const WorklogsActionBar = ({
                   : undefined
               )
               .filter((j: number | undefined) => j !== undefined).length <= 0 &&
-            Array.from(new Set(selectedRowWorkTypeId)).length === 1
+            Array.from(new Set(selectedRowWorkTypeId)).length === 1 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.StatusType === "QAInProgress" ||
+                  i.StatusType === "QACompleted" ||
+                  i.StatusType === "QASubmitted")
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           Component={Assignee}
           propsForActionBar={propsForActionBar}
@@ -584,7 +615,17 @@ const WorklogsActionBar = ({
                   : undefined
               )
               .filter((j: number | undefined) => j !== undefined).length <= 0 &&
-            Array.from(new Set(selectedRowWorkTypeId)).length === 1
+            Array.from(new Set(selectedRowWorkTypeId)).length === 1 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.StatusType === "QAInProgress" ||
+                  i.StatusType === "QACompleted" ||
+                  i.StatusType === "QASubmitted")
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           Component={Status}
           propsForActionBar={propsForActionBar}
@@ -601,7 +642,17 @@ const WorklogsActionBar = ({
         <ConditionalComponent
           condition={
             hasPermissionWorklog("Reccuring", "View", "WorkLogs") &&
-            selectedRowsCount === 1
+            selectedRowsCount === 1 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.StatusType === "QAInProgress" ||
+                  i.StatusType === "QACompleted" ||
+                  i.StatusType === "QASubmitted")
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           Component={Recurring}
           propsForActionBar={propsForActionBar}
@@ -611,7 +662,17 @@ const WorklogsActionBar = ({
           condition={
             hasPermissionWorklog("Comment", "View", "WorkLogs") &&
             selectedRowsCount === 1 &&
-            !isUnassigneeClicked
+            !isUnassigneeClicked &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.StatusType === "QAInProgress" ||
+                  i.StatusType === "QACompleted" ||
+                  i.StatusType === "QASubmitted")
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           Component={Comments}
           propsForActionBar={{
@@ -634,6 +695,16 @@ const WorklogsActionBar = ({
             workItemData
               .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) && i.ClientId > 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.StatusType === "QAInProgress" ||
+                  i.StatusType === "QACompleted" ||
+                  i.StatusType === "QASubmitted")
                   ? i.WorkitemId
                   : undefined
               )
@@ -672,7 +743,17 @@ const WorklogsActionBar = ({
                   : undefined
               )
               .filter((j: number | undefined) => j !== undefined).length <= 0 &&
-            Array.from(new Set(selectedRowClientId)).length === 1
+            Array.from(new Set(selectedRowClientId)).length === 1 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.StatusType === "QAInProgress" ||
+                  i.StatusType === "QACompleted" ||
+                  i.StatusType === "QASubmitted")
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           Component={TypeOfWork}
           propsForActionBar={propsForActionBar}
@@ -707,7 +788,17 @@ const WorklogsActionBar = ({
                   : undefined
               )
               .filter((j: number | undefined) => j !== undefined).length <= 0 &&
-            Array.from(new Set(selectedRowClientId)).length === 1
+            Array.from(new Set(selectedRowClientId)).length === 1 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.StatusType === "QAInProgress" ||
+                  i.StatusType === "QACompleted" ||
+                  i.StatusType === "QASubmitted")
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           Component={Department}
           propsForActionBar={propsForActionBar}
@@ -756,7 +847,17 @@ const WorklogsActionBar = ({
               )
               .filter((j: number | undefined) => j !== undefined).length <= 0 &&
             Array.from(new Set(selectedRowClientId)).length === 1 &&
-            Array.from(new Set(selectedRowWorkTypeId)).length === 1
+            Array.from(new Set(selectedRowWorkTypeId)).length === 1 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.StatusType === "QAInProgress" ||
+                  i.StatusType === "QACompleted" ||
+                  i.StatusType === "QASubmitted")
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           Component={Project}
           propsForActionBar={propsForActionBar}
@@ -809,7 +910,17 @@ const WorklogsActionBar = ({
               .filter((j: number | undefined) => j !== undefined).length <= 0 &&
             Array.from(new Set(selectedRowClientId)).length === 1 &&
             Array.from(new Set(selectedRowWorkTypeId)).length === 1 &&
-            Array.from(new Set(selectedRowDepartmentId)).length === 1
+            Array.from(new Set(selectedRowDepartmentId)).length === 1 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.StatusType === "QAInProgress" ||
+                  i.StatusType === "QACompleted" ||
+                  i.StatusType === "QASubmitted")
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           Component={Process}
           propsForActionBar={propsForActionBar}
@@ -857,7 +968,17 @@ const WorklogsActionBar = ({
                   )
                   .filter((j: number | boolean) => j !== false)
               )
-            ).length === 1
+            ).length === 1 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.StatusType === "QAInProgress" ||
+                  i.StatusType === "QACompleted" ||
+                  i.StatusType === "QASubmitted")
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           Component={SubProcess}
           propsForActionBar={propsForActionBar}
@@ -882,6 +1003,16 @@ const WorklogsActionBar = ({
                 ((i.ReturnYear !== null && i.ReturnYear > 0) ||
                   i.ReturnYear !== null) &&
                 i.WorkTypeId === 3
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.StatusType === "QAInProgress" ||
+                  i.StatusType === "QACompleted" ||
+                  i.StatusType === "QASubmitted")
                   ? i.WorkitemId
                   : undefined
               )
@@ -923,7 +1054,17 @@ const WorklogsActionBar = ({
                   )
                   .filter((j: number | boolean) => j !== false)
               )
-            ).length === 1
+            ).length === 1 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.StatusType === "QAInProgress" ||
+                  i.StatusType === "QACompleted" ||
+                  i.StatusType === "QASubmitted")
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           Component={Reviewer}
           propsForActionBar={propsForActionBar}
@@ -962,7 +1103,17 @@ const WorklogsActionBar = ({
                   )
                   .filter((j: number | boolean) => j !== false)
               )
-            ).length === 1
+            ).length === 1 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.StatusType === "QAInProgress" ||
+                  i.StatusType === "QACompleted" ||
+                  i.StatusType === "QASubmitted")
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0
           }
           Component={Manager}
           propsForActionBar={propsForActionBar}
@@ -984,6 +1135,16 @@ const WorklogsActionBar = ({
               .map((i: WorkitemList) =>
                 selectedRowIds.includes(i.WorkitemId) &&
                 (i.ReceiverDate?.length > 0 || i.ReceiverDate !== null)
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: number | undefined) => j !== undefined).length <= 0 &&
+            workItemData
+              .map((i: WorkitemList) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.StatusType === "QAInProgress" ||
+                  i.StatusType === "QACompleted" ||
+                  i.StatusType === "QASubmitted")
                   ? i.WorkitemId
                   : undefined
               )

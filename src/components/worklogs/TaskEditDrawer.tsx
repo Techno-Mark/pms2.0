@@ -90,6 +90,17 @@ const TaskEditDrawer = ({
   const [managerWorklogsDropdownData, setManagerWorklogsDropdownData] =
     useState<LabelValue[] | []>([]);
   const [managerWorklogs, setManagerWorklogs] = useState<number>(0);
+  const isQaWorklogsDropdownData = [
+    {
+      label: "Yes",
+      value: 1,
+    },
+    {
+      label: "No",
+      value: 0,
+    },
+  ];
+  const [isQaWorklogs, setIsQaWorklogs] = useState<number>(0);
   const [statusWorklogsDropdownData, setStatusWorklogsDropdownData] = useState<
     LabelValueType[] | []
   >([]);
@@ -176,6 +187,10 @@ const TaskEditDrawer = ({
     useState<LabelValue[] | []>([]);
   const [managerWorklogsEdit, setManagerWorklogsEdit] = useState<number>(0);
   const [managerWorklogsEditErr, setManagerWorklogsEditErr] = useState(false);
+  const [isQaWorklogsEdit, setIsQaWorklogsEdit] = useState<number>(0);
+  const [qaQuantityWorklogsEdit, setQAQuantityWorklogsEdit] = useState<
+    number | null
+  >(null);
   const [statusWorklogsEdit, setStatusWorklogsEdit] = useState<number>(0);
   const [statusWorklogsEditErr, setStatusWorklogsEditErr] = useState(false);
   const [descriptionWorklogsEdit, setDescriptionWorklogsEdit] =
@@ -374,6 +389,10 @@ const TaskEditDrawer = ({
       ReworkDueDate: !!reworkDueDateWorklogsEdit
         ? dayjs(reworkDueDateWorklogsEdit).format("YYYY/MM/DD")
         : null,
+      IsQARequired:
+        departmentWorklogsTypeEdit == "SMB" ? isQaWorklogsEdit : null,
+      QAQuantity:
+        departmentWorklogsTypeEdit == "SMB" ? qaQuantityWorklogsEdit : null,
       ManualTimeList: null,
       SubTaskList: null,
       RecurringObj: null,
@@ -604,6 +623,17 @@ const TaskEditDrawer = ({
         setReworkDueDateWorklogsEdit(
           !!ResponseData.ReworkDueDate ? ResponseData.ReworkDueDate : ""
         );
+        setIsQaWorklogs(
+          !!ResponseData.IsQARequired ? ResponseData.IsQARequired : 0
+        );
+        setIsQaWorklogsEdit(
+          !!ResponseData.IsQARequired ? ResponseData.IsQARequired : 0
+        );
+        setQAQuantityWorklogsEdit(
+          ResponseData.QAQuantity !== null
+            ? Number(ResponseData.QAQuantity)
+            : null
+        );
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -700,6 +730,14 @@ const TaskEditDrawer = ({
       departmentData.length > 0
         ? setDepartmentWorklogsDropdownData(departmentData)
         : setDepartmentWorklogsDropdownData([]);
+      const departmentType =
+        departmentData.length > 0 &&
+        departmentData
+          .map((i: LabelValueType) =>
+            i.value == departmentWorklogs ? i.Type : false
+          )
+          .filter((j: number | boolean) => j !== false)[0];
+      setDepartmentWorklogsType(departmentType);
     };
     clientNameWorklogs > 0 && getData();
   }, [clientNameWorklogs]);
@@ -721,6 +759,14 @@ const TaskEditDrawer = ({
       departmentDataEdit.length > 0
         ? setDepartmentWorklogsDropdownDataEdit(departmentDataEdit)
         : setDepartmentWorklogsDropdownDataEdit([]);
+      const departmentType =
+        departmentDataEdit.length > 0 &&
+        departmentDataEdit
+          .map((i: LabelValueType) =>
+            i.value == departmentWorklogsEdit ? i.Type : false
+          )
+          .filter((j: number | boolean) => j !== false)[0];
+      setDepartmentWorklogsTypeEdit(departmentType);
     };
     clientNameWorklogsEdit > 0 && getData();
   }, [clientNameWorklogsEdit]);
@@ -966,6 +1012,7 @@ const TaskEditDrawer = ({
     setValueMonthYearTo(null);
     setReworkReceiverDateWorklogs(null);
     setReworkDueDateWorklogs(null);
+    setIsQaWorklogs(0);
 
     setClientNameWorklogsEdit(0);
     setClientNameWorklogsEditErr(false);
@@ -1008,6 +1055,8 @@ const TaskEditDrawer = ({
     setValueMonthYearToEdit(null);
     setReworkReceiverDateWorklogsEdit(null);
     setReworkDueDateWorklogsEdit(null);
+    setIsQaWorklogsEdit(0);
+    setQAQuantityWorklogsEdit(null);
 
     setClientWorklogsDropdownData([]);
     setTypeOfWorkWorklogsDropdownData([]);
@@ -1654,6 +1703,40 @@ const TaskEditDrawer = ({
                       )}
                     />
                   </Grid>
+                  {departmentWorklogsType === "SMB" && (
+                    <Grid
+                      item
+                      xs={3}
+                      className={`${
+                        typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
+                      }`}
+                    >
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={isQaWorklogsDropdownData}
+                        disabled
+                        value={
+                          isQaWorklogsDropdownData.find(
+                            (i: LabelValue) => i.value === isQaWorklogs
+                          ) || null
+                        }
+                        onChange={(e, value: LabelValue | null) => {}}
+                        sx={{
+                          width: 300,
+                          mt: typeOfWorkWorklogs === 3 ? 0.2 : -1,
+                          mx: 0.75,
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label="Is QA"
+                          />
+                        )}
+                      />
+                    </Grid>
+                  )}
                   {(departmentWorklogsType === "WhitelabelAccounting" ||
                     departmentWorklogsType === "WhitelabelAustralia" ||
                     departmentWorklogsType === "UK" ||
@@ -2815,6 +2898,41 @@ const TaskEditDrawer = ({
                         )}
                       />
                     </Grid>
+                    {departmentWorklogsTypeEdit === "SMB" && (
+                      <Grid
+                        item
+                        xs={3}
+                        className={`${
+                          typeOfWorkWorklogsEdit === 3 ? "pt-4" : "pt-5"
+                        }`}
+                      >
+                        <Autocomplete
+                          disablePortal
+                          id="combo-box-demo"
+                          options={isQaWorklogsDropdownData}
+                          value={
+                            isQaWorklogsDropdownData.find(
+                              (i: LabelValue) => i.value === isQaWorklogsEdit
+                            ) || null
+                          }
+                          onChange={(e, value: LabelValue | null) => {
+                            value && setIsQaWorklogsEdit(value.value);
+                          }}
+                          sx={{
+                            width: 300,
+                            mt: typeOfWorkWorklogsEdit === 3 ? 0.2 : -1,
+                            mx: 0.75,
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              variant="standard"
+                              label="Is QA"
+                            />
+                          )}
+                        />
+                      </Grid>
+                    )}
                     {(departmentWorklogsTypeEdit === "WhitelabelAccounting" ||
                       departmentWorklogsTypeEdit === "WhitelabelAustralia" ||
                       departmentWorklogsTypeEdit === "UK" ||

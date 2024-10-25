@@ -54,6 +54,7 @@ import {
   getCommentUserDropdownData,
   getDepartmentDataByClient,
   getManagerDropdownData,
+  getNatureOfErrorDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
   getReviewerDropdownData,
@@ -94,30 +95,34 @@ import {
 import {
   errorTypeOptions,
   impactOptions,
-  natureOfErrorOptions,
   priorityOptions,
   rootCauseOptions,
 } from "@/utils/staticDropdownData";
-import TypeOfWork from "./actionBar/components/TypeOfWork";
 
 interface EditDrawer {
   onOpen: boolean;
   onClose: () => void;
   onEdit: number;
+  submissionId?: number;
   onDataFetch: (() => void) | null;
-  onRecurring: boolean;
-  onComment: boolean;
-  isUnassigneeClicked: boolean;
+  onRecurring?: boolean;
+  onComment?: boolean;
+  isUnassigneeClicked?: boolean;
+  isTaskDisabled?: boolean;
+  onErrorLog?: boolean;
 }
 
 const EditDrawer = ({
   onOpen,
   onClose,
   onEdit,
+  submissionId = 0,
   onDataFetch,
-  onRecurring,
-  onComment,
-  isUnassigneeClicked,
+  onRecurring = false,
+  onComment = false,
+  isUnassigneeClicked = false,
+  isTaskDisabled = false,
+  onErrorLog = false,
 }: EditDrawer) => {
   const router = useRouter();
   const yearWorklogsDrawerDropdown = getYears();
@@ -133,6 +138,7 @@ const EditDrawer = ({
   const [editDataWorklogs, setEditDataWorklogs] = useState<any>([]);
   const [isIdDisabled, setIsIdDisabled] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isDisabled, setIsDisabled] = useState<boolean>(isTaskDisabled);
 
   let reviewerDate = new Date();
   reviewerDate.setDate(reviewerDate.getDate() - 1);
@@ -140,7 +146,8 @@ const EditDrawer = ({
   useEffect(() => {
     onRecurring && scrollToPanel(4);
     onComment && scrollToPanel(3);
-  }, [onOpen, onComment, onRecurring]);
+    onErrorLog && scrollToPanel(7);
+  }, [onOpen, onComment, onRecurring, onErrorLog]);
 
   let Task;
   {
@@ -154,7 +161,12 @@ const EditDrawer = ({
           hasPermissionWorklog("Reccuring", "View", "WorkLogs") && "Recurring",
           "Manual Time",
           hasPermissionWorklog("Reminder", "View", "WorkLogs") && "Reminder",
-          hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && "Error Logs",
+          hasPermissionWorklog("ErrorLog", "View", "WorkLogs") &&
+            !isDisabled &&
+            "Error Logs",
+          hasPermissionWorklog("", "ErrorLog", "QA") &&
+            isDisabled &&
+            "Error Logs",
           "Reviewer's Note",
           "Logs",
         ])
@@ -228,6 +240,20 @@ const EditDrawer = ({
   const [managerWorklogsDropdownData, setManagerWorklogsDropdownData] =
     useState<LabelValue[] | []>([]);
   const [managerWorklogs, setManagerWorklogs] = useState<number>(0);
+  const isQaWorklogsDropdownData = [
+    {
+      label: "Yes",
+      value: 1,
+    },
+    {
+      label: "No",
+      value: 0,
+    },
+  ];
+  const [isQaWorklogs, setIsQaWorklogs] = useState<number>(0);
+  const [qaQuantityWorklogs, setQAQuantityWorklogs] = useState<number | null>(
+    null
+  );
   const [managerWorklogsErr, setManagerWorklogsErr] = useState(false);
   const [statusWorklogsDropdownData, setStatusWorklogsDropdownData] = useState(
     []
@@ -757,6 +783,19 @@ const EditDrawer = ({
   };
 
   const handleStartTimeChangeWorklogs = (e: string, index: number) => {
+    if (e.length === 0) {
+      const newManualWorklogsFields: ManualFieldsWorklogs[] = [
+        ...manualFieldsWorklogs,
+      ];
+      newManualWorklogsFields[index].startTime = 0;
+      setManualFieldsWorklogs(newManualWorklogsFields);
+      return;
+    }
+
+    if (e.length > 1 && !/^[0-9]+$/.test(e)) {
+      return;
+    }
+
     if (e.length > 3) {
       return;
     }
@@ -783,7 +822,11 @@ const EditDrawer = ({
     const params = {
       WorkitemId: onEdit,
     };
-    const url = `${process.env.worklog_api_url}/workitem/timelog/getManuallogByWorkitem`;
+    const url = `${process.env.worklog_api_url}/workitem/${
+      isTaskDisabled
+        ? "quality/getmanuallogbyworkitem"
+        : "timelog/getManuallogByWorkitem"
+    }`;
     const successCallback = (
       ResponseData: GetManualLogByWorkitem[] | [],
       error: boolean,
@@ -869,7 +912,6 @@ const EditDrawer = ({
       if (!hasManualErrors) {
         setIsLoadingWorklogs(true);
         const params = {
-          workItemId: onEdit,
           timelogs: manualFieldsWorklogs.map(
             (i: ManualFieldsWorklogs) =>
               new Object({
@@ -883,7 +925,11 @@ const EditDrawer = ({
           ),
           deletedTimelogIds: deletedManualTimeWorklogs,
         };
-        const url = `${process.env.worklog_api_url}/workitem/timelog/saveManuallogByworkitem`;
+        const url = `${process.env.worklog_api_url}/workitem/${
+          isTaskDisabled
+            ? "quality/saveqamanualtimelog"
+            : "timelog/saveManuallogByworkitem"
+        }`;
         const successCallback = (
           ResponseData: null,
           error: boolean,
@@ -901,7 +947,20 @@ const EditDrawer = ({
             setIsLoadingWorklogs(false);
           }
         };
-        callAPI(url, params, successCallback, "POST");
+        callAPI(
+          url,
+          isTaskDisabled
+            ? {
+                submissionId: submissionId,
+                ...params,
+              }
+            : {
+                workItemId: onEdit,
+                ...params,
+              },
+          successCallback,
+          "POST"
+        );
       }
     } else {
       toast.warning("Only Assingnee can Edit Manual time.");
@@ -916,11 +975,14 @@ const EditDrawer = ({
     if (assigneeWorklogs === localNumber) {
       setIsLoadingWorklogs(true);
       const params = {
-        workItemId: onEdit,
         timelogs: [],
         deletedTimelogIds: [...deletedManualTimeWorklogs, id],
       };
-      const url = `${process.env.worklog_api_url}/workitem/timelog/saveManuallogByworkitem`;
+      const url = `${process.env.worklog_api_url}/workitem/${
+        isTaskDisabled
+          ? "quality/saveqamanualtimelog"
+          : "timelog/saveManuallogByworkitem"
+      }`;
       const successCallback = (
         ResponseData: null,
         error: boolean,
@@ -938,7 +1000,20 @@ const EditDrawer = ({
           setIsLoadingWorklogs(false);
         }
       };
-      callAPI(url, params, successCallback, "POST");
+      callAPI(
+        url,
+        isTaskDisabled
+          ? {
+              submissionId: submissionId,
+              ...params,
+            }
+          : {
+              workItemId: onEdit,
+              ...params,
+            },
+        successCallback,
+        "POST"
+      );
     } else {
       toast.warning("Only Assingnee can Edit Manual time.");
       getManualDataWorklogs();
@@ -1412,6 +1487,7 @@ const EditDrawer = ({
   const [cCDropdownDataWorklogs, setCCDropdownDataWorklogs] = useState<any>([]);
   const [reviewerErrWorklogsDrawer, setReviewerErrWorklogsDrawer] =
     useState(true);
+  const [errorLogWorklogsDrawer, setErorLogWorklogsDrawer] = useState(true);
   const [errorLogFieldsWorklogs, setErrorLogFieldsWorklogs] = useState<
     ErrorlogGetByWorkitem[]
   >([
@@ -1425,6 +1501,11 @@ const EditDrawer = ({
       Priority: 0,
       ErrorCount: 0,
       NatureOfError: 0,
+      DocumentNumber: "",
+      VendorName: "",
+      RootCauseAnalysis: "",
+      MitigationPlan: "",
+      ContigencyPlan: "",
       CC: [],
       Remark: "",
       Attachments: [
@@ -1439,6 +1520,7 @@ const EditDrawer = ({
       DateOfTransaction: "",
       isSolved: false,
       DisableErrorLog: false,
+      IsHasErrorlogAddedByClient: false,
     },
   ]);
   const [errorTypeWorklogsErr, setErrorTypeWorklogsErr] = useState([false]);
@@ -1448,6 +1530,153 @@ const EditDrawer = ({
     useState([false]);
   const [errorCountWorklogsErr, setErrorCountWorklogsErr] = useState([false]);
   const [natureOfWorklogsErr, setNatureOfWorklogsErr] = useState([false]);
+  const [documentNumberErrWorklogs, setDocumentNumberErrWorklogs] = useState([
+    false,
+  ]);
+  const [vendorNameErrWorklogs, setVendorNameErrWorklogs] = useState([false]);
+  const [rcaErrWorklogs, setRcaErrWorklogs] = useState([false]);
+  const [mitigationErrWorklogs, setMitigationErrWorklogs] = useState([false]);
+  const [contigencyPlanErrWorklogs, setContigencyPlanErrWorklogs] = useState([
+    false,
+  ]);
+  const [remarkErrWorklogs, setRemarkErrWorklogs] = useState([false]);
+  const [imageErrWorklogs, setImageErrWorklogs] = useState([false]);
+  const [deletedErrorLogWorklogs, setDeletedErrorLogWorklogs] = useState<any>(
+    []
+  );
+  const [natureOfErrorDropdown, setNatureOfErrorDropdown] = useState([]);
+
+  useEffect(() => {
+    const getData = async () => {
+      const data = await getNatureOfErrorDropdownData();
+      data.length > 0 && setNatureOfErrorDropdown(data);
+    };
+
+    onOpen && getData();
+  }, [onOpen]);
+
+  const addErrorLogFieldWorklogs = () => {
+    setErrorLogFieldsWorklogs([
+      ...errorLogFieldsWorklogs,
+      {
+        SubmitedBy: "",
+        SubmitedOn: "",
+        ErrorLogId: 0,
+        ErrorType: 0,
+        RootCause: 0,
+        Impact: 0,
+        Priority: 0,
+        ErrorCount: 0,
+        NatureOfError: 0,
+        CC: [],
+        DocumentNumber: "",
+        VendorName: "",
+        RootCauseAnalysis: "",
+        MitigationPlan: "",
+        ContigencyPlan: "",
+        Remark: "",
+        Attachments: [
+          {
+            AttachmentId: 0,
+            UserFileName: "",
+            SystemFileName: "",
+            AttachmentPath: process.env.attachment || "",
+          },
+        ],
+        Amount: 0,
+        DateOfTransaction: "",
+        isSolved: false,
+        DisableErrorLog: false,
+      },
+    ]);
+    setErrorTypeWorklogsErr([...errorTypeWorklogsErr, false]);
+    setRootCauseWorklogsErr([...rootCauseWorklogsErr, false]);
+    setImpactWorklogsErr([...impactWorklogsErr, false]);
+    setErrorLogPriorityWorklogsErr([...errorLogPriorityWorklogsErr, false]);
+    setErrorCountWorklogsErr([...errorCountWorklogsErr, false]);
+    setNatureOfWorklogsErr([...natureOfWorklogsErr, false]);
+    setDocumentNumberErrWorklogs([...documentNumberErrWorklogs, false]);
+    setVendorNameErrWorklogs([...vendorNameErrWorklogs, false]);
+    setRcaErrWorklogs([...rcaErrWorklogs, false]);
+    setMitigationErrWorklogs([...mitigationErrWorklogs, false]);
+    setContigencyPlanErrWorklogs([...contigencyPlanErrWorklogs, false]);
+    setRemarkErrWorklogs([...remarkErrWorklogs, false]);
+    setImageErrWorklogs([...imageErrWorklogs, false]);
+  };
+
+  const removeErrorLogFieldWorklogs = (index: number) => {
+    setDeletedErrorLogWorklogs(
+      errorLogFieldsWorklogs[index].ErrorLogId !== 0
+        ? [...deletedErrorLogWorklogs, errorLogFieldsWorklogs[index].ErrorLogId]
+        : [...deletedErrorLogWorklogs]
+    );
+
+    const newErrorLogFields = [...errorLogFieldsWorklogs];
+    newErrorLogFields.splice(index, 1);
+    setErrorLogFieldsWorklogs(newErrorLogFields);
+
+    const newErrorTypeErrors = [...errorTypeWorklogsErr];
+    newErrorTypeErrors.splice(index, 1);
+    setErrorTypeWorklogsErr(newErrorTypeErrors);
+
+    const newRootCauseErrors = [...rootCauseWorklogsErr];
+    newRootCauseErrors.splice(index, 1);
+    setRootCauseWorklogsErr(newRootCauseErrors);
+
+    const newImpactErrors = [...impactWorklogsErr];
+    newImpactErrors.splice(index, 1);
+    setImpactWorklogsErr(newImpactErrors);
+
+    const newPriorityErrors = [...errorLogPriorityWorklogsErr];
+    newPriorityErrors.splice(index, 1);
+    setErrorLogPriorityWorklogsErr(newPriorityErrors);
+
+    const newErrorCountErrors = [...errorCountWorklogsErr];
+    newErrorCountErrors.splice(index, 1);
+    setErrorCountWorklogsErr(newErrorCountErrors);
+
+    const newNatureOfErrErrors = [...natureOfWorklogsErr];
+    newNatureOfErrErrors.splice(index, 1);
+    setNatureOfWorklogsErr(newNatureOfErrErrors);
+
+    const newDocumentNumberErrors = [...documentNumberErrWorklogs];
+    newDocumentNumberErrors.splice(index, 1);
+    setDocumentNumberErrWorklogs(newDocumentNumberErrors);
+
+    const newVendorNameErrors = [...vendorNameErrWorklogs];
+    newVendorNameErrors.splice(index, 1);
+    setVendorNameErrWorklogs(newVendorNameErrors);
+
+    const newRcaErrors = [...rcaErrWorklogs];
+    newRcaErrors.splice(index, 1);
+    setRcaErrWorklogs(newRcaErrors);
+
+    const newMitigationErrors = [...mitigationErrWorklogs];
+    newMitigationErrors.splice(index, 1);
+    setMitigationErrWorklogs(newMitigationErrors);
+
+    const newContigencyPlanErrors = [...contigencyPlanErrWorklogs];
+    newContigencyPlanErrors.splice(index, 1);
+    setContigencyPlanErrWorklogs(newContigencyPlanErrors);
+
+    const newRemarkErrors = [...remarkErrWorklogs];
+    newRemarkErrors.splice(index, 1);
+    setRemarkErrWorklogs(newRemarkErrors);
+
+    const newImageErrors = [...imageErrWorklogs];
+    newImageErrors.splice(index, 1);
+    setImageErrWorklogs(newImageErrors);
+  };
+
+  const handleErrorTypeChangeWorklogs = (e: number, index: number) => {
+    const newFields = [...errorLogFieldsWorklogs];
+    newFields[index].ErrorType = e;
+    setErrorLogFieldsWorklogs(newFields);
+
+    const newErrors = [...errorTypeWorklogsErr];
+    newErrors[index] = e === 0;
+    setErrorTypeWorklogsErr(newErrors);
+  };
 
   const handleRootCauseChangeWorklogs = (e: number, index: number) => {
     const newFieldsWorklogs = [...errorLogFieldsWorklogs];
@@ -1508,7 +1737,67 @@ const EditDrawer = ({
     setErrorLogFieldsWorklogs(newFieldsWorklogs);
   };
 
-  const handleAmountChangeApprovals = (e: string, index: number) => {
+  const handleDocumentNumberChangeWorklogs = (e: string, index: number) => {
+    const newFields = [...errorLogFieldsWorklogs];
+    newFields[index].DocumentNumber = e;
+    setErrorLogFieldsWorklogs(newFields);
+
+    const newErrors = [...documentNumberErrWorklogs];
+    newErrors[index] = e.trim().length > 50;
+    setDocumentNumberErrWorklogs(newErrors);
+  };
+
+  const handleVendorNameChangeWorklogs = (e: string, index: number) => {
+    const newFields = [...errorLogFieldsWorklogs];
+    newFields[index].VendorName = e;
+    setErrorLogFieldsWorklogs(newFields);
+
+    const newErrors = [...vendorNameErrWorklogs];
+    newErrors[index] = e.trim().length > 250;
+    setVendorNameErrWorklogs(newErrors);
+  };
+
+  const handleRcaChangeWorklogs = (e: string, index: number) => {
+    const newFields = [...errorLogFieldsWorklogs];
+    newFields[index].RootCauseAnalysis = e;
+    setErrorLogFieldsWorklogs(newFields);
+
+    const newErrors = [...rcaErrWorklogs];
+    newErrors[index] = e.trim().length > 250;
+    setRcaErrWorklogs(newErrors);
+  };
+
+  const handleMitigationChangeWorklogs = (e: string, index: number) => {
+    const newFields = [...errorLogFieldsWorklogs];
+    newFields[index].MitigationPlan = e;
+    setErrorLogFieldsWorklogs(newFields);
+
+    const newErrors = [...mitigationErrWorklogs];
+    newErrors[index] = e.trim().length > 250;
+    setMitigationErrWorklogs(newErrors);
+  };
+
+  const handleContigencyPlanChangeWorklogs = (e: string, index: number) => {
+    const newFields = [...errorLogFieldsWorklogs];
+    newFields[index].ContigencyPlan = e;
+    setErrorLogFieldsWorklogs(newFields);
+
+    const newErrors = [...contigencyPlanErrWorklogs];
+    newErrors[index] = e.trim().length > 250;
+    setContigencyPlanErrWorklogs(newErrors);
+  };
+
+  const handleRemarksChangeWorklogs = (e: string, index: number) => {
+    const newFields = [...errorLogFieldsWorklogs];
+    newFields[index].Remark = e;
+    setErrorLogFieldsWorklogs(newFields);
+
+    const newErrors = [...remarkErrWorklogs];
+    newErrors[index] = e.trim().length <= 0;
+    setRemarkErrWorklogs(newErrors);
+  };
+
+  const handleAmountChangeWorklogs = (e: string, index: number) => {
     const newFieldsWorklogs = [...errorLogFieldsWorklogs];
     newFieldsWorklogs[index].Amount = Number(e) || 0;
     setErrorLogFieldsWorklogs(newFieldsWorklogs);
@@ -1518,6 +1807,34 @@ const EditDrawer = ({
     const newFieldsWorklogs = [...errorLogFieldsWorklogs];
     newFieldsWorklogs[index].DateOfTransaction = e;
     setErrorLogFieldsWorklogs(newFieldsWorklogs);
+  };
+
+  const handleAttachmentsChangeWorklogs = (
+    data1: string,
+    data2: string,
+    Attachments: CommentAttachment[],
+    index: number
+  ) => {
+    const newFields = [...errorLogFieldsWorklogs];
+    newFields[index].Attachments =
+      data1 === null || data2 === null
+        ? [
+            {
+              AttachmentId: 0,
+              UserFileName: "",
+              SystemFileName: "",
+              AttachmentPath: process.env.attachment || "",
+            },
+          ]
+        : [
+            {
+              AttachmentId: Attachments[0].AttachmentId,
+              UserFileName: data1,
+              SystemFileName: data2,
+              AttachmentPath: process.env.attachment || "",
+            },
+          ];
+    setErrorLogFieldsWorklogs(newFields);
   };
 
   const getErrorLogDataWorklogs = async () => {
@@ -1533,7 +1850,7 @@ const EditDrawer = ({
       if (
         ResponseStatus === "Success" &&
         ResponseData !== null &&
-        ResponseData.length >= 0 &&
+        ResponseData.length > 0 &&
         error === false
       ) {
         setErrorLogFieldsWorklogs(
@@ -1552,6 +1869,11 @@ const EditDrawer = ({
                 (j: { value: number }) => j.value === cc
               )
             ).filter(Boolean),
+            DocumentNumber: !!i.DocumentNumber ? i.DocumentNumber : "",
+            VendorName: !!i.VendorName ? i.VendorName : "",
+            RootCauseAnalysis: i.RootCauseAnalysis ? i.RootCauseAnalysis : "",
+            MitigationPlan: !!i.MitigationPlan ? i.MitigationPlan : "",
+            ContigencyPlan: !!i.ContigencyPlan ? i.ContigencyPlan : "",
             Remark: i.Remark,
             Attachments: i.Attachment?.length
               ? i.Attachment
@@ -1568,6 +1890,7 @@ const EditDrawer = ({
               i.DateOfTransaction === null ? "" : i.DateOfTransaction,
             isSolved: i.IsSolved,
             DisableErrorLog: i.DisableErrorLog,
+            IsHasErrorlogAddedByClient: i.IsHasErrorlogAddedByClient,
           }))
         );
       } else {
@@ -1583,6 +1906,11 @@ const EditDrawer = ({
             ErrorCount: 0,
             NatureOfError: 0,
             CC: [],
+            DocumentNumber: "",
+            VendorName: "",
+            RootCauseAnalysis: "",
+            MitigationPlan: "",
+            ContigencyPlan: "",
             Remark: "",
             Attachments: [
               {
@@ -1596,6 +1924,7 @@ const EditDrawer = ({
             DateOfTransaction: "",
             isSolved: false,
             DisableErrorLog: false,
+            IsHasErrorlogAddedByClient: false,
           },
         ]);
       }
@@ -1609,42 +1938,222 @@ const EditDrawer = ({
     checked: boolean,
     index: number
   ) => {
+    if (
+      !!editDataWorklogs &&
+      editDataWorklogs.AssignedId != Number(localStorage.getItem("UserId"))
+    ) {
+      toast.warning("Only assignee can solve errorlog.");
+    } else {
+      let hasErrorLogErrors = false;
+      const newErrorTypeWorklogsErrors = errorLogFieldsWorklogs.map(
+        (field, i) => field.ErrorType === 0 && i === index
+      );
+      setErrorTypeWorklogsErr(newErrorTypeWorklogsErrors);
+      const newRootCauseWorklogsErrors = errorLogFieldsWorklogs.map(
+        (field, i) => field.RootCause === 0 && i === index
+      );
+      setRootCauseWorklogsErr(newRootCauseWorklogsErrors);
+      const newImpactWorklogsErrors = errorLogFieldsWorklogs.map(
+        (field, i) => field.Impact === 0 && i === index
+      );
+      setImpactWorklogsErr(newImpactWorklogsErrors);
+      const newNatureOfWorklogsErrors = errorLogFieldsWorklogs.map(
+        (field, i) => field.NatureOfError === 0 && i === index
+      );
+      setNatureOfWorklogsErr(newNatureOfWorklogsErrors);
+      const newPriorityErrors = errorLogFieldsWorklogs.map(
+        (field, i) => field.Priority === 0 && i === index
+      );
+      setErrorLogPriorityWorklogsErr(newPriorityErrors);
+      const newDocumentNumberErrors = errorLogFieldsWorklogs.map(
+        (field) => field.DocumentNumber.trim().length > 50
+      );
+      setDocumentNumberErrWorklogs(newDocumentNumberErrors);
+      const newVendorNameErrors = errorLogFieldsWorklogs.map(
+        (field) => field.VendorName.trim().length > 250
+      );
+      setVendorNameErrWorklogs(newVendorNameErrors);
+      const newRcaErrors = errorLogFieldsWorklogs.map(
+        (field) => field.RootCauseAnalysis.trim().length > 250
+      );
+      setRcaErrWorklogs(newRcaErrors);
+      const newMitigationErrors = errorLogFieldsWorklogs.map(
+        (field) => field.MitigationPlan.trim().length > 250
+      );
+      setMitigationErrWorklogs(newMitigationErrors);
+      const newContigencyPlanErrors = errorLogFieldsWorklogs.map(
+        (field) => field.ContigencyPlan.trim().length > 250
+      );
+      setContigencyPlanErrWorklogs(newContigencyPlanErrors);
+      const newErrorCountWorklogsErrors = errorLogFieldsWorklogs.map(
+        (field, i) =>
+          (field.ErrorCount <= 0 || field.ErrorCount > 9999) && i === index
+      );
+      setErrorCountWorklogsErr(newErrorCountWorklogsErrors);
+
+      hasErrorLogErrors =
+        newErrorTypeWorklogsErrors.some((error) => error) ||
+        newRootCauseWorklogsErrors.some((error) => error) ||
+        newImpactWorklogsErrors.some((error) => error) ||
+        newNatureOfWorklogsErrors.some((error) => error) ||
+        newPriorityErrors.some((error) => error) ||
+        newDocumentNumberErrors.some((error) => error) ||
+        newVendorNameErrors.some((error) => error) ||
+        newRcaErrors.some((error) => error) ||
+        newMitigationErrors.some((error) => error) ||
+        newContigencyPlanErrors.some((error) => error) ||
+        newErrorCountWorklogsErrors.some((error) => error);
+
+      if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
+        if (hasErrorLogErrors === false) {
+          setIsLoadingWorklogs(true);
+          const params = {
+            WorkItemId: onEdit,
+            Errors: errorLogFieldsWorklogs.map(
+              (i: ErrorlogGetByWorkitem) =>
+                new Object({
+                  ErrorLogId: i.ErrorLogId,
+                  ErrorType: i.ErrorType,
+                  RootCause: i.RootCause,
+                  Impact: i.Impact,
+                  Priority: i.Priority,
+                  ErrorCount: i.ErrorCount,
+                  NatureOfError: i.NatureOfError,
+                  CC: i.CC.map((j: LabelValueProfileImage) => j.value),
+                  DocumentNumber: !!i.DocumentNumber ? i.DocumentNumber : null,
+                  VendorName: !!i.VendorName ? i.VendorName : null,
+                  RootCauseAnalysis: !!i.RootCauseAnalysis
+                    ? i.RootCauseAnalysis
+                    : null,
+                  MitigationPlan: !!i.MitigationPlan ? i.MitigationPlan : null,
+                  ContigencyPlan: !!i.ContigencyPlan ? i.ContigencyPlan : null,
+                  Remark: i.Remark,
+                  Attachments:
+                    i.Attachments?.[0]?.UserFileName?.length ?? 0 > 0
+                      ? i.Attachments
+                      : null,
+                  Amount: i.Amount === 0 ? null : i.Amount,
+                  DateOfTransaction:
+                    i.DateOfTransaction === ""
+                      ? null
+                      : dayjs(i.DateOfTransaction).format("YYYY/MM/DD"),
+                })
+            ),
+            IsClientWorklog: 0,
+            SubmissionId: null,
+            DeletedErrorlogIds: [],
+          };
+          const url = `${process.env.worklog_api_url}/workitem/errorlog/saveByworkitem`;
+          const successCallback = (
+            ResponseData: null,
+            error: boolean,
+            ResponseStatus: string
+          ) => {
+            if (ResponseStatus === "Success" && error === false) {
+              const params = {
+                WorkItemId: onEdit,
+                ErrorLogId: errorLogId,
+                IsSolved: checked,
+              };
+              const url = `${process.env.worklog_api_url}/workitem/errorlog/SolveByworkitem`;
+              const successCallback = (
+                ResponseData: null,
+                error: boolean,
+                ResponseStatus: string
+              ) => {
+                if (ResponseStatus === "Success" && error === false) {
+                  toast.success(
+                    `${checked ? "Error log Resolved." : "Error log changed."}`
+                  );
+                  getErrorLogDataWorklogs();
+                  onDataFetch?.();
+                  setIsLoadingWorklogs(false);
+                }
+                setIsLoadingWorklogs(false);
+              };
+              callAPI(url, params, successCallback, "POST");
+            }
+            setIsLoadingWorklogs(false);
+          };
+          callAPI(url, params, successCallback, "POST");
+        }
+      } else {
+        toast.error("User don't have permission to Update Task.");
+        getErrorLogDataWorklogs();
+      }
+    }
+  };
+
+  const handleSubmitErrorLog = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+
     let hasErrorLogErrors = false;
-    const newErrorTypeWorklogsErrors = errorLogFieldsWorklogs.map(
-      (field, i) => field.ErrorType === 0 && i === index
+    const newErrorTypeErrors = errorLogFieldsWorklogs.map(
+      (field) => field.ErrorType === 0
     );
-    setErrorTypeWorklogsErr(newErrorTypeWorklogsErrors);
-    const newRootCauseWorklogsErrors = errorLogFieldsWorklogs.map(
-      (field, i) => field.RootCause === 0 && i === index
+    setErrorTypeWorklogsErr(newErrorTypeErrors);
+    const newRootCauseErrors = errorLogFieldsWorklogs.map(
+      (field) => field.RootCause === 0
     );
-    setRootCauseWorklogsErr(newRootCauseWorklogsErrors);
-    const newImpactWorklogsErrors = errorLogFieldsWorklogs.map(
-      (field, i) => field.Impact === 0 && i === index
+    setRootCauseWorklogsErr(newRootCauseErrors);
+    const newImpactErrors = errorLogFieldsWorklogs.map(
+      (field) => field.Impact === 0
     );
-    setImpactWorklogsErr(newImpactWorklogsErrors);
-    const newNatureOfWorklogsErrors = errorLogFieldsWorklogs.map(
-      (field, i) => field.NatureOfError === 0 && i === index
+    setImpactWorklogsErr(newImpactErrors);
+    const newNatureOfErrors = errorLogFieldsWorklogs.map(
+      (field) => field.NatureOfError === 0
     );
-    setNatureOfWorklogsErr(newNatureOfWorklogsErrors);
+    setNatureOfWorklogsErr(newNatureOfErrors);
     const newPriorityErrors = errorLogFieldsWorklogs.map(
-      (field, i) => field.Priority === 0 && i === index
+      (field) => field.Priority === 0
     );
     setErrorLogPriorityWorklogsErr(newPriorityErrors);
-    const newErrorCountWorklogsErrors = errorLogFieldsWorklogs.map(
-      (field, i) =>
-        (field.ErrorCount <= 0 || field.ErrorCount > 9999) && i === index
+    const newErrorCountErrors = errorLogFieldsWorklogs.map(
+      (field) => field.ErrorCount <= 0 || field.ErrorCount > 9999
     );
-    setErrorCountWorklogsErr(newErrorCountWorklogsErrors);
+    setErrorCountWorklogsErr(newErrorCountErrors);
+    const newDocumentNumberErrors = errorLogFieldsWorklogs.map(
+      (field) => field.DocumentNumber.trim().length > 50
+    );
+    setDocumentNumberErrWorklogs(newDocumentNumberErrors);
+    const newVendorNameErrors = errorLogFieldsWorklogs.map(
+      (field) => field.VendorName.trim().length > 250
+    );
+    setVendorNameErrWorklogs(newVendorNameErrors);
+    const newRcaErrors = errorLogFieldsWorklogs.map(
+      (field) => field.RootCauseAnalysis.trim().length > 250
+    );
+    setRcaErrWorklogs(newRcaErrors);
+    const newMitigationErrors = errorLogFieldsWorklogs.map(
+      (field) => field.MitigationPlan.trim().length > 250
+    );
+    setMitigationErrWorklogs(newMitigationErrors);
+    const newContigencyPlanErrors = errorLogFieldsWorklogs.map(
+      (field) => field.ContigencyPlan.trim().length > 250
+    );
+    setContigencyPlanErrWorklogs(newContigencyPlanErrors);
+    const newRemarkErrors = errorLogFieldsWorklogs.map(
+      (field) =>
+        field.Remark.trim().length < 5 || field.Remark.trim().length > 500
+    );
+    setRemarkErrWorklogs(newRemarkErrors);
 
     hasErrorLogErrors =
-      newErrorTypeWorklogsErrors.some((error) => error) ||
-      newRootCauseWorklogsErrors.some((error) => error) ||
-      newImpactWorklogsErrors.some((error) => error) ||
-      newNatureOfWorklogsErrors.some((error) => error) ||
+      newErrorTypeErrors.some((error) => error) ||
+      newRootCauseErrors.some((error) => error) ||
+      newImpactErrors.some((error) => error) ||
+      newNatureOfErrors.some((error) => error) ||
       newPriorityErrors.some((error) => error) ||
-      newErrorCountWorklogsErrors.some((error) => error);
+      newErrorCountErrors.some((error) => error) ||
+      newDocumentNumberErrors.some((error) => error) ||
+      newVendorNameErrors.some((error) => error) ||
+      newRcaErrors.some((error) => error) ||
+      newMitigationErrors.some((error) => error) ||
+      newContigencyPlanErrors.some((error) => error) ||
+      newRemarkErrors.some((error) => error) ||
+      imageErrWorklogs.includes(true);
 
-    if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
+    if (hasPermissionWorklog("", "ErrorLog", "QA")) {
       if (hasErrorLogErrors === false) {
         setIsLoadingWorklogs(true);
         const params = {
@@ -1660,9 +2169,16 @@ const EditDrawer = ({
                 ErrorCount: i.ErrorCount,
                 NatureOfError: i.NatureOfError,
                 CC: i.CC.map((j: LabelValueProfileImage) => j.value),
+                DocumentNumber: !!i.DocumentNumber ? i.DocumentNumber : null,
+                VendorName: !!i.VendorName ? i.VendorName : null,
+                RootCauseAnalysis: !!i.RootCauseAnalysis
+                  ? i.RootCauseAnalysis
+                  : null,
+                MitigationPlan: !!i.MitigationPlan ? i.MitigationPlan : null,
+                ContigencyPlan: !!i.ContigencyPlan ? i.ContigencyPlan : null,
                 Remark: i.Remark,
                 Attachments:
-                  i.Attachments?.[0]?.UserFileName?.length ?? 0 > 0
+                  i.Attachments?.[0]?.SystemFileName?.length ?? 0 > 0
                     ? i.Attachments
                     : null,
                 Amount: i.Amount === 0 ? null : i.Amount,
@@ -1672,10 +2188,11 @@ const EditDrawer = ({
                     : dayjs(i.DateOfTransaction).format("YYYY/MM/DD"),
               })
           ),
-          IsClientWorklog: false,
-          SubmissionId: null,
-          DeletedErrorlogIds: [],
+          IsClientWorklog: 2,
+          SubmissionId: submissionId,
+          DeletedErrorlogIds: deletedErrorLogWorklogs,
         };
+
         const url = `${process.env.worklog_api_url}/workitem/errorlog/saveByworkitem`;
         const successCallback = (
           ResponseData: null,
@@ -1683,35 +2200,21 @@ const EditDrawer = ({
           ResponseStatus: string
         ) => {
           if (ResponseStatus === "Success" && error === false) {
-            const params = {
-              WorkItemId: onEdit,
-              ErrorLogId: errorLogId,
-              IsSolved: checked,
-            };
-            const url = `${process.env.worklog_api_url}/workitem/errorlog/SolveByworkitem`;
-            const successCallback = (
-              ResponseData: null,
-              error: boolean,
-              ResponseStatus: string
-            ) => {
-              if (ResponseStatus === "Success" && error === false) {
-                toast.success(
-                  `${checked ? "Error log Resolved." : "Error log changed."}`
-                );
-                getErrorLogDataWorklogs();
-                onDataFetch?.();
-                setIsLoadingWorklogs(false);
-              }
-              setIsLoadingWorklogs(false);
-            };
-            callAPI(url, params, successCallback, "POST");
+            toast.success(`Error logged successfully.`);
+            setDeletedErrorLogWorklogs([]);
+            getEditDataWorklogs();
+            getErrorLogDataWorklogs();
+            onDataFetch?.();
+            setIsLoadingWorklogs(false);
           }
           setIsLoadingWorklogs(false);
+          setDeletedErrorLogWorklogs([]);
         };
         callAPI(url, params, successCallback, "POST");
       }
     } else {
       toast.error("User don't have permission to Update Task.");
+      setDeletedErrorLogWorklogs([]);
       getErrorLogDataWorklogs();
     }
   };
@@ -2055,6 +2558,8 @@ const EditDrawer = ({
         valueMonthYearTo === null || valueMonthYearTo === ""
           ? null
           : dayjs(valueMonthYearTo).format("YYYY/MM/DD"),
+      IsQARequired: departmentWorklogsType == "SMB" ? isQaWorklogs : null,
+      QAQuantity: departmentWorklogsType == "SMB" ? qaQuantityWorklogs : null,
       ManualTimeList:
         onEdit > 0
           ? null
@@ -2334,6 +2839,14 @@ const EditDrawer = ({
         setReworkDueDateWorklogs(
           !!ResponseData.ReworkDueDate ? ResponseData.ReworkDueDate : ""
         );
+        setIsQaWorklogs(
+          !!ResponseData.IsQARequired ? ResponseData.IsQARequired : 0
+        );
+        setQAQuantityWorklogs(
+          ResponseData.QAQuantity !== null
+            ? Number(ResponseData.QAQuantity)
+            : null
+        );
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -2607,13 +3120,18 @@ const EditDrawer = ({
       reviewerData.length > 0
         ? setReviewerWorklogsDropdownData(reviewerData)
         : setReviewerWorklogsDropdownData([]);
+      const userId: any = localStorage.getItem("UserId");
       const reportingManagerId: any = localStorage.getItem("reviewerId");
       const reviewerId: any =
         onEdit === 0 &&
         reviewerData.length > 0 &&
         reviewerData
           .map((i: LabelValue) =>
-            i.value == reportingManagerId ? i.value : false
+            i.value == userId && typeOfWorkWorklogs === 3
+              ? i.value
+              : i.value == reportingManagerId && typeOfWorkWorklogs !== 3
+              ? i.value
+              : false
           )
           .filter((j: number | boolean) => j !== false)[0];
 
@@ -2628,7 +3146,6 @@ const EditDrawer = ({
       assigneeData.length > 0
         ? setAssigneeWorklogsDropdownData(assigneeData)
         : setAssigneeWorklogsDropdownData([]);
-      const userId: any = localStorage.getItem("UserId");
       const assigneeId =
         onEdit === 0 &&
         assigneeData.length > 0 &&
@@ -2662,9 +3179,19 @@ const EditDrawer = ({
             i.value == departmentID ? i.value : false
           )
           .filter((j: number | boolean) => j !== false)[0];
+      const departmentType =
+        departmentData.length > 0 &&
+        departmentData
+          .map((i: LabelValueType) =>
+            i.value == departmentID || i.value == departmentWorklogs
+              ? i.Type
+              : false
+          )
+          .filter((j: number | boolean) => j !== false)[0];
       onEdit === 0 &&
         departmentData.length > 0 &&
         setDepartmentWorklogs(departmentId !== undefined ? departmentId : 0);
+      setDepartmentWorklogsType(departmentType);
     };
 
     clientNameWorklogs > 0 && getData();
@@ -2739,6 +3266,8 @@ const EditDrawer = ({
     setChecklistWorkpaperWorklogsErr(false);
     setValueMonthYearFrom(null);
     setValueMonthYearTo(null);
+    setIsQaWorklogs(0);
+    setQAQuantityWorklogs(null);
 
     // Sub-Task
     setSubTaskSwitchWorklogs(false);
@@ -2811,6 +3340,11 @@ const EditDrawer = ({
         NatureOfError: 0,
         CC: [],
         Remark: "",
+        DocumentNumber: "",
+        VendorName: "",
+        RootCauseAnalysis: "",
+        MitigationPlan: "",
+        ContigencyPlan: "",
         Attachments: [
           {
             AttachmentId: 0,
@@ -2823,6 +3357,7 @@ const EditDrawer = ({
         DateOfTransaction: "",
         isSolved: false,
         DisableErrorLog: false,
+        IsHasErrorlogAddedByClient: false,
       },
     ]);
     setErrorTypeWorklogsErr([false]);
@@ -2831,6 +3366,15 @@ const EditDrawer = ({
     setErrorLogPriorityWorklogsErr([false]);
     setErrorCountWorklogsErr([false]);
     setNatureOfWorklogsErr([false]);
+    setDocumentNumberErrWorklogs([false]);
+    setVendorNameErrWorklogs([false]);
+    setRcaErrWorklogs([false]);
+    setMitigationErrWorklogs([false]);
+    setContigencyPlanErrWorklogs([false]);
+    setRemarkErrWorklogs([false]);
+    setImageErrWorklogs([false]);
+    setDeletedErrorLogWorklogs([]);
+    setErorLogWorklogsDrawer(true);
 
     // Comments
     setCommentDataWorklogs([]);
@@ -3020,7 +3564,8 @@ const EditDrawer = ({
                         disabled={
                           (isCreatedByClientWorklogsDrawer &&
                             editDataWorklogs.ClientId > 0) ||
-                          isIdDisabled
+                          isIdDisabled ||
+                          isDisabled
                         }
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3056,7 +3601,8 @@ const EditDrawer = ({
                         disabled={
                           (isCreatedByClientWorklogsDrawer &&
                             editDataWorklogs.WorkTypeId > 0) ||
-                          isIdDisabled
+                          isIdDisabled ||
+                          isDisabled
                         }
                       >
                         <InputLabel id="demo-simple-select-standard-label">
@@ -3127,7 +3673,8 @@ const EditDrawer = ({
                         disabled={
                           (isCreatedByClientWorklogsDrawer &&
                             editDataWorklogs.ProjectId > 0) ||
-                          isIdDisabled
+                          isIdDisabled ||
+                          isDisabled
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setProjectNameWorklogs(value.value);
@@ -3167,7 +3714,7 @@ const EditDrawer = ({
                             (i: LabelValueType) => i.value === statusWorklogs
                           ) || null
                         }
-                        disabled={isIdDisabled}
+                        disabled={isIdDisabled || isDisabled}
                         onChange={(e, value: LabelValueType | null) => {
                           value && setStatusWorklogs(value.value);
                         }}
@@ -3206,7 +3753,8 @@ const EditDrawer = ({
                           (isCreatedByClientWorklogsDrawer &&
                             editDataWorklogs.DepartmentId > 0) ||
                           isIdDisabled ||
-                          isAdmin === false
+                          isAdmin === false ||
+                          isDisabled
                         }
                         value={
                           departmentWorklogsDropdownData.find(
@@ -3262,7 +3810,8 @@ const EditDrawer = ({
                         disabled={
                           (isCreatedByClientWorklogsDrawer &&
                             editDataWorklogs.ProcessId > 0) ||
-                          isIdDisabled
+                          isIdDisabled ||
+                          isDisabled
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setProcessNameWorklogs(value.value);
@@ -3309,7 +3858,8 @@ const EditDrawer = ({
                         disabled={
                           (isCreatedByClientWorklogsDrawer &&
                             editDataWorklogs.SubProcessId > 0) ||
-                          isIdDisabled
+                          isIdDisabled ||
+                          isDisabled
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setSubProcessWorklogs(value.value);
@@ -3351,7 +3901,7 @@ const EditDrawer = ({
                         }
                         fullWidth
                         className="pt-1"
-                        disabled={isIdDisabled}
+                        disabled={isIdDisabled || isDisabled}
                         value={
                           clientTaskNameWorklogs?.trim().length <= 0
                             ? ""
@@ -3405,7 +3955,7 @@ const EditDrawer = ({
                             ? ""
                             : descriptionWorklogs
                         }
-                        disabled={isIdDisabled}
+                        disabled={isIdDisabled || isDisabled}
                         onChange={(e) => {
                           setDescriptionWorklogs(e.target.value);
                           setDescriptionWorklogsErr(false);
@@ -3490,7 +4040,7 @@ const EditDrawer = ({
                         }
                         type="number"
                         fullWidth
-                        disabled={isIdDisabled}
+                        disabled={isIdDisabled || isDisabled}
                         value={quantityWorklogs}
                         onChange={(e) => {
                           setQuantityWorklogs(Number(e.target.value));
@@ -3573,7 +4123,7 @@ const EditDrawer = ({
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -1.2 }}
-                        disabled={isIdDisabled}
+                        disabled={isIdDisabled || isDisabled}
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           Priority
@@ -3607,7 +4157,7 @@ const EditDrawer = ({
                               </span>
                             }
                             onError={() => setReceiverDateWorklogsErr(false)}
-                            disabled={isIdDisabled}
+                            disabled={isIdDisabled || isDisabled}
                             value={
                               receiverDateWorklogs === ""
                                 ? null
@@ -3669,7 +4219,7 @@ const EditDrawer = ({
                                 ? null
                                 : dayjs(dueDateWorklogs)
                             }
-                            disabled={isIdDisabled}
+                            disabled={isIdDisabled || isDisabled}
                             minDate={dayjs(receiverDateWorklogs)}
                             shouldDisableDate={isWeekend}
                             onChange={(newDate: any) => {
@@ -3692,7 +4242,7 @@ const EditDrawer = ({
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
                               label="All Info Date"
-                              disabled={isIdDisabled}
+                              disabled={isIdDisabled || isDisabled}
                               shouldDisableDate={isWeekend}
                               value={
                                 allInfoDateWorklogs === ""
@@ -3726,7 +4276,9 @@ const EditDrawer = ({
                         disablePortal
                         id="combo-box-demo"
                         options={assigneeWorklogsDropdownData}
-                        disabled={!assigneeWorklogsDisable || isIdDisabled}
+                        disabled={
+                          !assigneeWorklogsDisable || isIdDisabled || isDisabled
+                        }
                         value={
                           assigneeWorklogsDropdownData.find(
                             (i: LabelValue) => i.value === assigneeWorklogs
@@ -3776,7 +4328,7 @@ const EditDrawer = ({
                         disablePortal
                         id="combo-box-demo"
                         options={reviewerWorklogsDropdownData}
-                        disabled={isIdDisabled}
+                        disabled={isIdDisabled || isDisabled}
                         value={
                           reviewerWorklogsDropdownData?.find(
                             (i: LabelValue) => i.value === reviewerWorklogs
@@ -3826,7 +4378,7 @@ const EditDrawer = ({
                         disablePortal
                         id="combo-box-demo"
                         options={managerWorklogsDropdownData}
-                        disabled={isIdDisabled}
+                        disabled={isIdDisabled || isDisabled}
                         value={
                           managerWorklogsDropdownData.find(
                             (i: LabelValue) => i.value === managerWorklogs
@@ -3866,6 +4418,80 @@ const EditDrawer = ({
                         )}
                       />
                     </Grid>
+                    {departmentWorklogsType === "SMB" && (
+                      <>
+                        <Grid
+                          item
+                          xs={3}
+                          className={`${
+                            typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
+                          }`}
+                        >
+                          <Autocomplete
+                            disablePortal
+                            id="combo-box-demo"
+                            options={isQaWorklogsDropdownData}
+                            disabled={isIdDisabled || isDisabled}
+                            value={
+                              isQaWorklogsDropdownData.find(
+                                (i: LabelValue) => i.value === isQaWorklogs
+                              ) || null
+                            }
+                            onChange={(e, value: LabelValue | null) => {
+                              value && setIsQaWorklogs(value.value);
+                            }}
+                            sx={{
+                              width: 300,
+                              mt: typeOfWorkWorklogs === 3 ? 0.2 : -1,
+                              mx: 0.75,
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                variant="standard"
+                                label="Is QA"
+                              />
+                            )}
+                          />
+                        </Grid>
+                        {isDisabled && (
+                          <Grid
+                            item
+                            xs={3}
+                            className={`${
+                              typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
+                            }`}
+                          >
+                            <TextField
+                              label="QA Quantity"
+                              onFocus={(e) =>
+                                e.target.addEventListener(
+                                  "wheel",
+                                  function (e) {
+                                    e.preventDefault();
+                                  },
+                                  { passive: false }
+                                )
+                              }
+                              type="number"
+                              fullWidth
+                              disabled={isIdDisabled}
+                              value={qaQuantityWorklogs}
+                              onChange={(e) => {
+                                setQAQuantityWorklogs(Number(e.target.value));
+                              }}
+                              margin="normal"
+                              variant="standard"
+                              sx={{
+                                width: 300,
+                                mt: typeOfWorkWorklogs === 3 ? 0.2 : -1,
+                                mx: 0.75,
+                              }}
+                            />
+                          </Grid>
+                        )}
+                      </>
+                    )}
                     {(departmentWorklogsType === "WhitelabelAccounting" ||
                       departmentWorklogsType === "WhitelabelAustralia" ||
                       departmentWorklogsType === "UK" ||
@@ -3886,7 +4512,7 @@ const EditDrawer = ({
                               maxDate={dayjs(currentYearEndDate)}
                               views={["year", "month"]}
                               label="Period From"
-                              disabled={isIdDisabled}
+                              disabled={isIdDisabled || isDisabled}
                               value={
                                 valueMonthYearFrom === ""
                                   ? null
@@ -3920,7 +4546,7 @@ const EditDrawer = ({
                               maxDate={dayjs(currentYearEndDate)}
                               views={["year", "month"]}
                               label="Period To"
-                              disabled={isIdDisabled}
+                              disabled={isIdDisabled || isDisabled}
                               value={
                                 valueMonthYearTo === ""
                                   ? null
@@ -3941,7 +4567,7 @@ const EditDrawer = ({
                             variant="standard"
                             sx={{ width: 300, mt: -0.3, mx: 0.75 }}
                             error={returnYearWorklogsErr}
-                            disabled={isIdDisabled}
+                            disabled={isIdDisabled || isDisabled}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Return Year
@@ -3984,7 +4610,7 @@ const EditDrawer = ({
                             label="No of Pages"
                             type="number"
                             fullWidth
-                            disabled={isIdDisabled}
+                            disabled={isIdDisabled || isDisabled}
                             value={
                               noOfPagesWorklogs === 0 ? "" : noOfPagesWorklogs
                             }
@@ -4010,7 +4636,7 @@ const EditDrawer = ({
                             variant="standard"
                             sx={{ width: 300, mt: -0.8, mx: 0.75 }}
                             error={checklistWorkpaperWorklogsErr}
-                            disabled={isIdDisabled}
+                            disabled={isIdDisabled || isDisabled}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Checklist/Workpaper
@@ -4057,7 +4683,9 @@ const EditDrawer = ({
                               departmentWorklogsType ==
                                 "WhitelabelAccounting" ||
                               departmentWorklogsType == "WhitelabelAustralia" ||
-                              departmentWorklogsType === "Germany") &&
+                              departmentWorklogsType === "Germany" ||
+                              (departmentWorklogsType === "SMB" &&
+                                isDisabled)) &&
                             typeOfWorkWorklogs !== 3
                               ? "pt-6"
                               : "pt-5"
@@ -4096,7 +4724,8 @@ const EditDrawer = ({
                                 "WhitelabelAccounting" ||
                               departmentWorklogsType == "WhitelabelAustralia" ||
                               departmentWorklogsType == "WhitelabelTaxation" ||
-                              departmentWorklogsType === "Germany") &&
+                              departmentWorklogsType === "Germany" ||
+                              departmentWorklogsType === "SMB") &&
                             typeOfWorkWorklogs !== 3
                               ? "pt-6"
                               : "pt-5"
@@ -4141,7 +4770,7 @@ const EditDrawer = ({
                                       </span>
                                     </span>
                                   }
-                                  disabled={isIdDisabled}
+                                  disabled={isIdDisabled || isDisabled}
                                   value={
                                     reworkReceiverDateWorklogs === ""
                                       ? null
@@ -4194,7 +4823,7 @@ const EditDrawer = ({
                                       ? null
                                       : dayjs(reworkDueDateWorklogs)
                                   }
-                                  disabled={isIdDisabled}
+                                  disabled={isIdDisabled || isDisabled}
                                   minDate={dayjs(reworkReceiverDateWorklogs)}
                                   shouldDisableDate={isWeekend}
                                   onChange={(newDate: any) => {
@@ -4225,15 +4854,18 @@ const EditDrawer = ({
                     <span className="ml-[21px]">Sub-Task</span>
                   </span>
                   <span className="flex items-center">
-                    {onEdit > 0 && subTaskSwitchWorklogs && !isIdDisabled && (
-                      <Button
-                        variant="contained"
-                        className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
-                        onClick={handleSubmitSubTaskWorklogs}
-                      >
-                        Update
-                      </Button>
-                    )}
+                    {onEdit > 0 &&
+                      subTaskSwitchWorklogs &&
+                      !isIdDisabled &&
+                      !isDisabled && (
+                        <Button
+                          variant="contained"
+                          className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
+                          onClick={handleSubmitSubTaskWorklogs}
+                        >
+                          Update
+                        </Button>
+                      )}
                     {hasPermissionWorklog(
                       "Task/SubTask",
                       "Save",
@@ -4241,6 +4873,7 @@ const EditDrawer = ({
                     ) ? (
                       <Switch
                         checked={subTaskSwitchWorklogs}
+                        disabled={isDisabled}
                         onChange={(e) => {
                           setSubTaskSwitchWorklogs(e.target.checked);
                           onEdit === 0 &&
@@ -4284,7 +4917,9 @@ const EditDrawer = ({
                             </span>
                           }
                           fullWidth
-                          disabled={!subTaskSwitchWorklogs || isIdDisabled}
+                          disabled={
+                            !subTaskSwitchWorklogs || isIdDisabled || isDisabled
+                          }
                           value={field.Title}
                           onChange={(e) =>
                             handleSubTaskChangeWorklogs(e.target.value, index)
@@ -4326,7 +4961,9 @@ const EditDrawer = ({
                             </span>
                           }
                           fullWidth
-                          disabled={!subTaskSwitchWorklogs || isIdDisabled}
+                          disabled={
+                            !subTaskSwitchWorklogs || isIdDisabled || isDisabled
+                          }
                           value={field.Description}
                           onChange={(e) =>
                             handleSubTaskDescriptionChangeWorklogs(
@@ -4363,6 +5000,7 @@ const EditDrawer = ({
                         />
                         {index === 0
                           ? !isIdDisabled &&
+                            !isDisabled &&
                             subTaskSwitchWorklogs && (
                               <span
                                 className="cursor-pointer"
@@ -4388,6 +5026,7 @@ const EditDrawer = ({
                               </span>
                             )
                           : !isIdDisabled &&
+                            !isDisabled &&
                             subTaskSwitchWorklogs && (
                               <span
                                 className="cursor-pointer"
@@ -4466,7 +5105,11 @@ const EditDrawer = ({
                               {i.Activities.map((j: any, index: number) => (
                                 <FormControlLabel
                                   key={j.IsCheck + index}
-                                  disabled={isIdDisabled || isUnassigneeClicked}
+                                  disabled={
+                                    isIdDisabled ||
+                                    isUnassigneeClicked ||
+                                    isDisabled
+                                  }
                                   control={
                                     <Checkbox
                                       checked={j.IsCheck}
@@ -4497,6 +5140,7 @@ const EditDrawer = ({
                             itemStatesWorklogs[index] &&
                             !itemStatesWorklogs[`addChecklistField_${index}`] &&
                             !isIdDisabled &&
+                            !isDisabled &&
                             !isUnassigneeClicked && (
                               <span
                                 className="flex items-center gap-3 ml-8 cursor-pointer text-[#6E6D7A]"
@@ -4526,6 +5170,7 @@ const EditDrawer = ({
                                       ? ""
                                       : checkListNameWorklogs
                                   }
+                                  disabled={isDisabled}
                                   onChange={(e) => {
                                     setCheckListNameWorklogs(e.target.value);
                                     setCheckListNameWorklogsError(false);
@@ -4564,6 +5209,7 @@ const EditDrawer = ({
                                   variant="contained"
                                   className="rounded-[4px] !h-[36px] mr-6 !bg-secondary mt-2"
                                   onClick={() =>
+                                    !isDisabled &&
                                     handleSaveCheckListNameWorklogs(
                                       i.Category,
                                       index
@@ -4975,6 +5621,7 @@ const EditDrawer = ({
                     {onEdit > 0 &&
                       recurringSwitch &&
                       !isIdDisabled &&
+                      !isDisabled &&
                       !isUnassigneeClicked && (
                         <Button
                           variant="contained"
@@ -4987,6 +5634,7 @@ const EditDrawer = ({
                     {hasPermissionWorklog("Reccuring", "Save", "WorkLogs") ? (
                       <Switch
                         checked={recurringSwitch}
+                        disabled={isDisabled}
                         onChange={(e) => {
                           setRecurringSwitch(e.target.checked);
                           setRecurringStartDate("");
@@ -5032,6 +5680,7 @@ const EditDrawer = ({
                             disabled={
                               !recurringSwitch ||
                               isIdDisabled ||
+                              isDisabled ||
                               isUnassigneeClicked
                             }
                             onError={() => setRecurringStartDateErr(false)}
@@ -5076,6 +5725,7 @@ const EditDrawer = ({
                             disabled={
                               !recurringSwitch ||
                               isIdDisabled ||
+                              isDisabled ||
                               isUnassigneeClicked
                             }
                             onError={() => setRecurringEndDateErr(false)}
@@ -5107,6 +5757,7 @@ const EditDrawer = ({
                         disabled={
                           !recurringSwitch ||
                           isIdDisabled ||
+                          isDisabled ||
                           isUnassigneeClicked
                         }
                       >
@@ -5174,7 +5825,9 @@ const EditDrawer = ({
                           }
                           getOptionLabel={(option) => option.label}
                           disableCloseOnSelect
-                          disabled={isIdDisabled || isUnassigneeClicked}
+                          disabled={
+                            isIdDisabled || isUnassigneeClicked || isDisabled
+                          }
                           onChange={handleMultiSelectMonth}
                           style={{ width: 500 }}
                           renderInput={(params) => (
@@ -5596,6 +6249,7 @@ const EditDrawer = ({
                     {onEdit > 0 &&
                       reminderSwitch &&
                       !isIdDisabled &&
+                      !isDisabled &&
                       !isUnassigneeClicked && (
                         <Button
                           variant="contained"
@@ -5608,6 +6262,7 @@ const EditDrawer = ({
                     {hasPermissionWorklog("Reminder", "Save", "WorkLogs") ? (
                       <Switch
                         checked={reminderSwitch}
+                        disabled={isDisabled}
                         onChange={(e) => {
                           setReminderSwitch(e.target.checked);
                           setReminderDate("");
@@ -5656,6 +6311,7 @@ const EditDrawer = ({
                           disabled={
                             !reminderSwitch ||
                             isIdDisabled ||
+                            isDisabled ||
                             isUnassigneeClicked
                           }
                           value={1}
@@ -5667,6 +6323,7 @@ const EditDrawer = ({
                           disabled={
                             !reminderSwitch ||
                             isIdDisabled ||
+                            isDisabled ||
                             isUnassigneeClicked
                           }
                           value={2}
@@ -5678,6 +6335,7 @@ const EditDrawer = ({
                           disabled={
                             !reminderSwitch ||
                             isIdDisabled ||
+                            isDisabled ||
                             isUnassigneeClicked
                           }
                           value={3}
@@ -5689,6 +6347,7 @@ const EditDrawer = ({
                           disabled={
                             !reminderSwitch ||
                             isIdDisabled ||
+                            isDisabled ||
                             isUnassigneeClicked
                           }
                           value={4}
@@ -5718,6 +6377,7 @@ const EditDrawer = ({
                               disabled={
                                 !reminderSwitch ||
                                 isIdDisabled ||
+                                isDisabled ||
                                 isUnassigneeClicked
                               }
                               onError={() => setReminderDateErr(false)}
@@ -5760,6 +6420,7 @@ const EditDrawer = ({
                               disabled={
                                 !reminderSwitch ||
                                 isIdDisabled ||
+                                isDisabled ||
                                 isUnassigneeClicked
                               }
                               onError={() => setReminderDateErr(false)}
@@ -5788,7 +6449,10 @@ const EditDrawer = ({
                         sx={{ mx: 0.75, minWidth: 100 }}
                         error={reminderTimeErr}
                         disabled={
-                          !reminderSwitch || isIdDisabled || isUnassigneeClicked
+                          !reminderSwitch ||
+                          isIdDisabled ||
+                          isDisabled ||
+                          isUnassigneeClicked
                         }
                       >
                         <InputLabel id="demo-simple-select-standard-label">
@@ -5825,7 +6489,10 @@ const EditDrawer = ({
                         limitTags={2}
                         id="checkboxes-tags-demo"
                         disabled={
-                          !reminderSwitch || isIdDisabled || isUnassigneeClicked
+                          !reminderSwitch ||
+                          isIdDisabled ||
+                          isDisabled ||
+                          isUnassigneeClicked
                         }
                         options={
                           Array.isArray(assigneeWorklogsDropdownData)
@@ -5873,6 +6540,7 @@ const EditDrawer = ({
             )}
 
             {hasPermissionWorklog("ErrorLog", "View", "WorkLogs") &&
+              !isDisabled &&
               onEdit > 0 && (
                 <div className="mt-14" id="tabpanel-7">
                   <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
@@ -5932,6 +6600,7 @@ const EditDrawer = ({
                                     value={i.ErrorType === 0 ? "" : i.ErrorType}
                                     readOnly={
                                       i.ErrorType > 0 ||
+                                      !i.IsHasErrorlogAddedByClient ||
                                       i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
@@ -5984,6 +6653,7 @@ const EditDrawer = ({
                                     }}
                                     readOnly={
                                       (i.RootCause > 0 && i.ErrorType == 1) ||
+                                      !i.IsHasErrorlogAddedByClient ||
                                       i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
@@ -6035,6 +6705,7 @@ const EditDrawer = ({
                                     }}
                                     readOnly={
                                       (i.Impact > 0 && i.ErrorType == 1) ||
+                                      !i.IsHasErrorlogAddedByClient ||
                                       i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
@@ -6095,12 +6766,13 @@ const EditDrawer = ({
                                     readOnly={
                                       (i.NatureOfError > 0 &&
                                         i.ErrorType == 1) ||
+                                      !i.IsHasErrorlogAddedByClient ||
                                       i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
                                   >
-                                    {natureOfErrorOptions.map(
-                                      (n: LabelValue) => (
+                                    {natureOfErrorDropdown.map(
+                                      (n: LabelValueType) => (
                                         <MenuItem value={n.value} key={n.value}>
                                           {n.label}
                                         </MenuItem>
@@ -6148,6 +6820,7 @@ const EditDrawer = ({
                                     }}
                                     readOnly={
                                       (i.Priority > 0 && i.ErrorType == 1) ||
+                                      !i.IsHasErrorlogAddedByClient ||
                                       i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
@@ -6164,7 +6837,117 @@ const EditDrawer = ({
                                     </FormHelperText>
                                   )}
                                 </FormControl>
-                                <div className="flex items-center justify-start ml-2 mt-2">
+                                <div className="flex items-center justify-start mt-2">
+                                  <TextField
+                                    label={<span>Document Number Field</span>}
+                                    fullWidth
+                                    disabled={
+                                      isIdDisabled || isUnassigneeClicked
+                                    }
+                                    value={
+                                      i.DocumentNumber.trim().length === 0
+                                        ? ""
+                                        : i.DocumentNumber
+                                    }
+                                    onChange={(e) =>
+                                      handleDocumentNumberChangeWorklogs(
+                                        e.target.value,
+                                        index
+                                      )
+                                    }
+                                    onBlur={(e) => {
+                                      if (e.target.value.length > 50) {
+                                        const newDocumentNumberErrors = [
+                                          ...documentNumberErrWorklogs,
+                                        ];
+                                        newDocumentNumberErrors[index] = true;
+                                        setDocumentNumberErrWorklogs(
+                                          newDocumentNumberErrors
+                                        );
+                                      } else {
+                                        const newDocumentNumberErrors = [
+                                          ...documentNumberErrWorklogs,
+                                        ];
+                                        newDocumentNumberErrors[index] = false;
+                                        setDocumentNumberErrWorklogs(
+                                          newDocumentNumberErrors
+                                        );
+                                      }
+                                    }}
+                                    error={documentNumberErrWorklogs[index]}
+                                    helperText={
+                                      documentNumberErrWorklogs[index] &&
+                                      i.DocumentNumber.trim().length > 50
+                                        ? "Maximum 50 characters allowed."
+                                        : ""
+                                    }
+                                    margin="normal"
+                                    variant="standard"
+                                    sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                                    InputProps={{
+                                      readOnly:
+                                        (i.DocumentNumber.trim().length > 0 &&
+                                          i.ErrorType == 1) ||
+                                        !i.IsHasErrorlogAddedByClient ||
+                                        i.Remark.trim().length <= 0 ||
+                                        i.DisableErrorLog,
+                                    }}
+                                  />
+                                  <TextField
+                                    label={<span>Vendor Field Addition</span>}
+                                    fullWidth
+                                    disabled={
+                                      isIdDisabled || isUnassigneeClicked
+                                    }
+                                    value={
+                                      i.VendorName.trim().length === 0
+                                        ? ""
+                                        : i.VendorName
+                                    }
+                                    onChange={(e) =>
+                                      handleVendorNameChangeWorklogs(
+                                        e.target.value,
+                                        index
+                                      )
+                                    }
+                                    onBlur={(e) => {
+                                      if (e.target.value.length > 250) {
+                                        const newVendorNameErrors = [
+                                          ...vendorNameErrWorklogs,
+                                        ];
+                                        newVendorNameErrors[index] = true;
+                                        setVendorNameErrWorklogs(
+                                          newVendorNameErrors
+                                        );
+                                      } else {
+                                        const newVendorNameErrors = [
+                                          ...vendorNameErrWorklogs,
+                                        ];
+                                        newVendorNameErrors[index] = false;
+                                        setVendorNameErrWorklogs(
+                                          newVendorNameErrors
+                                        );
+                                      }
+                                    }}
+                                    error={vendorNameErrWorklogs[index]}
+                                    helperText={
+                                      vendorNameErrWorklogs[index] &&
+                                      i.VendorName.trim().length > 250
+                                        ? "Maximum 250 characters allowed."
+                                        : ""
+                                    }
+                                    margin="normal"
+                                    variant="standard"
+                                    sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                                    InputProps={{
+                                      readOnly:
+                                        (i.VendorName.trim().length > 0 &&
+                                          i.ErrorType == 1) ||
+                                        !i.IsHasErrorlogAddedByClient ||
+                                        i.Remark.trim().length <= 0 ||
+                                        i.DisableErrorLog,
+                                    }}
+                                  />
                                   <Autocomplete
                                     multiple
                                     limitTags={2}
@@ -6174,6 +6957,7 @@ const EditDrawer = ({
                                     }
                                     readOnly={
                                       (i.CC.length > 0 && i.ErrorType == 1) ||
+                                      !i.IsHasErrorlogAddedByClient ||
                                       i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
@@ -6196,7 +6980,7 @@ const EditDrawer = ({
                                         variant="standard"
                                       />
                                     )}
-                                    sx={{ maxWidth: 230, mt: 0.3 }}
+                                    sx={{ ml: 1.5, maxWidth: 230, mt: 0.3 }}
                                   />
                                   <TextField
                                     label={
@@ -6260,10 +7044,13 @@ const EditDrawer = ({
                                       readOnly:
                                         (i.ErrorCount > 0 &&
                                           i.ErrorType == 1) ||
+                                        !i.IsHasErrorlogAddedByClient ||
                                         i.Remark.trim().length <= 0 ||
                                         i.DisableErrorLog,
                                     }}
                                   />
+                                </div>
+                                <div className="flex items-center justify-start mt-2">
                                   <TextField
                                     label={
                                       <span>
@@ -6282,7 +7069,7 @@ const EditDrawer = ({
                                     variant="standard"
                                     sx={{
                                       mx: 0.75,
-                                      maxWidth: 490,
+                                      maxWidth: 472,
                                       mt: 1.2,
                                       ml: 1.5,
                                     }}
@@ -6298,7 +7085,7 @@ const EditDrawer = ({
                                     value={i.Amount === 0 ? "" : i.Amount}
                                     onChange={(e) =>
                                       e.target.value.length <= 7 &&
-                                      handleAmountChangeApprovals(
+                                      handleAmountChangeWorklogs(
                                         e.target.value,
                                         index
                                       )
@@ -6315,9 +7102,17 @@ const EditDrawer = ({
                                     margin="normal"
                                     variant="standard"
                                     sx={{ mx: 0.75, maxWidth: 230, mt: 1.2 }}
+                                    InputProps={{
+                                      readOnly:
+                                        (!!i.Amount &&
+                                          i.Amount.toString().trim().length >
+                                            0 &&
+                                          i.ErrorType == 1) ||
+                                        !i.IsHasErrorlogAddedByClient ||
+                                        i.Remark.trim().length <= 0 ||
+                                        i.DisableErrorLog,
+                                    }}
                                   />
-                                </div>
-                                <div className="flex items-center justify-start ml-2 mt-2">
                                   <div className="inline-flex mt-[4px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]">
                                     <LocalizationProvider
                                       dateAdapter={AdapterDayjs}
@@ -6339,6 +7134,15 @@ const EditDrawer = ({
                                             index
                                           );
                                         }}
+                                        readOnly={
+                                          (!!i.DateOfTransaction &&
+                                            i.DateOfTransaction.trim().length >
+                                              0 &&
+                                            i.ErrorType == 1) ||
+                                          !i.IsHasErrorlogAddedByClient ||
+                                          i.Remark.trim().length <= 0 ||
+                                          i.DisableErrorLog
+                                        }
                                         slotProps={{
                                           textField: {
                                             readOnly: true,
@@ -6347,7 +7151,7 @@ const EditDrawer = ({
                                       />
                                     </LocalizationProvider>
                                   </div>
-                                  <div className="flex flex-col">
+                                  <div className="flex flex-col mr-5">
                                     <div className="flex">
                                       <ImageUploader isDisable={true} />
                                       {i.Attachments &&
@@ -6355,11 +7159,11 @@ const EditDrawer = ({
                                         i.Attachments[0]?.SystemFileName
                                           .length > 0 && (
                                           <div className="flex items-center justify-center gap-2">
-                                            <span className="mt-6 ml-2 cursor-pointer">
+                                            <span className="mt-6 ml-2">
                                               {i.Attachments[0]?.UserFileName}
                                             </span>
                                             <span
-                                              className="mt-6"
+                                              className="mt-6 cursor-pointer"
                                               onClick={() =>
                                                 i.Attachments
                                                   ? getFileFromBlob(
@@ -6383,6 +7187,175 @@ const EditDrawer = ({
                                         )}
                                     </div>
                                   </div>
+                                </div>
+                                <div className="flex items-center justify-start ml-2 mt-2">
+                                  <TextField
+                                    label={
+                                      <span>Root Cause Analysis (RCA)</span>
+                                    }
+                                    fullWidth
+                                    disabled={
+                                      isIdDisabled || isUnassigneeClicked
+                                    }
+                                    value={
+                                      i.RootCauseAnalysis.trim().length === 0
+                                        ? ""
+                                        : i.RootCauseAnalysis
+                                    }
+                                    onChange={(e) =>
+                                      handleRcaChangeWorklogs(
+                                        e.target.value,
+                                        index
+                                      )
+                                    }
+                                    onBlur={(e) => {
+                                      if (e.target.value.length > 250) {
+                                        const newRcaErrors = [
+                                          ...rcaErrWorklogs,
+                                        ];
+                                        newRcaErrors[index] = true;
+                                        setRcaErrWorklogs(newRcaErrors);
+                                      } else {
+                                        const newRcaErrors = [
+                                          ...rcaErrWorklogs,
+                                        ];
+                                        newRcaErrors[index] = false;
+                                        setRcaErrWorklogs(newRcaErrors);
+                                      }
+                                    }}
+                                    error={rcaErrWorklogs[index]}
+                                    helperText={
+                                      rcaErrWorklogs[index] &&
+                                      i.RootCauseAnalysis.trim().length > 250
+                                        ? "Maximum 250 characters allowed."
+                                        : ""
+                                    }
+                                    margin="normal"
+                                    variant="standard"
+                                    sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                                    InputProps={{
+                                      readOnly:
+                                        (!!i.RootCauseAnalysis &&
+                                          i.RootCauseAnalysis.trim().length >
+                                            0 &&
+                                          i.ErrorType == 1) ||
+                                        !i.IsHasErrorlogAddedByClient ||
+                                        i.Remark.trim().length <= 0 ||
+                                        i.DisableErrorLog,
+                                    }}
+                                  />
+                                  <TextField
+                                    label={<span>Mitigation Plan</span>}
+                                    fullWidth
+                                    disabled={
+                                      isIdDisabled || isUnassigneeClicked
+                                    }
+                                    value={
+                                      i.MitigationPlan.trim().length === 0
+                                        ? ""
+                                        : i.MitigationPlan
+                                    }
+                                    onChange={(e) =>
+                                      handleMitigationChangeWorklogs(
+                                        e.target.value,
+                                        index
+                                      )
+                                    }
+                                    onBlur={(e) => {
+                                      if (e.target.value.length > 250) {
+                                        const newMitigationErrors = [
+                                          ...mitigationErrWorklogs,
+                                        ];
+                                        newMitigationErrors[index] = true;
+                                        setMitigationErrWorklogs(
+                                          newMitigationErrors
+                                        );
+                                      } else {
+                                        const newMitigationErrors = [
+                                          ...mitigationErrWorklogs,
+                                        ];
+                                        newMitigationErrors[index] = false;
+                                        setMitigationErrWorklogs(
+                                          newMitigationErrors
+                                        );
+                                      }
+                                    }}
+                                    error={mitigationErrWorklogs[index]}
+                                    helperText={
+                                      mitigationErrWorklogs[index] &&
+                                      i.MitigationPlan.trim().length > 250
+                                        ? "Maximum 250 characters allowed."
+                                        : ""
+                                    }
+                                    margin="normal"
+                                    variant="standard"
+                                    sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                                    InputProps={{
+                                      readOnly:
+                                        (!!i.MitigationPlan &&
+                                          i.MitigationPlan.trim().length > 0 &&
+                                          i.ErrorType == 1) ||
+                                        !i.IsHasErrorlogAddedByClient ||
+                                        i.Remark.trim().length <= 0 ||
+                                        i.DisableErrorLog,
+                                    }}
+                                  />
+                                  <TextField
+                                    label={<span>Contingency Plan</span>}
+                                    fullWidth
+                                    disabled={
+                                      isIdDisabled || isUnassigneeClicked
+                                    }
+                                    value={
+                                      i.ContigencyPlan.trim().length === 0
+                                        ? ""
+                                        : i.ContigencyPlan
+                                    }
+                                    onChange={(e) =>
+                                      handleContigencyPlanChangeWorklogs(
+                                        e.target.value,
+                                        index
+                                      )
+                                    }
+                                    onBlur={(e) => {
+                                      if (e.target.value.length > 250) {
+                                        const newContigencyPlanErrors = [
+                                          ...contigencyPlanErrWorklogs,
+                                        ];
+                                        newContigencyPlanErrors[index] = true;
+                                        setContigencyPlanErrWorklogs(
+                                          newContigencyPlanErrors
+                                        );
+                                      } else {
+                                        const newContigencyPlanErrors = [
+                                          ...contigencyPlanErrWorklogs,
+                                        ];
+                                        newContigencyPlanErrors[index] = false;
+                                        setContigencyPlanErrWorklogs(
+                                          newContigencyPlanErrors
+                                        );
+                                      }
+                                    }}
+                                    error={contigencyPlanErrWorklogs[index]}
+                                    helperText={
+                                      contigencyPlanErrWorklogs[index] &&
+                                      i.ContigencyPlan.trim().length > 250
+                                        ? "Maximum 250 characters allowed."
+                                        : ""
+                                    }
+                                    margin="normal"
+                                    variant="standard"
+                                    sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                                    InputProps={{
+                                      readOnly:
+                                        (!!i.ContigencyPlan &&
+                                          i.ContigencyPlan.trim().length > 0 &&
+                                          i.ErrorType == 1) ||
+                                        !i.IsHasErrorlogAddedByClient ||
+                                        i.Remark.trim().length <= 0 ||
+                                        i.DisableErrorLog,
+                                    }}
+                                  />
                                   <FormGroup>
                                     <FormControlLabel
                                       className="ml-2 mt-5"
@@ -6416,6 +7389,805 @@ const EditDrawer = ({
                           )
                         )}
                     </div>
+                  )}
+                </div>
+              )}
+
+            {hasPermissionWorklog("", "ErrorLog", "QA") &&
+              isDisabled &&
+              onEdit > 0 && (
+                <div className="mt-14" id="tabpanel-7">
+                  <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
+                    <span className="flex items-center">
+                      <TaskIcon />
+                      <span className="ml-[21px]">Error Logs</span>
+                    </span>
+                    <span className="flex items-center">
+                      {hasPermissionWorklog("", "ErrorLog", "QA") &&
+                        onEdit > 0 && (
+                          <Button
+                            variant="contained"
+                            className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
+                            onClick={handleSubmitErrorLog}
+                          >
+                            Update
+                          </Button>
+                        )}
+                      <span
+                        className={`cursor-pointer ${
+                          errorLogWorklogsDrawer ? "rotate-180" : ""
+                        }`}
+                        onClick={() =>
+                          setErorLogWorklogsDrawer(!errorLogWorklogsDrawer)
+                        }
+                      >
+                        <ChevronDownIcon />
+                      </span>
+                    </span>
+                  </div>
+                  {errorLogWorklogsDrawer && (
+                    <>
+                      <div className="mt-3 pl-6">
+                        {errorLogFieldsWorklogs.map((field, index) => (
+                          <div
+                            className="w-[100%] mt-4"
+                            key={field.SubmitedBy + index}
+                          >
+                            {field.SubmitedBy.length > 0 && (
+                              <div className="ml-1 mt-8 mb-3">
+                                <span className="font-bold">Correction By</span>
+                                <span className="ml-3 mr-10 text-[14px]">
+                                  {field.SubmitedBy}
+                                </span>
+                                <span className="font-bold">Reviewer Date</span>
+                                <span className="ml-3">
+                                  {field.SubmitedOn.split("/")[1]}-
+                                  {field.SubmitedOn.split("/")[0]}-
+                                  {field.SubmitedOn.split("/")[2]}
+                                </span>
+                              </div>
+                            )}
+                            <FormControl
+                              variant="standard"
+                              sx={{ mx: 0.75, minWidth: 230 }}
+                              error={errorTypeWorklogsErr[index]}
+                            >
+                              <InputLabel id="demo-simple-select-standard-label">
+                                Error Type
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </InputLabel>
+                              <Select
+                                labelId="demo-simple-select-standard-label"
+                                id="demo-simple-select-standard"
+                                disabled={field.isSolved}
+                                value={
+                                  field.ErrorType === 0 ? "" : field.ErrorType
+                                }
+                                onChange={(e) =>
+                                  handleErrorTypeChangeWorklogs(
+                                    Number(e.target.value),
+                                    index
+                                  )
+                                }
+                                onBlur={() => {
+                                  if (field.ErrorType > 0) {
+                                    const newErrorTypeErrors = [
+                                      ...errorTypeWorklogsErr,
+                                    ];
+                                    newErrorTypeErrors[index] = false;
+                                    setErrorTypeWorklogsErr(newErrorTypeErrors);
+                                  }
+                                }}
+                              >
+                                {errorTypeOptions.map((e: LabelValue) => (
+                                  <MenuItem value={e.value} key={e.value}>
+                                    {e.label}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                              {errorTypeWorklogsErr[index] && (
+                                <FormHelperText>
+                                  This is a required field.
+                                </FormHelperText>
+                              )}
+                            </FormControl>
+                            <FormControl
+                              variant="standard"
+                              sx={{ mx: 0.75, minWidth: 230 }}
+                              error={rootCauseWorklogsErr[index]}
+                            >
+                              <InputLabel id="demo-simple-select-standard-label">
+                                Root Cause
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </InputLabel>
+                              <Select
+                                labelId="demo-simple-select-standard-label"
+                                id="demo-simple-select-standard"
+                                disabled={field.isSolved}
+                                value={
+                                  field.RootCause === 0 ? "" : field.RootCause
+                                }
+                                onChange={(e) =>
+                                  handleRootCauseChangeWorklogs(
+                                    Number(e.target.value),
+                                    index
+                                  )
+                                }
+                                onBlur={() => {
+                                  if (field.RootCause > 0) {
+                                    const newRootCauseErrors = [
+                                      ...rootCauseWorklogsErr,
+                                    ];
+                                    newRootCauseErrors[index] = false;
+                                    setRootCauseWorklogsErr(newRootCauseErrors);
+                                  }
+                                }}
+                              >
+                                {rootCauseOptions.map((r: LabelValue) => (
+                                  <MenuItem value={r.value} key={r.value}>
+                                    {r.label}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                              {rootCauseWorklogsErr[index] && (
+                                <FormHelperText>
+                                  This is a required field.
+                                </FormHelperText>
+                              )}
+                            </FormControl>
+                            <FormControl
+                              variant="standard"
+                              sx={{ mx: 0.75, minWidth: 230 }}
+                              error={impactWorklogsErr[index]}
+                            >
+                              <InputLabel id="demo-simple-select-standard-label">
+                                Impact
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </InputLabel>
+                              <Select
+                                labelId="demo-simple-select-standard-label"
+                                id="demo-simple-select-standard"
+                                disabled={field.isSolved}
+                                value={field.Impact === 0 ? "" : field.Impact}
+                                onChange={(e) =>
+                                  handleImpactChangeWorklogs(
+                                    Number(e.target.value),
+                                    index
+                                  )
+                                }
+                                onBlur={() => {
+                                  if (field.Impact > 0) {
+                                    const newImpactErrors = [
+                                      ...impactWorklogsErr,
+                                    ];
+                                    newImpactErrors[index] = false;
+                                    setImpactWorklogsErr(newImpactErrors);
+                                  }
+                                }}
+                              >
+                                {impactOptions.map((i: LabelValue) => (
+                                  <MenuItem value={i.value} key={i.value}>
+                                    {i.label}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                              {impactWorklogsErr[index] && (
+                                <FormHelperText>
+                                  This is a required field.
+                                </FormHelperText>
+                              )}
+                            </FormControl>
+                            <FormControl
+                              variant="standard"
+                              sx={{ mx: 0.75, minWidth: 250, maxWidth: 250 }}
+                              error={natureOfWorklogsErr[index]}
+                            >
+                              <InputLabel id="demo-simple-select-standard-label">
+                                Nature of Error
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </InputLabel>
+                              <Select
+                                labelId="demo-simple-select-standard-label"
+                                id="demo-simple-select-standard"
+                                disabled={field.isSolved}
+                                value={
+                                  field.NatureOfError === 0
+                                    ? ""
+                                    : field.NatureOfError
+                                }
+                                onChange={(e) =>
+                                  handleNatureOfErrorChangeWorklogs(
+                                    Number(e.target.value),
+                                    index
+                                  )
+                                }
+                                onBlur={() => {
+                                  if (field.NatureOfError > 0) {
+                                    const newNatureOfErrorErrors = [
+                                      ...natureOfWorklogsErr,
+                                    ];
+                                    newNatureOfErrorErrors[index] = false;
+                                    setNatureOfWorklogsErr(
+                                      newNatureOfErrorErrors
+                                    );
+                                  }
+                                }}
+                              >
+                                {natureOfErrorDropdown.map(
+                                  (n: LabelValueType) => (
+                                    <MenuItem value={n.value} key={n.value}>
+                                      {n.label}
+                                    </MenuItem>
+                                  )
+                                )}
+                              </Select>
+                              {natureOfWorklogsErr[index] && (
+                                <FormHelperText>
+                                  This is a required field.
+                                </FormHelperText>
+                              )}
+                            </FormControl>
+                            <FormControl
+                              variant="standard"
+                              sx={{ mx: 0.75, minWidth: 230 }}
+                              error={errorLogPriorityWorklogsErr[index]}
+                            >
+                              <InputLabel id="demo-simple-select-standard-label">
+                                Priority
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </InputLabel>
+                              <Select
+                                labelId="demo-simple-select-standard-label"
+                                id="demo-simple-select-standard"
+                                disabled={field.isSolved}
+                                value={
+                                  field.Priority === 0 ? "" : field.Priority
+                                }
+                                onChange={(e) =>
+                                  handlePriorityChangeWorklogs(
+                                    Number(e.target.value),
+                                    index
+                                  )
+                                }
+                                onBlur={() => {
+                                  if (field.Priority > 0) {
+                                    const newPriorityErrors = [
+                                      ...errorLogPriorityWorklogsErr,
+                                    ];
+                                    newPriorityErrors[index] = false;
+                                    setErrorLogPriorityWorklogsErr(
+                                      newPriorityErrors
+                                    );
+                                  }
+                                }}
+                              >
+                                {priorityOptions.map((p: LabelValue) => (
+                                  <MenuItem value={p.value} key={p.value}>
+                                    {p.label}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                              {errorLogPriorityWorklogsErr[index] && (
+                                <FormHelperText>
+                                  This is a required field.
+                                </FormHelperText>
+                              )}
+                            </FormControl>
+                            <div className="flex !ml-0">
+                              <TextField
+                                label={<span>Document Number Field</span>}
+                                fullWidth
+                                disabled={field.isSolved}
+                                value={
+                                  field.DocumentNumber.trim().length === 0
+                                    ? ""
+                                    : field.DocumentNumber
+                                }
+                                onChange={(e) =>
+                                  handleDocumentNumberChangeWorklogs(
+                                    e.target.value,
+                                    index
+                                  )
+                                }
+                                onBlur={(e) => {
+                                  if (e.target.value.length > 50) {
+                                    const newDocumentNumberErrors = [
+                                      ...documentNumberErrWorklogs,
+                                    ];
+                                    newDocumentNumberErrors[index] = true;
+                                    setDocumentNumberErrWorklogs(
+                                      newDocumentNumberErrors
+                                    );
+                                  } else {
+                                    const newDocumentNumberErrors = [
+                                      ...documentNumberErrWorklogs,
+                                    ];
+                                    newDocumentNumberErrors[index] = false;
+                                    setDocumentNumberErrWorklogs(
+                                      newDocumentNumberErrors
+                                    );
+                                  }
+                                }}
+                                error={documentNumberErrWorklogs[index]}
+                                helperText={
+                                  documentNumberErrWorklogs[index] &&
+                                  field.DocumentNumber.trim().length > 50
+                                    ? "Maximum 50 characters allowed."
+                                    : ""
+                                }
+                                margin="normal"
+                                variant="standard"
+                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                              />
+                              <TextField
+                                label={<span>Vendor Field Addition</span>}
+                                fullWidth
+                                disabled={field.isSolved}
+                                value={
+                                  field.VendorName.trim().length === 0
+                                    ? ""
+                                    : field.VendorName
+                                }
+                                onChange={(e) =>
+                                  handleVendorNameChangeWorklogs(
+                                    e.target.value,
+                                    index
+                                  )
+                                }
+                                onBlur={(e) => {
+                                  if (e.target.value.length > 250) {
+                                    const newVendorNameErrors = [
+                                      ...vendorNameErrWorklogs,
+                                    ];
+                                    newVendorNameErrors[index] = true;
+                                    setVendorNameErrWorklogs(
+                                      newVendorNameErrors
+                                    );
+                                  } else {
+                                    const newVendorNameErrors = [
+                                      ...vendorNameErrWorklogs,
+                                    ];
+                                    newVendorNameErrors[index] = false;
+                                    setVendorNameErrWorklogs(
+                                      newVendorNameErrors
+                                    );
+                                  }
+                                }}
+                                error={vendorNameErrWorklogs[index]}
+                                helperText={
+                                  vendorNameErrWorklogs[index] &&
+                                  field.VendorName.trim().length > 250
+                                    ? "Maximum 250 characters allowed."
+                                    : ""
+                                }
+                                margin="normal"
+                                variant="standard"
+                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                              />
+                              <Autocomplete
+                                multiple
+                                limitTags={2}
+                                id="checkboxes-tags-demo"
+                                options={
+                                  Array.isArray(cCDropdownDataWorklogs)
+                                    ? cCDropdownDataWorklogs
+                                    : []
+                                }
+                                disabled={field.isSolved}
+                                value={field.CC}
+                                onChange={(e, newValue) =>
+                                  handleCCChangeWorklogs(newValue, index)
+                                }
+                                style={{ width: 500 }}
+                                renderInput={(params) => (
+                                  <TextField
+                                    label="cc"
+                                    {...params}
+                                    variant="standard"
+                                  />
+                                )}
+                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                              />
+                              <TextField
+                                label={
+                                  <span>
+                                    Error Count
+                                    <span className="!text-defaultRed">
+                                      &nbsp;*
+                                    </span>
+                                  </span>
+                                }
+                                fullWidth
+                                disabled={field.isSolved}
+                                value={
+                                  field.ErrorCount === 0 ? "" : field.ErrorCount
+                                }
+                                onChange={(e) =>
+                                  handleErrorCountChangeWorklogs(
+                                    e.target.value,
+                                    index
+                                  )
+                                }
+                                onBlur={(e) => {
+                                  if (e.target.value.length > 0) {
+                                    const newErrorCountErrors = [
+                                      ...errorCountWorklogsErr,
+                                    ];
+                                    newErrorCountErrors[index] = false;
+                                    setErrorCountWorklogsErr(
+                                      newErrorCountErrors
+                                    );
+                                  }
+                                }}
+                                onFocus={(e) =>
+                                  e.target.addEventListener(
+                                    "wheel",
+                                    function (e) {
+                                      e.preventDefault();
+                                    },
+                                    { passive: false }
+                                  )
+                                }
+                                error={errorCountWorklogsErr[index]}
+                                helperText={
+                                  errorCountWorklogsErr[index] &&
+                                  field.ErrorCount <= 0
+                                    ? "Add valid number."
+                                    : errorCountWorklogsErr[index] &&
+                                      field.ErrorCount.toString().length > 4
+                                    ? "Maximum 4 numbers allowed."
+                                    : errorCountWorklogsErr[index]
+                                    ? "This is a required field."
+                                    : ""
+                                }
+                                margin="normal"
+                                variant="standard"
+                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                              />
+                            </div>
+                            <div className="flex !ml-0">
+                              <TextField
+                                label={
+                                  <span>
+                                    Remarks
+                                    <span className="text-defaultRed">
+                                      &nbsp;*
+                                    </span>
+                                  </span>
+                                }
+                                fullWidth
+                                disabled={field.isSolved}
+                                value={
+                                  field.Remark.trim().length === 0
+                                    ? ""
+                                    : field.Remark
+                                }
+                                onChange={(e) =>
+                                  handleRemarksChangeWorklogs(
+                                    e.target.value,
+                                    index
+                                  )
+                                }
+                                onBlur={(e) => {
+                                  if (e.target.value.length > 0) {
+                                    const newRemarkErrors = [
+                                      ...remarkErrWorklogs,
+                                    ];
+                                    newRemarkErrors[index] = false;
+                                    setRemarkErrWorklogs(newRemarkErrors);
+                                  }
+                                }}
+                                error={remarkErrWorklogs[index]}
+                                helperText={
+                                  remarkErrWorklogs[index] &&
+                                  field.Remark.length > 0 &&
+                                  field.Remark.length < 5
+                                    ? "Minumum 5 characters required."
+                                    : remarkErrWorklogs[index] &&
+                                      field.Remark.length > 500
+                                    ? "Maximum 500 characters allowed."
+                                    : remarkErrWorklogs[index]
+                                    ? "This is a required field."
+                                    : ""
+                                }
+                                margin="normal"
+                                variant="standard"
+                                sx={{ mx: 0.75, maxWidth: 472, mt: 1.5 }}
+                              />
+                              <TextField
+                                label="Amount"
+                                fullWidth
+                                disabled={field.isSolved}
+                                value={field.Amount === 0 ? "" : field.Amount}
+                                onChange={(e) =>
+                                  e.target.value.length <= 7 &&
+                                  handleAmountChangeWorklogs(
+                                    e.target.value,
+                                    index
+                                  )
+                                }
+                                onFocus={(e) =>
+                                  e.target.addEventListener(
+                                    "wheel",
+                                    function (e) {
+                                      e.preventDefault();
+                                    },
+                                    { passive: false }
+                                  )
+                                }
+                                margin="normal"
+                                variant="standard"
+                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                              />
+                              <div className="inline-flex mt-[8px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]">
+                                <LocalizationProvider
+                                  dateAdapter={AdapterDayjs}
+                                >
+                                  <DatePicker
+                                    label="Date of Transaction"
+                                    maxDate={dayjs(new Date())}
+                                    disabled={field.isSolved}
+                                    value={
+                                      field.DateOfTransaction === ""
+                                        ? null
+                                        : dayjs(field.DateOfTransaction)
+                                    }
+                                    onChange={(newDate: any) => {
+                                      handleDateOfTransactionChange(
+                                        newDate.$d,
+                                        index
+                                      );
+                                    }}
+                                    slotProps={{
+                                      textField: {
+                                        readOnly: true,
+                                      } as Record<string, any>,
+                                    }}
+                                  />
+                                </LocalizationProvider>
+                              </div>
+                              <div className="flex flex-col ml-4">
+                                <div className="flex flex-col items-start justify-start">
+                                  <div className="flex mt-2">
+                                    <ImageUploader
+                                      getData={(data1: string, data2: string) =>
+                                        field.Attachments
+                                          ? handleAttachmentsChangeWorklogs(
+                                              data1,
+                                              data2,
+                                              field.Attachments,
+                                              index
+                                            )
+                                          : undefined
+                                      }
+                                      isDisable={field.isSolved}
+                                      fileHasError={(error: boolean) => {
+                                        const newErrors = [...imageErrWorklogs];
+                                        newErrors[index] = error;
+                                        setImageErrWorklogs(newErrors);
+                                      }}
+                                    />
+                                    {field.Attachments &&
+                                      field.Attachments.length > 0 &&
+                                      field.Attachments[0]?.SystemFileName
+                                        .length > 0 && (
+                                        <div className="flex items-center justify-center gap-2">
+                                          <span className="mt-6 ml-2">
+                                            {field.Attachments[0]?.UserFileName}
+                                          </span>
+                                          <span
+                                            className="mt-6 mr-4 cursor-pointer"
+                                            onClick={() =>
+                                              field.Attachments
+                                                ? getFileFromBlob(
+                                                    field.Attachments[0]
+                                                      ?.SystemFileName,
+                                                    field.Attachments[0]
+                                                      ?.UserFileName
+                                                  )
+                                                : undefined
+                                            }
+                                          >
+                                            <ColorToolTip
+                                              title="Download"
+                                              placement="top"
+                                              arrow
+                                            >
+                                              <Download />
+                                            </ColorToolTip>
+                                          </span>
+                                        </div>
+                                      )}
+                                  </div>
+                                  {imageErrWorklogs[index] && (
+                                    <span className="text-defaultRed text-[14px] mt-1">
+                                      File size shouldn&apos;t be more than 5MB.
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex !ml-0">
+                              <TextField
+                                label={<span>Root Cause Analysis (RCA)</span>}
+                                fullWidth
+                                disabled={field.isSolved}
+                                value={
+                                  field.RootCauseAnalysis.trim().length === 0
+                                    ? ""
+                                    : field.RootCauseAnalysis
+                                }
+                                onChange={(e) =>
+                                  handleRcaChangeWorklogs(e.target.value, index)
+                                }
+                                onBlur={(e) => {
+                                  if (e.target.value.length > 250) {
+                                    const newRcaErrors = [...rcaErrWorklogs];
+                                    newRcaErrors[index] = true;
+                                    setRcaErrWorklogs(newRcaErrors);
+                                  } else {
+                                    const newRcaErrors = [...rcaErrWorklogs];
+                                    newRcaErrors[index] = false;
+                                    setRcaErrWorklogs(newRcaErrors);
+                                  }
+                                }}
+                                error={rcaErrWorklogs[index]}
+                                helperText={
+                                  rcaErrWorklogs[index] &&
+                                  field.RootCauseAnalysis.trim().length > 250
+                                    ? "Maximum 250 characters allowed."
+                                    : ""
+                                }
+                                margin="normal"
+                                variant="standard"
+                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                              />
+                              <TextField
+                                label={<span>Mitigation Plan</span>}
+                                fullWidth
+                                disabled={field.isSolved}
+                                value={
+                                  field.MitigationPlan.trim().length === 0
+                                    ? ""
+                                    : field.MitigationPlan
+                                }
+                                onChange={(e) =>
+                                  handleMitigationChangeWorklogs(
+                                    e.target.value,
+                                    index
+                                  )
+                                }
+                                onBlur={(e) => {
+                                  if (e.target.value.length > 250) {
+                                    const newMitigationErrors = [
+                                      ...mitigationErrWorklogs,
+                                    ];
+                                    newMitigationErrors[index] = true;
+                                    setMitigationErrWorklogs(
+                                      newMitigationErrors
+                                    );
+                                  } else {
+                                    const newMitigationErrors = [
+                                      ...mitigationErrWorklogs,
+                                    ];
+                                    newMitigationErrors[index] = false;
+                                    setMitigationErrWorklogs(
+                                      newMitigationErrors
+                                    );
+                                  }
+                                }}
+                                error={mitigationErrWorklogs[index]}
+                                helperText={
+                                  mitigationErrWorklogs[index] &&
+                                  field.MitigationPlan.trim().length > 250
+                                    ? "Maximum 250 characters allowed."
+                                    : ""
+                                }
+                                margin="normal"
+                                variant="standard"
+                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                              />
+                              <TextField
+                                label={<span>Contingency Plan</span>}
+                                fullWidth
+                                disabled={field.isSolved}
+                                value={
+                                  field.ContigencyPlan.trim().length === 0
+                                    ? ""
+                                    : field.ContigencyPlan
+                                }
+                                onChange={(e) =>
+                                  handleContigencyPlanChangeWorklogs(
+                                    e.target.value,
+                                    index
+                                  )
+                                }
+                                onBlur={(e) => {
+                                  if (e.target.value.length > 250) {
+                                    const newContigencyPlanErrors = [
+                                      ...contigencyPlanErrWorklogs,
+                                    ];
+                                    newContigencyPlanErrors[index] = true;
+                                    setContigencyPlanErrWorklogs(
+                                      newContigencyPlanErrors
+                                    );
+                                  } else {
+                                    const newContigencyPlanErrors = [
+                                      ...contigencyPlanErrWorklogs,
+                                    ];
+                                    newContigencyPlanErrors[index] = false;
+                                    setContigencyPlanErrWorklogs(
+                                      newContigencyPlanErrors
+                                    );
+                                  }
+                                }}
+                                error={contigencyPlanErrWorklogs[index]}
+                                helperText={
+                                  contigencyPlanErrWorklogs[index] &&
+                                  field.ContigencyPlan.trim().length > 250
+                                    ? "Maximum 250 characters allowed."
+                                    : ""
+                                }
+                                margin="normal"
+                                variant="standard"
+                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                              />
+                              {field.isSolved && (
+                                <FormGroup>
+                                  <FormControlLabel
+                                    className="mt-5 ml-2"
+                                    control={
+                                      <Checkbox checked={field.isSolved} />
+                                    }
+                                    label="Is Resolved"
+                                  />
+                                </FormGroup>
+                              )}
+                              {index === 0 && (
+                                <span
+                                  className="cursor-pointer"
+                                  onClick={
+                                    hasPermissionWorklog("", "ErrorLog", "QA")
+                                      ? addErrorLogFieldWorklogs
+                                      : undefined
+                                  }
+                                >
+                                  <svg
+                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    focusable="false"
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    data-testid="AddIcon"
+                                  >
+                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                                  </svg>
+                                </span>
+                              )}
+                              {index > 0 && !field.isSolved && (
+                                <span
+                                  className="cursor-pointer"
+                                  onClick={
+                                    hasPermissionWorklog("", "ErrorLog", "QA")
+                                      ? () => removeErrorLogFieldWorklogs(index)
+                                      : undefined
+                                  }
+                                >
+                                  <svg
+                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    focusable="false"
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    data-testid="RemoveIcon"
+                                  >
+                                    <path d="M19 13H5v-2h14v2z"></path>
+                                  </svg>
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
                   )}
                 </div>
               )}

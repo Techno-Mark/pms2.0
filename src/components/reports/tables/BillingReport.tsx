@@ -69,6 +69,7 @@ interface FilteredData {
   assigneeId: number | null;
   reviewerId: number | null;
   numberOfPages: number | null;
+  QAId: number | null;
 }
 
 interface BillingLogsList {
@@ -91,7 +92,9 @@ interface BillingDataList {
   TotalTime: string | null;
   IsBTC: number | null;
   BTC: string;
-  ReviewerEditedTime: string;
+  ReviewerEditedTime: string | null;
+  QATime: string | null;
+  QAEditedTime: string | null;
   BillingLogs: BillingLogsList[] | [];
 }
 
@@ -131,6 +134,11 @@ interface List {
   WorkItemSubmissionId: null;
   ReviewerEditedTime: string;
   BillingData: BillingDataList[];
+  QAId: number | null;
+  QAName: string | null;
+  QAQuantity: number | null;
+  QATime: string | null;
+  QAEditedTime: number | null;
 }
 
 interface Response {
@@ -482,6 +490,11 @@ const BillingReport = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "QAName",
+      label: "QA",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "ReviewerName",
       label: "Reviewer",
       bodyRenderer: generateCommonBodyRender,
@@ -527,8 +540,18 @@ const BillingReport = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "QAQuantity",
+      label: "QA Qty.",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "PreparationTime",
       label: "Preparation Time",
+      bodyRenderer: generateInitialTimer,
+    },
+    {
+      name: "QATime",
+      label: "QA Time",
       bodyRenderer: generateInitialTimer,
     },
     {
@@ -544,6 +567,11 @@ const BillingReport = ({
     {
       name: "EditedHours",
       label: "Preparer Edited Time",
+      bodyRenderer: generateInitialTimer,
+    },
+    {
+      name: "QAEditedTime",
+      label: "QA Edited Time",
       bodyRenderer: generateInitialTimer,
     },
     {
@@ -705,6 +733,18 @@ const BillingReport = ({
       },
     },
     {
+      name: "QATime",
+      options: {
+        sort: false,
+        filter: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Qa's Time"),
+        customBodyRender: (value: string) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
       name: "ReviewerTime",
       options: {
         sort: false,
@@ -734,6 +774,18 @@ const BillingReport = ({
         filter: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Preparer Edited Time"),
+        customBodyRender: (value: string) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "QAEditedTime",
+      options: {
+        sort: false,
+        filter: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("QA Edited Time"),
         customBodyRender: (value: string) => {
           return generateInitialTimer(value);
         },

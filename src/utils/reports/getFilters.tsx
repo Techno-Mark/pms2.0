@@ -102,6 +102,7 @@ export const billingreport_InitialFilter = {
   assigneeId: null,
   reviewerId: null,
   numberOfPages: null,
+  QAId: null,
 };
 
 export const customreport_InitialFilter = {
