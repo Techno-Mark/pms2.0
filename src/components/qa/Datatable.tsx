@@ -78,7 +78,7 @@ const Datatable = ({
   searchValue,
   onErrorLog,
 }: any) => {
-  const [isLoadingWorklogsDatatable, setIsLoadingWorklogsDatatable] =
+  const [isLoadingQADatatable, setIsLoadingQADatatable] =
     useState(false);
   const [loaded, setLoaded] = useState<boolean>(false);
   const [selectedRowsCount, setSelectedRowsCount] = useState<number>(0);
@@ -190,7 +190,7 @@ const Datatable = ({
     workitemTimeId: number,
     submissionId: number
   ) => {
-    setIsLoadingWorklogsDatatable(true);
+    setIsLoadingQADatatable(true);
     const params = {
       timeId: workitemTimeId && workitemTimeId > 0 ? workitemTimeId : 0,
       workitemId: selectedRowId,
@@ -210,9 +210,9 @@ const Datatable = ({
         setWorkitemId((prev) => (selectedRowId !== prev ? selectedRowId : -1));
         setSubmissionId((prev) => (submissionId !== prev ? submissionId : -1));
         getQaItemList();
-        setIsLoadingWorklogsDatatable(false);
+        setIsLoadingQADatatable(false);
       } else {
-        setIsLoadingWorklogsDatatable(false);
+        setIsLoadingQADatatable(false);
         getQaItemList();
       }
     };
@@ -220,7 +220,7 @@ const Datatable = ({
   };
 
   const handleSync = async (selectedRowId: number, IsDelete?: boolean) => {
-    setIsLoadingWorklogsDatatable(true);
+    setIsLoadingQADatatable(true);
     const params = {
       workitemId: selectedRowId,
     };
@@ -245,18 +245,18 @@ const Datatable = ({
         //   })
         // );
         IsDelete && setStopTimerDialog(true);
-        setIsLoadingWorklogsDatatable(false);
+        setIsLoadingQADatatable(false);
         // } else {
         //   IsDelete && setStopTimerDialog(false);
         //   IsDelete && handleTimer(3, -1, 0, -1);
         //   setWorkitemId(-1);
         //   setSubmissionId(-1);
         getQaItemList();
-        //   setIsLoadingWorklogsDatatable(false);
+        //   setIsLoadingQADatatable(false);
         // }
       } else {
         getQaItemList();
-        setIsLoadingWorklogsDatatable(false);
+        setIsLoadingQADatatable(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -848,9 +848,9 @@ const Datatable = ({
       {/* Action Bar */}
       <QAActionBar
         {...propsForActionBar}
-        getOverLay={(e: boolean) => setIsLoadingWorklogsDatatable(e)}
+        getOverLay={(e: boolean) => setIsLoadingQADatatable(e)}
       />
-      {isLoadingWorklogsDatatable ? <OverLay /> : ""}
+      {isLoadingQADatatable ? <OverLay /> : ""}
     </div>
   );
 };

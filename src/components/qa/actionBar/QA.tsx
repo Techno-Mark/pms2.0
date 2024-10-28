@@ -80,7 +80,7 @@ const QA = ({
 
   return (
     <div>
-      <ColorToolTip title="Qa" arrow>
+      <ColorToolTip title="QA" arrow>
         <span aria-describedby={idQa} onClick={handleClickQa}>
           <DetectorStatus />
         </span>

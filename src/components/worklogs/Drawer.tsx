@@ -878,7 +878,10 @@ const EditDrawer = ({
     const localString: string | null = localStorage.getItem("UserId");
     const localNumber: number = localString ? parseInt(localString) : 0;
 
-    if (assigneeWorklogs === localNumber) {
+    if (
+      assigneeWorklogs === localNumber ||
+      hasPermissionWorklog("", "Approve", "QA")
+    ) {
       let hasManualErrors = false;
       const newInputDateWorklogsErrors = manualFieldsWorklogs.map(
         (field) => manualSwitchWorklogs && field.inputDate === ""
@@ -972,7 +975,10 @@ const EditDrawer = ({
     const localString: string | null = localStorage.getItem("UserId");
     const localNumber: number = localString ? parseInt(localString) : 0;
 
-    if (assigneeWorklogs === localNumber) {
+    if (
+      assigneeWorklogs === localNumber ||
+      hasPermissionWorklog("", "Approve", "QA")
+    ) {
       setIsLoadingWorklogs(true);
       const params = {
         timelogs: [],
@@ -2703,7 +2709,10 @@ const EditDrawer = ({
       !quantityWorklogs.toString().includes(".") &&
       !reworkReceiverDateWorklogsErr
     ) {
-      if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
+      if (
+        hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") ||
+        isDisabled
+      ) {
         saveWorklog();
       } else {
         toast.error("User don't have permission to Update Task.");
@@ -2721,7 +2730,10 @@ const EditDrawer = ({
       !quantityWorklogs.toString().includes(".") &&
       !reworkReceiverDateWorklogsErr
     ) {
-      if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
+      if (
+        hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") ||
+        isDisabled
+      ) {
         saveWorklog();
       } else {
         toast.error("User don't have permission to Update Task.");

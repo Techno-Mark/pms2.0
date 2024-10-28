@@ -529,9 +529,9 @@ const UnassignedDatatable = ({
         selectedRowIds={selectedRowIds}
         selectedRowsCount={selectedRowsCount}
         handleClearSelection={handleClearSelection}
-        // getOverLay={(e: boolean) => setIsLoadingWorklogsDatatable(e)}
+        // getOverLay={(e: boolean) => setIsLoadingQADatatable(e)}
       />
-      {/* {isLoadingWorklogsDatatable ? <OverLay /> : ""} */}
+      {/* {isLoadingQADatatable ? <OverLay /> : ""} */}
     </div>
   );
 };

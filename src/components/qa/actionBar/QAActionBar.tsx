@@ -111,7 +111,7 @@ const QAActionBar = ({
       <CustomActionBar {...propsForActionBar} isSmall={true}>
         <ConditionalComponent
           condition={
-            hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+            // hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
             selectedRowsCount === 1
           }
           className="text-slatyGrey"

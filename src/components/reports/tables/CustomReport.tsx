@@ -749,7 +749,7 @@ const CustomReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Date Created"),
+        customHeadLabelRender: () => generateCustomHeaderName("Date of Creation"),
         customBodyRender: (value: string | null) => {
           return generateDateWithoutTime(value);
         },
