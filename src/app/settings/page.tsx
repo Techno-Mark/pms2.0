@@ -983,7 +983,6 @@ const Page = () => {
                       <AddPlusIcon />
                     </span>
                     <span className="uppercase">
-                      Create{" "}
                       {tab === "Permission"
                         ? "Role"
                         : tab === "NatureOfError"

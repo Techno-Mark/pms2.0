@@ -151,7 +151,20 @@ const EditDrawer = ({
 
   let Task;
   {
-    onEdit > 0
+    onEdit > 0 && isDisabled
+      ? (Task = [
+          "Task",
+          "Sub-Task",
+          "Checklist",
+          "Comments",
+          "Recurring",
+          hasPermissionWorklog("", "Approve", "QA") && "Manual Time",
+          "Reminder",
+          hasPermissionWorklog("", "ErrorLog", "QA") && "Error Logs",
+          "Reviewer's Note",
+          "Logs",
+        ])
+      : onEdit > 0 && !isDisabled
       ? (Task = [
           hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && "Task",
           hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") &&
@@ -161,12 +174,7 @@ const EditDrawer = ({
           hasPermissionWorklog("Reccuring", "View", "WorkLogs") && "Recurring",
           "Manual Time",
           hasPermissionWorklog("Reminder", "View", "WorkLogs") && "Reminder",
-          hasPermissionWorklog("ErrorLog", "View", "WorkLogs") &&
-            !isDisabled &&
-            "Error Logs",
-          hasPermissionWorklog("", "ErrorLog", "QA") &&
-            isDisabled &&
-            "Error Logs",
+          hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && "Error Logs",
           "Reviewer's Note",
           "Logs",
         ])
@@ -254,6 +262,7 @@ const EditDrawer = ({
   const [qaQuantityWorklogs, setQAQuantityWorklogs] = useState<number | null>(
     null
   );
+  const [qaQuantityWorklogsErr, setQAQuantityWorklogsErr] = useState(false);
   const [managerWorklogsErr, setManagerWorklogsErr] = useState(false);
   const [statusWorklogsDropdownData, setStatusWorklogsDropdownData] = useState(
     []
@@ -1312,7 +1321,7 @@ const EditDrawer = ({
     e.preventDefault();
     setValueEditWorklogsError(valueEditWorklogs.trim().length < 1);
 
-    if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
+    if (hasPermissionWorklog("Comment", "Save", "WorkLogs") || isDisabled) {
       if (
         valueEditWorklogs.trim().length >= 1 &&
         !valueEditWorklogsError &&
@@ -1437,7 +1446,7 @@ const EditDrawer = ({
     e.preventDefault();
     setValueWorklogsError(valueWorklogs.trim().length < 5);
 
-    if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
+    if (hasPermissionWorklog("Comment", "Save", "WorkLogs") || isDisabled) {
       if (
         valueWorklogs.trim().length >= 5 &&
         !valueWorklogsError &&
@@ -2338,6 +2347,7 @@ const EditDrawer = ({
         departmentWorklogsType !== "WhitelabelTaxation" &&
         validateField(descriptionWorklogs),
       quantity: validateField(quantityWorklogs),
+      qaQuantity: validateField(qaQuantityWorklogs),
       receiverDate: validateField(receiverDateWorklogs),
       assignee: assigneeWorklogsDisable && validateField(assigneeWorklogs),
       reviewer: validateField(reviewerWorklogs),
@@ -2371,6 +2381,7 @@ const EditDrawer = ({
     departmentWorklogsType !== "WhitelabelTaxation" &&
       setDescriptionWorklogsErr(fieldValidations.descriptionWorklogs);
     setQuantityWorklogsErr(fieldValidations.quantity);
+    setQAQuantityWorklogsErr(fieldValidations.qaQuantity);
     setReceiverDateWorklogsErr(fieldValidations.receiverDate);
     assigneeWorklogsDisable &&
       setAssigneeWorklogsErr(fieldValidations.assignee);
@@ -2416,6 +2427,13 @@ const EditDrawer = ({
         quantityWorklogs <= 0 ||
         quantityWorklogs.toString().includes(".")
     );
+    setQAQuantityWorklogsErr(
+      qaQuantityWorklogs !== null &&
+        (qaQuantityWorklogs.toString().length <= 0 ||
+          qaQuantityWorklogs.toString().length > 4 ||
+          qaQuantityWorklogs <= 0 ||
+          qaQuantityWorklogs.toString().includes("."))
+    );
 
     const hasErrors = Object.values(fieldValidations).some((error) => error);
 
@@ -2431,6 +2449,7 @@ const EditDrawer = ({
         departmentWorklogsType !== "WhitelabelTaxation" &&
         validateField(descriptionWorklogs),
       quantity: validateField(quantityWorklogs),
+      qaQuantity: validateField(qaQuantityWorklogs),
       receiverDate: validateField(receiverDateWorklogs),
       dueDate: validateField(dueDateWorklogs),
       assignee: validateField(assigneeWorklogs),
@@ -2655,6 +2674,13 @@ const EditDrawer = ({
       callAPI(url, params, successCallback, "POST");
     };
 
+    const qaError =
+      qaQuantityWorklogs !== null
+        ? qaQuantityWorklogs < 0 &&
+          qaQuantityWorklogs > 10000 &&
+          qaQuantityWorklogs.toString().includes(".")
+        : false;
+
     if (
       onEdit === 0 &&
       typeOfWorkWorklogs !== 3 &&
@@ -2667,6 +2693,8 @@ const EditDrawer = ({
       quantityWorklogs > 0 &&
       quantityWorklogs < 10000 &&
       !quantityWorklogs.toString().includes(".") &&
+      !qaQuantityWorklogsErr &&
+      !qaError &&
       !reworkReceiverDateWorklogsErr
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
@@ -2688,6 +2716,8 @@ const EditDrawer = ({
       quantityWorklogs > 0 &&
       quantityWorklogs < 10000 &&
       !quantityWorklogs.toString().includes(".") &&
+      !qaQuantityWorklogsErr &&
+      !qaError &&
       !reworkReceiverDateWorklogsErr
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
@@ -2699,7 +2729,7 @@ const EditDrawer = ({
 
     if (
       onEdit > 0 &&
-      typeOfWorkWorklogs !== 3 &&
+      isDisabled &&
       !hasEditErrors &&
       clientTaskNameWorklogs.trim().length > 3 &&
       clientTaskNameWorklogs.trim().length <= 100 &&
@@ -2707,20 +2737,22 @@ const EditDrawer = ({
       quantityWorklogs < 10000 &&
       !quantityWorklogsErr &&
       !quantityWorklogs.toString().includes(".") &&
+      !qaQuantityWorklogsErr &&
       !reworkReceiverDateWorklogsErr
     ) {
-      if (
-        hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") ||
-        isDisabled
+      if (qaQuantityWorklogs === null) {
+        saveWorklog();
+      } else if (
+        qaQuantityWorklogs >= 0 &&
+        qaQuantityWorklogs < 10000 &&
+        !qaQuantityWorklogs.toString().includes(".") &&
+        !qaQuantityWorklogsErr
       ) {
         saveWorklog();
-      } else {
-        toast.error("User don't have permission to Update Task.");
-        getEditDataWorklogs();
       }
     } else if (
       onEdit > 0 &&
-      typeOfWorkWorklogs === 3 &&
+      !isDisabled &&
       !hasEditErrors &&
       clientTaskNameWorklogs.trim().length > 3 &&
       clientTaskNameWorklogs.trim().length <= 100 &&
@@ -2730,10 +2762,7 @@ const EditDrawer = ({
       !quantityWorklogs.toString().includes(".") &&
       !reworkReceiverDateWorklogsErr
     ) {
-      if (
-        hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") ||
-        isDisabled
-      ) {
+      if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
       } else {
         toast.error("User don't have permission to Update Task.");
@@ -3280,6 +3309,7 @@ const EditDrawer = ({
     setValueMonthYearTo(null);
     setIsQaWorklogs(0);
     setQAQuantityWorklogs(null);
+    setQAQuantityWorklogsErr(false);
 
     // Sub-Task
     setSubTaskSwitchWorklogs(false);
@@ -3500,7 +3530,8 @@ const EditDrawer = ({
         </div>
         <div className="overflow-y-scroll !h-[91%]">
           <form onSubmit={handleSubmit}>
-            {hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && (
+            {(hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") ||
+              isDisabled) && (
               <div className="pt-1" id="tabpanel-0">
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
@@ -4443,7 +4474,11 @@ const EditDrawer = ({
                             disablePortal
                             id="combo-box-demo"
                             options={isQaWorklogsDropdownData}
-                            disabled={isIdDisabled || isDisabled}
+                            disabled={
+                              isIdDisabled ||
+                              isDisabled ||
+                              !!editDataWorklogs.QAId
+                            }
                             value={
                               isQaWorklogsDropdownData.find(
                                 (i: LabelValue) => i.value === isQaWorklogs
@@ -4490,7 +4525,9 @@ const EditDrawer = ({
                               disabled={isIdDisabled}
                               value={qaQuantityWorklogs}
                               onChange={(e) => {
-                                setQAQuantityWorklogs(Number(e.target.value));
+                                e.target.value.toString().trim().length <= 4 &&
+                                  setQAQuantityWorklogs(Number(e.target.value));
+                                setQAQuantityWorklogsErr(false);
                               }}
                               margin="normal"
                               variant="standard"
@@ -4499,6 +4536,33 @@ const EditDrawer = ({
                                 mt: typeOfWorkWorklogs === 3 ? 0.2 : -1,
                                 mx: 0.75,
                               }}
+                              onBlur={(e) => {
+                                if (
+                                  Number(e.target.value) < 0 ||
+                                  e.target.value.trim().length > 4 ||
+                                  e.target.value.trim().includes(".")
+                                ) {
+                                  setQAQuantityWorklogsErr(true);
+                                } else {
+                                  setQAQuantityWorklogsErr(false);
+                                }
+                              }}
+                              error={qaQuantityWorklogsErr}
+                              helperText={
+                                qaQuantityWorklogsErr &&
+                                qaQuantityWorklogs !== null &&
+                                qaQuantityWorklogs.toString().includes(".")
+                                  ? "Only intiger value allowed."
+                                  : qaQuantityWorklogsErr &&
+                                    qaQuantityWorklogs !== null &&
+                                    qaQuantityWorklogs < 0
+                                  ? "Enter valid number."
+                                  : qaQuantityWorklogsErr &&
+                                    qaQuantityWorklogs !== null &&
+                                    qaQuantityWorklogs.toString().length > 4
+                                  ? "Maximum 4 numbers allowed."
+                                  : ""
+                              }
                             />
                           </Grid>
                         )}
@@ -4858,7 +4922,8 @@ const EditDrawer = ({
               </div>
             )}
 
-            {hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && (
+            {(hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") ||
+              isDisabled) && (
               <div className="mt-14" id="tabpanel-1">
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
@@ -5076,7 +5141,8 @@ const EditDrawer = ({
             )}
 
             {onEdit > 0 &&
-              hasPermissionWorklog("CheckList", "View", "WorkLogs") && (
+              (hasPermissionWorklog("CheckList", "View", "WorkLogs") ||
+                isDisabled) && (
                 <div className="mt-14" id={`${onEdit > 0 && "tabpanel-2"}`}>
                   <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                     <span className="flex items-center">
@@ -5241,7 +5307,8 @@ const EditDrawer = ({
               )}
 
             {onEdit > 0 &&
-              hasPermissionWorklog("Comment", "View", "WorkLogs") && (
+              (hasPermissionWorklog("Comment", "View", "WorkLogs") ||
+                isDisabled) && (
                 <div className="mt-14" id={`${onEdit > 0 && "tabpanel-3"}`}>
                   <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                     <span className="flex items-center">
@@ -5313,7 +5380,7 @@ const EditDrawer = ({
                                   {editingCommentIndexWorklogs === index ? (
                                     <div className="flex items-start gap-8">
                                       <div className="flex flex-col">
-                                        <div className="flex items-start justify-start w-[70vw]">
+                                        <div className="flex items-start justify-start">
                                           <MentionsInput
                                             style={mentionsInputStyle}
                                             className="!w-[100%] textareaOutlineNoneEdit max-w-[60vw]"
@@ -5418,7 +5485,7 @@ const EditDrawer = ({
                                       </button>
                                     </div>
                                   ) : (
-                                    <div className="flex items-start justify-start gap-8 w-[70vw]">
+                                    <div className="flex items-start justify-start gap-8">
                                       <span className="hidden"></span>
                                       <div className="max-w-[60vw]">
                                         {extractText(i.Message).map(
@@ -5465,11 +5532,12 @@ const EditDrawer = ({
                                         </div>
                                       )}
                                       {userId === i.UserId &&
-                                        hasPermissionWorklog(
+                                        (hasPermissionWorklog(
                                           "Comment",
                                           "save",
                                           "WorkLogs"
-                                        ) && (
+                                        ) ||
+                                          isDisabled) && (
                                           <button
                                             type="button"
                                             className="flex items-start !bg-secondary text-white border rounded-md p-[4px]"
@@ -5509,7 +5577,8 @@ const EditDrawer = ({
                     </div>
                   </div>
                   {commentsWorklogsDrawer &&
-                    hasPermissionWorklog("Comment", "save", "WorkLogs") && (
+                    (hasPermissionWorklog("Comment", "save", "WorkLogs") ||
+                      isDisabled) && (
                       <>
                         <div className="border border-slatyGrey gap-2 py-2 rounded-lg my-2 ml-16 mr-8 flex items-center justify-center">
                           <MentionsInput
@@ -5619,7 +5688,8 @@ const EditDrawer = ({
                 </div>
               )}
 
-            {hasPermissionWorklog("Reccuring", "View", "WorkLogs") && (
+            {(hasPermissionWorklog("Reccuring", "View", "WorkLogs") ||
+              isDisabled) && (
               <div
                 className="mt-14"
                 id={`${onEdit > 0 ? "tabpanel-4" : "tabpanel-2"}`}
@@ -5900,354 +5970,370 @@ const EditDrawer = ({
               </div>
             )}
 
-            <div
-              className="mt-14"
-              id={`${onEdit > 0 ? "tabpanel-5" : "tabpanel-3"}`}
-            >
-              <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
-                <span className="flex items-center">
-                  <ClockIcon />
-                  <span className="ml-[21px]">Manual Time</span>
-                </span>
-                <span className="flex items-center">
-                  {onEdit > 0 &&
-                    manualSwitchWorklogs &&
-                    !isIdDisabled &&
-                    !isUnassigneeClicked && (
-                      <Button
-                        variant="contained"
-                        className={`rounded-[4px] !h-[36px] mr-6 ${
-                          manualSubmitWorklogsDisable ? "" : "!bg-secondary"
-                        }`}
-                        disabled={manualSubmitWorklogsDisable}
-                        onClick={
-                          manualSubmitWorklogsDisable
-                            ? undefined
-                            : handleSubmitManualWorklogs
-                        }
-                      >
-                        Update
-                      </Button>
-                    )}
-                  <Switch
-                    checked={manualSwitchWorklogs}
-                    onChange={(e) => {
-                      setManualSwitchWorklogs(e.target.checked);
-                      setManualFieldsWorklogs([
-                        {
-                          AssigneeId: 0,
-                          Id: 0,
-                          inputDate: "",
-                          startTime: 0,
-                          manualDesc: "",
-                          IsApproved: false,
-                        },
-                      ]);
-                      setInputDateWorklogsErrors([false]);
-                      setStartTimeWorklogsErrors([false]);
-                      setManualDescWorklogsErrors([false]);
-                      setInputTypeWorklogsDate(["text"]);
-                      setManualDisableData([
-                        {
-                          AssigneeId: 0,
-                          Id: 0,
-                          inputDate: "",
-                          startTime: 0,
-                          manualDesc: "",
-                          IsApproved: false,
-                        },
-                      ]);
-                    }}
-                  />
-                  <span
-                    className={`cursor-pointer ${
-                      manualTimeWorklogsDrawer ? "rotate-180" : ""
-                    }`}
-                    onClick={() =>
-                      setManualTimeWorklogsDrawer(!manualTimeWorklogsDrawer)
-                    }
-                  >
-                    <ChevronDownIcon />
+            {(hasPermissionWorklog("", "Approve", "QA") || isDisabled) && (
+              <div
+                className="mt-14"
+                id={`${onEdit > 0 ? "tabpanel-5" : "tabpanel-3"}`}
+              >
+                <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
+                  <span className="flex items-center">
+                    <ClockIcon />
+                    <span className="ml-[21px]">Manual Time</span>
                   </span>
-                </span>
-              </div>
-              {manualTimeWorklogsDrawer && (
-                <>
-                  <div className="-mt-2 pl-6">
-                    {manualFieldsWorklogs.map((field, index) => (
-                      <div key={index} className="flex items-center">
-                        <div
-                          className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
-                            inputDateWorklogsErrors[index]
-                              ? "datepickerError"
-                              : ""
+                  <span className="flex items-center">
+                    {onEdit > 0 &&
+                      manualSwitchWorklogs &&
+                      !isIdDisabled &&
+                      !isUnassigneeClicked && (
+                        <Button
+                          variant="contained"
+                          className={`rounded-[4px] !h-[36px] mr-6 ${
+                            manualSubmitWorklogsDisable ? "" : "!bg-secondary"
                           }`}
+                          disabled={manualSubmitWorklogsDisable}
+                          onClick={
+                            manualSubmitWorklogsDisable
+                              ? undefined
+                              : handleSubmitManualWorklogs
+                          }
                         >
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                              label={
-                                <span>
-                                  Date
-                                  <span className="!text-defaultRed">
-                                    &nbsp;*
+                          Update
+                        </Button>
+                      )}
+                    <Switch
+                      checked={manualSwitchWorklogs}
+                      onChange={(e) => {
+                        setManualSwitchWorklogs(e.target.checked);
+                        setManualFieldsWorklogs([
+                          {
+                            AssigneeId: 0,
+                            Id: 0,
+                            inputDate: "",
+                            startTime: 0,
+                            manualDesc: "",
+                            IsApproved: false,
+                          },
+                        ]);
+                        setInputDateWorklogsErrors([false]);
+                        setStartTimeWorklogsErrors([false]);
+                        setManualDescWorklogsErrors([false]);
+                        setInputTypeWorklogsDate(["text"]);
+                        setManualDisableData([
+                          {
+                            AssigneeId: 0,
+                            Id: 0,
+                            inputDate: "",
+                            startTime: 0,
+                            manualDesc: "",
+                            IsApproved: false,
+                          },
+                        ]);
+                      }}
+                    />
+                    <span
+                      className={`cursor-pointer ${
+                        manualTimeWorklogsDrawer ? "rotate-180" : ""
+                      }`}
+                      onClick={() =>
+                        setManualTimeWorklogsDrawer(!manualTimeWorklogsDrawer)
+                      }
+                    >
+                      <ChevronDownIcon />
+                    </span>
+                  </span>
+                </div>
+                {manualTimeWorklogsDrawer && (
+                  <>
+                    <div className="-mt-2 pl-6">
+                      {manualFieldsWorklogs.map((field, index) => (
+                        <div key={index} className="flex items-center">
+                          <div
+                            className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
+                              inputDateWorklogsErrors[index]
+                                ? "datepickerError"
+                                : ""
+                            }`}
+                          >
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                              <DatePicker
+                                label={
+                                  <span>
+                                    Date
+                                    <span className="!text-defaultRed">
+                                      &nbsp;*
+                                    </span>
                                   </span>
-                                </span>
-                              }
-                              minDate={
-                                !manualSwitchWorklogs ||
-                                field.IsApproved ||
-                                (field.AssigneeId !== 0 &&
-                                  field.AssigneeId !== userId) ||
-                                isIdDisabled ||
-                                isUnassigneeClicked
-                                  ? ""
-                                  : dayjs(receiverDateWorklogs) >
-                                    dayjs(reviewerDate)
-                                  ? dayjs(new Date())
-                                  : dayjs(reviewerDate)
-                              }
-                              maxDate={dayjs(new Date())}
-                              disabled={
-                                !manualSwitchWorklogs ||
-                                field.IsApproved ||
-                                (field.AssigneeId !== 0 &&
-                                  field.AssigneeId !== userId) ||
-                                isIdDisabled ||
-                                isUnassigneeClicked
-                              }
-                              onError={() => {
-                                if (field.inputDate[index]?.trim().length > 0) {
-                                  const newInputDateWorklogsErrors = [
-                                    ...inputDateWorklogsErrors,
-                                  ];
-                                  newInputDateWorklogsErrors[index] = false;
-                                  setInputDateWorklogsErrors(
-                                    newInputDateWorklogsErrors
-                                  );
                                 }
-                              }}
-                              value={
-                                field.inputDate === ""
-                                  ? null
-                                  : dayjs(field.inputDate)
-                              }
-                              onChange={(newDate: any) => {
-                                handleInputDateChangeWorklogs(
-                                  newDate.$d,
-                                  index
+                                minDate={
+                                  !manualSwitchWorklogs ||
+                                  field.IsApproved ||
+                                  (field.AssigneeId !== 0 &&
+                                    field.AssigneeId !== userId) ||
+                                  isIdDisabled ||
+                                  isUnassigneeClicked
+                                    ? ""
+                                    : dayjs(receiverDateWorklogs) >
+                                      dayjs(reviewerDate)
+                                    ? dayjs(new Date())
+                                    : dayjs(reviewerDate)
+                                }
+                                maxDate={dayjs(new Date())}
+                                disabled={
+                                  !manualSwitchWorklogs ||
+                                  field.IsApproved ||
+                                  (field.AssigneeId !== 0 &&
+                                    field.AssigneeId !== userId) ||
+                                  isIdDisabled ||
+                                  isUnassigneeClicked
+                                }
+                                onError={() => {
+                                  if (
+                                    field.inputDate[index]?.trim().length > 0
+                                  ) {
+                                    const newInputDateWorklogsErrors = [
+                                      ...inputDateWorklogsErrors,
+                                    ];
+                                    newInputDateWorklogsErrors[index] = false;
+                                    setInputDateWorklogsErrors(
+                                      newInputDateWorklogsErrors
+                                    );
+                                  }
+                                }}
+                                value={
+                                  field.inputDate === ""
+                                    ? null
+                                    : dayjs(field.inputDate)
+                                }
+                                onChange={(newDate: any) => {
+                                  handleInputDateChangeWorklogs(
+                                    newDate.$d,
+                                    index
+                                  );
+                                }}
+                                slotProps={{
+                                  textField: {
+                                    helperText: inputDateWorklogsErrors[index]
+                                      ? "This is a required field."
+                                      : "",
+                                    readOnly: true,
+                                  } as Record<string, any>,
+                                }}
+                              />
+                            </LocalizationProvider>
+                          </div>
+                          <TextField
+                            label={
+                              <span>
+                                Time in Minute
+                                <span className="!text-defaultRed">
+                                  &nbsp;*
+                                </span>
+                              </span>
+                            }
+                            placeholder="000"
+                            disabled={
+                              !manualSwitchWorklogs ||
+                              field.IsApproved ||
+                              (field.AssigneeId !== 0 &&
+                                field.AssigneeId !== userId) ||
+                              isIdDisabled ||
+                              isUnassigneeClicked
+                            }
+                            fullWidth
+                            value={field.startTime === 0 ? "" : field.startTime}
+                            onChange={(e) =>
+                              handleStartTimeChangeWorklogs(
+                                e.target.value,
+                                index
+                              )
+                            }
+                            onBlur={(e) => {
+                              if (
+                                e.target.value.trim().length === 0 ||
+                                e.target.value.trim().length > 3 ||
+                                e.target.value.trim().toString() == "0" ||
+                                e.target.value.trim().toString() == "00" ||
+                                e.target.value.trim().toString() == "000" ||
+                                Number(e.target.value.trim()) > 480
+                              ) {
+                                const newStartTimeWorklogsErrors = [
+                                  ...startTimeWorklogsErrors,
+                                ];
+                                newStartTimeWorklogsErrors[index] = true;
+                                setStartTimeWorklogsErrors(
+                                  newStartTimeWorklogsErrors
                                 );
-                              }}
-                              slotProps={{
-                                textField: {
-                                  helperText: inputDateWorklogsErrors[index]
-                                    ? "This is a required field."
-                                    : "",
-                                  readOnly: true,
-                                } as Record<string, any>,
-                              }}
-                            />
-                          </LocalizationProvider>
-                        </div>
-                        <TextField
-                          label={
-                            <span>
-                              Time in Minute
-                              <span className="!text-defaultRed">&nbsp;*</span>
-                            </span>
-                          }
-                          placeholder="000"
-                          disabled={
-                            !manualSwitchWorklogs ||
-                            field.IsApproved ||
-                            (field.AssigneeId !== 0 &&
-                              field.AssigneeId !== userId) ||
-                            isIdDisabled ||
-                            isUnassigneeClicked
-                          }
-                          fullWidth
-                          value={field.startTime === 0 ? "" : field.startTime}
-                          onChange={(e) =>
-                            handleStartTimeChangeWorklogs(e.target.value, index)
-                          }
-                          onBlur={(e) => {
-                            if (
-                              e.target.value.trim().length === 0 ||
-                              e.target.value.trim().length > 3 ||
-                              e.target.value.trim().toString() == "0" ||
-                              e.target.value.trim().toString() == "00" ||
-                              e.target.value.trim().toString() == "000" ||
-                              Number(e.target.value.trim()) > 480
-                            ) {
-                              const newStartTimeWorklogsErrors = [
-                                ...startTimeWorklogsErrors,
-                              ];
-                              newStartTimeWorklogsErrors[index] = true;
-                              setStartTimeWorklogsErrors(
-                                newStartTimeWorklogsErrors
-                              );
-                            } else {
-                              const newStartTimeWorklogsErrors = [
-                                ...startTimeWorklogsErrors,
-                              ];
-                              newStartTimeWorklogsErrors[index] = false;
-                              setStartTimeWorklogsErrors(
-                                newStartTimeWorklogsErrors
-                              );
+                              } else {
+                                const newStartTimeWorklogsErrors = [
+                                  ...startTimeWorklogsErrors,
+                                ];
+                                newStartTimeWorklogsErrors[index] = false;
+                                setStartTimeWorklogsErrors(
+                                  newStartTimeWorklogsErrors
+                                );
+                              }
+                            }}
+                            error={startTimeWorklogsErrors[index]}
+                            helperText={
+                              field.startTime?.toString().trim().length > 3 &&
+                              startTimeWorklogsErrors[index]
+                                ? "Maximum 3 characters allowed."
+                                : field.startTime > 480 &&
+                                  startTimeWorklogsErrors[index]
+                                ? "Maximum 480 minutes allowed."
+                                : (field.startTime.toString() == "0" ||
+                                    field.startTime.toString() == "00" ||
+                                    field.startTime.toString() == "000") &&
+                                  startTimeWorklogsErrors[index]
+                                ? "Please enter valid number."
+                                : field.startTime.toString().trim().length <=
+                                    0 && startTimeWorklogsErrors[index]
+                                ? "This is a required field"
+                                : ""
                             }
-                          }}
-                          error={startTimeWorklogsErrors[index]}
-                          helperText={
-                            field.startTime?.toString().trim().length > 3 &&
-                            startTimeWorklogsErrors[index]
-                              ? "Maximum 3 characters allowed."
-                              : field.startTime > 480 &&
-                                startTimeWorklogsErrors[index]
-                              ? "Maximum 480 minutes allowed."
-                              : (field.startTime.toString() == "0" ||
-                                  field.startTime.toString() == "00" ||
-                                  field.startTime.toString() == "000") &&
-                                startTimeWorklogsErrors[index]
-                              ? "Please enter valid number."
-                              : field.startTime.toString().trim().length <= 0 &&
-                                startTimeWorklogsErrors[index]
-                              ? "This is a required field"
-                              : ""
-                          }
-                          margin="normal"
-                          variant="standard"
-                          sx={{ mx: 0.75, maxWidth: 225 }}
-                        />
-                        <TextField
-                          label={
-                            <span>
-                              Description
-                              <span className="!text-defaultRed">&nbsp;*</span>
-                            </span>
-                          }
-                          className="mt-4"
-                          disabled={
-                            !manualSwitchWorklogs ||
-                            field.IsApproved ||
-                            (field.AssigneeId !== 0 &&
-                              field.AssigneeId !== userId) ||
-                            isIdDisabled ||
-                            isUnassigneeClicked
-                          }
-                          fullWidth
-                          value={field.manualDesc}
-                          onChange={(e) =>
-                            handleManualDescChangeWorklogs(
-                              e.target.value,
-                              index
-                            )
-                          }
-                          onBlur={(e) => {
-                            if (
-                              e.target.value.trim().length < 1 ||
-                              e.target.value.trim().length > 500
-                            ) {
-                              const newManualDescWorklogsErrors = [
-                                ...manualDescWorklogsErrors,
-                              ];
-                              newManualDescWorklogsErrors[index] = true;
-                              setManualDescWorklogsErrors(
-                                newManualDescWorklogsErrors
-                              );
-                            } else {
-                              const newManualDescWorklogsErrors = [
-                                ...manualDescWorklogsErrors,
-                              ];
-                              newManualDescWorklogsErrors[index] = false;
-                              setManualDescWorklogsErrors(
-                                newManualDescWorklogsErrors
-                              );
+                            margin="normal"
+                            variant="standard"
+                            sx={{ mx: 0.75, maxWidth: 225 }}
+                          />
+                          <TextField
+                            label={
+                              <span>
+                                Description
+                                <span className="!text-defaultRed">
+                                  &nbsp;*
+                                </span>
+                              </span>
                             }
-                          }}
-                          error={manualDescWorklogsErrors[index]}
-                          helperText={
-                            manualDescWorklogsErrors[index] &&
-                            field.manualDesc.length > 500
-                              ? "Maximum 500 characters allowed."
-                              : manualDescWorklogsErrors[index]
-                              ? "This is a required field."
-                              : ""
-                          }
-                          margin="normal"
-                          variant="standard"
-                          sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
-                        />
-                        <div className="flex items-center justify-center w-[50px]">
-                          {index === 0 &&
-                            manualSwitchWorklogs &&
-                            !isIdDisabled &&
-                            !isUnassigneeClicked &&
-                            !field.IsApproved &&
-                            field.Id > 0 && (
-                              <span
-                                className="cursor-pointer"
-                                onClick={() => removePhoneFieldWorklogs(index)}
-                              >
-                                <svg
-                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                  focusable="false"
-                                  aria-hidden="true"
-                                  viewBox="0 0 24 24"
-                                  data-testid="RemoveIcon"
+                            className="mt-4"
+                            disabled={
+                              !manualSwitchWorklogs ||
+                              field.IsApproved ||
+                              (field.AssigneeId !== 0 &&
+                                field.AssigneeId !== userId) ||
+                              isIdDisabled ||
+                              isUnassigneeClicked
+                            }
+                            fullWidth
+                            value={field.manualDesc}
+                            onChange={(e) =>
+                              handleManualDescChangeWorklogs(
+                                e.target.value,
+                                index
+                              )
+                            }
+                            onBlur={(e) => {
+                              if (
+                                e.target.value.trim().length < 1 ||
+                                e.target.value.trim().length > 500
+                              ) {
+                                const newManualDescWorklogsErrors = [
+                                  ...manualDescWorklogsErrors,
+                                ];
+                                newManualDescWorklogsErrors[index] = true;
+                                setManualDescWorklogsErrors(
+                                  newManualDescWorklogsErrors
+                                );
+                              } else {
+                                const newManualDescWorklogsErrors = [
+                                  ...manualDescWorklogsErrors,
+                                ];
+                                newManualDescWorklogsErrors[index] = false;
+                                setManualDescWorklogsErrors(
+                                  newManualDescWorklogsErrors
+                                );
+                              }
+                            }}
+                            error={manualDescWorklogsErrors[index]}
+                            helperText={
+                              manualDescWorklogsErrors[index] &&
+                              field.manualDesc.length > 500
+                                ? "Maximum 500 characters allowed."
+                                : manualDescWorklogsErrors[index]
+                                ? "This is a required field."
+                                : ""
+                            }
+                            margin="normal"
+                            variant="standard"
+                            sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
+                          />
+                          <div className="flex items-center justify-center w-[50px]">
+                            {index === 0 &&
+                              manualSwitchWorklogs &&
+                              !isIdDisabled &&
+                              !isUnassigneeClicked &&
+                              !field.IsApproved &&
+                              field.Id > 0 && (
+                                <span
+                                  className="cursor-pointer"
+                                  onClick={() =>
+                                    removePhoneFieldWorklogs(index)
+                                  }
                                 >
-                                  <path d="M19 13H5v-2h14v2z"></path>
-                                </svg>
-                              </span>
-                            )}
-                          {index === 0 &&
-                            manualSwitchWorklogs &&
-                            !isIdDisabled &&
-                            !isUnassigneeClicked && (
-                              <span
-                                className="cursor-pointer"
-                                onClick={addManulaFieldWorklogs}
-                              >
-                                <svg
-                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                  focusable="false"
-                                  aria-hidden="true"
-                                  viewBox="0 0 24 24"
-                                  data-testid="AddIcon"
+                                  <svg
+                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    focusable="false"
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    data-testid="RemoveIcon"
+                                  >
+                                    <path d="M19 13H5v-2h14v2z"></path>
+                                  </svg>
+                                </span>
+                              )}
+                            {index === 0 &&
+                              manualSwitchWorklogs &&
+                              !isIdDisabled &&
+                              !isUnassigneeClicked && (
+                                <span
+                                  className="cursor-pointer"
+                                  onClick={addManulaFieldWorklogs}
                                 >
-                                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
-                                </svg>
-                              </span>
-                            )}
+                                  <svg
+                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    focusable="false"
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    data-testid="AddIcon"
+                                  >
+                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                                  </svg>
+                                </span>
+                              )}
+                          </div>
+                          <div className="w-[50px] ml-[-35px]">
+                            {index > 0 &&
+                              manualSwitchWorklogs &&
+                              !isIdDisabled &&
+                              !isUnassigneeClicked &&
+                              !field.IsApproved && (
+                                <span
+                                  className="cursor-pointer"
+                                  onClick={() =>
+                                    removePhoneFieldWorklogs(index)
+                                  }
+                                >
+                                  <svg
+                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    focusable="false"
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    data-testid="RemoveIcon"
+                                  >
+                                    <path d="M19 13H5v-2h14v2z"></path>
+                                  </svg>
+                                </span>
+                              )}
+                          </div>
                         </div>
-                        <div className="w-[50px] ml-[-35px]">
-                          {index > 0 &&
-                            manualSwitchWorklogs &&
-                            !isIdDisabled &&
-                            !isUnassigneeClicked &&
-                            !field.IsApproved && (
-                              <span
-                                className="cursor-pointer"
-                                onClick={() => removePhoneFieldWorklogs(index)}
-                              >
-                                <svg
-                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                  focusable="false"
-                                  aria-hidden="true"
-                                  viewBox="0 0 24 24"
-                                  data-testid="RemoveIcon"
-                                >
-                                  <path d="M19 13H5v-2h14v2z"></path>
-                                </svg>
-                              </span>
-                            )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
 
-            {hasPermissionWorklog("Reminder", "View", "WorkLogs") && (
+            {(hasPermissionWorklog("Reminder", "View", "WorkLogs") ||
+              isDisabled) && (
               <div
                 className="my-14"
                 id={`${onEdit > 0 ? "tabpanel-6" : "tabpanel-4"}`}

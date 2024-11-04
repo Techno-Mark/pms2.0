@@ -749,7 +749,8 @@ const CustomReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Date of Creation"),
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Date of Creation"),
         customBodyRender: (value: string | null) => {
           return generateDateWithoutTime(value);
         },
@@ -848,8 +849,14 @@ const CustomReport = ({
     },
     {
       name: "QAQuantity",
-      label: "QA Qty.",
-      bodyRenderer: generateCommonBodyRender,
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("QA Qty."),
+        customBodyRender: (value: string | number) => {
+          return generateCommonBodyRender(value);
+        },
+      },
     },
     {
       name: "AssigneeAutoTimeTracked",
@@ -1051,6 +1058,7 @@ const CustomReport = ({
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Change Request"),
         customBodyRender: (value: number | string) => {
+          console.log(!value || value === "0")
           return (
             <div>
               {!value || value === "0" ? (

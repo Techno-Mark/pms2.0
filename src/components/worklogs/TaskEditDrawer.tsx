@@ -2915,6 +2915,9 @@ const TaskEditDrawer = ({
                               (i: LabelValue) => i.value === isQaWorklogsEdit
                             ) || null
                           }
+                          disabled={
+                            !!editDataWorklogs && !!editDataWorklogs.QAId
+                          }
                           onChange={(e, value: LabelValue | null) => {
                             value && setIsQaWorklogsEdit(value.value);
                           }}

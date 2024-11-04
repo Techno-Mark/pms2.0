@@ -183,6 +183,7 @@ export interface WorkitemGetbyid {
   ReworkDueDate: null | string;
   IsQARequired: number | null;
   QAQuantity: number | null;
+  QAId: number | null;
 }
 
 export interface SubtaskGetByWorkitem {

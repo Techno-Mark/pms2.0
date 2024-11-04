@@ -3896,7 +3896,8 @@ const EditDrawer = ({
                           options={isQaApprovalsDropdownData}
                           disabled={
                             (isCreatedByClient && editData.SubProcessId > 0) ||
-                            activeTab === 2
+                            activeTab === 2 ||
+                            !!editData.QAId
                           }
                           value={
                             isQaApprovalsDropdownData.find(
@@ -4722,7 +4723,7 @@ const EditDrawer = ({
                                 {editingCommentIndexApprovals === index ? (
                                   <div className="flex items-start justify-center gap-8">
                                     <div className="flex flex-col">
-                                      <div className="flex items-start justify-start w-[70vw]">
+                                      <div className="flex items-start justify-start">
                                         <MentionsInput
                                           style={mentionsInputStyle}
                                           className="!w-[100%] textareaOutlineNoneEdit max-w-[60vw]"
@@ -4823,7 +4824,7 @@ const EditDrawer = ({
                                     </button>
                                   </div>
                                 ) : (
-                                  <div className="flex items-start justify-start gap-8 w-[70vw]">
+                                  <div className="flex items-start justify-start gap-8">
                                     <span className="hidden"></span>
                                     <div className="max-w-[60vw]">
                                       {extractText(i.Message).map(
