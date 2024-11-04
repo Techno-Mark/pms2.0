@@ -2347,7 +2347,6 @@ const EditDrawer = ({
         departmentWorklogsType !== "WhitelabelTaxation" &&
         validateField(descriptionWorklogs),
       quantity: validateField(quantityWorklogs),
-      qaQuantity: validateField(qaQuantityWorklogs),
       receiverDate: validateField(receiverDateWorklogs),
       assignee: assigneeWorklogsDisable && validateField(assigneeWorklogs),
       reviewer: validateField(reviewerWorklogs),
@@ -2381,7 +2380,6 @@ const EditDrawer = ({
     departmentWorklogsType !== "WhitelabelTaxation" &&
       setDescriptionWorklogsErr(fieldValidations.descriptionWorklogs);
     setQuantityWorklogsErr(fieldValidations.quantity);
-    setQAQuantityWorklogsErr(fieldValidations.qaQuantity);
     setReceiverDateWorklogsErr(fieldValidations.receiverDate);
     assigneeWorklogsDisable &&
       setAssigneeWorklogsErr(fieldValidations.assignee);
@@ -2449,7 +2447,6 @@ const EditDrawer = ({
         departmentWorklogsType !== "WhitelabelTaxation" &&
         validateField(descriptionWorklogs),
       quantity: validateField(quantityWorklogs),
-      qaQuantity: validateField(qaQuantityWorklogs),
       receiverDate: validateField(receiverDateWorklogs),
       dueDate: validateField(dueDateWorklogs),
       assignee: validateField(assigneeWorklogs),
@@ -2762,6 +2759,7 @@ const EditDrawer = ({
       !quantityWorklogs.toString().includes(".") &&
       !reworkReceiverDateWorklogsErr
     ) {
+      console.log("data");
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
       } else {
@@ -4525,8 +4523,13 @@ const EditDrawer = ({
                               disabled={isIdDisabled}
                               value={qaQuantityWorklogs}
                               onChange={(e) => {
-                                e.target.value.toString().trim().length <= 4 &&
-                                  setQAQuantityWorklogs(Number(e.target.value));
+                                e.target.value.length <= 0
+                                  ? setQAQuantityWorklogs(null)
+                                  : e.target.value.toString().trim().length <=
+                                      4 &&
+                                    setQAQuantityWorklogs(
+                                      Number(e.target.value)
+                                    );
                                 setQAQuantityWorklogsErr(false);
                               }}
                               margin="normal"
