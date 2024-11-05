@@ -2429,7 +2429,7 @@ const EditDrawer = ({
       qaQuantityWorklogs !== null &&
         (qaQuantityWorklogs.toString().length <= 0 ||
           qaQuantityWorklogs.toString().length > 4 ||
-          qaQuantityWorklogs <= 0 ||
+          qaQuantityWorklogs < 0 ||
           qaQuantityWorklogs.toString().includes("."))
     );
 
@@ -5973,7 +5973,7 @@ const EditDrawer = ({
               </div>
             )}
 
-            {(hasPermissionWorklog("", "Approve", "QA") || isDisabled) && (
+            {(hasPermissionWorklog("", "Approve", "QA") || !isDisabled) && (
               <div
                 className="mt-14"
                 id={`${onEdit > 0 ? "tabpanel-5" : "tabpanel-3"}`}
