@@ -121,4 +121,6 @@ export interface ResponseTask {
   worklogExportFilter: any | null;
   List: QAListTask[];
   TotalCount: number;
+  TotalTime: string | null;
+  PreparorTotalTime: string | null;
 }

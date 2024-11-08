@@ -77,9 +77,10 @@ const Datatable = ({
   onHandleExport,
   searchValue,
   onErrorLog,
+  onChangeLoader,
+  onChangePreperorLoader,
 }: any) => {
-  const [isLoadingQADatatable, setIsLoadingQADatatable] =
-    useState(false);
+  const [isLoadingQADatatable, setIsLoadingQADatatable] = useState(false);
   const [loaded, setLoaded] = useState<boolean>(false);
   const [selectedRowsCount, setSelectedRowsCount] = useState<number>(0);
   const [selectedRows, setSelectedRows] = useState<number[] | []>([]);
@@ -327,6 +328,10 @@ const Datatable = ({
       ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
+        const totalTime = ResponseData.TotalTime || "00:00:00";
+        onChangeLoader(totalTime);
+        const reviewerTotalTime = ResponseData.PreparorTotalTime || "00:00:00";
+        onChangePreperorLoader(reviewerTotalTime);
         onHandleExport(ResponseData.List.length > 0 ? true : false);
         setLoaded(true);
         setQaItemData(ResponseData.List);

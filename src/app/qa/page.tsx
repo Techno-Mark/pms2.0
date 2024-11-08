@@ -47,6 +47,10 @@ const initialFilter2 = {
 
 const page = () => {
   const router = useRouter();
+  const [timeValue, setTimeValue] = useState<string | null>(null);
+  const [preperorTimeValue, setPreperorTimeValue] = useState<string | null>(
+    null
+  );
   const [activeTab, setActiveTab] = useState<number>(1);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
   const [search, setSearch] = useState("");
@@ -279,6 +283,16 @@ const page = () => {
           </span>
         </div>
         <div className="flex gap-[20px] items-center">
+          {activeTab === 1 && (
+            <div className="flex flex-col items-end justify-center text-sm">
+              <span className="text-secondary font-light">
+                QA Total time: {timeValue}
+              </span>
+              <span className="text-secondary font-light">
+                Preparer Total time: {preperorTimeValue}
+              </span>
+            </div>
+          )}
           <div className="relative">
             <InputBase
               className="pl-1 pr-7 border-b border-b-lightSilver w-52"
@@ -445,6 +459,8 @@ const page = () => {
           searchValue={globalSearchValue}
           onHandleExport={handleCanExport}
           onErrorLog={handleSetError}
+          onChangeLoader={(e: string | null) => setTimeValue(e)}
+          onChangePreperorLoader={(e: string | null) => setPreperorTimeValue(e)}
         />
       )}
 
