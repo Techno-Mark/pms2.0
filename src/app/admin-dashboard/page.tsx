@@ -3,7 +3,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { Card, Grid, ThemeProvider } from "@mui/material";
+import {
+  Button,
+  Card,
+  Grid,
+  InputBase,
+  Popover,
+  ThemeProvider,
+  Tooltip,
+} from "@mui/material";
 import { toast } from "react-toastify";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import Chart_BillingType from "@/components/admin-dashboard/charts/Chart_BillingType";
@@ -45,6 +53,9 @@ import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import ReportLoader from "@/components/common/ReportLoader";
 import WrapperNavbar from "@/components/common/WrapperNavbar";
+import { Delete, Edit } from "@mui/icons-material";
+import SearchIcon from "@/assets/icons/SearchIcon";
+import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 
 interface ClientSummaryStatus {
   ClientName: string;
@@ -104,6 +115,17 @@ const initialFilter = {
   IsDesc: true,
 };
 
+const currentFilter = {
+  Clients: [],
+  WorkTypeId: null,
+  DepartmentIds: [],
+  AssigneeIds: [],
+  ReviewerIds: [],
+  StatusIds: [],
+  StartDate: null,
+  EndDate: null,
+};
+
 const Page = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<number>(1);
@@ -135,7 +157,13 @@ const Page = () => {
   const [filteredObject, setFilteredObject] =
     useState<InitialFilter>(initialFilter);
   const [isExporting, setIsExporting] = useState<boolean>(false);
-  const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
+  const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
+  const [filterList, setFilterList] = useState<DashboardInitialFilter[] | []>(
+    []
+  );
+  const [searchValue, setSearchValue] = useState("");
+  const [currentFilterId, setCurrentFilterId] = useState<number>(0);
+  const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
   const [currentFilterData, setCurrentFilterData] =
     useState<DashboardInitialFilter>({
       Clients: [],
@@ -148,12 +176,38 @@ const Page = () => {
       EndDate: null,
     });
 
-  const handleCloseFilter = () => {
-    setisFilterOpen(false);
+  const [anchorElFilter, setAnchorElFilter] =
+    React.useState<HTMLButtonElement | null>(null);
+
+  const openFilter = Boolean(anchorElFilter);
+  const idFilter = openFilter ? "simple-popover" : undefined;
+
+  const handleClickFilter = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorElFilter(event.currentTarget);
   };
+
+  const handleCloseFilter = () => {
+    setAnchorElFilter(null);
+  };
+
+  const handleCloseFilterDialog = () => {
+    setIsFilterOpen(false);
+  };
+
+  const handleSearchChangeWorklog = (e: string) => {
+    setSearchValue(e);
+  };
+
+  const filteredFilters = filterList.filter((filter: any) =>
+    filter.Name.toLowerCase().includes(searchValue.toLowerCase())
+  );
 
   const getIdFromFilterDialog = (data: DashboardInitialFilter) => {
     setCurrentFilterData(data);
+  };
+
+  const closeDeleteModal = () => {
+    setIsDeleteOpen(false);
   };
 
   useEffect(() => {
@@ -198,6 +252,47 @@ const Page = () => {
       router.push("/");
     }
   }, [router]);
+
+  const getFilterList = async () => {
+    const params = {
+      type: activeTab === 1 ? 23 : 24,
+    };
+    const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+    const successCallback = (
+      ResponseData: DashboardInitialFilter[],
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setFilterList(ResponseData);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  const deleteFilter = async (FilterId: number) => {
+    const params = {
+      filterId: FilterId,
+    };
+    const url = `${process.env.worklog_api_url}/filter/delete`;
+    const successCallback = (
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Filter has been deleted successfully.");
+        setCurrentFilterId(0);
+        getFilterList();
+        setCurrentFilterData(currentFilter);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  useEffect(() => {
+    getFilterList();
+  }, [activeTab]);
 
   const getReportData = async () => {
     setReportLoader(true);
@@ -380,14 +475,125 @@ const Page = () => {
         </div>
 
         <div className="flex items-center justify-center gap-2">
-          <ColorToolTip title="Filter" placement="top" arrow>
-            <span
-              className="cursor-pointer"
-              onClick={() => setisFilterOpen(true)}
-            >
-              <FilterIcon />
-            </span>
-          </ColorToolTip>
+          {filterList.length > 0 ? (
+            <div>
+              <span
+                aria-describedby={idFilter}
+                onClick={handleClickFilter}
+                className="cursor-pointer"
+              >
+                <FilterIcon />
+              </span>
+
+              <Popover
+                id={idFilter}
+                open={openFilter}
+                anchorEl={anchorElFilter}
+                onClose={handleCloseFilter}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+              >
+                <div className="flex flex-col py-2 w-[250px]">
+                  <span
+                    className="p-2 cursor-pointer hover:bg-lightGray"
+                    onClick={() => {
+                      setIsFilterOpen(true);
+                      setCurrentFilterId(0);
+                      handleCloseFilter();
+                    }}
+                  >
+                    Default Filter
+                  </span>
+                  <hr className="text-lightSilver mt-2" />
+
+                  <span className="py-3 px-2 relative">
+                    <InputBase
+                      className="pr-7 border-b border-b-slatyGrey w-full"
+                      placeholder="Search saved filters"
+                      inputProps={{ "aria-label": "search" }}
+                      value={searchValue}
+                      onChange={(e) =>
+                        handleSearchChangeWorklog(e.target.value)
+                      }
+                      sx={{ fontSize: 14 }}
+                    />
+                    <span className="absolute top-4 right-3 text-slatyGrey">
+                      <SearchIcon />
+                    </span>
+                  </span>
+
+                  {filteredFilters.map((i: any) => {
+                    return (
+                      <div
+                        key={i.FilterId}
+                        className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
+                      >
+                        <span
+                          className="pl-1"
+                          onClick={() => {
+                            setCurrentFilterData(i.AppliedFilter);
+                            handleCloseFilter();
+                          }}
+                        >
+                          {i.Name}
+                        </span>
+                        <span className="flex gap-[10px] pr-[10px]">
+                          <span
+                            onClick={() => {
+                              setCurrentFilterId(i.FilterId);
+                              setIsFilterOpen(true);
+                              handleCloseFilter();
+                            }}
+                          >
+                            <Tooltip title="Edit" placement="top" arrow>
+                              <Edit className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
+                            </Tooltip>
+                          </span>
+                          <span
+                            onClick={() => {
+                              setIsDeleteOpen(true);
+                              setCurrentFilterId(i.FilterId);
+                              handleCloseFilter();
+                            }}
+                          >
+                            <Tooltip title="Delete" placement="top" arrow>
+                              <Delete className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
+                            </Tooltip>
+                          </span>
+                        </span>
+                      </div>
+                    );
+                  })}
+                  <hr className="text-lightSilver mt-2" />
+                  <Button
+                    onClick={() => {
+                      handleCloseFilter();
+                      setCurrentFilterData(currentFilter);
+                    }}
+                    className="mt-2"
+                    color="error"
+                  >
+                    clear all
+                  </Button>
+                </div>
+              </Popover>
+            </div>
+          ) : (
+            <ColorToolTip title="Filter" placement="top" arrow>
+              <span
+                className="cursor-pointer"
+                onClick={() => setIsFilterOpen(true)}
+              >
+                <FilterIcon />
+              </span>
+            </ColorToolTip>
+          )}
           {activeTab === 2 && (
             <ColorToolTip title="Export" placement="top" arrow>
               <span
@@ -669,8 +875,24 @@ const Page = () => {
       <FilterDialogDashboard
         activeTab={activeTab}
         onOpen={isFilterOpen}
-        onClose={handleCloseFilter}
+        onClose={handleCloseFilterDialog}
+        getFilterList={getFilterList}
         currentFilterData={getIdFromFilterDialog}
+        onCurrentFilterId={currentFilterId}
+      />
+
+      {/* Delete Dialog Box */}
+      <DeleteDialog
+        isOpen={isDeleteOpen}
+        onClose={closeDeleteModal}
+        onActionClick={() => {
+          deleteFilter(currentFilterId);
+        }}
+        Title={"Delete Filter"}
+        firstContent={"Are you sure you want to delete this saved filter?"}
+        secondContent={
+          "If you delete this, you will permanently loose this saved filter and selected fields."
+        }
       />
     </WrapperNavbar>
   );

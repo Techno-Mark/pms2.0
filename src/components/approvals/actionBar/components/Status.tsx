@@ -10,6 +10,7 @@ import {
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { callAPI } from "@/utils/API/callAPI";
 import { LabelValue, LabelValueType } from "@/utils/Types/types";
+import ConfirmationDiloag from "@/components/common/ConfirmationDiloag";
 
 interface Status {
   selectedWorkItemIds: number[];
@@ -36,6 +37,8 @@ const Status = ({
   const [openDrawer, setOpenDrawer] = useState(false);
   const [reviewer, setReviewer] = useState<LabelValue[] | []>([]);
   const [searchQueryRW, setSearchQueryRW] = useState("");
+  const [statusName, setStatusName] = useState<LabelValue | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleSearchChangeRW = (e: string) => {
     setSearchQueryRW(e);
@@ -44,13 +47,6 @@ const Status = ({
   const filteredReviewer = reviewer.filter((reviewer: LabelValue) =>
     reviewer.label.toLowerCase().includes(searchQueryRW.toLowerCase())
   );
-
-  const handleOptionReviewer = (id: number) => {
-    const data = allStatus.find(
-      (i: LabelValueType) => i.Type == "SecondManagerReview"
-    );
-    !!data && updateStatus(data.value, id);
-  };
 
   const [anchorElStatus, setAnchorElStatus] =
     React.useState<HTMLButtonElement | null>(null);
@@ -174,6 +170,8 @@ const Status = ({
         handleClearSelection();
         getReviewList();
         getOverLay?.(false);
+        setStatusName(null);
+        setDialogOpen(false);
       } else if (ResponseStatus === "Warning" && error === false) {
         toast.warning(ResponseData);
         handleClearSelection();
@@ -181,9 +179,13 @@ const Status = ({
         isRework = [];
         getReviewList();
         getOverLay?.(false);
+        setStatusName(null);
+        setDialogOpen(false);
       } else {
         getReviewList();
         getOverLay?.(false);
+        setStatusName(null);
+        setDialogOpen(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -285,7 +287,11 @@ const Status = ({
                   >
                     <span
                       className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
-                      onClick={() => handleOptionReviewer(reviewer.value)}
+                      onClick={() => {
+                        setStatusName(reviewer);
+                        setDialogOpen(true);
+                        handleCloseSecondPopover();
+                      }}
                     >
                       <Avatar sx={{ width: 32, height: 32, fontSize: 14 }}>
                         {reviewer.label
@@ -303,6 +309,23 @@ const Status = ({
           </List>
         </nav>
       </Popover>
+
+      <ConfirmationDiloag
+        onOpen={dialogOpen}
+        onClose={() => {
+          setDialogOpen(false);
+          setStatusName(null);
+        }}
+        heading="Change Reviewer"
+        title={`Are you sure you want to change reviewer to ${statusName?.label} ?`}
+        data={statusName}
+        updateData={(id: any) => {
+          const data = allStatus.find(
+            (i: LabelValueType) => i.Type == "SecondManagerReview"
+          );
+          !!data && updateStatus(data.value, id);
+        }}
+      />
     </div>
   );
 };

@@ -474,6 +474,9 @@ const Client = ({
                         Billing Type
                       </TableCell>
                       <TableCell className="font-semibold">
+                        Client Potentiality
+                      </TableCell>
+                      <TableCell className="font-semibold">
                         Contracted Hrs.
                       </TableCell>
                       <TableCell className="font-semibold">
@@ -491,6 +494,11 @@ const Client = ({
                             </TableCell>
                             <TableCell className="w-[17.5rem]">
                               {i.BillingTypeName}
+                            </TableCell>
+                            <TableCell className="w-[17.5rem]">
+                              {!!i.ClientPotentiality
+                                ? i.ClientPotentiality
+                                : "-"}
                             </TableCell>
                             <TableCell className="w-[18.5rem]">
                               {i.ContractHrs}

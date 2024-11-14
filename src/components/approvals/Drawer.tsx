@@ -1838,15 +1838,30 @@ const EditDrawer = ({
       },
     ]);
   };
-
+  
   const handleStartTimeChange = (e: string, index: number) => {
+    if (e.length === 0) {
+      const newManualWorklogsFields: ManualFieldsWorklogs[] = [
+        ...reviewermanualFields,
+      ];
+      newManualWorklogsFields[index].startTime = 0;
+      setReviewerManualFields(newManualWorklogsFields);
+      return;
+    }
+  
+    if (e.length > 1 && !/^[0-9]+$/.test(e)) {
+      return;
+    }
+  
     if (e.length > 3) {
       return;
     }
-
-    const newManualFields: ManualFieldsWorklogs[] = [...reviewermanualFields];
-    newManualFields[index].startTime = Number(e) || 0;
-    setReviewerManualFields(newManualFields);
+  
+    const newManualWorklogsFields: ManualFieldsWorklogs[] = [
+      ...reviewermanualFields,
+    ];
+    newManualWorklogsFields[index].startTime = Number(e) || 0;
+    setReviewerManualFields(newManualWorklogsFields);
   };
 
   const handleManualDescChange = (e: string, index: number) => {
@@ -3684,7 +3699,8 @@ const EditDrawer = ({
                     </Grid>
                     {(departmentApprovalsType === "WhitelabelAccounting" ||
                       departmentApprovalsType === "WhitelabelAustralia" ||
-                      departmentApprovalsType === "UK") && (
+                      departmentApprovalsType === "UK" ||
+                      departmentApprovalsType === "Germany") && (
                       <Grid
                         item
                         xs={3}
@@ -3721,7 +3737,8 @@ const EditDrawer = ({
                     )}
                     {(departmentApprovalsType === "WhitelabelAccounting" ||
                       departmentApprovalsType === "WhitelabelAustralia" ||
-                      departmentApprovalsType === "UK") && (
+                      departmentApprovalsType === "UK" ||
+                      departmentApprovalsType === "Germany") && (
                       <Grid
                         item
                         xs={3}
@@ -3889,7 +3906,8 @@ const EditDrawer = ({
                               departmentApprovalsType ==
                                 "WhitelabelAccounting" ||
                               departmentApprovalsType ==
-                                "WhitelabelAustralia") &&
+                                "WhitelabelAustralia" ||
+                              departmentApprovalsType === "Germany") &&
                             typeOfWorkApprovals !== 3
                               ? "pt-6"
                               : "pt-5"
@@ -3926,8 +3944,8 @@ const EditDrawer = ({
                                 "WhitelabelAccounting" ||
                               departmentApprovalsType ==
                                 "WhitelabelAustralia" ||
-                              departmentApprovalsType ==
-                                "WhitelabelTaxation") &&
+                              departmentApprovalsType == "WhitelabelTaxation" ||
+                              departmentApprovalsType === "Germany") &&
                             typeOfWorkApprovals !== 3
                               ? "pt-6"
                               : "pt-5"
