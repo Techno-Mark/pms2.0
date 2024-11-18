@@ -1058,7 +1058,6 @@ const CustomReport = ({
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Change Request"),
         customBodyRender: (value: number | string) => {
-          console.log(!value || value === "0")
           return (
             <div>
               {!value || value === "0" ? (

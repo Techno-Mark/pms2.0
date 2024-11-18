@@ -2759,7 +2759,6 @@ const EditDrawer = ({
       !quantityWorklogs.toString().includes(".") &&
       !reworkReceiverDateWorklogsErr
     ) {
-      console.log("data");
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
       } else {

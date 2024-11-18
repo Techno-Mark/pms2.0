@@ -38,7 +38,6 @@ const NatureOfErrorContent = forwardRef<
         ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
-          console.log(ResponseData);
           setNatureOfError(ResponseData.Name);
           setType(ResponseData.Type);
           setIsDefualt(ResponseData.IsDefault);
