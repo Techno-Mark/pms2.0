@@ -471,6 +471,11 @@ const reportsAPColConfig = [
     bodyRenderer: generateInitialTimer,
   },
   {
+    header: "QAQuantity",
+    label: "QA QTY",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     header: "PreparorAutoTime",
     label: "Preparer Auto Time",
     bodyRenderer: generateInitialTimer,
@@ -483,6 +488,21 @@ const reportsAPColConfig = [
   {
     header: "PreparorTotalTime",
     label: "Preparer Total Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "QAAutoTime",
+    label: "QA Auto Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "QAManualTime",
+    label: "QA Manual Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "QATotalTime",
+    label: "QA Total Time",
     bodyRenderer: generateInitialTimer,
   },
   {
@@ -675,6 +695,16 @@ const reportsErrorLogColConfig = [
     bodyRenderer: generatePriorityWithColor,
   },
   {
+    header: "DocumentNumber",
+    label: "DocumentNumber",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "VendorName",
+    label: "VendorName",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     header: "ErrorCount",
     label: "Error count",
     bodyRenderer: generateCommonBodyRender,
@@ -682,6 +712,21 @@ const reportsErrorLogColConfig = [
   {
     header: "Remark",
     label: "Remarks",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "RootCauseAnalysis",
+    label: "RootCauseAnalysis",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "MitigationPlan",
+    label: "MitigationPlan",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ContigencyPlan",
+    label: "ContigencyPlan",
     bodyRenderer: generateCommonBodyRender,
   },
   {

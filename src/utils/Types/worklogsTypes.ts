@@ -181,6 +181,9 @@ export interface WorkitemGetbyid {
   PeriodTo: null | string;
   ReworkReceivedDate: null | string;
   ReworkDueDate: null | string;
+  IsQARequired: number | null;
+  QAQuantity: number | null;
+  QAId: number | null;
 }
 
 export interface SubtaskGetByWorkitem {
@@ -266,6 +269,11 @@ export interface ErrorlogGetByWorkitem {
   NatureOfError: number;
   Priority: number;
   ErrorCount: number;
+  DocumentNumber: string;
+  VendorName: string;
+  RootCauseAnalysis: string;
+  MitigationPlan: string;
+  ContigencyPlan: string;
   CC: any;
   Remark: string;
   Attachment?: CommentAttachment[] | [];
@@ -275,6 +283,7 @@ export interface ErrorlogGetByWorkitem {
   IsSolved?: boolean;
   isSolved?: boolean;
   DisableErrorLog?: boolean;
+  IsHasErrorlogAddedByClient?: boolean;
 }
 
 export interface ReviewerNoteDetails {

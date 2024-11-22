@@ -63,6 +63,11 @@ const adminDashboardBillingTypeCols = [
 
 const SummaryColConfig = [
   {
+    name: "TaskId",
+    label: "Task Id",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     name: "TaskName",
     label: "Task Name",
     bodyRenderer: generateCommonBodyRender,
@@ -81,7 +86,7 @@ const SummaryColConfig = [
     name: "StatusName",
     label: "Status",
     bodyRenderer: (value: any, tableMeta: any) =>
-      generateStatusWithColor(value, tableMeta.rowData[13]),
+      generateStatusWithColor(value, tableMeta.rowData[14]),
   },
   {
     name: "TaxReturnTypeName",
@@ -139,15 +144,15 @@ const SummaryColConfig = [
 ];
 
 const adminDashboardSummaryCols = SummaryColConfig.map((column: any) =>
-  generateStatusColumn(column, 13)
+  generateStatusColumn(column, 14)
 );
 
 const adminDashboardProjectStatusCols = SummaryColConfig.map((column: any) =>
-  generateStatusColumn(column, 13)
+  generateStatusColumn(column, 14)
 );
 
 const adminDashboardTaskStatusCols = SummaryColConfig.map((column: any) =>
-  generateStatusColumn(column, 13)
+  generateStatusColumn(column, 14)
 );
 
 export {

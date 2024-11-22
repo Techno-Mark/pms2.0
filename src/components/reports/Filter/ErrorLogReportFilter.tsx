@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FilterType } from "../types/ReportsFilterType";
 import { callAPI } from "@/utils/API/callAPI";
 import { toast } from "react-toastify";
-import { getCCDropdownData } from "@/utils/commonDropdownApiCall";
+import { getCCDropdownData, getNatureOfErrorDropdownData } from "@/utils/commonDropdownApiCall";
 import { errorLog_InitialFilter } from "@/utils/reports/getFilters";
 import { errorLogReport } from "../Enum/Filtertype";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
@@ -22,12 +22,11 @@ import {
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { Delete, Edit } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
-import { LabelValue, LabelValueProfileImage } from "@/utils/Types/types";
+import { LabelValue, LabelValueProfileImage, LabelValueType } from "@/utils/Types/types";
 import {
   errorTypeOptions,
   rootCauseOptions,
   impactOptions,
-  natureOfErrorOptions,
   priorityOptions,
 } from "@/utils/staticDropdownData";
 import { getFormattedDate } from "@/utils/timerFunctions";
@@ -63,7 +62,7 @@ const ErrorLogReportFilter = ({
   const [rootCauseName, setRootCauseName] = useState<number[]>([]);
   const [impact, setImpact] = useState<LabelValue[]>([]);
   const [impactName, setImpactName] = useState<number[]>([]);
-  const [natureOfErrors, setNatureOfErrors] = useState<LabelValue[]>([]);
+  const [natureOfErrors, setNatureOfErrors] = useState<LabelValueType[]>([]);
   const [natureOfErrorName, setNatureOfErrorName] = useState<number[]>([]);
   const [priorities, setPriorities] = useState<LabelValue[]>([]);
   const [priorityName, setPriorityName] = useState<number[]>([]);
@@ -80,6 +79,7 @@ const ErrorLogReportFilter = ({
   const [receivedFrom, setReceivedFrom] = useState<string | number>("");
   const [receivedTo, setReceivedTo] = useState<string | number>("");
   const [resolvedOn, setResolvedOn] = useState<string | number>("");
+  const [natureOfErrorDropdown, setNatureOfErrorDropdown] = useState<LabelValueType[]>([]);
 
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
@@ -156,6 +156,8 @@ const ErrorLogReportFilter = ({
 
   useEffect(() => {
     const filterDropdowns = async () => {
+      const data = await getNatureOfErrorDropdownData();
+      data.length > 0 && setNatureOfErrorDropdown(data);
       const userData = await getCCDropdownData();
       userData.length > 0
         ? setAssigneeDropdown(userData)
@@ -367,7 +369,7 @@ const ErrorLogReportFilter = ({
     const natureOfErrors = AppliedFilter?.NatureOfError || [];
     setNatureOfErrors(
       natureOfErrors.length > 0
-        ? natureOfErrorOptions.filter((natureOfError: LabelValue) =>
+        ? natureOfErrorDropdown.filter((natureOfError: LabelValueType) =>
             natureOfErrors.includes(natureOfError.value)
           )
         : []
@@ -627,18 +629,18 @@ const ErrorLogReportFilter = ({
                   <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={natureOfErrorOptions.filter(
+                    options={natureOfErrorDropdown.filter(
                       (option) =>
                         !natureOfErrors.find(
                           (natureOfError) =>
                             natureOfError.value === option.value
                         )
                     )}
-                    getOptionLabel={(option: LabelValue) => option.label}
-                    onChange={(e, data: LabelValue[]) => {
+                    getOptionLabel={(option: LabelValueType) => option.label}
+                    onChange={(e, data: LabelValueType[]) => {
                       setNatureOfErrors(data);
                       setNatureOfErrorName(
-                        data.map((d: LabelValue) => d.value)
+                        data.map((d: LabelValueType) => d.value)
                       );
                     }}
                     value={natureOfErrors}

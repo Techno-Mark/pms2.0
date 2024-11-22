@@ -56,6 +56,7 @@ import {
   getCommentUserDropdownData,
   getDepartmentDataByClient,
   getManagerDropdownData,
+  getNatureOfErrorDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
   getReviewerDropdownData,
@@ -96,7 +97,6 @@ import {
 import {
   errorTypeOptions,
   impactOptions,
-  natureOfErrorOptions,
   priorityOptions,
   rootCauseOptions,
 } from "@/utils/staticDropdownData";
@@ -262,6 +262,20 @@ const EditDrawer = ({
     useState<any>([]);
   const [managerApprovals, setManagerApprovals] = useState<any>(0);
   const [managerApprovalsErr, setManagerApprovalsErr] = useState(false);
+  const isQaApprovalsDropdownData = [
+    {
+      label: "Yes",
+      value: 1,
+    },
+    {
+      label: "No",
+      value: 0,
+    },
+  ];
+  const [isQaApprovals, setIsQaApprovals] = useState<number>(0);
+  const [qaQuantityApprovals, setQAQuantityApprovals] = useState<number | null>(
+    null
+  );
   const [clientTaskNameApprovals, setClientTaskNameApprovals] =
     useState<string>("");
   const [clientTaskNameApprovalsErr, setClientTaskNameApprovalsErr] =
@@ -1056,7 +1070,7 @@ const EditDrawer = ({
   };
 
   // ErrorLogs
-  const [errorLogApprovalsDrawer, setErorLogApprovalsrDrawer] = useState(true);
+  const [errorLogApprovalsDrawer, setErorLogApprovalsDrawer] = useState(true);
   const [cCDropdownDataApprovals, setCCDropdownDataApprovals] = useState<any>(
     []
   );
@@ -1073,6 +1087,11 @@ const EditDrawer = ({
       Priority: 0,
       ErrorCount: 0,
       NatureOfError: 0,
+      DocumentNumber: "",
+      VendorName: "",
+      RootCauseAnalysis: "",
+      MitigationPlan: "",
+      ContigencyPlan: "",
       CC: [],
       Remark: "",
       Attachments: [
@@ -1096,11 +1115,30 @@ const EditDrawer = ({
     useState([false]);
   const [errorCountErrApprovals, setErrorCountErrApprovals] = useState([false]);
   const [natureOfErrApprovals, setNatureOfErrApprovals] = useState([false]);
+  const [documentNumberErrApprovals, setDocumentNumberErrApprovals] = useState([
+    false,
+  ]);
+  const [vendorNameErrApprovals, setVendorNameErrApprovals] = useState([false]);
+  const [rcaErrApprovals, setRcaErrApprovals] = useState([false]);
+  const [mitigationErrApprovals, setMitigationErrApprovals] = useState([false]);
+  const [contigencyPlanErrApprovals, setContigencyPlanErrApprovals] = useState([
+    false,
+  ]);
   const [remarkErrApprovals, setRemarkErrApprovals] = useState([false]);
   const [imageErrApprovals, setImageErrApprovals] = useState([false]);
   const [deletedErrorLogApprovals, setDeletedErrorLogApprovals] = useState<any>(
     []
   );
+  const [natureOfErrorDropdown, setNatureOfErrorDropdown] = useState([]);
+
+  useEffect(() => {
+    const getData = async () => {
+      const data = await getNatureOfErrorDropdownData();
+      data.length > 0 && setNatureOfErrorDropdown(data);
+    };
+
+    onOpen && getData();
+  }, [onOpen]);
 
   const addErrorLogFieldApprovals = () => {
     setErrorLogFieldsApprovals([
@@ -1116,6 +1154,11 @@ const EditDrawer = ({
         ErrorCount: 0,
         NatureOfError: 0,
         CC: [],
+        DocumentNumber: "",
+        VendorName: "",
+        RootCauseAnalysis: "",
+        MitigationPlan: "",
+        ContigencyPlan: "",
         Remark: "",
         Attachments: [
           {
@@ -1137,6 +1180,11 @@ const EditDrawer = ({
     setErrorLogPriorityErrApprovals([...errorLogPriorityErrApprovals, false]);
     setErrorCountErrApprovals([...errorCountErrApprovals, false]);
     setNatureOfErrApprovals([...natureOfErrApprovals, false]);
+    setDocumentNumberErrApprovals([...documentNumberErrApprovals, false]);
+    setVendorNameErrApprovals([...vendorNameErrApprovals, false]);
+    setRcaErrApprovals([...rcaErrApprovals, false]);
+    setMitigationErrApprovals([...mitigationErrApprovals, false]);
+    setContigencyPlanErrApprovals([...contigencyPlanErrApprovals, false]);
     setRemarkErrApprovals([...remarkErrApprovals, false]);
     setImageErrApprovals([...imageErrApprovals, false]);
   };
@@ -1178,6 +1226,26 @@ const EditDrawer = ({
     const newNatureOfErrErrors = [...natureOfErrApprovals];
     newNatureOfErrErrors.splice(index, 1);
     setNatureOfErrApprovals(newNatureOfErrErrors);
+
+    const newDocumentNumberErrors = [...documentNumberErrApprovals];
+    newDocumentNumberErrors.splice(index, 1);
+    setDocumentNumberErrApprovals(newDocumentNumberErrors);
+
+    const newVendorNameErrors = [...vendorNameErrApprovals];
+    newVendorNameErrors.splice(index, 1);
+    setVendorNameErrApprovals(newVendorNameErrors);
+
+    const newRcaErrors = [...rcaErrApprovals];
+    newRcaErrors.splice(index, 1);
+    setRcaErrApprovals(newRcaErrors);
+
+    const newMitigationErrors = [...mitigationErrApprovals];
+    newMitigationErrors.splice(index, 1);
+    setMitigationErrApprovals(newMitigationErrors);
+
+    const newContigencyPlanErrors = [...contigencyPlanErrApprovals];
+    newContigencyPlanErrors.splice(index, 1);
+    setContigencyPlanErrApprovals(newContigencyPlanErrors);
 
     const newRemarkErrors = [...remarkErrApprovals];
     newRemarkErrors.splice(index, 1);
@@ -1257,6 +1325,56 @@ const EditDrawer = ({
     setErrorLogFieldsApprovals(newFields);
   };
 
+  const handleDocumentNumberChangeApprovals = (e: string, index: number) => {
+    const newFields = [...errorLogFieldsApprovals];
+    newFields[index].DocumentNumber = e;
+    setErrorLogFieldsApprovals(newFields);
+
+    const newErrors = [...documentNumberErrApprovals];
+    newErrors[index] = e.trim().length > 50;
+    setDocumentNumberErrApprovals(newErrors);
+  };
+
+  const handleVendorNameChangeApprovals = (e: string, index: number) => {
+    const newFields = [...errorLogFieldsApprovals];
+    newFields[index].VendorName = e;
+    setErrorLogFieldsApprovals(newFields);
+
+    const newErrors = [...vendorNameErrApprovals];
+    newErrors[index] = e.trim().length > 250;
+    setVendorNameErrApprovals(newErrors);
+  };
+
+  const handleRcaChangeApprovals = (e: string, index: number) => {
+    const newFields = [...errorLogFieldsApprovals];
+    newFields[index].RootCauseAnalysis = e;
+    setErrorLogFieldsApprovals(newFields);
+
+    const newErrors = [...rcaErrApprovals];
+    newErrors[index] = e.trim().length > 250;
+    setRcaErrApprovals(newErrors);
+  };
+
+  const handleMitigationChangeApprovals = (e: string, index: number) => {
+    const newFields = [...errorLogFieldsApprovals];
+    newFields[index].MitigationPlan = e;
+    setErrorLogFieldsApprovals(newFields);
+
+    const newErrors = [...mitigationErrApprovals];
+    newErrors[index] = e.trim().length > 250;
+    setMitigationErrApprovals(newErrors);
+  };
+
+  const handleContigencyPlanChangeApprovals = (e: string, index: number) => {
+    const newFields = [...errorLogFieldsApprovals];
+    newFields[index].ContigencyPlan = e;
+    setErrorLogFieldsApprovals(newFields);
+
+    const newErrors = [...contigencyPlanErrApprovals];
+    newErrors[index] = e.trim().length > 250;
+    setContigencyPlanErrApprovals(newErrors);
+  };
+
   const handleRemarksChangeApprovals = (e: string, index: number) => {
     const newFields = [...errorLogFieldsApprovals];
     newFields[index].Remark = e;
@@ -1331,6 +1449,11 @@ const EditDrawer = ({
                 ErrorCount: 0,
                 NatureOfError: 0,
                 CC: [],
+                DocumentNumber: "",
+                VendorName: "",
+                RootCauseAnalysis: "",
+                MitigationPlan: "",
+                ContigencyPlan: "",
                 Remark: "",
                 Attachments: [
                   {
@@ -1362,6 +1485,13 @@ const EditDrawer = ({
                     (j: { value: number }) => j.value === cc
                   )
                 ).filter(Boolean),
+                DocumentNumber: !!i.DocumentNumber ? i.DocumentNumber : "",
+                VendorName: !!i.VendorName ? i.VendorName : "",
+                RootCauseAnalysis: i.RootCauseAnalysis
+                  ? i.RootCauseAnalysis
+                  : "",
+                MitigationPlan: !!i.MitigationPlan ? i.MitigationPlan : "",
+                ContigencyPlan: !!i.ContigencyPlan ? i.ContigencyPlan : "",
                 Remark: i.Remark,
                 Attachments: i.Attachment?.length
                   ? i.Attachment
@@ -1413,6 +1543,26 @@ const EditDrawer = ({
       (field) => field.ErrorCount <= 0 || field.ErrorCount > 9999
     );
     setErrorCountErrApprovals(newErrorCountErrors);
+    const newDocumentNumberErrors = errorLogFieldsApprovals.map(
+      (field) => field.DocumentNumber.trim().length > 50
+    );
+    setDocumentNumberErrApprovals(newDocumentNumberErrors);
+    const newVendorNameErrors = errorLogFieldsApprovals.map(
+      (field) => field.VendorName.trim().length > 250
+    );
+    setVendorNameErrApprovals(newVendorNameErrors);
+    const newRcaErrors = errorLogFieldsApprovals.map(
+      (field) => field.RootCauseAnalysis.trim().length > 250
+    );
+    setRcaErrApprovals(newRcaErrors);
+    const newMitigationErrors = errorLogFieldsApprovals.map(
+      (field) => field.MitigationPlan.trim().length > 250
+    );
+    setMitigationErrApprovals(newMitigationErrors);
+    const newContigencyPlanErrors = errorLogFieldsApprovals.map(
+      (field) => field.ContigencyPlan.trim().length > 250
+    );
+    setContigencyPlanErrApprovals(newContigencyPlanErrors);
     const newRemarkErrors = errorLogFieldsApprovals.map(
       (field) =>
         field.Remark.trim().length < 5 || field.Remark.trim().length > 500
@@ -1426,6 +1576,11 @@ const EditDrawer = ({
       newNatureOfErrors.some((error) => error) ||
       newPriorityErrors.some((error) => error) ||
       newErrorCountErrors.some((error) => error) ||
+      newDocumentNumberErrors.some((error) => error) ||
+      newVendorNameErrors.some((error) => error) ||
+      newRcaErrors.some((error) => error) ||
+      newMitigationErrors.some((error) => error) ||
+      newContigencyPlanErrors.some((error) => error) ||
       newRemarkErrors.some((error) => error) ||
       imageErrApprovals.includes(true);
 
@@ -1445,6 +1600,13 @@ const EditDrawer = ({
                 ErrorCount: i.ErrorCount,
                 NatureOfError: i.NatureOfError,
                 CC: i.CC.map((j: LabelValueProfileImage) => j.value),
+                DocumentNumber: !!i.DocumentNumber ? i.DocumentNumber : null,
+                VendorName: !!i.VendorName ? i.VendorName : null,
+                RootCauseAnalysis: !!i.RootCauseAnalysis
+                  ? i.RootCauseAnalysis
+                  : null,
+                MitigationPlan: !!i.MitigationPlan ? i.MitigationPlan : null,
+                ContigencyPlan: !!i.ContigencyPlan ? i.ContigencyPlan : null,
                 Remark: i.Remark,
                 Attachments:
                   i.Attachments?.[0]?.SystemFileName?.length ?? 0 > 0
@@ -1457,7 +1619,7 @@ const EditDrawer = ({
                     : dayjs(i.DateOfTransaction).format("YYYY/MM/DD"),
               })
           ),
-          IsClientWorklog: false,
+          IsClientWorklog: 0,
           SubmissionId: onHasId,
           DeletedErrorlogIds: deletedErrorLogApprovals,
         };
@@ -1839,15 +2001,6 @@ const EditDrawer = ({
     ]);
   };
 
-  // const handleStartTimeChange = (e: string, index: number) => {
-  //   if (e.length > 3) {
-  //     return;
-  //   }
-
-  //   const newManualFields: ManualFieldsWorklogs[] = [...reviewermanualFields];
-  //   newManualFields[index].startTime = Number(e) || 0;
-  //   setReviewerManualFields(newManualFields);
-  // };
   const handleStartTimeChange = (e: string, index: number) => {
     if (e.length === 0) {
       const newManualWorklogsFields: ManualFieldsWorklogs[] = [
@@ -1857,15 +2010,15 @@ const EditDrawer = ({
       setReviewerManualFields(newManualWorklogsFields);
       return;
     }
-  
+
     if (e.length > 1 && !/^[0-9]+$/.test(e)) {
       return;
     }
-  
+
     if (e.length > 3) {
       return;
     }
-  
+
     const newManualWorklogsFields: ManualFieldsWorklogs[] = [
       ...reviewermanualFields,
     ];
@@ -2071,6 +2224,8 @@ const EditDrawer = ({
         valueMonthYearTo === null || valueMonthYearTo === ""
           ? null
           : dayjs(valueMonthYearTo).format("YYYY/MM/DD"),
+      IsQARequired: departmentApprovalsType == "SMB" ? isQaApprovals : null,
+      QAQuantity: departmentApprovalsType == "SMB" ? qaQuantityApprovals : null,
       ManualTimeList: null,
       SubTaskList: null,
       RecurringObj: null,
@@ -2218,6 +2373,12 @@ const EditDrawer = ({
         );
         setReworkDueDateWorklogs(
           !!ResponseData.ReworkDueDate ? ResponseData.ReworkDueDate : ""
+        );
+        setIsQaApprovals(
+          !!ResponseData.IsQARequired ? ResponseData.IsQARequired : 0
+        );
+        setQAQuantityApprovals(
+          !!ResponseData.QAQuantity ? Number(ResponseData.QAQuantity) : null
         );
       }
     };
@@ -2465,6 +2626,14 @@ const EditDrawer = ({
       departmentData.length > 0
         ? setDepartmentApprovalsDropdownData(departmentData)
         : setDepartmentApprovalsDropdownData([]);
+      const departmentType =
+        departmentData.length > 0 &&
+        departmentData
+          .map((i: LabelValueType) =>
+            i.value == departmentApprovals ? i.Type : false
+          )
+          .filter((j: number | boolean) => j !== false)[0];
+      setDepartmentApprovalsType(departmentType);
     };
 
     clientNameApprovals && getData();
@@ -2544,6 +2713,8 @@ const EditDrawer = ({
     setChecklistWorkpaperApprovalsErr(false);
     setValueMonthYearFrom(null);
     setValueMonthYearTo(null);
+    setIsQaApprovals(0);
+    setQAQuantityApprovals(null);
 
     // Sub-Task
     setSubTaskSwitchApprovals(false);
@@ -2646,6 +2817,11 @@ const EditDrawer = ({
         ErrorCount: 0,
         NatureOfError: 0,
         CC: [],
+        DocumentNumber: "",
+        VendorName: "",
+        RootCauseAnalysis: "",
+        MitigationPlan: "",
+        ContigencyPlan: "",
         Remark: "",
         Attachments: [
           {
@@ -3602,7 +3778,7 @@ const EditDrawer = ({
                       item
                       xs={3}
                       className={`${
-                        typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
+                        typeOfWorkApprovals === 3 ? "pt-2" : "pt-5"
                       }`}
                     >
                       <Autocomplete
@@ -3656,7 +3832,7 @@ const EditDrawer = ({
                       item
                       xs={3}
                       className={`${
-                        typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
+                        typeOfWorkApprovals === 3 ? "pt-2" : "pt-5"
                       }`}
                     >
                       <Autocomplete
@@ -3706,6 +3882,46 @@ const EditDrawer = ({
                         )}
                       />
                     </Grid>
+                    {departmentApprovalsType === "SMB" && (
+                      <Grid
+                        item
+                        xs={3}
+                        className={`${
+                          typeOfWorkApprovals === 3 ? "pt-2" : "pt-5"
+                        }`}
+                      >
+                        <Autocomplete
+                          disablePortal
+                          id="combo-box-demo"
+                          options={isQaApprovalsDropdownData}
+                          disabled={
+                            (isCreatedByClient && editData.SubProcessId > 0) ||
+                            activeTab === 2 ||
+                            !!editData.QAId
+                          }
+                          value={
+                            isQaApprovalsDropdownData.find(
+                              (i: LabelValue) => i.value === isQaApprovals
+                            ) || null
+                          }
+                          onChange={(e, value: LabelValue | null) => {
+                            value && setIsQaApprovals(value.value);
+                          }}
+                          sx={{
+                            width: 300,
+                            mt: typeOfWorkApprovals === 3 ? 0.2 : -1,
+                            mx: 0.75,
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              variant="standard"
+                              label="Is QA"
+                            />
+                          )}
+                        />
+                      </Grid>
+                    )}
                     {(departmentApprovalsType === "WhitelabelAccounting" ||
                       departmentApprovalsType === "WhitelabelAustralia" ||
                       departmentApprovalsType === "UK" ||
@@ -3714,7 +3930,7 @@ const EditDrawer = ({
                         item
                         xs={3}
                         className={`${
-                          typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
+                          typeOfWorkApprovals === 3 ? "pt-2" : "pt-5"
                         }`}
                       >
                         <div
@@ -3784,7 +4000,7 @@ const EditDrawer = ({
                     )}
                     {typeOfWorkApprovals === 3 && (
                       <>
-                        <Grid item xs={3} className="pt-4">
+                        <Grid item xs={3} className="pt-2">
                           <FormControl
                             variant="standard"
                             sx={{ width: 300, mt: -0.3, mx: 0.75 }}
@@ -3831,7 +4047,7 @@ const EditDrawer = ({
                             )}
                           </FormControl>
                         </Grid>
-                        <Grid item xs={3} className="pt-4">
+                        <Grid item xs={3} className="pt-2">
                           <TextField
                             label="No of Pages"
                             type="number"
@@ -3954,7 +4170,8 @@ const EditDrawer = ({
                               departmentApprovalsType ==
                                 "WhitelabelAustralia" ||
                               departmentApprovalsType == "WhitelabelTaxation" ||
-                              departmentApprovalsType === "Germany") &&
+                              departmentApprovalsType === "Germany" ||
+                              departmentApprovalsType === "SMB") &&
                             typeOfWorkApprovals !== 3
                               ? "pt-6"
                               : "pt-5"
@@ -4506,7 +4723,7 @@ const EditDrawer = ({
                                 {editingCommentIndexApprovals === index ? (
                                   <div className="flex items-start justify-center gap-8">
                                     <div className="flex flex-col">
-                                      <div className="flex items-start justify-start w-[70vw]">
+                                      <div className="flex items-start justify-start">
                                         <MentionsInput
                                           style={mentionsInputStyle}
                                           className="!w-[100%] textareaOutlineNoneEdit max-w-[60vw]"
@@ -4607,7 +4824,7 @@ const EditDrawer = ({
                                     </button>
                                   </div>
                                 ) : (
-                                  <div className="flex items-start justify-start gap-8 w-[70vw]">
+                                  <div className="flex items-start justify-start gap-8">
                                     <span className="hidden"></span>
                                     <div className="max-w-[60vw]">
                                       {extractText(i.Message).map(
@@ -5648,7 +5865,7 @@ const EditDrawer = ({
                         errorLogApprovalsDrawer ? "rotate-180" : ""
                       }`}
                       onClick={() =>
-                        setErorLogApprovalsrDrawer(!errorLogApprovalsDrawer)
+                        setErorLogApprovalsDrawer(!errorLogApprovalsDrawer)
                       }
                     >
                       <ChevronDownIcon />
@@ -5895,7 +6112,7 @@ const EditDrawer = ({
                                 }
                               }}
                             >
-                              {natureOfErrorOptions.map((n: LabelValue) => (
+                              {natureOfErrorDropdown.map((n: LabelValue) => (
                                 <MenuItem value={n.value} key={n.value}>
                                   {n.label}
                                 </MenuItem>
@@ -5965,6 +6182,122 @@ const EditDrawer = ({
                             )}
                           </FormControl>
                           <div className="flex !ml-0">
+                            <TextField
+                              label={<span>Document Number Field</span>}
+                              fullWidth
+                              disabled={
+                                (!hasPermissionWorklog(
+                                  "ErrorLog",
+                                  "Save",
+                                  "WorkLogs"
+                                ) &&
+                                  hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Delete",
+                                    "WorkLogs"
+                                  )) ||
+                                field.isSolved ||
+                                activeTab === 2
+                              }
+                              value={
+                                field.DocumentNumber.trim().length === 0
+                                  ? ""
+                                  : field.DocumentNumber
+                              }
+                              onChange={(e) =>
+                                handleDocumentNumberChangeApprovals(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                if (e.target.value.length > 50) {
+                                  const newDocumentNumberErrors = [
+                                    ...documentNumberErrApprovals,
+                                  ];
+                                  newDocumentNumberErrors[index] = true;
+                                  setDocumentNumberErrApprovals(
+                                    newDocumentNumberErrors
+                                  );
+                                } else {
+                                  const newDocumentNumberErrors = [
+                                    ...documentNumberErrApprovals,
+                                  ];
+                                  newDocumentNumberErrors[index] = false;
+                                  setDocumentNumberErrApprovals(
+                                    newDocumentNumberErrors
+                                  );
+                                }
+                              }}
+                              error={documentNumberErrApprovals[index]}
+                              helperText={
+                                documentNumberErrApprovals[index] &&
+                                field.DocumentNumber.trim().length > 50
+                                  ? "Maximum 50 characters allowed."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                            />
+                            <TextField
+                              label={<span>Vendor Field Addition</span>}
+                              fullWidth
+                              disabled={
+                                (!hasPermissionWorklog(
+                                  "ErrorLog",
+                                  "Save",
+                                  "WorkLogs"
+                                ) &&
+                                  hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Delete",
+                                    "WorkLogs"
+                                  )) ||
+                                field.isSolved ||
+                                activeTab === 2
+                              }
+                              value={
+                                field.VendorName.trim().length === 0
+                                  ? ""
+                                  : field.VendorName
+                              }
+                              onChange={(e) =>
+                                handleVendorNameChangeApprovals(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                if (e.target.value.length > 250) {
+                                  const newVendorNameErrors = [
+                                    ...vendorNameErrApprovals,
+                                  ];
+                                  newVendorNameErrors[index] = true;
+                                  setVendorNameErrApprovals(
+                                    newVendorNameErrors
+                                  );
+                                } else {
+                                  const newVendorNameErrors = [
+                                    ...vendorNameErrApprovals,
+                                  ];
+                                  newVendorNameErrors[index] = false;
+                                  setVendorNameErrApprovals(
+                                    newVendorNameErrors
+                                  );
+                                }
+                              }}
+                              error={vendorNameErrApprovals[index]}
+                              helperText={
+                                vendorNameErrApprovals[index] &&
+                                field.VendorName.trim().length > 250
+                                  ? "Maximum 250 characters allowed."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                            />
                             <Autocomplete
                               multiple
                               limitTags={2}
@@ -6071,6 +6404,8 @@ const EditDrawer = ({
                               variant="standard"
                               sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                             />
+                          </div>
+                          <div className="flex !ml-0">
                             <TextField
                               label={
                                 <span>
@@ -6130,7 +6465,7 @@ const EditDrawer = ({
                               }
                               margin="normal"
                               variant="standard"
-                              sx={{ mx: 0.75, maxWidth: 492, mt: 1.5 }}
+                              sx={{ mx: 0.75, maxWidth: 472, mt: 1.5 }}
                             />
                             <TextField
                               label="Amount"
@@ -6170,9 +6505,7 @@ const EditDrawer = ({
                               variant="standard"
                               sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                             />
-                          </div>
-                          <div className="flex !ml-0">
-                            <div className="inline-flex mt-[4px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]">
+                            <div className="inline-flex mt-[8px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]">
                               <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DatePicker
                                   label="Date of Transaction"
@@ -6212,7 +6545,7 @@ const EditDrawer = ({
                             </div>
                             <div className="flex flex-col ml-4">
                               <div className="flex flex-col items-start justify-start">
-                                <div className="flex">
+                                <div className="flex mt-2">
                                   <ImageUploader
                                     getData={(data1: string, data2: string) =>
                                       field.Attachments
@@ -6238,11 +6571,11 @@ const EditDrawer = ({
                                     field.Attachments[0]?.SystemFileName
                                       .length > 0 && (
                                       <div className="flex items-center justify-center gap-2">
-                                        <span className="mt-6 ml-2 cursor-pointer">
+                                        <span className="mt-6 ml-2">
                                           {field.Attachments[0]?.UserFileName}
                                         </span>
                                         <span
-                                          className="mt-6"
+                                          className="mt-6 mr-4 cursor-pointer"
                                           onClick={() =>
                                             field.Attachments
                                               ? getFileFromBlob(
@@ -6272,6 +6605,171 @@ const EditDrawer = ({
                                 )}
                               </div>
                             </div>
+                          </div>
+                          <div className="flex !ml-0">
+                            <TextField
+                              label={<span>Root Cause Analysis (RCA)</span>}
+                              fullWidth
+                              disabled={
+                                (!hasPermissionWorklog(
+                                  "ErrorLog",
+                                  "Save",
+                                  "WorkLogs"
+                                ) &&
+                                  hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Delete",
+                                    "WorkLogs"
+                                  )) ||
+                                field.isSolved ||
+                                activeTab === 2
+                              }
+                              value={
+                                field.RootCauseAnalysis.trim().length === 0
+                                  ? ""
+                                  : field.RootCauseAnalysis
+                              }
+                              onChange={(e) =>
+                                handleRcaChangeApprovals(e.target.value, index)
+                              }
+                              onBlur={(e) => {
+                                if (e.target.value.length > 250) {
+                                  const newRcaErrors = [...rcaErrApprovals];
+                                  newRcaErrors[index] = true;
+                                  setRcaErrApprovals(newRcaErrors);
+                                } else {
+                                  const newRcaErrors = [...rcaErrApprovals];
+                                  newRcaErrors[index] = false;
+                                  setRcaErrApprovals(newRcaErrors);
+                                }
+                              }}
+                              error={rcaErrApprovals[index]}
+                              helperText={
+                                rcaErrApprovals[index] &&
+                                field.RootCauseAnalysis.trim().length > 250
+                                  ? "Maximum 250 characters allowed."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                            />
+                            <TextField
+                              label={<span>Mitigation Plan</span>}
+                              fullWidth
+                              disabled={
+                                (!hasPermissionWorklog(
+                                  "ErrorLog",
+                                  "Save",
+                                  "WorkLogs"
+                                ) &&
+                                  hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Delete",
+                                    "WorkLogs"
+                                  )) ||
+                                field.isSolved ||
+                                activeTab === 2
+                              }
+                              value={
+                                field.MitigationPlan.trim().length === 0
+                                  ? ""
+                                  : field.MitigationPlan
+                              }
+                              onChange={(e) =>
+                                handleMitigationChangeApprovals(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                if (e.target.value.length > 250) {
+                                  const newMitigationErrors = [
+                                    ...mitigationErrApprovals,
+                                  ];
+                                  newMitigationErrors[index] = true;
+                                  setMitigationErrApprovals(
+                                    newMitigationErrors
+                                  );
+                                } else {
+                                  const newMitigationErrors = [
+                                    ...mitigationErrApprovals,
+                                  ];
+                                  newMitigationErrors[index] = false;
+                                  setMitigationErrApprovals(
+                                    newMitigationErrors
+                                  );
+                                }
+                              }}
+                              error={mitigationErrApprovals[index]}
+                              helperText={
+                                mitigationErrApprovals[index] &&
+                                field.MitigationPlan.trim().length > 250
+                                  ? "Maximum 250 characters allowed."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                            />
+                            <TextField
+                              label={<span>Contingency Plan</span>}
+                              fullWidth
+                              disabled={
+                                (!hasPermissionWorklog(
+                                  "ErrorLog",
+                                  "Save",
+                                  "WorkLogs"
+                                ) &&
+                                  hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Delete",
+                                    "WorkLogs"
+                                  )) ||
+                                field.isSolved ||
+                                activeTab === 2
+                              }
+                              value={
+                                field.ContigencyPlan.trim().length === 0
+                                  ? ""
+                                  : field.ContigencyPlan
+                              }
+                              onChange={(e) =>
+                                handleContigencyPlanChangeApprovals(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                if (e.target.value.length > 250) {
+                                  const newContigencyPlanErrors = [
+                                    ...contigencyPlanErrApprovals,
+                                  ];
+                                  newContigencyPlanErrors[index] = true;
+                                  setContigencyPlanErrApprovals(
+                                    newContigencyPlanErrors
+                                  );
+                                } else {
+                                  const newContigencyPlanErrors = [
+                                    ...contigencyPlanErrApprovals,
+                                  ];
+                                  newContigencyPlanErrors[index] = false;
+                                  setContigencyPlanErrApprovals(
+                                    newContigencyPlanErrors
+                                  );
+                                }
+                              }}
+                              error={contigencyPlanErrApprovals[index]}
+                              helperText={
+                                contigencyPlanErrApprovals[index] &&
+                                field.ContigencyPlan.trim().length > 250
+                                  ? "Maximum 250 characters allowed."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                            />
                             {field.isSolved && (
                               <FormGroup>
                                 <FormControlLabel

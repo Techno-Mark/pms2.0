@@ -54,6 +54,7 @@ interface FilteredData {
   ReworkReceivedDate: string | null;
   ReworkDueDate: string | null;
   isDownload: boolean;
+  QAId: number | null;
 }
 
 interface List {
@@ -114,6 +115,14 @@ interface List {
   PeriodTo: string | null;
   ReworkReceivedDate: string | null;
   ReworkDueDate: string | null;
+  QAId: number | null;
+  QAName: string | null;
+  QATotalTime: string | null;
+  QAAutoTime: string | null;
+  QAManualTime: string | null;
+  QAEditedTime: number | null;
+  QAQuantity: string | null;
+  QASubmittedOn: string | null;
 }
 
 interface Response {
@@ -560,6 +569,17 @@ const CustomReport = ({
       },
     },
     {
+      name: "QAName",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("QA"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
       name: "ReviewerName",
       options: {
         filter: true,
@@ -729,7 +749,8 @@ const CustomReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Date Created"),
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Date of Creation"),
         customBodyRender: (value: string | null) => {
           return generateDateWithoutTime(value);
         },
@@ -742,6 +763,17 @@ const CustomReport = ({
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Date of Preparation"),
+        customBodyRender: (value: string | null) => {
+          return generateDateWithoutTime(value);
+        },
+      },
+    },
+    {
+      name: "QASubmittedOn",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Date of QA"),
         customBodyRender: (value: string | null) => {
           return generateDateWithoutTime(value);
         },
@@ -816,6 +848,17 @@ const CustomReport = ({
       },
     },
     {
+      name: "QAQuantity",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("QA Qty."),
+        customBodyRender: (value: string | number) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
       name: "AssigneeAutoTimeTracked",
       options: {
         filter: true,
@@ -846,6 +889,40 @@ const CustomReport = ({
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Preparer Time Tracked"),
+        customBodyRender: (value: string | null) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "QAAutoTime",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("QA Auto Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "QAManualTime",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("QA Manual Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "QATotalTime",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("QA Time Tracked"),
         customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },
@@ -905,6 +982,18 @@ const CustomReport = ({
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Assignee Edited Hours"),
+        customBodyRender: (value: string | null) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "QAEditedTime",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("QA Edited Hours"),
         customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },

@@ -854,7 +854,21 @@ const TimeSheetReport = ({
             },
             customBodyRender: (value: LogDetails, tableMeta: any) => {
               return isWeekend(date) ? (
-                <span className="text-[#2323434D] text-xl">-</span>
+                <>
+                  {value !== undefined &&
+                    !!value &&
+                    (value.filter(
+                      (v: LogDetails) => v.LogDate.split("T")[0] === date
+                    ).length > 0 ? (
+                      <DateWiseLogsContent
+                        data={value}
+                        date={date}
+                        tableMeta={tableMeta}
+                      />
+                    ) : (
+                      <span className="text-[#2323434D] text-xl">-</span>
+                    ))}
+                </>
               ) : (
                 value !== undefined &&
                   (value.filter(
