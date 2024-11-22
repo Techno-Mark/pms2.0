@@ -26,6 +26,36 @@ export interface ListDashboard {
   AssignedByName: string | null;
   AssignedToId: number | null;
   AssignedToName: string | null;
+  DepartmentId: number;
+  DepartmentName: string;
+  ReworkReceivedDate: null;
+  ReworkDueDate: null;
+  ErrorLogId: number;
+  SubmitedBy: string;
+  SubmitedOn: string;
+  ErrorType: number;
+  RootCause: number;
+  NatureOfError: number;
+  ErrologPriority: number;
+  Impact: number;
+  ErrorCount: number;
+  ErrorTypeVal: string;
+  RootCauseVal: string;
+  NatureOfErrorVal: string;
+  ErrorlogPriorityVal: string;
+  ImpactVal: string;
+  Amount: string | null;
+  DateOfTransaction: string | null;
+  Remark: string;
+  RootCauseAnalysis: string;
+  MitigationPlan: string;
+  ContigencyPlan: string;
+  VendorName: string;
+  DocumentNumber: string;
+  IsHasErrorlogAddedByClient: number;
+  ResolvedBy: string;
+  SolvedOn: string;
+  IsImported: string;
 }
 
 export interface ListClientDashboard {
@@ -52,6 +82,12 @@ export interface ListClientDashboard {
   TaxReturnTypeName: string | null;
   TypeOfReturnId: number | null;
   TypeOfReturnName: string | null;
+}
+
+export interface ResponseDashboardErrorlog {
+  TotalCount: number;
+  ErrorLogSummaryFilters: null;
+  ErrorlogList: ListDashboard[] | [];
 }
 
 export interface ResponseDashboardProjectSummary {

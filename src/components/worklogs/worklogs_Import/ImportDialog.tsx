@@ -48,6 +48,11 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
   const [isUploading, setIsUplaoding] = useState<boolean>(false);
   const [fileInputKey, setFileInputKey] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [selectedFileErrorlog, setSelectedFileErrorlog] = useState<any>(null);
+  const [isUploadingErrorlog, setIsUplaodingErrorlog] =
+    useState<boolean>(false);
+  const [fileInputKeyErrorlog, setFileInputKeyErrorlog] = useState(0);
+  const [loadingErrorlog, setLoadingErrorlog] = useState(false);
 
   const handleClose = () => {
     handleReset();
@@ -62,6 +67,7 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
     setIsTaskClicked(false);
     setselectedtasks([]);
     setFileInputKey((prevKey) => prevKey + 1);
+    setFileInputKeyErrorlog((prevKey) => prevKey + 1);
     setSelectedFile(null);
   };
 
@@ -108,8 +114,10 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
     setImportFields(convertToArrayOfObjects(importText));
   };
 
-  const handleFileChange = (event: any) => {
-    setSelectedFile(event.target.files[0]);
+  const handleFileChange = (event: any, isTask: boolean) => {
+    isTask
+      ? setSelectedFile(event.target.files[0])
+      : setSelectedFileErrorlog(event.target.files[0]);
   };
 
   const handleApplyImport = async () => {
@@ -131,18 +139,22 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
     callAPI(url, params, successCallback, "POST");
   };
 
-  const handleApplyImportExcel = async () => {
+  const handleApplyImportExcel = async (isTask: boolean) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
 
-    if (selectedFile) {
+    if (selectedFile || selectedFileErrorlog) {
       try {
-        setIsUplaoding(true);
+        isTask ? setIsUplaoding(true) : setIsUplaodingErrorlog(true);
         const formData = new FormData();
-        formData.append("file", selectedFile);
+        isTask
+          ? formData.append("file", selectedFile)
+          : formData.append("file", selectedFileErrorlog);
 
         const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/importexcel`,
+          `${process.env.worklog_api_url}/workitem/${
+            isTask ? "importexcel" : "importerrorlogsexcel"
+          }`,
           formData,
           {
             headers: {
@@ -157,7 +169,7 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
           if (response.data.ResponseStatus === "Success") {
             toast.success("Task has been imported successfully.");
             onDataFetch?.();
-            setIsUplaoding(false);
+            isTask ? setIsUplaoding(false) : setIsUplaodingErrorlog(false);
             handleClose();
           } else if (response.data.ResponseStatus === "Warning") {
             toast.warning(
@@ -190,7 +202,7 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
             URL.revokeObjectURL(fileURL);
 
             onDataFetch?.();
-            setIsUplaoding(false);
+            isTask ? setIsUplaoding(false) : setIsUplaodingErrorlog(false);
             handleClose();
           } else {
             toast.error(
@@ -198,12 +210,12 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
                 ? "The uploaded file is not in the format of the sample file."
                 : response.data.Message
             );
-            setIsUplaoding(false);
+            isTask ? setIsUplaoding(false) : setIsUplaodingErrorlog(false);
             handleClose();
           }
         } else {
           toast.error("Please try again later.");
-          setIsUplaoding(false);
+          isTask ? setIsUplaoding(false) : setIsUplaodingErrorlog(false);
         }
       } catch (error) {
         console.error(error);
@@ -213,18 +225,26 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
 
   useEffect(() => {
     if (selectedFile !== null) {
-      handleApplyImportExcel();
+      handleApplyImportExcel(true);
     }
   }, [selectedFile]);
 
-  const handleDownloadSampleFile = async () => {
-    setLoading(true);
+  useEffect(() => {
+    if (selectedFileErrorlog !== null) {
+      handleApplyImportExcel(false);
+    }
+  }, [selectedFileErrorlog]);
+
+  const handleDownloadSampleFile = async (isTask: boolean) => {
+    isTask ? setLoading(true) : setLoadingErrorlog(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
 
     try {
       const response = await axios.get(
-        `${process.env.worklog_api_url}/workitem/exportexcelfordemo`,
+        `${process.env.worklog_api_url}/workitem/${
+          isTask ? "exportexcelfordemo" : "exporterrorlogsample"
+        }`,
         {
           headers: {
             Authorization: `bearer ${token}`,
@@ -245,21 +265,23 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
-          a.download = `SampleExcel.xlsx`;
+          a.download = `${
+            isTask ? "SampleTaskExcel" : "SampleErrorlogExcel"
+          }.xlsx`;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
           window.URL.revokeObjectURL(url);
           toast.success("File has been downloaded successfully.");
-          setLoading(false);
+          isTask ? setLoading(false) : setLoadingErrorlog(false);
         }
       } else {
         toast.error("Please try again later.");
-        setLoading(false);
+        isTask ? setLoading(false) : setLoadingErrorlog(false);
       }
     } catch (error) {
       toast.error("Error downloading data.");
-      setLoading(false);
+      isTask ? setLoading(false) : setLoadingErrorlog(false);
     }
   };
 
@@ -353,7 +375,7 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
                   accept=".xls,.xlsx"
                   style={{ display: "none" }}
                   id="raised-button-file"
-                  onChange={handleFileChange}
+                  onChange={(e) => handleFileChange(e, true)}
                   type="file"
                 />
                 <label
@@ -366,7 +388,34 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
                     ) : (
                       <>
                         <ExcelIcon />
-                        <span className="text-darkCharcoal">Import Excel</span>
+                        <span className="text-darkCharcoal">
+                          Import Task Excel
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </label>
+                <input
+                  key={fileInputKeyErrorlog}
+                  accept=".xls,.xlsx"
+                  style={{ display: "none" }}
+                  id="raised-button-file-errorlog"
+                  onChange={(e) => handleFileChange(e, false)}
+                  type="file"
+                />
+                <label
+                  htmlFor="raised-button-file-errorlog"
+                  className="flex items-center justify-center border border-lightSilver rounded-md w-full h-52 shadow-md hover:shadow-xl hover:bg-[#f5fcff] hover:border-[#a4e3fe] cursor-pointer"
+                >
+                  <div className="flex flex-col items-center gap-3">
+                    {isUploadingErrorlog ? (
+                      <span>Uploading..</span>
+                    ) : (
+                      <>
+                        <ExcelIcon />
+                        <span className="text-darkCharcoal">
+                          Import Errorlog Excel
+                        </span>
                       </>
                     )}
                   </div>
@@ -417,23 +466,42 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
             </Button>
           ) : (
             <>
-              {loading ? (
-                <span className="flex items-center justify-center w-40">
-                  <Spinner size="20px" />
-                </span>
-              ) : (
-                <Button
-                  variant="contained"
-                  color="success"
-                  className="rounded-[4px] !h-[36px] !bg-[#388e3c] hover:!bg-darkSuccess"
-                  onClick={handleDownloadSampleFile}
-                >
-                  Sample File&nbsp;
-                  <span className="text-xl">
-                    <Download />
+              <div className="flex items-center justify-center gap-4">
+                {loading ? (
+                  <span className="flex items-center justify-center w-40">
+                    <Spinner size="20px" />
                   </span>
-                </Button>
-              )}
+                ) : (
+                  <Button
+                    variant="contained"
+                    color="success"
+                    className="rounded-[4px] !h-[36px] !bg-[#388e3c] hover:!bg-darkSuccess"
+                    onClick={() => handleDownloadSampleFile(true)}
+                  >
+                    Sample Task File&nbsp;
+                    <span className="text-xl">
+                      <Download />
+                    </span>
+                  </Button>
+                )}
+                {loadingErrorlog ? (
+                  <span className="flex items-center justify-center w-40">
+                    <Spinner size="20px" />
+                  </span>
+                ) : (
+                  <Button
+                    variant="contained"
+                    color="success"
+                    className="rounded-[4px] !h-[36px] !bg-[#0281B9] hover:!bg-[#385461]"
+                    onClick={() => handleDownloadSampleFile(false)}
+                  >
+                    Sample Errorlog File&nbsp;
+                    <span className="text-xl">
+                      <Download />
+                    </span>
+                  </Button>
+                )}
+              </div>
 
               <Button
                 variant="outlined"
