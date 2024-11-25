@@ -55,7 +55,6 @@ const Chart_Errorlog = ({
       error: boolean,
       ResponseStatus: string
     ) => {
-      console.log(ResponseData)
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         const chartData = ResponseData.List.map(
           (item: ListProjectStatusSequence) => ({

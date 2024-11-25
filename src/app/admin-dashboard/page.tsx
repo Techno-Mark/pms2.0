@@ -766,12 +766,14 @@ const Page = () => {
 
           {/* Errorlog Chart */}
           <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
-            <Card className="w-1/2 h-[344px] border border-lightSilver rounded-lg px-[10px]">
+            <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
               <Chart_Errorlog
                 sendData={handleValueFromProjectStatus}
                 onSelectedProjectIds={[]}
                 currentFilterData={currentFilterData}
               />
+            </Card>
+            <Card className="w-full">
             </Card>
           </section>
         </div>

@@ -368,7 +368,7 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
               />
             </div>
           ) : (
-            <div className="pt-6 px-[10px] pb-[10px] h-[235px] w-[40vw]">
+            <div className="pt-6 px-[10px] pb-[10px] h-[235px]">
               <div className="flex items-center justify-around gap-5">
                 <input
                   key={fileInputKey}

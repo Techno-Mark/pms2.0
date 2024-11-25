@@ -6939,7 +6939,7 @@ const EditDrawer = ({
                                 </FormControl>
                                 <div className="flex items-center justify-start mt-2">
                                   <TextField
-                                    label={<span>Document Number Field</span>}
+                                    label={<span>Document Number</span>}
                                     fullWidth
                                     disabled={
                                       isIdDisabled || isUnassigneeClicked
@@ -6994,7 +6994,7 @@ const EditDrawer = ({
                                     }}
                                   />
                                   <TextField
-                                    label={<span>Vendor Field Addition</span>}
+                                    label={<span>Vendor Name</span>}
                                     fullWidth
                                     disabled={
                                       isIdDisabled || isUnassigneeClicked
@@ -7775,7 +7775,7 @@ const EditDrawer = ({
                             </FormControl>
                             <div className="flex !ml-0">
                               <TextField
-                                label={<span>Document Number Field</span>}
+                                label={<span>Document Number</span>}
                                 fullWidth
                                 disabled={field.isSolved}
                                 value={
@@ -7820,7 +7820,7 @@ const EditDrawer = ({
                                 sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                               />
                               <TextField
-                                label={<span>Vendor Field Addition</span>}
+                                label={<span>Vendor Name</span>}
                                 fullWidth
                                 disabled={field.isSolved}
                                 value={
