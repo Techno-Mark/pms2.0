@@ -369,7 +369,6 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
                   style={{ display: "none" }}
                   id="raised-button-file"
                   onChange={(e) => {
-                    console.log("hiiiiiiiii");
                     handleFileChange(e, true);
                   }}
                   type="file"

@@ -7236,8 +7236,10 @@ const EditDrawer = ({
                                         }}
                                         readOnly={
                                           (!!i.DateOfTransaction &&
-                                            i.DateOfTransaction.trim().length >
-                                              0 &&
+                                            i.DateOfTransaction !== null &&
+                                            i.DateOfTransaction !== "" &&
+                                            i.DateOfTransaction.toString().trim()
+                                              .length > 0 &&
                                             i.ErrorType == 1) ||
                                           !i.IsHasErrorlogAddedByClient ||
                                           i.Remark.trim().length <= 0 ||
