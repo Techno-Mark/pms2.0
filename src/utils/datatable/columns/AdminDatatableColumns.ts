@@ -63,6 +63,11 @@ const adminDashboardBillingTypeCols = [
 
 const SummaryColConfig = [
   {
+    name: "TaskId",
+    label: "Task Id",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     name: "TaskName",
     label: "Task Name",
     bodyRenderer: generateCommonBodyRender,
@@ -81,7 +86,7 @@ const SummaryColConfig = [
     name: "StatusName",
     label: "Status",
     bodyRenderer: (value: any, tableMeta: any) =>
-      generateStatusWithColor(value, tableMeta.rowData[13]),
+      generateStatusWithColor(value, tableMeta.rowData[14]),
   },
   {
     name: "TaxReturnTypeName",
@@ -138,16 +143,190 @@ const SummaryColConfig = [
   },
 ];
 
+const errorlogColConfig = [
+  {
+    name: "TaskId",
+    label: "Task Id",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TaskName",
+    label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ClientName",
+    label: "Client Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ProjectName",
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ProcessName",
+    label: "Process Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "SubProcessName",
+    label: "SubProcess Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  // {
+  //   name: "StatusName",
+  //   label: "Status",
+  //   bodyRenderer: (value: any, tableMeta: any) =>
+  //     generateStatusWithColor(
+  //       value,
+  //       tableMeta.rowData[tableMeta.rowData.length - 1]
+  //     ),
+  // },
+  {
+    name: "StartDate",
+    label: "Start Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "EndDate",
+    label: "Due Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "ReworkReceivedDate",
+    label: "Rework Received Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "ReworkDueDate",
+    label: "Rework Due Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "PriorityName",
+    label: "Priority",
+    bodyRenderer: generatePriorityWithColor,
+  },
+  {
+    name: "AssignedByName",
+    label: "Assigned By",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "AssignedToName",
+    label: "Assigned To",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "DepartmentName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ErrorTypeVal",
+    label: "Error Type",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "RootCauseVal",
+    label: "Root Cause",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "NatureOfErrorVal",
+    label: "Nature Of Error",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ErrorlogPriorityVal",
+    label: "Errorlog Priority",
+    bodyRenderer: generatePriorityWithColor,
+  },
+  {
+    name: "ImpactVal",
+    label: "Impact",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "Amount",
+    label: "Amount",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "DateOfTransaction",
+    label: "Date Of Transaction",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "Remark",
+    label: "Remark",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "RootCauseAnalysis",
+    label: "RootCause Analysis",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "MitigationPlan",
+    label: "Mitigation Plan",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ContigencyPlan",
+    label: "Contigency Plan",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "VendorName",
+    label: "Vendor Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "DocumentNumber",
+    label: "Document Number",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ResolvedBy",
+    label: "Resolved By",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "SolvedOn",
+    label: "Resolved On",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "IsImported",
+    label: "Is Imported",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  // {
+  //   name: "StatusColorCode",
+  //   options: {
+  //     filter: false,
+  //     sort: false,
+  //     display: false,
+  //   },
+  // },
+];
+
 const adminDashboardSummaryCols = SummaryColConfig.map((column: any) =>
-  generateStatusColumn(column, 13)
+  generateStatusColumn(column, 14)
 );
 
 const adminDashboardProjectStatusCols = SummaryColConfig.map((column: any) =>
-  generateStatusColumn(column, 13)
+  generateStatusColumn(column, 14)
 );
 
 const adminDashboardTaskStatusCols = SummaryColConfig.map((column: any) =>
-  generateStatusColumn(column, 13)
+  generateStatusColumn(column, 14)
+);
+
+const adminDashboardErrorlogCols = errorlogColConfig.map((column: any) =>
+  generateStatusColumn(column, 14)
 );
 
 export {
@@ -156,4 +335,5 @@ export {
   adminDashboardSummaryCols,
   adminDashboardProjectStatusCols,
   adminDashboardTaskStatusCols,
+  adminDashboardErrorlogCols,
 };

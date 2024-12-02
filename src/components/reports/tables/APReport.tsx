@@ -63,6 +63,10 @@ interface Response {
         ReviewerStatusId: number | null;
         ReviewerStatusName: string | null;
         ReviewerStatusColorCode: string | null;
+        QATotalTime: string | null;
+        QAAutoTime: string | null;
+        QAManualTime: string | null;
+        QAQuantity: string | null;
       }[]
     | [];
   TotalCount: number;

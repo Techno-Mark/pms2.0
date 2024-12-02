@@ -148,10 +148,10 @@ const StatusContent = forwardRef<
     if (
       !statusNameErr &&
       statusName.trim().length > 0 &&
-      statusName.trim().length < 50 &&
+      statusName.trim().length <= 50 &&
       !typeErr &&
       type.trim().length > 0 &&
-      type.trim().length < 50 &&
+      type.trim().length <= 50 &&
       !typeOfWorkNameError &&
       typeOfWorkName.length > 0
     ) {

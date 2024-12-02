@@ -71,7 +71,7 @@ export const hours = [
   { label: "24", value: 24 },
 ];
 
-const getApiFunction = async (api: any) => {
+export const getApiFunction = async (api: any) => {
   const token = await localStorage.getItem("token");
   const Org_Token = await localStorage.getItem("Org_Token");
   try {
@@ -357,5 +357,12 @@ export const getReviewerDropdownDataByHierarchy = async (workTypeId: any) => {
     {
       WorktypeId: workTypeId,
     }
+  );
+};
+
+// getNatureOfError
+export const getNatureOfErrorDropdownData = async () => {
+  return await getApiFunction(
+    `${process.env.pms_api_url}/natureOfError/getdropdown`
   );
 };

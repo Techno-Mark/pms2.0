@@ -68,6 +68,13 @@ export interface List {
   ReviewerEditedTime: string;
   TotalEditedTimeSec: number;
   TotalEditedTime: string;
+  QAId: number | null;
+  QAName: string | null;
+  QATimeSec: number | null;
+  QATime: string;
+  QAEditedTimeSec: number | null;
+  QAEditedTime: string;
+  QAQuantity: number | null;
 }
 
 export interface InitialFilterApprovals {

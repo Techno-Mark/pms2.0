@@ -67,6 +67,7 @@ export interface AppliedFilterApprovals {
   dueDate: string | null | undefined;
   startDate: string | null | undefined;
   endDate: string | null | undefined;
+  QAId: number | null;
 }
 
 export interface ActionList {

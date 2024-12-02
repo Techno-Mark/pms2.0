@@ -12,6 +12,7 @@ import dayjs from "dayjs";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { isWeekend } from "@/utils/commonFunction";
 import {
+  getApiFunction,
   getCCDropdownData,
   getClientDropdownData,
   getDepartmentDropdownData,
@@ -58,6 +59,7 @@ const initialFilter = {
   ReworkDueDate: null,
   startDateReview: null,
   endDateReview: null,
+  QAId: null,
 };
 
 const FilterDialog = ({
@@ -75,6 +77,7 @@ const FilterDialog = ({
   const [status, setStatus] = useState<LabelValueType | null>(null);
   const [department, setDepartment] = useState<LabelValueType | null>(null);
   const [processName, setProcessName] = useState<LabelValue | null>(null);
+  const [qaId, setQaId] = useState<LabelValue | null>(null);
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [worktypeDropdownData, setWorktypeDropdownData] = useState([]);
   const [departmentDropdownData, setDepartmentDropdownData] = useState([]);
@@ -82,6 +85,7 @@ const FilterDialog = ({
   const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [statusDropdownData, setStatusDropdownData] = useState([]);
   const [processDropdownData, setProcessDropdownData] = useState([]);
+  const [qaDropdownData, setQaDropdownData] = useState([]);
   const [date, setDate] = useState<null | string>(null);
   const [dueDate, setDueDate] = useState<null | string>(null);
   const [startDate, setStartDate] = useState<null | string>(null);
@@ -124,6 +128,7 @@ const FilterDialog = ({
     setProjectName(null);
     setDepartment(null);
     setProcessName(null);
+    setQaId(null);
     setStatus(null);
     setDate(null);
     setDueDate(null);
@@ -146,6 +151,7 @@ const FilterDialog = ({
     setProjectName(null);
     setDepartment(null);
     setProcessName(null);
+    setQaId(null);
     setStatus(null);
     setDate(null);
     setDueDate(null);
@@ -178,6 +184,10 @@ const FilterDialog = ({
 
   const getDropdownData = async () => {
     setClientDropdownData(await getClientDropdownData());
+    const QaData = await getApiFunction(
+      `${process.env.api_url}/user/GetQAUsersDropdown`
+    );
+    QaData.length > 0 && setQaDropdownData(QaData);
     setUserDropdownData(await getCCDropdownData());
     setWorktypeDropdownData(await getTypeOfWorkDropdownData(0));
     const department = await getDepartmentDropdownData();
@@ -258,6 +268,7 @@ const FilterDialog = ({
           IsShowAll: reviewer !== null ? reviewer.value : null,
           StatusId: status !== null ? status.value : null,
           ProcessId: processName !== null ? processName.value : null,
+          QAId: qaId !== null ? qaId.value : null,
           DateFilter: date !== null ? getFormattedDate(date) : null,
           dueDate: dueDate !== null ? getFormattedDate(dueDate) : null,
           startDate:
@@ -355,6 +366,7 @@ const FilterDialog = ({
       status !== null ||
       department != null ||
       processName !== null ||
+      qaId !== null ||
       date !== null ||
       dueDate !== null ||
       startDate !== null ||
@@ -377,6 +389,7 @@ const FilterDialog = ({
       status !== null ||
       department != null ||
       processName !== null ||
+      qaId !== null ||
       date !== null ||
       dueDate !== null ||
       startDate !== null ||
@@ -395,6 +408,7 @@ const FilterDialog = ({
     reviewer,
     department,
     processName,
+    qaId,
     status,
     date,
     dueDate,
@@ -423,6 +437,7 @@ const FilterDialog = ({
           IsShowAll,
           DepartmentId,
           ProcessId,
+          QAId,
           StatusId,
           dueDate,
           startDate,
@@ -438,6 +453,13 @@ const FilterDialog = ({
           ClientId !== null && ClientId > 0
             ? clientDropdownData.filter(
                 (item: LabelValue) => item.value === ClientId
+              )[0]
+            : null
+        );
+        setQaId(
+          QAId !== null && QAId > 0
+            ? qaDropdownData.filter(
+                (item: LabelValue) => item.value === QAId
               )[0]
             : null
         );
@@ -535,6 +557,7 @@ const FilterDialog = ({
       IsShowAll: reviewer !== null ? reviewer?.value : null,
       StatusId: status !== null ? status?.value : null,
       ProcessId: processName !== null ? processName?.value : null,
+      QAId: qaId !== null ? qaId?.value : null,
       DateFilter: date !== null ? getFormattedDate(date) : null,
       dueDate: dueDate !== null ? getFormattedDate(dueDate) : null,
       startDate:
@@ -583,6 +606,7 @@ const FilterDialog = ({
     reviewer,
     department,
     processName,
+    qaId,
     status,
     date,
     dueDate,
@@ -962,6 +986,28 @@ const FilterDialog = ({
                   />
                 </LocalizationProvider>
               </div>
+            </div>
+            <div className="flex gap-[20px]">
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+              >
+                <Autocomplete
+                  id="tags-standard"
+                  options={qaDropdownData}
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(
+                    e: React.ChangeEvent<{}>,
+                    data: LabelValue | null
+                  ) => {
+                    setQaId(data);
+                  }}
+                  value={qaId}
+                  renderInput={(params: any) => (
+                    <TextField {...params} variant="standard" label="QA" />
+                  )}
+                />
+              </FormControl>
             </div>
           </div>
         </DialogContent>
