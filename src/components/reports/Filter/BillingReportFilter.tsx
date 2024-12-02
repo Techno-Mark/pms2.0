@@ -28,6 +28,7 @@ import { Delete, Edit } from "@mui/icons-material";
 import { getFormattedDate } from "@/utils/timerFunctions";
 import { isWeekend } from "@/utils/commonFunction";
 import {
+  getApiFunction,
   getCCDropdownData,
   getClientDropdownData,
   getProjectDropdownData,
@@ -50,6 +51,7 @@ interface SavedFilter {
     endDate: string | null;
     startDateReview: string | null;
     endDateReview: string | null;
+    QAId: number | null;
   };
 }
 
@@ -70,9 +72,11 @@ const BillingReportFilter = ({
   const [endDate, setEndDate] = useState<string | number>("");
   const [startDateReview, setStartDateReview] = useState<string | number>("");
   const [endDateReview, setEndDateReview] = useState<string | number>("");
+  const [qaId, setQaId] = useState<LabelValue | null>(null);
 
   const [clientDropdown, setClientDropdown] = useState<LabelValue[]>([]);
   const [projectDropdown, setProjectDropdown] = useState<LabelValue[]>([]);
+  const [qaDropdown, setQaDropdown] = useState<LabelValue[]>([]);
   const [assigneeDropdown, setAssigneeDropdown] = useState<
     LabelValueProfileImage[]
   >([]);
@@ -115,6 +119,7 @@ const BillingReportFilter = ({
     setClientName([]);
     setClients([]);
     setProjectName(null);
+    setQaId(null);
     setAssignee(null);
     setReviewer(null);
     setNoOfPages("");
@@ -143,6 +148,7 @@ const BillingReportFilter = ({
     setClientName([]);
     setClients([]);
     setProjectName(null);
+    setQaId(null);
     setAssignee(null);
     setReviewer(null);
     setNoOfPages("");
@@ -159,6 +165,7 @@ const BillingReportFilter = ({
       ...billingreport_InitialFilter,
       clients: clientName.length > 0 ? clientName : [],
       projects: projectName !== null ? [projectName.value] : [],
+      QAId: qaId !== null ? qaId.value : null,
       assigneeId: assignee !== null ? assignee.value : null,
       reviewerId: reviewer !== null ? reviewer.value : null,
       numberOfPages: noOfPages.toString().trim().length > 0 ? noOfPages : null,
@@ -199,6 +206,7 @@ const BillingReportFilter = ({
           ...billingreport_InitialFilter,
           clients: savedFilters[index].AppliedFilter.clients,
           projects: savedFilters[index].AppliedFilter.projects,
+          QAId: savedFilters[index].AppliedFilter.QAId,
           assigneeId: savedFilters[index].AppliedFilter.assigneeId,
           reviewerId: savedFilters[index].AppliedFilter.reviewerId,
           numberOfPages: savedFilters[index].AppliedFilter.numberOfPages,
@@ -231,6 +239,7 @@ const BillingReportFilter = ({
       AppliedFilter: {
         clients: clientName,
         projects: projectName !== null ? [projectName.value] : [],
+        QAId: qaId !== null ? qaId.value : null,
         assigneeId: assignee !== null ? assignee.value : null,
         reviewerId: reviewer !== null ? reviewer.value : null,
         numberOfPages:
@@ -284,6 +293,7 @@ const BillingReportFilter = ({
     const isAnyFieldSelected =
       clientName.length > 0 ||
       projectName !== null ||
+      qaId !== null ||
       assignee !== null ||
       reviewer !== null ||
       noOfPages.toString().trim().length > 0 ||
@@ -298,6 +308,7 @@ const BillingReportFilter = ({
   }, [
     clientName,
     projectName,
+    qaId,
     assignee,
     reviewer,
     noOfPages,
@@ -314,6 +325,10 @@ const BillingReportFilter = ({
         { label: "Select All", value: ALL },
         ...(await getClientDropdownData()),
       ]);
+      const QaData = await getApiFunction(
+        `${process.env.api_url}/user/GetQAUsersDropdown`
+      );
+      QaData.length > 0 && setQaDropdown(QaData);
       setProjectDropdown(
         await getProjectDropdownData(
           clientName.length > 0 ? clientName[0] : 0,
@@ -374,7 +389,14 @@ const BillingReportFilter = ({
           )[0]
         : null
     );
-
+    setQaId(
+      savedFilters[index].AppliedFilter.QAId === null
+        ? null
+        : qaDropdown.filter(
+            (item: LabelValue) =>
+              item.value === savedFilters[index].AppliedFilter.QAId
+          )[0]
+    );
     setAssignee(
       savedFilters[index].AppliedFilter.assigneeId === null
         ? null
@@ -746,8 +768,26 @@ const BillingReportFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
+                  sx={{ mx: 0.75, minWidth: 210 }}
+                >
+                  <Autocomplete
+                    id="tags-standard"
+                    options={qaDropdown}
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(e, data: LabelValue | null) => {
+                      setQaId(data);
+                    }}
+                    value={qaId}
+                    renderInput={(params: any) => (
+                      <TextField {...params} variant="standard" label="QA" />
+                    )}
+                  />
+                </FormControl>
+                <FormControl
+                  variant="standard"
                   sx={{
                     mx: 0.75,
+                    mt: 1.5,
                     minWidth: 100,
                   }}
                 >

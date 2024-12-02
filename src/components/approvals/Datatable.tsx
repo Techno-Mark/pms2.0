@@ -86,6 +86,7 @@ const initialFilter = {
   StatusId: null,
   ProcessId: null,
   DateFilter: null,
+  QAId: null,
 };
 
 const Datatable = ({
@@ -123,9 +124,9 @@ const Datatable = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
-  const [isRunning, setRunning] = useState<number>(-1);
-  const [workitemTimeId, setWorkitemTimeId] = useState<number>(-1);
-  const [submissionId, setSubmissionId] = useState<number>(-1);
+  const [isRunning, setRunning] = useState<any>(-1);
+  const [workitemTimeId, setWorkitemTimeId] = useState<any>(-1);
+  const [submissionId, setSubmissionId] = useState<any>(-1);
   const [stopReviewTimer, setStopReviewTimer] = useState<boolean>(false);
   const [filteredObject, setFilteredOject] =
     useState<InitialFilterApprovals>(initialFilter);
@@ -426,10 +427,10 @@ const Datatable = ({
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setWorkitemTimeId((prev) =>
+        setWorkitemTimeId((prev: number) =>
           ResponseData !== prev ? ResponseData : -1
         );
-        setRunning((prev) => (workitemId !== prev ? workitemId : -1));
+        setRunning((prev: number) => (workitemId !== prev ? workitemId : -1));
         getReviewList();
         setIsLoadingApprovalsDatatable(false);
       } else {
@@ -641,6 +642,11 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "QAName",
+      label: "QA Name",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "ReviewerName",
       label: "Reviewer Name",
       bodyRenderer: generateCommonBodyRender,
@@ -682,7 +688,7 @@ const Datatable = ({
     },
     {
       name: "EstimateTime",
-      label: "Est. Hours",
+      label: "Est. Time",
       bodyRenderer: generateManualTimeBodyRender,
     },
     {
@@ -691,15 +697,18 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      name: "Est*Qty",
+      name: "StdTimeSec",
       label: "Std. Time",
-      bodyRenderer: (value: null, tableMeta: any) => {
-        return <span>{tableMeta.rowData.toString()}</span>;
-      },
+      bodyRenderer: generateManualTimeBodyRender,
     },
     {
       name: "PreparorTime",
       label: "Preparation Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "QATime",
+      label: "QA Time",
       bodyRenderer: generateCommonBodyRender,
     },
     {
@@ -733,8 +742,23 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "Role",
+      label: "Designation",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "QAQuantity",
+      label: "Qa Quantity",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "ManagerHours",
       label: "Preparer Edited Time",
+      bodyRenderer: generateManualTimeBodyRender,
+    },
+    {
+      name: "QAEditedTimeSec",
+      label: "QA Edited Time",
       bodyRenderer: generateManualTimeBodyRender,
     },
     {
@@ -744,7 +768,7 @@ const Datatable = ({
     },
     {
       name: "TotalEditedTimeSec",
-      label: "Total Time",
+      label: "Total Edited Time",
       bodyRenderer: generateManualTimeBodyRender,
     },
     {
@@ -826,6 +850,11 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "QAName",
+      label: "QA Name",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "ReviewerName",
       label: "Reviewer Name",
       bodyRenderer: generateCommonBodyRender,
@@ -846,7 +875,7 @@ const Datatable = ({
     },
     {
       name: "StatusName",
-      label: "Reviewer Status",
+      label: "QA/Reviewer Status",
       bodyRenderer: (value: string, tableMeta: any) =>
         generateStatusWithColor(value, tableMeta.rowData[10]),
     },
@@ -867,7 +896,7 @@ const Datatable = ({
     },
     {
       name: "EstimateTime",
-      label: "Est. Hours",
+      label: "Est. Time",
       bodyRenderer: generateManualTimeBodyRender,
     },
     {
@@ -876,15 +905,18 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      name: "Est*Qty",
+      name: "StdTimeSec",
       label: "Std. Time",
-      bodyRenderer: (value: null, tableMeta: any) => {
-        return <span>{tableMeta.rowData.toString()}</span>;
-      },
+      bodyRenderer: generateManualTimeBodyRender,
     },
     {
       name: "PreparorTime",
       label: "Preparation Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "QATime",
+      label: "QA Time",
       bodyRenderer: generateCommonBodyRender,
     },
     {
@@ -933,8 +965,18 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "QAQuantity",
+      label: "Qa Quantity",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "ManagerHours",
       label: "Preparer Edited Time",
+      bodyRenderer: generateManualTimeBodyRender,
+    },
+    {
+      name: "QAEditedTimeSec",
+      label: "QA Edited Time",
       bodyRenderer: generateManualTimeBodyRender,
     },
     {
@@ -944,7 +986,7 @@ const Datatable = ({
     },
     {
       name: "TotalEditedTimeSec",
-      label: "Total Time",
+      label: "Total Edited Time",
       bodyRenderer: generateManualTimeBodyRender,
     },
     {
@@ -1003,12 +1045,11 @@ const Datatable = ({
             const timerValue =
               value === 0 ? "00:00:00" : toHoursAndMinutes(value);
 
-            return (
+              return (
               <div className="w-44 h-7 flex items-center">
                 <ColorToolTip
                   title={`Estimated Time: ${toHoursAndMinutes(
-                    tableMeta.rowData[activeTab === 1 ? 15 : 14] *
-                      tableMeta.rowData[activeTab === 1 ? 16 : 15]
+                    tableMeta.rowData[activeTab === 1 ? 18 : 17]
                   )}`}
                   placement="top"
                   arrow
@@ -1037,6 +1078,8 @@ const Datatable = ({
                     reviewList[tableMeta.rowIndex].StatusType ===
                       "SecondManagerReview" ||
                     reviewList[tableMeta.rowIndex].StatusType === "Submitted" ||
+                    reviewList[tableMeta.rowIndex].StatusType ===
+                      "QASubmitted" ||
                     reviewList[tableMeta.rowIndex].StatusType ===
                       "ReworkSubmitted") &&
                   (reviewList[tableMeta.rowIndex].StatusType ===
@@ -1142,6 +1185,7 @@ const Datatable = ({
                   reviewList[tableMeta.rowIndex].StatusType ===
                     "SecondManagerReview" ||
                   reviewList[tableMeta.rowIndex].StatusType === "Submitted" ||
+                  reviewList[tableMeta.rowIndex].StatusType === "QASubmitted" ||
                   reviewList[tableMeta.rowIndex].StatusType ===
                     "ReworkSubmitted") &&
                   reviewList[tableMeta.rowIndex].ReviewerId ==
@@ -1255,10 +1299,12 @@ const Datatable = ({
           sort: true,
           viewColumns: false,
           customHeadLabelRender: () =>
-            generateCustomHeaderName("Reviewer Status"),
+            generateCustomHeaderName(
+              activeTab == 1 ? "Reviewer Status" : "QA/Reviewer Status"
+            ),
           customBodyRender: (value: string, tableMeta: any) => {
             const statusColorCode =
-              tableMeta.rowData[activeTab === 1 ? 11 : 10];
+              tableMeta.rowData[activeTab === 1 ? 12 : 11];
 
             return (
               <div>
@@ -1288,7 +1334,7 @@ const Datatable = ({
           customHeadLabelRender: () => generateCustomHeaderName("Task Status"),
           customBodyRender: (value: string, tableMeta: any) => {
             const statusColorCode =
-              tableMeta.rowData[activeTab === 1 ? 13 : 12];
+              tableMeta.rowData[activeTab === 1 ? 14 : 13];
 
             return (
               <div>

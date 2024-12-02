@@ -6,6 +6,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { Autocomplete, FormControl, TextField } from "@mui/material";
 import {
+  getApiFunction,
   getCCDropdownData,
   getClientDropdownData,
   getDepartmentDropdownData,
@@ -52,6 +53,7 @@ const initialFilter = {
   DateFilter: null,
   startDateReview: null,
   endDateReview: null,
+  QAId: null,
 };
 
 const FilterDialogApproval = ({
@@ -67,6 +69,7 @@ const FilterDialogApproval = ({
   const [status, setStatus] = useState<LabelValueType | null>(null);
   const [department, setDepartment] = useState<LabelValueType | null>(null);
   const [processName, setProcessName] = useState<LabelValue | null>(null);
+  const [qaId, setQaId] = useState<LabelValue | null>(null);
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [worktypeDropdownData, setWorktypeDropdownData] = useState([]);
   const [departmentDropdownData, setDepartmentDropdownData] = useState([]);
@@ -74,6 +77,7 @@ const FilterDialogApproval = ({
   const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [statusDropdownData, setStatusDropdownData] = useState([]);
   const [processDropdownData, setProcessDropdownData] = useState([]);
+  const [qaDropdownData, setQaDropdownData] = useState([]);
   const [date, setDate] = useState<null | string>(null);
   const [dueDate, setDueDate] = useState<null | string>(null);
   const [startDate, setStartDate] = useState<null | string>(null);
@@ -101,6 +105,7 @@ const FilterDialogApproval = ({
     setProjectName(null);
     setDepartment(null);
     setProcessName(null);
+    setQaId(null);
     setStatus(null);
     setDate(null);
     setDueDate(null);
@@ -118,6 +123,10 @@ const FilterDialogApproval = ({
 
   const getDropdownData = async () => {
     setClientDropdownData(await getClientDropdownData());
+    const QaData = await getApiFunction(
+      `${process.env.api_url}/user/GetQAUsersDropdown`
+    );
+    QaData.length > 0 && setQaDropdownData(QaData);
     setUserData(await getCCDropdownData());
     setWorktypeDropdownData(await getTypeOfWorkDropdownData(0));
     const department = await getDepartmentDropdownData();
@@ -205,6 +214,7 @@ const FilterDialogApproval = ({
       status !== null ||
       department != null ||
       processName !== null ||
+      qaId !== null ||
       date !== null ||
       dueDate !== null ||
       startDate !== null ||
@@ -221,6 +231,7 @@ const FilterDialogApproval = ({
     reviewer,
     department,
     processName,
+    qaId,
     status,
     date,
     dueDate,
@@ -240,6 +251,7 @@ const FilterDialogApproval = ({
       IsShowAll: reviewer !== null ? reviewer.value : null,
       StatusId: status !== null ? status.value : null,
       ProcessId: processName !== null ? processName.value : null,
+      QAId: qaId !== null ? qaId.value : null,
       DateFilter: date !== null ? getFormattedDate(date) : null,
       dueDate: dueDate !== null ? getFormattedDate(dueDate) : null,
       startDate:
@@ -276,6 +288,7 @@ const FilterDialogApproval = ({
     reviewer,
     department,
     processName,
+    qaId,
     status,
     date,
     dueDate,
@@ -487,7 +500,6 @@ const FilterDialogApproval = ({
                   )}
                 />
               </FormControl>
-
               <div
                 className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
               >
@@ -508,6 +520,26 @@ const FilterDialogApproval = ({
                   />
                 </LocalizationProvider>
               </div>
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+              >
+                <Autocomplete
+                  id="tags-standard"
+                  options={qaDropdownData}
+                  getOptionLabel={(option: LabelValue) => option.label}
+                  onChange={(
+                    e: React.ChangeEvent<{}>,
+                    data: LabelValue | null
+                  ) => {
+                    setQaId(data);
+                  }}
+                  value={qaId}
+                  renderInput={(params: any) => (
+                    <TextField {...params} variant="standard" label="QA" />
+                  )}
+                />
+              </FormControl>
             </div>
           </div>
         </DialogContent>

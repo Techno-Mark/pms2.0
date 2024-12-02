@@ -19,6 +19,9 @@ import { Close } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { DrawerProps } from "@/utils/Types/settingTypes";
+import NatureOfErrorContent, {
+  NatureOfErrorContentRef,
+} from "./content/NatureOfErrorContent";
 
 const Drawer = ({
   onOpen,
@@ -33,6 +36,7 @@ const Drawer = ({
   const childRef = useRef<UserContentRef>(null);
   const childRefOrg = useRef<OrganizationContentRef>(null);
   const childRefGroup = useRef<GroupContentRef>(null);
+  const childRefNatureOfError = useRef<NatureOfErrorContentRef>(null);
   const projectRef = useRef<ProjectContentRef>(null);
   const clientRef = useRef<ClientContentRef>(null);
   const childRefStatus = useRef<StatusContenRef>(null);
@@ -76,6 +80,9 @@ const Drawer = ({
     }
     if (childRefProcess.current) {
       childRefProcess.current.ProcessDataValue();
+    }
+    if (childRefNatureOfError.current) {
+      childRefNatureOfError.current.NatureOfErrorDataValue();
     }
   };
 
@@ -203,7 +210,12 @@ const Drawer = ({
       >
         <div className="flex p-[20px] justify-between items-center bg-whiteSmoke border-b border-lightSilver">
           <span className="text-pureBlack text-lg font-medium">
-            {onEdit ? "Edit" : "Create"} {tab === "Permission" ? "Role" : tab}
+            {onEdit ? "Edit" : "Create"}{" "}
+            {tab === "Permission"
+              ? "Role"
+              : tab === "NatureOfError"
+              ? "Nature of Error"
+              : tab}
           </span>
           <Tooltip title="Close" placement="left" arrow>
             <IconButton onClick={handleClose}>
@@ -285,6 +297,16 @@ const Drawer = ({
             onEdit={onEdit}
             onClose={onClose}
             ref={childRefGroup}
+            onDataFetch={onDataFetch}
+            onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
+          />
+        )}
+        {tab === "NatureOfError" && (
+          <NatureOfErrorContent
+            onOpen={onOpen}
+            onEdit={onEdit}
+            onClose={onClose}
+            ref={childRefNatureOfError}
             onDataFetch={onDataFetch}
             onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
           />

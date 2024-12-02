@@ -56,6 +56,8 @@ import WrapperNavbar from "@/components/common/WrapperNavbar";
 import { Delete, Edit } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+import Chart_Errorlog from "@/components/admin-dashboard/charts/Chart_Errorlog";
+import Dialog_Errorlog from "@/components/admin-dashboard/dialog/Dialog_Errorlog";
 
 interface ClientSummaryStatus {
   ClientName: string;
@@ -761,6 +763,19 @@ const Page = () => {
               />
             </Card>
           </section>
+
+          {/* Errorlog Chart */}
+          <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
+            <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
+              <Chart_Errorlog
+                sendData={handleValueFromProjectStatus}
+                onSelectedProjectIds={[]}
+                currentFilterData={currentFilterData}
+              />
+            </Card>
+            <Card className="w-full">
+            </Card>
+          </section>
         </div>
       )}
 
@@ -801,6 +816,17 @@ const Page = () => {
           onClose={() => setIsProjectStatusDialogOpen(false)}
           currentFilterData={currentFilterData}
           onSelectedProjectStatus={clickedProjectStatusName}
+          onSelectedProjectIds={[]}
+        />
+      )}
+
+      {/* Errorlog Dialog & Datatable */}
+      {activeTab === 1 && (
+        <Dialog_Errorlog
+          onOpen={isProjectStatusDialogOpen}
+          onClose={() => setIsProjectStatusDialogOpen(false)}
+          currentFilterData={currentFilterData}
+          onSelectedErrorlog={clickedProjectStatusName}
           onSelectedProjectIds={[]}
         />
       )}
