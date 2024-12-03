@@ -208,7 +208,7 @@ const Drawer = ({
       >
         <div className="flex p-[20px] justify-between items-center bg-whiteSmoke border-b border-lightSilver">
           <span className="text-pureBlack text-lg font-medium">
-            {onEdit ? "Edit" : "Create"} {tab === "Permission" ? "Role" : tab}
+            {onEdit ? "Edit" : "Create"} {tab === "Permission" ? "Role" : tab === "NatureOfError" ? "Nature of Error" : tab}
           </span>
           <Tooltip title="Close" placement="left" arrow>
             <IconButton onClick={handleClose}>
