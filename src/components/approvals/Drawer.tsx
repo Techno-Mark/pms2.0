@@ -2614,6 +2614,15 @@ const EditDrawer = ({
           )
         );
       }
+
+      if (getTypeAllTask === "SignedOff") {
+        setStatusApprovalsDropdownDataUseAllTask(
+          statusData.filter(
+            (item: { Type: string; label: string; value: number }) =>
+              item.Type === "SignedOff"
+          )
+        );
+      }
     };
 
     onOpen &&
@@ -3153,8 +3162,11 @@ const EditDrawer = ({
                         disabled={
                           (isCreatedByClient && editData.ClientId > 0) ||
                           (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
-                              editData.ReviewerId)
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3190,8 +3202,11 @@ const EditDrawer = ({
                         disabled={
                           (isCreatedByClient && editData.WorkTypeId > 0) ||
                           (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
-                              editData.ReviewerId)
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                       >
                         <InputLabel id="demo-simple-select-standard-label">
@@ -3263,8 +3278,11 @@ const EditDrawer = ({
                         disabled={
                           (isCreatedByClient && editData.ProjectId > 0) ||
                           (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
-                              editData.ReviewerId)
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setProjectNameApprovals(value.value);
@@ -3320,8 +3338,11 @@ const EditDrawer = ({
                         disabled={
                           (isCreatedByClient && editData.ProjectId > 0) ||
                           (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
-                              editData.ReviewerId)
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3364,8 +3385,11 @@ const EditDrawer = ({
                           (isCreatedByClient && editData.ProjectId > 0) ||
                           isAdmin === false ||
                           (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
-                              editData.ReviewerId)
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                         onChange={(e, value: LabelValueType | null) => {
                           value && setDepartmentApprovals(value.value);
@@ -3419,8 +3443,11 @@ const EditDrawer = ({
                         disabled={
                           (isCreatedByClient && editData.ProcessId > 0) ||
                           (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
-                              editData.ReviewerId)
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setProcessNameApprovals(value.value);
@@ -3465,8 +3492,11 @@ const EditDrawer = ({
                         disabled={
                           (isCreatedByClient && editData.SubProcessId > 0) ||
                           (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
-                              editData.ReviewerId)
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setSubProcessApprovals(value.value);
@@ -3508,8 +3538,11 @@ const EditDrawer = ({
                         disabled={
                           (isCreatedByClient && editData.SubProcessId > 0) ||
                           (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
-                              editData.ReviewerId)
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                         fullWidth
                         className="pt-1"
@@ -3598,8 +3631,11 @@ const EditDrawer = ({
                         disabled={
                           (isCreatedByClient && editData.SubProcessId > 0) ||
                           (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
-                              editData.ReviewerId)
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                       />
                     </Grid>
@@ -3610,8 +3646,11 @@ const EditDrawer = ({
                         disabled={
                           (isCreatedByClient && editData.SubProcessId > 0) ||
                           (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
-                              editData.ReviewerId)
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                       >
                         <InputLabel id="demo-simple-select-standard-label">
@@ -3721,8 +3760,11 @@ const EditDrawer = ({
                         disabled={
                           (isCreatedByClient && editData.SubProcessId > 0) ||
                           (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
-                              editData.ReviewerId)
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                       />
                     </Grid>
@@ -3797,8 +3839,12 @@ const EditDrawer = ({
                               (isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
                               (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) ==
+                                  3 &&
                                 localStorage.getItem("UserId") !=
-                                  editData.ReviewerId)
+                                  editData.ReviewerId) ||
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) != 3)
                             }
                             maxDate={dayjs(Date.now())}
                             onChange={(newDate: any) => {
@@ -3858,8 +3904,12 @@ const EditDrawer = ({
                               (isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
                               (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) ==
+                                  3 &&
                                 localStorage.getItem("UserId") !=
-                                  editData.ReviewerId)
+                                  editData.ReviewerId) ||
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) != 3)
                             }
                             onChange={(newDate: any) => {
                               setDueDateApprovals(newDate.$d);
@@ -3887,8 +3937,13 @@ const EditDrawer = ({
                                 (isCreatedByClient &&
                                   editData.SubProcessId > 0) ||
                                 (activeTab === 2 &&
+                                  Number(localStorage.getItem("workTypeId")) ==
+                                    3 &&
                                   localStorage.getItem("UserId") !=
-                                    editData.ReviewerId)
+                                    editData.ReviewerId) ||
+                                (activeTab === 2 &&
+                                  Number(localStorage.getItem("workTypeId")) !=
+                                    3)
                               }
                               value={
                                 allInfoDateApprovals === ""
@@ -3926,8 +3981,11 @@ const EditDrawer = ({
                           !assigneeDisableApprovals ||
                           (isCreatedByClient && editData.SubProcessId > 0) ||
                           (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
-                              editData.ReviewerId)
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                         value={
                           assigneeApprovalsDropdownData.find(
@@ -4016,8 +4074,12 @@ const EditDrawer = ({
                               (isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
                               (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) ==
+                                  3 &&
                                 localStorage.getItem("UserId") !=
-                                  editData.ReviewerId)
+                                  editData.ReviewerId) ||
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) != 3)
                             }
                           />
                         )}
@@ -4072,8 +4134,12 @@ const EditDrawer = ({
                               (isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
                               (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) ==
+                                  3 &&
                                 localStorage.getItem("UserId") !=
-                                  editData.ReviewerId)
+                                  editData.ReviewerId) ||
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) != 3)
                             }
                           />
                         )}
@@ -4094,8 +4160,12 @@ const EditDrawer = ({
                           disabled={
                             (isCreatedByClient && editData.SubProcessId > 0) ||
                             (activeTab === 2 &&
+                              Number(localStorage.getItem("workTypeId")) == 3 &&
                               localStorage.getItem("UserId") !=
                                 editData.ReviewerId) ||
+                            (activeTab === 2 &&
+                              Number(localStorage.getItem("workTypeId")) !=
+                                3) ||
                             !!editData.QAId
                           }
                           value={
@@ -4153,8 +4223,13 @@ const EditDrawer = ({
                                 (isCreatedByClient &&
                                   editData.SubProcessId > 0) ||
                                 (activeTab === 2 &&
+                                  Number(localStorage.getItem("workTypeId")) ==
+                                    3 &&
                                   localStorage.getItem("UserId") !=
-                                    editData.ReviewerId)
+                                    editData.ReviewerId) ||
+                                (activeTab === 2 &&
+                                  Number(localStorage.getItem("workTypeId")) !=
+                                    3)
                               }
                             />
                           </LocalizationProvider>
@@ -4193,8 +4268,13 @@ const EditDrawer = ({
                                 (isCreatedByClient &&
                                   editData.SubProcessId > 0) ||
                                 (activeTab === 2 &&
+                                  Number(localStorage.getItem("workTypeId")) ==
+                                    3 &&
                                   localStorage.getItem("UserId") !=
-                                    editData.ReviewerId)
+                                    editData.ReviewerId) ||
+                                (activeTab === 2 &&
+                                  Number(localStorage.getItem("workTypeId")) !=
+                                    3)
                               }
                             />
                           </LocalizationProvider>
@@ -4212,8 +4292,12 @@ const EditDrawer = ({
                               (isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
                               (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) ==
+                                  3 &&
                                 localStorage.getItem("UserId") !=
-                                  editData.ReviewerId)
+                                  editData.ReviewerId) ||
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) != 3)
                             }
                           >
                             <InputLabel id="demo-simple-select-standard-label">
@@ -4276,8 +4360,12 @@ const EditDrawer = ({
                               (isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
                               (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) ==
+                                  3 &&
                                 localStorage.getItem("UserId") !=
-                                  editData.ReviewerId)
+                                  editData.ReviewerId) ||
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) != 3)
                             }
                             margin="normal"
                             variant="standard"
@@ -4293,8 +4381,12 @@ const EditDrawer = ({
                               (isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
                               (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) ==
+                                  3 &&
                                 localStorage.getItem("UserId") !=
-                                  editData.ReviewerId)
+                                  editData.ReviewerId) ||
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) != 3)
                             }
                           >
                             <InputLabel id="demo-simple-select-standard-label">
@@ -4427,8 +4519,15 @@ const EditDrawer = ({
                                     (isCreatedByClient &&
                                       editData.SubProcessId > 0) ||
                                     (activeTab === 2 &&
+                                      Number(
+                                        localStorage.getItem("workTypeId")
+                                      ) == 3 &&
                                       localStorage.getItem("UserId") !=
-                                        editData.ReviewerId)
+                                        editData.ReviewerId) ||
+                                    (activeTab === 2 &&
+                                      Number(
+                                        localStorage.getItem("workTypeId")
+                                      ) != 3)
                                   }
                                   value={
                                     reworkReceiverDateWorklogs === ""
@@ -4490,8 +4589,15 @@ const EditDrawer = ({
                                     (isCreatedByClient &&
                                       editData.SubProcessId > 0) ||
                                     (activeTab === 2 &&
+                                      Number(
+                                        localStorage.getItem("workTypeId")
+                                      ) == 3 &&
                                       localStorage.getItem("UserId") !=
-                                        editData.ReviewerId)
+                                        editData.ReviewerId) ||
+                                    (activeTab === 2 &&
+                                      Number(
+                                        localStorage.getItem("workTypeId")
+                                      ) != 3)
                                   }
                                   minDate={dayjs(reworkReceiverDateWorklogs)}
                                   shouldDisableDate={isWeekend}
@@ -7225,6 +7331,7 @@ const EditDrawer = ({
                 </Button>
                 {(activeTab === 1 ||
                   (activeTab === 2 &&
+                    Number(localStorage.getItem("workTypeId")) == 3 &&
                     localStorage.getItem("UserId") == editData.ReviewerId)) && (
                   <Button
                     type="submit"

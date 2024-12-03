@@ -75,7 +75,11 @@ const initialFilter = {
   ClientId: null,
   TypeOfWork: null,
   DepartmentId: null,
-  IsShowAll: 1,
+  IsShowAll:
+    typeof window !== "undefined" &&
+    Number(localStorage.getItem("workTypeId")) == 3
+      ? 0
+      : 1,
   projectId: null,
   ProjectId: null,
   startDate: null,
@@ -1045,7 +1049,7 @@ const Datatable = ({
             const timerValue =
               value === 0 ? "00:00:00" : toHoursAndMinutes(value);
 
-              return (
+            return (
               <div className="w-44 h-7 flex items-center">
                 <ColorToolTip
                   title={`Estimated Time: ${toHoursAndMinutes(
