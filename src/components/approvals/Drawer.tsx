@@ -2578,8 +2578,7 @@ const EditDrawer = ({
       }
 
       if (
-        (getTypeAllTask === "InProgress" ||
-          getTypeAllTask === "OnHoldFromClient" ||
+        (getTypeAllTask === "OnHoldFromClient" ||
           getTypeAllTask === "WithDraw" ||
           getTypeAllTask === "WithdrawnbyClient") &&
         !errorlogSignedOffPendingApprovals
@@ -2597,8 +2596,7 @@ const EditDrawer = ({
       }
 
       if (
-        (getTypeAllTask === "ReworkInProgress" ||
-          getTypeAllTask === "OnHoldFromClient" ||
+        (getTypeAllTask === "OnHoldFromClient" ||
           getTypeAllTask === "WithDraw" ||
           getTypeAllTask === "WithdrawnbyClient") &&
         errorlogSignedOffPendingApprovals
