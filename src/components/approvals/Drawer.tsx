@@ -3158,7 +3158,9 @@ const EditDrawer = ({
                           setValueMonthYearTo(null);
                         }}
                         disabled={
-                          (isCreatedByClient && editData.ClientId > 0) ||
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.ClientId > 0) ||
                           (activeTab === 2 &&
                             Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
@@ -3198,7 +3200,9 @@ const EditDrawer = ({
                         sx={{ mx: 0.75, width: 300, mt: -0.3 }}
                         error={typeOfWorkApprovalsErr}
                         disabled={
-                          (isCreatedByClient && editData.WorkTypeId > 0) ||
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.WorkTypeId > 0) ||
                           (activeTab === 2 &&
                             Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
@@ -3274,7 +3278,9 @@ const EditDrawer = ({
                           ) || null
                         }
                         disabled={
-                          (isCreatedByClient && editData.ProjectId > 0) ||
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.ProjectId > 0) ||
                           (activeTab === 2 &&
                             Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
@@ -3334,7 +3340,9 @@ const EditDrawer = ({
                           value && setStatusApprovals(value.value);
                         }}
                         disabled={
-                          (isCreatedByClient && editData.ProjectId > 0) ||
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.ProjectId > 0) ||
                           (activeTab === 2 &&
                             Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
@@ -3380,7 +3388,9 @@ const EditDrawer = ({
                           ) || null
                         }
                         disabled={
-                          (isCreatedByClient && editData.ProjectId > 0) ||
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.ProjectId > 0) ||
                           isAdmin === false ||
                           (activeTab === 2 &&
                             Number(localStorage.getItem("workTypeId")) == 3 &&
@@ -3439,7 +3449,9 @@ const EditDrawer = ({
                           ) || null
                         }
                         disabled={
-                          (isCreatedByClient && editData.ProcessId > 0) ||
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.ProcessId > 0) ||
                           (activeTab === 2 &&
                             Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
@@ -3488,7 +3500,9 @@ const EditDrawer = ({
                           ) || null
                         }
                         disabled={
-                          (isCreatedByClient && editData.SubProcessId > 0) ||
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.SubProcessId > 0) ||
                           (activeTab === 2 &&
                             Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
@@ -3534,7 +3548,9 @@ const EditDrawer = ({
                           </span>
                         }
                         disabled={
-                          (isCreatedByClient && editData.SubProcessId > 0) ||
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.SubProcessId > 0) ||
                           (activeTab === 2 &&
                             Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
@@ -3627,7 +3643,9 @@ const EditDrawer = ({
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -1.5 }}
                         disabled={
-                          (isCreatedByClient && editData.SubProcessId > 0) ||
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.SubProcessId > 0) ||
                           (activeTab === 2 &&
                             Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
@@ -3642,7 +3660,9 @@ const EditDrawer = ({
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -1.2 }}
                         disabled={
-                          (isCreatedByClient && editData.SubProcessId > 0) ||
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.SubProcessId > 0) ||
                           (activeTab === 2 &&
                             Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
@@ -3756,7 +3776,9 @@ const EditDrawer = ({
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -0.8 }}
                         disabled={
-                          (isCreatedByClient && editData.SubProcessId > 0) ||
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.SubProcessId > 0) ||
                           (activeTab === 2 &&
                             Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
@@ -3834,7 +3856,8 @@ const EditDrawer = ({
                             }
                             // shouldDisableDate={isWeekend}
                             disabled={
-                              (isCreatedByClient &&
+                              (activeTab !== 2 &&
+                                isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
                               (activeTab === 2 &&
                                 Number(localStorage.getItem("workTypeId")) ==
@@ -3899,7 +3922,8 @@ const EditDrawer = ({
                             }
                             // shouldDisableDate={isWeekend}
                             disabled={
-                              (isCreatedByClient &&
+                              (activeTab !== 2 &&
+                                isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
                               (activeTab === 2 &&
                                 Number(localStorage.getItem("workTypeId")) ==
@@ -3932,7 +3956,8 @@ const EditDrawer = ({
                               label="All Info Date"
                               // shouldDisableDate={isWeekend}
                               disabled={
-                                (isCreatedByClient &&
+                                (activeTab !== 2 &&
+                                  isCreatedByClient &&
                                   editData.SubProcessId > 0) ||
                                 (activeTab === 2 &&
                                   Number(localStorage.getItem("workTypeId")) ==
@@ -3977,7 +4002,9 @@ const EditDrawer = ({
                         options={assigneeApprovalsDropdownData}
                         disabled={
                           !assigneeDisableApprovals ||
-                          (isCreatedByClient && editData.SubProcessId > 0) ||
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.SubProcessId > 0) ||
                           (activeTab === 2 &&
                             Number(localStorage.getItem("workTypeId")) == 3 &&
                             localStorage.getItem("UserId") !=
@@ -4069,7 +4096,8 @@ const EditDrawer = ({
                                 : ""
                             }
                             disabled={
-                              (isCreatedByClient &&
+                              (activeTab !== 2 &&
+                                isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
                               (activeTab === 2 &&
                                 Number(localStorage.getItem("workTypeId")) ==
@@ -4129,7 +4157,8 @@ const EditDrawer = ({
                                 : ""
                             }
                             disabled={
-                              (isCreatedByClient &&
+                              (activeTab !== 2 &&
+                                isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
                               (activeTab === 2 &&
                                 Number(localStorage.getItem("workTypeId")) ==
@@ -4156,7 +4185,9 @@ const EditDrawer = ({
                           id="combo-box-demo"
                           options={isQaApprovalsDropdownData}
                           disabled={
-                            (isCreatedByClient && editData.SubProcessId > 0) ||
+                            (activeTab !== 2 &&
+                              isCreatedByClient &&
+                              editData.SubProcessId > 0) ||
                             (activeTab === 2 &&
                               Number(localStorage.getItem("workTypeId")) == 3 &&
                               localStorage.getItem("UserId") !=
@@ -4218,7 +4249,8 @@ const EditDrawer = ({
                                 setValueMonthYearFrom(newDate.$d)
                               }
                               disabled={
-                                (isCreatedByClient &&
+                                (activeTab !== 2 &&
+                                  isCreatedByClient &&
                                   editData.SubProcessId > 0) ||
                                 (activeTab === 2 &&
                                   Number(localStorage.getItem("workTypeId")) ==
@@ -4263,7 +4295,8 @@ const EditDrawer = ({
                                 setValueMonthYearTo(newDate.$d)
                               }
                               disabled={
-                                (isCreatedByClient &&
+                                (activeTab !== 2 &&
+                                  isCreatedByClient &&
                                   editData.SubProcessId > 0) ||
                                 (activeTab === 2 &&
                                   Number(localStorage.getItem("workTypeId")) ==
@@ -4299,7 +4332,8 @@ const EditDrawer = ({
                             sx={{ width: 300, mt: -0.3, mx: 0.75 }}
                             error={returnYearApprovalsErr}
                             disabled={
-                              (isCreatedByClient &&
+                              (activeTab !== 2 &&
+                                isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
                               (activeTab === 2 &&
                                 Number(localStorage.getItem("workTypeId")) ==
@@ -4380,7 +4414,8 @@ const EditDrawer = ({
                               )
                             }
                             disabled={
-                              (isCreatedByClient &&
+                              (activeTab !== 2 &&
+                                isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
                               (activeTab === 2 &&
                                 Number(localStorage.getItem("workTypeId")) ==
@@ -4401,7 +4436,8 @@ const EditDrawer = ({
                             sx={{ width: 300, mt: -0.8, mx: 0.75 }}
                             error={checklistWorkpaperApprovalsErr}
                             disabled={
-                              (isCreatedByClient &&
+                              (activeTab !== 2 &&
+                                isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
                               (activeTab === 2 &&
                                 Number(localStorage.getItem("workTypeId")) ==
@@ -4539,7 +4575,8 @@ const EditDrawer = ({
                                     </span>
                                   }
                                   disabled={
-                                    (isCreatedByClient &&
+                                    (activeTab !== 2 &&
+                                      isCreatedByClient &&
                                       editData.SubProcessId > 0) ||
                                     (activeTab === 2 &&
                                       Number(
@@ -4609,7 +4646,8 @@ const EditDrawer = ({
                                       : dayjs(reworkDueDateWorklogs)
                                   }
                                   disabled={
-                                    (isCreatedByClient &&
+                                    (activeTab !== 2 &&
+                                      isCreatedByClient &&
                                       editData.SubProcessId > 0) ||
                                     (activeTab === 2 &&
                                       Number(
