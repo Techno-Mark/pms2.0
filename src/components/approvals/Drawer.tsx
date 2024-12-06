@@ -4197,7 +4197,7 @@ const EditDrawer = ({
                         item
                         xs={3}
                         className={`${
-                          typeOfWorkApprovals === 3 ? "pt-2" : "pt-5"
+                          typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
                         }`}
                       >
                         <div
@@ -4281,7 +4281,19 @@ const EditDrawer = ({
                     )}
                     {typeOfWorkApprovals === 3 && (
                       <>
-                        <Grid item xs={3} className="pt-2">
+                        <Grid
+                          item
+                          xs={3}
+                          className={`${
+                            departmentApprovalsType ===
+                              "WhitelabelAccounting" ||
+                            departmentApprovalsType === "WhitelabelAustralia" ||
+                            departmentApprovalsType === "UK" ||
+                            departmentApprovalsType === "Germany"
+                              ? "pt-4"
+                              : "pt-2"
+                          }`}
+                        >
                           <FormControl
                             variant="standard"
                             sx={{ width: 300, mt: -0.3, mx: 0.75 }}
@@ -4334,7 +4346,20 @@ const EditDrawer = ({
                             )}
                           </FormControl>
                         </Grid>
-                        <Grid item xs={3} className="pt-2">
+                        <Grid
+                          item
+                          xs={3}
+                          className={`${
+                            departmentApprovalsType ===
+                              "WhitelabelAccounting" ||
+                            departmentApprovalsType === "WhitelabelAustralia" ||
+                            departmentApprovalsType === "UK" ||
+                            departmentApprovalsType === "Germany" ||
+                            departmentApprovalsType === "SMB"
+                              ? "pt-4"
+                              : "pt-2"
+                          }`}
+                        >
                           <TextField
                             label="No of Pages"
                             type="number"

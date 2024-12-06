@@ -63,6 +63,9 @@ interface Response {
         ReviewerStatusId: number | null;
         ReviewerStatusName: string | null;
         ReviewerStatusColorCode: string | null;
+        PrevReviewerAutoTimeTracked: string | null;
+        PrevReviewerManualTimeTracked: string | null;
+        PrevReviewerTimeTracked: string | null;
         QATotalTime: string | null;
         QAAutoTime: string | null;
         QAManualTime: string | null;

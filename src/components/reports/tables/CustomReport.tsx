@@ -76,6 +76,7 @@ interface List {
   AssigneeName: string;
   ReviewerId: number;
   ReviewerName: string;
+  PrevReviewerName: string | null;
   TaxReturnType: any;
   TypeOfReturnId: any;
   TypeOfReturnName: any;
@@ -98,6 +99,9 @@ interface List {
   ReviewerAutoTimeTracked: string;
   ReviewerManualTimeTracked: string;
   ReviewerTimeTracked: string;
+  PrevReviewerAutoTimeTracked: string | null;
+  PrevReviewerManualTimeTracked: string | null;
+  PrevReviewerTimeTracked: string | null;
   BTC: any;
   IsBTC: string;
   TotalTime: string;
@@ -591,6 +595,17 @@ const CustomReport = ({
       },
     },
     {
+      name: "PrevReviewerName",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Prev. Reviewer"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
       name: "AssignedBy",
       options: {
         filter: true,
@@ -959,6 +974,42 @@ const CustomReport = ({
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Reviewer Time Tracked"),
+        customBodyRender: (value: string | null) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "PrevReviewerAutoTimeTracked",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Prev. Reviewer Auto Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "PrevReviewerManualTimeTracked",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Prev. Reviewer Manual Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "PrevReviewerTimeTracked",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Prev. Reviewer Time Tracked"),
         customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },

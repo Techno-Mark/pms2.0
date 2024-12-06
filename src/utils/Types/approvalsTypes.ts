@@ -75,6 +75,8 @@ export interface List {
   QAEditedTimeSec: number | null;
   QAEditedTime: string;
   QAQuantity: number | null;
+  PrevReviewerTime: string | null;
+  PrevReviewerName: string | null;
 }
 
 export interface InitialFilterApprovals {

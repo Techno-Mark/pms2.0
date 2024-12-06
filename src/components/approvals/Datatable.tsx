@@ -656,6 +656,11 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "PrevReviewerName",
+      label: "Prev. Reviewer Name",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "PriorityName",
       label: "Priority",
       bodyRenderer: generatePriorityWithColor,
@@ -673,7 +678,7 @@ const Datatable = ({
       name: "StatusName",
       label: "Reviewer Status",
       bodyRenderer: (value: string, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[11]),
+        generateStatusWithColor(value, tableMeta.rowData[12]),
     },
     {
       name: "TaskColorCode",
@@ -688,7 +693,7 @@ const Datatable = ({
       name: "TaskStatusName",
       label: "Task Status",
       bodyRenderer: (value: string, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[13]),
+        generateStatusWithColor(value, tableMeta.rowData[14]),
     },
     {
       name: "EstimateTime",
@@ -718,6 +723,11 @@ const Datatable = ({
     {
       name: "ReviewerTime",
       label: "Reviewer Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "PrevReviewerTime",
+      label: "Prev. Reviewer Time",
       bodyRenderer: generateCommonBodyRender,
     },
     {
@@ -864,6 +874,11 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "PrevReviewerName",
+      label: "Prev. Reviewer Name",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "PriorityName",
       label: "Priority",
       bodyRenderer: generatePriorityWithColor,
@@ -881,7 +896,7 @@ const Datatable = ({
       name: "StatusName",
       label: "QA/Reviewer Status",
       bodyRenderer: (value: string, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[10]),
+        generateStatusWithColor(value, tableMeta.rowData[11]),
     },
     {
       name: "TaskColorCode",
@@ -896,7 +911,7 @@ const Datatable = ({
       name: "TaskStatusName",
       label: "Task Status",
       bodyRenderer: (value: string, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[12]),
+        generateStatusWithColor(value, tableMeta.rowData[13]),
     },
     {
       name: "EstimateTime",
@@ -926,6 +941,11 @@ const Datatable = ({
     {
       name: "ReviewerTime",
       label: "Reviewer Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "PrevReviewerTime",
+      label: "Prev. Reviewer Time",
       bodyRenderer: generateCommonBodyRender,
     },
     {
@@ -1308,7 +1328,7 @@ const Datatable = ({
             ),
           customBodyRender: (value: string, tableMeta: any) => {
             const statusColorCode =
-              tableMeta.rowData[activeTab === 1 ? 12 : 11];
+              tableMeta.rowData[activeTab === 1 ? 13 : 12];
 
             return (
               <div>
@@ -1338,7 +1358,7 @@ const Datatable = ({
           customHeadLabelRender: () => generateCustomHeaderName("Task Status"),
           customBodyRender: (value: string, tableMeta: any) => {
             const statusColorCode =
-              tableMeta.rowData[activeTab === 1 ? 14 : 13];
+              tableMeta.rowData[activeTab === 1 ? 15 : 14];
 
             return (
               <div>
