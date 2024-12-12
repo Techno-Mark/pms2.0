@@ -521,17 +521,17 @@ const reportsAPColConfig = [
     bodyRenderer: generateInitialTimer,
   },
   {
-    header: "PrevReviewerAutoTime",
+    header: "PrevReviewerAutoTimeTracked",
     label: "Prev. Reviewer Auto Time",
     bodyRenderer: generateInitialTimer,
   },
   {
-    header: "PrevReviewerManualTime",
+    header: "PrevReviewerManualTimeTracked",
     label: "Prev. Reviewer Manual Time",
     bodyRenderer: generateInitialTimer,
   },
   {
-    header: "PrevReviewerTotalTime",
+    header: "PrevReviewerTimeTracked",
     label: "Prev. Reviewer Total Time",
     bodyRenderer: generateInitialTimer,
   },
