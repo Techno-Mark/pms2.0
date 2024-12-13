@@ -318,7 +318,7 @@ const EditDrawer = ({
   const [reworkReceiverDateWorklogsErr, setReworkReceiverDateWorklogsErr] =
     useState(false);
   const [reworkDueDateWorklogs, setReworkDueDateWorklogs] = useState("");
-  console.log(departmentApprovalsDropdownData);
+
   const previousYearStartDate = dayjs()
     .subtract(1, "year")
     .startOf("year")
