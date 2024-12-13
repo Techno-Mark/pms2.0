@@ -1750,6 +1750,7 @@ const EditDrawer = ({
       startTime: 0,
       manualDesc: "",
       IsApproved: false,
+      IsCurrentReviewer: true,
     },
   ]);
   const [manualSwitch, setManualSwitch] = useState(false);
@@ -1820,6 +1821,7 @@ const EditDrawer = ({
                 startTime: 0,
                 manualDesc: "",
                 IsApproved: false,
+                IsCurrentReviewer: true,
               },
             ]);
             setInputDateErrors([false]);
@@ -1890,7 +1892,9 @@ const EditDrawer = ({
         setManualSubmitDisable(
           ResponseData.map(
             (i: GetManualLogByWorkitemReviewer) =>
-              i.IsApproved === false && i.AssigneeId !== Number(userId)
+              i.IsApproved === false &&
+              i.AssigneeId !== Number(userId) &&
+              i.IsCurrentReviewer === true
           ).includes(true)
             ? false
             : true
@@ -1905,6 +1909,7 @@ const EditDrawer = ({
                   startTime: 0,
                   manualDesc: "",
                   IsApproved: false,
+                  IsCurrentReviewer: true,
                 },
               ]
             : ResponseData.map((i: GetManualLogByWorkitemReviewer) => ({
@@ -1914,6 +1919,7 @@ const EditDrawer = ({
                 startTime: i.Time,
                 manualDesc: i.Comment,
                 IsApproved: i.IsApproved,
+                IsCurrentReviewer: i.IsCurrentReviewer,
               }))
         );
       }
@@ -1947,6 +1953,7 @@ const EditDrawer = ({
               startTime: 0,
               manualDesc: "",
               IsApproved: false,
+              IsCurrentReviewer: true,
             },
           ]
         : newManualFields
@@ -1985,6 +1992,7 @@ const EditDrawer = ({
         startTime: 0,
         manualDesc: "",
         IsApproved: false,
+        IsCurrentReviewer: true,
       },
     ]);
     setInputDateErrors([...inputDateErrors, false]);
@@ -2001,6 +2009,7 @@ const EditDrawer = ({
         startTime: 0,
         manualDesc: "",
         IsApproved: false,
+        IsCurrentReviewer: true,
       },
     ]);
   };
@@ -2054,7 +2063,7 @@ const EditDrawer = ({
     setManualSubmitDisable(
       manualField
         .map((i: ManualFieldsWorklogs) =>
-          i.IsApproved === false ? false : true
+          i.IsApproved === false && i.IsCurrentReviewer === true ? false : true
         )
         .includes(false) || deletedManualTime.length > 0
         ? false
@@ -2394,7 +2403,7 @@ const EditDrawer = ({
       const statusData = await getStatusDropdownData(typeOfWorkApprovals);
 
       await setStatusApprovalsDropdownData(statusData);
-      console.log(statusData);
+
       const getType = statusData.filter(
         (item: LabelValueType) => item.value === editStatusApprovals
       )[0].Type;
@@ -2952,6 +2961,7 @@ const EditDrawer = ({
         startTime: 0,
         manualDesc: "",
         IsApproved: false,
+        IsCurrentReviewer: true,
       },
     ]);
     setInputDateErrors([false]);
@@ -5756,6 +5766,7 @@ const EditDrawer = ({
                           startTime: 0,
                           manualDesc: "",
                           IsApproved: false,
+                          IsCurrentReviewer: true,
                         },
                       ]);
                       setInputDateErrors([false]);
@@ -5770,6 +5781,7 @@ const EditDrawer = ({
                           startTime: 0,
                           manualDesc: "",
                           IsApproved: false,
+                          IsCurrentReviewer: true,
                         },
                       ]);
                     }}
@@ -5951,6 +5963,7 @@ const EditDrawer = ({
                         {index === 0 &&
                           manualSwitch &&
                           !field.IsApproved &&
+                          field.IsCurrentReviewer &&
                           field.Id > 0 &&
                           activeTab === 1 && (
                             <span
@@ -5987,6 +6000,7 @@ const EditDrawer = ({
                         {index > 0 &&
                           manualSwitch &&
                           !field.IsApproved &&
+                          field.IsCurrentReviewer &&
                           activeTab === 1 && (
                             <span
                               className="cursor-pointer"

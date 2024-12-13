@@ -441,6 +441,11 @@ const reportsAPColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
+    header: "Category",
+    label: "Client Category",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     header: "TaskDate",
     label: "Created On",
     bodyRenderer: generateDateWithoutTime,
@@ -682,6 +687,11 @@ const reportsErrorLogColConfig = [
   {
     header: "TaskName",
     label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "Category",
+    label: "Client Category",
     bodyRenderer: generateCommonBodyRender,
   },
   {

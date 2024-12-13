@@ -221,6 +221,7 @@ export interface GetManualLogByWorkitemReviewer {
   Comment: string;
   IsApproved: boolean;
   totalTime?: string;
+  IsCurrentReviewer: boolean;
 }
 
 export interface ManualFieldsWorklogs {
@@ -230,6 +231,7 @@ export interface ManualFieldsWorklogs {
   startTime: number;
   manualDesc: string;
   IsApproved: boolean;
+  IsCurrentReviewer?: boolean;
 }
 
 export interface ReminderGetByWorkitem {

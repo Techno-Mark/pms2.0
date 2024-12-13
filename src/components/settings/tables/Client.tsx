@@ -420,6 +420,11 @@ const Client = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "Category",
+      label: "Client Category",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "IsActive",
       label: "Status",
       bodyRenderer: generateCommonBodyRender,

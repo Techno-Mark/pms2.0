@@ -521,6 +521,18 @@ const CustomReport = ({
       },
     },
     {
+      name: "Category",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Client Category"),
+        customBodyRender: (value: string) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
       name: "HoursShared",
       options: {
         filter: true,
