@@ -140,6 +140,15 @@ const ClientContent = forwardRef<
   const [clientCreationDate, setClientCreationDate] = useState("");
   const [user, setUser] = useState(0);
   const [userDrpdown, setUserDrpdown] = useState<LabelValueProfileImage[]>([]);
+  const [clientCategory, setClientCategory] = useState(0);
+  const [clientCategoryDropdown, setClientCategoryDropdown] = useState<
+    LabelValue[]
+  >([
+    { label: "Alpha", value: 1 },
+    { label: "Beta", value: 2 },
+    { label: "Delta", value: 3 },
+    { label: "Gamma", value: 4 },
+  ]);
 
   const [addMoreClicked, setAddMoreClicked] = useState(false);
   const [isAddClientClicked, setIsAddClientClicked] = useState(true);
@@ -294,6 +303,7 @@ const ClientContent = forwardRef<
                   : 0
               );
               setUser(response.data.ResponseData.RequestedBy);
+              setClientCategory(response.data.ResponseData.CategoryId);
               setTel(response.data.ResponseData.ContactNo);
               setClientCreationDate(response.data.ResponseData.DateOfCreation);
               setId(response.data.ResponseData.Id);
@@ -723,6 +733,7 @@ const ClientContent = forwardRef<
     setDeptName([]);
     setDeptError(false);
     setUser(0);
+    setClientCategory(0);
     setTel("");
     departmentDataObj.length < 3 &&
       setDepartmentDataObj([
@@ -851,6 +862,7 @@ const ClientContent = forwardRef<
           email: email.trim(),
           DepartmentIds: deptName,
           RequestedBy: !!user ? user : null,
+          CategoryId: !!clientCategory ? clientCategory : null,
           contactNo: tel,
           address: address.trim(),
           isActive: true,
@@ -1300,7 +1312,7 @@ const ClientContent = forwardRef<
               />
               <TextField
                 label="Mobile Number"
-                sx={{ mt: "-10px" }}
+                sx={{ mt: "-4px" }}
                 fullWidth
                 type="number"
                 value={tel?.trim().length <= 0 ? "" : tel}
@@ -1317,10 +1329,33 @@ const ClientContent = forwardRef<
                   )
                 }
               />
+
+              <Autocomplete
+                id="tags-standard"
+                sx={{ marginTop: "-8px" }}
+                options={clientCategoryDropdown}
+                value={
+                  clientCategoryDropdown?.find(
+                    (i: LabelValue) => i.value === clientCategory
+                  ) || null
+                }
+                onChange={(e, value: LabelValue | null) => {
+                  !!value
+                    ? setClientCategory(value.value)
+                    : setClientCategory(0);
+                }}
+                renderInput={(params: any) => (
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    label="Client Category"
+                  />
+                )}
+              />
               {onEdit > 0 && (
                 <TextField
                   label="Date of Creation"
-                  sx={{ mt: "-10px" }}
+                  sx={{ mt: "-4px" }}
                   fullWidth
                   value={
                     clientCreationDate?.trim().length <= 0 ||

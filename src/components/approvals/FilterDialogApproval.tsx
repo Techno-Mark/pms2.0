@@ -43,7 +43,11 @@ const initialFilter = {
   TypeOfWork: null,
   userId: null,
   ProjectId: null,
-  IsShowAll: 1,
+  IsShowAll:
+    typeof window !== "undefined" &&
+    Number(localStorage.getItem("workTypeId")) == 3
+      ? 0
+      : 1,
   DepartmentId: null,
   ProcessId: null,
   StatusId: null,

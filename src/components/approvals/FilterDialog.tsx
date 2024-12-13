@@ -47,7 +47,11 @@ const initialFilter = {
   TypeOfWork: null,
   userId: null,
   ProjectId: null,
-  IsShowAll: 1,
+  IsShowAll:
+    typeof window !== "undefined" &&
+    Number(localStorage.getItem("workTypeId")) == 3
+      ? 0
+      : 1,
   DepartmentId: null,
   ProcessId: null,
   StatusId: null,
@@ -94,10 +98,17 @@ const FilterDialog = ({
   const [reworkEndDate, setReworkEndDate] = useState<null | string>(null);
   const [startDateReview, setStartDateReview] = useState<null | string>(null);
   const [endDateReview, setEndDateReview] = useState<null | string>(null);
-  const [reviewer, setReviewer] = useState<LabelValue | null>({
-    label: "Yes",
-    value: 1,
-  });
+  const [reviewer, setReviewer] = useState<LabelValue | null>(
+    Number(localStorage.getItem("workTypeId")) == 3
+      ? {
+          label: "No",
+          value: 0,
+        }
+      : {
+          label: "Yes",
+          value: 1,
+        }
+  );
   const [reviewerDropdown, setReviewerDropdown] = useState<LabelValue[]>([
     { label: "Yes", value: 1 },
     { label: "No", value: 0 },
@@ -138,7 +149,17 @@ const FilterDialog = ({
     setReworkEndDate(null);
     setStartDateReview(null);
     setEndDateReview(null);
-    setReviewer({ label: "Yes", value: 1 });
+    setReviewer(
+      Number(localStorage.getItem("workTypeId")) == 3
+        ? {
+            label: "No",
+            value: 0,
+          }
+        : {
+            label: "Yes",
+            value: 1,
+          }
+    );
     setSaveFilter(false);
     setFilterName("");
     setError("");
@@ -161,7 +182,17 @@ const FilterDialog = ({
     setReworkEndDate(null);
     setStartDateReview(null);
     setEndDateReview(null);
-    setReviewer({ label: "Yes", value: 1 });
+    setReviewer(
+      Number(localStorage.getItem("workTypeId")) == 3
+        ? {
+            label: "No",
+            value: 0,
+          }
+        : {
+            label: "Yes",
+            value: 1,
+          }
+    );
     setProjectDropdownData([]);
     setProcessDropdownData([]);
     setStatusDropdownData([]);

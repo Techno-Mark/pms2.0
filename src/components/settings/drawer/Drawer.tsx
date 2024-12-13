@@ -19,9 +19,7 @@ import { Close } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { DrawerProps } from "@/utils/Types/settingTypes";
-import NatureOfErrorContent, {
-  NatureOfErrorContentRef,
-} from "./content/NatureOfErrorContent";
+import NatureOfErrorContent, { NatureOfErrorContentRef } from "./content/NatureOfErrorContent";
 
 const Drawer = ({
   onOpen,
@@ -210,12 +208,7 @@ const Drawer = ({
       >
         <div className="flex p-[20px] justify-between items-center bg-whiteSmoke border-b border-lightSilver">
           <span className="text-pureBlack text-lg font-medium">
-            {onEdit ? "Edit" : "Create"}{" "}
-            {tab === "Permission"
-              ? "Role"
-              : tab === "NatureOfError"
-              ? "Nature of Error"
-              : tab}
+            {onEdit ? "Edit" : "Create"} {tab === "Permission" ? "Role" : tab === "NatureOfError" ? "Nature of Error" : tab}
           </span>
           <Tooltip title="Close" placement="left" arrow>
             <IconButton onClick={handleClose}>

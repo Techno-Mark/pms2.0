@@ -76,6 +76,7 @@ interface Response {
         ContigencyPlan: string | null;
         VendorName: string | null;
         DocumentNumber: string | null;
+        Category: string | null;
       }[]
     | [];
   TotalCount: number;
