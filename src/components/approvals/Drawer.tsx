@@ -318,7 +318,7 @@ const EditDrawer = ({
   const [reworkReceiverDateWorklogsErr, setReworkReceiverDateWorklogsErr] =
     useState(false);
   const [reworkDueDateWorklogs, setReworkDueDateWorklogs] = useState("");
-
+  console.log(departmentApprovalsDropdownData);
   const previousYearStartDate = dayjs()
     .subtract(1, "year")
     .startOf("year")
@@ -2421,15 +2421,15 @@ const EditDrawer = ({
               // (getType !== "PartialSubmitted" &&
               //   item.Type === "AcceptWithNotes") ||
               (getType !== "PartialSubmitted" && item.Type === "InReview") ||
-              (getType !== "PartialSubmitted" &&
-                getType !== "SecondManagerReview" &&
-                getType !== "QASubmitted" &&
-                item.Type === "Submitted") ||
-              (typeOfWorkApprovals !== 3 &&
-                getType !== "Submitted" &&
-                getType !== "QASubmitted" &&
-                getType !== "SecondManagerReview" &&
-                item.Type === "PartialSubmitted") ||
+              // (getType !== "PartialSubmitted" &&
+              //   getType !== "SecondManagerReview" &&
+              //   getType !== "QASubmitted" &&
+              //   item.Type === "Submitted") ||
+              // (typeOfWorkApprovals !== 3 &&
+              //   getType !== "Submitted" &&
+              //   getType !== "QASubmitted" &&
+              //   getType !== "SecondManagerReview" &&
+              //   item.Type === "PartialSubmitted") ||
               item.value === editStatusApprovals
           )
         );
@@ -2448,15 +2448,15 @@ const EditDrawer = ({
               //   item.Type === "ReworkAcceptWithNotes") ||
               (getType !== "PartialSubmitted" &&
                 item.Type === "ReworkInReview") ||
-              (getType !== "PartialSubmitted" &&
-                getType !== "SecondManagerReview" &&
-                getType !== "QASubmitted" &&
-                item.Type === "ReworkSubmitted") ||
-              (typeOfWorkApprovals !== 3 &&
-                getType !== "ReworkSubmitted" &&
-                getType !== "QASubmitted" &&
-                getType !== "SecondManagerReview" &&
-                item.Type === "PartialSubmitted") ||
+              // (getType !== "PartialSubmitted" &&
+              //   getType !== "SecondManagerReview" &&
+              //   getType !== "QASubmitted" &&
+              //   item.Type === "ReworkSubmitted") ||
+              // (typeOfWorkApprovals !== 3 &&
+              //   getType !== "ReworkSubmitted" &&
+              //   getType !== "QASubmitted" &&
+              //   getType !== "SecondManagerReview" &&
+              //   item.Type === "PartialSubmitted") ||
               item.value === editStatusApprovals
           )
         );
@@ -4004,12 +4004,8 @@ const EditDrawer = ({
                       item
                       xs={3}
                       className={`${
-                        typeOfWorkApprovals === 3 &&
-                        departmentApprovalsType !== "WhitelabelTaxation"
+                        typeOfWorkApprovals === 3
                           ? "pt-2"
-                          : typeOfWorkApprovals === 3 &&
-                            departmentApprovalsType === "WhitelabelTaxation"
-                          ? "pt-4"
                           : departmentApprovalsType !== "WhitelabelTaxation"
                           ? "pt-[17px]"
                           : "pt-5"
@@ -4409,6 +4405,8 @@ const EditDrawer = ({
                             departmentApprovalsType === "UK" ||
                             departmentApprovalsType === "Germany" ||
                             departmentApprovalsType === "SMB"
+                              ? "pt-4"
+                              : departmentApprovalsType === "WhitelabelTaxation"
                               ? "pt-4"
                               : "pt-2"
                           }`}
@@ -5801,7 +5799,7 @@ const EditDrawer = ({
                 <>
                   <div className="-mt-2 pl-6">
                     {reviewermanualFields.map((field, index) => (
-                      <div key={field.Id} className="flex items-center">
+                      <div key={index} className="flex items-center">
                         <div
                           className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
                             inputDateErrors[index] ? "datepickerError" : ""
