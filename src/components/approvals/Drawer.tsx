@@ -2394,7 +2394,7 @@ const EditDrawer = ({
       const statusData = await getStatusDropdownData(typeOfWorkApprovals);
 
       await setStatusApprovalsDropdownData(statusData);
-
+      console.log(statusData);
       const getType = statusData.filter(
         (item: LabelValueType) => item.value === editStatusApprovals
       )[0].Type;
@@ -2412,9 +2412,14 @@ const EditDrawer = ({
               // (getType !== "PartialSubmitted" &&
               //   item.Type === "AcceptWithNotes") ||
               (getType !== "PartialSubmitted" && item.Type === "InReview") ||
-              (getType !== "PartialSubmitted" && item.Type === "Submitted") ||
+              (getType !== "PartialSubmitted" &&
+                getType !== "SecondManagerReview" &&
+                getType !== "QASubmitted" &&
+                item.Type === "Submitted") ||
               (typeOfWorkApprovals !== 3 &&
                 getType !== "Submitted" &&
+                getType !== "QASubmitted" &&
+                getType !== "SecondManagerReview" &&
                 item.Type === "PartialSubmitted") ||
               item.value === editStatusApprovals
           )
@@ -2435,9 +2440,13 @@ const EditDrawer = ({
               (getType !== "PartialSubmitted" &&
                 item.Type === "ReworkInReview") ||
               (getType !== "PartialSubmitted" &&
+                getType !== "SecondManagerReview" &&
+                getType !== "QASubmitted" &&
                 item.Type === "ReworkSubmitted") ||
               (typeOfWorkApprovals !== 3 &&
                 getType !== "ReworkSubmitted" &&
+                getType !== "QASubmitted" &&
+                getType !== "SecondManagerReview" &&
                 item.Type === "PartialSubmitted") ||
               item.value === editStatusApprovals
           )
@@ -4673,6 +4682,55 @@ const EditDrawer = ({
                                 />
                               </LocalizationProvider>
                             </div>
+                          </Grid>
+                        )}
+                        {!!editData && !!editData.PrevReviewerId && (
+                          <Grid
+                            item
+                            xs={3}
+                            className={`${
+                              (departmentApprovalsType == "UK" ||
+                                departmentApprovalsType ==
+                                  "WhitelabelAccounting" ||
+                                departmentApprovalsType ==
+                                  "WhitelabelAustralia" ||
+                                departmentApprovalsType ==
+                                  "WhitelabelTaxation" ||
+                                departmentApprovalsType === "Germany" ||
+                                departmentApprovalsType === "SMB") &&
+                              typeOfWorkApprovals !== 3
+                                ? "pt-6"
+                                : departmentApprovalsType === "SMB" &&
+                                  typeOfWorkApprovals === 3
+                                ? "pt-2"
+                                : "pt-4"
+                            }`}
+                          >
+                            <Autocomplete
+                              disablePortal
+                              id="combo-box-demo"
+                              options={reviewerApprovalsDropdownData}
+                              disabled
+                              value={
+                                reviewerApprovalsDropdownData?.find(
+                                  (i: LabelValue) =>
+                                    i.value === editData.PrevReviewerId
+                                ) || null
+                              }
+                              onChange={(e, value: LabelValue | null) => {}}
+                              sx={{
+                                width: 300,
+                                mt: typeOfWorkApprovals === 3 ? 0.2 : -1,
+                                mx: 0.75,
+                              }}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  variant="standard"
+                                  label="Prev. Reviewer"
+                                />
+                              )}
+                            />
                           </Grid>
                         )}
                       </>

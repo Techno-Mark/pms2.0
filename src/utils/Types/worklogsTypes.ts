@@ -184,6 +184,7 @@ export interface WorkitemGetbyid {
   IsQARequired: number | null;
   QAQuantity: number | null;
   QAId: number | null;
+  PrevReviewerId: number | null;
 }
 
 export interface SubtaskGetByWorkitem {
