@@ -184,6 +184,7 @@ export interface WorkitemGetbyid {
   IsQARequired: number | null;
   QAQuantity: number | null;
   QAId: number | null;
+  PrevReviewerId: number | null;
 }
 
 export interface SubtaskGetByWorkitem {
@@ -220,6 +221,7 @@ export interface GetManualLogByWorkitemReviewer {
   Comment: string;
   IsApproved: boolean;
   totalTime?: string;
+  IsCurrentReviewer: boolean;
 }
 
 export interface ManualFieldsWorklogs {
@@ -229,6 +231,7 @@ export interface ManualFieldsWorklogs {
   startTime: number;
   manualDesc: string;
   IsApproved: boolean;
+  IsCurrentReviewer?: boolean;
 }
 
 export interface ReminderGetByWorkitem {

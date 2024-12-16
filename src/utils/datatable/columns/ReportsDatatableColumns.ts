@@ -441,6 +441,11 @@ const reportsAPColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
+    header: "Category",
+    label: "Client Category",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     header: "TaskDate",
     label: "Created On",
     bodyRenderer: generateDateWithoutTime,
@@ -518,6 +523,21 @@ const reportsAPColConfig = [
   {
     header: "ReviewerTotalTime",
     label: "Reviewer Total Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "PrevReviewerAutoTimeTracked",
+    label: "Prev. Reviewer Auto Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "PrevReviewerManualTimeTracked",
+    label: "Prev. Reviewer Manual Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "PrevReviewerTimeTracked",
+    label: "Prev. Reviewer Total Time",
     bodyRenderer: generateInitialTimer,
   },
   {
@@ -667,6 +687,11 @@ const reportsErrorLogColConfig = [
   {
     header: "TaskName",
     label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "Category",
+    label: "Client Category",
     bodyRenderer: generateCommonBodyRender,
   },
   {

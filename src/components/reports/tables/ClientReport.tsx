@@ -62,6 +62,7 @@ interface Response {
         ClientId: number;
         ClientName: string;
         DepartmentName: string | null;
+        Category: string | null;
         ContractHrs: string;
         InternalHrs: string;
         STDTime: string | null;
@@ -194,6 +195,11 @@ const ClientReport = ({
     {
       header: "DepartmentName",
       label: "Department",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      header: "Category",
+      label: "Client Category",
       bodyRenderer: generateCommonBodyRender,
     },
     {
