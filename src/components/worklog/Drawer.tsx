@@ -643,6 +643,9 @@ const Drawer = ({
         ],
         Amount: 0,
         DateOfTransaction: "",
+        ErrorIdentificationDate: "",
+        ResolutionStatus: 0,
+        IdentifiedBy: "",
         isSolved: false,
       },
     ]);
@@ -681,6 +684,9 @@ const Drawer = ({
         ],
         Amount: 0,
         DateOfTransaction: "",
+        ErrorIdentificationDate: "",
+        ResolutionStatus: 0,
+        IdentifiedBy: "",
         isSolved: false,
       },
     ]);
@@ -777,9 +783,7 @@ const Drawer = ({
             Remark: i.Remark,
             DocumentNumber: !!i.DocumentNumber ? i.DocumentNumber : "",
             VendorName: !!i.VendorName ? i.VendorName : "",
-            RootCauseAnalysis: i.RootCauseAnalysis
-              ? i.RootCauseAnalysis
-              : "",
+            RootCauseAnalysis: i.RootCauseAnalysis ? i.RootCauseAnalysis : "",
             MitigationPlan: !!i.MitigationPlan ? i.MitigationPlan : "",
             ContigencyPlan: !!i.ContigencyPlan ? i.ContigencyPlan : "",
             Attachments: i.Attachment?.length
@@ -795,6 +799,15 @@ const Drawer = ({
             Amount: i.Amount === null ? 0 : i.Amount,
             DateOfTransaction:
               i.DateOfTransaction === null ? "" : i.DateOfTransaction,
+            ErrorIdentificationDate:
+              i.ErrorIdentificationDate === null
+                ? ""
+                : i.ErrorIdentificationDate,
+            ResolutionStatus: i.ResolutionStatus,
+            IdentifiedBy:
+              i.ErrorType === 2 && i.IdentifiedBy !== null
+                ? i.IdentifiedBy?.toString().trim()
+                : null,
             isSolved: i.IsSolved,
           }))
         );
@@ -827,6 +840,9 @@ const Drawer = ({
             ],
             Amount: 0,
             DateOfTransaction: "",
+            ErrorIdentificationDate: "",
+            ResolutionStatus: 0,
+            IdentifiedBy: "",
             isSolved: false,
           },
         ]);
@@ -1328,6 +1344,9 @@ const Drawer = ({
         ],
         Amount: 0,
         DateOfTransaction: "",
+        ErrorIdentificationDate: "",
+        ResolutionStatus: 0,
+        IdentifiedBy: "",
         isSolved: false,
       },
     ]);
@@ -2501,7 +2520,7 @@ const Drawer = ({
                                   <TextField
                                     label={
                                       <span>
-                                        Remarks
+                                        Additional Remark
                                         <span className="text-defaultRed">
                                           &nbsp;*
                                         </span>

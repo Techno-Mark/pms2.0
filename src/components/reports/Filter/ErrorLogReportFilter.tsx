@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { FilterType } from "../types/ReportsFilterType";
 import { callAPI } from "@/utils/API/callAPI";
 import { toast } from "react-toastify";
-import { getCCDropdownData, getNatureOfErrorDropdownData } from "@/utils/commonDropdownApiCall";
+import {
+  getCCDropdownData,
+  getNatureOfErrorDropdownData,
+} from "@/utils/commonDropdownApiCall";
 import { errorLog_InitialFilter } from "@/utils/reports/getFilters";
 import { errorLogReport } from "../Enum/Filtertype";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
@@ -22,7 +25,11 @@ import {
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { Delete, Edit } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
-import { LabelValue, LabelValueProfileImage, LabelValueType } from "@/utils/Types/types";
+import {
+  LabelValue,
+  LabelValueProfileImage,
+  LabelValueType,
+} from "@/utils/Types/types";
 import {
   errorTypeOptions,
   rootCauseOptions,
@@ -79,7 +86,9 @@ const ErrorLogReportFilter = ({
   const [receivedFrom, setReceivedFrom] = useState<string | number>("");
   const [receivedTo, setReceivedTo] = useState<string | number>("");
   const [resolvedOn, setResolvedOn] = useState<string | number>("");
-  const [natureOfErrorDropdown, setNatureOfErrorDropdown] = useState<LabelValueType[]>([]);
+  const [natureOfErrorDropdown, setNatureOfErrorDropdown] = useState<
+    LabelValueType[]
+  >([]);
 
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
@@ -590,7 +599,7 @@ const ErrorLogReportFilter = ({
                       <TextField
                         {...params}
                         variant="standard"
-                        label="Root Cause"
+                        label="Error Category"
                       />
                     )}
                   />
@@ -648,7 +657,7 @@ const ErrorLogReportFilter = ({
                       <TextField
                         {...params}
                         variant="standard"
-                        label="Nature Of Error"
+                        label="Error Details"
                       />
                     )}
                   />
@@ -676,7 +685,7 @@ const ErrorLogReportFilter = ({
                       <TextField
                         {...params}
                         variant="standard"
-                        label="Priority"
+                        label="Criticality"
                       />
                     )}
                   />

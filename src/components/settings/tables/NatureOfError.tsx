@@ -156,7 +156,7 @@ const NatureOfError = ({
       ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        toast.success("Nature of Error has been deleted successfully!");
+        toast.success("Error Details has been deleted successfully!");
         setIsDeleteOpen(false);
         onSearchClear();
         setFilteredOject({
@@ -309,7 +309,7 @@ const NatureOfError = ({
   const column = [
     {
       name: "Name",
-      label: "Nature of Error Name",
+      label: "Error Details",
       bodyRenderer: generateCommonBodyRender,
     },
     {
@@ -376,7 +376,7 @@ const NatureOfError = ({
                                 className="text-secondary underline cursor-pointer"
                                 onClick={onOpen}
                               >
-                                create Nature of Error
+                                create Error Details
                               </a>
                               &nbsp;to continue.
                             </span>
@@ -426,12 +426,12 @@ const NatureOfError = ({
                 onClose={closeSwitchModal}
                 title={`${
                   switchActive === true ? "Active" : "InActive"
-                } Nature Of Error`}
+                } Error Details`}
                 actionText="Yes"
                 onActionClick={handleToggleNOE}
                 firstContent={`Are you sure you want to ${
                   switchActive === true ? "Active" : "InActive"
-                } Nature Of Error?`}
+                } Error Details?`}
               />
             )}
 
@@ -441,12 +441,12 @@ const NatureOfError = ({
                 isOpen={isDeleteOpen}
                 onClose={closeModal}
                 onActionClick={handleDeleteRow}
-                Title={"Delete Nature Of Error"}
+                Title={"Delete Error Details"}
                 firstContent={
-                  "Are you sure you want to delete Nature Of Error?"
+                  "Are you sure you want to delete Error Details?"
                 }
                 secondContent={
-                  "If you delete Nature Of Error, you will permanently lose Nature Of Error and Nature Of Error related data."
+                  "If you delete Error Details, you will permanently lose Error Details and Error Details related data."
                 }
               />
             )}

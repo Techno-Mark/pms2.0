@@ -5,7 +5,16 @@ export const errorTypeOptions = [
 
 export const rootCauseOptions = [
   { value: 1, label: "Procedural" },
-  { value: 2, label: "DataEntry" },
+  { value: 2, label: "Data entry" },
+  { value: 3, label: "Exception" },
+  { value: 4, label: "Negligency" },
+];
+
+export const resolutionStatusOptions = [
+  { value: 1, label: "WIP" },
+  { value: 2, label: "Solved" },
+  { value: 3, label: "Pending" },
+  { value: 4, label: "WFR" },
 ];
 
 export const impactOptions = [

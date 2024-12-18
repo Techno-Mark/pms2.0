@@ -208,7 +208,7 @@ const Drawer = ({
       >
         <div className="flex p-[20px] justify-between items-center bg-whiteSmoke border-b border-lightSilver">
           <span className="text-pureBlack text-lg font-medium">
-            {onEdit ? "Edit" : "Create"} {tab === "Permission" ? "Role" : tab === "NatureOfError" ? "Nature of Error" : tab}
+            {onEdit ? "Edit" : "Create"} {tab === "Permission" ? "Role" : tab === "ErrorDetails" ? "Error Details" : tab}
           </span>
           <Tooltip title="Close" placement="left" arrow>
             <IconButton onClick={handleClose}>
@@ -294,7 +294,7 @@ const Drawer = ({
             onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
           />
         )}
-        {tab === "NatureOfError" && (
+        {tab === "ErrorDetails" && (
           <NatureOfErrorContent
             onOpen={onOpen}
             onEdit={onEdit}

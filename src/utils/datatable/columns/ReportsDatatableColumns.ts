@@ -701,7 +701,7 @@ const reportsErrorLogColConfig = [
   },
   {
     header: "RootCauseVal",
-    label: "Root Cause",
+    label: "Error Category",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -711,22 +711,22 @@ const reportsErrorLogColConfig = [
   },
   {
     header: "NatureOfErrorVal",
-    label: "Nature of error",
+    label: "Error Details",
     bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "PriorityVal",
-    label: "Priorty",
+    label: "Criticality",
     bodyRenderer: generatePriorityWithColor,
   },
   {
     header: "DocumentNumber",
-    label: "DocumentNumber",
+    label: "Accounting Transaction ID",
     bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "VendorName",
-    label: "VendorName",
+    label: "Vendor Name",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -736,22 +736,37 @@ const reportsErrorLogColConfig = [
   },
   {
     header: "Remark",
-    label: "Remarks",
+    label: "Additional Remark (If any)",
     bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "RootCauseAnalysis",
-    label: "RootCauseAnalysis",
+    label: "Root Cause Analysis",
     bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "MitigationPlan",
-    label: "MitigationPlan",
+    label: "Corrective Action",
     bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "ContigencyPlan",
-    label: "ContigencyPlan",
+    label: "Preventative Action",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ErrorIdentificationDate",
+    label: "Error Identification Date",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ResolutionStatusVal",
+    label: "Resolution status",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "IdentifiedBy",
+    label: "Error Identified by",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -781,7 +796,7 @@ const reportsErrorLogColConfig = [
   },
   {
     header: "DateOfTransaction",
-    label: "Date of Transaction",
+    label: "Transaction Recorded Date",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -811,7 +826,7 @@ const reportsErrorLogColConfig = [
   },
   {
     header: "Amount",
-    label: "Amount",
+    label: "Amount of Impact (if any)",
     bodyRenderer: generateCommonBodyRender,
   },
 ];
