@@ -160,6 +160,11 @@ const errorlogColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
+    name: "Category",
+    label: "Client Category",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     name: "ProjectName",
     label: "Project Name",
     bodyRenderer: generateCommonBodyRender,
