@@ -4,8 +4,8 @@ export const errorTypeOptions = [
 ];
 
 export const rootCauseOptions = [
-  { value: 1, label: "Procedural" },
-  { value: 2, label: "Data entry" },
+  { value: 1, label: "Learning Curve" },
+  { value: 2, label: "Typo Error" },
   { value: 3, label: "Exception" },
   { value: 4, label: "Negligency" },
 ];
