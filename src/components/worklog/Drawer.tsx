@@ -748,6 +748,7 @@ const Drawer = ({
           ];
     setErrorLogClientWorklogFields(newFields);
   };
+  // console.log(errorLogClientWorklogFields)
 
   const getErrorLogDataClientWorklog = async () => {
     const params = {
@@ -875,22 +876,38 @@ const Drawer = ({
             (i: ErrorlogGetByWorkitem) =>
               new Object({
                 ErrorLogId: i.ErrorLogId,
-                ErrorType: 2,
-                RootCause: 0,
-                Impact: 0,
-                Priority: 0,
-                ErrorCount: 0,
-                NatureOfError: 0,
-                CC: [],
-                DocumentNumber: "",
-                VendorName: "",
-                RootCauseAnalysis: "",
-                MitigationPlan: "",
-                ContigencyPlan: "",
+                ErrorType: i.ErrorType > 0 ? i.ErrorType : 2,
+                RootCause: i.RootCause,
+                Impact: i.Impact,
+                Priority: i.Priority,
+                ErrorCount: i.ErrorCount,
+                NatureOfError: i.NatureOfError,
+                CC: i.CC.map((j: LabelValueProfileImage) => j.value),
                 Remark: i.Remark.trim(),
                 Attachments:
                   i.Attachments?.[0]?.SystemFileName?.length ?? 0 > 0
                     ? i.Attachments
+                    : null,
+                DocumentNumber: !!i.DocumentNumber ? i.DocumentNumber : null,
+                VendorName: !!i.VendorName ? i.VendorName : null,
+                RootCauseAnalysis: !!i.RootCauseAnalysis
+                  ? i.RootCauseAnalysis
+                  : null,
+                MitigationPlan: !!i.MitigationPlan ? i.MitigationPlan : null,
+                ContigencyPlan: !!i.ContigencyPlan ? i.ContigencyPlan : null,
+                Amount: i.Amount === 0 ? null : i.Amount,
+                DateOfTransaction:
+                  i.DateOfTransaction === ""
+                    ? null
+                    : dayjs(i.DateOfTransaction).format("YYYY/MM/DD"),
+                ErrorIdentificationDate:
+                  i.ErrorIdentificationDate === ""
+                    ? null
+                    : dayjs(i.ErrorIdentificationDate).format("YYYY/MM/DD"),
+                ResolutionStatus: i.ResolutionStatus,
+                IdentifiedBy:
+                  i.ErrorType === 2 && !!i.IdentifiedBy
+                    ? i.IdentifiedBy?.toString().trim()
                     : null,
               })
           ),
