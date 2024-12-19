@@ -7375,7 +7375,7 @@ const EditDrawer = ({
                                     }}
                                   />
                                 </div>
-                                <div className="flex items-center justify-start mt-2">
+                                <div className="flex items-center justify-start mt-2 ml-[-4px]">
                                   <TextField
                                     label={
                                       <span>Additional Remark (If any)</span>
@@ -7528,7 +7528,7 @@ const EditDrawer = ({
                                     </div>
                                   </div>
                                 </div>
-                                <div className="flex items-center justify-start ml-2 mt-2">
+                                <div className="flex items-center justify-start mt-2">
                                   <TextField
                                     label={
                                       <span>
@@ -7900,8 +7900,6 @@ const EditDrawer = ({
                                       sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                                       InputProps={{
                                         readOnly:
-                                          (!!i.IdentifiedBy &&
-                                            i.IdentifiedBy.trim().length > 0) ||
                                           !i.IsHasErrorlogAddedByClient ||
                                           // i.Remark.trim().length <= 0 ||
                                           i.DisableErrorLog,
@@ -8015,12 +8013,17 @@ const EditDrawer = ({
                                 value={
                                   field.ErrorType === 0 ? "" : field.ErrorType
                                 }
-                                onChange={(e) =>
+                                onChange={(e) => {
                                   handleErrorTypeChangeWorklogs(
                                     Number(e.target.value),
                                     index
-                                  )
-                                }
+                                  );
+                                  handleIdentifiedByChange(
+                                    "",
+                                    index,
+                                    Number(e.target.value)
+                                  );
+                                }}
                                 onBlur={() => {
                                   if (field.ErrorType > 0) {
                                     const newErrorTypeErrors = [
@@ -8714,6 +8717,167 @@ const EditDrawer = ({
                                 variant="standard"
                                 sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                               />
+                              <div
+                                className={`inline-flex mt-[8px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
+                                  errorIdentificationErrWorklogs[index]
+                                    ? "datepickerError"
+                                    : ""
+                                }`}
+                              >
+                                <LocalizationProvider
+                                  dateAdapter={AdapterDayjs}
+                                >
+                                  <DatePicker
+                                    label={
+                                      <span>
+                                        Error Identification Date
+                                        <span className="text-defaultRed">
+                                          &nbsp;*
+                                        </span>
+                                      </span>
+                                    }
+                                    maxDate={dayjs(new Date())}
+                                    disabled={field.isSolved}
+                                    value={
+                                      field.ErrorIdentificationDate === ""
+                                        ? null
+                                        : dayjs(field.ErrorIdentificationDate)
+                                    }
+                                    onChange={(newDate: any) => {
+                                      handleErrorIdentificationDateChange(
+                                        newDate.$d,
+                                        index
+                                      );
+                                    }}
+                                    slotProps={{
+                                      textField: {
+                                        helperText:
+                                          errorIdentificationErrWorklogs[index]
+                                            ? "This is a required field."
+                                            : "",
+                                        readOnly: true,
+                                      } as Record<string, any>,
+                                    }}
+                                  />
+                                </LocalizationProvider>
+                              </div>
+                            </div>
+                            <div className="flex !ml-0">
+                              <FormControl
+                                variant="standard"
+                                sx={{ mx: 0.75, minWidth: 230, mt: 1.1 }}
+                                error={resolutionStatusErrWorklogs[index]}
+                                disabled={field.isSolved}
+                              >
+                                <InputLabel id="demo-simple-select-standard-label">
+                                  Resolution status
+                                  <span className="text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </InputLabel>
+                                <Select
+                                  labelId="demo-simple-select-standard-label"
+                                  id="demo-simple-select-standard"
+                                  disabled={isIdDisabled || isUnassigneeClicked}
+                                  value={
+                                    field.ResolutionStatus === 0
+                                      ? ""
+                                      : field.ResolutionStatus
+                                  }
+                                  onChange={(e) =>
+                                    handleResolutionStatusChange(
+                                      Number(e.target.value),
+                                      index
+                                    )
+                                  }
+                                  onBlur={() => {
+                                    if (field.ResolutionStatus > 0) {
+                                      const newResolutionStatusErrors = [
+                                        ...resolutionStatusErrWorklogs,
+                                      ];
+                                      newResolutionStatusErrors[index] = false;
+                                      setResolutionStatusErrWorklogs(
+                                        newResolutionStatusErrors
+                                      );
+                                    }
+                                  }}
+                                >
+                                  {resolutionStatusOptions.map(
+                                    (r: LabelValue) => (
+                                      <MenuItem value={r.value} key={r.value}>
+                                        {r.label}
+                                      </MenuItem>
+                                    )
+                                  )}
+                                </Select>
+                                {resolutionStatusErrWorklogs[index] && (
+                                  <FormHelperText>
+                                    This is a required field.
+                                  </FormHelperText>
+                                )}
+                              </FormControl>
+                              {field.ErrorType === 2 && (
+                                <TextField
+                                  label={
+                                    <span>
+                                      Error Identified by
+                                      <span className="text-defaultRed">
+                                        &nbsp;*
+                                      </span>
+                                    </span>
+                                  }
+                                  fullWidth
+                                  disabled={field.isSolved}
+                                  value={
+                                    field.IdentifiedBy !== null &&
+                                    field.IdentifiedBy.trim().length === 0
+                                      ? ""
+                                      : field.IdentifiedBy
+                                  }
+                                  onChange={(e) =>
+                                    handleIdentifiedByChange(
+                                      e.target.value,
+                                      index,
+                                      0
+                                    )
+                                  }
+                                  onBlur={(e) => {
+                                    if (
+                                      e.target.value.length <= 0 ||
+                                      e.target.value.length > 50
+                                    ) {
+                                      const newIdentifiedByErrors = [
+                                        ...identifiedByErrWorklogs,
+                                      ];
+                                      newIdentifiedByErrors[index] = true;
+                                      setIdentifiedByErrWorklogs(
+                                        newIdentifiedByErrors
+                                      );
+                                    } else {
+                                      const newIdentifiedByErrors = [
+                                        ...identifiedByErrWorklogs,
+                                      ];
+                                      newIdentifiedByErrors[index] = false;
+                                      setIdentifiedByErrWorklogs(
+                                        newIdentifiedByErrors
+                                      );
+                                    }
+                                  }}
+                                  error={identifiedByErrWorklogs[index]}
+                                  helperText={
+                                    identifiedByErrWorklogs[index] &&
+                                    field.IdentifiedBy !== null &&
+                                    field.IdentifiedBy.trim().length > 50
+                                      ? "Maximum 50 characters allowed."
+                                      : identifiedByErrWorklogs[index]
+                                      ? "This is a required field."
+                                      : ""
+                                  }
+                                  margin="normal"
+                                  variant="standard"
+                                  sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                                />
+                              )}
                               {field.isSolved && (
                                 <FormGroup>
                                   <FormControlLabel
