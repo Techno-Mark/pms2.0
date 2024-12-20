@@ -70,7 +70,7 @@ const initialTabs = [
   { id: "Status", label: "Status", canView: false },
   { id: "Permission", label: "Permissions", canView: false },
   { id: "Notification", label: "Notification", canView: false },
-  { id: "NatureOfError", label: "Nature Of Error", canView: false },
+  { id: "ErrorDetails", label: "Error Details", canView: false },
   { id: "Organization", label: "Organization", canView: true },
 ];
 
@@ -171,7 +171,7 @@ const Page = () => {
           !hasPermissionWorklog("Group", "View", "Settings") ||
           !hasPermissionWorklog("Permission", "View", "Settings") ||
           !hasPermissionWorklog("Notification", "View", "Settings") ||
-          !hasPermissionWorklog("NatureOfError", "View", "Settings") ||
+          !hasPermissionWorklog("ErrorDetails", "View", "Settings") ||
           !hasPermissionWorklog("Status", "View", "Settings"))
       ) {
         router.push("/");
@@ -405,7 +405,7 @@ const Page = () => {
             ),
           };
           break;
-        case "natureoferror":
+        case "errordetails":
           return {
             ...tab,
             canView: hasPermissionWorklog(
@@ -688,7 +688,7 @@ const Page = () => {
                     tab === "Process" ||
                     tab === "Group" ||
                     tab === "Status" ||
-                    tab === "NatureOfError" ||
+                    tab === "ErrorDetails" ||
                     tab === "Organization") && (
                     <div className="relative">
                       <InputBase
@@ -758,7 +758,7 @@ const Page = () => {
                                   Status: "status",
                                   User: "user",
                                   Organization: "organization",
-                                  NatureOfError: "natureOfError",
+                                  ErrorDetails: "natureOfError",
                                 };
 
                                 const selectedTab = tabMappings[tab];
@@ -985,8 +985,8 @@ const Page = () => {
                     <span className="uppercase">
                       {tab === "Permission"
                         ? "Role"
-                        : tab === "NatureOfError"
-                        ? "Nature of Error"
+                        : tab === "ErrorDetails"
+                        ? "Error Details"
                         : tab}
                     </span>
                   </span>
@@ -1158,7 +1158,7 @@ const Page = () => {
           />
         )}
 
-        {tab === "NatureOfError" && (
+        {tab === "ErrorDetails" && (
           <NatureOfError
             onOpen={
               hasPermissionWorklog(tab, "save", "settings")
@@ -1168,10 +1168,10 @@ const Page = () => {
             onEdit={handleEdit}
             onDataFetch={handleDataFetch}
             getOrgDetailsFunction={getOrgDetailsFunction}
-            canView={hasPermissionWorklog("NatureOfError", "view", "settings")}
-            canEdit={hasPermissionWorklog("NatureOfError", "save", "settings")}
+            canView={hasPermissionWorklog("ErrorDetails", "view", "settings")}
+            canEdit={hasPermissionWorklog("ErrorDetails", "save", "settings")}
             canDelete={hasPermissionWorklog(
-              "NatureOfError",
+              "ErrorDetails",
               "delete",
               "settings"
             )}

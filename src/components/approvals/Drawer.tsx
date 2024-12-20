@@ -98,6 +98,7 @@ import {
   errorTypeOptions,
   impactOptions,
   priorityOptions,
+  resolutionStatusOptions,
   rootCauseOptions,
 } from "@/utils/staticDropdownData";
 
@@ -237,6 +238,10 @@ const EditDrawer = ({
     useState<any>([]);
   const [statusApprovalsDropdownDataUse, setStatusApprovalsDropdownDataUse] =
     useState<any>([]);
+  const [
+    statusApprovalsDropdownDataUseAllTask,
+    setStatusApprovalsDropdownDataUseAllTask,
+  ] = useState<any>([]);
   const [
     errorlogSignedOffPendingApprovals,
     setErrorlogSignOffPendingApprovals,
@@ -1104,6 +1109,9 @@ const EditDrawer = ({
       ],
       Amount: 0,
       DateOfTransaction: "",
+      ErrorIdentificationDate: "",
+      ResolutionStatus: 0,
+      IdentifiedBy: "",
       isSolved: false,
       DisableErrorLog: false,
     },
@@ -1120,12 +1128,21 @@ const EditDrawer = ({
   ]);
   const [vendorNameErrApprovals, setVendorNameErrApprovals] = useState([false]);
   const [rcaErrApprovals, setRcaErrApprovals] = useState([false]);
+  const [recordedDateErrApprovals, setRecordedDateErrApprovals] = useState([
+    false,
+  ]);
   const [mitigationErrApprovals, setMitigationErrApprovals] = useState([false]);
   const [contigencyPlanErrApprovals, setContigencyPlanErrApprovals] = useState([
     false,
   ]);
-  const [remarkErrApprovals, setRemarkErrApprovals] = useState([false]);
   const [imageErrApprovals, setImageErrApprovals] = useState([false]);
+  const [errorIdentificationErrApprovals, setErrorIdentificationErrApprovals] =
+    useState([false]);
+  const [resolutionStatusErrApprovals, setResolutionStatusErrApprovals] =
+    useState([false]);
+  const [identifiedByErrApprovals, setIdentifiedByErrApprovals] = useState([
+    false,
+  ]);
   const [deletedErrorLogApprovals, setDeletedErrorLogApprovals] = useState<any>(
     []
   );
@@ -1170,6 +1187,9 @@ const EditDrawer = ({
         ],
         Amount: 0,
         DateOfTransaction: "",
+        ErrorIdentificationDate: "",
+        ResolutionStatus: 0,
+        IdentifiedBy: "",
         isSolved: false,
         DisableErrorLog: false,
       },
@@ -1183,9 +1203,15 @@ const EditDrawer = ({
     setDocumentNumberErrApprovals([...documentNumberErrApprovals, false]);
     setVendorNameErrApprovals([...vendorNameErrApprovals, false]);
     setRcaErrApprovals([...rcaErrApprovals, false]);
+    setRecordedDateErrApprovals([...recordedDateErrApprovals, false]);
+    setErrorIdentificationErrApprovals([
+      ...errorIdentificationErrApprovals,
+      false,
+    ]);
+    setResolutionStatusErrApprovals([...resolutionStatusErrApprovals, false]);
+    setIdentifiedByErrApprovals([...identifiedByErrApprovals, false]);
     setMitigationErrApprovals([...mitigationErrApprovals, false]);
     setContigencyPlanErrApprovals([...contigencyPlanErrApprovals, false]);
-    setRemarkErrApprovals([...remarkErrApprovals, false]);
     setImageErrApprovals([...imageErrApprovals, false]);
   };
 
@@ -1239,6 +1265,22 @@ const EditDrawer = ({
     newRcaErrors.splice(index, 1);
     setRcaErrApprovals(newRcaErrors);
 
+    const newRecordedDateErrors = [...recordedDateErrApprovals];
+    newRecordedDateErrors.splice(index, 1);
+    setRecordedDateErrApprovals(newRecordedDateErrors);
+
+    const newErrorIdentificationErrors = [...errorIdentificationErrApprovals];
+    newErrorIdentificationErrors.splice(index, 1);
+    setErrorIdentificationErrApprovals(newErrorIdentificationErrors);
+
+    const newResolutionStatusErrors = [...resolutionStatusErrApprovals];
+    newResolutionStatusErrors.splice(index, 1);
+    setResolutionStatusErrApprovals(newResolutionStatusErrors);
+
+    const newIdentifiedByErrors = [...identifiedByErrApprovals];
+    newIdentifiedByErrors.splice(index, 1);
+    setIdentifiedByErrApprovals(newIdentifiedByErrors);
+
     const newMitigationErrors = [...mitigationErrApprovals];
     newMitigationErrors.splice(index, 1);
     setMitigationErrApprovals(newMitigationErrors);
@@ -1246,10 +1288,6 @@ const EditDrawer = ({
     const newContigencyPlanErrors = [...contigencyPlanErrApprovals];
     newContigencyPlanErrors.splice(index, 1);
     setContigencyPlanErrApprovals(newContigencyPlanErrors);
-
-    const newRemarkErrors = [...remarkErrApprovals];
-    newRemarkErrors.splice(index, 1);
-    setRemarkErrApprovals(newRemarkErrors);
 
     const newImageErrors = [...imageErrApprovals];
     newImageErrors.splice(index, 1);
@@ -1351,7 +1389,7 @@ const EditDrawer = ({
     setErrorLogFieldsApprovals(newFields);
 
     const newErrors = [...rcaErrApprovals];
-    newErrors[index] = e.trim().length > 250;
+    newErrors[index] = e.trim().length <= 0 || e.trim().length > 250;
     setRcaErrApprovals(newErrors);
   };
 
@@ -1379,10 +1417,6 @@ const EditDrawer = ({
     const newFields = [...errorLogFieldsApprovals];
     newFields[index].Remark = e;
     setErrorLogFieldsApprovals(newFields);
-
-    const newErrors = [...remarkErrApprovals];
-    newErrors[index] = e.trim().length <= 0;
-    setRemarkErrApprovals(newErrors);
   };
 
   const handleAmountChangeApprovals = (e: string, index: number) => {
@@ -1395,6 +1429,45 @@ const EditDrawer = ({
     const newFields = [...errorLogFieldsApprovals];
     newFields[index].DateOfTransaction = e;
     setErrorLogFieldsApprovals(newFields);
+
+    const newErrors = [...recordedDateErrApprovals];
+    newErrors[index] = typeof e != "object";
+    setRecordedDateErrApprovals(newErrors);
+  };
+
+  const handleErrorIdentificationDateChange = (e: any, index: number) => {
+    const newFields = [...errorLogFieldsApprovals];
+    newFields[index].ErrorIdentificationDate = e;
+    setErrorLogFieldsApprovals(newFields);
+
+    const newErrors = [...errorIdentificationErrApprovals];
+    newErrors[index] = typeof e != "object";
+    setErrorIdentificationErrApprovals(newErrors);
+  };
+
+  const handleResolutionStatusChange = (e: number, index: number) => {
+    const newFields = [...errorLogFieldsApprovals];
+    newFields[index].ResolutionStatus = e;
+    setErrorLogFieldsApprovals(newFields);
+
+    const newErrors = [...resolutionStatusErrApprovals];
+    newErrors[index] = e === 0;
+    setResolutionStatusErrApprovals(newErrors);
+  };
+
+  const handleIdentifiedByChange = (
+    e: string,
+    index: number,
+    ErrorType: number
+  ) => {
+    const newFields = [...errorLogFieldsApprovals];
+    newFields[index].IdentifiedBy = e;
+    setErrorLogFieldsApprovals(newFields);
+
+    const newErrors = [...identifiedByErrApprovals];
+    newErrors[index] =
+      ErrorType > 0 ? false : e.trim().length <= 0 || e.trim().length > 50;
+    setIdentifiedByErrApprovals(newErrors);
   };
 
   const handleAttachmentsChangeApprovals = (
@@ -1465,6 +1538,9 @@ const EditDrawer = ({
                 ],
                 Amount: 0,
                 DateOfTransaction: "",
+                ErrorIdentificationDate: "",
+                ResolutionStatus: 0,
+                IdentifiedBy: "",
                 isSolved: false,
                 DisableErrorLog: false,
               },
@@ -1506,6 +1582,13 @@ const EditDrawer = ({
                 Amount: i.Amount === null ? 0 : i.Amount,
                 DateOfTransaction:
                   i.DateOfTransaction === null ? "" : i.DateOfTransaction,
+                ErrorIdentificationDate:
+                  i.ErrorIdentificationDate === null
+                    ? ""
+                    : i.ErrorIdentificationDate,
+                ResolutionStatus:
+                  i.ResolutionStatus === null ? 0 : i.ResolutionStatus,
+                IdentifiedBy: i.IdentifiedBy === null ? "" : i.IdentifiedBy,
                 isSolved: i.IsSolved,
                 DisableErrorLog: i.DisableErrorLog,
               }))
@@ -1552,9 +1635,35 @@ const EditDrawer = ({
     );
     setVendorNameErrApprovals(newVendorNameErrors);
     const newRcaErrors = errorLogFieldsApprovals.map(
-      (field) => field.RootCauseAnalysis.trim().length > 250
+      (field) =>
+        field.RootCauseAnalysis.trim().length <= 0 ||
+        field.RootCauseAnalysis.trim().length > 250
     );
     setRcaErrApprovals(newRcaErrors);
+    const newRecordedDateErrors = errorLogFieldsApprovals.map(
+      (field) =>
+        field.DateOfTransaction === null ||
+        field.DateOfTransaction.toString().trim().length <= 0
+    );
+    setRecordedDateErrApprovals(newRecordedDateErrors);
+    const newErrorIdentificationDateErrors = errorLogFieldsApprovals.map(
+      (field) =>
+        field.ErrorIdentificationDate === null ||
+        field.ErrorIdentificationDate.toString().trim().length <= 0
+    );
+    setErrorIdentificationErrApprovals(newErrorIdentificationDateErrors);
+    const newResolutionStatusErrors = errorLogFieldsApprovals.map(
+      (field) => field.ResolutionStatus === 0
+    );
+    setResolutionStatusErrApprovals(newResolutionStatusErrors);
+    const newIdentifiedByErrors = errorLogFieldsApprovals.map(
+      (field) =>
+        field.ErrorType === 2 &&
+        field.IdentifiedBy != null &&
+        (field.IdentifiedBy.trim().length <= 0 ||
+          field.IdentifiedBy.trim().length > 50)
+    );
+    setIdentifiedByErrApprovals(newIdentifiedByErrors);
     const newMitigationErrors = errorLogFieldsApprovals.map(
       (field) => field.MitigationPlan.trim().length > 250
     );
@@ -1563,11 +1672,6 @@ const EditDrawer = ({
       (field) => field.ContigencyPlan.trim().length > 250
     );
     setContigencyPlanErrApprovals(newContigencyPlanErrors);
-    const newRemarkErrors = errorLogFieldsApprovals.map(
-      (field) =>
-        field.Remark.trim().length < 5 || field.Remark.trim().length > 500
-    );
-    setRemarkErrApprovals(newRemarkErrors);
 
     hasErrorLogErrors =
       newErrorTypeErrors.some((error) => error) ||
@@ -1579,9 +1683,12 @@ const EditDrawer = ({
       newDocumentNumberErrors.some((error) => error) ||
       newVendorNameErrors.some((error) => error) ||
       newRcaErrors.some((error) => error) ||
+      newRecordedDateErrors.some((error) => error) ||
+      newErrorIdentificationDateErrors.some((error) => error) ||
+      newResolutionStatusErrors.some((error) => error) ||
+      newIdentifiedByErrors.some((error) => error) ||
       newMitigationErrors.some((error) => error) ||
       newContigencyPlanErrors.some((error) => error) ||
-      newRemarkErrors.some((error) => error) ||
       imageErrApprovals.includes(true);
 
     if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
@@ -1613,6 +1720,13 @@ const EditDrawer = ({
                     ? i.Attachments
                     : null,
                 Amount: i.Amount === 0 ? null : i.Amount,
+                ErrorIdentificationDate:
+                  i.ErrorIdentificationDate === ""
+                    ? null
+                    : dayjs(i.ErrorIdentificationDate).format("YYYY/MM/DD"),
+                ResolutionStatus: i.ResolutionStatus,
+                IdentifiedBy:
+                  i.ErrorType === 2 ? i.IdentifiedBy?.toString().trim() : null,
                 DateOfTransaction:
                   i.DateOfTransaction === ""
                     ? null
@@ -1746,6 +1860,7 @@ const EditDrawer = ({
       startTime: 0,
       manualDesc: "",
       IsApproved: false,
+      IsCurrentReviewer: true,
     },
   ]);
   const [manualSwitch, setManualSwitch] = useState(false);
@@ -1816,6 +1931,7 @@ const EditDrawer = ({
                 startTime: 0,
                 manualDesc: "",
                 IsApproved: false,
+                IsCurrentReviewer: true,
               },
             ]);
             setInputDateErrors([false]);
@@ -1886,7 +2002,9 @@ const EditDrawer = ({
         setManualSubmitDisable(
           ResponseData.map(
             (i: GetManualLogByWorkitemReviewer) =>
-              i.IsApproved === false && i.AssigneeId !== Number(userId)
+              i.IsApproved === false &&
+              i.AssigneeId !== Number(userId) &&
+              i.IsCurrentReviewer === true
           ).includes(true)
             ? false
             : true
@@ -1901,6 +2019,7 @@ const EditDrawer = ({
                   startTime: 0,
                   manualDesc: "",
                   IsApproved: false,
+                  IsCurrentReviewer: true,
                 },
               ]
             : ResponseData.map((i: GetManualLogByWorkitemReviewer) => ({
@@ -1910,6 +2029,7 @@ const EditDrawer = ({
                 startTime: i.Time,
                 manualDesc: i.Comment,
                 IsApproved: i.IsApproved,
+                IsCurrentReviewer: i.IsCurrentReviewer,
               }))
         );
       }
@@ -1943,6 +2063,7 @@ const EditDrawer = ({
               startTime: 0,
               manualDesc: "",
               IsApproved: false,
+              IsCurrentReviewer: true,
             },
           ]
         : newManualFields
@@ -1981,6 +2102,7 @@ const EditDrawer = ({
         startTime: 0,
         manualDesc: "",
         IsApproved: false,
+        IsCurrentReviewer: true,
       },
     ]);
     setInputDateErrors([...inputDateErrors, false]);
@@ -1997,6 +2119,7 @@ const EditDrawer = ({
         startTime: 0,
         manualDesc: "",
         IsApproved: false,
+        IsCurrentReviewer: true,
       },
     ]);
   };
@@ -2050,7 +2173,7 @@ const EditDrawer = ({
     setManualSubmitDisable(
       manualField
         .map((i: ManualFieldsWorklogs) =>
-          i.IsApproved === false ? false : true
+          i.IsApproved === false && i.IsCurrentReviewer === true ? false : true
         )
         .includes(false) || deletedManualTime.length > 0
         ? false
@@ -2408,10 +2531,15 @@ const EditDrawer = ({
               // (getType !== "PartialSubmitted" &&
               //   item.Type === "AcceptWithNotes") ||
               (getType !== "PartialSubmitted" && item.Type === "InReview") ||
-              (getType !== "PartialSubmitted" && item.Type === "Submitted") ||
-              (typeOfWorkApprovals !== 3 &&
-                getType !== "Submitted" &&
-                item.Type === "PartialSubmitted") ||
+              // (getType !== "PartialSubmitted" &&
+              //   getType !== "SecondManagerReview" &&
+              //   getType !== "QASubmitted" &&
+              //   item.Type === "Submitted") ||
+              // (typeOfWorkApprovals !== 3 &&
+              //   getType !== "Submitted" &&
+              //   getType !== "QASubmitted" &&
+              //   getType !== "SecondManagerReview" &&
+              //   item.Type === "PartialSubmitted") ||
               item.value === editStatusApprovals
           )
         );
@@ -2430,11 +2558,15 @@ const EditDrawer = ({
               //   item.Type === "ReworkAcceptWithNotes") ||
               (getType !== "PartialSubmitted" &&
                 item.Type === "ReworkInReview") ||
-              (getType !== "PartialSubmitted" &&
-                item.Type === "ReworkSubmitted") ||
-              (typeOfWorkApprovals !== 3 &&
-                getType !== "ReworkSubmitted" &&
-                item.Type === "PartialSubmitted") ||
+              // (getType !== "PartialSubmitted" &&
+              //   getType !== "SecondManagerReview" &&
+              //   getType !== "QASubmitted" &&
+              //   item.Type === "ReworkSubmitted") ||
+              // (typeOfWorkApprovals !== 3 &&
+              //   getType !== "ReworkSubmitted" &&
+              //   getType !== "QASubmitted" &&
+              //   getType !== "SecondManagerReview" &&
+              //   item.Type === "PartialSubmitted") ||
               item.value === editStatusApprovals
           )
         );
@@ -2452,6 +2584,171 @@ const EditDrawer = ({
               item.value === editStatusApprovals
           )
         );
+
+      const getTypeAllTask = statusData.filter(
+        (item: LabelValueType) => item.value === editStatusApprovals
+      )[0].Type;
+
+      const validTaskTypes = [
+        "Assigned",
+        "InProgress",
+        "NotStarted",
+        "OnHoldFromClient",
+        "PendingFromAccounting",
+        "Stop",
+        "WithDraw",
+        "WithdrawnbyClient",
+      ];
+
+      if (
+        validTaskTypes.includes(getTypeAllTask) &&
+        !errorlogSignedOffPendingApprovals
+      ) {
+        setStatusApprovalsDropdownDataUseAllTask(
+          statusData.filter(
+            (item: { Type: string; label: string; value: number }) =>
+              validTaskTypes.includes(item.Type) ||
+              item.value === editStatusApprovals
+          )
+        );
+      }
+
+      const validTaskTypes1 = [
+        "Rework",
+        "ReworkInProgress",
+        "ReworkPrepCompleted",
+        "OnHoldFromClient",
+        "WithDraw",
+        "WithdrawnbyClient",
+      ];
+
+      if (
+        validTaskTypes1.includes(getTypeAllTask) &&
+        errorlogSignedOffPendingApprovals
+      ) {
+        setStatusApprovalsDropdownDataUseAllTask(
+          statusData.filter(
+            (item: { Type: string; label: string; value: number }) =>
+              validTaskTypes1.includes(item.Type) ||
+              item.value === editStatusApprovals
+          )
+        );
+      }
+
+      const validTaskTypes2 = [
+        "InReview",
+        "Rework",
+        "OnHoldFromClient",
+        "WithDraw",
+        "WithdrawnbyClient",
+      ];
+
+      if (
+        validTaskTypes2.includes(getTypeAllTask) &&
+        !errorlogSignedOffPendingApprovals
+      ) {
+        setStatusApprovalsDropdownDataUseAllTask(
+          statusData.filter(
+            (item: { Type: string; label: string; value: number }) =>
+              validTaskTypes2.includes(item.Type) ||
+              item.value === editStatusApprovals
+          )
+        );
+      }
+
+      const validTaskTypes3 = [
+        "ReworkInReview",
+        "Rework",
+        "OnHoldFromClient",
+        "WithDraw",
+        "WithdrawnbyClient",
+      ];
+
+      if (
+        validTaskTypes3.includes(getTypeAllTask) &&
+        errorlogSignedOffPendingApprovals
+      ) {
+        setStatusApprovalsDropdownDataUseAllTask(
+          statusData.filter(
+            (item: { Type: string; label: string; value: number }) =>
+              validTaskTypes3.includes(item.Type) ||
+              item.value === editStatusApprovals
+          )
+        );
+      }
+
+      if (
+        getTypeAllTask === "Errorlogs" ||
+        getTypeAllTask === "InQA" ||
+        getTypeAllTask === "QACompleted" ||
+        getTypeAllTask === "QAInProgress" ||
+        getTypeAllTask === "QASubmitted" ||
+        getTypeAllTask === "Reject" ||
+        getTypeAllTask === "Accept" ||
+        getTypeAllTask === "AcceptWithNotes" ||
+        getTypeAllTask === "ReworkAccept" ||
+        getTypeAllTask === "ReworkAcceptWithNotes" ||
+        getTypeAllTask === "ReworkSubmitted" ||
+        getTypeAllTask === "SecondManagerReview" ||
+        getTypeAllTask === "SignedOff" ||
+        getTypeAllTask === "PartialSubmitted" ||
+        getTypeAllTask === "Submitted"
+      ) {
+        setStatusApprovalsDropdownDataUseAllTask(
+          statusData.filter(
+            (item: { Type: string; label: string; value: number }) =>
+              item.value === editStatusApprovals ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient"
+          )
+        );
+      }
+
+      if (
+        (getTypeAllTask === "OnHoldFromClient" ||
+          getTypeAllTask === "WithDraw" ||
+          getTypeAllTask === "WithdrawnbyClient") &&
+        !errorlogSignedOffPendingApprovals
+      ) {
+        setStatusApprovalsDropdownDataUseAllTask(
+          statusData.filter(
+            (item: { Type: string; label: string; value: number }) =>
+              item.value === editStatusApprovals ||
+              item.Type === "InProgress" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient"
+          )
+        );
+      }
+
+      if (
+        (getTypeAllTask === "OnHoldFromClient" ||
+          getTypeAllTask === "WithDraw" ||
+          getTypeAllTask === "WithdrawnbyClient") &&
+        errorlogSignedOffPendingApprovals
+      ) {
+        setStatusApprovalsDropdownDataUseAllTask(
+          statusData.filter(
+            (item: { Type: string; label: string; value: number }) =>
+              item.value === editStatusApprovals ||
+              item.Type === "ReworkInProgress" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient"
+          )
+        );
+      }
+
+      if (getTypeAllTask === "SignedOff") {
+        setStatusApprovalsDropdownDataUseAllTask(
+          statusData.filter(
+            (item: { Type: string; label: string; value: number }) =>
+              item.Type === "SignedOff"
+          )
+        );
+      }
     };
 
     onOpen &&
@@ -2677,14 +2974,15 @@ const EditDrawer = ({
     setSubProcessApprovalsErr(false);
     setManagerApprovals(0);
     setManagerApprovalsErr(false);
-    setStatusApprovalsDropdownDataUse([]);
     setErrorlogSignOffPendingApprovals(false);
     setEditStatusApprovals(0);
     setStatusApprovals(0);
     setStatusApprovalsErr(false);
     setStatusApprovalsDropdownData([]);
     setStatusApprovalsDropdownDataUse([]);
+    setStatusApprovalsDropdownDataUseAllTask([]);
     setDescriptionApprovals("");
+    setDescriptionApprovalsErr(false);
     setPriorityApprovals(0);
     setQuantityApprovals(1);
     setQuantityApprovalsErr(false);
@@ -2773,6 +3071,7 @@ const EditDrawer = ({
         startTime: 0,
         manualDesc: "",
         IsApproved: false,
+        IsCurrentReviewer: true,
       },
     ]);
     setInputDateErrors([false]);
@@ -2833,17 +3132,27 @@ const EditDrawer = ({
         ],
         Amount: 0,
         DateOfTransaction: "",
+        ErrorIdentificationDate: "",
+        ResolutionStatus: 0,
+        IdentifiedBy: "",
         isSolved: false,
         DisableErrorLog: false,
       },
     ]);
     setErrorTypeErrApprovals([false]);
     setRootCauseErrApprovals([false]);
+    setImpactErrApprovals([false]);
     setErrorLogPriorityErrApprovals([false]);
     setErrorCountErrApprovals([false]);
     setNatureOfErrApprovals([false]);
-    setRemarkErrApprovals([false]);
     setImageErrApprovals([false]);
+    setRcaErrApprovals([false]);
+    setRecordedDateErrApprovals([false]);
+    setErrorIdentificationErrApprovals([false]);
+    setResolutionStatusErrApprovals([false]);
+    setIdentifiedByErrApprovals([false]);
+    setDocumentNumberErrApprovals([false]);
+    setVendorNameErrApprovals([false]);
     setDeletedErrorLogApprovals([]);
 
     // Logs
@@ -2988,8 +3297,15 @@ const EditDrawer = ({
                           setValueMonthYearTo(null);
                         }}
                         disabled={
-                          (isCreatedByClient && editData.ClientId > 0) ||
-                          activeTab === 2
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.ClientId > 0) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
+                            localStorage.getItem("UserId") !=
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3023,8 +3339,15 @@ const EditDrawer = ({
                         sx={{ mx: 0.75, width: 300, mt: -0.3 }}
                         error={typeOfWorkApprovalsErr}
                         disabled={
-                          (isCreatedByClient && editData.WorkTypeId > 0) ||
-                          activeTab === 2
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.WorkTypeId > 0) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
+                            localStorage.getItem("UserId") !=
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                       >
                         <InputLabel id="demo-simple-select-standard-label">
@@ -3094,8 +3417,15 @@ const EditDrawer = ({
                           ) || null
                         }
                         disabled={
-                          (isCreatedByClient && editData.ProjectId > 0) ||
-                          activeTab === 2
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.ProjectId > 0) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
+                            localStorage.getItem("UserId") !=
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setProjectNameApprovals(value.value);
@@ -3131,12 +3461,12 @@ const EditDrawer = ({
                         id="combo-box-demo"
                         options={
                           activeTab === 2
-                            ? statusApprovalsDropdownData
+                            ? statusApprovalsDropdownDataUseAllTask
                             : statusApprovalsDropdownDataUse
                         }
                         value={
                           activeTab === 2
-                            ? statusApprovalsDropdownData.find(
+                            ? statusApprovalsDropdownDataUseAllTask.find(
                                 (i: LabelValueType) =>
                                   i.value === statusApprovals
                               ) || null
@@ -3149,8 +3479,15 @@ const EditDrawer = ({
                           value && setStatusApprovals(value.value);
                         }}
                         disabled={
-                          (isCreatedByClient && editData.ProjectId > 0) ||
-                          activeTab === 2
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.ProjectId > 0) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
+                            localStorage.getItem("UserId") !=
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3190,9 +3527,16 @@ const EditDrawer = ({
                           ) || null
                         }
                         disabled={
-                          (isCreatedByClient && editData.ProjectId > 0) ||
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.ProjectId > 0) ||
                           isAdmin === false ||
-                          activeTab === 2
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
+                            localStorage.getItem("UserId") !=
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                         onChange={(e, value: LabelValueType | null) => {
                           value && setDepartmentApprovals(value.value);
@@ -3244,8 +3588,15 @@ const EditDrawer = ({
                           ) || null
                         }
                         disabled={
-                          (isCreatedByClient && editData.ProcessId > 0) ||
-                          activeTab === 2
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.ProcessId > 0) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
+                            localStorage.getItem("UserId") !=
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setProcessNameApprovals(value.value);
@@ -3288,8 +3639,15 @@ const EditDrawer = ({
                           ) || null
                         }
                         disabled={
-                          (isCreatedByClient && editData.SubProcessId > 0) ||
-                          activeTab === 2
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.SubProcessId > 0) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
+                            localStorage.getItem("UserId") !=
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setSubProcessApprovals(value.value);
@@ -3329,8 +3687,15 @@ const EditDrawer = ({
                           </span>
                         }
                         disabled={
-                          (isCreatedByClient && editData.SubProcessId > 0) ||
-                          activeTab === 2
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.SubProcessId > 0) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
+                            localStorage.getItem("UserId") !=
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                         fullWidth
                         className="pt-1"
@@ -3417,8 +3782,15 @@ const EditDrawer = ({
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -1.5 }}
                         disabled={
-                          (isCreatedByClient && editData.SubProcessId > 0) ||
-                          activeTab === 2
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.SubProcessId > 0) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
+                            localStorage.getItem("UserId") !=
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                       />
                     </Grid>
@@ -3427,8 +3799,15 @@ const EditDrawer = ({
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -1.2 }}
                         disabled={
-                          (isCreatedByClient && editData.SubProcessId > 0) ||
-                          activeTab === 2
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.SubProcessId > 0) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
+                            localStorage.getItem("UserId") !=
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                       >
                         <InputLabel id="demo-simple-select-standard-label">
@@ -3536,8 +3915,15 @@ const EditDrawer = ({
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -0.8 }}
                         disabled={
-                          (isCreatedByClient && editData.SubProcessId > 0) ||
-                          activeTab === 2
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.SubProcessId > 0) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
+                            localStorage.getItem("UserId") !=
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                       />
                     </Grid>
@@ -3609,9 +3995,16 @@ const EditDrawer = ({
                             }
                             // shouldDisableDate={isWeekend}
                             disabled={
-                              (isCreatedByClient &&
+                              (activeTab !== 2 &&
+                                isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
-                              activeTab === 2
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) ==
+                                  3 &&
+                                localStorage.getItem("UserId") !=
+                                  editData.ReviewerId) ||
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) != 3)
                             }
                             maxDate={dayjs(Date.now())}
                             onChange={(newDate: any) => {
@@ -3668,9 +4061,16 @@ const EditDrawer = ({
                             }
                             // shouldDisableDate={isWeekend}
                             disabled={
-                              (isCreatedByClient &&
+                              (activeTab !== 2 &&
+                                isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
-                              activeTab === 2
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) ==
+                                  3 &&
+                                localStorage.getItem("UserId") !=
+                                  editData.ReviewerId) ||
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) != 3)
                             }
                             onChange={(newDate: any) => {
                               setDueDateApprovals(newDate.$d);
@@ -3695,9 +4095,17 @@ const EditDrawer = ({
                               label="All Info Date"
                               // shouldDisableDate={isWeekend}
                               disabled={
-                                (isCreatedByClient &&
+                                (activeTab !== 2 &&
+                                  isCreatedByClient &&
                                   editData.SubProcessId > 0) ||
-                                activeTab === 2
+                                (activeTab === 2 &&
+                                  Number(localStorage.getItem("workTypeId")) ==
+                                    3 &&
+                                  localStorage.getItem("UserId") !=
+                                    editData.ReviewerId) ||
+                                (activeTab === 2 &&
+                                  Number(localStorage.getItem("workTypeId")) !=
+                                    3)
                               }
                               value={
                                 allInfoDateApprovals === ""
@@ -3716,12 +4124,8 @@ const EditDrawer = ({
                       item
                       xs={3}
                       className={`${
-                        typeOfWorkApprovals === 3 &&
-                        departmentApprovalsType !== "WhitelabelTaxation"
+                        typeOfWorkApprovals === 3
                           ? "pt-2"
-                          : typeOfWorkApprovals === 3 &&
-                            departmentApprovalsType === "WhitelabelTaxation"
-                          ? "pt-4"
                           : departmentApprovalsType !== "WhitelabelTaxation"
                           ? "pt-[17px]"
                           : "pt-5"
@@ -3733,8 +4137,15 @@ const EditDrawer = ({
                         options={assigneeApprovalsDropdownData}
                         disabled={
                           !assigneeDisableApprovals ||
-                          (isCreatedByClient && editData.SubProcessId > 0) ||
-                          activeTab === 2
+                          (activeTab !== 2 &&
+                            isCreatedByClient &&
+                            editData.SubProcessId > 0) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) == 3 &&
+                            localStorage.getItem("UserId") !=
+                              editData.ReviewerId) ||
+                          (activeTab === 2 &&
+                            Number(localStorage.getItem("workTypeId")) != 3)
                         }
                         value={
                           assigneeApprovalsDropdownData.find(
@@ -3820,9 +4231,16 @@ const EditDrawer = ({
                                 : ""
                             }
                             disabled={
-                              (isCreatedByClient &&
+                              (activeTab !== 2 &&
+                                isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
-                              activeTab === 2
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) ==
+                                  3 &&
+                                localStorage.getItem("UserId") !=
+                                  editData.ReviewerId) ||
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) != 3)
                             }
                           />
                         )}
@@ -3874,9 +4292,16 @@ const EditDrawer = ({
                                 : ""
                             }
                             disabled={
-                              (isCreatedByClient &&
+                              (activeTab !== 2 &&
+                                isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
-                              activeTab === 2
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) ==
+                                  3 &&
+                                localStorage.getItem("UserId") !=
+                                  editData.ReviewerId) ||
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) != 3)
                             }
                           />
                         )}
@@ -3895,8 +4320,16 @@ const EditDrawer = ({
                           id="combo-box-demo"
                           options={isQaApprovalsDropdownData}
                           disabled={
-                            (isCreatedByClient && editData.SubProcessId > 0) ||
-                            activeTab === 2 ||
+                            (activeTab !== 2 &&
+                              isCreatedByClient &&
+                              editData.SubProcessId > 0) ||
+                            (activeTab === 2 &&
+                              Number(localStorage.getItem("workTypeId")) == 3 &&
+                              localStorage.getItem("UserId") !=
+                                editData.ReviewerId) ||
+                            (activeTab === 2 &&
+                              Number(localStorage.getItem("workTypeId")) !=
+                                3) ||
                             !!editData.QAId
                           }
                           value={
@@ -3930,7 +4363,7 @@ const EditDrawer = ({
                         item
                         xs={3}
                         className={`${
-                          typeOfWorkApprovals === 3 ? "pt-2" : "pt-5"
+                          typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
                         }`}
                       >
                         <div
@@ -3951,9 +4384,17 @@ const EditDrawer = ({
                                 setValueMonthYearFrom(newDate.$d)
                               }
                               disabled={
-                                (isCreatedByClient &&
+                                (activeTab !== 2 &&
+                                  isCreatedByClient &&
                                   editData.SubProcessId > 0) ||
-                                activeTab === 2
+                                (activeTab === 2 &&
+                                  Number(localStorage.getItem("workTypeId")) ==
+                                    3 &&
+                                  localStorage.getItem("UserId") !=
+                                    editData.ReviewerId) ||
+                                (activeTab === 2 &&
+                                  Number(localStorage.getItem("workTypeId")) !=
+                                    3)
                               }
                             />
                           </LocalizationProvider>
@@ -3989,9 +4430,17 @@ const EditDrawer = ({
                                 setValueMonthYearTo(newDate.$d)
                               }
                               disabled={
-                                (isCreatedByClient &&
+                                (activeTab !== 2 &&
+                                  isCreatedByClient &&
                                   editData.SubProcessId > 0) ||
-                                activeTab === 2
+                                (activeTab === 2 &&
+                                  Number(localStorage.getItem("workTypeId")) ==
+                                    3 &&
+                                  localStorage.getItem("UserId") !=
+                                    editData.ReviewerId) ||
+                                (activeTab === 2 &&
+                                  Number(localStorage.getItem("workTypeId")) !=
+                                    3)
                               }
                             />
                           </LocalizationProvider>
@@ -4000,15 +4449,34 @@ const EditDrawer = ({
                     )}
                     {typeOfWorkApprovals === 3 && (
                       <>
-                        <Grid item xs={3} className="pt-2">
+                        <Grid
+                          item
+                          xs={3}
+                          className={`${
+                            departmentApprovalsType ===
+                              "WhitelabelAccounting" ||
+                            departmentApprovalsType === "WhitelabelAustralia" ||
+                            departmentApprovalsType === "UK" ||
+                            departmentApprovalsType === "Germany"
+                              ? "pt-4"
+                              : "pt-2"
+                          }`}
+                        >
                           <FormControl
                             variant="standard"
                             sx={{ width: 300, mt: -0.3, mx: 0.75 }}
                             error={returnYearApprovalsErr}
                             disabled={
-                              (isCreatedByClient &&
+                              (activeTab !== 2 &&
+                                isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
-                              activeTab === 2
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) ==
+                                  3 &&
+                                localStorage.getItem("UserId") !=
+                                  editData.ReviewerId) ||
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) != 3)
                             }
                           >
                             <InputLabel id="demo-simple-select-standard-label">
@@ -4047,7 +4515,22 @@ const EditDrawer = ({
                             )}
                           </FormControl>
                         </Grid>
-                        <Grid item xs={3} className="pt-2">
+                        <Grid
+                          item
+                          xs={3}
+                          className={`${
+                            departmentApprovalsType ===
+                              "WhitelabelAccounting" ||
+                            departmentApprovalsType === "WhitelabelAustralia" ||
+                            departmentApprovalsType === "UK" ||
+                            departmentApprovalsType === "Germany" ||
+                            departmentApprovalsType === "SMB"
+                              ? "pt-4"
+                              : departmentApprovalsType === "WhitelabelTaxation"
+                              ? "pt-4"
+                              : "pt-2"
+                          }`}
+                        >
                           <TextField
                             label="No of Pages"
                             type="number"
@@ -4068,9 +4551,16 @@ const EditDrawer = ({
                               )
                             }
                             disabled={
-                              (isCreatedByClient &&
+                              (activeTab !== 2 &&
+                                isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
-                              activeTab === 2
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) ==
+                                  3 &&
+                                localStorage.getItem("UserId") !=
+                                  editData.ReviewerId) ||
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) != 3)
                             }
                             margin="normal"
                             variant="standard"
@@ -4083,9 +4573,16 @@ const EditDrawer = ({
                             sx={{ width: 300, mt: -0.8, mx: 0.75 }}
                             error={checklistWorkpaperApprovalsErr}
                             disabled={
-                              (isCreatedByClient &&
+                              (activeTab !== 2 &&
+                                isCreatedByClient &&
                                 editData.SubProcessId > 0) ||
-                              activeTab === 2
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) ==
+                                  3 &&
+                                localStorage.getItem("UserId") !=
+                                  editData.ReviewerId) ||
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) != 3)
                             }
                           >
                             <InputLabel id="demo-simple-select-standard-label">
@@ -4215,9 +4712,19 @@ const EditDrawer = ({
                                     </span>
                                   }
                                   disabled={
-                                    (isCreatedByClient &&
+                                    (activeTab !== 2 &&
+                                      isCreatedByClient &&
                                       editData.SubProcessId > 0) ||
-                                    activeTab === 2
+                                    (activeTab === 2 &&
+                                      Number(
+                                        localStorage.getItem("workTypeId")
+                                      ) == 3 &&
+                                      localStorage.getItem("UserId") !=
+                                        editData.ReviewerId) ||
+                                    (activeTab === 2 &&
+                                      Number(
+                                        localStorage.getItem("workTypeId")
+                                      ) != 3)
                                   }
                                   value={
                                     reworkReceiverDateWorklogs === ""
@@ -4276,9 +4783,19 @@ const EditDrawer = ({
                                       : dayjs(reworkDueDateWorklogs)
                                   }
                                   disabled={
-                                    (isCreatedByClient &&
+                                    (activeTab !== 2 &&
+                                      isCreatedByClient &&
                                       editData.SubProcessId > 0) ||
-                                    activeTab === 2
+                                    (activeTab === 2 &&
+                                      Number(
+                                        localStorage.getItem("workTypeId")
+                                      ) == 3 &&
+                                      localStorage.getItem("UserId") !=
+                                        editData.ReviewerId) ||
+                                    (activeTab === 2 &&
+                                      Number(
+                                        localStorage.getItem("workTypeId")
+                                      ) != 3)
                                   }
                                   minDate={dayjs(reworkReceiverDateWorklogs)}
                                   shouldDisableDate={isWeekend}
@@ -4293,6 +4810,55 @@ const EditDrawer = ({
                                 />
                               </LocalizationProvider>
                             </div>
+                          </Grid>
+                        )}
+                        {!!editData && !!editData.PrevReviewerId && (
+                          <Grid
+                            item
+                            xs={3}
+                            className={`${
+                              (departmentApprovalsType == "UK" ||
+                                departmentApprovalsType ==
+                                  "WhitelabelAccounting" ||
+                                departmentApprovalsType ==
+                                  "WhitelabelAustralia" ||
+                                departmentApprovalsType ==
+                                  "WhitelabelTaxation" ||
+                                departmentApprovalsType === "Germany" ||
+                                departmentApprovalsType === "SMB") &&
+                              typeOfWorkApprovals !== 3
+                                ? "pt-6"
+                                : departmentApprovalsType === "SMB" &&
+                                  typeOfWorkApprovals === 3
+                                ? "pt-2"
+                                : "pt-4"
+                            }`}
+                          >
+                            <Autocomplete
+                              disablePortal
+                              id="combo-box-demo"
+                              options={reviewerApprovalsDropdownData}
+                              disabled
+                              value={
+                                reviewerApprovalsDropdownData?.find(
+                                  (i: LabelValue) =>
+                                    i.value === editData.PrevReviewerId
+                                ) || null
+                              }
+                              onChange={(e, value: LabelValue | null) => {}}
+                              sx={{
+                                width: 300,
+                                mt: typeOfWorkApprovals === 3 ? 0.2 : -1,
+                                mx: 0.75,
+                              }}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  variant="standard"
+                                  label="Prev. Reviewer"
+                                />
+                              )}
+                            />
                           </Grid>
                         )}
                       </>
@@ -5318,6 +5884,7 @@ const EditDrawer = ({
                           startTime: 0,
                           manualDesc: "",
                           IsApproved: false,
+                          IsCurrentReviewer: true,
                         },
                       ]);
                       setInputDateErrors([false]);
@@ -5332,6 +5899,7 @@ const EditDrawer = ({
                           startTime: 0,
                           manualDesc: "",
                           IsApproved: false,
+                          IsCurrentReviewer: true,
                         },
                       ]);
                     }}
@@ -5351,7 +5919,7 @@ const EditDrawer = ({
                 <>
                   <div className="-mt-2 pl-6">
                     {reviewermanualFields.map((field, index) => (
-                      <div key={field.Id} className="flex items-center">
+                      <div key={index} className="flex items-center">
                         <div
                           className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
                             inputDateErrors[index] ? "datepickerError" : ""
@@ -5513,6 +6081,7 @@ const EditDrawer = ({
                         {index === 0 &&
                           manualSwitch &&
                           !field.IsApproved &&
+                          field.IsCurrentReviewer &&
                           field.Id > 0 &&
                           activeTab === 1 && (
                             <span
@@ -5549,6 +6118,7 @@ const EditDrawer = ({
                         {index > 0 &&
                           manualSwitch &&
                           !field.IsApproved &&
+                          field.IsCurrentReviewer &&
                           activeTab === 1 && (
                             <span
                               className="cursor-pointer"
@@ -5923,12 +6493,17 @@ const EditDrawer = ({
                               value={
                                 field.ErrorType === 0 ? "" : field.ErrorType
                               }
-                              onChange={(e) =>
+                              onChange={(e) => {
                                 handleErrorTypeChangeApprovals(
                                   Number(e.target.value),
                                   index
-                                )
-                              }
+                                );
+                                handleIdentifiedByChange(
+                                  "",
+                                  index,
+                                  Number(e.target.value)
+                                );
+                              }}
                               onBlur={() => {
                                 if (field.ErrorType > 0) {
                                   const newErrorTypeErrors = [
@@ -5957,7 +6532,7 @@ const EditDrawer = ({
                             error={rootCauseErrApprovals[index]}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
-                              Root Cause
+                              Error Category
                               <span className="text-defaultRed">&nbsp;*</span>
                             </InputLabel>
                             <Select
@@ -6069,7 +6644,7 @@ const EditDrawer = ({
                             error={natureOfErrApprovals[index]}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
-                              Nature of Error
+                              Error Details
                               <span className="text-defaultRed">&nbsp;*</span>
                             </InputLabel>
                             <Select
@@ -6130,7 +6705,7 @@ const EditDrawer = ({
                             error={errorLogPriorityErrApprovals[index]}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
-                              Priority
+                              Criticality
                               <span className="text-defaultRed">&nbsp;*</span>
                             </InputLabel>
                             <Select
@@ -6183,7 +6758,7 @@ const EditDrawer = ({
                           </FormControl>
                           <div className="flex !ml-0">
                             <TextField
-                              label={<span>Document Number Field</span>}
+                              label={<span>Accounting Transaction ID</span>}
                               fullWidth
                               disabled={
                                 (!hasPermissionWorklog(
@@ -6241,7 +6816,7 @@ const EditDrawer = ({
                               sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                             />
                             <TextField
-                              label={<span>Vendor Field Addition</span>}
+                              label={<span>Vendor Name</span>}
                               fullWidth
                               disabled={
                                 (!hasPermissionWorklog(
@@ -6407,14 +6982,7 @@ const EditDrawer = ({
                           </div>
                           <div className="flex !ml-0">
                             <TextField
-                              label={
-                                <span>
-                                  Remarks
-                                  <span className="text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </span>
-                              }
+                              label={<span>Additional Remark (If any)</span>}
                               fullWidth
                               disabled={
                                 (!hasPermissionWorklog(
@@ -6441,34 +7009,12 @@ const EditDrawer = ({
                                   index
                                 )
                               }
-                              onBlur={(e) => {
-                                if (e.target.value.length > 0) {
-                                  const newRemarkErrors = [
-                                    ...remarkErrApprovals,
-                                  ];
-                                  newRemarkErrors[index] = false;
-                                  setRemarkErrApprovals(newRemarkErrors);
-                                }
-                              }}
-                              error={remarkErrApprovals[index]}
-                              helperText={
-                                remarkErrApprovals[index] &&
-                                field.Remark.length > 0 &&
-                                field.Remark.length < 5
-                                  ? "Minumum 5 characters required."
-                                  : remarkErrApprovals[index] &&
-                                    field.Remark.length > 500
-                                  ? "Maximum 500 characters allowed."
-                                  : remarkErrApprovals[index]
-                                  ? "This is a required field."
-                                  : ""
-                              }
                               margin="normal"
                               variant="standard"
                               sx={{ mx: 0.75, maxWidth: 472, mt: 1.5 }}
                             />
                             <TextField
-                              label="Amount"
+                              label="Amount of Impact (if any)"
                               fullWidth
                               disabled={
                                 (!hasPermissionWorklog(
@@ -6505,10 +7051,23 @@ const EditDrawer = ({
                               variant="standard"
                               sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                             />
-                            <div className="inline-flex mt-[8px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]">
+                            <div
+                              className={`inline-flex mt-[8px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
+                                recordedDateErrApprovals[index]
+                                  ? "datepickerError"
+                                  : ""
+                              }`}
+                            >
                               <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DatePicker
-                                  label="Date of Transaction"
+                                  label={
+                                    <span>
+                                      Transaction Rec. Date
+                                      <span className="text-defaultRed">
+                                        &nbsp;*
+                                      </span>
+                                    </span>
+                                  }
                                   maxDate={dayjs(new Date())}
                                   disabled={
                                     (!hasPermissionWorklog(
@@ -6537,6 +7096,11 @@ const EditDrawer = ({
                                   }}
                                   slotProps={{
                                     textField: {
+                                      helperText: recordedDateErrApprovals[
+                                        index
+                                      ]
+                                        ? "This is a required field."
+                                        : "",
                                       readOnly: true,
                                     } as Record<string, any>,
                                   }}
@@ -6608,7 +7172,14 @@ const EditDrawer = ({
                           </div>
                           <div className="flex !ml-0">
                             <TextField
-                              label={<span>Root Cause Analysis (RCA)</span>}
+                              label={
+                                <span>
+                                  Root Cause Analysis (RCA)
+                                  <span className="text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
                               fullWidth
                               disabled={
                                 (!hasPermissionWorklog(
@@ -6633,7 +7204,10 @@ const EditDrawer = ({
                                 handleRcaChangeApprovals(e.target.value, index)
                               }
                               onBlur={(e) => {
-                                if (e.target.value.length > 250) {
+                                if (
+                                  e.target.value.length <= 0 ||
+                                  e.target.value.length > 250
+                                ) {
                                   const newRcaErrors = [...rcaErrApprovals];
                                   newRcaErrors[index] = true;
                                   setRcaErrApprovals(newRcaErrors);
@@ -6648,6 +7222,8 @@ const EditDrawer = ({
                                 rcaErrApprovals[index] &&
                                 field.RootCauseAnalysis.trim().length > 250
                                   ? "Maximum 250 characters allowed."
+                                  : rcaErrApprovals[index]
+                                  ? "This is a required field."
                                   : ""
                               }
                               margin="normal"
@@ -6655,7 +7231,7 @@ const EditDrawer = ({
                               sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                             />
                             <TextField
-                              label={<span>Mitigation Plan</span>}
+                              label={<span>Corrective Action</span>}
                               fullWidth
                               disabled={
                                 (!hasPermissionWorklog(
@@ -6713,7 +7289,7 @@ const EditDrawer = ({
                               sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                             />
                             <TextField
-                              label={<span>Contingency Plan</span>}
+                              label={<span>Preventative Action</span>}
                               fullWidth
                               disabled={
                                 (!hasPermissionWorklog(
@@ -6770,6 +7346,201 @@ const EditDrawer = ({
                               variant="standard"
                               sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                             />
+                            <div
+                              className={`inline-flex mt-[8px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
+                                errorIdentificationErrApprovals[index]
+                                  ? "datepickerError"
+                                  : ""
+                              }`}
+                            >
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                  label={
+                                    <span>
+                                      Error Identification Date
+                                      <span className="text-defaultRed">
+                                        &nbsp;*
+                                      </span>
+                                    </span>
+                                  }
+                                  maxDate={dayjs(new Date())}
+                                  disabled={
+                                    (!hasPermissionWorklog(
+                                      "ErrorLog",
+                                      "Save",
+                                      "WorkLogs"
+                                    ) &&
+                                      hasPermissionWorklog(
+                                        "ErrorLog",
+                                        "Delete",
+                                        "WorkLogs"
+                                      )) ||
+                                    field.isSolved ||
+                                    activeTab === 2
+                                  }
+                                  value={
+                                    field.ErrorIdentificationDate === ""
+                                      ? null
+                                      : dayjs(field.ErrorIdentificationDate)
+                                  }
+                                  onChange={(newDate: any) => {
+                                    handleErrorIdentificationDateChange(
+                                      newDate.$d,
+                                      index
+                                    );
+                                  }}
+                                  slotProps={{
+                                    textField: {
+                                      helperText:
+                                        errorIdentificationErrApprovals[index]
+                                          ? "This is a required field."
+                                          : "",
+                                      readOnly: true,
+                                    } as Record<string, any>,
+                                  }}
+                                />
+                              </LocalizationProvider>
+                            </div>
+                          </div>
+                          <div className="flex !ml-0">
+                            <FormControl
+                              variant="standard"
+                              sx={{ mx: 0.75, minWidth: 230, mt: 1.1 }}
+                              error={resolutionStatusErrApprovals[index]}
+                            >
+                              <InputLabel id="demo-simple-select-standard-label">
+                                Resolution status
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </InputLabel>
+                              <Select
+                                labelId="demo-simple-select-standard-label"
+                                id="demo-simple-select-standard"
+                                disabled={
+                                  (!hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Save",
+                                    "WorkLogs"
+                                  ) &&
+                                    hasPermissionWorklog(
+                                      "ErrorLog",
+                                      "Delete",
+                                      "WorkLogs"
+                                    )) ||
+                                  field.isSolved ||
+                                  activeTab === 2
+                                }
+                                value={
+                                  field.ResolutionStatus === 0
+                                    ? ""
+                                    : field.ResolutionStatus
+                                }
+                                onChange={(e) =>
+                                  handleResolutionStatusChange(
+                                    Number(e.target.value),
+                                    index
+                                  )
+                                }
+                                onBlur={() => {
+                                  if (field.ResolutionStatus > 0) {
+                                    const newResolutionStatusErrors = [
+                                      ...resolutionStatusErrApprovals,
+                                    ];
+                                    newResolutionStatusErrors[index] = false;
+                                    setResolutionStatusErrApprovals(
+                                      newResolutionStatusErrors
+                                    );
+                                  }
+                                }}
+                              >
+                                {resolutionStatusOptions.map(
+                                  (r: LabelValue) => (
+                                    <MenuItem value={r.value} key={r.value}>
+                                      {r.label}
+                                    </MenuItem>
+                                  )
+                                )}
+                              </Select>
+                              {resolutionStatusErrApprovals[index] && (
+                                <FormHelperText>
+                                  This is a required field.
+                                </FormHelperText>
+                              )}
+                            </FormControl>
+                            {field.ErrorType === 2 && (
+                              <TextField
+                                label={
+                                  <span>
+                                    Error Identified by
+                                    <span className="text-defaultRed">
+                                      &nbsp;*
+                                    </span>
+                                  </span>
+                                }
+                                fullWidth
+                                disabled={
+                                  (!hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Save",
+                                    "WorkLogs"
+                                  ) &&
+                                    hasPermissionWorklog(
+                                      "ErrorLog",
+                                      "Delete",
+                                      "WorkLogs"
+                                    )) ||
+                                  field.isSolved ||
+                                  activeTab === 2
+                                }
+                                value={
+                                  field.IdentifiedBy !== null &&
+                                  field.IdentifiedBy.trim().length === 0
+                                    ? ""
+                                    : field.IdentifiedBy
+                                }
+                                onChange={(e) =>
+                                  handleIdentifiedByChange(
+                                    e.target.value,
+                                    index,
+                                    0
+                                  )
+                                }
+                                onBlur={(e) => {
+                                  if (
+                                    e.target.value.length <= 0 ||
+                                    e.target.value.length > 50
+                                  ) {
+                                    const newIdentifiedByErrors = [
+                                      ...identifiedByErrApprovals,
+                                    ];
+                                    newIdentifiedByErrors[index] = true;
+                                    setIdentifiedByErrApprovals(
+                                      newIdentifiedByErrors
+                                    );
+                                  } else {
+                                    const newIdentifiedByErrors = [
+                                      ...identifiedByErrApprovals,
+                                    ];
+                                    newIdentifiedByErrors[index] = false;
+                                    setIdentifiedByErrApprovals(
+                                      newIdentifiedByErrors
+                                    );
+                                  }
+                                }}
+                                error={identifiedByErrApprovals[index]}
+                                helperText={
+                                  identifiedByErrApprovals[index] &&
+                                  field.IdentifiedBy !== null &&
+                                  field.IdentifiedBy.trim().length > 50
+                                    ? "Maximum 50 characters allowed."
+                                    : identifiedByErrApprovals[index]
+                                    ? "This is a required field."
+                                    : ""
+                                }
+                                margin="normal"
+                                variant="standard"
+                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                              />
+                            )}
                             {field.isSolved && (
                               <FormGroup>
                                 <FormControlLabel
@@ -7010,7 +7781,10 @@ const EditDrawer = ({
                     Close
                   </span>
                 </Button>
-                {activeTab === 1 && (
+                {(activeTab === 1 ||
+                  (activeTab === 2 &&
+                    Number(localStorage.getItem("workTypeId")) == 3 &&
+                    localStorage.getItem("UserId") == editData.ReviewerId)) && (
                   <Button
                     type="submit"
                     variant="contained"

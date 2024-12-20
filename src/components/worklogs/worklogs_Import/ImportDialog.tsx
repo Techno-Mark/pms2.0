@@ -69,6 +69,7 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
     setFileInputKey((prevKey) => prevKey + 1);
     setFileInputKeyErrorlog((prevKey) => prevKey + 1);
     setSelectedFile(null);
+    setSelectedFileErrorlog(null);
   };
 
   const handleRowSelect = (
@@ -140,17 +141,19 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
   };
 
   const handleApplyImportExcel = async (isTask: boolean) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
+    const token = localStorage.getItem("token");
+    const Org_Token = localStorage.getItem("Org_Token");
 
-    if (selectedFile || selectedFileErrorlog) {
+    const file = isTask ? selectedFile : selectedFileErrorlog;
+
+    if (file) {
+      const setUploading = isTask ? setIsUplaoding : setIsUplaodingErrorlog;
+      setUploading(true);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
       try {
-        isTask ? setIsUplaoding(true) : setIsUplaodingErrorlog(true);
-        const formData = new FormData();
-        isTask
-          ? formData.append("file", selectedFile)
-          : formData.append("file", selectedFileErrorlog);
-
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/${
             isTask ? "importexcel" : "importerrorlogsexcel"
@@ -165,62 +168,52 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
           }
         );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            toast.success("Task has been imported successfully.");
-            onDataFetch?.();
-            isTask ? setIsUplaoding(false) : setIsUplaodingErrorlog(false);
-            handleClose();
-          } else if (response.data.ResponseStatus === "Warning") {
-            toast.warning(
-              `Valid Task has been imported and an Excel file ${response.data.ResponseData.FileDownloadName} has been downloaded for invalid tasks.`
-            );
+        const { ResponseStatus, Message, ResponseData } = response.data;
 
-            const byteCharacters = atob(
-              response.data.ResponseData.FileContents
-            );
-            const byteNumbers = new Array(byteCharacters.length);
-            for (let i = 0; i < byteCharacters.length; i++) {
-              byteNumbers[i] = byteCharacters.charCodeAt(i);
-            }
-            const byteArray = new Uint8Array(byteNumbers);
-
-            const fileBlob = new Blob([byteArray], {
-              type: `${response.data.ResponseData.ContentType}`,
-            });
-
-            const fileURL = URL.createObjectURL(fileBlob);
-            const downloadLink = document.createElement("a");
-            downloadLink.href = fileURL;
-            downloadLink.setAttribute(
-              "download",
-              response.data.ResponseData.FileDownloadName
-            );
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
-            URL.revokeObjectURL(fileURL);
-
-            onDataFetch?.();
-            isTask ? setIsUplaoding(false) : setIsUplaodingErrorlog(false);
-            handleClose();
-          } else {
-            toast.error(
-              response.data.Message === "" || response.data.Message === null
-                ? "The uploaded file is not in the format of the sample file."
-                : response.data.Message
-            );
-            isTask ? setIsUplaoding(false) : setIsUplaodingErrorlog(false);
-            handleClose();
-          }
+        if (ResponseStatus === "Success") {
+          toast.success("Task has been imported successfully.");
+        } else if (ResponseStatus === "Warning" && ResponseData) {
+          handleFileDownload(ResponseData);
+          toast.warning(
+            "Valid tasks imported. Invalid tasks saved to an Excel file."
+          );
         } else {
-          toast.error("Please try again later.");
-          isTask ? setIsUplaoding(false) : setIsUplaodingErrorlog(false);
+          toast.error(Message || "The uploaded file format is invalid.");
         }
+
+        onDataFetch?.();
+        handleClose();
       } catch (error) {
-        console.error(error);
+        console.error("Error during file upload:", error);
+        toast.error("An error occurred while uploading. Please try again.");
+      } finally {
+        setUploading(false);
       }
     }
+  };
+
+  const handleFileDownload = (fileData: {
+    FileContents: string;
+    FileDownloadName: string;
+    ContentType: string;
+  }) => {
+    const { FileContents, FileDownloadName, ContentType } = fileData;
+
+    const byteCharacters = atob(FileContents);
+    const byteNumbers = new Uint8Array(
+      Array.from(byteCharacters).map((char) => char.charCodeAt(0))
+    );
+
+    const blob = new Blob([byteNumbers], { type: ContentType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = FileDownloadName;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   useEffect(() => {
@@ -368,14 +361,16 @@ const ImportDialog = ({ onOpen, onClose, onDataFetch }: ImportDialogProp) => {
               />
             </div>
           ) : (
-            <div className="pt-6 px-[10px] pb-[10px] h-[235px] w-[40vw]">
+            <div className="pt-6 px-[10px] pb-[10px] h-[235px]">
               <div className="flex items-center justify-around gap-5">
                 <input
-                  key={fileInputKey}
+                  key={`${fileInputKey + Math.random()}`}
                   accept=".xls,.xlsx"
                   style={{ display: "none" }}
                   id="raised-button-file"
-                  onChange={(e) => handleFileChange(e, true)}
+                  onChange={(e) => {
+                    handleFileChange(e, true);
+                  }}
                   type="file"
                 />
                 <label

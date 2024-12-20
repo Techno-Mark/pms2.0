@@ -2004,6 +2004,56 @@ const TaskEditDrawer = ({
                           </div>
                         </Grid>
                       )}
+                      {!!editDataWorklogs &&
+                        !!editDataWorklogs.PrevReviewerId && (
+                          <Grid
+                            item
+                            xs={3}
+                            className={`${
+                              (departmentWorklogsType == "UK" ||
+                                departmentWorklogsType ==
+                                  "WhitelabelAccounting" ||
+                                departmentWorklogsType ==
+                                  "WhitelabelAustralia" ||
+                                departmentWorklogsType ==
+                                  "WhitelabelTaxation" ||
+                                departmentWorklogsType === "Germany" ||
+                                departmentWorklogsType === "SMB") &&
+                              typeOfWorkWorklogs !== 3
+                                ? "pt-6"
+                                : departmentWorklogsType === "SMB" &&
+                                  typeOfWorkWorklogs === 3
+                                ? "pt-2"
+                                : "pt-4"
+                            }`}
+                          >
+                            <Autocomplete
+                              disablePortal
+                              id="combo-box-demo"
+                              options={reviewerWorklogsDropdownData}
+                              disabled
+                              value={
+                                reviewerWorklogsDropdownData?.find(
+                                  (i: LabelValue) =>
+                                    i.value === editDataWorklogs.PrevReviewerId
+                                ) || null
+                              }
+                              onChange={(e, value: LabelValue | null) => {}}
+                              sx={{
+                                width: 300,
+                                mt: typeOfWorkWorklogs === 3 ? 0.2 : -1,
+                                mx: 0.75,
+                              }}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  variant="standard"
+                                  label="Prev. Reviewer"
+                                />
+                              )}
+                            />
+                          </Grid>
+                        )}
                     </>
                   )}
                 </Grid>

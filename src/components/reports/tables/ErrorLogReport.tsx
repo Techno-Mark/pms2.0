@@ -76,6 +76,11 @@ interface Response {
         ContigencyPlan: string | null;
         VendorName: string | null;
         DocumentNumber: string | null;
+        Category: string | null;
+        ErrorIdentificationDate: string;
+        ResolutionStatus: number;
+        ResolutionStatusVal: string;
+        IdentifiedBy: string | null;
       }[]
     | [];
   TotalCount: number;

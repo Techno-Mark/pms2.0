@@ -96,6 +96,7 @@ import {
   errorTypeOptions,
   impactOptions,
   priorityOptions,
+  resolutionStatusOptions,
   rootCauseOptions,
 } from "@/utils/staticDropdownData";
 
@@ -1533,6 +1534,9 @@ const EditDrawer = ({
       ],
       Amount: 0,
       DateOfTransaction: "",
+      ErrorIdentificationDate: "",
+      ResolutionStatus: 0,
+      IdentifiedBy: "",
       isSolved: false,
       DisableErrorLog: false,
       IsHasErrorlogAddedByClient: false,
@@ -1550,12 +1554,22 @@ const EditDrawer = ({
   ]);
   const [vendorNameErrWorklogs, setVendorNameErrWorklogs] = useState([false]);
   const [rcaErrWorklogs, setRcaErrWorklogs] = useState([false]);
+  const [recordedDateErrWorklogs, setRecordedDateErrWorklogs] = useState([
+    false,
+  ]);
   const [mitigationErrWorklogs, setMitigationErrWorklogs] = useState([false]);
   const [contigencyPlanErrWorklogs, setContigencyPlanErrWorklogs] = useState([
     false,
   ]);
   const [remarkErrWorklogs, setRemarkErrWorklogs] = useState([false]);
   const [imageErrWorklogs, setImageErrWorklogs] = useState([false]);
+  const [errorIdentificationErrWorklogs, setErrorIdentificationErrWorklogs] =
+    useState([false]);
+  const [resolutionStatusErrWorklogs, setResolutionStatusErrWorklogs] =
+    useState([false]);
+  const [identifiedByErrWorklogs, setIdentifiedByErrWorklogs] = useState([
+    false,
+  ]);
   const [deletedErrorLogWorklogs, setDeletedErrorLogWorklogs] = useState<any>(
     []
   );
@@ -1600,6 +1614,9 @@ const EditDrawer = ({
         ],
         Amount: 0,
         DateOfTransaction: "",
+        ErrorIdentificationDate: "",
+        ResolutionStatus: 0,
+        IdentifiedBy: "",
         isSolved: false,
         DisableErrorLog: false,
       },
@@ -1613,10 +1630,17 @@ const EditDrawer = ({
     setDocumentNumberErrWorklogs([...documentNumberErrWorklogs, false]);
     setVendorNameErrWorklogs([...vendorNameErrWorklogs, false]);
     setRcaErrWorklogs([...rcaErrWorklogs, false]);
+    setRecordedDateErrWorklogs([...recordedDateErrWorklogs, false]);
     setMitigationErrWorklogs([...mitigationErrWorklogs, false]);
     setContigencyPlanErrWorklogs([...contigencyPlanErrWorklogs, false]);
     setRemarkErrWorklogs([...remarkErrWorklogs, false]);
     setImageErrWorklogs([...imageErrWorklogs, false]);
+    setErrorIdentificationErrWorklogs([
+      ...errorIdentificationErrWorklogs,
+      false,
+    ]);
+    setResolutionStatusErrWorklogs([...resolutionStatusErrWorklogs, false]);
+    setIdentifiedByErrWorklogs([...identifiedByErrWorklogs, false]);
   };
 
   const removeErrorLogFieldWorklogs = (index: number) => {
@@ -1666,6 +1690,10 @@ const EditDrawer = ({
     newRcaErrors.splice(index, 1);
     setRcaErrWorklogs(newRcaErrors);
 
+    const newRecordedDateErrors = [...recordedDateErrWorklogs];
+    newRecordedDateErrors.splice(index, 1);
+    setRecordedDateErrWorklogs(newRecordedDateErrors);
+
     const newMitigationErrors = [...mitigationErrWorklogs];
     newMitigationErrors.splice(index, 1);
     setMitigationErrWorklogs(newMitigationErrors);
@@ -1681,6 +1709,18 @@ const EditDrawer = ({
     const newImageErrors = [...imageErrWorklogs];
     newImageErrors.splice(index, 1);
     setImageErrWorklogs(newImageErrors);
+
+    const newErrorIdentificationErrors = [...errorIdentificationErrWorklogs];
+    newErrorIdentificationErrors.splice(index, 1);
+    setErrorIdentificationErrWorklogs(newErrorIdentificationErrors);
+
+    const newResolutionStatusErrors = [...resolutionStatusErrWorklogs];
+    newResolutionStatusErrors.splice(index, 1);
+    setResolutionStatusErrWorklogs(newResolutionStatusErrors);
+
+    const newIdentifiedByErrors = [...identifiedByErrWorklogs];
+    newIdentifiedByErrors.splice(index, 1);
+    setIdentifiedByErrWorklogs(newIdentifiedByErrors);
   };
 
   const handleErrorTypeChangeWorklogs = (e: number, index: number) => {
@@ -1778,7 +1818,7 @@ const EditDrawer = ({
     setErrorLogFieldsWorklogs(newFields);
 
     const newErrors = [...rcaErrWorklogs];
-    newErrors[index] = e.trim().length > 250;
+    newErrors[index] = e.trim().length <= 0 || e.trim().length > 250;
     setRcaErrWorklogs(newErrors);
   };
 
@@ -1822,6 +1862,45 @@ const EditDrawer = ({
     const newFieldsWorklogs = [...errorLogFieldsWorklogs];
     newFieldsWorklogs[index].DateOfTransaction = e;
     setErrorLogFieldsWorklogs(newFieldsWorklogs);
+
+    const newErrors = [...recordedDateErrWorklogs];
+    newErrors[index] = typeof e != "object";
+    setRecordedDateErrWorklogs(newErrors);
+  };
+
+  const handleErrorIdentificationDateChange = (e: any, index: number) => {
+    const newFields = [...errorLogFieldsWorklogs];
+    newFields[index].ErrorIdentificationDate = e;
+    setErrorLogFieldsWorklogs(newFields);
+
+    const newErrors = [...errorIdentificationErrWorklogs];
+    newErrors[index] = typeof e != "object";
+    setErrorIdentificationErrWorklogs(newErrors);
+  };
+
+  const handleResolutionStatusChange = (e: number, index: number) => {
+    const newFields = [...errorLogFieldsWorklogs];
+    newFields[index].ResolutionStatus = e;
+    setErrorLogFieldsWorklogs(newFields);
+
+    const newErrors = [...resolutionStatusErrWorklogs];
+    newErrors[index] = e === 0;
+    setResolutionStatusErrWorklogs(newErrors);
+  };
+
+  const handleIdentifiedByChange = (
+    e: string,
+    index: number,
+    ErrorType: number
+  ) => {
+    const newFields = [...errorLogFieldsWorklogs];
+    newFields[index].IdentifiedBy = e;
+    setErrorLogFieldsWorklogs(newFields);
+
+    const newErrors = [...identifiedByErrWorklogs];
+    newErrors[index] =
+      ErrorType > 0 ? false : e.trim().length <= 0 || e.trim().length > 50;
+    setIdentifiedByErrWorklogs(newErrors);
   };
 
   const handleAttachmentsChangeWorklogs = (
@@ -1903,6 +1982,13 @@ const EditDrawer = ({
             Amount: i.Amount === null ? 0 : i.Amount,
             DateOfTransaction:
               i.DateOfTransaction === null ? "" : i.DateOfTransaction,
+            ErrorIdentificationDate:
+              i.ErrorIdentificationDate === null
+                ? ""
+                : i.ErrorIdentificationDate,
+            ResolutionStatus:
+              i.ResolutionStatus === null ? 0 : i.ResolutionStatus,
+            IdentifiedBy: i.IdentifiedBy === null ? "" : i.IdentifiedBy,
             isSolved: i.IsSolved,
             DisableErrorLog: i.DisableErrorLog,
             IsHasErrorlogAddedByClient: i.IsHasErrorlogAddedByClient,
@@ -1937,6 +2023,9 @@ const EditDrawer = ({
             ],
             Amount: 0,
             DateOfTransaction: "",
+            ErrorIdentificationDate: "",
+            ResolutionStatus: 0,
+            IdentifiedBy: "",
             isSolved: false,
             DisableErrorLog: false,
             IsHasErrorlogAddedByClient: false,
@@ -1989,9 +2078,35 @@ const EditDrawer = ({
       );
       setVendorNameErrWorklogs(newVendorNameErrors);
       const newRcaErrors = errorLogFieldsWorklogs.map(
-        (field) => field.RootCauseAnalysis.trim().length > 250
+        (field) =>
+          field.RootCauseAnalysis.trim().length <= 0 ||
+          field.RootCauseAnalysis.trim().length > 250
       );
       setRcaErrWorklogs(newRcaErrors);
+      const newErrorIdentificationDateErrors = errorLogFieldsWorklogs.map(
+        (field) =>
+          field.ErrorIdentificationDate === null ||
+          field.ErrorIdentificationDate.toString().trim().length <= 0
+      );
+      setErrorIdentificationErrWorklogs(newErrorIdentificationDateErrors);
+      const newResolutionStatusErrors = errorLogFieldsWorklogs.map(
+        (field) => field.ResolutionStatus === 0
+      );
+      setResolutionStatusErrWorklogs(newResolutionStatusErrors);
+      const newIdentifiedByErrors = errorLogFieldsWorklogs.map(
+        (field) =>
+          field.ErrorType === 2 &&
+          field.IdentifiedBy !== null &&
+          (field.IdentifiedBy.trim().length <= 0 ||
+            field.IdentifiedBy.trim().length > 50)
+      );
+      setIdentifiedByErrWorklogs(newIdentifiedByErrors);
+      const newRecordedDateErrors = errorLogFieldsWorklogs.map(
+        (field) =>
+          field.DateOfTransaction === null ||
+          field.DateOfTransaction.toString().trim().length <= 0
+      );
+      setRecordedDateErrWorklogs(newRecordedDateErrors);
       const newMitigationErrors = errorLogFieldsWorklogs.map(
         (field) => field.MitigationPlan.trim().length > 250
       );
@@ -2015,6 +2130,10 @@ const EditDrawer = ({
         newDocumentNumberErrors.some((error) => error) ||
         newVendorNameErrors.some((error) => error) ||
         newRcaErrors.some((error) => error) ||
+        newErrorIdentificationDateErrors.some((error) => error) ||
+        newResolutionStatusErrors.some((error) => error) ||
+        newIdentifiedByErrors.some((error) => error) ||
+        newRecordedDateErrors.some((error) => error) ||
         newMitigationErrors.some((error) => error) ||
         newContigencyPlanErrors.some((error) => error) ||
         newErrorCountWorklogsErrors.some((error) => error);
@@ -2052,6 +2171,15 @@ const EditDrawer = ({
                     i.DateOfTransaction === ""
                       ? null
                       : dayjs(i.DateOfTransaction).format("YYYY/MM/DD"),
+                  ErrorIdentificationDate:
+                    i.ErrorIdentificationDate === ""
+                      ? null
+                      : dayjs(i.ErrorIdentificationDate).format("YYYY/MM/DD"),
+                  ResolutionStatus: i.ResolutionStatus,
+                  IdentifiedBy:
+                    i.ErrorType === 2
+                      ? i.IdentifiedBy?.toString().trim()
+                      : null,
                 })
             ),
             IsClientWorklog: 0,
@@ -2136,9 +2264,35 @@ const EditDrawer = ({
     );
     setVendorNameErrWorklogs(newVendorNameErrors);
     const newRcaErrors = errorLogFieldsWorklogs.map(
-      (field) => field.RootCauseAnalysis.trim().length > 250
+      (field) =>
+        field.RootCauseAnalysis.trim().length <= 0 ||
+        field.RootCauseAnalysis.trim().length > 250
     );
     setRcaErrWorklogs(newRcaErrors);
+    const newErrorIdentificationDateErrors = errorLogFieldsWorklogs.map(
+      (field) =>
+        field.ErrorIdentificationDate === null ||
+        field.ErrorIdentificationDate.toString().trim().length <= 0
+    );
+    setErrorIdentificationErrWorklogs(newErrorIdentificationDateErrors);
+    const newResolutionStatusErrors = errorLogFieldsWorklogs.map(
+      (field) => field.ResolutionStatus === 0
+    );
+    setResolutionStatusErrWorklogs(newResolutionStatusErrors);
+    const newIdentifiedByErrors = errorLogFieldsWorklogs.map(
+      (field) =>
+        field.ErrorType === 2 &&
+        field.IdentifiedBy !== null &&
+        (field.IdentifiedBy.trim().length <= 0 ||
+          field.IdentifiedBy.trim().length > 50)
+    );
+    setIdentifiedByErrWorklogs(newIdentifiedByErrors);
+    const newRecordedDateErrors = errorLogFieldsWorklogs.map(
+      (field) =>
+        field.DateOfTransaction === null ||
+        field.DateOfTransaction.toString().trim().length <= 0
+    );
+    setRecordedDateErrWorklogs(newRecordedDateErrors);
     const newMitigationErrors = errorLogFieldsWorklogs.map(
       (field) => field.MitigationPlan.trim().length > 250
     );
@@ -2163,6 +2317,10 @@ const EditDrawer = ({
       newDocumentNumberErrors.some((error) => error) ||
       newVendorNameErrors.some((error) => error) ||
       newRcaErrors.some((error) => error) ||
+      newErrorIdentificationDateErrors.some((error) => error) ||
+      newResolutionStatusErrors.some((error) => error) ||
+      newIdentifiedByErrors.some((error) => error) ||
+      newRecordedDateErrors.some((error) => error) ||
       newMitigationErrors.some((error) => error) ||
       newContigencyPlanErrors.some((error) => error) ||
       newRemarkErrors.some((error) => error) ||
@@ -2201,6 +2359,13 @@ const EditDrawer = ({
                   i.DateOfTransaction === ""
                     ? null
                     : dayjs(i.DateOfTransaction).format("YYYY/MM/DD"),
+                ErrorIdentificationDate:
+                  i.ErrorIdentificationDate === ""
+                    ? null
+                    : dayjs(i.ErrorIdentificationDate).format("YYYY/MM/DD"),
+                ResolutionStatus: i.ResolutionStatus,
+                IdentifiedBy:
+                  i.ErrorType === 2 ? i.IdentifiedBy?.toString().trim() : null,
               })
           ),
           IsClientWorklog: 2,
@@ -3394,6 +3559,9 @@ const EditDrawer = ({
         ],
         Amount: 0,
         DateOfTransaction: "",
+        ErrorIdentificationDate: "",
+        ResolutionStatus: 0,
+        IdentifiedBy: "",
         isSolved: false,
         DisableErrorLog: false,
         IsHasErrorlogAddedByClient: false,
@@ -3408,12 +3576,16 @@ const EditDrawer = ({
     setDocumentNumberErrWorklogs([false]);
     setVendorNameErrWorklogs([false]);
     setRcaErrWorklogs([false]);
+    setRecordedDateErrWorklogs([false]);
     setMitigationErrWorklogs([false]);
     setContigencyPlanErrWorklogs([false]);
     setRemarkErrWorklogs([false]);
     setImageErrWorklogs([false]);
     setDeletedErrorLogWorklogs([]);
     setErorLogWorklogsDrawer(true);
+    setErrorIdentificationErrWorklogs([false]);
+    setResolutionStatusErrWorklogs([false]);
+    setIdentifiedByErrWorklogs([false]);
 
     // Comments
     setCommentDataWorklogs([]);
@@ -4917,6 +5089,57 @@ const EditDrawer = ({
                             </div>
                           </Grid>
                         )}
+                        {!!editDataWorklogs &&
+                          !!editDataWorklogs.PrevReviewerId && (
+                            <Grid
+                              item
+                              xs={3}
+                              className={`${
+                                (departmentWorklogsType == "UK" ||
+                                  departmentWorklogsType ==
+                                    "WhitelabelAccounting" ||
+                                  departmentWorklogsType ==
+                                    "WhitelabelAustralia" ||
+                                  departmentWorklogsType ==
+                                    "WhitelabelTaxation" ||
+                                  departmentWorklogsType === "Germany" ||
+                                  departmentWorklogsType === "SMB") &&
+                                typeOfWorkWorklogs !== 3
+                                  ? "pt-6"
+                                  : departmentWorklogsType === "SMB" &&
+                                    typeOfWorkWorklogs === 3
+                                  ? "pt-2"
+                                  : "pt-4"
+                              }`}
+                            >
+                              <Autocomplete
+                                disablePortal
+                                id="combo-box-demo"
+                                options={reviewerWorklogsDropdownData}
+                                disabled
+                                value={
+                                  reviewerWorklogsDropdownData?.find(
+                                    (i: LabelValue) =>
+                                      i.value ===
+                                      editDataWorklogs.PrevReviewerId
+                                  ) || null
+                                }
+                                onChange={(e, value: LabelValue | null) => {}}
+                                sx={{
+                                  width: 300,
+                                  mt: typeOfWorkWorklogs === 3 ? 0.2 : -1,
+                                  mx: 0.75,
+                                }}
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    variant="standard"
+                                    label="Prev. Reviewer"
+                                  />
+                                )}
+                              />
+                            </Grid>
+                          )}
                       </>
                     )}
                   </Grid>
@@ -6701,7 +6924,7 @@ const EditDrawer = ({
                                     readOnly={
                                       i.ErrorType > 0 ||
                                       !i.IsHasErrorlogAddedByClient ||
-                                      i.Remark.trim().length <= 0 ||
+                                      // i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
                                   >
@@ -6724,7 +6947,7 @@ const EditDrawer = ({
                                   disabled={isIdDisabled || isUnassigneeClicked}
                                 >
                                   <InputLabel id="demo-simple-select-standard-label">
-                                    Root Cause
+                                    Error Category
                                     <span className="text-defaultRed">
                                       &nbsp;*
                                     </span>
@@ -6754,7 +6977,7 @@ const EditDrawer = ({
                                     readOnly={
                                       (i.RootCause > 0 && i.ErrorType == 1) ||
                                       !i.IsHasErrorlogAddedByClient ||
-                                      i.Remark.trim().length <= 0 ||
+                                      // i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
                                   >
@@ -6806,7 +7029,7 @@ const EditDrawer = ({
                                     readOnly={
                                       (i.Impact > 0 && i.ErrorType == 1) ||
                                       !i.IsHasErrorlogAddedByClient ||
-                                      i.Remark.trim().length <= 0 ||
+                                      // i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
                                   >
@@ -6833,7 +7056,7 @@ const EditDrawer = ({
                                   disabled={isIdDisabled || isUnassigneeClicked}
                                 >
                                   <InputLabel id="demo-simple-select-standard-label">
-                                    Nature of Error
+                                    Error Details
                                     <span className="text-defaultRed">
                                       &nbsp;*
                                     </span>
@@ -6867,7 +7090,7 @@ const EditDrawer = ({
                                       (i.NatureOfError > 0 &&
                                         i.ErrorType == 1) ||
                                       !i.IsHasErrorlogAddedByClient ||
-                                      i.Remark.trim().length <= 0 ||
+                                      // i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
                                   >
@@ -6892,7 +7115,7 @@ const EditDrawer = ({
                                   disabled={isIdDisabled || isUnassigneeClicked}
                                 >
                                   <InputLabel id="demo-simple-select-standard-label">
-                                    Priority
+                                    Criticality
                                     <span className="text-defaultRed">
                                       &nbsp;*
                                     </span>
@@ -6921,7 +7144,7 @@ const EditDrawer = ({
                                     readOnly={
                                       (i.Priority > 0 && i.ErrorType == 1) ||
                                       !i.IsHasErrorlogAddedByClient ||
-                                      i.Remark.trim().length <= 0 ||
+                                      // i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
                                   >
@@ -6939,7 +7162,9 @@ const EditDrawer = ({
                                 </FormControl>
                                 <div className="flex items-center justify-start mt-2">
                                   <TextField
-                                    label={<span>Document Number Field</span>}
+                                    label={
+                                      <span>Accounting Transaction ID</span>
+                                    }
                                     fullWidth
                                     disabled={
                                       isIdDisabled || isUnassigneeClicked
@@ -6989,12 +7214,12 @@ const EditDrawer = ({
                                         (i.DocumentNumber.trim().length > 0 &&
                                           i.ErrorType == 1) ||
                                         !i.IsHasErrorlogAddedByClient ||
-                                        i.Remark.trim().length <= 0 ||
+                                        // i.Remark.trim().length <= 0 ||
                                         i.DisableErrorLog,
                                     }}
                                   />
                                   <TextField
-                                    label={<span>Vendor Field Addition</span>}
+                                    label={<span>Vendor Name</span>}
                                     fullWidth
                                     disabled={
                                       isIdDisabled || isUnassigneeClicked
@@ -7044,7 +7269,7 @@ const EditDrawer = ({
                                         (i.VendorName.trim().length > 0 &&
                                           i.ErrorType == 1) ||
                                         !i.IsHasErrorlogAddedByClient ||
-                                        i.Remark.trim().length <= 0 ||
+                                        // i.Remark.trim().length <= 0 ||
                                         i.DisableErrorLog,
                                     }}
                                   />
@@ -7058,7 +7283,7 @@ const EditDrawer = ({
                                     readOnly={
                                       (i.CC.length > 0 && i.ErrorType == 1) ||
                                       !i.IsHasErrorlogAddedByClient ||
-                                      i.Remark.trim().length <= 0 ||
+                                      // i.Remark.trim().length <= 0 ||
                                       i.DisableErrorLog
                                     }
                                     options={
@@ -7145,20 +7370,15 @@ const EditDrawer = ({
                                         (i.ErrorCount > 0 &&
                                           i.ErrorType == 1) ||
                                         !i.IsHasErrorlogAddedByClient ||
-                                        i.Remark.trim().length <= 0 ||
+                                        // i.Remark.trim().length <= 0 ||
                                         i.DisableErrorLog,
                                     }}
                                   />
                                 </div>
-                                <div className="flex items-center justify-start mt-2">
+                                <div className="flex items-center justify-start mt-2 ml-[-4px]">
                                   <TextField
                                     label={
-                                      <span>
-                                        Remarks
-                                        <span className="text-defaultRed">
-                                          &nbsp;*
-                                        </span>
-                                      </span>
+                                      <span>Additional Remark (If any)</span>
                                     }
                                     disabled={
                                       isIdDisabled || isUnassigneeClicked
@@ -7177,7 +7397,7 @@ const EditDrawer = ({
                                     inputProps={{ readOnly: true }}
                                   />
                                   <TextField
-                                    label="Amount"
+                                    label="Amount of Impact (if any)"
                                     fullWidth
                                     disabled={
                                       isIdDisabled || isUnassigneeClicked
@@ -7209,16 +7429,29 @@ const EditDrawer = ({
                                             0 &&
                                           i.ErrorType == 1) ||
                                         !i.IsHasErrorlogAddedByClient ||
-                                        i.Remark.trim().length <= 0 ||
+                                        // i.Remark.trim().length <= 0 ||
                                         i.DisableErrorLog,
                                     }}
                                   />
-                                  <div className="inline-flex mt-[4px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]">
+                                  <div
+                                    className={`inline-flex mt-[4px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
+                                      recordedDateErrWorklogs[index]
+                                        ? "datepickerError"
+                                        : ""
+                                    }`}
+                                  >
                                     <LocalizationProvider
                                       dateAdapter={AdapterDayjs}
                                     >
                                       <DatePicker
-                                        label="Date of Transaction"
+                                        label={
+                                          <span>
+                                            Transaction Rec. Date
+                                            <span className="text-defaultRed">
+                                              &nbsp;*
+                                            </span>
+                                          </span>
+                                        }
                                         maxDate={dayjs(new Date())}
                                         disabled={
                                           isIdDisabled || isUnassigneeClicked
@@ -7236,15 +7469,22 @@ const EditDrawer = ({
                                         }}
                                         readOnly={
                                           (!!i.DateOfTransaction &&
-                                            i.DateOfTransaction.trim().length >
-                                              0 &&
+                                            i.DateOfTransaction !== null &&
+                                            i.DateOfTransaction !== "" &&
+                                            i.DateOfTransaction.toString().trim()
+                                              .length > 0 &&
                                             i.ErrorType == 1) ||
                                           !i.IsHasErrorlogAddedByClient ||
-                                          i.Remark.trim().length <= 0 ||
+                                          // i.Remark.trim().length <= 0 ||
                                           i.DisableErrorLog
                                         }
                                         slotProps={{
                                           textField: {
+                                            helperText: recordedDateErrWorklogs[
+                                              index
+                                            ]
+                                              ? "This is a required field."
+                                              : "",
                                             readOnly: true,
                                           } as Record<string, any>,
                                         }}
@@ -7288,10 +7528,15 @@ const EditDrawer = ({
                                     </div>
                                   </div>
                                 </div>
-                                <div className="flex items-center justify-start ml-2 mt-2">
+                                <div className="flex items-center justify-start mt-2">
                                   <TextField
                                     label={
-                                      <span>Root Cause Analysis (RCA)</span>
+                                      <span>
+                                        Root Cause Analysis (RCA)
+                                        <span className="text-defaultRed">
+                                          &nbsp;*
+                                        </span>
+                                      </span>
                                     }
                                     fullWidth
                                     disabled={
@@ -7309,7 +7554,10 @@ const EditDrawer = ({
                                       )
                                     }
                                     onBlur={(e) => {
-                                      if (e.target.value.length > 250) {
+                                      if (
+                                        e.target.value.length <= 0 ||
+                                        e.target.value.length > 250
+                                      ) {
                                         const newRcaErrors = [
                                           ...rcaErrWorklogs,
                                         ];
@@ -7328,6 +7576,8 @@ const EditDrawer = ({
                                       rcaErrWorklogs[index] &&
                                       i.RootCauseAnalysis.trim().length > 250
                                         ? "Maximum 250 characters allowed."
+                                        : rcaErrWorklogs[index]
+                                        ? "This is a required field."
                                         : ""
                                     }
                                     margin="normal"
@@ -7340,12 +7590,12 @@ const EditDrawer = ({
                                             0 &&
                                           i.ErrorType == 1) ||
                                         !i.IsHasErrorlogAddedByClient ||
-                                        i.Remark.trim().length <= 0 ||
+                                        // i.Remark.trim().length <= 0 ||
                                         i.DisableErrorLog,
                                     }}
                                   />
                                   <TextField
-                                    label={<span>Mitigation Plan</span>}
+                                    label={<span>Corrective Action</span>}
                                     fullWidth
                                     disabled={
                                       isIdDisabled || isUnassigneeClicked
@@ -7396,12 +7646,12 @@ const EditDrawer = ({
                                           i.MitigationPlan.trim().length > 0 &&
                                           i.ErrorType == 1) ||
                                         !i.IsHasErrorlogAddedByClient ||
-                                        i.Remark.trim().length <= 0 ||
+                                        // i.Remark.trim().length <= 0 ||
                                         i.DisableErrorLog,
                                     }}
                                   />
                                   <TextField
-                                    label={<span>Contingency Plan</span>}
+                                    label={<span>Preventative Action</span>}
                                     fullWidth
                                     disabled={
                                       isIdDisabled || isUnassigneeClicked
@@ -7452,10 +7702,210 @@ const EditDrawer = ({
                                           i.ContigencyPlan.trim().length > 0 &&
                                           i.ErrorType == 1) ||
                                         !i.IsHasErrorlogAddedByClient ||
-                                        i.Remark.trim().length <= 0 ||
+                                        // i.Remark.trim().length <= 0 ||
                                         i.DisableErrorLog,
                                     }}
                                   />
+                                  <div
+                                    className={`inline-flex mt-[8px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
+                                      errorIdentificationErrWorklogs[index]
+                                        ? "datepickerError"
+                                        : ""
+                                    }`}
+                                  >
+                                    <LocalizationProvider
+                                      dateAdapter={AdapterDayjs}
+                                    >
+                                      <DatePicker
+                                        label={
+                                          <span>
+                                            Error Identification Date
+                                            <span className="text-defaultRed">
+                                              &nbsp;*
+                                            </span>
+                                          </span>
+                                        }
+                                        maxDate={dayjs(new Date())}
+                                        disabled={
+                                          isIdDisabled || isUnassigneeClicked
+                                        }
+                                        value={
+                                          i.ErrorIdentificationDate === ""
+                                            ? null
+                                            : dayjs(i.ErrorIdentificationDate)
+                                        }
+                                        onChange={(newDate: any) => {
+                                          handleErrorIdentificationDateChange(
+                                            newDate.$d,
+                                            index
+                                          );
+                                        }}
+                                        slotProps={{
+                                          textField: {
+                                            helperText:
+                                              errorIdentificationErrWorklogs[
+                                                index
+                                              ]
+                                                ? "This is a required field."
+                                                : "",
+                                            readOnly: true,
+                                          } as Record<string, any>,
+                                        }}
+                                        readOnly={
+                                          (!!i.ErrorIdentificationDate &&
+                                            i.ErrorIdentificationDate !==
+                                              null &&
+                                            i.ErrorIdentificationDate !== "" &&
+                                            i.ErrorIdentificationDate.toString().trim()
+                                              .length > 0 &&
+                                            i.ErrorType == 1) ||
+                                          !i.IsHasErrorlogAddedByClient ||
+                                          // i.Remark.trim().length <= 0 ||
+                                          i.DisableErrorLog
+                                        }
+                                      />
+                                    </LocalizationProvider>
+                                  </div>
+                                </div>
+                                <div className="flex !ml-0">
+                                  <FormControl
+                                    variant="standard"
+                                    sx={{ mx: 0.75, minWidth: 230, mt: 1.1 }}
+                                    error={resolutionStatusErrWorklogs[index]}
+                                    disabled={
+                                      isIdDisabled || isUnassigneeClicked
+                                    }
+                                  >
+                                    <InputLabel id="demo-simple-select-standard-label">
+                                      Resolution status
+                                      <span className="text-defaultRed">
+                                        &nbsp;*
+                                      </span>
+                                    </InputLabel>
+                                    <Select
+                                      labelId="demo-simple-select-standard-label"
+                                      id="demo-simple-select-standard"
+                                      disabled={
+                                        isIdDisabled || isUnassigneeClicked
+                                      }
+                                      value={
+                                        i.ResolutionStatus === 0
+                                          ? ""
+                                          : i.ResolutionStatus
+                                      }
+                                      onChange={(e) =>
+                                        handleResolutionStatusChange(
+                                          Number(e.target.value),
+                                          index
+                                        )
+                                      }
+                                      onBlur={() => {
+                                        if (i.ResolutionStatus > 0) {
+                                          const newResolutionStatusErrors = [
+                                            ...resolutionStatusErrWorklogs,
+                                          ];
+                                          newResolutionStatusErrors[index] =
+                                            false;
+                                          setResolutionStatusErrWorklogs(
+                                            newResolutionStatusErrors
+                                          );
+                                        }
+                                      }}
+                                      readOnly={
+                                        (i.ResolutionStatus > 0 &&
+                                          i.ErrorType == 1) ||
+                                        !i.IsHasErrorlogAddedByClient ||
+                                        // i.Remark.trim().length <= 0 ||
+                                        i.DisableErrorLog
+                                      }
+                                    >
+                                      {resolutionStatusOptions.map(
+                                        (r: LabelValue) => (
+                                          <MenuItem
+                                            value={r.value}
+                                            key={r.value}
+                                          >
+                                            {r.label}
+                                          </MenuItem>
+                                        )
+                                      )}
+                                    </Select>
+                                    {resolutionStatusErrWorklogs[index] && (
+                                      <FormHelperText>
+                                        This is a required field.
+                                      </FormHelperText>
+                                    )}
+                                  </FormControl>
+                                  {i.ErrorType === 2 && (
+                                    <TextField
+                                      label={
+                                        <span>
+                                          Error Identified by
+                                          <span className="text-defaultRed">
+                                            &nbsp;*
+                                          </span>
+                                        </span>
+                                      }
+                                      fullWidth
+                                      disabled={
+                                        isIdDisabled || isUnassigneeClicked
+                                      }
+                                      value={
+                                        i.IdentifiedBy !== null &&
+                                        i.IdentifiedBy.trim().length === 0
+                                          ? ""
+                                          : i.IdentifiedBy
+                                      }
+                                      onChange={(e) =>
+                                        handleIdentifiedByChange(
+                                          e.target.value,
+                                          index,
+                                          0
+                                        )
+                                      }
+                                      onBlur={(e) => {
+                                        if (
+                                          e.target.value.length <= 0 ||
+                                          e.target.value.length > 50
+                                        ) {
+                                          const newIdentifiedByErrors = [
+                                            ...identifiedByErrWorklogs,
+                                          ];
+                                          newIdentifiedByErrors[index] = true;
+                                          setIdentifiedByErrWorklogs(
+                                            newIdentifiedByErrors
+                                          );
+                                        } else {
+                                          const newIdentifiedByErrors = [
+                                            ...identifiedByErrWorklogs,
+                                          ];
+                                          newIdentifiedByErrors[index] = false;
+                                          setIdentifiedByErrWorklogs(
+                                            newIdentifiedByErrors
+                                          );
+                                        }
+                                      }}
+                                      error={identifiedByErrWorklogs[index]}
+                                      helperText={
+                                        identifiedByErrWorklogs[index] &&
+                                        i.IdentifiedBy !== null &&
+                                        i.IdentifiedBy.trim().length > 50
+                                          ? "Maximum 50 characters allowed."
+                                          : identifiedByErrWorklogs[index]
+                                          ? "This is a required field."
+                                          : ""
+                                      }
+                                      margin="normal"
+                                      variant="standard"
+                                      sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                                      InputProps={{
+                                        readOnly:
+                                          !i.IsHasErrorlogAddedByClient ||
+                                          // i.Remark.trim().length <= 0 ||
+                                          i.DisableErrorLog,
+                                      }}
+                                    />
+                                  )}
                                   <FormGroup>
                                     <FormControlLabel
                                       className="ml-2 mt-5"
@@ -7563,12 +8013,17 @@ const EditDrawer = ({
                                 value={
                                   field.ErrorType === 0 ? "" : field.ErrorType
                                 }
-                                onChange={(e) =>
+                                onChange={(e) => {
                                   handleErrorTypeChangeWorklogs(
                                     Number(e.target.value),
                                     index
-                                  )
-                                }
+                                  );
+                                  handleIdentifiedByChange(
+                                    "",
+                                    index,
+                                    Number(e.target.value)
+                                  );
+                                }}
                                 onBlur={() => {
                                   if (field.ErrorType > 0) {
                                     const newErrorTypeErrors = [
@@ -7597,7 +8052,7 @@ const EditDrawer = ({
                               error={rootCauseWorklogsErr[index]}
                             >
                               <InputLabel id="demo-simple-select-standard-label">
-                                Root Cause
+                                Error Category
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </InputLabel>
                               <Select
@@ -7683,7 +8138,7 @@ const EditDrawer = ({
                               error={natureOfWorklogsErr[index]}
                             >
                               <InputLabel id="demo-simple-select-standard-label">
-                                Nature of Error
+                                Criticality
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </InputLabel>
                               <Select
@@ -7775,7 +8230,7 @@ const EditDrawer = ({
                             </FormControl>
                             <div className="flex !ml-0">
                               <TextField
-                                label={<span>Document Number Field</span>}
+                                label={<span>Accounting Transaction ID</span>}
                                 fullWidth
                                 disabled={field.isSolved}
                                 value={
@@ -7820,7 +8275,7 @@ const EditDrawer = ({
                                 sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                               />
                               <TextField
-                                label={<span>Vendor Field Addition</span>}
+                                label={<span>Vendor Name</span>}
                                 fullWidth
                                 disabled={field.isSolved}
                                 value={
@@ -7949,7 +8404,7 @@ const EditDrawer = ({
                               <TextField
                                 label={
                                   <span>
-                                    Remarks
+                                    Additional Remark (If any)
                                     <span className="text-defaultRed">
                                       &nbsp;*
                                     </span>
@@ -7995,7 +8450,7 @@ const EditDrawer = ({
                                 sx={{ mx: 0.75, maxWidth: 472, mt: 1.5 }}
                               />
                               <TextField
-                                label="Amount"
+                                label="Amount of Impact (if any)"
                                 fullWidth
                                 disabled={field.isSolved}
                                 value={field.Amount === 0 ? "" : field.Amount}
@@ -8019,12 +8474,25 @@ const EditDrawer = ({
                                 variant="standard"
                                 sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                               />
-                              <div className="inline-flex mt-[8px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]">
+                              <div
+                                className={`inline-flex mt-[4px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
+                                  recordedDateErrWorklogs[index]
+                                    ? "datepickerError"
+                                    : ""
+                                }`}
+                              >
                                 <LocalizationProvider
                                   dateAdapter={AdapterDayjs}
                                 >
                                   <DatePicker
-                                    label="Date of Transaction"
+                                    label={
+                                      <span>
+                                        Transaction Rec. Date
+                                        <span className="text-defaultRed">
+                                          &nbsp;*
+                                        </span>
+                                      </span>
+                                    }
                                     maxDate={dayjs(new Date())}
                                     disabled={field.isSolved}
                                     value={
@@ -8040,6 +8508,11 @@ const EditDrawer = ({
                                     }}
                                     slotProps={{
                                       textField: {
+                                        helperText: recordedDateErrWorklogs[
+                                          index
+                                        ]
+                                          ? "This is a required field."
+                                          : "",
                                         readOnly: true,
                                       } as Record<string, any>,
                                     }}
@@ -8109,7 +8582,14 @@ const EditDrawer = ({
                             </div>
                             <div className="flex !ml-0">
                               <TextField
-                                label={<span>Root Cause Analysis (RCA)</span>}
+                                label={
+                                  <span>
+                                    Root Cause Analysis (RCA)
+                                    <span className="text-defaultRed">
+                                      &nbsp;*
+                                    </span>
+                                  </span>
+                                }
                                 fullWidth
                                 disabled={field.isSolved}
                                 value={
@@ -8121,7 +8601,10 @@ const EditDrawer = ({
                                   handleRcaChangeWorklogs(e.target.value, index)
                                 }
                                 onBlur={(e) => {
-                                  if (e.target.value.length > 250) {
+                                  if (
+                                    e.target.value.length <= 0 ||
+                                    e.target.value.length > 250
+                                  ) {
                                     const newRcaErrors = [...rcaErrWorklogs];
                                     newRcaErrors[index] = true;
                                     setRcaErrWorklogs(newRcaErrors);
@@ -8136,6 +8619,8 @@ const EditDrawer = ({
                                   rcaErrWorklogs[index] &&
                                   field.RootCauseAnalysis.trim().length > 250
                                     ? "Maximum 250 characters allowed."
+                                    : rcaErrWorklogs[index]
+                                    ? "This is a required field."
                                     : ""
                                 }
                                 margin="normal"
@@ -8143,7 +8628,7 @@ const EditDrawer = ({
                                 sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                               />
                               <TextField
-                                label={<span>Mitigation Plan</span>}
+                                label={<span>Corrective Action</span>}
                                 fullWidth
                                 disabled={field.isSolved}
                                 value={
@@ -8188,7 +8673,7 @@ const EditDrawer = ({
                                 sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                               />
                               <TextField
-                                label={<span>Contingency Plan</span>}
+                                label={<span>Preventative Action</span>}
                                 fullWidth
                                 disabled={field.isSolved}
                                 value={
@@ -8232,6 +8717,167 @@ const EditDrawer = ({
                                 variant="standard"
                                 sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                               />
+                              <div
+                                className={`inline-flex mt-[8px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
+                                  errorIdentificationErrWorklogs[index]
+                                    ? "datepickerError"
+                                    : ""
+                                }`}
+                              >
+                                <LocalizationProvider
+                                  dateAdapter={AdapterDayjs}
+                                >
+                                  <DatePicker
+                                    label={
+                                      <span>
+                                        Error Identification Date
+                                        <span className="text-defaultRed">
+                                          &nbsp;*
+                                        </span>
+                                      </span>
+                                    }
+                                    maxDate={dayjs(new Date())}
+                                    disabled={field.isSolved}
+                                    value={
+                                      field.ErrorIdentificationDate === ""
+                                        ? null
+                                        : dayjs(field.ErrorIdentificationDate)
+                                    }
+                                    onChange={(newDate: any) => {
+                                      handleErrorIdentificationDateChange(
+                                        newDate.$d,
+                                        index
+                                      );
+                                    }}
+                                    slotProps={{
+                                      textField: {
+                                        helperText:
+                                          errorIdentificationErrWorklogs[index]
+                                            ? "This is a required field."
+                                            : "",
+                                        readOnly: true,
+                                      } as Record<string, any>,
+                                    }}
+                                  />
+                                </LocalizationProvider>
+                              </div>
+                            </div>
+                            <div className="flex !ml-0">
+                              <FormControl
+                                variant="standard"
+                                sx={{ mx: 0.75, minWidth: 230, mt: 1.1 }}
+                                error={resolutionStatusErrWorklogs[index]}
+                                disabled={field.isSolved}
+                              >
+                                <InputLabel id="demo-simple-select-standard-label">
+                                  Resolution status
+                                  <span className="text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </InputLabel>
+                                <Select
+                                  labelId="demo-simple-select-standard-label"
+                                  id="demo-simple-select-standard"
+                                  disabled={isIdDisabled || isUnassigneeClicked}
+                                  value={
+                                    field.ResolutionStatus === 0
+                                      ? ""
+                                      : field.ResolutionStatus
+                                  }
+                                  onChange={(e) =>
+                                    handleResolutionStatusChange(
+                                      Number(e.target.value),
+                                      index
+                                    )
+                                  }
+                                  onBlur={() => {
+                                    if (field.ResolutionStatus > 0) {
+                                      const newResolutionStatusErrors = [
+                                        ...resolutionStatusErrWorklogs,
+                                      ];
+                                      newResolutionStatusErrors[index] = false;
+                                      setResolutionStatusErrWorklogs(
+                                        newResolutionStatusErrors
+                                      );
+                                    }
+                                  }}
+                                >
+                                  {resolutionStatusOptions.map(
+                                    (r: LabelValue) => (
+                                      <MenuItem value={r.value} key={r.value}>
+                                        {r.label}
+                                      </MenuItem>
+                                    )
+                                  )}
+                                </Select>
+                                {resolutionStatusErrWorklogs[index] && (
+                                  <FormHelperText>
+                                    This is a required field.
+                                  </FormHelperText>
+                                )}
+                              </FormControl>
+                              {field.ErrorType === 2 && (
+                                <TextField
+                                  label={
+                                    <span>
+                                      Error Identified by
+                                      <span className="text-defaultRed">
+                                        &nbsp;*
+                                      </span>
+                                    </span>
+                                  }
+                                  fullWidth
+                                  disabled={field.isSolved}
+                                  value={
+                                    field.IdentifiedBy !== null &&
+                                    field.IdentifiedBy.trim().length === 0
+                                      ? ""
+                                      : field.IdentifiedBy
+                                  }
+                                  onChange={(e) =>
+                                    handleIdentifiedByChange(
+                                      e.target.value,
+                                      index,
+                                      0
+                                    )
+                                  }
+                                  onBlur={(e) => {
+                                    if (
+                                      e.target.value.length <= 0 ||
+                                      e.target.value.length > 50
+                                    ) {
+                                      const newIdentifiedByErrors = [
+                                        ...identifiedByErrWorklogs,
+                                      ];
+                                      newIdentifiedByErrors[index] = true;
+                                      setIdentifiedByErrWorklogs(
+                                        newIdentifiedByErrors
+                                      );
+                                    } else {
+                                      const newIdentifiedByErrors = [
+                                        ...identifiedByErrWorklogs,
+                                      ];
+                                      newIdentifiedByErrors[index] = false;
+                                      setIdentifiedByErrWorklogs(
+                                        newIdentifiedByErrors
+                                      );
+                                    }
+                                  }}
+                                  error={identifiedByErrWorklogs[index]}
+                                  helperText={
+                                    identifiedByErrWorklogs[index] &&
+                                    field.IdentifiedBy !== null &&
+                                    field.IdentifiedBy.trim().length > 50
+                                      ? "Maximum 50 characters allowed."
+                                      : identifiedByErrWorklogs[index]
+                                      ? "This is a required field."
+                                      : ""
+                                  }
+                                  margin="normal"
+                                  variant="standard"
+                                  sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                                />
+                              )}
                               {field.isSolved && (
                                 <FormGroup>
                                   <FormControlLabel
