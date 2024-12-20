@@ -38,6 +38,7 @@ import {
 } from "@/utils/Types/settingTypes";
 import ToggleSwitch from "../drawer/content/ToggleSwitch";
 import LogDrawer from "../drawer/LogDrawer";
+import ClientEmailboxDrawer from "../drawer/ClientEmailboxDrawer";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -77,6 +78,7 @@ const Client = ({
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [openProcessDrawer, setOpenProcessDrawer] = useState(false);
   const [openFieldsDrawer, setOpenFieldsDrawer] = useState(false);
+  const [openEmailBoxDrawer, setOpenEmailBoxDrawer] = useState(false);
   const [openLogDrawer, setOpenLogDrawer] = useState(false);
 
   useEffect(() => {
@@ -202,6 +204,10 @@ const Client = ({
     setOpenFieldsDrawer(false);
   };
 
+  const handleCloseEmailBoxDrawer = () => {
+    setOpenEmailBoxDrawer(false);
+  };
+
   const handleCloseLogDrawer = () => {
     setOpenLogDrawer(false);
     setSelectedRowId(null);
@@ -217,6 +223,9 @@ const Client = ({
     }
     if (actionId.toLowerCase() === "process") {
       setOpenProcessDrawer(true);
+    }
+    if (actionId.toLowerCase() === "emailbox") {
+      setOpenEmailBoxDrawer(true);
     }
     if (actionId.toLowerCase() === "fields") {
       setOpenFieldsDrawer(true);
@@ -251,6 +260,7 @@ const Client = ({
         (action.toLowerCase() === "edit" && canEdit) ||
         (action.toLowerCase() === "delete" && canDelete) ||
         (action.toLowerCase() === "process" && canProcess) ||
+        action.toLowerCase() === "emailbox" ||
         action.toLowerCase() === "fields" ||
         action.toLowerCase() === "log"
     );
@@ -338,7 +348,14 @@ const Client = ({
           customBodyRender: (value: number) => {
             return (
               <Actions
-                actions={["Edit", "Process", "Fields", "Delete", "Log"]}
+                actions={[
+                  "Edit",
+                  "Process",
+                  "EmailBox",
+                  "Fields",
+                  "Delete",
+                  "Log",
+                ]}
                 id={value}
               />
             );
@@ -640,6 +657,12 @@ const Client = ({
             <ClientFieldsDrawer
               onOpen={openFieldsDrawer}
               onClose={handleCloseFieldsDrawer}
+              selectedRowId={selectedRowId}
+            />
+
+            <ClientEmailboxDrawer
+              onOpen={openEmailBoxDrawer}
+              onClose={handleCloseEmailBoxDrawer}
               selectedRowId={selectedRowId}
             />
 
