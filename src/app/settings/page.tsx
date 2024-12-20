@@ -1,6 +1,6 @@
 "use client";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import "next-ts-lib/dist/index.css";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
@@ -52,36 +52,74 @@ import { getDepartmentDropdownData } from "@/utils/commonDropdownApiCall";
 import Notification from "@/components/settings/tables/Notification";
 import NotificationDrawer from "@/components/common/NotificationDrawer";
 import NatureOfError from "@/components/settings/tables/NatureOfError";
-
-interface Tabs {
-  id: string;
-  label: string;
-  canView: boolean;
-}
+import EmailType from "@/components/settings/tables/EmailType";
+import MoreIcon from "@/assets/icons/reports/MoreIcon";
+import LineIcon from "@/assets/icons/reports/LineIcon";
 
 const filter = createFilterOptions<LabelValue>();
 
-const initialTabs = [
-  { id: "Group", label: "Group", canView: false },
-  { id: "Client", label: "Client", canView: false },
-  { id: "Project", label: "Project", canView: false },
-  { id: "User", label: "User", canView: false },
-  { id: "Process", label: "Process", canView: false },
-  { id: "Status", label: "Status", canView: false },
-  { id: "Permission", label: "Permissions", canView: false },
-  { id: "Notification", label: "Notification", canView: false },
-  { id: "NatureOfError", label: "Nature Of Error", canView: false },
-  { id: "Organization", label: "Organization", canView: true },
+interface Tabs {
+  label: string;
+  value: number;
+  id: string;
+  canView: boolean;
+}
+
+const allTabs = [
+  { id: "Group", label: "Group", value: 1, canView: false },
+  { id: "Client", label: "Client", value: 2, canView: false },
+  { id: "Project", label: "Project", value: 3, canView: false },
+  { id: "User", label: "User", value: 4, canView: false },
+  { id: "Process", label: "Process", value: 5, canView: false },
+  { id: "Status", label: "Status", value: 6, canView: false },
+  { id: "Permission", label: "Permissions", value: 7, canView: false },
+  { id: "Notification", label: "Notification", value: 8, canView: false },
+  { id: "ErrorDetails", label: "Error Details", value: 9, canView: false },
+  { id: "Email Type", label: "Email Type", value: 10, canView: false },
+  { id: "Organization", label: "Organization", value: 11, canView: true },
 ];
+
+interface MoreTabs {
+  moreTabs: Tabs[];
+  handleMoreTabsClick: (tab: Tabs, index: number) => void;
+}
+
+const MoreTabs = ({ moreTabs, handleMoreTabsClick }: MoreTabs) => {
+  return (
+    <div
+      style={{
+        boxShadow: "0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)",
+      }}
+      className="absolute w-36 z-50 bg-slate-50 rounded flex flex-col whitespace-nowrap"
+    >
+      {moreTabs
+        .filter((tab: Tabs | boolean) => tab !== false)
+        .map((tab: Tabs, index: number) => (
+          <div
+            key={tab.value}
+            className={`py-2 w-full hover:bg-[#0000000e] ${
+              index === 0 ? "rounded-t" : ""
+            } ${index === moreTabs.length - 1 ? "rounded-b" : ""}`}
+            onClick={() => handleMoreTabsClick(tab, index)}
+          >
+            <label className={`mx-4 my-[2px] flex cursor-pointer text-base`}>
+              {tab.label}
+            </label>
+          </div>
+        ))}
+    </div>
+  );
+};
 
 const Page = () => {
   const router = useRouter();
+  const moreTabsRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState<boolean>(false);
-  const [tabs, setTabs] = useState<Tabs[]>(initialTabs);
+  const [activeTabs, setActiveTabs] = useState<any[]>([]);
+  const [moreTabs, setMoreTabs] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<number>(1);
+  const [showMoreTabs, setShowMoreTabs] = useState<boolean>(false);
   const [tab, setTab] = useState<string>("Client");
-  const [selectedTabIndex, setSelectedTabIndex] = useState<number>(-1);
-  const [visibleTabs, setVisibleTabs] = useState(tabs.slice(0, 6));
-  const [dropdownTabs, setDropdownTabs] = useState(tabs.slice(6));
   const [openDrawer, setOpenDrawer] = useState(false);
   const [isLoaded, setLoaded] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -92,6 +130,108 @@ const Page = () => {
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [currentFilterData, setCurrentFilterData] = useState<any>([]);
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (localStorage.getItem("isClient") === "false") {
+      if (
+        !hasPermissionWorklog("", "View", "Settings") &&
+        (!hasPermissionWorklog("Client", "View", "Settings") ||
+          !hasPermissionWorklog("Project", "View", "Settings") ||
+          !hasPermissionWorklog("User", "View", "Settings") ||
+          !hasPermissionWorklog("Process", "View", "Settings") ||
+          !hasPermissionWorklog("Group", "View", "Settings") ||
+          !hasPermissionWorklog("Permission", "View", "Settings") ||
+          !hasPermissionWorklog("Notification", "View", "Settings") ||
+          !hasPermissionWorklog("ErrorDetails", "View", "Settings") ||
+          !hasPermissionWorklog("Email Type", "View", "Settings") ||
+          !hasPermissionWorklog("Status", "View", "Settings"))
+      ) {
+        router.push("/");
+      }
+    } else {
+      router.push("/");
+    }
+  }, [router]);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: any) => {
+      const isOutsideMoreTabs =
+        moreTabsRef.current && !moreTabsRef.current.contains(event.target);
+
+      if (isOutsideMoreTabs) {
+        setShowMoreTabs(false);
+      }
+    };
+
+    window.addEventListener("click", handleOutsideClick);
+
+    return () => {
+      window.removeEventListener("click", handleOutsideClick);
+    };
+  }, []);
+
+  const actionAfterPermissionCheck = () => {
+    setActiveTabs(
+      allTabs
+        .map((tab) =>
+          hasPermissionWorklog(tab.id, "view", "Settings") ? tab : false
+        )
+        .filter((tab) => tab !== false)
+        .slice(0, 6)
+    );
+    setActiveTab(
+      allTabs
+        .filter((tab) => hasPermissionWorklog(tab.id, "view", "Settings"))
+        .map((tab) => tab.value)[0]
+    );
+    setMoreTabs([
+      ...allTabs
+        .map((tab) =>
+          hasPermissionWorklog(tab.id, "view", "Settings") ? tab : false
+        )
+        .filter((tab) => tab !== false)
+        .slice(6),
+    ]);
+  };
+
+  useEffect(() => {
+    const isClient = localStorage.getItem("isClient") === "false";
+
+    if (isClient) {
+      actionAfterPermissionCheck();
+    } else {
+      router.push("/");
+    }
+  }, [router]);
+
+  const handleTabChange = (tabId: number, tab: string) => {
+    setActiveTab(tabId);
+    setTab(tab);
+    setSearchValue("");
+    setSearch("");
+  };
+
+  const handleMoreTabsClick = (tab: Tabs, index: number) => {
+    const clickedIndex = index;
+
+    const lastVisibleTab = activeTabs[activeTabs.length - 1];
+
+    setShowMoreTabs(false);
+
+    handleTabChange(tab.value, tab.id);
+
+    setActiveTabs((prevTabs) =>
+      prevTabs.map((tab: Tabs, index: number) =>
+        index === activeTabs.length - 1 ? moreTabs[clickedIndex] : tab
+      )
+    );
+
+    setMoreTabs((prevTabs) =>
+      prevTabs.map((tab: Tabs, index: number) =>
+        index === clickedIndex ? lastVisibleTab : tab
+      )
+    );
+  };
 
   const handleUserDataFetch = (getData: () => void) => {
     setUserGetDataFunction(() => getData);
@@ -160,27 +300,6 @@ const Page = () => {
   const [canExport, setCanExport] = useState<boolean>(false);
   const [emailNotificationOpen, setEmailNotificationOpen] = useState(false);
 
-  useEffect(() => {
-    if (localStorage.getItem("isClient") === "false") {
-      if (
-        !hasPermissionWorklog("", "View", "Settings") &&
-        (!hasPermissionWorklog("Client", "View", "Settings") ||
-          !hasPermissionWorklog("Project", "View", "Settings") ||
-          !hasPermissionWorklog("User", "View", "Settings") ||
-          !hasPermissionWorklog("Process", "View", "Settings") ||
-          !hasPermissionWorklog("Group", "View", "Settings") ||
-          !hasPermissionWorklog("Permission", "View", "Settings") ||
-          !hasPermissionWorklog("Notification", "View", "Settings") ||
-          !hasPermissionWorklog("NatureOfError", "View", "Settings") ||
-          !hasPermissionWorklog("Status", "View", "Settings"))
-      ) {
-        router.push("/");
-      }
-    } else {
-      router.push("/");
-    }
-  }, [router]);
-
   const handleRefresh = () => {
     window.location.reload();
   };
@@ -209,48 +328,6 @@ const Page = () => {
   const handleEdit = (rowId: number) => {
     setHasEditId(rowId);
     setOpenDrawer(true);
-  };
-
-  const handleTabClick = (tabId: string, index: number) => {
-    if (hasPermissionWorklog(tabId.toLowerCase(), "view", "settings")) {
-      const clickedTab = dropdownTabs[index];
-      const lastVisibleTab = visibleTabs[visibleTabs.length - 1];
-
-      if (visibleTabs.some((tab) => tab.id === tabId)) {
-        setTab(tabId);
-        setSelectedTabIndex(index);
-        setSearch("");
-        setSearchValue("");
-        setDepartmentValue(0);
-        setPermissionValue(0);
-        return;
-      }
-
-      const clickedTabIndexInDropdown = dropdownTabs.findIndex(
-        (tab) => tab.id === tabId
-      );
-
-      const updatedVisibleTabs = [...visibleTabs];
-      const updatedDropdownTabs = [...dropdownTabs];
-
-      updatedVisibleTabs[visibleTabs.length - 1] = clickedTab;
-
-      if (clickedTabIndexInDropdown !== -1) {
-        updatedDropdownTabs[clickedTabIndexInDropdown] = lastVisibleTab;
-
-        const newSelectedTabIndex = updatedVisibleTabs.findIndex(
-          (tab) => tab.id === tabId
-        );
-        setSelectedTabIndex(newSelectedTabIndex);
-      } else {
-        updatedDropdownTabs.unshift(lastVisibleTab);
-        setSelectedTabIndex(visibleTabs.length + clickedTabIndexInDropdown);
-      }
-
-      setTab(tabId);
-      setVisibleTabs(updatedVisibleTabs);
-      setDropdownTabs(updatedDropdownTabs);
-    }
   };
 
   const getPermissionDropdown = async () => {
@@ -308,137 +385,12 @@ const Page = () => {
     callAPI(url, params, successCallback, "POST");
   };
 
-  const handleUserDetailsFetch = (getData: () => void) => {
-    setGetOrgDetailsFunction(() => getData);
-    setLoaded(true);
-  };
-
-  const handleModuleNames = (
-    arg1: string,
-    arg2: string,
-    arg3: string,
-    arg4: string,
-    arg5: string
-  ) => {
-    const updatedTabs = tabs.map((tab) => {
-      switch (tab.id.toLowerCase()) {
-        case "client":
-          return {
-            ...tab,
-            label: arg1,
-            canView: hasPermissionWorklog(
-              tab.id.toLowerCase(),
-              "view",
-              "settings"
-            ),
-          };
-          break;
-        case "project":
-          return {
-            ...tab,
-            label: arg2,
-            canView: hasPermissionWorklog(
-              tab.id.toLowerCase(),
-              "view",
-              "settings"
-            ),
-          };
-          break;
-        case "user":
-          return {
-            ...tab,
-            canView: hasPermissionWorklog(
-              tab.id.toLowerCase(),
-              "view",
-              "settings"
-            ),
-          };
-          break;
-        case "process":
-          return {
-            ...tab,
-            label: arg3,
-            canView: hasPermissionWorklog(
-              tab.id.toLowerCase(),
-              "view",
-              "settings"
-            ),
-          };
-          break;
-        case "group":
-          return {
-            ...tab,
-            canView: hasPermissionWorklog(
-              tab.id.toLowerCase(),
-              "view",
-              "settings"
-            ),
-          };
-          break;
-        case "status":
-          return {
-            ...tab,
-            canView: hasPermissionWorklog(
-              tab.id.toLowerCase(),
-              "view",
-              "settings"
-            ),
-          };
-          break;
-        case "permission":
-          return {
-            ...tab,
-            canView: hasPermissionWorklog(
-              tab.id.toLowerCase(),
-              "view",
-              "settings"
-            ),
-          };
-          break;
-        case "notification":
-          return {
-            ...tab,
-            canView: hasPermissionWorklog(
-              tab.id.toLowerCase(),
-              "view",
-              "settings"
-            ),
-          };
-          break;
-        case "natureoferror":
-          return {
-            ...tab,
-            canView: hasPermissionWorklog(
-              tab.id.toLowerCase(),
-              "view",
-              "settings"
-            ),
-          };
-          break;
-        case "organization":
-          return {
-            ...tab,
-            canView: parseInt(arg5) === 1 ? true : false,
-          };
-          break;
-        default:
-          return { ...tab };
-          break;
-      }
-    });
-
-    setTabs(updatedTabs);
-    setVisibleTabs(updatedTabs.slice(0, 10));
-    setDropdownTabs(updatedTabs.slice(10));
-  };
-
   useEffect(() => {
     hasPermissionWorklog(tab, "save", "settings");
-    for (let i = 0; i < initialTabs.length; i++) {
-      if (hasPermissionWorklog(initialTabs[i].id, "view", "settings")) {
-        setTab(initialTabs[i].id);
+    for (let i = 0; i < allTabs.length; i++) {
+      if (hasPermissionWorklog(allTabs[i].id, "view", "settings")) {
+        setTab(allTabs[i].id);
         setIsLoading(false);
-        setSelectedTabIndex(i);
         break;
       }
     }
@@ -637,10 +589,7 @@ const Page = () => {
 
   return (
     <Wrapper className="min-h-screen overflow-y-auto">
-      <Navbar
-        onHandleModuleNames={handleModuleNames}
-        setEmailNotificationOpen={setEmailNotificationOpen}
-      />
+      <Navbar setEmailNotificationOpen={setEmailNotificationOpen} />
 
       <div>
         {isLoading ? (
@@ -649,30 +598,46 @@ const Page = () => {
           </div>
         ) : (
           <div className="bg-white flex justify-between items-center">
-            <div className="flex items-center py-[16px]">
-              {visibleTabs
-                .filter((i: Tabs) => i.canView !== false)
-                .map((tab, index, array) => (
-                  <label
-                    key={tab.id}
-                    onClick={() => handleTabClick(tab.id, index)}
-                    className={`${
-                      array.length === 10
-                        ? "text-[15px] px-1"
-                        : "text-[16px] px-[6px]"
-                    } cursor-pointer select-none flex items-center justify-center ${
-                      selectedTabIndex === index
-                        ? "text-[#0592C6] font-semibold"
-                        : "text-slatyGrey"
-                    } ${
-                      index < array.length - 1
-                        ? "border-r border-r-lightSilver h-3"
-                        : `${array.length === 9 ? "px-1" : "px-2"}`
-                    }`}
+            <div className="flex justify-between items-center">
+              <div
+                className={`flex justify-center items-center ${
+                  moreTabs.length <= 0 ? "my-2" : ""
+                }`}
+              >
+                {activeTabs
+                  .filter((tab: boolean) => tab !== false)
+                  .map((tab: Tabs, index: number) => (
+                    <Fragment key={tab.value}>
+                      <label
+                        className={`mx-4 cursor-pointer text-base ${
+                          activeTab === tab.value
+                            ? "text-secondary font-semibold"
+                            : "text-slatyGrey"
+                        }`}
+                        onClick={() => handleTabChange(tab.value, tab.id)}
+                      >
+                        {tab.label}
+                      </label>
+                      <LineIcon />
+                    </Fragment>
+                  ))}
+              </div>
+              <div className="cursor-pointer relative">
+                {moreTabs.length > 0 && (
+                  <div
+                    ref={moreTabsRef}
+                    onClick={() => setShowMoreTabs(!showMoreTabs)}
                   >
-                    {tab.label}
-                  </label>
-                ))}
+                    <MoreIcon />
+                  </div>
+                )}
+                {showMoreTabs && (
+                  <MoreTabs
+                    moreTabs={moreTabs}
+                    handleMoreTabsClick={handleMoreTabsClick}
+                  />
+                )}
+              </div>
             </div>
 
             <div
@@ -688,7 +653,7 @@ const Page = () => {
                     tab === "Process" ||
                     tab === "Group" ||
                     tab === "Status" ||
-                    tab === "NatureOfError" ||
+                    tab === "ErrorDetails" ||
                     tab === "Organization") && (
                     <div className="relative">
                       <InputBase
@@ -758,7 +723,7 @@ const Page = () => {
                                   Status: "status",
                                   User: "user",
                                   Organization: "organization",
-                                  NatureOfError: "natureOfError",
+                                  ErrorDetails: "natureOfError",
                                 };
 
                                 const selectedTab = tabMappings[tab];
@@ -958,16 +923,16 @@ const Page = () => {
                       : "rounded-[4px] !h-[36px] text-sm"
                   } ${
                     // isLoaded &&
-                    (hasPermissionWorklog(tab, "save", "settings") ||
-                      tabs.filter(
-                        (i: Tabs) => i.label.toLowerCase() === "organization"
-                      )[0].canView)
+                    hasPermissionWorklog(tab, "save", "settings") ||
+                    allTabs.filter(
+                      (i: Tabs) => i.label.toLowerCase() === "organization"
+                    )[0].canView
                       ? ""
                       : "cursor-not-allowed"
                   } !bg-secondary`}
                   onClick={
                     hasPermissionWorklog(tab, "save", "settings") ||
-                    tabs.filter(
+                    allTabs.filter(
                       (i: Tabs) => i.label.toLowerCase() === "organization"
                     )[0].canView
                       ? handleDrawerOpen
@@ -985,8 +950,8 @@ const Page = () => {
                     <span className="uppercase">
                       {tab === "Permission"
                         ? "Role"
-                        : tab === "NatureOfError"
-                        ? "Nature of Error"
+                        : tab === "ErrorDetails"
+                        ? "Error Details"
                         : tab}
                     </span>
                   </span>
@@ -1158,7 +1123,7 @@ const Page = () => {
           />
         )}
 
-        {tab === "NatureOfError" && (
+        {tab === "ErrorDetails" && (
           <NatureOfError
             onOpen={
               hasPermissionWorklog(tab, "save", "settings")
@@ -1168,10 +1133,10 @@ const Page = () => {
             onEdit={handleEdit}
             onDataFetch={handleDataFetch}
             getOrgDetailsFunction={getOrgDetailsFunction}
-            canView={hasPermissionWorklog("NatureOfError", "view", "settings")}
-            canEdit={hasPermissionWorklog("NatureOfError", "save", "settings")}
+            canView={hasPermissionWorklog("ErrorDetails", "view", "settings")}
+            canEdit={hasPermissionWorklog("ErrorDetails", "save", "settings")}
             canDelete={hasPermissionWorklog(
-              "NatureOfError",
+              "ErrorDetails",
               "delete",
               "settings"
             )}
@@ -1180,6 +1145,26 @@ const Page = () => {
             onHandleExport={handleCanExport}
           />
         )}
+
+        {tab === "Email Type" && (
+          <EmailType
+            onOpen={
+              hasPermissionWorklog(tab, "save", "settings")
+                ? handleDrawerOpen
+                : undefined
+            }
+            onEdit={handleEdit}
+            onDataFetch={handleDataFetch}
+            getOrgDetailsFunction={getOrgDetailsFunction}
+            canView={hasPermissionWorklog("Email Type", "view", "settings")}
+            canEdit={hasPermissionWorklog("Email Type", "save", "settings")}
+            canDelete={hasPermissionWorklog("Email Type", "delete", "settings")}
+            onSearchData={searchValue}
+            onSearchClear={clearSearchValue}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
         {tab === "Organization" && (
           <Organization
             onOpen={

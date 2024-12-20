@@ -112,7 +112,7 @@ const NatureOfErrorContent = forwardRef<
           onClose();
           NatureOfErrorDataValue();
           toast.success(
-            `${onEdit > 0 ? "" : "New"} Nature of Error ${
+            `${onEdit > 0 ? "" : "New"} Error Details ${
               onEdit > 0 ? "Updated" : "added"
             }  successfully.`
           );
@@ -154,7 +154,7 @@ const NatureOfErrorContent = forwardRef<
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success(
-            `${onEdit > 0 ? "" : "New"} Nature of Error ${
+            `${onEdit > 0 ? "" : "New"} Error Details ${
               onEdit > 0 ? "Updated" : "added"
             }  successfully.`
           );
@@ -180,7 +180,7 @@ const NatureOfErrorContent = forwardRef<
         <TextField
           label={
             <span>
-              Nature of Error
+              Error Details
               <span className="!text-defaultRed">&nbsp;*</span>
             </span>
           }
@@ -277,7 +277,7 @@ const NatureOfErrorContent = forwardRef<
             type="submit"
             onClick={handleSubmit}
           >
-            {onEdit > 0 ? "Save" : "Create Nature of Error"}
+            {onEdit > 0 ? "Save" : "Create Error Details"}
           </Button>
         </>
       </div>

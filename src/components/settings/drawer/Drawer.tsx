@@ -19,7 +19,12 @@ import { Close } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { DrawerProps } from "@/utils/Types/settingTypes";
-import NatureOfErrorContent, { NatureOfErrorContentRef } from "./content/NatureOfErrorContent";
+import NatureOfErrorContent, {
+  NatureOfErrorContentRef,
+} from "./content/NatureOfErrorContent";
+import EmailTypeContent, {
+  EmailTypeContentRef,
+} from "./content/EmailTypeContent";
 
 const Drawer = ({
   onOpen,
@@ -35,6 +40,7 @@ const Drawer = ({
   const childRefOrg = useRef<OrganizationContentRef>(null);
   const childRefGroup = useRef<GroupContentRef>(null);
   const childRefNatureOfError = useRef<NatureOfErrorContentRef>(null);
+  const childRefEmailType = useRef<EmailTypeContentRef>(null);
   const projectRef = useRef<ProjectContentRef>(null);
   const clientRef = useRef<ClientContentRef>(null);
   const childRefStatus = useRef<StatusContenRef>(null);
@@ -81,6 +87,9 @@ const Drawer = ({
     }
     if (childRefNatureOfError.current) {
       childRefNatureOfError.current.NatureOfErrorDataValue();
+    }
+    if (childRefEmailType.current) {
+      childRefEmailType.current.EmailTypeDataValue();
     }
   };
 
@@ -208,7 +217,12 @@ const Drawer = ({
       >
         <div className="flex p-[20px] justify-between items-center bg-whiteSmoke border-b border-lightSilver">
           <span className="text-pureBlack text-lg font-medium">
-            {onEdit ? "Edit" : "Create"} {tab === "Permission" ? "Role" : tab === "NatureOfError" ? "Nature of Error" : tab}
+            {onEdit ? "Edit" : "Create"}{" "}
+            {tab === "Permission"
+              ? "Role"
+              : tab === "ErrorDetails"
+              ? "Error Details"
+              : tab}
           </span>
           <Tooltip title="Close" placement="left" arrow>
             <IconButton onClick={handleClose}>
@@ -294,12 +308,22 @@ const Drawer = ({
             onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
           />
         )}
-        {tab === "NatureOfError" && (
+        {tab === "ErrorDetails" && (
           <NatureOfErrorContent
             onOpen={onOpen}
             onEdit={onEdit}
             onClose={onClose}
             ref={childRefNatureOfError}
+            onDataFetch={onDataFetch}
+            onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
+          />
+        )}
+        {tab === "Email Type" && (
+          <EmailTypeContent
+            onOpen={onOpen}
+            onEdit={onEdit}
+            onClose={onClose}
+            ref={childRefEmailType}
             onDataFetch={onDataFetch}
             onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
           />

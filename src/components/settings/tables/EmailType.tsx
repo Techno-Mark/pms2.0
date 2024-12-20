@@ -29,7 +29,7 @@ const initialFilter = {
   Status: true,
 };
 
-const NatureOfError = ({
+const ErrorType = ({
   onOpen,
   onEdit,
   onDataFetch,
@@ -42,16 +42,13 @@ const NatureOfError = ({
   onHandleExport,
 }: GroupProps) => {
   const [loader, setLoader] = useState(true);
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<any>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [totalCount, setTotalCount] = useState(0);
   const [filteredObject, setFilteredOject] = useState(initialFilter);
-  const [isOpenSwitchModal, setIsOpenSwitchModal] = useState(false);
-  const [switchId, setSwitchId] = useState(0);
-  const [switchActive, setSwitchActive] = useState(false);
 
   useEffect(() => {
     if (onSearchData.trim().length >= 0) {
@@ -81,47 +78,10 @@ const NatureOfError = ({
     return () => clearTimeout(timer);
   }, [filteredObject]);
 
-  const closeSwitchModal = async () => {
-    await setIsOpenSwitchModal(false);
-  };
-
-  const handleToggleNOE = async () => {
-    const params = {
-      Id: switchId,
-      isActive: switchActive,
-    };
-    const url = `${process.env.pms_api_url}/natureOfError/changestatus`;
-    const successCallback = (
-      ResponseData: null,
-      error: boolean,
-      ResponseStatus: string
-    ) => {
-      if (ResponseStatus === "Success" && error === false) {
-        setIsOpenSwitchModal(false);
-        toast.success("Status Updated Successfully.");
-        onSearchClear();
-        setFilteredOject({
-          ...filteredObject,
-          GlobalSearch: "",
-        });
-      }
-    };
-
-    canDelete
-      ? callAPI(url, params, successCallback, "POST")
-      : toast.warning("You don't have required permission.");
-    setIsOpenSwitchModal(false);
-    onSearchClear();
-    setFilteredOject({
-      ...filteredObject,
-      GlobalSearch: "",
-    });
-  };
-
   const getAll = async () => {
     setLoader(true);
     const params = filteredObject;
-    const url = `${process.env.pms_api_url}/natureOfError/getall`;
+    const url = `${process.env.pms_api_url}/emailType/getemailtypelist`;
     const successCallback = (
       ResponseData: any,
       error: boolean,
@@ -149,14 +109,14 @@ const NatureOfError = ({
     const params = {
       Id: selectedRowId,
     };
-    const url = `${process.env.pms_api_url}/natureOfError/delete`;
+    const url = `${process.env.pms_api_url}/emailtype/deletemailtype`;
     const successCallback = (
       ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        toast.success("Error Details has been deleted successfully!");
+        toast.success("Email Type has been deleted successfully!");
         setIsDeleteOpen(false);
         onSearchClear();
         setFilteredOject({
@@ -260,25 +220,50 @@ const NatureOfError = ({
     },
     rowDataIndex: number
   ) => {
-    if (column.label === "Status") {
+    if (column.name === "Color") {
       return {
-        name: "IsActive",
+        name: "Color",
         options: {
           filter: true,
           viewColumns: false,
-          sort: true,
-          customHeadLabelRender: () => generateCustomHeaderName("Status"),
-          customBodyRender: (value: boolean, tableMeta: any) => {
-            const activeUser = async () => {
-              await setIsOpenSwitchModal(true);
-              await setSwitchId(
-                tableMeta.rowData[tableMeta.rowData.length - 1]
-              );
-              await setSwitchActive(!value);
-            };
+          sort: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Status Color"),
+          customBodyRender: (value: string) => {
             return (
-              <div>
-                <Switch checked={value} onChange={() => activeUser()} />
+              <div
+                style={{
+                  backgroundColor: value,
+                  width: "15px",
+                  height: "15px",
+                  border: `2px solid ${value}`,
+                  borderRadius: "50%",
+                  margin: "10px 10px 10px 10px",
+                }}
+              ></div>
+            );
+          },
+        },
+      };
+    } else if (column.name === "TAT") {
+      return {
+        name: "TAT",
+        options: {
+          filter: true,
+          viewColumns: false,
+          sort: false,
+          customHeadLabelRender: () => generateCustomHeaderName("SLA TAT"),
+          customBodyRender: (value: number) => {
+            return (
+              <div className="ml-2">
+                {!value || value === 0 || value === null
+                  ? "-"
+                  : `${String(Math.floor(value / 3600)).padStart(
+                      2,
+                      "0"
+                    )}:${String(Math.floor((value % 3600) / 60)).padStart(
+                      2,
+                      "0"
+                    )}`}
               </div>
             );
           },
@@ -308,13 +293,28 @@ const NatureOfError = ({
 
   const column = [
     {
-      name: "Name",
-      label: "Error Details",
+      name: "Type",
+      label: "Email Type Name",
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      name: "IsActive",
-      label: "Status",
+      name: "Color",
+      label: "Status Color",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "TAT",
+      label: "SLA TAT",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "DepartmentNames",
+      label: "Department",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "KeywordString",
+      label: "Keyword",
       bodyRenderer: generateCommonBodyRender,
     },
     {
@@ -324,7 +324,7 @@ const NatureOfError = ({
     },
   ];
 
-  const natureOfErrorColumns = column.map((col: any) => {
+  const errorTypeColumns = column.map((col: any) => {
     return generateConditionalColumn(col, 10);
   });
 
@@ -362,7 +362,7 @@ const NatureOfError = ({
               <ThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable
                   data={data}
-                  columns={natureOfErrorColumns}
+                  columns={errorTypeColumns}
                   title={undefined}
                   options={{
                     ...options,
@@ -371,14 +371,14 @@ const NatureOfError = ({
                         noMatch: (
                           <div className="flex items-start">
                             <span>
-                              Currently there is no record, you may&nbsp;
+                              No Email Types available.&nbsp;
                               <a
                                 className="text-secondary underline cursor-pointer"
                                 onClick={onOpen}
                               >
-                                create Error Details
+                                Add a new
                               </a>
-                              &nbsp;to continue.
+                              &nbsp;Email Type.
                             </span>
                           </div>
                         ),
@@ -420,33 +420,16 @@ const NatureOfError = ({
               </ThemeProvider>
             </div>
 
-            {isOpenSwitchModal && (
-              <SwitchModal
-                isOpen={isOpenSwitchModal}
-                onClose={closeSwitchModal}
-                title={`${
-                  switchActive === true ? "Active" : "InActive"
-                } Error Details`}
-                actionText="Yes"
-                onActionClick={handleToggleNOE}
-                firstContent={`Are you sure you want to ${
-                  switchActive === true ? "Active" : "InActive"
-                } Error Details?`}
-              />
-            )}
-
             {/* Delete Modal  */}
             {isDeleteOpen && (
               <DeleteDialog
                 isOpen={isDeleteOpen}
                 onClose={closeModal}
                 onActionClick={handleDeleteRow}
-                Title={"Delete Error Details"}
-                firstContent={
-                  "Are you sure you want to delete Error Details?"
-                }
+                Title={"Delete Error Type"}
+                firstContent={"Are you sure you want to delete Error Type?"}
                 secondContent={
-                  "If you delete Error Details, you will permanently lose Error Details and Error Details related data."
+                  "If you delete Error Type, you will permanently lose Error Type and Error Type related data."
                 }
               />
             )}
@@ -461,4 +444,4 @@ const NatureOfError = ({
   );
 };
 
-export default NatureOfError;
+export default ErrorType;

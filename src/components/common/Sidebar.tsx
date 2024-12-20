@@ -176,7 +176,8 @@ const Sidebar = ({
               hasPermissionWorklog("Group", "View", "Settings") ||
               hasPermissionWorklog("Permission", "View", "Settings") ||
               !hasPermissionWorklog("Notification", "View", "Settings") ||
-              !hasPermissionWorklog("NatureOfError", "View", "Settings") ||
+              !hasPermissionWorklog("ErrorDetails", "View", "Settings") ||
+              !hasPermissionWorklog("Email Type", "View", "Settings") ||
               hasPermissionWorklog("Status", "View", "Settings")) &&
             !isClient && {
               name: "Settings",

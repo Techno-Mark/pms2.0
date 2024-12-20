@@ -56,6 +56,10 @@ export interface ListDashboard {
   ResolvedBy: string;
   SolvedOn: string;
   IsImported: string;
+  ErrorIdentificationDate: string;
+  ResolutionStatus: number;
+  ResolutionStatusVal: string;
+  IdentifiedBy: string | null;
 }
 
 export interface ListClientDashboard {
