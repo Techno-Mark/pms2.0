@@ -654,6 +654,7 @@ const Page = () => {
                     tab === "Group" ||
                     tab === "Status" ||
                     tab === "ErrorDetails" ||
+                    tab === "Email Type" ||
                     tab === "Organization") && (
                     <div className="relative">
                       <InputBase
@@ -698,51 +699,55 @@ const Page = () => {
                     </ColorToolTip>
                   )}
 
-                  <ColorToolTip title="Export" placement="top" arrow>
-                    <div
-                      className={`${
-                        hasPermissionWorklog(tab, "export", "settings")
-                          ? ""
-                          : "opacity-50 pointer-events-none"
-                      }`}
-                    >
-                      <span
+                  {tab !== "Email Type" && (
+                    <ColorToolTip title="Export" placement="top" arrow>
+                      <div
                         className={`${
-                          canExport ? "" : "pointer-events-none opacity-50"
-                        } ${isExporting ? "cursor-default" : "cursor-pointer"}`}
-                        onClick={
-                          canExport
-                            ? () => {
-                                const tabMappings: {
-                                  [key: string]: string;
-                                } = {
-                                  Client: "client",
-                                  Group: "group",
-                                  Process: "process",
-                                  Project: "project",
-                                  Status: "status",
-                                  User: "user",
-                                  Organization: "organization",
-                                  ErrorDetails: "natureOfError",
-                                };
-
-                                const selectedTab = tabMappings[tab];
-
-                                if (selectedTab) {
-                                  exportData(
-                                    selectedTab,
-                                    `${tab}_data`,
-                                    search.trim()
-                                  );
-                                }
-                              }
-                            : undefined
-                        }
+                          hasPermissionWorklog(tab, "export", "settings")
+                            ? ""
+                            : "opacity-50 pointer-events-none"
+                        }`}
                       >
-                        {isExporting ? <Loading /> : <ExportIcon />}
-                      </span>
-                    </div>
-                  </ColorToolTip>
+                        <span
+                          className={`${
+                            canExport ? "" : "pointer-events-none opacity-50"
+                          } ${
+                            isExporting ? "cursor-default" : "cursor-pointer"
+                          }`}
+                          onClick={
+                            canExport
+                              ? () => {
+                                  const tabMappings: {
+                                    [key: string]: string;
+                                  } = {
+                                    Client: "client",
+                                    Group: "group",
+                                    Process: "process",
+                                    Project: "project",
+                                    Status: "status",
+                                    User: "user",
+                                    Organization: "organization",
+                                    ErrorDetails: "natureOfError",
+                                  };
+
+                                  const selectedTab = tabMappings[tab];
+
+                                  if (selectedTab) {
+                                    exportData(
+                                      selectedTab,
+                                      `${tab}_data`,
+                                      search.trim()
+                                    );
+                                  }
+                                }
+                              : undefined
+                          }
+                        >
+                          {isExporting ? <Loading /> : <ExportIcon />}
+                        </span>
+                      </div>
+                    </ColorToolTip>
+                  )}
                 </>
               ) : tab === "Notification" ? (
                 <>

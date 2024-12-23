@@ -410,7 +410,7 @@ const EmailTypeContent = forwardRef<
           className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary"
           onClick={() => handleSubmit(true)}
         >
-          {onEdit > 0 ? "Save" : "Create Error Details"}
+          {onEdit > 0 ? "Save" : "Create Email Type"}
         </Button>
       </div>
     </>
