@@ -928,18 +928,12 @@ const Page = () => {
                       : "rounded-[4px] !h-[36px] text-sm"
                   } ${
                     // isLoaded &&
-                    hasPermissionWorklog(tab, "save", "settings") ||
-                    allTabs.filter(
-                      (i: Tabs) => i.label.toLowerCase() === "organization"
-                    )[0].canView
+                    hasPermissionWorklog(tab, "save", "settings")
                       ? ""
                       : "cursor-not-allowed"
                   } !bg-secondary`}
                   onClick={
-                    hasPermissionWorklog(tab, "save", "settings") ||
-                    allTabs.filter(
-                      (i: Tabs) => i.label.toLowerCase() === "organization"
-                    )[0].canView
+                    hasPermissionWorklog(tab, "save", "settings")
                       ? handleDrawerOpen
                       : undefined
                   }
