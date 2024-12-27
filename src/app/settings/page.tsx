@@ -48,13 +48,18 @@ import {
   LabelValueTypeIsDefault,
   MenuItem,
 } from "@/utils/Types/types";
-import { getDepartmentDropdownData } from "@/utils/commonDropdownApiCall";
+import {
+  getDepartmentDropdownData,
+  getEmailTypeData,
+} from "@/utils/commonDropdownApiCall";
 import Notification from "@/components/settings/tables/Notification";
 import NotificationDrawer from "@/components/common/NotificationDrawer";
 import NatureOfError from "@/components/settings/tables/NatureOfError";
 import EmailType from "@/components/settings/tables/EmailType";
 import MoreIcon from "@/assets/icons/reports/MoreIcon";
 import LineIcon from "@/assets/icons/reports/LineIcon";
+import SLA from "@/components/settings/tables/SLA";
+import EmailTemplate from "@/components/settings/tables/EmailTemplate";
 
 const filter = createFilterOptions<LabelValue>();
 
@@ -76,7 +81,9 @@ const allTabs = [
   { id: "Notification", label: "Notification", value: 8, canView: false },
   { id: "ErrorDetails", label: "Error Details", value: 9, canView: false },
   { id: "Email Type", label: "Email Type", value: 10, canView: false },
-  { id: "Organization", label: "Organization", value: 11, canView: true },
+  { id: "SLA", label: "SLA", value: 11, canView: false },
+  { id: "Email template", label: "Email Template", value: 12, canView: false },
+  { id: "Organization", label: "Organization", value: 13, canView: true },
 ];
 
 interface MoreTabs {
@@ -144,6 +151,8 @@ const Page = () => {
           !hasPermissionWorklog("Notification", "View", "Settings") ||
           !hasPermissionWorklog("ErrorDetails", "View", "Settings") ||
           !hasPermissionWorklog("Email Type", "View", "Settings") ||
+          !hasPermissionWorklog("SLA", "View", "Settings") ||
+          !hasPermissionWorklog("Email template", "View", "Settings") ||
           !hasPermissionWorklog("Status", "View", "Settings"))
       ) {
         router.push("/");
@@ -273,6 +282,7 @@ const Page = () => {
 
   const [departmentValue, setDepartmentValue] = useState<number>(0);
   const [departmentDropdown, setDepartmentDropdown] = useState([]);
+  const [emailTypeDropdown, setEmailTypeDropdown] = useState([]);
   const [saveDepartmentData, setSaveDepartmentData] = useState(false);
 
   const [permissionValueError, setPermissionValueError] = useState(false);
@@ -352,9 +362,14 @@ const Page = () => {
     setDepartmentDropdown(departmentData.DepartmentList);
   };
 
+  const getEmailData = async () => {
+    setEmailTypeDropdown(await getEmailTypeData());
+  };
+
   useEffect(() => {
     tab === "Permission" && getPermissionDropdown();
-    tab === "Notification" && getDepartmentData();
+    tab === "Notification" || (tab === "Email template" && getDepartmentData());
+    tab === "Email template" && getEmailData();
   }, [tab]);
 
   const handleSavePermissionData = (e: { preventDefault: () => void }) => {
@@ -655,6 +670,7 @@ const Page = () => {
                     tab === "Status" ||
                     tab === "ErrorDetails" ||
                     tab === "Email Type" ||
+                    tab === "Email template" ||
                     tab === "Organization") && (
                     <div className="relative">
                       <InputBase
@@ -699,55 +715,57 @@ const Page = () => {
                     </ColorToolTip>
                   )}
 
-                  {tab !== "Email Type" && (
-                    <ColorToolTip title="Export" placement="top" arrow>
-                      <div
-                        className={`${
-                          hasPermissionWorklog(tab, "export", "settings")
-                            ? ""
-                            : "opacity-50 pointer-events-none"
-                        }`}
-                      >
-                        <span
+                  {tab !== "Email Type" &&
+                    tab !== "SLA" &&
+                    tab !== "Email template" && (
+                      <ColorToolTip title="Export" placement="top" arrow>
+                        <div
                           className={`${
-                            canExport ? "" : "pointer-events-none opacity-50"
-                          } ${
-                            isExporting ? "cursor-default" : "cursor-pointer"
+                            hasPermissionWorklog(tab, "export", "settings")
+                              ? ""
+                              : "opacity-50 pointer-events-none"
                           }`}
-                          onClick={
-                            canExport
-                              ? () => {
-                                  const tabMappings: {
-                                    [key: string]: string;
-                                  } = {
-                                    Client: "client",
-                                    Group: "group",
-                                    Process: "process",
-                                    Project: "project",
-                                    Status: "status",
-                                    User: "user",
-                                    Organization: "organization",
-                                    ErrorDetails: "natureOfError",
-                                  };
-
-                                  const selectedTab = tabMappings[tab];
-
-                                  if (selectedTab) {
-                                    exportData(
-                                      selectedTab,
-                                      `${tab}_data`,
-                                      search.trim()
-                                    );
-                                  }
-                                }
-                              : undefined
-                          }
                         >
-                          {isExporting ? <Loading /> : <ExportIcon />}
-                        </span>
-                      </div>
-                    </ColorToolTip>
-                  )}
+                          <span
+                            className={`${
+                              canExport ? "" : "pointer-events-none opacity-50"
+                            } ${
+                              isExporting ? "cursor-default" : "cursor-pointer"
+                            }`}
+                            onClick={
+                              canExport
+                                ? () => {
+                                    const tabMappings: {
+                                      [key: string]: string;
+                                    } = {
+                                      Client: "client",
+                                      Group: "group",
+                                      Process: "process",
+                                      Project: "project",
+                                      Status: "status",
+                                      User: "user",
+                                      Organization: "organization",
+                                      ErrorDetails: "natureOfError",
+                                    };
+
+                                    const selectedTab = tabMappings[tab];
+
+                                    if (selectedTab) {
+                                      exportData(
+                                        selectedTab,
+                                        `${tab}_data`,
+                                        search.trim()
+                                      );
+                                    }
+                                  }
+                                : undefined
+                            }
+                          >
+                            {isExporting ? <Loading /> : <ExportIcon />}
+                          </span>
+                        </div>
+                      </ColorToolTip>
+                    )}
                 </>
               ) : tab === "Notification" ? (
                 <>
@@ -917,7 +935,7 @@ const Page = () => {
                   </div>
                 </div>
               )}
-              {tab !== "Notification" && (
+              {tab !== "Notification" && tab !== "SLA" && (
                 <Button
                   type="submit"
                   variant="contained"
@@ -970,6 +988,8 @@ const Page = () => {
           onUserDataFetch={getUserDataFunction}
           getPermissionDropdown={getPermissionDropdown}
           getOrgDetailsFunction={getOrgDetailsFunction}
+          departmentDropdown={departmentDropdown}
+          emailTypeDropdown={emailTypeDropdown}
         />
 
         {/* Drawer Overlay */}
@@ -1158,6 +1178,48 @@ const Page = () => {
             canView={hasPermissionWorklog("Email Type", "view", "settings")}
             canEdit={hasPermissionWorklog("Email Type", "save", "settings")}
             canDelete={hasPermissionWorklog("Email Type", "delete", "settings")}
+            onSearchData={searchValue}
+            onSearchClear={clearSearchValue}
+            onHandleExport={handleCanExport}
+          />
+        )}
+
+        {tab === "SLA" && (
+          <SLA
+            // onOpen={
+            //   hasPermissionWorklog(tab, "save", "settings")
+            //     ? handleDrawerOpen
+            //     : undefined
+            // }
+            // onEdit={handleEdit}
+            // onDataFetch={handleDataFetch}
+            getOrgDetailsFunction={getOrgDetailsFunction}
+            canView={hasPermissionWorklog("SLA", "view", "settings")}
+            canEdit={hasPermissionWorklog("SLA", "save", "settings")}
+            canDelete={hasPermissionWorklog("SLA", "delete", "settings")}
+            // onSearchData={searchValue}
+            // onSearchClear={clearSearchValue}
+            // onHandleExport={handleCanExport}
+          />
+        )}
+
+        {tab === "Email template" && (
+          <EmailTemplate
+            onOpen={
+              hasPermissionWorklog(tab, "save", "settings")
+                ? handleDrawerOpen
+                : undefined
+            }
+            onEdit={handleEdit}
+            onDataFetch={handleDataFetch}
+            getOrgDetailsFunction={getOrgDetailsFunction}
+            canView={hasPermissionWorklog("Email template", "view", "settings")}
+            canEdit={hasPermissionWorklog("Email template", "save", "settings")}
+            canDelete={hasPermissionWorklog(
+              "Email template",
+              "delete",
+              "settings"
+            )}
             onSearchData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}

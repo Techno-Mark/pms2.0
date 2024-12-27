@@ -261,6 +261,14 @@ export interface NotificationProps {
   setSaveDepartmentData: any;
 }
 
+//SLA
+export interface SLAProps {
+  getOrgDetailsFunction: (() => void) | null;
+  canView: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+}
+
 //Org
 export interface OrgProps {
   onOpen: (() => void) | undefined;
@@ -287,6 +295,19 @@ export interface DrawerProps {
   onDataFetch: (() => void) | null;
   getPermissionDropdown: () => void;
   getOrgDetailsFunction: (() => void) | null;
+  departmentDropdown: LabelValue[];
+  emailTypeDropdown: LabelValue[];
+}
+
+export interface SLADrawerProps {
+  onOpen: boolean;
+  onClose: () => void;
+  clone: boolean;
+  tab: string;
+  onEdit: number;
+  onDataFetch: (() => void) | null;
+  businessHoursDropdown: LabelValue[];
+  clientDropdown: LabelValue[];
 }
 
 export interface UserPermissionDrawer {

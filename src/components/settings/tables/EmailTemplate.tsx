@@ -6,6 +6,7 @@ import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import {
   generateCommonBodyRender,
   generateCustomHeaderName,
+  generateDateWithTime,
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
@@ -29,7 +30,7 @@ const initialFilter = {
   Status: true,
 };
 
-const EmailType = ({
+const EmailTemplate = ({
   onOpen,
   onEdit,
   onDataFetch,
@@ -49,6 +50,9 @@ const EmailType = ({
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [totalCount, setTotalCount] = useState(0);
   const [filteredObject, setFilteredOject] = useState(initialFilter);
+  const [isOpenSwitchModal, setIsOpenSwitchModal] = useState(false);
+  const [switchId, setSwitchId] = useState(0);
+  const [switchActive, setSwitchActive] = useState(false);
 
   useEffect(() => {
     if (onSearchData.trim().length >= 0) {
@@ -81,7 +85,7 @@ const EmailType = ({
   const getAll = async () => {
     setLoader(true);
     const params = filteredObject;
-    const url = `${process.env.pms_api_url}/emailType/getemailtypelist`;
+    const url = `${process.env.pms_api_url}/emailtemplate/getall`;
     const successCallback = (
       ResponseData: any,
       error: boolean,
@@ -105,18 +109,47 @@ const EmailType = ({
     setIsDeleteOpen(false);
   };
 
-  const handleDeleteRow = async () => {
+  const closeSwitchModal = async () => {
+    await setIsOpenSwitchModal(false);
+  };
+
+  const handleToggleEmailTemplate = async () => {
     const params = {
-      Id: selectedRowId,
+      IsActive: switchActive,
+      Id: switchId,
     };
-    const url = `${process.env.pms_api_url}/emailtype/deletemailtype`;
+    const url = `${process.env.pms_api_url}/emailtemplate/activeinactive`;
     const successCallback = (
       ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        toast.success("Email Type has been deleted successfully!");
+        setIsOpenSwitchModal(false);
+        toast.success("Status Updated Successfully.");
+        onSearchClear();
+        setFilteredOject({
+          ...filteredObject,
+          GlobalSearch: onSearchData.trim(),
+          PageNo: 1,
+        });
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  const handleDeleteRow = async () => {
+    const params = {
+      Id: selectedRowId,
+    };
+    const url = `${process.env.pms_api_url}/emailtemplate/delete`;
+    const successCallback = (
+      ResponseData: null,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Email Template has been deleted successfully!");
         setIsDeleteOpen(false);
         onSearchClear();
         setFilteredOject({
@@ -220,50 +253,25 @@ const EmailType = ({
     },
     rowDataIndex: number
   ) => {
-    if (column.name === "Color") {
+    if (column.label === "Status") {
       return {
-        name: "Color",
+        name: "Status",
         options: {
           filter: true,
           viewColumns: false,
-          sort: false,
-          customHeadLabelRender: () => generateCustomHeaderName("Status Color"),
-          customBodyRender: (value: string) => {
+          sort: true,
+          customHeadLabelRender: () => generateCustomHeaderName("Status"),
+          customBodyRender: (value: number, tableMeta: any) => {
+            const activeUser = async () => {
+              await setIsOpenSwitchModal(true);
+              await setSwitchId(
+                tableMeta.rowData[tableMeta.rowData.length - 1]
+              );
+              await setSwitchActive(value === 1 ? false : true);
+            };
             return (
-              <div
-                style={{
-                  backgroundColor: value,
-                  width: "15px",
-                  height: "15px",
-                  border: `2px solid ${value}`,
-                  borderRadius: "50%",
-                  margin: "10px 10px 10px 10px",
-                }}
-              ></div>
-            );
-          },
-        },
-      };
-    } else if (column.name === "TAT") {
-      return {
-        name: "TAT",
-        options: {
-          filter: true,
-          viewColumns: false,
-          sort: false,
-          customHeadLabelRender: () => generateCustomHeaderName("SLA TAT"),
-          customBodyRender: (value: number) => {
-            return (
-              <div className="ml-2">
-                {!value || value === 0 || value === null
-                  ? "-"
-                  : `${String(Math.floor(value / 3600)).padStart(
-                      2,
-                      "0"
-                    )}:${String(Math.floor((value % 3600) / 60)).padStart(
-                      2,
-                      "0"
-                    )}`}
+              <div>
+                <Switch checked={value === 1 ? true : false} onChange={() => activeUser()} />
               </div>
             );
           },
@@ -293,28 +301,33 @@ const EmailType = ({
 
   const column = [
     {
-      name: "Type",
-      label: "Email Type Name",
+      name: "TemplateName",
+      label: "Template Name",
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      name: "Color",
-      label: "Status Color",
+      name: "DateAdded",
+      label: "Date Added",
+      bodyRenderer: generateDateWithTime,
+    },
+    {
+      name: "LastUpdatedOn",
+      label: "Last Updated On",
+      bodyRenderer: generateDateWithTime,
+    },
+    {
+      name: "EmailTypeName",
+      label: "Email Type",
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      name: "TAT",
-      label: "SLA TAT",
-      bodyRenderer: generateCommonBodyRender,
-    },
-    {
-      name: "DepartmentNames",
+      name: "DepartmentName",
       label: "Department",
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      name: "KeywordString",
-      label: "Keyword",
+      name: "Status",
+      label: "Status",
       bodyRenderer: generateCommonBodyRender,
     },
     {
@@ -324,7 +337,7 @@ const EmailType = ({
     },
   ];
 
-  const emailTypeColumns = column.map((col: any) => {
+  const emailTemplateColumns = column.map((col: any) => {
     return generateConditionalColumn(col, 10);
   });
 
@@ -362,7 +375,7 @@ const EmailType = ({
               <ThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable
                   data={data}
-                  columns={emailTypeColumns}
+                  columns={emailTemplateColumns}
                   title={undefined}
                   options={{
                     ...options,
@@ -371,14 +384,14 @@ const EmailType = ({
                         noMatch: (
                           <div className="flex items-start">
                             <span>
-                              No Email Types available.&nbsp;
+                              No Email Templates available.&nbsp;
                               <a
                                 className="text-secondary underline cursor-pointer"
                                 onClick={onOpen}
                               >
                                 Add a new
                               </a>
-                              &nbsp;Email Type.
+                              &nbsp;Email Template.
                             </span>
                           </div>
                         ),
@@ -420,16 +433,31 @@ const EmailType = ({
               </ThemeProvider>
             </div>
 
+            {isOpenSwitchModal && (
+              <SwitchModal
+                isOpen={isOpenSwitchModal}
+                onClose={closeSwitchModal}
+                title={`${
+                  switchActive === true ? "Active" : "InActive"
+                } Email Template`}
+                actionText="Yes"
+                onActionClick={handleToggleEmailTemplate}
+                firstContent={`Are you sure you want to ${
+                  switchActive === true ? "Active" : "InActive"
+                } Email Template?`}
+              />
+            )}
+
             {/* Delete Modal  */}
             {isDeleteOpen && (
               <DeleteDialog
                 isOpen={isDeleteOpen}
                 onClose={closeModal}
                 onActionClick={handleDeleteRow}
-                Title={"Delete Email Type"}
-                firstContent={"Are you sure you want to delete Email Type?"}
+                Title={"Delete Error Type"}
+                firstContent={"Are you sure you want to delete Email Template?"}
                 secondContent={
-                  "If you delete Email Type, you will permanently lose Email Type and Email Type related data."
+                  "If you delete Email Template, you will permanently lose Email Template and Email Template related data."
                 }
               />
             )}
@@ -444,4 +472,4 @@ const EmailType = ({
   );
 };
 
-export default EmailType;
+export default EmailTemplate;

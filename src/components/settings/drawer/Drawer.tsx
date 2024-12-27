@@ -25,6 +25,9 @@ import NatureOfErrorContent, {
 import EmailTypeContent, {
   EmailTypeContentRef,
 } from "./content/EmailTypeContent";
+import EmailTemplateContent, {
+  EmailTemplateContentRef,
+} from "./content/EmailTemplateContent";
 
 const Drawer = ({
   onOpen,
@@ -35,12 +38,15 @@ const Drawer = ({
   onDataFetch,
   getPermissionDropdown,
   getOrgDetailsFunction,
+  departmentDropdown,
+  emailTypeDropdown,
 }: DrawerProps) => {
   const childRef = useRef<UserContentRef>(null);
   const childRefOrg = useRef<OrganizationContentRef>(null);
   const childRefGroup = useRef<GroupContentRef>(null);
   const childRefNatureOfError = useRef<NatureOfErrorContentRef>(null);
   const childRefEmailType = useRef<EmailTypeContentRef>(null);
+  const childRefEmailTemplate = useRef<EmailTemplateContentRef>(null);
   const projectRef = useRef<ProjectContentRef>(null);
   const clientRef = useRef<ClientContentRef>(null);
   const childRefStatus = useRef<StatusContenRef>(null);
@@ -90,6 +96,9 @@ const Drawer = ({
     }
     if (childRefEmailType.current) {
       childRefEmailType.current.EmailTypeDataValue();
+    }
+    if (childRefEmailTemplate.current) {
+      childRefEmailTemplate.current.EmailTemplateDataValue();
     }
   };
 
@@ -326,6 +335,18 @@ const Drawer = ({
             ref={childRefEmailType}
             onDataFetch={onDataFetch}
             onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
+          />
+        )}
+        {tab === "Email template" && (
+          <EmailTemplateContent
+            onOpen={onOpen}
+            onEdit={onEdit}
+            onClose={onClose}
+            ref={childRefEmailTemplate}
+            onDataFetch={onDataFetch}
+            onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
+            departmentDropdown={departmentDropdown}
+            emailTypeDropdown={emailTypeDropdown}
           />
         )}
       </div>

@@ -10,12 +10,26 @@ import {
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
 import ReportLoader from "@/components/common/ReportLoader";
-import { Switch, TablePagination, ThemeProvider } from "@mui/material";
+import {
+  Button,
+  InputBase,
+  TablePagination,
+  ThemeProvider,
+} from "@mui/material";
 import MUIDataTable from "mui-datatables";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
-import { GroupProps, SettingAction } from "@/utils/Types/settingTypes";
-import SwitchModal from "@/components/common/SwitchModal";
+import { SettingAction, SLAProps } from "@/utils/Types/settingTypes";
+import { hasPermissionWorklog } from "@/utils/commonFunction";
+import AddPlusIcon from "@/assets/icons/AddPlusIcon";
+import DrawerOverlay from "../drawer/DrawerOverlay";
+import SearchIcon from "@/assets/icons/SearchIcon";
+import {
+  getBusinessHoursDropdownData,
+  getClientDropdownData,
+} from "@/utils/commonDropdownApiCall";
+import { LabelValue } from "@/utils/Types/types";
+import SLADrawer from "../drawer/content/SLADrawer";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -29,44 +43,51 @@ const initialFilter = {
   Status: true,
 };
 
-const EmailType = ({
-  onOpen,
-  onEdit,
-  onDataFetch,
+const SLA = ({
+  // onOpen,
+  // onDataFetch,
   getOrgDetailsFunction,
   canView,
   canEdit,
   canDelete,
-  onSearchData,
-  onSearchClear,
-  onHandleExport,
-}: GroupProps) => {
+}: // onSearchData,
+// onSearchClear,
+// onHandleExport,
+SLAProps) => {
   const [loader, setLoader] = useState(true);
+  const [selectedTab, setSelectedTab] = useState(1);
   const [data, setData] = useState<any>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
+  const [selectedRowId, setSelectedRowId] = useState<number>(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [totalCount, setTotalCount] = useState(0);
   const [filteredObject, setFilteredOject] = useState(initialFilter);
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [clone, setClone] = useState(false);
+  const [search, setSearch] = useState("");
+  const [searchValue, setSearchValue] = useState("");
+  const [businessHoursDropdown, setBusinessHoursDropdown] = useState<
+    LabelValue[]
+  >([]);
+  const [clientDropdown, setClientDropdown] = useState<LabelValue[]>([]);
 
   useEffect(() => {
-    if (onSearchData.trim().length >= 0) {
+    if (searchValue.trim().length >= 0) {
       setFilteredOject({
         ...filteredObject,
-        GlobalSearch: onSearchData.trim(),
+        GlobalSearch: searchValue.trim(),
         PageNo: 1,
       });
       setPage(0);
     }
-  }, [onSearchData]);
+  }, [searchValue]);
 
   useEffect(() => {
     const fetchData = async () => {
       const Org_Token = await localStorage.getItem("Org_Token");
       if (Org_Token !== null) {
         getAll();
-        onDataFetch(fetchData);
       } else {
         setTimeout(fetchData, 1000);
       }
@@ -76,12 +97,14 @@ const EmailType = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [filteredObject]);
+  }, [filteredObject, selectedTab]);
 
   const getAll = async () => {
     setLoader(true);
     const params = filteredObject;
-    const url = `${process.env.pms_api_url}/emailType/getemailtypelist`;
+    const url = `${process.env.pms_api_url}/${
+      selectedTab === 1 ? "sla/businesshrs/list" : "sla/customSLA/list"
+    }`;
     const successCallback = (
       ResponseData: any,
       error: boolean,
@@ -105,20 +128,55 @@ const EmailType = ({
     setIsDeleteOpen(false);
   };
 
+  const handleDrawerOpen = () => {
+    setOpenDrawer(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpenDrawer(false);
+    setSelectedRowId(0);
+    setClone(false);
+  };
+
+  const getClientData = async () => {
+    businessHoursDropdown.length <= 0 &&
+      setBusinessHoursDropdown(await getBusinessHoursDropdownData());
+    clientDropdown.length <= 0 &&
+      setClientDropdown(await getClientDropdownData());
+  };
+
+  useEffect(() => {
+    selectedTab === 2 && getClientData();
+  }, [selectedTab]);
+
+  useEffect(() => {
+    setIsDeleteOpen(false);
+    setSelectedRowId(0);
+    setPage(0);
+    setRowsPerPage(10);
+    setSearch("");
+    setSearchValue("");
+  }, [selectedTab]);
+
   const handleDeleteRow = async () => {
     const params = {
       Id: selectedRowId,
     };
-    const url = `${process.env.pms_api_url}/emailtype/deletemailtype`;
+    const url = `${process.env.pms_api_url}/${
+      selectedTab === 1 ? "sla/businesshrs/delete" : "sla/customSLA/delete"
+    }`;
     const successCallback = (
       ResponseData: null,
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        toast.success("Email Type has been deleted successfully!");
+        toast.success(
+          `${
+            selectedTab === 1 ? "Business Hours" : "Custom SLA"
+          } has been deleted successfully!`
+        );
         setIsDeleteOpen(false);
-        onSearchClear();
         setFilteredOject({
           ...filteredObject,
           GlobalSearch: "",
@@ -130,19 +188,24 @@ const EmailType = ({
       ? callAPI(url, params, successCallback, "POST")
       : toast.warning("You don't have required permission.");
     setIsDeleteOpen(false);
-    onSearchClear();
-    setSelectedRowId(null);
+    setSelectedRowId(0);
     setPage(0);
     setRowsPerPage(10);
+    setSearch("");
+    setSearchValue("");
   };
 
   const handleActionValue = async (actionId: string, id: number) => {
     setSelectedRowId(id);
     if (actionId.toLowerCase() === "edit") {
-      onEdit(id);
+      setOpenDrawer(true);
     }
     if (actionId.toLowerCase() === "delete") {
       setIsDeleteOpen(true);
+    }
+    if (actionId.toLowerCase() === "clone") {
+      setOpenDrawer(true);
+      setClone(true);
     }
   };
 
@@ -169,7 +232,8 @@ const EmailType = ({
     const actionPermissions = actions.filter(
       (action: string) =>
         (action.toLowerCase() === "edit" && canEdit) ||
-        (action.toLowerCase() === "delete" && canDelete)
+        (action.toLowerCase() === "delete" && canDelete) ||
+        (action.toLowerCase() === "clone" && canEdit)
     );
 
     return actionPermissions.length > 0 ? (
@@ -220,56 +284,7 @@ const EmailType = ({
     },
     rowDataIndex: number
   ) => {
-    if (column.name === "Color") {
-      return {
-        name: "Color",
-        options: {
-          filter: true,
-          viewColumns: false,
-          sort: false,
-          customHeadLabelRender: () => generateCustomHeaderName("Status Color"),
-          customBodyRender: (value: string) => {
-            return (
-              <div
-                style={{
-                  backgroundColor: value,
-                  width: "15px",
-                  height: "15px",
-                  border: `2px solid ${value}`,
-                  borderRadius: "50%",
-                  margin: "10px 10px 10px 10px",
-                }}
-              ></div>
-            );
-          },
-        },
-      };
-    } else if (column.name === "TAT") {
-      return {
-        name: "TAT",
-        options: {
-          filter: true,
-          viewColumns: false,
-          sort: false,
-          customHeadLabelRender: () => generateCustomHeaderName("SLA TAT"),
-          customBodyRender: (value: number) => {
-            return (
-              <div className="ml-2">
-                {!value || value === 0 || value === null
-                  ? "-"
-                  : `${String(Math.floor(value / 3600)).padStart(
-                      2,
-                      "0"
-                    )}:${String(Math.floor((value % 3600) / 60)).padStart(
-                      2,
-                      "0"
-                    )}`}
-              </div>
-            );
-          },
-        },
-      };
-    } else if (column.label === "Actions") {
+    if (column.label === "Actions") {
       return {
         name: "Id",
         options: {
@@ -278,7 +293,16 @@ const EmailType = ({
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Actions"),
           customBodyRender: (value: number) => {
-            return <Actions actions={["Edit", "Delete"]} id={value} />;
+            return (
+              <Actions
+                actions={
+                  selectedTab === 1
+                    ? ["Edit", "Delete", "Clone"]
+                    : ["Edit", "Delete"]
+                }
+                id={value}
+              />
+            );
           },
         },
       };
@@ -291,30 +315,20 @@ const EmailType = ({
     }
   };
 
-  const column = [
+  const columnBusiness = [
     {
-      name: "Type",
-      label: "Email Type Name",
+      name: "Name",
+      label: "Template Name",
       bodyRenderer: generateCommonBodyRender,
     },
+    // {
+    //   name: "DepartmentNames",
+    //   label: "Associated Client",
+    //   bodyRenderer: generateCommonBodyRender,
+    // },
     {
-      name: "Color",
-      label: "Status Color",
-      bodyRenderer: generateCommonBodyRender,
-    },
-    {
-      name: "TAT",
-      label: "SLA TAT",
-      bodyRenderer: generateCommonBodyRender,
-    },
-    {
-      name: "DepartmentNames",
-      label: "Department",
-      bodyRenderer: generateCommonBodyRender,
-    },
-    {
-      name: "KeywordString",
-      label: "Keyword",
+      name: "BusinessHoursType",
+      label: "Hours",
       bodyRenderer: generateCommonBodyRender,
     },
     {
@@ -324,9 +338,49 @@ const EmailType = ({
     },
   ];
 
-  const emailTypeColumns = column.map((col: any) => {
+  const columnSLA = [
+    {
+      name: "BusinessHourName",
+      label: "Business Hours Template",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ClientNames",
+      label: "Associated Client(s)",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "SLAName",
+      label: "SLA Name",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "Description",
+      label: "Description",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "actions",
+      label: "Actions",
+      bodyRenderer: generateCommonBodyRender,
+    },
+  ];
+
+  const businessHoursColumns = columnBusiness.map((col: any) => {
     return generateConditionalColumn(col, 10);
   });
+
+  const customSLAColumns = columnSLA.map((col: any) => {
+    return generateConditionalColumn(col, 10);
+  });
+
+  const handleSearchChange = (e: string) => {
+    setSearch(e);
+    const timer = setTimeout(() => {
+      setSearchValue(e.trim());
+    }, 500);
+    return () => clearTimeout(timer);
+  };
 
   const options: any = {
     filterType: "checkbox",
@@ -349,6 +403,75 @@ const EmailType = ({
 
   return (
     <>
+      {canView && (
+        <div className="flex justify-between py-2 pr-2">
+          <div className="py-2">
+            <label
+              onClick={() => {
+                setSelectedTab(1);
+              }}
+              className={`py-[10px] text-[16px] px-4 cursor-pointer select-none ${
+                selectedTab === 1
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
+              }`}
+            >
+              Business Hours
+            </label>
+            <span className="text-lightSilver">|</span>
+            <label
+              onClick={() => {
+                setSelectedTab(2);
+              }}
+              className={`py-[10px] text-[16px] px-4 cursor-pointer select-none ${
+                selectedTab === 2
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
+              }`}
+            >
+              Custom SLA
+            </label>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <InputBase
+                className="pl-1 pr-7 border-b border-b-lightSilver w-48"
+                placeholder="Search"
+                value={search}
+                onChange={(e) => handleSearchChange(e.target.value)}
+              />
+              <span className="absolute top-2 right-2 text-slatyGrey">
+                <SearchIcon />
+              </span>
+            </div>
+            <Button
+              type="submit"
+              variant="contained"
+              color="info"
+              className={`rounded-[4px] !h-[36px] text-sm ${
+                // isLoaded &&
+                hasPermissionWorklog("SLA", "save", "settings")
+                  ? ""
+                  : "cursor-not-allowed"
+              } !bg-secondary`}
+              onClick={
+                hasPermissionWorklog("SLA", "save", "settings")
+                  ? handleDrawerOpen
+                  : undefined
+              }
+            >
+              <span className={`flex items-center justify-center`}>
+                <span className="mr-2">
+                  <AddPlusIcon />
+                </span>
+                <span className="uppercase">
+                  {selectedTab === 1 ? "Add Business Hours" : "Add SLA Policy"}
+                </span>
+              </span>
+            </Button>
+          </div>
+        </div>
+      )}
       {canView ? (
         loader ? (
           <ReportLoader />
@@ -362,7 +485,9 @@ const EmailType = ({
               <ThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable
                   data={data}
-                  columns={emailTypeColumns}
+                  columns={
+                    selectedTab === 1 ? businessHoursColumns : customSLAColumns
+                  }
                   title={undefined}
                   options={{
                     ...options,
@@ -371,14 +496,30 @@ const EmailType = ({
                         noMatch: (
                           <div className="flex items-start">
                             <span>
-                              No Email Types available.&nbsp;
+                              No
+                              {selectedTab === 1
+                                ? "Business Hours"
+                                : "Custom SLA"}
+                              available.&nbsp;
                               <a
                                 className="text-secondary underline cursor-pointer"
-                                onClick={onOpen}
+                                onClick={
+                                  hasPermissionWorklog(
+                                    "SLA",
+                                    "save",
+                                    "settings"
+                                  )
+                                    ? handleDrawerOpen
+                                    : undefined
+                                }
                               >
                                 Add a new
                               </a>
-                              &nbsp;Email Type.
+                              &nbsp;
+                              {selectedTab === 1
+                                ? "Business Hours"
+                                : "Custom SLA"}
+                              .
                             </span>
                           </div>
                         ),
@@ -420,17 +561,38 @@ const EmailType = ({
               </ThemeProvider>
             </div>
 
+            <SLADrawer
+              onOpen={openDrawer}
+              onClose={handleDrawerClose}
+              clone={clone}
+              tab={selectedTab === 1 ? "Business Hours" : "SLA Policy"}
+              onEdit={selectedRowId}
+              onDataFetch={getAll}
+              businessHoursDropdown={businessHoursDropdown}
+              clientDropdown={clientDropdown}
+            />
+
+            <DrawerOverlay isOpen={openDrawer} onClose={handleDrawerClose} />
+
             {/* Delete Modal  */}
             {isDeleteOpen && (
               <DeleteDialog
                 isOpen={isDeleteOpen}
                 onClose={closeModal}
                 onActionClick={handleDeleteRow}
-                Title={"Delete Email Type"}
-                firstContent={"Are you sure you want to delete Email Type?"}
-                secondContent={
-                  "If you delete Email Type, you will permanently lose Email Type and Email Type related data."
-                }
+                Title={`Delete ${
+                  selectedTab === 1 ? "Business Hours" : "Custom SLA"
+                }`}
+                firstContent={`Are you sure you want to delete ${
+                  selectedTab === 1 ? "Business Hours" : "Custom SLA"
+                }?`}
+                secondContent={`If you delete ${
+                  selectedTab === 1 ? "Business Hours" : "Custom SLA"
+                }, you will permanently lose ${
+                  selectedTab === 1 ? "Business Hours" : "Custom SLA"
+                } and ${
+                  selectedTab === 1 ? "Business Hours" : "Custom SLA"
+                } related data.`}
               />
             )}
           </>
@@ -444,4 +606,4 @@ const EmailType = ({
   );
 };
 
-export default EmailType;
+export default SLA;

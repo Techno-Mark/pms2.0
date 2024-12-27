@@ -132,6 +132,12 @@ export const getClientDropdownData = async () => {
     `${process.env.pms_api_url}/client/getdropdownforgroup`
   );
 };
+
+export const getBusinessHoursDropdownData = async () => {
+  return await getApiFunction(
+    `${process.env.pms_api_url}/sla/businesshrs/getdropdown`
+  );
+};
 // LabelValue
 
 export const getRMWiseUserDropdownData = async () => {
@@ -342,6 +348,12 @@ export const getBillingTypeData = async () => {
 export const getDeptData = async () => {
   return await getApiFunction(
     `${process.env.pms_api_url}/department/getdropdown`
+  );
+};
+
+export const getEmailTypeData = async () => {
+  return await getApiFunction(
+    `${process.env.pms_api_url}/emailtype/getdropdown`
   );
 };
 

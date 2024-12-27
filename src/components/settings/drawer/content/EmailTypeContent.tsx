@@ -43,7 +43,6 @@ const EmailTypeContent = forwardRef<
   const [keywordErr, setKeywordErr] = useState(""); // Keyword error state
   const [colorName, setColorName] = useState("");
   const [colorNameError, setColorNameError] = useState(false);
-  console.log(colorName);
 
   const fetchEditData = async () => {
     if (onEdit > 0) {
@@ -55,7 +54,6 @@ const EmailTypeContent = forwardRef<
         ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
-          console.log(ResponseData);
           setDepts(
             ResponseData.DepartmentIds.length <= 0 ||
               ResponseData.DepartmentIds.length === null
