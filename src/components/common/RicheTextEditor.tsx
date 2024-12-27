@@ -122,13 +122,14 @@ const RicheTextEditor = ({ text, setText, textError, setTextError }: any) => {
             style={{
               position: "absolute",
               top: buttonRef.current?.offsetTop + 20 || 0,
-              left: buttonRef.current?.offsetLeft || 0,
+              right: 0,
               background: "#fff",
               border: "1px solid #ccc",
               borderRadius: "4px",
               boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
               padding: "10px",
               zIndex: 10,
+              width: "60%",
             }}
           >
             <ul
@@ -145,7 +146,7 @@ const RicheTextEditor = ({ text, setText, textError, setTextError }: any) => {
                 <li
                   key={placeholder.value}
                   style={{ flex: "0 0 calc(33% - 10px)" }}
-                  className="hover:bg-gray-100 rounded-lg"
+                  className="hover:bg-gray-100 rounded-lg text-sm"
                 >
                   <Button
                     label={placeholder.label}
@@ -165,8 +166,12 @@ const RicheTextEditor = ({ text, setText, textError, setTextError }: any) => {
           </div>
         )}
       </div>
-      {textError && (
-        <p className="text-red-500 mt-1">This is a required field.</p>
+      {textError && text.trim().length > 2000 ? (
+        <p className="text-red-500 mt-1">Text cannot exceed 2000 characters.</p>
+      ) : (
+        textError && (
+          <p className="text-red-500 mt-1">This is a required field.</p>
+        )
       )}
     </>
   );

@@ -225,7 +225,7 @@ const Drawer = ({
         } transition-transform duration-300 ease-in-out overflow-x-hidden`}
       >
         <div className="flex p-[20px] justify-between items-center bg-whiteSmoke border-b border-lightSilver">
-          <span className="text-pureBlack text-lg font-medium">
+          <span className="text-pureBlack text-lg font-medium capitalize">
             {onEdit ? "Edit" : "Create"}{" "}
             {tab === "Permission"
               ? "Role"

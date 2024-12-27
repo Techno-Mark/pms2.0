@@ -45,7 +45,7 @@ const SLADrawer = ({
       >
         <div className="flex p-[20px] justify-between items-center bg-whiteSmoke border-b border-lightSilver">
           <span className="text-pureBlack text-lg font-medium">
-            {onEdit ? "Edit" : "Create"}
+            {onEdit ? "Edit" : "Create"}&nbsp;
             {tab}
           </span>
           <Tooltip title="Close" placement="left" arrow>

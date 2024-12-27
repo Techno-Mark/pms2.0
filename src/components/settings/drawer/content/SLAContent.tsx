@@ -133,7 +133,7 @@ const SLAContent = forwardRef<
     const handleSubmit = async (close: boolean) => {
       setClientError(clientName.length <= 0);
       setBusinessHoursError(businessHours <= 0);
-      setTextError(text.trim().length <= 0);
+      setTextError(text.trim().length <= 0 || text.trim().length > 2000);
       const isSLANameValid = validateSLAName();
 
       if (
@@ -143,7 +143,8 @@ const SLAContent = forwardRef<
         clientName.length <= 0 ||
         !isSLANameValid ||
         textError ||
-        text.trim().length <= 0
+        text.trim().length <= 0 ||
+        text.trim().length > 2000
       )
         return;
 
@@ -181,7 +182,7 @@ const SLAContent = forwardRef<
 
     return (
       <>
-        <div className="flex gap-[20px] flex-col px-[20px] pb-[50px] max-h-[73vh] overflow-y-auto">
+        <div className="flex flex-col px-[20px] pb-[10px] max-h-[73vh] overflow-y-auto">
           <Autocomplete
             disablePortal
             id="combo-box-demo"
@@ -289,13 +290,13 @@ const SLAContent = forwardRef<
           >
             Set Default SLA Target:
           </FormLabel>
-          <FormLabel id="demo-radio-buttons-group-label">
+          <FormLabel id="demo-radio-buttons-group-label mt-2">
             If Email Ticket Received from the client, then Response Should be
             Immediately with
           </FormLabel>
           <FormLabel
             id="demo-radio-buttons-group-label"
-            className="text-black"
+            className="text-black my-2"
           >
             First Response
           </FormLabel>

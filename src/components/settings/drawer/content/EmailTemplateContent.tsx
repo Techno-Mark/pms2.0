@@ -141,7 +141,7 @@ const EmailTemplateContent = forwardRef<
       const isEmailTypeValid = validateEmailTemplateName();
       setDeptError(deptName.length <= 0);
       setEmailTypeError(emailType <= 0);
-      setTextError(text.trim().length <= 0);
+      setTextError(text.trim().length <= 0 || text.trim().length > 2000);
 
       if (
         deptError ||
@@ -150,7 +150,8 @@ const EmailTemplateContent = forwardRef<
         emailType <= 0 ||
         !isEmailTypeValid ||
         textError ||
-        text.trim().length <= 0
+        text.trim().length <= 0 ||
+        text.trim().length > 2000
       )
         return;
 
@@ -187,7 +188,7 @@ const EmailTemplateContent = forwardRef<
 
     return (
       <>
-        <div className="flex flex-col px-[20px] pb-[150px] max-h-[73.5vh] overflow-y-auto">
+        <div className="flex flex-col px-[20px] pb-[10px] max-h-[73.5vh] overflow-y-auto">
           <Autocomplete
             multiple
             id="tags-standard"
@@ -279,7 +280,9 @@ const EmailTemplateContent = forwardRef<
 
           <FormLabel
             id="demo-radio-buttons-group-label"
-            className="mt-4 mb-2 text-sm"
+            className={`mt-4 mb-2 text-sm ${
+              textError ? "text-defaultRed" : ""
+            }`}
           >
             Description
             <span className="!text-defaultRed">&nbsp;*</span>
@@ -293,16 +296,27 @@ const EmailTemplateContent = forwardRef<
         </div>
 
         <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
-          <Button
-            variant="outlined"
-            className="rounded-[4px] !h-[36px] !text-secondary"
-            onClick={() => {
-              clearData();
-              onClose();
-            }}
-          >
-            Close
-          </Button>
+          {onEdit > 0 ? (
+            <Button
+              variant="outlined"
+              className="rounded-[4px] !h-[36px] !text-secondary"
+              onClick={() => {
+                clearData();
+                onClose();
+              }}
+            >
+              Close
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="outlined"
+              className="rounded-[4px] !h-[36px] !text-secondary cursor-pointer"
+              onClick={() => handleSubmit(false)}
+            >
+              Add More
+            </Button>
+          )}
           <Button
             variant="contained"
             className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary"

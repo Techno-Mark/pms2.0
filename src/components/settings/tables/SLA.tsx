@@ -496,11 +496,11 @@ SLAProps) => {
                         noMatch: (
                           <div className="flex items-start">
                             <span>
-                              No
+                              No&nbsp;
                               {selectedTab === 1
                                 ? "Business Hours"
                                 : "Custom SLA"}
-                              available.&nbsp;
+                              &nbsp;available.&nbsp;
                               <a
                                 className="text-secondary underline cursor-pointer"
                                 onClick={

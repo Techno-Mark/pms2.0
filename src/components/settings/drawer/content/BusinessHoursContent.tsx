@@ -451,7 +451,7 @@ const BusinessHoursContent = forwardRef<
         close && onClose();
         clearData();
         toast.success(
-          `${onEdit > 0 ? "" : "New"} Email Type ${
+          `${onEdit > 0 ? "" : "New"} Business Hours ${
             onEdit > 0 ? "Updated" : "added"
           } successfully.`
         );
@@ -694,10 +694,7 @@ const BusinessHoursContent = forwardRef<
                             </LocalizationProvider>
                           </div>
                         ) : (
-                          new Date(holiday.date).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "2-digit",
-                          })
+                          <p>{dayjs(holiday.date).format("MM-DD-YYYY")}</p>
                         )}
                       </TableCell>
                       <TableCell>
@@ -724,7 +721,7 @@ const BusinessHoursContent = forwardRef<
                               holiday.name.trim().length > 100
                                 ? "Holiday Name cannot exceed 100 characters."
                                 : holiday.nameError
-                                ? "Please enter a valid date and holiday name."
+                                ? "Please enter a valid holiday name."
                                 : ""
                             }
                             margin="normal"
