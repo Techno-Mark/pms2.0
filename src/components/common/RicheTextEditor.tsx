@@ -156,7 +156,7 @@ const RicheTextEditor = ({ text, setText, textError, setTextError }: any) => {
                       padding: "5px",
                       fontSize: "14px",
                       background: "transparent",
-                      textAlign: "center",
+                      textAlign: "start",
                       width: "100%",
                     }}
                   />

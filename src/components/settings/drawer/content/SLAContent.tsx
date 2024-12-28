@@ -130,10 +130,33 @@ const SLAContent = forwardRef<
       return true;
     };
 
+    const validateText = () => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, "text/html");
+      const firstP = doc.querySelector("p");
+
+      if (!firstP) {
+        return false;
+      }
+
+      const directText = Array.from(firstP.childNodes)
+        .filter((node) => node.nodeType === Node.TEXT_NODE)
+        .map((node: any) => node.textContent.trim())
+        .join("");
+
+      if (directText === "") {
+        return false;
+      }
+
+      return true;
+    };
+
     const handleSubmit = async (close: boolean) => {
       setClientError(clientName.length <= 0);
       setBusinessHoursError(businessHours <= 0);
-      setTextError(text.trim().length <= 0 || text.trim().length > 2000);
+      setTextError(
+        text.trim().length <= 0 || text.trim().length > 2000 || !validateText()
+      );
       const isSLANameValid = validateSLAName();
 
       if (
@@ -144,7 +167,8 @@ const SLAContent = forwardRef<
         !isSLANameValid ||
         textError ||
         text.trim().length <= 0 ||
-        text.trim().length > 2000
+        text.trim().length > 2000 ||
+        !validateText()
       )
         return;
 
@@ -182,7 +206,7 @@ const SLAContent = forwardRef<
 
     return (
       <>
-        <div className="flex flex-col px-[20px] pb-[10px] max-h-[73vh] overflow-y-auto">
+        <div className="flex gap-[20px] flex-col px-[20px] pb-[10px] max-h-[73vh] overflow-y-auto">
           <Autocomplete
             disablePortal
             id="combo-box-demo"

@@ -309,11 +309,25 @@ const BusinessHoursContent = forwardRef<
     let valid = true;
     const updatedConfig = [...daysConfig];
 
+    // Regex for hh:mm format (24-hour clock)
+    const timeFormatRegex = /^([01]?\d|2[0-3]):[0-5]\d$/;
+
     updatedConfig.forEach((day, index) => {
       if (day.selected) {
+        const isStartTimeValid = timeFormatRegex.test(day.startTime);
+        const isEndTimeValid = timeFormatRegex.test(day.endTime);
+
+        // Check if the time format is invalid
+        if (!isStartTimeValid || !isEndTimeValid) {
+          updatedConfig[index].timeError = true;
+          valid = false;
+          return; // Skip further checks for this day if format is invalid
+        }
+
         const [startHour, startMin] = day.startTime.split(":").map(Number);
         const [endHour, endMin] = day.endTime.split(":").map(Number);
 
+        // Check if endTime is 00:00
         if (endHour === 0 && endMin === 0) {
           updatedConfig[index].timeError = true;
           valid = false;
@@ -510,7 +524,7 @@ const BusinessHoursContent = forwardRef<
                 );
               }}
               value={1}
-              label="24hrs * 7days"
+              label="24hrs. / 7days"
             />
             <CheckboxComponent
               id={2}

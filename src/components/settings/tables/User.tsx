@@ -374,7 +374,11 @@ const User = ({
             };
             return (
               <div>
-                <Switch checked={value} onChange={() => activeUser()} />
+                <Switch
+                  checked={value}
+                  onChange={() => activeUser()}
+                  disabled={!canEdit}
+                />
               </div>
             );
           },

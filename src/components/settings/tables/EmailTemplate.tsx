@@ -271,7 +271,11 @@ const EmailTemplate = ({
             };
             return (
               <div>
-                <Switch checked={value === 1 ? true : false} onChange={() => activeUser()} />
+                <Switch
+                  checked={value === 1 ? true : false}
+                  onChange={() => activeUser()}
+                  disabled={!canEdit}
+                />
               </div>
             );
           },

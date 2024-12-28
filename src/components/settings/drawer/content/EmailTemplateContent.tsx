@@ -137,11 +137,34 @@ const EmailTemplateContent = forwardRef<
       return true;
     };
 
+    const validateText = () => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, "text/html");
+      const firstP = doc.querySelector("p");
+
+      if (!firstP) {
+        return false;
+      }
+
+      const directText = Array.from(firstP.childNodes)
+        .filter((node) => node.nodeType === Node.TEXT_NODE)
+        .map((node: any) => node.textContent.trim())
+        .join("");
+
+      if (directText === "") {
+        return false;
+      }
+
+      return true;
+    };
+
     const handleSubmit = async (close: boolean) => {
       const isEmailTypeValid = validateEmailTemplateName();
       setDeptError(deptName.length <= 0);
       setEmailTypeError(emailType <= 0);
-      setTextError(text.trim().length <= 0 || text.trim().length > 2000);
+      setTextError(
+        text.trim().length <= 0 || text.trim().length > 2000 || !validateText
+      );
 
       if (
         deptError ||
@@ -151,7 +174,8 @@ const EmailTemplateContent = forwardRef<
         !isEmailTypeValid ||
         textError ||
         text.trim().length <= 0 ||
-        text.trim().length > 2000
+        text.trim().length > 2000 ||
+        !validateText
       )
         return;
 

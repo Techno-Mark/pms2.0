@@ -278,7 +278,11 @@ const NatureOfError = ({
             };
             return (
               <div>
-                <Switch checked={value} onChange={() => activeUser()} />
+                <Switch
+                  checked={value}
+                  onChange={() => activeUser()}
+                  disabled={!canEdit}
+                />
               </div>
             );
           },
@@ -442,9 +446,7 @@ const NatureOfError = ({
                 onClose={closeModal}
                 onActionClick={handleDeleteRow}
                 Title={"Delete Error Details"}
-                firstContent={
-                  "Are you sure you want to delete Error Details?"
-                }
+                firstContent={"Are you sure you want to delete Error Details?"}
                 secondContent={
                   "If you delete Error Details, you will permanently lose Error Details and Error Details related data."
                 }

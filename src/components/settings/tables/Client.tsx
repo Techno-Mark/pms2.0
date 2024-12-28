@@ -331,7 +331,11 @@ const Client = ({
             };
             return (
               <div>
-                <Switch checked={value} onChange={() => activeUser()} />
+                <Switch
+                  checked={value}
+                  onChange={() => activeUser()}
+                  disabled={!canEdit}
+                />
               </div>
             );
           },
