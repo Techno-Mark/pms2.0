@@ -139,8 +139,7 @@ SLAProps) => {
   };
 
   const getClientData = async () => {
-    businessHoursDropdown.length <= 0 &&
-      setBusinessHoursDropdown(await getBusinessHoursDropdownData());
+    setBusinessHoursDropdown(await getBusinessHoursDropdownData());
     clientDropdown.length <= 0 &&
       setClientDropdown(await getClientDropdownData());
   };
