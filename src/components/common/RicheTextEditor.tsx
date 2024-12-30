@@ -90,7 +90,7 @@ const RicheTextEditor = ({ text, setText, textError, setTextError }: any) => {
           value="bullet"
           aria-label="Bullet List"
         ></button>
-        <button className="ql-image" aria-label="Insert Image"></button>
+        {/* <button className="ql-image" aria-label="Insert Image"></button> */}
         <select className="ql-color"></select>
         <select className="ql-background"></select>
         <button className="ql-clean" aria-label="Remove Style"></button>
