@@ -46,6 +46,7 @@ const SLAContent = forwardRef<
     const [slaName, setSLAName] = useState("");
     const [slaNameErr, setSLANameErr] = useState(false);
     const [description, setDescription] = useState("");
+    const [descriptionErr, setDescriptionErr] = useState(false);
     const [text, setText] = useState("");
     const [textError, setTextError] = useState(false);
 
@@ -106,6 +107,7 @@ const SLAContent = forwardRef<
       setSLAName("");
       setSLANameErr(false);
       setDescription("");
+      setDescriptionErr(false);
       setText("");
       setTextError(false);
     };
@@ -157,6 +159,7 @@ const SLAContent = forwardRef<
       setTextError(
         text.trim().length <= 0 || text.trim().length > 2000 || !validateText()
       );
+      setDescriptionErr(description.trim().length > 500);
       const isSLANameValid = validateSLAName();
 
       if (
@@ -168,7 +171,8 @@ const SLAContent = forwardRef<
         textError ||
         text.trim().length <= 0 ||
         text.trim().length > 2000 ||
-        !validateText()
+        !validateText() ||
+        description.trim().length > 500
       )
         return;
 
@@ -304,7 +308,17 @@ const SLAContent = forwardRef<
             value={description}
             onChange={(e) => {
               setDescription(e.target.value);
+              setDescriptionErr(false);
             }}
+            onBlur={() => {
+              if (description.trim().length > 500) {
+                setDescriptionErr(true);
+              }
+            }}
+            error={descriptionErr}
+            helperText={
+              descriptionErr ? "Description cannot exceed 500 characters." : ""
+            }
             margin="normal"
             variant="standard"
           />
