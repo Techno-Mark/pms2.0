@@ -8,7 +8,7 @@ import "primeicons/primeicons.css"; // PrimeIcons CSS
 import "quill/dist/quill.snow.css"; // Quill CSS
 import TextBox from "@/assets/icons/TextBox";
 
-const RicheTextEditor = ({ text, setText, textError, setTextError }: any) => {
+const RicheTextEditor = ({ text, setText, textError }: any) => {
   const [showPopup, setShowPopup] = useState(false);
   const editorRef: any = useRef(null);
   const popupRef: any = useRef(null);
@@ -33,7 +33,6 @@ const RicheTextEditor = ({ text, setText, textError, setTextError }: any) => {
 
   const handleTextChange = (e: { htmlValue: any }) => {
     setText(e.htmlValue || "");
-    setTextError(false);
   };
 
   const handleInsertPlaceholder = (placeholder: string | any[]) => {

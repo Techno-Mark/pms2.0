@@ -1,8 +1,6 @@
 import React, { useRef, useState } from "react";
 import "next-ts-lib/dist/index.css";
-import axios from "axios";
 import OverLay from "@/components/common/OverLay";
-import { toast } from "react-toastify";
 import { Close } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import { SLADrawerProps } from "@/utils/Types/settingTypes";
@@ -10,6 +8,9 @@ import BusinessHoursContent, {
   BusinessHoursContenRef,
 } from "./BusinessHoursContent";
 import SLAContent, { SLAPolicyContenRef } from "./SLAContent";
+import EmailNotificationContent, {
+  EmailNotificationContenRef,
+} from "./EmailNotificationContent";
 
 const SLADrawer = ({
   onOpen,
@@ -24,6 +25,7 @@ const SLADrawer = ({
   const [drawerOverlay, setDrawerOverlay] = useState(false);
   const businessHoursRef = useRef<BusinessHoursContenRef>(null);
   const slaPolicyRef = useRef<SLAPolicyContenRef>(null);
+  const emailNotificationRef = useRef<EmailNotificationContenRef>(null);
 
   const handleClose = () => {
     onClose();
@@ -33,6 +35,9 @@ const SLADrawer = ({
     }
     if (slaPolicyRef.current) {
       slaPolicyRef.current.clearSLAPolicyData();
+    }
+    if (emailNotificationRef.current) {
+      emailNotificationRef.current.clearEmailNotificationData();
     }
   };
 
@@ -74,6 +79,19 @@ const SLADrawer = ({
             businessHoursDropdown={businessHoursDropdown}
             clientDropdown={clientDropdown}
             ref={slaPolicyRef}
+            onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
+          />
+        )}
+        {(tab === "Assignee Notification" ||
+          tab === "Customer Notification" ||
+          tab === "CC Notification") && (
+          <EmailNotificationContent
+            onEdit={onEdit}
+            onOpen={onOpen}
+            onClose={onClose}
+            tab={tab}
+            onDataFetch={onDataFetch}
+            ref={emailNotificationRef}
             onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
           />
         )}

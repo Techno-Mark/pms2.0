@@ -266,7 +266,7 @@ export interface SLAProps {
   getOrgDetailsFunction: (() => void) | null;
   canView: boolean;
   canEdit: boolean;
-  canDelete: boolean;
+  canDelete?: boolean;
 }
 
 //Org
@@ -306,8 +306,8 @@ export interface SLADrawerProps {
   tab: string;
   onEdit: number;
   onDataFetch: (() => void) | null;
-  businessHoursDropdown: LabelValue[];
-  clientDropdown: LabelValue[];
+  businessHoursDropdown?: LabelValue[];
+  clientDropdown?: LabelValue[];
 }
 
 export interface UserPermissionDrawer {

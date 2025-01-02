@@ -60,6 +60,7 @@ import MoreIcon from "@/assets/icons/reports/MoreIcon";
 import LineIcon from "@/assets/icons/reports/LineIcon";
 import SLA from "@/components/settings/tables/SLA";
 import EmailTemplate from "@/components/settings/tables/EmailTemplate";
+import EmailNotification from "@/components/settings/tables/EmailNotification";
 
 const filter = createFilterOptions<LabelValue>();
 
@@ -83,7 +84,13 @@ const allTabs = [
   { id: "Email Type", label: "Email Type", value: 10, canView: false },
   { id: "SLA", label: "SLA", value: 11, canView: false },
   { id: "Email template", label: "Email Template", value: 12, canView: false },
-  { id: "Organization", label: "Organization", value: 13, canView: true },
+  {
+    id: "Email Notification",
+    label: "Email Notification",
+    value: 13,
+    canView: false,
+  },
+  { id: "Organization", label: "Organization", value: 14, canView: true },
 ];
 
 interface MoreTabs {
@@ -153,6 +160,7 @@ const Page = () => {
           !hasPermissionWorklog("Email Type", "View", "Settings") ||
           !hasPermissionWorklog("SLA", "View", "Settings") ||
           !hasPermissionWorklog("Email template", "View", "Settings") ||
+          !hasPermissionWorklog("Email Notification", "View", "Settings") ||
           !hasPermissionWorklog("Status", "View", "Settings"))
       ) {
         router.push("/");
@@ -717,7 +725,8 @@ const Page = () => {
 
                   {tab !== "Email Type" &&
                     tab !== "SLA" &&
-                    tab !== "Email template" && (
+                    tab !== "Email template" &&
+                    tab !== "Email Notification" && (
                       <ColorToolTip title="Export" placement="top" arrow>
                         <div
                           className={`${
@@ -935,45 +944,47 @@ const Page = () => {
                   </div>
                 </div>
               )}
-              {tab !== "Notification" && tab !== "SLA" && (
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="info"
-                  className={`${
-                    tab === "Permissions"
-                      ? "rounded-[4px] !h-[45px] "
-                      : "rounded-[4px] !h-[36px] text-sm"
-                  } ${
-                    // isLoaded &&
-                    hasPermissionWorklog(tab, "save", "settings")
-                      ? ""
-                      : "cursor-not-allowed"
-                  } !bg-secondary`}
-                  onClick={
-                    hasPermissionWorklog(tab, "save", "settings")
-                      ? handleDrawerOpen
-                      : undefined
-                  }
-                >
-                  <span
-                    className={`flex items-center justify-center ${
-                      tab === "Permissions" ? "text-sm" : ""
-                    }`}
+              {tab !== "Notification" &&
+                tab !== "SLA" &&
+                tab !== "Email Notification" && (
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="info"
+                    className={`${
+                      tab === "Permissions"
+                        ? "rounded-[4px] !h-[45px] "
+                        : "rounded-[4px] !h-[36px] text-sm"
+                    } ${
+                      // isLoaded &&
+                      hasPermissionWorklog(tab, "save", "settings")
+                        ? ""
+                        : "cursor-not-allowed"
+                    } !bg-secondary`}
+                    onClick={
+                      hasPermissionWorklog(tab, "save", "settings")
+                        ? handleDrawerOpen
+                        : undefined
+                    }
                   >
-                    <span className="mr-2">
-                      <AddPlusIcon />
+                    <span
+                      className={`flex items-center justify-center ${
+                        tab === "Permissions" ? "text-sm" : ""
+                      }`}
+                    >
+                      <span className="mr-2">
+                        <AddPlusIcon />
+                      </span>
+                      <span className="uppercase">
+                        {tab === "Permission"
+                          ? "Role"
+                          : tab === "ErrorDetails"
+                          ? "Error Details"
+                          : tab}
+                      </span>
                     </span>
-                    <span className="uppercase">
-                      {tab === "Permission"
-                        ? "Role"
-                        : tab === "ErrorDetails"
-                        ? "Error Details"
-                        : tab}
-                    </span>
-                  </span>
-                </Button>
-              )}
+                  </Button>
+                )}
             </div>
           </div>
         )}
@@ -1186,20 +1197,10 @@ const Page = () => {
 
         {tab === "SLA" && (
           <SLA
-            // onOpen={
-            //   hasPermissionWorklog(tab, "save", "settings")
-            //     ? handleDrawerOpen
-            //     : undefined
-            // }
-            // onEdit={handleEdit}
-            // onDataFetch={handleDataFetch}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("SLA", "view", "settings")}
             canEdit={hasPermissionWorklog("SLA", "save", "settings")}
             canDelete={hasPermissionWorklog("SLA", "delete", "settings")}
-            // onSearchData={searchValue}
-            // onSearchClear={clearSearchValue}
-            // onHandleExport={handleCanExport}
           />
         )}
 
@@ -1223,6 +1224,22 @@ const Page = () => {
             onSearchData={searchValue}
             onSearchClear={clearSearchValue}
             onHandleExport={handleCanExport}
+          />
+        )}
+
+        {tab === "Email Notification" && (
+          <EmailNotification
+            getOrgDetailsFunction={getOrgDetailsFunction}
+            canView={hasPermissionWorklog(
+              "Email Notification",
+              "view",
+              "settings"
+            )}
+            canEdit={hasPermissionWorklog(
+              "Email Notification",
+              "save",
+              "settings"
+            )}
           />
         )}
 

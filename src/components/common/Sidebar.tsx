@@ -180,6 +180,7 @@ const Sidebar = ({
               hasPermissionWorklog("Email Type", "View", "Settings") ||
               hasPermissionWorklog("SLA", "View", "Settings") ||
               hasPermissionWorklog("Email template", "View", "Settings") ||
+              hasPermissionWorklog("Email Notification", "View", "Settings") ||
               hasPermissionWorklog("Status", "View", "Settings")) &&
             !isClient && {
               name: "Settings",

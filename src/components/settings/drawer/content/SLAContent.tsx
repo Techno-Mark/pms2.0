@@ -22,8 +22,8 @@ const SLAContent = forwardRef<
     onClose: () => void;
     onDataFetch: (() => void) | null;
     onChangeLoader: (e: boolean) => void;
-    clientDropdown: LabelValue[];
-    businessHoursDropdown: LabelValue[];
+    clientDropdown?: LabelValue[];
+    businessHoursDropdown?: LabelValue[];
   }
 >(
   (
@@ -73,9 +73,11 @@ const SLAContent = forwardRef<
               ResponseData.ClientIds.length <= 0 ||
                 ResponseData.ClientIds.length === null
                 ? []
-                : clientDropdown.filter((dept: LabelValue) =>
+                : clientDropdown
+                ? clientDropdown.filter((dept: LabelValue) =>
                     ResponseData.ClientIds.includes(dept.value)
                   )
+                : []
             );
             setClientName(
               !!ResponseData.ClientIds ? ResponseData.ClientIds : []
@@ -215,11 +217,13 @@ const SLAContent = forwardRef<
             disablePortal
             id="combo-box-demo"
             sx={{ mt: "15px" }}
-            options={businessHoursDropdown}
+            options={businessHoursDropdown ? businessHoursDropdown : []}
             value={
-              businessHoursDropdown.find(
-                (i: LabelValue) => i.value === businessHours
-              ) || null
+              (businessHoursDropdown &&
+                businessHoursDropdown.find(
+                  (i: LabelValue) => i.value === businessHours
+                )) ||
+              null
             }
             onChange={(e, value: LabelValue | null) => {
               value && setBusinessHours(value.value);
@@ -253,7 +257,7 @@ const SLAContent = forwardRef<
           <Autocomplete
             multiple
             id="tags-standard"
-            options={clientDropdown}
+            options={clientDropdown ? clientDropdown : []}
             getOptionLabel={(option: LabelValue) => option.label}
             onChange={(e, data: LabelValue[]) => {
               setClients(data);
