@@ -114,39 +114,33 @@ const EmailNotificationContent = forwardRef<
   const validateText = () => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(text, "text/html");
-    const firstChild = doc.body.firstChild;
 
-    if (!firstChild) {
+    if (!doc.body || !doc.body.childNodes.length) {
       return false;
     }
 
-    if (
-      firstChild.nodeType === Node.ELEMENT_NODE &&
-      firstChild.nodeName.toLowerCase() !== "p"
-    ) {
-      return true; // Return true if the first tag is not <p> and it's another element
-    }
+    const allSpacesOrEmpty = Array.from(doc.body.childNodes).every(
+      (node: any) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          return node.textContent.trim() === "";
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          const directText = Array.from(node.childNodes)
+            .filter((child: any) => child.nodeType === Node.TEXT_NODE)
+            .map((child: any) => child.textContent.trim())
+            .join("");
+          return directText === "" && !node.textContent.trim();
+        }
+        return true;
+      }
+    );
 
-    if (firstChild.nodeName.toLowerCase() !== "p") {
-      return false; // Return false if the first child is not a <p> but also not an element
-    }
-
-    const directText = Array.from(firstChild.childNodes)
-      .filter((node) => node.nodeType === Node.TEXT_NODE)
-      .map((node: any) => node.textContent.trim())
-      .join("");
-
-    if (directText === "") {
-      return false;
-    }
-
-    return true;
+    return !allSpacesOrEmpty;
   };
 
   const handleSubmit = async (close: boolean) => {
     setModuleNameError(moduleName <= 0);
     setTextError(
-      text.trim().length <= 0 || text.trim().length > 2000 || !validateText()
+      text.trim().length <= 0 || text.trim().length > 5000 || !validateText()
     );
     setDescriptionErr(
       description.trim().length < 5 || description.trim().length > 500
@@ -160,7 +154,7 @@ const EmailNotificationContent = forwardRef<
       !isEmailNotificationValid ||
       textError ||
       text.trim().length <= 0 ||
-      text.trim().length > 2000 ||
+      text.trim().length > 5000 ||
       !validateText() ||
       description.trim().length < 5 ||
       description.trim().length > 500 ||

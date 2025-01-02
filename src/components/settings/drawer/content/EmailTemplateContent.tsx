@@ -140,22 +140,27 @@ const EmailTemplateContent = forwardRef<
     const validateText = () => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(text, "text/html");
-      const firstP = doc.querySelector("p");
 
-      if (!firstP) {
+      if (!doc.body || !doc.body.childNodes.length) {
         return false;
       }
 
-      const directText = Array.from(firstP.childNodes)
-        .filter((node) => node.nodeType === Node.TEXT_NODE)
-        .map((node: any) => node.textContent.trim())
-        .join("");
+      const allSpacesOrEmpty = Array.from(doc.body.childNodes).every(
+        (node: any) => {
+          if (node.nodeType === Node.TEXT_NODE) {
+            return node.textContent.trim() === "";
+          } else if (node.nodeType === Node.ELEMENT_NODE) {
+            const directText = Array.from(node.childNodes)
+              .filter((child: any) => child.nodeType === Node.TEXT_NODE)
+              .map((child: any) => child.textContent.trim())
+              .join("");
+            return directText === "" && !node.textContent.trim();
+          }
+          return true;
+        }
+      );
 
-      if (directText === "") {
-        return false;
-      }
-
-      return true;
+      return !allSpacesOrEmpty;
     };
 
     const handleSubmit = async (close: boolean) => {
@@ -163,7 +168,7 @@ const EmailTemplateContent = forwardRef<
       setDeptError(deptName.length <= 0);
       setEmailTypeError(emailType <= 0);
       setTextError(
-        text.trim().length <= 0 || text.trim().length > 2000 || !validateText
+        text.trim().length <= 0 || text.trim().length > 5000 || !validateText
       );
 
       if (
@@ -174,7 +179,7 @@ const EmailTemplateContent = forwardRef<
         !isEmailTypeValid ||
         textError ||
         text.trim().length <= 0 ||
-        text.trim().length > 2000 ||
+        text.trim().length > 5000 ||
         !validateText
       )
         return;

@@ -165,8 +165,8 @@ const RicheTextEditor = ({ text, setText, textError }: any) => {
           </div>
         )}
       </div>
-      {textError && text.trim().length > 2000 ? (
-        <p className="text-red-500 mt-1">Text cannot exceed 2000 characters.</p>
+      {textError && text.trim().length > 5000 ? (
+        <p className="text-red-500 mt-1">Text cannot exceed 5000 characters.</p>
       ) : (
         textError && (
           <p className="text-red-500 mt-1">This is a required field.</p>
