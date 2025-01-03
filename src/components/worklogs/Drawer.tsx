@@ -2086,7 +2086,7 @@ const EditDrawer = ({
       const newErrorIdentificationDateErrors = errorLogFieldsWorklogs.map(
         (field) =>
           field.ErrorIdentificationDate === null ||
-          field.ErrorIdentificationDate.toString().trim().length <= 0
+          field.ErrorIdentificationDate?.toString().trim().length <= 0
       );
       setErrorIdentificationErrWorklogs(newErrorIdentificationDateErrors);
       const newResolutionStatusErrors = errorLogFieldsWorklogs.map(
@@ -8038,9 +8038,92 @@ const EditDrawer = ({
                                 </span>
                               </div>
                             )}
+                            <div
+                              className={`inline-flex mt-[4px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
+                                recordedDateErrWorklogs[index]
+                                  ? "datepickerError"
+                                  : ""
+                              }`}
+                            >
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                  label={
+                                    <span>
+                                      Transaction Rec. Date
+                                      <span className="text-defaultRed">
+                                        &nbsp;*
+                                      </span>
+                                    </span>
+                                  }
+                                  maxDate={dayjs(new Date())}
+                                  disabled={field.isSolved}
+                                  value={
+                                    field.DateOfTransaction === ""
+                                      ? null
+                                      : dayjs(field.DateOfTransaction)
+                                  }
+                                  onChange={(newDate: any) => {
+                                    handleDateOfTransactionChange(
+                                      newDate.$d,
+                                      index
+                                    );
+                                  }}
+                                  slotProps={{
+                                    textField: {
+                                      helperText: recordedDateErrWorklogs[index]
+                                        ? "This is a required field."
+                                        : "",
+                                      readOnly: true,
+                                    } as Record<string, any>,
+                                  }}
+                                />
+                              </LocalizationProvider>
+                            </div>
+                            <div
+                              className={`inline-flex mt-[8px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
+                                errorIdentificationErrWorklogs[index]
+                                  ? "datepickerError"
+                                  : ""
+                              }`}
+                            >
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                  label={
+                                    <span>
+                                      Error Identification Date
+                                      <span className="text-defaultRed">
+                                        &nbsp;*
+                                      </span>
+                                    </span>
+                                  }
+                                  maxDate={dayjs(new Date())}
+                                  disabled={field.isSolved}
+                                  value={
+                                    field.ErrorIdentificationDate === ""
+                                      ? null
+                                      : dayjs(field.ErrorIdentificationDate)
+                                  }
+                                  onChange={(newDate: any) => {
+                                    handleErrorIdentificationDateChange(
+                                      newDate.$d,
+                                      index
+                                    );
+                                  }}
+                                  slotProps={{
+                                    textField: {
+                                      helperText:
+                                        errorIdentificationErrWorklogs[index]
+                                          ? "This is a required field."
+                                          : "",
+                                      readOnly: true,
+                                    } as Record<string, any>,
+                                  }}
+                                />
+                              </LocalizationProvider>
+                            </div>
                             <FormControl
                               variant="standard"
-                              sx={{ mx: 0.75, minWidth: 230 }}
+                              sx={{ mx: 0.75, minWidth: 230, mt: 1 }}
                               error={errorTypeWorklogsErr[index]}
                             >
                               <InputLabel id="demo-simple-select-standard-label">
@@ -8087,99 +8170,80 @@ const EditDrawer = ({
                                 </FormHelperText>
                               )}
                             </FormControl>
-                            <FormControl
-                              variant="standard"
-                              sx={{ mx: 0.75, minWidth: 230 }}
-                              error={rootCauseWorklogsErr[index]}
-                            >
-                              <InputLabel id="demo-simple-select-standard-label">
-                                Error Category
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </InputLabel>
-                              <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
+                            {field.ErrorType === 2 && (
+                              <TextField
+                                label={
+                                  <span>
+                                    Error Identified by
+                                    <span className="text-defaultRed">
+                                      &nbsp;*
+                                    </span>
+                                  </span>
+                                }
+                                fullWidth
                                 disabled={field.isSolved}
                                 value={
-                                  field.RootCause === 0 ? "" : field.RootCause
+                                  field.IdentifiedBy !== null &&
+                                  field.IdentifiedBy.trim().length === 0
+                                    ? ""
+                                    : field.IdentifiedBy
                                 }
                                 onChange={(e) =>
-                                  handleRootCauseChangeWorklogs(
-                                    Number(e.target.value),
-                                    index
+                                  handleIdentifiedByChange(
+                                    e.target.value,
+                                    index,
+                                    0
                                   )
                                 }
-                                onBlur={() => {
-                                  if (field.RootCause > 0) {
-                                    const newRootCauseErrors = [
-                                      ...rootCauseWorklogsErr,
+                                onBlur={(e) => {
+                                  if (
+                                    e.target.value.length <= 0 ||
+                                    e.target.value.length > 50
+                                  ) {
+                                    const newIdentifiedByErrors = [
+                                      ...identifiedByErrWorklogs,
                                     ];
-                                    newRootCauseErrors[index] = false;
-                                    setRootCauseWorklogsErr(newRootCauseErrors);
+                                    newIdentifiedByErrors[index] = true;
+                                    setIdentifiedByErrWorklogs(
+                                      newIdentifiedByErrors
+                                    );
+                                  } else {
+                                    const newIdentifiedByErrors = [
+                                      ...identifiedByErrWorklogs,
+                                    ];
+                                    newIdentifiedByErrors[index] = false;
+                                    setIdentifiedByErrWorklogs(
+                                      newIdentifiedByErrors
+                                    );
                                   }
                                 }}
-                              >
-                                {rootCauseOptions.map((r: LabelValue) => (
-                                  <MenuItem value={r.value} key={r.value}>
-                                    {r.label}
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                              {rootCauseWorklogsErr[index] && (
-                                <FormHelperText>
-                                  This is a required field.
-                                </FormHelperText>
-                              )}
-                            </FormControl>
-                            <FormControl
-                              variant="standard"
-                              sx={{ mx: 0.75, minWidth: 230 }}
-                              error={impactWorklogsErr[index]}
-                            >
-                              <InputLabel id="demo-simple-select-standard-label">
-                                Impact
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </InputLabel>
-                              <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
-                                disabled={field.isSolved}
-                                value={field.Impact === 0 ? "" : field.Impact}
-                                onChange={(e) =>
-                                  handleImpactChangeWorklogs(
-                                    Number(e.target.value),
-                                    index
-                                  )
+                                error={identifiedByErrWorklogs[index]}
+                                helperText={
+                                  identifiedByErrWorklogs[index] &&
+                                  field.IdentifiedBy !== null &&
+                                  field.IdentifiedBy.trim().length > 50
+                                    ? "Maximum 50 characters allowed."
+                                    : identifiedByErrWorklogs[index]
+                                    ? "This is a required field."
+                                    : ""
                                 }
-                                onBlur={() => {
-                                  if (field.Impact > 0) {
-                                    const newImpactErrors = [
-                                      ...impactWorklogsErr,
-                                    ];
-                                    newImpactErrors[index] = false;
-                                    setImpactWorklogsErr(newImpactErrors);
-                                  }
-                                }}
-                              >
-                                {impactOptions.map((i: LabelValue) => (
-                                  <MenuItem value={i.value} key={i.value}>
-                                    {i.label}
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                              {impactWorklogsErr[index] && (
-                                <FormHelperText>
-                                  This is a required field.
-                                </FormHelperText>
-                              )}
-                            </FormControl>
+                                margin="normal"
+                                variant="standard"
+                                sx={{ mx: 0.75, maxWidth: 230, mt: 1 }}
+                              />
+                            )}
                             <FormControl
                               variant="standard"
-                              sx={{ mx: 0.75, minWidth: 250, maxWidth: 250 }}
+                              sx={{
+                                mx: 0.75,
+                                minWidth: 250,
+                                maxWidth: 250,
+                                mt: 1,
+                              }}
                               error={natureOfWorklogsErr[index]}
                             >
                               <InputLabel id="demo-simple-select-standard-label">
-                                Criticality
+                                Error Details
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </InputLabel>
                               <Select
@@ -8225,11 +8289,97 @@ const EditDrawer = ({
                             </FormControl>
                             <FormControl
                               variant="standard"
-                              sx={{ mx: 0.75, minWidth: 230 }}
+                              sx={{ mx: 0.75, minWidth: 230, mt: 1 }}
+                              error={rootCauseWorklogsErr[index]}
+                            >
+                              <InputLabel id="demo-simple-select-standard-label">
+                                Error Category
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </InputLabel>
+                              <Select
+                                labelId="demo-simple-select-standard-label"
+                                id="demo-simple-select-standard"
+                                disabled={field.isSolved}
+                                value={
+                                  field.RootCause === 0 ? "" : field.RootCause
+                                }
+                                onChange={(e) =>
+                                  handleRootCauseChangeWorklogs(
+                                    Number(e.target.value),
+                                    index
+                                  )
+                                }
+                                onBlur={() => {
+                                  if (field.RootCause > 0) {
+                                    const newRootCauseErrors = [
+                                      ...rootCauseWorklogsErr,
+                                    ];
+                                    newRootCauseErrors[index] = false;
+                                    setRootCauseWorklogsErr(newRootCauseErrors);
+                                  }
+                                }}
+                              >
+                                {rootCauseOptions.map((r: LabelValue) => (
+                                  <MenuItem value={r.value} key={r.value}>
+                                    {r.label}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                              {rootCauseWorklogsErr[index] && (
+                                <FormHelperText>
+                                  This is a required field.
+                                </FormHelperText>
+                              )}
+                            </FormControl>
+                            <FormControl
+                              variant="standard"
+                              sx={{ mx: 0.75, minWidth: 230,mt:1 }}
+                              error={impactWorklogsErr[index]}
+                            >
+                              <InputLabel id="demo-simple-select-standard-label">
+                                Impact
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </InputLabel>
+                              <Select
+                                labelId="demo-simple-select-standard-label"
+                                id="demo-simple-select-standard"
+                                disabled={field.isSolved}
+                                value={field.Impact === 0 ? "" : field.Impact}
+                                onChange={(e) =>
+                                  handleImpactChangeWorklogs(
+                                    Number(e.target.value),
+                                    index
+                                  )
+                                }
+                                onBlur={() => {
+                                  if (field.Impact > 0) {
+                                    const newImpactErrors = [
+                                      ...impactWorklogsErr,
+                                    ];
+                                    newImpactErrors[index] = false;
+                                    setImpactWorklogsErr(newImpactErrors);
+                                  }
+                                }}
+                              >
+                                {impactOptions.map((i: LabelValue) => (
+                                  <MenuItem value={i.value} key={i.value}>
+                                    {i.label}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                              {impactWorklogsErr[index] && (
+                                <FormHelperText>
+                                  This is a required field.
+                                </FormHelperText>
+                              )}
+                            </FormControl>
+                            <FormControl
+                              variant="standard"
+                              sx={{ mx: 0.75, minWidth: 230,mt:1 }}
                               error={errorLogPriorityWorklogsErr[index]}
                             >
                               <InputLabel id="demo-simple-select-standard-label">
-                                Priority
+                                Criticality
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </InputLabel>
                               <Select
@@ -8269,179 +8419,417 @@ const EditDrawer = ({
                                 </FormHelperText>
                               )}
                             </FormControl>
-                            <div className="flex !ml-0">
-                              <TextField
-                                label={<span>Accounting Transaction ID</span>}
-                                fullWidth
-                                disabled={field.isSolved}
-                                value={
-                                  field.DocumentNumber.trim().length === 0
-                                    ? ""
-                                    : field.DocumentNumber
+                            <TextField
+                              label={<span>Vendor Name</span>}
+                              fullWidth
+                              disabled={field.isSolved}
+                              value={
+                                field.VendorName.trim().length === 0
+                                  ? ""
+                                  : field.VendorName
+                              }
+                              onChange={(e) =>
+                                handleVendorNameChangeWorklogs(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                if (e.target.value.length > 250) {
+                                  const newVendorNameErrors = [
+                                    ...vendorNameErrWorklogs,
+                                  ];
+                                  newVendorNameErrors[index] = true;
+                                  setVendorNameErrWorklogs(newVendorNameErrors);
+                                } else {
+                                  const newVendorNameErrors = [
+                                    ...vendorNameErrWorklogs,
+                                  ];
+                                  newVendorNameErrors[index] = false;
+                                  setVendorNameErrWorklogs(newVendorNameErrors);
                                 }
-                                onChange={(e) =>
-                                  handleDocumentNumberChangeWorklogs(
-                                    e.target.value,
-                                    index
-                                  )
+                              }}
+                              error={vendorNameErrWorklogs[index]}
+                              helperText={
+                                vendorNameErrWorklogs[index] &&
+                                field.VendorName.trim().length > 250
+                                  ? "Maximum 250 characters allowed."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                            />
+                            <TextField
+                              label={<span>Accounting Transaction ID</span>}
+                              fullWidth
+                              disabled={field.isSolved}
+                              value={
+                                field.DocumentNumber.trim().length === 0
+                                  ? ""
+                                  : field.DocumentNumber
+                              }
+                              onChange={(e) =>
+                                handleDocumentNumberChangeWorklogs(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                if (e.target.value.length > 50) {
+                                  const newDocumentNumberErrors = [
+                                    ...documentNumberErrWorklogs,
+                                  ];
+                                  newDocumentNumberErrors[index] = true;
+                                  setDocumentNumberErrWorklogs(
+                                    newDocumentNumberErrors
+                                  );
+                                } else {
+                                  const newDocumentNumberErrors = [
+                                    ...documentNumberErrWorklogs,
+                                  ];
+                                  newDocumentNumberErrors[index] = false;
+                                  setDocumentNumberErrWorklogs(
+                                    newDocumentNumberErrors
+                                  );
                                 }
-                                onBlur={(e) => {
-                                  if (e.target.value.length > 50) {
-                                    const newDocumentNumberErrors = [
-                                      ...documentNumberErrWorklogs,
-                                    ];
-                                    newDocumentNumberErrors[index] = true;
-                                    setDocumentNumberErrWorklogs(
-                                      newDocumentNumberErrors
-                                    );
-                                  } else {
-                                    const newDocumentNumberErrors = [
-                                      ...documentNumberErrWorklogs,
-                                    ];
-                                    newDocumentNumberErrors[index] = false;
-                                    setDocumentNumberErrWorklogs(
-                                      newDocumentNumberErrors
-                                    );
-                                  }
-                                }}
-                                error={documentNumberErrWorklogs[index]}
-                                helperText={
-                                  documentNumberErrWorklogs[index] &&
-                                  field.DocumentNumber.trim().length > 50
-                                    ? "Maximum 50 characters allowed."
-                                    : ""
+                              }}
+                              error={documentNumberErrWorklogs[index]}
+                              helperText={
+                                documentNumberErrWorklogs[index] &&
+                                field.DocumentNumber.trim().length > 50
+                                  ? "Maximum 50 characters allowed."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                            />
+                            <TextField
+                              label="Amount of Impact (if any)"
+                              fullWidth
+                              disabled={field.isSolved}
+                              value={field.Amount === 0 ? "" : field.Amount}
+                              onChange={(e) =>
+                                e.target.value.length <= 7 &&
+                                handleAmountChangeWorklogs(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onFocus={(e) =>
+                                e.target.addEventListener(
+                                  "wheel",
+                                  function (e) {
+                                    e.preventDefault();
+                                  },
+                                  { passive: false }
+                                )
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                            />
+                            <TextField
+                              label={
+                                <span>
+                                  Error Count
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              fullWidth
+                              disabled={field.isSolved}
+                              value={
+                                field.ErrorCount === 0 ? "" : field.ErrorCount
+                              }
+                              onChange={(e) =>
+                                handleErrorCountChangeWorklogs(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                if (e.target.value.length > 0) {
+                                  const newErrorCountErrors = [
+                                    ...errorCountWorklogsErr,
+                                  ];
+                                  newErrorCountErrors[index] = false;
+                                  setErrorCountWorklogsErr(newErrorCountErrors);
                                 }
-                                margin="normal"
+                              }}
+                              onFocus={(e) =>
+                                e.target.addEventListener(
+                                  "wheel",
+                                  function (e) {
+                                    e.preventDefault();
+                                  },
+                                  { passive: false }
+                                )
+                              }
+                              error={errorCountWorklogsErr[index]}
+                              helperText={
+                                errorCountWorklogsErr[index] &&
+                                field.ErrorCount <= 0
+                                  ? "Add valid number."
+                                  : errorCountWorklogsErr[index] &&
+                                    field.ErrorCount.toString().length > 4
+                                  ? "Maximum 4 numbers allowed."
+                                  : errorCountWorklogsErr[index]
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                            />
+                            <TextField
+                              label={
+                                <span>
+                                  Root Cause Analysis (RCA)
+                                  <span className="text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              fullWidth
+                              disabled={field.isSolved}
+                              value={
+                                field.RootCauseAnalysis.trim().length === 0
+                                  ? ""
+                                  : field.RootCauseAnalysis
+                              }
+                              onChange={(e) =>
+                                handleRcaChangeWorklogs(e.target.value, index)
+                              }
+                              onBlur={(e) => {
+                                if (
+                                  e.target.value.length <= 0 ||
+                                  e.target.value.length > 250
+                                ) {
+                                  const newRcaErrors = [...rcaErrWorklogs];
+                                  newRcaErrors[index] = true;
+                                  setRcaErrWorklogs(newRcaErrors);
+                                } else {
+                                  const newRcaErrors = [...rcaErrWorklogs];
+                                  newRcaErrors[index] = false;
+                                  setRcaErrWorklogs(newRcaErrors);
+                                }
+                              }}
+                              error={rcaErrWorklogs[index]}
+                              helperText={
+                                rcaErrWorklogs[index] &&
+                                field.RootCauseAnalysis.trim().length > 250
+                                  ? "Maximum 250 characters allowed."
+                                  : rcaErrWorklogs[index]
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                            />
+                            <TextField
+                              label={<span>Corrective Action</span>}
+                              fullWidth
+                              disabled={field.isSolved}
+                              value={
+                                field.MitigationPlan.trim().length === 0
+                                  ? ""
+                                  : field.MitigationPlan
+                              }
+                              onChange={(e) =>
+                                handleMitigationChangeWorklogs(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                if (e.target.value.length > 250) {
+                                  const newMitigationErrors = [
+                                    ...mitigationErrWorklogs,
+                                  ];
+                                  newMitigationErrors[index] = true;
+                                  setMitigationErrWorklogs(newMitigationErrors);
+                                } else {
+                                  const newMitigationErrors = [
+                                    ...mitigationErrWorklogs,
+                                  ];
+                                  newMitigationErrors[index] = false;
+                                  setMitigationErrWorklogs(newMitigationErrors);
+                                }
+                              }}
+                              error={mitigationErrWorklogs[index]}
+                              helperText={
+                                mitigationErrWorklogs[index] &&
+                                field.MitigationPlan.trim().length > 250
+                                  ? "Maximum 250 characters allowed."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                            />
+                            <TextField
+                              label={<span>Preventative Action</span>}
+                              fullWidth
+                              disabled={field.isSolved}
+                              value={
+                                field.ContigencyPlan.trim().length === 0
+                                  ? ""
+                                  : field.ContigencyPlan
+                              }
+                              onChange={(e) =>
+                                handleContigencyPlanChangeWorklogs(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                if (e.target.value.length > 250) {
+                                  const newContigencyPlanErrors = [
+                                    ...contigencyPlanErrWorklogs,
+                                  ];
+                                  newContigencyPlanErrors[index] = true;
+                                  setContigencyPlanErrWorklogs(
+                                    newContigencyPlanErrors
+                                  );
+                                } else {
+                                  const newContigencyPlanErrors = [
+                                    ...contigencyPlanErrWorklogs,
+                                  ];
+                                  newContigencyPlanErrors[index] = false;
+                                  setContigencyPlanErrWorklogs(
+                                    newContigencyPlanErrors
+                                  );
+                                }
+                              }}
+                              error={contigencyPlanErrWorklogs[index]}
+                              helperText={
+                                contigencyPlanErrWorklogs[index] &&
+                                field.ContigencyPlan.trim().length > 250
+                                  ? "Maximum 250 characters allowed."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
+                            />
+                            {field.ErrorType === 1 && (
+                              <FormControl
                                 variant="standard"
-                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
-                              />
-                              <TextField
-                                label={<span>Vendor Name</span>}
-                                fullWidth
+                                sx={{ mx: 0.75, minWidth: 230, mt: 1.1 }}
+                                error={resolutionStatusErrWorklogs[index]}
                                 disabled={field.isSolved}
-                                value={
-                                  field.VendorName.trim().length === 0
-                                    ? ""
-                                    : field.VendorName
-                                }
-                                onChange={(e) =>
-                                  handleVendorNameChangeWorklogs(
-                                    e.target.value,
-                                    index
-                                  )
-                                }
-                                onBlur={(e) => {
-                                  if (e.target.value.length > 250) {
-                                    const newVendorNameErrors = [
-                                      ...vendorNameErrWorklogs,
-                                    ];
-                                    newVendorNameErrors[index] = true;
-                                    setVendorNameErrWorklogs(
-                                      newVendorNameErrors
-                                    );
-                                  } else {
-                                    const newVendorNameErrors = [
-                                      ...vendorNameErrWorklogs,
-                                    ];
-                                    newVendorNameErrors[index] = false;
-                                    setVendorNameErrWorklogs(
-                                      newVendorNameErrors
-                                    );
+                              >
+                                <InputLabel id="demo-simple-select-standard-label">
+                                  Resolution status
+                                  <span className="text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </InputLabel>
+                                <Select
+                                  labelId="demo-simple-select-standard-label"
+                                  id="demo-simple-select-standard"
+                                  disabled={isIdDisabled || isUnassigneeClicked}
+                                  value={
+                                    field.ResolutionStatus === 0
+                                      ? ""
+                                      : field.ResolutionStatus
                                   }
-                                }}
-                                error={vendorNameErrWorklogs[index]}
-                                helperText={
-                                  vendorNameErrWorklogs[index] &&
-                                  field.VendorName.trim().length > 250
-                                    ? "Maximum 250 characters allowed."
-                                    : ""
-                                }
-                                margin="normal"
-                                variant="standard"
-                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
-                              />
-                              <Autocomplete
-                                multiple
-                                limitTags={2}
-                                id="checkboxes-tags-demo"
-                                options={
-                                  Array.isArray(cCDropdownDataWorklogs)
-                                    ? cCDropdownDataWorklogs
-                                    : []
-                                }
-                                disabled={field.isSolved}
-                                value={field.CC}
-                                onChange={(e, newValue) =>
-                                  handleCCChangeWorklogs(newValue, index)
-                                }
-                                style={{ width: 500 }}
-                                renderInput={(params) => (
-                                  <TextField
-                                    label="cc"
-                                    {...params}
-                                    variant="standard"
-                                  />
+                                  onChange={(e) =>
+                                    handleResolutionStatusChange(
+                                      Number(e.target.value),
+                                      index
+                                    )
+                                  }
+                                  onBlur={() => {
+                                    if (field.ResolutionStatus > 0) {
+                                      const newResolutionStatusErrors = [
+                                        ...resolutionStatusErrWorklogs,
+                                      ];
+                                      newResolutionStatusErrors[index] = false;
+                                      setResolutionStatusErrWorklogs(
+                                        newResolutionStatusErrors
+                                      );
+                                    }
+                                  }}
+                                >
+                                  {resolutionStatusOptions.map(
+                                    (r: LabelValue) => (
+                                      <MenuItem value={r.value} key={r.value}>
+                                        {r.label}
+                                      </MenuItem>
+                                    )
+                                  )}
+                                </Select>
+                                {resolutionStatusErrWorklogs[index] && (
+                                  <FormHelperText>
+                                    This is a required field.
+                                  </FormHelperText>
                                 )}
-                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
-                              />
-                              <TextField
-                                label={
-                                  <span>
-                                    Error Count
-                                    <span className="!text-defaultRed">
+                              </FormControl>
+                            )}
+                            <div className="flex !ml-0">
+                              {field.ErrorType === 2 && (
+                                <FormControl
+                                  variant="standard"
+                                  sx={{ mx: 0.75, minWidth: 230, mt: 1.1 }}
+                                  error={resolutionStatusErrWorklogs[index]}
+                                  disabled={field.isSolved}
+                                >
+                                  <InputLabel id="demo-simple-select-standard-label">
+                                    Resolution status
+                                    <span className="text-defaultRed">
                                       &nbsp;*
                                     </span>
-                                  </span>
-                                }
-                                fullWidth
-                                disabled={field.isSolved}
-                                value={
-                                  field.ErrorCount === 0 ? "" : field.ErrorCount
-                                }
-                                onChange={(e) =>
-                                  handleErrorCountChangeWorklogs(
-                                    e.target.value,
-                                    index
-                                  )
-                                }
-                                onBlur={(e) => {
-                                  if (e.target.value.length > 0) {
-                                    const newErrorCountErrors = [
-                                      ...errorCountWorklogsErr,
-                                    ];
-                                    newErrorCountErrors[index] = false;
-                                    setErrorCountWorklogsErr(
-                                      newErrorCountErrors
-                                    );
-                                  }
-                                }}
-                                onFocus={(e) =>
-                                  e.target.addEventListener(
-                                    "wheel",
-                                    function (e) {
-                                      e.preventDefault();
-                                    },
-                                    { passive: false }
-                                  )
-                                }
-                                error={errorCountWorklogsErr[index]}
-                                helperText={
-                                  errorCountWorklogsErr[index] &&
-                                  field.ErrorCount <= 0
-                                    ? "Add valid number."
-                                    : errorCountWorklogsErr[index] &&
-                                      field.ErrorCount.toString().length > 4
-                                    ? "Maximum 4 numbers allowed."
-                                    : errorCountWorklogsErr[index]
-                                    ? "This is a required field."
-                                    : ""
-                                }
-                                margin="normal"
-                                variant="standard"
-                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
-                              />
-                            </div>
-                            <div className="flex !ml-0">
+                                  </InputLabel>
+                                  <Select
+                                    labelId="demo-simple-select-standard-label"
+                                    id="demo-simple-select-standard"
+                                    disabled={
+                                      isIdDisabled || isUnassigneeClicked
+                                    }
+                                    value={
+                                      field.ResolutionStatus === 0
+                                        ? ""
+                                        : field.ResolutionStatus
+                                    }
+                                    onChange={(e) =>
+                                      handleResolutionStatusChange(
+                                        Number(e.target.value),
+                                        index
+                                      )
+                                    }
+                                    onBlur={() => {
+                                      if (field.ResolutionStatus > 0) {
+                                        const newResolutionStatusErrors = [
+                                          ...resolutionStatusErrWorklogs,
+                                        ];
+                                        newResolutionStatusErrors[index] =
+                                          false;
+                                        setResolutionStatusErrWorklogs(
+                                          newResolutionStatusErrors
+                                        );
+                                      }
+                                    }}
+                                  >
+                                    {resolutionStatusOptions.map(
+                                      (r: LabelValue) => (
+                                        <MenuItem value={r.value} key={r.value}>
+                                          {r.label}
+                                        </MenuItem>
+                                      )
+                                    )}
+                                  </Select>
+                                  {resolutionStatusErrWorklogs[index] && (
+                                    <FormHelperText>
+                                      This is a required field.
+                                    </FormHelperText>
+                                  )}
+                                </FormControl>
+                              )}
                               <TextField
                                 label={
                                   <span>
@@ -8490,76 +8878,30 @@ const EditDrawer = ({
                                 variant="standard"
                                 sx={{ mx: 0.75, maxWidth: 472, mt: 1.5 }}
                               />
-                              <TextField
-                                label="Amount of Impact (if any)"
-                                fullWidth
+                              <Autocomplete
+                                multiple
+                                limitTags={2}
+                                id="checkboxes-tags-demo"
+                                options={
+                                  Array.isArray(cCDropdownDataWorklogs)
+                                    ? cCDropdownDataWorklogs
+                                    : []
+                                }
                                 disabled={field.isSolved}
-                                value={field.Amount === 0 ? "" : field.Amount}
-                                onChange={(e) =>
-                                  e.target.value.length <= 7 &&
-                                  handleAmountChangeWorklogs(
-                                    e.target.value,
-                                    index
-                                  )
+                                value={field.CC}
+                                onChange={(e, newValue) =>
+                                  handleCCChangeWorklogs(newValue, index)
                                 }
-                                onFocus={(e) =>
-                                  e.target.addEventListener(
-                                    "wheel",
-                                    function (e) {
-                                      e.preventDefault();
-                                    },
-                                    { passive: false }
-                                  )
-                                }
-                                margin="normal"
-                                variant="standard"
+                                style={{ width: 500 }}
+                                renderInput={(params) => (
+                                  <TextField
+                                    label="cc"
+                                    {...params}
+                                    variant="standard"
+                                  />
+                                )}
                                 sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                               />
-                              <div
-                                className={`inline-flex mt-[4px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
-                                  recordedDateErrWorklogs[index]
-                                    ? "datepickerError"
-                                    : ""
-                                }`}
-                              >
-                                <LocalizationProvider
-                                  dateAdapter={AdapterDayjs}
-                                >
-                                  <DatePicker
-                                    label={
-                                      <span>
-                                        Transaction Rec. Date
-                                        <span className="text-defaultRed">
-                                          &nbsp;*
-                                        </span>
-                                      </span>
-                                    }
-                                    maxDate={dayjs(new Date())}
-                                    disabled={field.isSolved}
-                                    value={
-                                      field.DateOfTransaction === ""
-                                        ? null
-                                        : dayjs(field.DateOfTransaction)
-                                    }
-                                    onChange={(newDate: any) => {
-                                      handleDateOfTransactionChange(
-                                        newDate.$d,
-                                        index
-                                      );
-                                    }}
-                                    slotProps={{
-                                      textField: {
-                                        helperText: recordedDateErrWorklogs[
-                                          index
-                                        ]
-                                          ? "This is a required field."
-                                          : "",
-                                        readOnly: true,
-                                      } as Record<string, any>,
-                                    }}
-                                  />
-                                </LocalizationProvider>
-                              </div>
                               <div className="flex flex-col ml-4">
                                 <div className="flex flex-col items-start justify-start">
                                   <div className="flex mt-2">
@@ -8620,305 +8962,6 @@ const EditDrawer = ({
                                   )}
                                 </div>
                               </div>
-                            </div>
-                            <div className="flex !ml-0">
-                              <TextField
-                                label={
-                                  <span>
-                                    Root Cause Analysis (RCA)
-                                    <span className="text-defaultRed">
-                                      &nbsp;*
-                                    </span>
-                                  </span>
-                                }
-                                fullWidth
-                                disabled={field.isSolved}
-                                value={
-                                  field.RootCauseAnalysis.trim().length === 0
-                                    ? ""
-                                    : field.RootCauseAnalysis
-                                }
-                                onChange={(e) =>
-                                  handleRcaChangeWorklogs(e.target.value, index)
-                                }
-                                onBlur={(e) => {
-                                  if (
-                                    e.target.value.length <= 0 ||
-                                    e.target.value.length > 250
-                                  ) {
-                                    const newRcaErrors = [...rcaErrWorklogs];
-                                    newRcaErrors[index] = true;
-                                    setRcaErrWorklogs(newRcaErrors);
-                                  } else {
-                                    const newRcaErrors = [...rcaErrWorklogs];
-                                    newRcaErrors[index] = false;
-                                    setRcaErrWorklogs(newRcaErrors);
-                                  }
-                                }}
-                                error={rcaErrWorklogs[index]}
-                                helperText={
-                                  rcaErrWorklogs[index] &&
-                                  field.RootCauseAnalysis.trim().length > 250
-                                    ? "Maximum 250 characters allowed."
-                                    : rcaErrWorklogs[index]
-                                    ? "This is a required field."
-                                    : ""
-                                }
-                                margin="normal"
-                                variant="standard"
-                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
-                              />
-                              <TextField
-                                label={<span>Corrective Action</span>}
-                                fullWidth
-                                disabled={field.isSolved}
-                                value={
-                                  field.MitigationPlan.trim().length === 0
-                                    ? ""
-                                    : field.MitigationPlan
-                                }
-                                onChange={(e) =>
-                                  handleMitigationChangeWorklogs(
-                                    e.target.value,
-                                    index
-                                  )
-                                }
-                                onBlur={(e) => {
-                                  if (e.target.value.length > 250) {
-                                    const newMitigationErrors = [
-                                      ...mitigationErrWorklogs,
-                                    ];
-                                    newMitigationErrors[index] = true;
-                                    setMitigationErrWorklogs(
-                                      newMitigationErrors
-                                    );
-                                  } else {
-                                    const newMitigationErrors = [
-                                      ...mitigationErrWorklogs,
-                                    ];
-                                    newMitigationErrors[index] = false;
-                                    setMitigationErrWorklogs(
-                                      newMitigationErrors
-                                    );
-                                  }
-                                }}
-                                error={mitigationErrWorklogs[index]}
-                                helperText={
-                                  mitigationErrWorklogs[index] &&
-                                  field.MitigationPlan.trim().length > 250
-                                    ? "Maximum 250 characters allowed."
-                                    : ""
-                                }
-                                margin="normal"
-                                variant="standard"
-                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
-                              />
-                              <TextField
-                                label={<span>Preventative Action</span>}
-                                fullWidth
-                                disabled={field.isSolved}
-                                value={
-                                  field.ContigencyPlan.trim().length === 0
-                                    ? ""
-                                    : field.ContigencyPlan
-                                }
-                                onChange={(e) =>
-                                  handleContigencyPlanChangeWorklogs(
-                                    e.target.value,
-                                    index
-                                  )
-                                }
-                                onBlur={(e) => {
-                                  if (e.target.value.length > 250) {
-                                    const newContigencyPlanErrors = [
-                                      ...contigencyPlanErrWorklogs,
-                                    ];
-                                    newContigencyPlanErrors[index] = true;
-                                    setContigencyPlanErrWorklogs(
-                                      newContigencyPlanErrors
-                                    );
-                                  } else {
-                                    const newContigencyPlanErrors = [
-                                      ...contigencyPlanErrWorklogs,
-                                    ];
-                                    newContigencyPlanErrors[index] = false;
-                                    setContigencyPlanErrWorklogs(
-                                      newContigencyPlanErrors
-                                    );
-                                  }
-                                }}
-                                error={contigencyPlanErrWorklogs[index]}
-                                helperText={
-                                  contigencyPlanErrWorklogs[index] &&
-                                  field.ContigencyPlan.trim().length > 250
-                                    ? "Maximum 250 characters allowed."
-                                    : ""
-                                }
-                                margin="normal"
-                                variant="standard"
-                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
-                              />
-                              <div
-                                className={`inline-flex mt-[8px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
-                                  errorIdentificationErrWorklogs[index]
-                                    ? "datepickerError"
-                                    : ""
-                                }`}
-                              >
-                                <LocalizationProvider
-                                  dateAdapter={AdapterDayjs}
-                                >
-                                  <DatePicker
-                                    label={
-                                      <span>
-                                        Error Identification Date
-                                        <span className="text-defaultRed">
-                                          &nbsp;*
-                                        </span>
-                                      </span>
-                                    }
-                                    maxDate={dayjs(new Date())}
-                                    disabled={field.isSolved}
-                                    value={
-                                      field.ErrorIdentificationDate === ""
-                                        ? null
-                                        : dayjs(field.ErrorIdentificationDate)
-                                    }
-                                    onChange={(newDate: any) => {
-                                      handleErrorIdentificationDateChange(
-                                        newDate.$d,
-                                        index
-                                      );
-                                    }}
-                                    slotProps={{
-                                      textField: {
-                                        helperText:
-                                          errorIdentificationErrWorklogs[index]
-                                            ? "This is a required field."
-                                            : "",
-                                        readOnly: true,
-                                      } as Record<string, any>,
-                                    }}
-                                  />
-                                </LocalizationProvider>
-                              </div>
-                            </div>
-                            <div className="flex !ml-0">
-                              <FormControl
-                                variant="standard"
-                                sx={{ mx: 0.75, minWidth: 230, mt: 1.1 }}
-                                error={resolutionStatusErrWorklogs[index]}
-                                disabled={field.isSolved}
-                              >
-                                <InputLabel id="demo-simple-select-standard-label">
-                                  Resolution status
-                                  <span className="text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </InputLabel>
-                                <Select
-                                  labelId="demo-simple-select-standard-label"
-                                  id="demo-simple-select-standard"
-                                  disabled={isIdDisabled || isUnassigneeClicked}
-                                  value={
-                                    field.ResolutionStatus === 0
-                                      ? ""
-                                      : field.ResolutionStatus
-                                  }
-                                  onChange={(e) =>
-                                    handleResolutionStatusChange(
-                                      Number(e.target.value),
-                                      index
-                                    )
-                                  }
-                                  onBlur={() => {
-                                    if (field.ResolutionStatus > 0) {
-                                      const newResolutionStatusErrors = [
-                                        ...resolutionStatusErrWorklogs,
-                                      ];
-                                      newResolutionStatusErrors[index] = false;
-                                      setResolutionStatusErrWorklogs(
-                                        newResolutionStatusErrors
-                                      );
-                                    }
-                                  }}
-                                >
-                                  {resolutionStatusOptions.map(
-                                    (r: LabelValue) => (
-                                      <MenuItem value={r.value} key={r.value}>
-                                        {r.label}
-                                      </MenuItem>
-                                    )
-                                  )}
-                                </Select>
-                                {resolutionStatusErrWorklogs[index] && (
-                                  <FormHelperText>
-                                    This is a required field.
-                                  </FormHelperText>
-                                )}
-                              </FormControl>
-                              {field.ErrorType === 2 && (
-                                <TextField
-                                  label={
-                                    <span>
-                                      Error Identified by
-                                      <span className="text-defaultRed">
-                                        &nbsp;*
-                                      </span>
-                                    </span>
-                                  }
-                                  fullWidth
-                                  disabled={field.isSolved}
-                                  value={
-                                    field.IdentifiedBy !== null &&
-                                    field.IdentifiedBy.trim().length === 0
-                                      ? ""
-                                      : field.IdentifiedBy
-                                  }
-                                  onChange={(e) =>
-                                    handleIdentifiedByChange(
-                                      e.target.value,
-                                      index,
-                                      0
-                                    )
-                                  }
-                                  onBlur={(e) => {
-                                    if (
-                                      e.target.value.length <= 0 ||
-                                      e.target.value.length > 50
-                                    ) {
-                                      const newIdentifiedByErrors = [
-                                        ...identifiedByErrWorklogs,
-                                      ];
-                                      newIdentifiedByErrors[index] = true;
-                                      setIdentifiedByErrWorklogs(
-                                        newIdentifiedByErrors
-                                      );
-                                    } else {
-                                      const newIdentifiedByErrors = [
-                                        ...identifiedByErrWorklogs,
-                                      ];
-                                      newIdentifiedByErrors[index] = false;
-                                      setIdentifiedByErrWorklogs(
-                                        newIdentifiedByErrors
-                                      );
-                                    }
-                                  }}
-                                  error={identifiedByErrWorklogs[index]}
-                                  helperText={
-                                    identifiedByErrWorklogs[index] &&
-                                    field.IdentifiedBy !== null &&
-                                    field.IdentifiedBy.trim().length > 50
-                                      ? "Maximum 50 characters allowed."
-                                      : identifiedByErrWorklogs[index]
-                                      ? "This is a required field."
-                                      : ""
-                                  }
-                                  margin="normal"
-                                  variant="standard"
-                                  sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
-                                />
-                              )}
                               {field.isSolved && (
                                 <FormGroup>
                                   <FormControlLabel
