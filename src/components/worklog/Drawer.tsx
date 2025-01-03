@@ -748,7 +748,6 @@ const Drawer = ({
           ];
     setErrorLogClientWorklogFields(newFields);
   };
-  // console.log(errorLogClientWorklogFields)
 
   const getErrorLogDataClientWorklog = async () => {
     const params = {
@@ -2692,36 +2691,38 @@ const Drawer = ({
                                       </svg>
                                     </span>
                                   ) : (
-                                    <span
-                                      className="cursor-pointer"
-                                      onClick={
-                                        hasPermissionWorklog(
-                                          "ErrorLog",
-                                          "Delete",
-                                          "WorkLogs"
-                                        ) &&
-                                        hasPermissionWorklog(
-                                          "ErrorLog",
-                                          "Save",
-                                          "WorkLogs"
-                                        )
-                                          ? () =>
-                                              removeErrorLogFieldClientWorklog(
-                                                index
-                                              )
-                                          : undefined
-                                      }
-                                    >
-                                      <svg
-                                        className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                        focusable="false"
-                                        aria-hidden="true"
-                                        viewBox="0 0 24 24"
-                                        data-testid="RemoveIcon"
+                                    !field.isSolved && (
+                                      <span
+                                        className="cursor-pointer"
+                                        onClick={
+                                          hasPermissionWorklog(
+                                            "ErrorLog",
+                                            "Delete",
+                                            "WorkLogs"
+                                          ) &&
+                                          hasPermissionWorklog(
+                                            "ErrorLog",
+                                            "Save",
+                                            "WorkLogs"
+                                          )
+                                            ? () =>
+                                                removeErrorLogFieldClientWorklog(
+                                                  index
+                                                )
+                                            : undefined
+                                        }
                                       >
-                                        <path d="M19 13H5v-2h14v2z"></path>
-                                      </svg>
-                                    </span>
+                                        <svg
+                                          className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                          focusable="false"
+                                          aria-hidden="true"
+                                          viewBox="0 0 24 24"
+                                          data-testid="RemoveIcon"
+                                        >
+                                          <path d="M19 13H5v-2h14v2z"></path>
+                                        </svg>
+                                      </span>
+                                    )
                                   )}
                                 </div>
                               </div>
