@@ -476,6 +476,14 @@ const BusinessHoursContent = forwardRef<
     callAPI(url, params, successCallback, "POST");
   };
 
+  const isGreaterThanNextThreeDays = (holidayDate: string): boolean => {
+    const holiday = dayjs(holidayDate);
+
+    const threeDaysLater = dayjs().add(3, "day");
+
+    return holiday.isAfter(threeDaysLater);
+  };
+
   return (
     <>
       <div className="flex gap-[20px] flex-col px-[20px] pb-[50px] max-h-[73vh] overflow-y-auto">
@@ -751,13 +759,26 @@ const BusinessHoursContent = forwardRef<
                             <SaveIcon />
                           </IconButton>
                         ) : (
-                          <IconButton onClick={() => handleEditHoliday(index)}>
-                            <EditIcon />
+                          isGreaterThanNextThreeDays(
+                            dayjs(holiday.date).format("MM-DD-YYYY")
+                          ) && (
+                            <IconButton
+                              onClick={() => handleEditHoliday(index)}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          )
+                        )}
+                        {(holiday.canEdit ||
+                          isGreaterThanNextThreeDays(
+                            dayjs(holiday.date).format("MM-DD-YYYY")
+                          )) && (
+                          <IconButton
+                            onClick={() => handleDeleteHoliday(index)}
+                          >
+                            <DeleteIcon />
                           </IconButton>
                         )}
-                        <IconButton onClick={() => handleDeleteHoliday(index)}>
-                          <DeleteIcon />
-                        </IconButton>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -773,23 +794,25 @@ const BusinessHoursContent = forwardRef<
         {holidayError && (
           <p className="text-red-500 mt-1">Please save all holidays.</p>
         )}
-        <p
-          className="text-secondary mt-2 flex items-center justify-end cursor-pointer"
-          onClick={() =>
-            setHolidays([
-              ...holidays,
-              {
-                date: new Date(),
-                name: "",
-                canEdit: true,
-                dateError: false,
-                nameError: false,
-              },
-            ])
-          }
-        >
-          + Add Holiday
-        </p>
+        <div className="flex items-center justify-end">
+          <p
+            className="text-secondary mt-2 cursor-pointer w-fit"
+            onClick={() =>
+              setHolidays([
+                ...holidays,
+                {
+                  date: new Date(),
+                  name: "",
+                  canEdit: true,
+                  dateError: false,
+                  nameError: false,
+                },
+              ])
+            }
+          >
+            + Add Holiday
+          </p>
+        </div>
       </div>
 
       <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
