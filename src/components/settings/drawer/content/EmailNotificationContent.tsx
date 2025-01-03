@@ -8,7 +8,8 @@ import React, {
 import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
 import { LabelValue } from "@/utils/Types/types";
-import RicheTextEditor from "@/components/common/RicheTextEditor";
+import RichTextEditor from "@/components/common/RichTextEditor";
+import { getTextLength } from "@/utils/commonFunction";
 
 export interface EmailNotificationContenRef {
   clearEmailNotificationData: () => void;
@@ -111,36 +112,10 @@ const EmailNotificationContent = forwardRef<
     return true;
   };
 
-  const validateText = () => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, "text/html");
-
-    if (!doc.body || !doc.body.childNodes.length) {
-      return false;
-    }
-
-    const allSpacesOrEmpty = Array.from(doc.body.childNodes).every(
-      (node: any) => {
-        if (node.nodeType === Node.TEXT_NODE) {
-          return node.textContent.trim() === "";
-        } else if (node.nodeType === Node.ELEMENT_NODE) {
-          const directText = Array.from(node.childNodes)
-            .filter((child: any) => child.nodeType === Node.TEXT_NODE)
-            .map((child: any) => child.textContent.trim())
-            .join("");
-          return directText === "" && !node.textContent.trim();
-        }
-        return true;
-      }
-    );
-
-    return !allSpacesOrEmpty;
-  };
-
   const handleSubmit = async (close: boolean) => {
     setModuleNameError(moduleName <= 0);
     setTextError(
-      text.trim().length <= 0 || text.trim().length > 5000 || !validateText()
+      getTextLength(text.trim()) <= 0 || getTextLength(text.trim()) > 5000
     );
     setDescriptionErr(
       description.trim().length < 5 || description.trim().length > 500
@@ -153,9 +128,8 @@ const EmailNotificationContent = forwardRef<
       moduleName <= 0 ||
       !isEmailNotificationValid ||
       textError ||
-      text.trim().length <= 0 ||
-      text.trim().length > 5000 ||
-      !validateText() ||
+      getTextLength(text.trim()) <= 0 ||
+      getTextLength(text.trim()) > 5000 ||
       description.trim().length < 5 ||
       description.trim().length > 500 ||
       subject.trim().length <= 0 ||
@@ -332,7 +306,7 @@ const EmailNotificationContent = forwardRef<
         >
           Notification (Email Body)
         </FormLabel>
-        <RicheTextEditor
+        <RichTextEditor
           text={text}
           setText={setText}
           textError={textError}

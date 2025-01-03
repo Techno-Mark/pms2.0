@@ -7,8 +7,9 @@ import "primereact/resources/primereact.min.css"; // PrimeReact CSS
 import "primeicons/primeicons.css"; // PrimeIcons CSS
 import "quill/dist/quill.snow.css"; // Quill CSS
 import TextBox from "@/assets/icons/TextBox";
+import { getTextLength } from "@/utils/commonFunction";
 
-const RicheTextEditor = ({ text, setText, textError }: any) => {
+const RichTextEditor = ({ text, setText, textError, setTextError }: any) => {
   const [showPopup, setShowPopup] = useState(false);
   const editorRef: any = useRef(null);
   const popupRef: any = useRef(null);
@@ -33,6 +34,7 @@ const RicheTextEditor = ({ text, setText, textError }: any) => {
 
   const handleTextChange = (e: { htmlValue: any }) => {
     setText(e.htmlValue || "");
+    setTextError(false);
   };
 
   const handleInsertPlaceholder = (placeholder: string | any[]) => {
@@ -165,7 +167,7 @@ const RicheTextEditor = ({ text, setText, textError }: any) => {
           </div>
         )}
       </div>
-      {textError && text.trim().length > 5000 ? (
+      {textError && getTextLength(text.trim()) > 5000 ? (
         <p className="text-red-500 mt-1">Text cannot exceed 5000 characters.</p>
       ) : (
         textError && (
@@ -176,4 +178,4 @@ const RicheTextEditor = ({ text, setText, textError }: any) => {
   );
 };
 
-export default RicheTextEditor;
+export default RichTextEditor;
