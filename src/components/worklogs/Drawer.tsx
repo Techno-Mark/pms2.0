@@ -2301,11 +2301,11 @@ const EditDrawer = ({
       (field) => field.ContigencyPlan.trim().length > 250
     );
     setContigencyPlanErrWorklogs(newContigencyPlanErrors);
-    const newRemarkErrors = errorLogFieldsWorklogs.map(
-      (field) =>
-        field.Remark.trim().length < 5 || field.Remark.trim().length > 500
-    );
-    setRemarkErrWorklogs(newRemarkErrors);
+    // const newRemarkErrors = errorLogFieldsWorklogs.map(
+    //   (field) =>
+    //     field.Remark.trim().length < 5 || field.Remark.trim().length > 500
+    // );
+    // setRemarkErrWorklogs(newRemarkErrors);
 
     hasErrorLogErrors =
       newErrorTypeErrors.some((error) => error) ||
@@ -2323,7 +2323,7 @@ const EditDrawer = ({
       newRecordedDateErrors.some((error) => error) ||
       newMitigationErrors.some((error) => error) ||
       newContigencyPlanErrors.some((error) => error) ||
-      newRemarkErrors.some((error) => error) ||
+      // newRemarkErrors.some((error) => error) ||
       imageErrWorklogs.includes(true);
 
     if (hasPermissionWorklog("", "ErrorLog", "QA")) {
@@ -8184,9 +8184,9 @@ const EditDrawer = ({
                                 disabled={field.isSolved}
                                 value={
                                   field.IdentifiedBy !== null &&
-                                  field.IdentifiedBy.trim().length === 0
+                                  field?.IdentifiedBy.trim().length === 0
                                     ? ""
-                                    : field.IdentifiedBy
+                                    : field?.IdentifiedBy
                                 }
                                 onChange={(e) =>
                                   handleIdentifiedByChange(
@@ -8333,7 +8333,7 @@ const EditDrawer = ({
                             </FormControl>
                             <FormControl
                               variant="standard"
-                              sx={{ mx: 0.75, minWidth: 230,mt:1 }}
+                              sx={{ mx: 0.75, minWidth: 230, mt: 1 }}
                               error={impactWorklogsErr[index]}
                             >
                               <InputLabel id="demo-simple-select-standard-label">
@@ -8375,7 +8375,7 @@ const EditDrawer = ({
                             </FormControl>
                             <FormControl
                               variant="standard"
-                              sx={{ mx: 0.75, minWidth: 230,mt:1 }}
+                              sx={{ mx: 0.75, minWidth: 230, mt: 1 }}
                               error={errorLogPriorityWorklogsErr[index]}
                             >
                               <InputLabel id="demo-simple-select-standard-label">
@@ -8831,11 +8831,7 @@ const EditDrawer = ({
                                 </FormControl>
                               )}
                               <TextField
-                                label={
-                                  <span>
-                                    Additional Remark (If any)
-                                  </span>
-                                }
+                                label={<span>Additional Remark (If any)</span>}
                                 fullWidth
                                 disabled={field.isSolved}
                                 value={
@@ -8848,28 +8844,6 @@ const EditDrawer = ({
                                     e.target.value,
                                     index
                                   )
-                                }
-                                onBlur={(e) => {
-                                  if (e.target.value.length > 0) {
-                                    const newRemarkErrors = [
-                                      ...remarkErrWorklogs,
-                                    ];
-                                    newRemarkErrors[index] = false;
-                                    setRemarkErrWorklogs(newRemarkErrors);
-                                  }
-                                }}
-                                error={remarkErrWorklogs[index]}
-                                helperText={
-                                  remarkErrWorklogs[index] &&
-                                  field.Remark.length > 0 &&
-                                  field.Remark.length < 5
-                                    ? "Minumum 5 characters required."
-                                    : remarkErrWorklogs[index] &&
-                                      field.Remark.length > 500
-                                    ? "Maximum 500 characters allowed."
-                                    : remarkErrWorklogs[index]
-                                    ? "This is a required field."
-                                    : ""
                                 }
                                 margin="normal"
                                 variant="standard"
