@@ -8834,9 +8834,6 @@ const EditDrawer = ({
                                 label={
                                   <span>
                                     Additional Remark (If any)
-                                    <span className="text-defaultRed">
-                                      &nbsp;*
-                                    </span>
                                   </span>
                                 }
                                 fullWidth

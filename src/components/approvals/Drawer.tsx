@@ -1649,7 +1649,7 @@ const EditDrawer = ({
     const newErrorIdentificationDateErrors = errorLogFieldsApprovals.map(
       (field) =>
         field.ErrorIdentificationDate === null ||
-        field.ErrorIdentificationDate.toString().trim().length <= 0
+        field.ErrorIdentificationDate?.toString().trim().length <= 0
     );
     setErrorIdentificationErrApprovals(newErrorIdentificationDateErrors);
     const newResolutionStatusErrors = errorLogFieldsApprovals.map(
