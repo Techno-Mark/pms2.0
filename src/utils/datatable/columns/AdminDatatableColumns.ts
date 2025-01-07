@@ -160,6 +160,11 @@ const errorlogColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
+    name: "Category",
+    label: "Client Category",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     name: "ProjectName",
     label: "Project Name",
     bodyRenderer: generateCommonBodyRender,
@@ -230,17 +235,17 @@ const errorlogColConfig = [
   },
   {
     name: "RootCauseVal",
-    label: "Root Cause",
+    label: "Error Category",
     bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "NatureOfErrorVal",
-    label: "Nature Of Error",
+    label: "Error Details",
     bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "ErrorlogPriorityVal",
-    label: "Errorlog Priority",
+    label: "Criticality",
     bodyRenderer: generatePriorityWithColor,
   },
   {
@@ -250,32 +255,32 @@ const errorlogColConfig = [
   },
   {
     name: "Amount",
-    label: "Amount",
+    label: "Amount of Impact",
     bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "DateOfTransaction",
-    label: "Date Of Transaction",
+    label: "Transaction Recorded Date",
     bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "Remark",
-    label: "Remark",
+    label: "Additional Remark",
     bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "RootCauseAnalysis",
-    label: "RootCause Analysis",
+    label: "Root Cause Analysis",
     bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "MitigationPlan",
-    label: "Mitigation Plan",
+    label: "Corrective Action",
     bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "ContigencyPlan",
-    label: "Contigency Plan",
+    label: "Preventative Action",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -285,7 +290,22 @@ const errorlogColConfig = [
   },
   {
     name: "DocumentNumber",
-    label: "Document Number",
+    label: "Accounting Transaction ID",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ErrorIdentificationDate",
+    label: "Error Identification Date",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ResolutionStatusVal",
+    label: "Resolution status",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "IdentifiedBy",
+    label: "Error Identified by",
     bodyRenderer: generateCommonBodyRender,
   },
   {
