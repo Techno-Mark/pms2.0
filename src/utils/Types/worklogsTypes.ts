@@ -287,9 +287,9 @@ export interface ErrorlogGetByWorkitem {
   isSolved?: boolean;
   DisableErrorLog?: boolean;
   IsHasErrorlogAddedByClient?: boolean;
-  // ErrorIdentificationDate: string;
-  // ResolutionStatus: number;
-  // IdentifiedBy: string | null;
+  ErrorIdentificationDate: string;
+  ResolutionStatus: number;
+  IdentifiedBy: string | null;
 }
 
 export interface ReviewerNoteDetails {
