@@ -794,25 +794,23 @@ const BusinessHoursContent = forwardRef<
         {holidayError && (
           <p className="text-red-500 mt-1">Please save all holidays.</p>
         )}
-        <div className="flex items-center justify-end">
-          <p
-            className="text-secondary mt-2 cursor-pointer w-fit"
-            onClick={() =>
-              setHolidays([
-                ...holidays,
-                {
-                  date: new Date(),
-                  name: "",
-                  canEdit: true,
-                  dateError: false,
-                  nameError: false,
-                },
-              ])
-            }
-          >
-            + Add Holiday
-          </p>
-        </div>
+        <p
+          className="text-secondary mt-2 flex items-center justify-end cursor-pointer"
+          onClick={() =>
+            setHolidays([
+              ...holidays,
+              {
+                date: new Date(),
+                name: "",
+                canEdit: true,
+                dateError: false,
+                nameError: false,
+              },
+            ])
+          }
+        >
+          + Add Holiday
+        </p>
       </div>
 
       <div className="flex justify-end fixed w-full bottom-0 py-[15px] bg-pureWhite border-t border-lightSilver">
