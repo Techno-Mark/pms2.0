@@ -1093,6 +1093,9 @@ const CustomReport = ({
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Errors-Reviewer"),
+        customBodyRender: (value: string | number) => {
+          return generateCommonBodyRender(value);
+        },
       },
     },
     {
@@ -1112,6 +1115,20 @@ const CustomReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Billing Status"),
+        customBodyRender: (value: string | number) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "Comments",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Comment"),
+        customBodyRender: (value: string | number) => {
+          return generateCommonBodyRender(value);
+        },
       },
     },
     {
