@@ -28,7 +28,7 @@ const Chart_Errorlog = ({
   currentFilterData,
   sendData,
 }: ChartProjectStatusProps) => {
-  const [data, setData] = useState<any | any[]>([]);
+  const [data, setData] = useState<any[]>([]);
 
   const getProjectStatusData = async () => {
     const workTypeIdFromLocalStorage =

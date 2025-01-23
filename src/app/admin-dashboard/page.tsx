@@ -377,7 +377,7 @@ const Page = () => {
     return () => clearTimeout(timer);
   }, [currentFilterData]);
 
-  const statusIconMapping: any = {
+  const statusIconMapping: { [key: number | string]: JSX.Element } = {
     2: <Person4OutlinedIcon />,
     8: <CheckCircleOutlineOutlinedIcon />,
     3: <InPreparation />,
@@ -773,8 +773,7 @@ const Page = () => {
                 currentFilterData={currentFilterData}
               />
             </Card>
-            <Card className="w-full">
-            </Card>
+            <Card className="w-full"></Card>
           </section>
         </div>
       )}

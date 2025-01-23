@@ -8,7 +8,8 @@ import React, {
 import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
 import { LabelValue } from "@/utils/Types/types";
-import RicheTextEditor from "@/components/common/RicheTextEditor";
+import RichTextEditor from "@/components/common/RichTextEditor";
+import { getTextLength } from "@/utils/commonFunction";
 
 export interface SLAPolicyContenRef {
   clearSLAPolicyData: () => void;
@@ -134,32 +135,11 @@ const SLAContent = forwardRef<
       return true;
     };
 
-    const validateText = () => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(text, "text/html");
-      const firstP = doc.querySelector("p");
-
-      if (!firstP) {
-        return false;
-      }
-
-      const directText = Array.from(firstP.childNodes)
-        .filter((node) => node.nodeType === Node.TEXT_NODE)
-        .map((node: any) => node.textContent.trim())
-        .join("");
-
-      if (directText === "") {
-        return false;
-      }
-
-      return true;
-    };
-
     const handleSubmit = async (close: boolean) => {
       setClientError(clientName.length <= 0);
       setBusinessHoursError(businessHours <= 0);
       setTextError(
-        text.trim().length <= 0 || text.trim().length > 2000 || !validateText()
+        getTextLength(text.trim()) <= 0 || getTextLength(text.trim()) > 5000
       );
       setDescriptionErr(description.trim().length > 500);
       const isSLANameValid = validateSLAName();
@@ -171,9 +151,8 @@ const SLAContent = forwardRef<
         clientName.length <= 0 ||
         !isSLANameValid ||
         textError ||
-        text.trim().length <= 0 ||
-        text.trim().length > 2000 ||
-        !validateText() ||
+        getTextLength(text.trim()) <= 0 ||
+        getTextLength(text.trim()) > 5000 ||
         description.trim().length > 500
       )
         return;
@@ -342,7 +321,7 @@ const SLAContent = forwardRef<
           >
             First Response
           </FormLabel>
-          <RicheTextEditor
+          <RichTextEditor
             text={text}
             setText={setText}
             textError={textError}

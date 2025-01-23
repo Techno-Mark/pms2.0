@@ -63,6 +63,7 @@ import {
 } from "@/utils/Types/types";
 import { ClientWorkitemGetById, GetFields } from "@/utils/Types/clientWorklog";
 import { priorityOptions } from "@/utils/staticDropdownData";
+import FileIcon from "../common/FileIcon";
 
 interface DrawerProps {
   onOpen: boolean;
@@ -643,6 +644,9 @@ const Drawer = ({
         ],
         Amount: 0,
         DateOfTransaction: "",
+        ErrorIdentificationDate: "",
+        ResolutionStatus: 0,
+        IdentifiedBy: "",
         isSolved: false,
       },
     ]);
@@ -681,6 +685,9 @@ const Drawer = ({
         ],
         Amount: 0,
         DateOfTransaction: "",
+        ErrorIdentificationDate: "",
+        ResolutionStatus: 0,
+        IdentifiedBy: "",
         isSolved: false,
       },
     ]);
@@ -777,9 +784,7 @@ const Drawer = ({
             Remark: i.Remark,
             DocumentNumber: !!i.DocumentNumber ? i.DocumentNumber : "",
             VendorName: !!i.VendorName ? i.VendorName : "",
-            RootCauseAnalysis: i.RootCauseAnalysis
-              ? i.RootCauseAnalysis
-              : "",
+            RootCauseAnalysis: i.RootCauseAnalysis ? i.RootCauseAnalysis : "",
             MitigationPlan: !!i.MitigationPlan ? i.MitigationPlan : "",
             ContigencyPlan: !!i.ContigencyPlan ? i.ContigencyPlan : "",
             Attachments: i.Attachment?.length
@@ -795,6 +800,15 @@ const Drawer = ({
             Amount: i.Amount === null ? 0 : i.Amount,
             DateOfTransaction:
               i.DateOfTransaction === null ? "" : i.DateOfTransaction,
+            ErrorIdentificationDate:
+              i.ErrorIdentificationDate === null
+                ? ""
+                : i.ErrorIdentificationDate,
+            ResolutionStatus: i.ResolutionStatus,
+            IdentifiedBy:
+              i.ErrorType === 2 && i.IdentifiedBy !== null
+                ? i.IdentifiedBy?.toString().trim()
+                : null,
             isSolved: i.IsSolved,
           }))
         );
@@ -827,6 +841,9 @@ const Drawer = ({
             ],
             Amount: 0,
             DateOfTransaction: "",
+            ErrorIdentificationDate: "",
+            ResolutionStatus: 0,
+            IdentifiedBy: "",
             isSolved: false,
           },
         ]);
@@ -859,22 +876,38 @@ const Drawer = ({
             (i: ErrorlogGetByWorkitem) =>
               new Object({
                 ErrorLogId: i.ErrorLogId,
-                ErrorType: 2,
-                RootCause: 0,
-                Impact: 0,
-                Priority: 0,
-                ErrorCount: 0,
-                NatureOfError: 0,
-                CC: [],
-                DocumentNumber: "",
-                VendorName: "",
-                RootCauseAnalysis: "",
-                MitigationPlan: "",
-                ContigencyPlan: "",
+                ErrorType: i.ErrorType > 0 ? i.ErrorType : 2,
+                RootCause: i.RootCause,
+                Impact: i.Impact,
+                Priority: i.Priority,
+                ErrorCount: i.ErrorCount,
+                NatureOfError: i.NatureOfError,
+                CC: i.CC.map((j: LabelValueProfileImage) => j.value),
                 Remark: i.Remark.trim(),
                 Attachments:
                   i.Attachments?.[0]?.SystemFileName?.length ?? 0 > 0
                     ? i.Attachments
+                    : null,
+                DocumentNumber: !!i.DocumentNumber ? i.DocumentNumber : null,
+                VendorName: !!i.VendorName ? i.VendorName : null,
+                RootCauseAnalysis: !!i.RootCauseAnalysis
+                  ? i.RootCauseAnalysis
+                  : null,
+                MitigationPlan: !!i.MitigationPlan ? i.MitigationPlan : null,
+                ContigencyPlan: !!i.ContigencyPlan ? i.ContigencyPlan : null,
+                Amount: i.Amount === 0 ? null : i.Amount,
+                DateOfTransaction:
+                  i.DateOfTransaction === ""
+                    ? null
+                    : dayjs(i.DateOfTransaction).format("YYYY/MM/DD"),
+                ErrorIdentificationDate:
+                  i.ErrorIdentificationDate === ""
+                    ? null
+                    : dayjs(i.ErrorIdentificationDate).format("YYYY/MM/DD"),
+                ResolutionStatus: i.ResolutionStatus,
+                IdentifiedBy:
+                  i.ErrorType === 2 && !!i.IdentifiedBy
+                    ? i.IdentifiedBy?.toString().trim()
                     : null,
               })
           ),
@@ -1328,6 +1361,9 @@ const Drawer = ({
         ],
         Amount: 0,
         DateOfTransaction: "",
+        ErrorIdentificationDate: "",
+        ResolutionStatus: 0,
+        IdentifiedBy: "",
         isSolved: false,
       },
     ]);
@@ -2132,7 +2168,7 @@ const Drawer = ({
                                   index ? (
                                     <div className="flex items-start gap-2">
                                       <div className="flex flex-col">
-                                        <div className="flex items-start justify-start w-[70vw]">
+                                        <div className="flex items-start justify-start w-[50vw]">
                                           <MentionsInput
                                             style={mentionsInputStyle}
                                             className="!w-[100%] textareaOutlineNoneEdit"
@@ -2184,7 +2220,13 @@ const Drawer = ({
                                           {commentAttachmentClientWorklog[0]
                                             ?.SystemFileName.length > 0 && (
                                             <div className="flex items-center justify-center gap-2">
-                                              <span className="ml-2 cursor-pointer">
+                                              <FileIcon
+                                                fileName={
+                                                  commentAttachmentClientWorklog[0]
+                                                    ?.UserFileName
+                                                }
+                                              />
+                                              <span className="cursor-pointer">
                                                 {
                                                   commentAttachmentClientWorklog[0]
                                                     ?.UserFileName
@@ -2247,7 +2289,7 @@ const Drawer = ({
                                       </button>
                                     </div>
                                   ) : (
-                                    <div className="flex items-start justify-start gap-8 w-[70vw]">
+                                    <div className="flex items-start justify-start gap-8 w-[50vw]">
                                       <span className="hidden"></span>
                                       <div className="max-w-[60vw]">
                                         {extractText(i.Message).map(
@@ -2272,7 +2314,12 @@ const Drawer = ({
                                       {i.Attachment[0]?.SystemFileName.length >
                                         0 && (
                                         <div className="flex items-center justify-center gap-2">
-                                          <span className="ml-2 cursor-pointer">
+                                          <FileIcon
+                                            fileName={
+                                              i.Attachment[0]?.UserFileName
+                                            }
+                                          />
+                                          <span className="cursor-pointer">
                                             {i.Attachment[0]?.UserFileName}
                                           </span>
                                           <span
@@ -2412,7 +2459,13 @@ const Drawer = ({
                             commentAttachmentClientWorklog[0]?.SystemFileName
                               .length > 0 && (
                               <div className="flex items-center justify-center gap-2 mr-6">
-                                <span className="ml-2 cursor-pointer">
+                                <FileIcon
+                                  fileName={
+                                    commentAttachmentClientWorklog[0]
+                                      ?.UserFileName
+                                  }
+                                />
+                                <span className="cursor-pointer">
                                   {
                                     commentAttachmentClientWorklog[0]
                                       ?.UserFileName
@@ -2501,7 +2554,7 @@ const Drawer = ({
                                   <TextField
                                     label={
                                       <span>
-                                        Remarks
+                                        Additional Remark
                                         <span className="text-defaultRed">
                                           &nbsp;*
                                         </span>
@@ -2583,15 +2636,20 @@ const Drawer = ({
                                         field.Attachments.length > 0 &&
                                         field.Attachments[0]?.SystemFileName
                                           .length > 0 && (
-                                          <div className="flex items-center justify-center gap-2">
-                                            <span className="mt-6 ml-2 cursor-pointer">
+                                          <div className="flex items-center justify-center gap-2 ml-2 mt-6">
+                                            <FileIcon
+                                              fileName={
+                                                field.Attachments[0]
+                                                  ?.UserFileName
+                                              }
+                                            />
+                                            <span className="cursor-pointer">
                                               {
                                                 field.Attachments[0]
                                                   ?.UserFileName
                                               }
                                             </span>
                                             <span
-                                              className="mt-6"
                                               onClick={() =>
                                                 field.Attachments
                                                   ? getFileFromBlob(
@@ -2656,36 +2714,38 @@ const Drawer = ({
                                       </svg>
                                     </span>
                                   ) : (
-                                    <span
-                                      className="cursor-pointer"
-                                      onClick={
-                                        hasPermissionWorklog(
-                                          "ErrorLog",
-                                          "Delete",
-                                          "WorkLogs"
-                                        ) &&
-                                        hasPermissionWorklog(
-                                          "ErrorLog",
-                                          "Save",
-                                          "WorkLogs"
-                                        )
-                                          ? () =>
-                                              removeErrorLogFieldClientWorklog(
-                                                index
-                                              )
-                                          : undefined
-                                      }
-                                    >
-                                      <svg
-                                        className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                        focusable="false"
-                                        aria-hidden="true"
-                                        viewBox="0 0 24 24"
-                                        data-testid="RemoveIcon"
+                                    !field.isSolved && (
+                                      <span
+                                        className="cursor-pointer"
+                                        onClick={
+                                          hasPermissionWorklog(
+                                            "ErrorLog",
+                                            "Delete",
+                                            "WorkLogs"
+                                          ) &&
+                                          hasPermissionWorklog(
+                                            "ErrorLog",
+                                            "Save",
+                                            "WorkLogs"
+                                          )
+                                            ? () =>
+                                                removeErrorLogFieldClientWorklog(
+                                                  index
+                                                )
+                                            : undefined
+                                        }
                                       >
-                                        <path d="M19 13H5v-2h14v2z"></path>
-                                      </svg>
-                                    </span>
+                                        <svg
+                                          className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                          focusable="false"
+                                          aria-hidden="true"
+                                          viewBox="0 0 24 24"
+                                          data-testid="RemoveIcon"
+                                        >
+                                          <path d="M19 13H5v-2h14v2z"></path>
+                                        </svg>
+                                      </span>
+                                    )
                                   )}
                                 </div>
                               </div>

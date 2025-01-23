@@ -150,7 +150,7 @@ const FilterDialogDashboard = ({
     ]);
   };
 
-  const getDropdowns = async (workType: any) => {
+  const getDropdowns = async (workType: number) => {
     setAssigneeDropdown(await getAssigneeDropdownDataByHierarchy(workType));
     setReviewerDropdown(await getReviewerDropdownDataByHierarchy(workType));
   };
@@ -158,7 +158,7 @@ const FilterDialogDashboard = ({
   useEffect(() => {
     const customDropdowns = async () => {
       setStatusDropdown(await getStatusDropdownData(workTypeActive?.value));
-      getDropdowns(workTypeActive?.value);
+      getDropdowns(Number(workTypeActive?.value));
     };
     workTypeActive !== null &&
       workTypeActive?.value > 0 &&

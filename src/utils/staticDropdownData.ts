@@ -28,6 +28,16 @@ export const priorityOptions = [
   { value: 3, label: "Low" },
 ];
 
+export const emailBoxStatusOptions = [
+  { value: 1, label: "Not Started" },
+  { value: 2, label: "In Progress" },
+  { value: 3, label: "Waiting For Client" },
+  { value: 4, label: "In Review" },
+  { value: 5, label: "Closed" },
+  { value: 6, label: "Canceled" },
+  { value: 7, label: "Reopen" },
+];
+
 export const natureOfErrorOptions = [
   {
     label: "Memo/Decriprion Not Updated",

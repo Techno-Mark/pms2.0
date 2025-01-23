@@ -14,8 +14,8 @@ import React, {
 import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
 import { LabelValue } from "@/utils/Types/types";
-import { getDeptData, getEmailTypeData } from "@/utils/commonDropdownApiCall";
-import RicheTextEditor from "@/components/common/RicheTextEditor";
+import RichTextEditor from "@/components/common/RichTextEditor";
+import { getTextLength } from "@/utils/commonFunction";
 
 export interface EmailTemplateContentRef {
   EmailTemplateDataValue: () => void;
@@ -137,33 +137,12 @@ const EmailTemplateContent = forwardRef<
       return true;
     };
 
-    const validateText = () => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(text, "text/html");
-      const firstP = doc.querySelector("p");
-
-      if (!firstP) {
-        return false;
-      }
-
-      const directText = Array.from(firstP.childNodes)
-        .filter((node) => node.nodeType === Node.TEXT_NODE)
-        .map((node: any) => node.textContent.trim())
-        .join("");
-
-      if (directText === "") {
-        return false;
-      }
-
-      return true;
-    };
-
     const handleSubmit = async (close: boolean) => {
       const isEmailTypeValid = validateEmailTemplateName();
       setDeptError(deptName.length <= 0);
       setEmailTypeError(emailType <= 0);
       setTextError(
-        text.trim().length <= 0 || text.trim().length > 2000 || !validateText
+        getTextLength(text.trim()) <= 0 || getTextLength(text.trim()) > 5000
       );
 
       if (
@@ -173,9 +152,8 @@ const EmailTemplateContent = forwardRef<
         emailType <= 0 ||
         !isEmailTypeValid ||
         textError ||
-        text.trim().length <= 0 ||
-        text.trim().length > 2000 ||
-        !validateText
+        getTextLength(text.trim()) <= 0 ||
+        getTextLength(text.trim()) > 5000
       )
         return;
 
@@ -311,7 +289,7 @@ const EmailTemplateContent = forwardRef<
             Description
             <span className="!text-defaultRed">&nbsp;*</span>
           </FormLabel>
-          <RicheTextEditor
+          <RichTextEditor
             text={text}
             setText={setText}
             textError={textError}

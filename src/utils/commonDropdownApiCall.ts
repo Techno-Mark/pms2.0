@@ -286,6 +286,19 @@ export const getDepartmentDataByClient = async (clientId: any) => {
   );
 };
 
+export const getGroupWiseRMDropdownData = async (
+  clientId: number,
+  assigneeId: number
+) => {
+  return await postApiFunction(
+    `${process.env.emailbox_api_url}/emailbox/getRMDropdown`,
+    {
+      ClientId: clientId,
+      AssignTo: assigneeId,
+    }
+  );
+};
+
 export const getReviewerDropdownData = async (
   clientId: any,
   workTypeId: any
@@ -355,6 +368,15 @@ export const getEmailTypeData = async () => {
   return await getApiFunction(
     `${process.env.pms_api_url}/emailtype/getdropdown`
   );
+};
+
+export const getTagData = async () => {
+  const data = await getApiFunction(
+    `${process.env.emailbox_api_url}/emailbox/gettag`
+  );
+  return data.length > 0
+    ? data.map((i: string) => new Object({ label: i, value: i }))
+    : [];
 };
 
 export const getAssigneeDropdownDataByHierarchy = async (workTypeId: any) => {

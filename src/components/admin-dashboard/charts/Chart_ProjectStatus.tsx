@@ -28,7 +28,7 @@ const Chart_ProjectStatus = ({
   currentFilterData,
   sendData,
 }: ChartProjectStatusProps) => {
-  const [data, setData] = useState<any | any[]>([]);
+  const [data, setData] = useState<any[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
   const getProjectStatusData = async () => {

@@ -376,7 +376,7 @@ const Page = () => {
 
   useEffect(() => {
     tab === "Permission" && getPermissionDropdown();
-    tab === "Notification" || (tab === "Email template" && getDepartmentData());
+    (tab === "Notification" || tab === "Email template") && getDepartmentData();
     tab === "Email template" && getEmailData();
   }, [tab]);
 

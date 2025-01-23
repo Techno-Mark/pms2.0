@@ -248,6 +248,8 @@ export interface CommentAttachment {
   UserFileName: string;
   SystemFileName: string;
   AttachmentPath: string;
+  IsRemoved?: boolean;
+  uploading?: boolean;
 }
 
 export interface CommentGetByWorkitem {
@@ -287,9 +289,9 @@ export interface ErrorlogGetByWorkitem {
   isSolved?: boolean;
   DisableErrorLog?: boolean;
   IsHasErrorlogAddedByClient?: boolean;
-  // ErrorIdentificationDate: string;
-  // ResolutionStatus: number;
-  // IdentifiedBy: string | null;
+  ErrorIdentificationDate: string;
+  ResolutionStatus: number;
+  IdentifiedBy: string | null;
 }
 
 export interface ReviewerNoteDetails {

@@ -263,7 +263,7 @@ const EmailTypeContent = forwardRef<
 
   return (
     <>
-      <div className="flex flex-col px-[20px] pb-[150px] max-h-[73.5vh] overflow-y-auto">
+      <div className="flex flex-col px-[20px] pb-[10px] max-h-[73.5vh] overflow-y-auto">
         <Autocomplete
           multiple
           id="tags-standard"

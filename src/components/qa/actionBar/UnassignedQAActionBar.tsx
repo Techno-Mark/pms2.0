@@ -30,7 +30,7 @@ const UnassignedQAActionBar = ({
 
   return (
     <div>
-      <CustomActionBar {...propsForActionBar} isSmall={true}>
+      <CustomActionBar small={true} {...propsForActionBar} isSmall={true}>
         <ConditionalComponentWithoutConditions
           className="text-slatyGrey"
           Component={QA}

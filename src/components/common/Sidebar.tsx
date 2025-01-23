@@ -16,6 +16,7 @@ import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { callAPI } from "@/utils/API/callAPI";
 import { MenuItem, User } from "@/utils/Types/types";
 import QaLensIcon from "@/assets/icons/QaLensIcon";
+import EmailBox from "@/assets/icons/EmailBox";
 
 const DashboardItems = ({ pathname, isCollapsed, sidebarItems }: any) => {
   return (
@@ -27,18 +28,18 @@ const DashboardItems = ({ pathname, isCollapsed, sidebarItems }: any) => {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`mb-[15px] flex items-center pl-[27px] border-l-[4px] hover:bg-[#F6F6F6] hover:border-[#0592C6] ${
+                className={`mb-[5px] flex items-center pl-[27px] border-l-[4px] hover:bg-[#F6F6F6] hover:border-[#0592C6] ${
                   pathname === `${item.href}`
                     ? "border-[#0592C6] bg-[#F6F6F6]"
                     : "border-pureWhite"
                 }`}
               >
                 {isCollapsed ? (
-                  <span className="py-[19.65px]">{item.icon}</span>
+                  <span className="py-[18px]">{item.icon}</span>
                 ) : (
                   <>
-                    <span className="py-[10px]">{item.icon}</span>
-                    <span className="pl-[10px] py-[17.5px]">{item.name}</span>
+                    <span className="py-[18px]">{item.icon}</span>
+                    <span className="pl-[10px] py-[18px]">{item.name}</span>
                   </>
                 )}
               </Link>
@@ -187,6 +188,11 @@ const Sidebar = ({
               href: "/settings",
               icon: <Settings />,
             },
+          !isClient && {
+            name: "Email Box",
+            href: "/emailbox",
+            icon: <EmailBox />,
+          },
           !isClient && {
             name: "Help",
             href: "/help",

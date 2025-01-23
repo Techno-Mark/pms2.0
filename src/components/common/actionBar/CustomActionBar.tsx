@@ -7,6 +7,7 @@ const CustomActionBar = ({
   selectedRows,
   handleClearSelection,
   children,
+  small = false,
 }: any) => {
   useEffect(() => {
     const handleKeyDown = (event: any) => {
@@ -24,11 +25,15 @@ const CustomActionBar = ({
   return (
     <div>
       {selectedRowsCount > 0 && (
-        <div className="flex items-center justify-start ml-8">
+        <div
+          className={`flex items-center ${
+            small ? "justify-center" : "justify-start"
+          } ml-8`}
+        >
           <Card
             className={`rounded-full flex border p-2 border-[#1976d2] absolute shadow-lg ${
               selectedRowsCount === 1 ? "w-[82%]" : "w-[73%]"
-            } bottom-12 -translate-y-1/2`}
+            } ${small && "!w-[50%]"} bottom-12 -translate-y-1/2`}
           >
             <div className="flex flex-row w-full">
               <div className="pt-1 pl-2 flex w-[25%]">
@@ -43,7 +48,7 @@ const CustomActionBar = ({
               <div
                 className={`flex flex-row z-10 h-8 justify-center items-center ${
                   selectedRowsCount === 1 ? "w-[110%]" : "w-[80%]"
-                }`}
+                } ${small && "!w-[50%]"}`}
               >
                 {children}
               </div>

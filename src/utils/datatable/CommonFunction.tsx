@@ -128,6 +128,41 @@ export const generatePriorityWithColor = (value: any) => {
   );
 };
 
+export const generateEmailboxStatusWithColor = (value: any) => {
+  const statusColorCode =
+    value.toLowerCase() === "not started"
+      ? "#A5A5A5"
+      : value.toLowerCase() === "in progress"
+      ? "#4472C4"
+      : value.toLowerCase() === "waiting for client"
+      ? "#FFC000"
+      : value.toLowerCase() === "in review"
+      ? "#00B0F0"
+      : value.toLowerCase() === "closed"
+      ? "#e5801c"
+      : value.toLowerCase() === "canceled"
+      ? "#C00000"
+      : value.toLowerCase() === "reopen"
+      ? "#833C0C"
+      : "#D8D8D8";
+
+  return (
+    <div>
+      {value === null || value === "" || value === 0 || value === "0" ? (
+        "-"
+      ) : (
+        <div className="inline-block mr-1">
+          <div
+            className={"w-[10px] h-[10px] rounded-full inline-block mr-2 "}
+            style={{ backgroundColor: statusColorCode }}
+          ></div>
+          {value}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const generateStatusWithColor = (value: string, rowIndex: any) => {
   const statusColorCode = rowIndex;
 

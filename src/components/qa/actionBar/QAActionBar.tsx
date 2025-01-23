@@ -108,7 +108,7 @@ const QAActionBar = ({
 
   return (
     <div>
-      <CustomActionBar {...propsForActionBar} isSmall={true}>
+      <CustomActionBar small={true} {...propsForActionBar} isSmall={true}>
         <ConditionalComponent
           condition={
             // hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&

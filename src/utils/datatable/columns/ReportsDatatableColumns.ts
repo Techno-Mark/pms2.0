@@ -695,8 +695,28 @@ const reportsErrorLogColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
+    header: "ErrorIdentificationDate",
+    label: "Error Identification Date",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "DateOfTransaction",
+    label: "Transaction Recorded Date",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     header: "ErrorTypeVal",
-    label: "Error type",
+    label: "Error Type",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "IdentifiedBy",
+    label: "Error Identified by",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "NatureOfErrorVal",
+    label: "Error Details",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -710,19 +730,9 @@ const reportsErrorLogColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    header: "NatureOfErrorVal",
-    label: "Error Details",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
     header: "PriorityVal",
     label: "Criticality",
     bodyRenderer: generatePriorityWithColor,
-  },
-  {
-    header: "DocumentNumber",
-    label: "Accounting Transaction ID",
-    bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "VendorName",
@@ -730,13 +740,18 @@ const reportsErrorLogColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    header: "ErrorCount",
-    label: "Error count",
+    header: "DocumentNumber",
+    label: "Accounting Transaction ID",
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    header: "Remark",
-    label: "Additional Remark (If any)",
+    header: "Amount",
+    label: "Amount of Impact (if any)",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ErrorCount",
+    label: "Error count",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -755,18 +770,13 @@ const reportsErrorLogColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    header: "ErrorIdentificationDate",
-    label: "Error Identification Date",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
     header: "ResolutionStatusVal",
     label: "Resolution status",
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    header: "IdentifiedBy",
-    label: "Error Identified by",
+    header: "Remark",
+    label: "Additional Remark (If any)",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -795,11 +805,6 @@ const reportsErrorLogColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    header: "DateOfTransaction",
-    label: "Transaction Recorded Date",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
     header: "SubmittedOn",
     label: "Date of Creation",
     bodyRenderer: generateCommonBodyRender,
@@ -822,11 +827,6 @@ const reportsErrorLogColConfig = [
   {
     header: "ProjectName",
     label: "Project Name",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    header: "Amount",
-    label: "Amount of Impact (if any)",
     bodyRenderer: generateCommonBodyRender,
   },
 ];

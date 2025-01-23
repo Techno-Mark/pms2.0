@@ -124,6 +124,21 @@ const getTimeDifference = (startTime: any, endTime: any) => {
   ).padStart(2, "0")}`;
 };
 
+const getTextLength = (html: any) => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+
+  const textNodes = Array.from(doc.body.childNodes)
+    .filter(
+      (node) =>
+        node.nodeType === Node.TEXT_NODE || node.nodeType === Node.ELEMENT_NODE
+    )
+    .map((node: any) => node.textContent.trim())
+    .join("");
+
+  return textNodes.replace(/\s+/g, "").length;
+};
+
 export {
   hasToken,
   hasNoToken,
@@ -133,4 +148,5 @@ export {
   extractText,
   isWeekend,
   getTimeDifference,
+  getTextLength,
 };

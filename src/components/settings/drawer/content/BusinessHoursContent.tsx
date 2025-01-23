@@ -476,6 +476,14 @@ const BusinessHoursContent = forwardRef<
     callAPI(url, params, successCallback, "POST");
   };
 
+  const isGreaterThanNextThreeDays = (holidayDate: string): boolean => {
+    const holiday = dayjs(holidayDate);
+
+    const threeDaysLater = dayjs().add(3, "day");
+
+    return holiday.isAfter(threeDaysLater);
+  };
+
   return (
     <>
       <div className="flex gap-[20px] flex-col px-[20px] pb-[50px] max-h-[73vh] overflow-y-auto">
@@ -751,13 +759,26 @@ const BusinessHoursContent = forwardRef<
                             <SaveIcon />
                           </IconButton>
                         ) : (
-                          <IconButton onClick={() => handleEditHoliday(index)}>
-                            <EditIcon />
+                          isGreaterThanNextThreeDays(
+                            dayjs(holiday.date).format("MM-DD-YYYY")
+                          ) && (
+                            <IconButton
+                              onClick={() => handleEditHoliday(index)}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          )
+                        )}
+                        {(holiday.canEdit ||
+                          isGreaterThanNextThreeDays(
+                            dayjs(holiday.date).format("MM-DD-YYYY")
+                          )) && (
+                          <IconButton
+                            onClick={() => handleDeleteHoliday(index)}
+                          >
+                            <DeleteIcon />
                           </IconButton>
                         )}
-                        <IconButton onClick={() => handleDeleteHoliday(index)}>
-                          <DeleteIcon />
-                        </IconButton>
                       </TableCell>
                     </TableRow>
                   ))}

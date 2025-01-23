@@ -7,32 +7,52 @@ import "primereact/resources/primereact.min.css"; // PrimeReact CSS
 import "primeicons/primeicons.css"; // PrimeIcons CSS
 import "quill/dist/quill.snow.css"; // Quill CSS
 import TextBox from "@/assets/icons/TextBox";
+import { getTextLength } from "@/utils/commonFunction";
+import FileIcon from "@/assets/icons/worklogs/FileIcon";
 
-const RicheTextEditor = ({ text, setText, textError }: any) => {
+const RichTextEditor = ({
+  text,
+  setText,
+  textError,
+  setTextError,
+  height = "220px",
+  addImage = false,
+  handleImageChange,
+}: any) => {
   const [showPopup, setShowPopup] = useState(false);
   const editorRef: any = useRef(null);
   const popupRef: any = useRef(null);
   const buttonRef: any = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const placeholders = [
     { label: "Ticket ID", value: "{{TicketID}}" },
-    { label: "Subject", value: "{{Subject}}" },
-    { label: "Description", value: "{{Description}}" },
+    { label: "Ticket Subject", value: "{{TicketSubject}}" },
+    { label: "Ticket Priority", value: "{{TicketPriority}}" },
     { label: "Ticket URL", value: "{{TicketURL}}" },
     { label: "Tag", value: "{{Tag}}" },
     { label: "Group name", value: "{{GroupName}}" },
     { label: "Assignee Name", value: "{{AssigneeName}}" },
     { label: "Assignee Email", value: "{{AssigneeEmail}}" },
     { label: "Status", value: "{{Status}}" },
-    { label: "Priority", value: "{{Priority}}" },
     { label: "Ticket Type", value: "{{TicketType}}" },
     { label: "Due by Time", value: "{{DueByTime}}" },
     { label: "Client Email", value: "{{ClientEmail}}" },
     { label: "Client Name", value: "{{ClientName}}" },
+    { label: "Due Date", value: "{{DueDate}}" },
+    { label: "Updated By", value: "{{UpdatedBy}}" },
+    { label: "SLA Due Time", value: "{{SLADueTime}}" },
+    { label: "Reopened By", value: "{{ReopenedBy}}" },
+    { label: "Company Name", value: "{{CompanyName}}" },
+    { label: "Resolved By", value: "{{ResolvedBy}}" },
+    { label: "Resolved Date", value: "{{ResolvedDate}}" },
+    { label: "New Assignee Name", value: "{{NewAssigneeName}}" },
+    { label: "Closed Date", value: "{{ClosedDate}}" },
   ];
 
   const handleTextChange = (e: { htmlValue: any }) => {
     setText(e.htmlValue || "");
+    setTextError(false);
   };
 
   const handleInsertPlaceholder = (placeholder: string | any[]) => {
@@ -93,9 +113,31 @@ const RicheTextEditor = ({ text, setText, textError }: any) => {
         <select className="ql-color"></select>
         <select className="ql-background"></select>
         <button className="ql-clean" aria-label="Remove Style"></button>
-        <button onClick={() => setShowPopup((prev) => !prev)} ref={buttonRef}>
+        <button
+          onClick={() => setShowPopup((prev) => !prev)}
+          ref={buttonRef}
+          className="w-fit"
+        >
           <TextBox />
         </button>
+        {addImage && (
+          <button>
+            <span
+              className={`text-white cursor-pointer max-w-1 mt-6`}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <FileIcon />
+              <input
+                type="file"
+                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                ref={fileInputRef}
+                className="input-field hidden"
+                onChange={handleImageChange}
+                multiple
+              />
+            </span>
+          </button>
+        )}
       </span>
     );
   };
@@ -112,7 +154,7 @@ const RicheTextEditor = ({ text, setText, textError }: any) => {
           value={text}
           onTextChange={handleTextChange}
           headerTemplate={header}
-          style={{ height: "220px" }}
+          style={{ height: height }}
           ref={editorRef}
         />
         {showPopup && (
@@ -128,7 +170,7 @@ const RicheTextEditor = ({ text, setText, textError }: any) => {
               boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
               padding: "10px",
               zIndex: 10,
-              width: "60%",
+              width: "75%",
             }}
           >
             <ul
@@ -165,8 +207,8 @@ const RicheTextEditor = ({ text, setText, textError }: any) => {
           </div>
         )}
       </div>
-      {textError && text.trim().length > 2000 ? (
-        <p className="text-red-500 mt-1">Text cannot exceed 2000 characters.</p>
+      {textError && getTextLength(text.trim()) > 5000 ? (
+        <p className="text-red-500 mt-1">Text cannot exceed 5000 characters.</p>
       ) : (
         textError && (
           <p className="text-red-500 mt-1">This is a required field.</p>
@@ -176,4 +218,4 @@ const RicheTextEditor = ({ text, setText, textError }: any) => {
   );
 };
 
-export default RicheTextEditor;
+export default RichTextEditor;

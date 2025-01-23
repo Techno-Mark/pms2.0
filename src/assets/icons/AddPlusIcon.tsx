@@ -1,6 +1,6 @@
 import React from "react";
 
-function AddPlusIcon() {
+function AddPlusIcon({ color = "white" }: { color?: string }) {
   return (
     <svg
       width="24"
@@ -15,7 +15,7 @@ function AddPlusIcon() {
         width="16.5"
         height="16.5"
         rx="1.25"
-        stroke="white"
+        stroke={color}
         strokeWidth="1.5"
       />
       <rect
@@ -24,8 +24,8 @@ function AddPlusIcon() {
         width="10"
         height="1.25"
         rx="0.625"
-        fill="white"
-        stroke="white"
+        fill={color}
+        stroke={color}
         strokeWidth="0.3"
       />
       <rect
@@ -35,8 +35,8 @@ function AddPlusIcon() {
         height="1.25"
         rx="0.625"
         transform="rotate(-90 11.375 17)"
-        fill="white"
-        stroke="white"
+        fill={color}
+        stroke={color}
         strokeWidth="0.3"
       />
     </svg>

@@ -45,7 +45,7 @@ const Datatable_BillingType = ({
   onSearchValue,
   isClose,
 }: BillingTypeProps) => {
-  const [data, setData] = useState<any | any[]>([]);
+  const [data, setData] = useState<any[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
