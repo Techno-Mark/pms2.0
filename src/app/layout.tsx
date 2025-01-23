@@ -17,7 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`!font-proxima select-none !p-0 overflow-hidden`}>
         <MainWrapper>{children}</MainWrapper>
-        <SpeedInsights />
+        <SpeedInsights /> 
       </body>
     </html>
   );
