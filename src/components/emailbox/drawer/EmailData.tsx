@@ -43,7 +43,7 @@ const EmailData = forwardRef<
       Subject: string;
       RemainingSyncTime: number;
       AttachmentCount: number;
-      RMUser: number;
+      ApprovalId: number;
       OriginalMessgeId: string;
     };
     getTicketDetails: () => void;
@@ -133,7 +133,9 @@ const EmailData = forwardRef<
               )
             : []
         );
-        setRMUser(!!ticketDetails.RMUser ? Number(ticketDetails.RMUser) : 0);
+        setRMUser(
+          !!ticketDetails.ApprovalId ? Number(ticketDetails.ApprovalId) : 0
+        );
       }
     }, [ticketDetails, activeTab]);
 

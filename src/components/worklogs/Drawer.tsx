@@ -7222,65 +7222,6 @@ const EditDrawer = ({
                                   <Select
                                     labelId="demo-simple-select-standard-label"
                                     id="demo-simple-select-standard"
-                                    value={
-                                      i.NatureOfError === 0
-                                        ? ""
-                                        : i.NatureOfError
-                                    }
-                                    onChange={(e) =>
-                                      handleNatureOfErrorChangeWorklogs(
-                                        Number(e.target.value),
-                                        index
-                                      )
-                                    }
-                                    onBlur={() => {
-                                      if (i.NatureOfError > 0) {
-                                        const newNatureOfErrorErrors = [
-                                          ...natureOfWorklogsErr,
-                                        ];
-                                        newNatureOfErrorErrors[index] = false;
-                                        setNatureOfWorklogsErr(
-                                          newNatureOfErrorErrors
-                                        );
-                                      }
-                                    }}
-                                    readOnly={
-                                      (i.NatureOfError > 0 &&
-                                        i.ErrorType == 1) ||
-                                      !i.IsHasErrorlogAddedByClient ||
-                                      // i.Remark.trim().length <= 0 ||
-                                      i.DisableErrorLog
-                                    }
-                                  >
-                                    {natureOfErrorDropdown.map(
-                                      (n: LabelValueType) => (
-                                        <MenuItem value={n.value} key={n.value}>
-                                          {n.label}
-                                        </MenuItem>
-                                      )
-                                    )}
-                                  </Select>
-                                  {natureOfWorklogsErr[index] && (
-                                    <FormHelperText>
-                                      This is a required field.
-                                    </FormHelperText>
-                                  )}
-                                </FormControl>
-                                <FormControl
-                                  variant="standard"
-                                  sx={{ mx: 0.75, minWidth: 230, mt: 1 }}
-                                  error={impactWorklogsErr[index]}
-                                  disabled={isIdDisabled || isUnassigneeClicked}
-                                >
-                                  <InputLabel id="demo-simple-select-standard-label">
-                                    Error Category
-                                    <span className="text-defaultRed">
-                                      &nbsp;*
-                                    </span>
-                                  </InputLabel>
-                                  <Select
-                                    labelId="demo-simple-select-standard-label"
-                                    id="demo-simple-select-standard"
                                     value={i.RootCause === 0 ? "" : i.RootCause}
                                     onChange={(e) =>
                                       handleRootCauseChangeWorklogs(
@@ -7314,6 +7255,58 @@ const EditDrawer = ({
                                     ))}
                                   </Select>
                                   {rootCauseWorklogsErr[index] && (
+                                    <FormHelperText>
+                                      This is a required field.
+                                    </FormHelperText>
+                                  )}
+                                </FormControl>
+                                <FormControl
+                                  variant="standard"
+                                  sx={{ mx: 0.75, minWidth: 230, mt: 1 }}
+                                  error={impactWorklogsErr[index]}
+                                  disabled={isIdDisabled || isUnassigneeClicked}
+                                >
+                                  <InputLabel id="demo-simple-select-standard-label">
+                                    Impact
+                                    <span className="text-defaultRed">
+                                      &nbsp;*
+                                    </span>
+                                  </InputLabel>
+                                  <Select
+                                    labelId="demo-simple-select-standard-label"
+                                    id="demo-simple-select-standard"
+                                    value={i.Impact === 0 ? "" : i.Impact}
+                                    onChange={(e) =>
+                                      handleImpactChangeWorklogs(
+                                        Number(e.target.value),
+                                        index
+                                      )
+                                    }
+                                    onBlur={() => {
+                                      if (i.Impact > 0) {
+                                        const newImpactWorklogsErrors = [
+                                          ...impactWorklogsErr,
+                                        ];
+                                        newImpactWorklogsErrors[index] = false;
+                                        setImpactWorklogsErr(
+                                          newImpactWorklogsErrors
+                                        );
+                                      }
+                                    }}
+                                    readOnly={
+                                      (i.Impact > 0 && i.ErrorType == 1) ||
+                                      !i.IsHasErrorlogAddedByClient ||
+                                      // i.Remark.trim().length <= 0 ||
+                                      i.DisableErrorLog
+                                    }
+                                  >
+                                    {impactOptions.map((i: LabelValue) => (
+                                      <MenuItem value={i.value} key={i.value}>
+                                        {i.label}
+                                      </MenuItem>
+                                    ))}
+                                  </Select>
+                                  {impactWorklogsErr[index] && (
                                     <FormHelperText>
                                       This is a required field.
                                     </FormHelperText>

@@ -33,7 +33,7 @@ interface CommentsData {
   TicketId: number;
   SubmitBy: number;
   Message: string;
-  TaggedUsers: number[] | null;
+  TaggedUsers: string | null;
   Attachments:
     | {
         IsRemoved: boolean;
@@ -377,6 +377,7 @@ const Comments = ({
                   {comment.IsEdited && "Edited"}
                   <div
                     className={`flex items-center justify-center gap-3 ${
+                      comment.CommentId === editComment &&
                       editCommentAttachment.length > 0 &&
                       editCommentAttachment.filter(
                         (attachment: any) => attachment.uploading
@@ -394,7 +395,13 @@ const Comments = ({
                           : handleSaveComment(e);
                       } else {
                         setEditComment(comment.CommentId);
-                        setEditMention(comment.TaggedUsers || []);
+                        setEditMention(
+                          !!comment.TaggedUsers
+                            ? comment.TaggedUsers.split(",").map((num) =>
+                                num.trim()
+                              )
+                            : []
+                        );
                         setValueEdit(comment.Message);
                         setEditCommentAttachment(
                           !!comment.Attachments ? comment.Attachments : []
