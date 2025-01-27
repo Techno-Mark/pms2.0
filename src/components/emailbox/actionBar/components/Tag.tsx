@@ -3,31 +3,28 @@ import { toast } from "react-toastify";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { List, Popover, TextField } from "@mui/material";
 import { callAPI } from "@/utils/API/callAPI";
-import { getTagData } from "@/utils/commonDropdownApiCall";
 import { TagSharp } from "@mui/icons-material";
 
 const Tag = ({
   selectedRowIds,
   getData,
   getOverLay,
+  tagDropdown,
+  getTagDropdownData,
 }: {
   selectedRowIds: number[];
   getData: () => void;
   getOverLay: (e: boolean) => void;
+  tagDropdown: { label: string; value: string }[];
+  getTagDropdownData: () => void;
 }) => {
   const [anchorElTag, setAnchorElTag] =
     React.useState<HTMLButtonElement | null>(null);
-  const [tagOptions, setTagOptions] = useState([]);
   const [newTagName, setNewTagName] = useState("");
   const [inputError, setInputError] = useState(false);
 
   const handleClickTag = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorElTag(event.currentTarget);
-    const getTag = async () => {
-      setTagOptions(await getTagData());
-    };
-
-    getTag();
   };
 
   const handleCloseTag = () => {
@@ -40,7 +37,7 @@ const Tag = ({
   const idTag = openTag ? "simple-popover" : undefined;
 
   const handleOptionTag = (id: string) => {
-    updateTag(selectedRowIds, id);
+    updateTag(selectedRowIds, id, false);
     handleCloseTag();
   };
 
@@ -49,14 +46,18 @@ const Tag = ({
       if (!newTagName.trim()) {
         setInputError(true);
       } else {
-        updateTag(selectedRowIds, newTagName.trim());
+        updateTag(selectedRowIds, newTagName.trim(), true);
         setInputError(false);
         handleCloseTag();
       }
     }
   };
 
-  const updateTag = async (id: number[], tagName: string) => {
+  const updateTag = async (
+    id: number[],
+    tagName: string,
+    isNewTag: boolean
+  ) => {
     getOverLay(true);
     const params = {
       TicketIds: id,
@@ -71,6 +72,7 @@ const Tag = ({
       if (ResponseStatus === "Success" && error === false) {
         toast.success("Tag has been updated successfully.");
         getData();
+        isNewTag && getTagDropdownData();
         getOverLay(false);
       } else if (ResponseStatus === "Warning" && error === false) {
         toast.warning(ResponseData);
@@ -120,7 +122,7 @@ const Tag = ({
               placeholder="Enter new tag"
               value={newTagName}
               onChange={(e) => {
-                e.target.value.trim().length <= 20 &&
+                e.target.value.trim().length <= 25 &&
                   setNewTagName(e.target.value);
                 setInputError(false);
               }}
@@ -131,19 +133,20 @@ const Tag = ({
           </div>
           {/* Tag Options */}
           <List>
-            {tagOptions.map((option: { value: string; label: string }) => (
-              <span
-                key={option.value}
-                className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
-              >
+            {tagDropdown.length > 0 &&
+              tagDropdown.map((option: { value: string; label: string }) => (
                 <span
-                  className="p-1 cursor-pointer"
-                  onClick={() => handleOptionTag(option.value)}
+                  key={option.value}
+                  className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                 >
-                  {option.label}
+                  <span
+                    className="p-1 cursor-pointer"
+                    onClick={() => handleOptionTag(option.value)}
+                  >
+                    {option.label}
+                  </span>
                 </span>
-              </span>
-            ))}
+              ))}
           </List>
         </nav>
       </Popover>

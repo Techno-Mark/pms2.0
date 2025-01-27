@@ -46,6 +46,9 @@ const UnprocessedTable = ({
   filteredData,
   searchValue,
   onDataFetch,
+  getTabData,
+  handleDrawerOpen,
+  getId,
 }: EmailBoxProps) => {
   const [loading, setLoading] = useState(false);
   const [fileds, setFileds] = useState<FieldsType>({
@@ -188,6 +191,63 @@ const UnprocessedTable = ({
           },
         },
       };
+    } else if (column.name === "Subject") {
+      return {
+        name: "Subject",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Subject"),
+          customBodyRender: (value: string, tableMeta: any) => {
+            const shortProcessName =
+              value !== null &&
+              value !== undefined &&
+              value !== "" &&
+              value !== "0" &&
+              value.length > 20
+                ? value.slice(0, 20)
+                : value;
+
+            return (
+              <div
+                className="ml-2 text-[#0592C6] cursor-pointer"
+                onClick={() => {
+                  handleDrawerOpen?.();
+                  getId?.(
+                    tableMeta.rowData[0],
+                    tableMeta.rowData[tableMeta.rowData.length - 1]
+                  );
+                }}
+              >
+                {!value ||
+                value === "0" ||
+                value === null ||
+                value === "null" ? (
+                  "-"
+                ) : value.length > 20 ? (
+                  <>
+                    <ColorToolTip title={value} placement="top">
+                      <span>{shortProcessName}</span>
+                    </ColorToolTip>
+                    <span>...</span>
+                  </>
+                ) : (
+                  shortProcessName
+                )}
+              </div>
+            );
+          },
+        },
+      };
+    } else if (column.name === "ClientId") {
+      return {
+        name: "ClientId",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
     } else {
       return generateCustomColumn(
         column.name,
@@ -207,6 +267,7 @@ const UnprocessedTable = ({
     selectedRowIds,
     getData,
     handleClearSelection,
+    getTabData,
   };
 
   return (

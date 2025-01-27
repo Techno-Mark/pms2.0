@@ -4,6 +4,9 @@ export interface EmailBoxProps {
   onDataFetch: (getData: () => void) => void;
   handleDrawerOpen?: () => void;
   getId?: (id: number, id1: number) => void;
+  getTabData?: () => void;
+  tagDropdown?: { label: string; value: string }[];
+  getTagDropdownData?: () => void;
 }
 
 export interface EmailBoxFilterProps {

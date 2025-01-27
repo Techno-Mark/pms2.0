@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { callAPI } from "@/utils/API/callAPI";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import ReportLoader from "@/components/common/ReportLoader";
-import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { ColorToolTip, getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { TablePagination, ThemeProvider } from "@mui/material";
 import { FieldsType } from "@/components/reports/types/FieldsType";
 import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
@@ -20,7 +20,6 @@ import {
 } from "@/utils/datatable/CommonFunction";
 import { inboxColsConfig } from "@/utils/datatable/columns/EmailBoxDatatableColumns";
 import OverLay from "@/components/common/OverLay";
-import InboxActionBar from "../actionBar/InboxActionBar";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -45,6 +44,8 @@ const SentEmailTable = ({
   filteredData,
   searchValue,
   onDataFetch,
+  handleDrawerOpen,
+  getId,
 }: EmailBoxProps) => {
   const [loading, setLoading] = useState(false);
   const [fileds, setFileds] = useState<FieldsType>({
@@ -181,6 +182,157 @@ const SentEmailTable = ({
               </div>
             );
           },
+        },
+      };
+    } else if (column.name === "EmailTypeTAT") {
+      return {
+        name: "EmailTypeTAT",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          customHeadLabelRender: () => generateCustomHeaderName("SLA Time"),
+          customBodyRender: (value: number) => {
+            return (
+              <>
+                {!!value ? (
+                  <div className={`flex items-center justify-center`}>
+                    {`${value < 0 ? "-" : ""}${String(
+                      Math.floor(Math.abs(value) / 3600)
+                    ).padStart(2, "0")}:${String(
+                      Math.floor((Math.abs(value) % 3600) / 60)
+                    ).padStart(2, "0")}:${String(Math.abs(value) % 60).padStart(
+                      2,
+                      "0"
+                    )}`}
+                  </div>
+                ) : (
+                  "-"
+                )}
+              </>
+            );
+          },
+        },
+      };
+    } else if (column.name === "TotalTimeSpent") {
+      return {
+        name: "TotalTimeSpent",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
+          customBodyRender: (value: number, tableMeta: any) => {
+            return (
+              <>
+                {!!value ? (
+                  <div className={`flex items-center justify-center`}>
+                    {`${value < 0 ? "-" : ""}${String(
+                      Math.floor(Math.abs(value) / 3600)
+                    ).padStart(2, "0")}:${String(
+                      Math.floor((Math.abs(value) % 3600) / 60)
+                    ).padStart(2, "0")}:${String(Math.abs(value) % 60).padStart(
+                      2,
+                      "0"
+                    )}`}
+                  </div>
+                ) : (
+                  "-"
+                )}
+              </>
+            );
+          },
+        },
+      };
+    } else if (column.name === "TagList") {
+      return {
+        name: "TagList",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Tag"),
+          customBodyRender: (value: string[], tableMeta: any) => {
+            return value.length <= 0 ? (
+              "-"
+            ) : (
+              <div className="flex items-center justify-start gap-2">
+                {value.map((item, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      backgroundColor: "#e0e0e0",
+                      borderRadius: "12px",
+                      padding: "4px 8px",
+                      fontSize: "14px",
+                      cursor: "default",
+                    }}
+                  >
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            );
+          },
+        },
+      };
+    } else if (column.name === "Subject") {
+      return {
+        name: "Subject",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Subject"),
+          customBodyRender: (value: string, tableMeta: any) => {
+            const shortProcessName =
+              value !== null &&
+              value !== undefined &&
+              value !== "" &&
+              value !== "0" &&
+              value.length > 20
+                ? value.slice(0, 20)
+                : value;
+
+            return (
+              <div
+                className="ml-2 text-[#0592C6] cursor-pointer"
+                onClick={() => {
+                  handleDrawerOpen?.();
+                  getId?.(
+                    tableMeta.rowData[0],
+                    tableMeta.rowData[tableMeta.rowData.length - 1]
+                  );
+                }}
+              >
+                {!value ||
+                value === "0" ||
+                value === null ||
+                value === "null" ? (
+                  "-"
+                ) : value.length > 20 ? (
+                  <>
+                    <ColorToolTip title={value} placement="top">
+                      <span>{shortProcessName}</span>
+                    </ColorToolTip>
+                    <span>...</span>
+                  </>
+                ) : (
+                  shortProcessName
+                )}
+              </div>
+            );
+          },
+        },
+      };
+    } else if (column.name === "ClientId") {
+      return {
+        name: "ClientId",
+        options: {
+          display: false,
+          viewColumns: false,
         },
       };
     } else {

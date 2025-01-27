@@ -16,6 +16,7 @@ import SentEmailTable from "@/components/emailbox/tables/SentEmailTable";
 import UnprocessedTable from "@/components/emailbox/tables/UnProcessedTable";
 import DrawerOverlay from "@/components/settings/drawer/DrawerOverlay";
 import { callAPI } from "@/utils/API/callAPI";
+import { getTagData } from "@/utils/commonDropdownApiCall";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { InputBase } from "@mui/material";
@@ -104,6 +105,17 @@ const page = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [clientId, setClientId] = useState(0);
   const [ticketId, setTicketId] = useState(0);
+  const [tagDropdown, setTagDropdown] = useState<
+    { label: string; value: string }[]
+  >([]);
+
+  const getTagDropdownData = async () => {
+    setTagDropdown(await getTagData());
+  };
+
+  useEffect(() => {
+    getTagDropdownData();
+  }, []);
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -392,6 +404,8 @@ const page = () => {
           onDataFetch={handleDataFetch}
           handleDrawerOpen={handleDrawerOpen}
           getId={getId}
+          tagDropdown={tagDropdown}
+          getTagDropdownData={getTagDropdownData}
         />
       )}
 
@@ -400,6 +414,9 @@ const page = () => {
           searchValue={searchValue}
           filteredData={filteredData}
           onDataFetch={handleDataFetch}
+          getTabData={getTabData}
+          handleDrawerOpen={handleDrawerOpen}
+          getId={getId}
         />
       )}
 
@@ -408,6 +425,11 @@ const page = () => {
           searchValue={searchValue}
           filteredData={filteredData}
           onDataFetch={handleDataFetch}
+          tagDropdown={tagDropdown}
+          getTagDropdownData={getTagDropdownData}
+          handleDrawerOpen={handleDrawerOpen}
+          getId={getId}
+          getTabData={getTabData}
         />
       )}
 
@@ -416,6 +438,8 @@ const page = () => {
           searchValue={searchValue}
           filteredData={filteredData}
           onDataFetch={handleDataFetch}
+          handleDrawerOpen={handleDrawerOpen}
+          getId={getId}
         />
       )}
 
@@ -424,6 +448,8 @@ const page = () => {
           searchValue={searchValue}
           filteredData={filteredData}
           onDataFetch={handleDataFetch}
+          handleDrawerOpen={handleDrawerOpen}
+          getId={getId}
         />
       )}
 
@@ -432,6 +458,7 @@ const page = () => {
           searchValue={searchValue}
           filteredData={filteredData}
           onDataFetch={handleDataFetch}
+          getTabData={getTabData}
         />
       )}
 
@@ -448,6 +475,7 @@ const page = () => {
         sendFilterToPage={handleFilterData}
         onDialogClose={handleFilter}
         activeTab={activeTab}
+        tagDropdown={tagDropdown}
       />
 
       <EmailBoxDrawer
@@ -456,6 +484,9 @@ const page = () => {
         onClose={handleDrawerClose}
         clientId={clientId}
         ticketId={ticketId}
+        activeTabList={activeTab}
+        tagDropdown={tagDropdown}
+        getTagDropdownData={getTagDropdownData}
       />
 
       <DrawerOverlay isOpen={openDrawer} onClose={handleDrawerClose} />

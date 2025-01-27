@@ -12,29 +12,20 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { getFormattedDate } from "@/utils/timerFunctions";
 
-const History = ({ activeTab }: { activeTab: number }) => {
+const History = ({
+  activeTab,
+  ticketId,
+}: {
+  activeTab: number;
+  ticketId: number;
+}) => {
   const [historyData, setHistoryData] = useState<{
     loaded: boolean;
     data: any;
     tableDataCount: number;
   }>({
     loaded: true,
-    data: [
-      {
-        DateTime: "12-02-2024",
-        User: "Godfray",
-        Type: "Status Change",
-        OldValue: "Open",
-        NewValue: "In Progress",
-      },
-      {
-        DateTime: "12-08-2024",
-        User: "HLS",
-        Type: "Status Change",
-        OldValue: "Close",
-        NewValue: "Open",
-      },
-    ],
+    data: [],
     tableDataCount: 0,
   });
   const [fromDate, setFromDate] = useState("");
@@ -50,7 +41,6 @@ const History = ({ activeTab }: { activeTab: number }) => {
       ...historyData,
       loaded: false,
     });
-    const params = {};
     const url = `${process.env.emailbox_api_url}/emailbox/GetTicketDetails`;
     const successCallback = (
       ResponseData: any,
@@ -61,8 +51,8 @@ const History = ({ activeTab }: { activeTab: number }) => {
         setHistoryData({
           ...historyData,
           loaded: true,
-          data: ResponseData.List,
-          tableDataCount: ResponseData.TotalCount,
+          data: ResponseData.TicketHistory,
+          tableDataCount: ResponseData.TicketHistory.length,
         });
       } else {
         setHistoryData({
@@ -71,7 +61,28 @@ const History = ({ activeTab }: { activeTab: number }) => {
         });
       }
     };
-    callAPI(url, params, successCallback, "POST");
+    callAPI(
+      url,
+      {
+        TicketId: ticketId,
+        TabId: 4,
+        AttachmentType: 0,
+        FromDate:
+          fromDate.toString().trim().length <= 0
+            ? toDate.toString().trim().length <= 0
+              ? null
+              : getFormattedDate(toDate)
+            : getFormattedDate(fromDate),
+        ToDate:
+          toDate.toString().trim().length <= 0
+            ? fromDate.toString().trim().length <= 0
+              ? null
+              : getFormattedDate(fromDate)
+            : getFormattedDate(toDate),
+      },
+      successCallback,
+      "POST"
+    );
   };
 
   useEffect(() => {
@@ -83,17 +94,17 @@ const History = ({ activeTab }: { activeTab: number }) => {
 
   const historyColConfig = [
     {
-      name: "DateTime",
+      name: "UpdatedOn",
       label: "Date & Time",
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      name: "User",
+      name: "UpdatedBy",
       label: "User",
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      name: "Type",
+      name: "Field",
       label: "Type",
       bodyRenderer: generateCommonBodyRender,
     },
@@ -123,7 +134,7 @@ const History = ({ activeTab }: { activeTab: number }) => {
             <DatePicker
               label="From"
               // shouldDisableDate={isWeekend}
-              maxDate={dayjs(toDate) || dayjs(Date.now())}
+              maxDate={!!toDate ? dayjs(toDate) : dayjs(Date.now())}
               value={fromDate === "" ? null : dayjs(fromDate)}
               onChange={(newValue: any) => setFromDate(newValue)}
               slotProps={{

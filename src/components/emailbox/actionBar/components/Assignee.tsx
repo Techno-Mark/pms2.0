@@ -13,11 +13,13 @@ const Assignee = ({
   getData,
   getOverLay,
   selectedRowClientId,
+  handleClearSelection,
 }: {
   selectedRowIds: number[];
   selectedRowClientId: number[];
   getData: () => void;
   getOverLay: (e: boolean) => void;
+  handleClearSelection: () => void;
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [assignee, setAssignee] = useState<LabelValue[]>([]);
@@ -74,6 +76,7 @@ const Assignee = ({
         toast.success("Assignee has been updated successfully.");
         getData();
         getOverLay(false);
+        handleClearSelection();
       } else if (ResponseStatus === "Warning" && error === false) {
         toast.warning(ResponseData);
         getData();

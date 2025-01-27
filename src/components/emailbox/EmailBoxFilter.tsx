@@ -56,13 +56,14 @@ interface SavedFilter {
     ReceivedTo: string | null;
   };
 }
-const timesheet = 1;
+const emailBoxFilterType = 27;
 
 const EmailBoxFilter = ({
   isFiltering,
   sendFilterToPage,
   onDialogClose,
   activeTab,
+  tagDropdown,
 }: FilterType) => {
   const [client, setClient] = useState<LabelValue | null>(null);
   const [clientDropdown, setClientDropdown] = useState<LabelValue[]>([]);
@@ -73,9 +74,6 @@ const EmailBoxFilter = ({
   const [emailTypeDropdown, setEmailTypeDropdown] = useState<LabelValue[]>([]);
   const [tagNames, setTagNames] = useState<string[]>([]);
   const [tags, setTags] = useState<{ label: string; value: string }[]>([]);
-  const [tagDropdown, setTagDropdown] = useState<
-    { label: string; value: string }[]
-  >([]);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
   const [filterName, setFilterName] = useState<string>("");
@@ -208,7 +206,7 @@ const EmailBoxFilter = ({
                 : getFormattedDate(startDate)
               : getFormattedDate(endDate),
         },
-        type: timesheet,
+        type: emailBoxFilterType,
       };
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
@@ -251,14 +249,13 @@ const EmailBoxFilter = ({
       setClientDropdown(await getClientDropdownData());
       setEmailTypeDropdown(await getEmailTypeData());
       setAssigneeDropdown(await getCCDropdownData());
-      setTagDropdown(await getTagData());
     };
     userDropdowns();
   }, []);
 
   const getFilterList = async () => {
     const params = {
-      type: timesheet,
+      type: emailBoxFilterType,
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (

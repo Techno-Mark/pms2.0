@@ -33,7 +33,7 @@ const CustomActionBar = ({
           <Card
             className={`rounded-full flex border p-2 border-[#1976d2] absolute shadow-lg ${
               selectedRowsCount === 1 ? "w-[82%]" : "w-[73%]"
-            } ${small && "!w-[50%]"} bottom-12 -translate-y-1/2`}
+            } ${small && "!w-[60%]"} bottom-12 -translate-y-1/2`}
           >
             <div className="flex flex-row w-full">
               <div className="pt-1 pl-2 flex w-[25%]">

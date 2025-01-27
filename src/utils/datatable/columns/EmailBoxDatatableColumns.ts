@@ -47,6 +47,16 @@ export const inboxColsConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
+    name: "EmailTypeTAT",
+    label: "SLA Time",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TotalTimeSpent",
+    label: "Total Time",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     name: "AssignByName",
     label: "Assigned By",
     bodyRenderer: generateCommonBodyRender,
@@ -70,6 +80,13 @@ export const inboxColsConfig = [
     name: "DepartmentNames",
     label: "Department",
     bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ClientId",
+    options: {
+      display: false,
+      viewColumns: false,
+    },
   },
 ];
 
@@ -143,6 +160,13 @@ export const unProcessedColsConfig = [
     name: "DepartmentNames",
     label: "Department",
     bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ClientId",
+    options: {
+      display: false,
+      viewColumns: false,
+    },
   },
 ];
 

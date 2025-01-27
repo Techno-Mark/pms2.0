@@ -46,6 +46,7 @@ const JunkEmailTable = ({
   filteredData,
   searchValue,
   onDataFetch,
+  getTabData,
 }: EmailBoxProps) => {
   const [loading, setLoading] = useState(false);
   const [fileds, setFileds] = useState<FieldsType>({
@@ -184,6 +185,14 @@ const JunkEmailTable = ({
           },
         },
       };
+    } else if (column.name === "ClientId") {
+      return {
+        name: "ClientId",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
     } else {
       return generateCustomColumn(
         column.name,
@@ -193,7 +202,10 @@ const JunkEmailTable = ({
     }
   };
 
-  const inboxCols = inboxColsConfig.map((col: any) => {
+  const inboxCols = [
+    ...inboxColsConfig.slice(0, 8),
+    ...inboxColsConfig.slice(10),
+  ].map((col: any) => {
     return generateConditionalColumn(col);
   });
 
@@ -203,6 +215,7 @@ const JunkEmailTable = ({
     selectedRowIds,
     getData,
     handleClearSelection,
+    getTabData,
   };
 
   return (

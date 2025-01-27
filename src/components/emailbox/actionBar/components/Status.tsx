@@ -87,8 +87,9 @@ const Status = ({
       >
         <nav className="!w-52">
           <List>
-            {emailBoxStatusOptions.map(
-              (option: { value: number; label: string }) => (
+            {emailBoxStatusOptions
+              .filter((i) => i.value !== 1)
+              .map((option: { value: number; label: string }) => (
                 <span
                   key={option.value}
                   className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
@@ -100,8 +101,7 @@ const Status = ({
                     {generateEmailboxStatusWithColor(option.label)}
                   </span>
                 </span>
-              )
-            )}
+              ))}
           </List>
         </nav>
       </Popover>

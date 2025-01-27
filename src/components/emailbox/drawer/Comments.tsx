@@ -56,6 +56,7 @@ const Comments = ({
 }) => {
   const isCalledRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRefEdit = useRef<HTMLInputElement>(null);
   const commentsEndRef = useRef<HTMLDivElement | null>(null);
   const [commentUserData, setCommentUserData] = useState<LabelValue[]>([]);
   const [loading, setLoading] = useState(false);
@@ -228,6 +229,8 @@ const Comments = ({
         TicketId: ticketId,
         TabId: 2,
         AttachmentType: 0,
+        FromDate: null,
+        ToDate: null,
       },
       successCallback,
       "POST"
@@ -438,13 +441,13 @@ const Comments = ({
                     <ColorToolTip title="Attachment" placement="top" arrow>
                       <span
                         className={`text-white cursor-pointer max-w-1 mt-6`}
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={() => fileInputRefEdit.current?.click()}
                       >
                         <FileIconUpload />
                         <input
                           type="file"
                           accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
-                          ref={fileInputRef}
+                          ref={fileInputRefEdit}
                           className="input-field hidden"
                           onChange={(e) => handleImageChange(e, true)}
                           multiple
@@ -464,7 +467,9 @@ const Comments = ({
                             <FileIcon fileName={attachment?.UserFileName} />
                             {attachment?.UserFileName}
                             {attachment?.uploading ? (
-                              <Loading />
+                              <div className="!w-fit m-0 p-0">
+                                <Loading />
+                              </div>
                             ) : (
                               <span
                                 className="cursor-pointer"
@@ -516,7 +521,9 @@ const Comments = ({
                         <FileIcon fileName={attachment?.UserFileName} />
                         {attachment?.UserFileName}
                         {attachment?.uploading ? (
-                          <Loading />
+                          <div className="!w-fit m-0 p-0">
+                            <Loading />
+                          </div>
                         ) : (
                           <span
                             className="cursor-pointer"
@@ -542,7 +549,7 @@ const Comments = ({
         </div>
       ) : (
         <div className="flex-grow flex items-center justify-center">
-          No data found.
+          No comments yet.
         </div>
       )}
       <div className="sticky bottom-2">
@@ -569,7 +576,10 @@ const Comments = ({
               <ColorToolTip title="Attachment" placement="top" arrow>
                 <span
                   className={`text-white cursor-pointer max-w-1 mt-6`}
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => {
+                    console.log("hi");
+                    fileInputRef.current?.click();
+                  }}
                 >
                   <FileIconUpload />
                   <input
@@ -635,7 +645,9 @@ const Comments = ({
                   <FileIcon fileName={attachment?.UserFileName} />
                   {attachment?.UserFileName}
                   {attachment?.uploading ? (
-                    <Loading />
+                    <div className="!w-fit m-0 p-0">
+                      <Loading />
+                    </div>
                   ) : (
                     <span
                       className="cursor-pointer"

@@ -13,11 +13,13 @@ const Client = ({
   getData,
   getOverLay,
   handleClearSelection,
+  getTabData,
 }: {
   selectedRowIds: number[];
   getData: () => void;
   getOverLay: (e: boolean) => void;
   handleClearSelection: () => void;
+  getTabData: () => void;
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [client, setClient] = useState<LabelValue[]>([]);
@@ -66,6 +68,7 @@ const Client = ({
         handleClearSelection();
         getData();
         getOverLay(false);
+        getTabData();
       } else if (ResponseStatus === "Warning" && error === false) {
         toast.warning(ResponseData);
         handleClearSelection();

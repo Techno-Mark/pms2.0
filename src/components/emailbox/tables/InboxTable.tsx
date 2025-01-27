@@ -52,6 +52,8 @@ const InboxTable = ({
   onDataFetch,
   handleDrawerOpen,
   getId,
+  tagDropdown,
+  getTagDropdownData,
 }: EmailBoxProps) => {
   const [loading, setLoading] = useState(false);
   const [fileds, setFileds] = useState<FieldsType>({
@@ -75,6 +77,9 @@ const InboxTable = ({
   const [selectedRowEmailType, setSelectedRowEmailType] = useState<
     number[] | []
   >([]);
+  const [selectedRowAssignee, setSelectedRowAssignee] = useState<number[] | []>(
+    []
+  );
 
   const getData = async () => {
     setFileds({
@@ -163,12 +168,21 @@ const InboxTable = ({
 
     const selectedWorkItemEmailType =
       selectedData.length > 0
-        ? selectedData.map(
-            (selectedRow: EmailBoxListResponseList) => selectedRow?.EmailType
+        ? selectedData.map((selectedRow: EmailBoxListResponseList) =>
+            selectedRow?.EmailType === null ? 0 : selectedRow?.EmailType
           )
         : [];
 
     setSelectedRowEmailType(selectedWorkItemEmailType);
+
+    const selectedWorkItemAssignTo =
+      selectedData.length > 0
+        ? selectedData.map((selectedRow: EmailBoxListResponseList) =>
+            selectedRow?.AssignTo === null ? 0 : selectedRow?.AssignTo
+          )
+        : [];
+
+    setSelectedRowAssignee(selectedWorkItemAssignTo);
 
     setIsPopupOpen(allRowsSelected);
   };
@@ -179,6 +193,7 @@ const InboxTable = ({
     setIsPopupOpen([]);
     setSelectedRowClientId([]);
     setSelectedRowEmailType([]);
+    setSelectedRowAssignee([]);
   };
 
   useEffect(() => {
@@ -255,9 +270,9 @@ const InboxTable = ({
             generateCustomHeaderName("Create Task Icon"),
           customBodyRender: (value: number, tableMeta: any) => {
             const isAllowed =
-              tableMeta.rowData[6] === "In Progress" ||
-              tableMeta.rowData[6] === "Waiting For Client" ||
-              tableMeta.rowData[6] === "Closed";
+              tableMeta.rowData[tableMeta.rowData.length - 2] === 2 ||
+              tableMeta.rowData[tableMeta.rowData.length - 2] === 3 ||
+              tableMeta.rowData[tableMeta.rowData.length - 2] === 5;
             return (
               <div
                 className={`${
@@ -322,16 +337,18 @@ const InboxTable = ({
                       2,
                       "0"
                     )}`}
-                    <ColorToolTip title="Sync" placement="top" arrow>
-                      <span
-                        className="cursor-pointer"
-                        onClick={() => {
-                          getSyncTime(tableMeta.rowData[0]);
-                        }}
-                      >
-                        <RestartButton />
-                      </span>
-                    </ColorToolTip>
+                    {tableMeta.rowData[tableMeta.rowData.length - 2] !== 1 && (
+                      <ColorToolTip title="Sync" placement="top" arrow>
+                        <span
+                          className="cursor-pointer"
+                          onClick={() => {
+                            getSyncTime(tableMeta.rowData[0]);
+                          }}
+                        >
+                          <RestartButton />
+                        </span>
+                      </ColorToolTip>
+                    )}
                   </div>
                 ) : (
                   "-"
@@ -445,6 +462,14 @@ const InboxTable = ({
           viewColumns: false,
         },
       };
+    } else if (column.name === "Status") {
+      return {
+        name: "Status",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
     } else {
       return generateCustomColumn(
         column.name,
@@ -455,30 +480,20 @@ const InboxTable = ({
   };
 
   const inboxCols = [
-    ...inboxColsConfig.slice(0, 8),
-    {
-      name: "EmailTypeTAT",
-      label: "SLA Time",
-      bodyRenderer: generateCommonBodyRender,
-    },
-    {
-      name: "TotalTimeSpent",
-      label: "Total Time",
-      bodyRenderer: generateCommonBodyRender,
-    },
-    ...inboxColsConfig.slice(8),
+    ...inboxColsConfig.slice(0, inboxColsConfig.length - 2),
     {
       name: "UpdatedBy",
       label: "Create Task Icon",
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      name: "ClientId",
+      name: "Status",
       options: {
         display: false,
         viewColumns: false,
       },
     },
+    ...inboxColsConfig.slice(inboxColsConfig.length - 2),
   ].map((col: any) => {
     return generateConditionalColumn(col);
   });
@@ -489,8 +504,11 @@ const InboxTable = ({
     selectedRowIds,
     selectedRowClientId,
     selectedRowEmailType,
+    selectedRowAssignee,
     getData,
     handleClearSelection,
+    tagDropdown,
+    getTagDropdownData,
   };
 
   return (

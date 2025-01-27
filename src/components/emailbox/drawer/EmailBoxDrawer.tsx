@@ -19,6 +19,9 @@ interface EmailBoxDrawerProps {
   onDataFetch: (() => void) | null;
   clientId: number;
   ticketId: number;
+  activeTabList: number;
+  tagDropdown: { label: string; value: string }[];
+  getTagDropdownData: () => void;
 }
 
 const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
@@ -27,6 +30,9 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
   onDataFetch,
   clientId,
   ticketId,
+  activeTabList,
+  tagDropdown,
+  getTagDropdownData,
 }) => {
   const clientRef = useRef<EmailDataContenRef>(null);
   const conversationRef = useRef<ConversationDataContenRef>(null);
@@ -40,6 +46,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
     // { label: "History", Count: 0, TabId: 4 },
   ]);
   const [ticketDetails, setTicketDetails] = useState<any>(null);
+  const [createTask, setCreateTask] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [syncTime, setSyncTime] = useState(0);
 
@@ -56,6 +63,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
     setActiveTab(0);
     setTabs([]);
     setTicketDetails(null);
+    setCreateTask(false);
     onClose();
   };
 
@@ -70,6 +78,15 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
       if (ResponseStatus === "Success" && error === false) {
         setTabs(ResponseData.Tabs);
         setTicketDetails(ResponseData.TicketDetails);
+        setCreateTask(
+          !ResponseData.TicketDetails.Assignee ||
+            !ResponseData.TicketDetails.DueDate ||
+            !ResponseData.TicketDetails.EmailType ||
+            !ResponseData.TicketDetails.Priority ||
+            !ResponseData.TicketDetails.Status ||
+            !ResponseData.TicketDetails.ApprovalId ||
+            ResponseData.TicketDetails.Tags.length <= 0
+        );
         setSyncTime(ResponseData.TicketDetails.RemainingSyncTime);
         open && setActiveTab(1);
       }
@@ -122,8 +139,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
                   ? `${ticketDetails.Subject.slice(0, 30)}...`
                   : ticketDetails.Subject)}
             </ColorToolTip>{" "}
-            - {tabs.find((i) => i.label === "Attachment")?.Count || 0}{" "}
-            Attachments
+            - {!!ticketDetails && ticketDetails.AttachmentCount} Attachments
           </span>
           <span className="flex items-center gap-1 text-lg text-[#02B89D]">
             <AlarmIcon />
@@ -135,11 +151,13 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
               2,
               "0"
             )}`}
-            <ColorToolTip title="Sync" placement="top" arrow>
-              <span onClick={() => getSyncTime()} className="cursor-pointer">
-                <RestartButton />
-              </span>
-            </ColorToolTip>
+            {activeTabList !== 2 && (
+              <ColorToolTip title="Sync" placement="top" arrow>
+                <span onClick={() => getSyncTime()} className="cursor-pointer">
+                  <RestartButton />
+                </span>
+              </ColorToolTip>
+            )}
           </span>
         </div>
         <Tooltip title="Close" placement="top" arrow>
@@ -152,7 +170,10 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
       <div className="pl-4 gap-1 border-t border-b border-gray-200 flex items-center justify-between">
         <div className="flex items-center justify-center pt-2">
           {tabs.length > 0 &&
-            tabs.map((tab) => (
+            (activeTabList !== 2
+              ? tabs
+              : [...tabs.slice(0, 1), ...tabs.slice(2, 3)]
+            ).map((tab) => (
               <p
                 key={tab.TabId}
                 className={`cursor-pointer px-4 py-2 ${
@@ -178,16 +199,23 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
               <span className="pt-1">Submit for Approval</span>
             </span>
           </Button> */}
-          <Button
-            variant="contained"
-            className="rounded-[4px] !h-[36px] !bg-secondary mr-2"
-            onClick={handleTaskCreate}
-          >
-            <span className="flex items-center gap-[10px] px-[5px]">
-              <AddPlusIcon />
-              <span className="pt-1">Create Task</span>
-            </span>
-          </Button>
+          {activeTabList !== 2 && (
+            <Button
+              variant="contained"
+              className={`rounded-[4px] !h-[36px] ${
+                createTask
+                  ? "bg-gray-500 !cursor-not-allowed"
+                  : "!bg-secondary cursor-pointer"
+              } mr-2`}
+              onClick={handleTaskCreate}
+              disabled={createTask}
+            >
+              <span className="flex items-center gap-[10px] px-[5px]">
+                <AddPlusIcon color={createTask ? "gray" : "white"} />
+                <span className="pt-1">Create Task</span>
+              </span>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -198,12 +226,16 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
         <div className="bg-white w-[30%] h-full">
           <EmailData
             ref={clientRef}
+            onOpen={onOpen}
             activeTab={activeTab}
             clientId={clientId}
             ticketId={ticketId}
             ticketDetails={ticketDetails}
             getTicketDetails={getTicketDetails}
             setOverlayOpen={setOverlayOpen}
+            tagDropdown={tagDropdown}
+            getTagDropdownData={getTagDropdownData}
+            isDisabled={activeTabList === 2}
           />
         </div>
         <div className="w-[70%] h-full">
@@ -225,7 +257,9 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
           ) : activeTab === 3 ? (
             <Attachments activeTab={activeTab} ticketId={ticketId} />
           ) : (
-            activeTab === 4 && <History activeTab={activeTab} />
+            activeTab === 4 && (
+              <History activeTab={activeTab} ticketId={ticketId} />
+            )
           )}
         </div>
       </div>

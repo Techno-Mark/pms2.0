@@ -69,6 +69,8 @@ const Attachments = ({
         TicketId: ticketId,
         TabId: 3,
         AttachmentType: AttachmentType,
+        FromDate: null,
+        ToDate: null,
       },
       successCallback,
       "POST"
@@ -290,15 +292,17 @@ const Attachments = ({
             )}
           />
         </FormControl>
-        <ColorToolTip
-          title="Download"
-          placement="top"
-          arrow
-          className="cursor-pointer"
-          onClick={handleDownloadAll}
-        >
-          <Download />
-        </ColorToolTip>
+        {historyData.data.length > 0 && (
+          <ColorToolTip
+            title="Download"
+            placement="top"
+            arrow
+            className="cursor-pointer"
+            onClick={handleDownloadAll}
+          >
+            <Download />
+          </ColorToolTip>
+        )}
       </div>
       {historyData.loaded ? (
         <ThemeProvider theme={getMuiTheme()}>

@@ -47,6 +47,10 @@ const EmailData = forwardRef<
       OriginalMessgeId: string;
     };
     getTicketDetails: () => void;
+    tagDropdown: { label: string; value: string }[];
+    getTagDropdownData: () => void;
+    onOpen: boolean;
+    isDisabled: boolean;
   }
 >(
   (
@@ -57,39 +61,46 @@ const EmailData = forwardRef<
       ticketDetails,
       setOverlayOpen,
       getTicketDetails,
+      tagDropdown,
+      getTagDropdownData,
+      onOpen,
+      isDisabled,
     },
     ref
   ) => {
     const [assignee, setAssignee] = useState<number>(0);
+    const [assigneeErr, setAssigneeErr] = useState<boolean>(false);
     const [assigneeDropdown, setAssigneeDropdown] = useState<LabelValue[]>([]);
     const [status, setStatus] = useState<number>(0);
     const [dueDate, setDueDate] = useState<string>("");
     const [emailType, setEmailType] = useState<number>(0);
+    const [emailTypeErr, setEmailTypeErr] = useState<boolean>(false);
     const [emailTypeDropdown, setEmailTypeDropdown] = useState<LabelValue[]>(
       []
     );
     const [priority, setPriority] = useState<number>(0);
+    const [priorityErr, setPriorityErr] = useState<boolean>(false);
     const [tagNames, setTagNames] = useState<string[]>([]);
     const [tags, setTags] = useState<{ label: string; value: string }[]>([]);
     const [inputValue, setInputValue] = useState("");
-    const [tagDropdown, setTagDropdown] = useState<
-      { label: string; value: string }[]
-    >([]);
+    const [tagData, setTagData] = useState<{ label: string; value: string }[]>(
+      []
+    );
     const [rmUser, setRMUser] = useState<number>(0);
+    const [rmUserErr, setRMUserErr] = useState<boolean>(false);
     const [rmDropdown, setRMDropdown] = useState<LabelValue[]>([]);
     const [isSaveEnabled, setIsSaveEnabled] = useState<boolean>(false);
-
-    const tagDropdowns = async () => {
-      setTagDropdown(await getTagData());
-    };
 
     useEffect(() => {
       const getDropdowns = async () => {
         setEmailTypeDropdown(await getEmailTypeData());
-        tagDropdowns();
       };
       getDropdowns();
     }, []);
+
+    useEffect(() => {
+      onOpen && setTagData(tagDropdown);
+    }, [onOpen]);
 
     useEffect(() => {
       const assigneeDropdown = async () => {
@@ -145,15 +156,18 @@ const EmailData = forwardRef<
 
     const handleClose = () => {
       setAssignee(0);
+      setAssigneeErr(false);
       setStatus(0);
       setDueDate("");
       setEmailType(0);
+      setEmailTypeErr(false);
       setPriority(0);
+      setPriorityErr(false);
       setTagNames([]);
       setTags([]);
       setIsSaveEnabled(false);
       setRMUser(0);
-      // tagDropdowns();
+      setRMUserErr(false);
     };
 
     const clearEmailDataData = async () => {
@@ -166,12 +180,12 @@ const EmailData = forwardRef<
 
     const handleAddNewTag = () => {
       if (inputValue.trim() !== "") {
-        const existingTag = tagDropdown.find(
-          (tag: { label: string; value: string }) => tag.value === inputValue
+        const existingTag = tagData.find(
+          (tag: { label: string; value: string }) => tag.value === inputValue.trim()
         );
         if (!existingTag) {
-          const newTag = { label: inputValue, value: inputValue };
-          setTagDropdown((prev: { label: string; value: string }[]) => [
+          const newTag = { label: inputValue.trim(), value: inputValue.trim() };
+          setTagData((prev: { label: string; value: string }[]) => [
             ...prev,
             newTag,
           ]);
@@ -186,7 +200,31 @@ const EmailData = forwardRef<
       setInputValue("");
     };
 
+    const checkValidation = () => {
+      let isValid = true;
+      if (assignee <= 0) {
+        setAssigneeErr(true);
+        isValid = false;
+      }
+      if (emailType <= 0) {
+        setEmailTypeErr(true);
+        isValid = false;
+      }
+      if (priority <= 0) {
+        setPriorityErr(true);
+        isValid = false;
+      }
+      if (rmUser <= 0) {
+        setRMUserErr(true);
+        isValid = false;
+      }
+
+      return isValid;
+    };
+
     const handleSave = () => {
+      if (!checkValidation()) return;
+
       setIsSaveEnabled(true);
       setOverlayOpen(true);
 
@@ -201,6 +239,7 @@ const EmailData = forwardRef<
           setIsSaveEnabled(false);
           setOverlayOpen(false);
           toast.success("Ticket details updated successfully");
+          tagData.length !== tagDropdown.length && getTagDropdownData();
           getTicketDetails();
         } else {
           setIsSaveEnabled(false);
@@ -233,37 +272,69 @@ const EmailData = forwardRef<
                 id="tags-standard"
                 options={assigneeDropdown}
                 getOptionLabel={(option: LabelValue) => option.label}
-                onChange={(e, data: LabelValue | null) => {
-                  !!data && setAssignee(data.value);
+                onChange={(e, data: any) => {
+                  setAssignee(data.value);
+                  setAssigneeErr(false);
                   setRMUser(0);
                   handleValueChange();
                 }}
+                disabled={isDisabled}
                 value={
                   assigneeDropdown.find(
                     (i: LabelValue) => i.value === assignee
                   ) || null
                 }
                 renderInput={(params: any) => (
-                  <TextField {...params} variant="standard" label="Assignee" />
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    label={
+                      <span>
+                        Assignee
+                        <span className="text-defaultRed">&nbsp;*</span>
+                      </span>
+                    }
+                    error={assigneeErr}
+                    onBlur={() => {
+                      if (assignee > 0) {
+                        setAssigneeErr(false);
+                      }
+                    }}
+                    helperText={assigneeErr ? "This is a required field." : ""}
+                  />
                 )}
               />
             </FormControl>
             <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 250 }}>
               <Autocomplete
                 id="tags-standard"
-                options={emailBoxStatusOptions}
+                options={
+                  !!ticketDetails?.Status && Number(ticketDetails.Status) !== 1
+                    ? emailBoxStatusOptions.filter((i) => i.value !== 1)
+                    : emailBoxStatusOptions
+                }
                 getOptionLabel={(option: LabelValue) => option.label}
-                onChange={(e, data: LabelValue | null) => {
-                  !!data && setStatus(data.value);
+                onChange={(e, data: any) => {
+                  setStatus(data.value);
                   handleValueChange();
                 }}
+                disabled={isDisabled}
                 value={
                   emailBoxStatusOptions.find(
                     (i: LabelValue) => i.value === status
                   ) || null
                 }
                 renderInput={(params: any) => (
-                  <TextField {...params} variant="standard" label="Status" />
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    label={
+                      <span>
+                        Status
+                        <span className="text-defaultRed">&nbsp;*</span>
+                      </span>
+                    }
+                  />
                 )}
               />
             </FormControl>
@@ -295,10 +366,12 @@ const EmailData = forwardRef<
                 id="tags-standard"
                 options={emailTypeDropdown}
                 getOptionLabel={(option: LabelValue) => option.label}
-                onChange={(e, data: LabelValue | null) => {
-                  !!data && setEmailType(data.value);
+                onChange={(e, data: any) => {
+                  setEmailType(data.value);
+                  setEmailTypeErr(false);
                   handleValueChange();
                 }}
+                disabled={isDisabled}
                 value={
                   (emailTypeDropdown.length > 0 &&
                     emailTypeDropdown.find(
@@ -310,7 +383,19 @@ const EmailData = forwardRef<
                   <TextField
                     {...params}
                     variant="standard"
-                    label="Email Type"
+                    label={
+                      <span>
+                        Email Type
+                        <span className="text-defaultRed">&nbsp;*</span>
+                      </span>
+                    }
+                    error={emailTypeErr}
+                    onBlur={() => {
+                      if (emailType > 0) {
+                        setEmailTypeErr(false);
+                      }
+                    }}
+                    helperText={emailTypeErr ? "This is a required field." : ""}
                   />
                 )}
               />
@@ -320,17 +405,35 @@ const EmailData = forwardRef<
                 id="tags-standard"
                 options={priorityOptions}
                 getOptionLabel={(option: LabelValue) => option.label}
-                onChange={(e, data: LabelValue | null) => {
-                  !!data && setPriority(data.value);
+                onChange={(e, data: any) => {
+                  setPriority(data.value);
+                  setPriorityErr(false);
                   handleValueChange();
                 }}
+                disabled={isDisabled}
                 value={
                   priorityOptions.find(
                     (i: LabelValue) => i.value === priority
                   ) || null
                 }
                 renderInput={(params: any) => (
-                  <TextField {...params} variant="standard" label="Priority" />
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    label={
+                      <span>
+                        Priority
+                        <span className="text-defaultRed">&nbsp;*</span>
+                      </span>
+                    }
+                    error={priorityErr}
+                    onBlur={() => {
+                      if (priority > 0) {
+                        setPriorityErr(false);
+                      }
+                    }}
+                    helperText={priorityErr ? "This is a required field." : ""}
+                  />
                 )}
               />
             </FormControl>
@@ -338,7 +441,7 @@ const EmailData = forwardRef<
               <Autocomplete
                 multiple
                 id="tags-standard"
-                options={tagDropdown}
+                options={tagData}
                 getOptionLabel={(option: { label: string; value: string }) =>
                   option.label
                 }
@@ -349,7 +452,12 @@ const EmailData = forwardRef<
                   );
                   handleValueChange();
                 }}
-                onInputChange={(e, value) => setInputValue(value)}
+                disabled={isDisabled}
+                onInputChange={(e, value) => {
+                  if (value.trim().length <= 25) {
+                    setInputValue(value);
+                  }
+                }}
                 inputValue={inputValue}
                 value={tags}
                 renderInput={(params: any) => (
@@ -372,10 +480,12 @@ const EmailData = forwardRef<
                 id="tags-standard"
                 options={rmDropdown}
                 getOptionLabel={(option: LabelValue) => option.label}
-                onChange={(e, data: LabelValue | null) => {
-                  !!data && setRMUser(data.value);
+                onChange={(e, data: any) => {
+                  setRMUser(data.value);
+                  setRMUserErr(false);
                   handleValueChange();
                 }}
+                disabled={isDisabled}
                 value={
                   rmDropdown.find((i: LabelValue) => i.value === rmUser) || null
                 }
@@ -383,7 +493,19 @@ const EmailData = forwardRef<
                   <TextField
                     {...params}
                     variant="standard"
-                    label="Reporting Manager"
+                    label={
+                      <span>
+                        Reporting Manager
+                        <span className="text-defaultRed">&nbsp;*</span>
+                      </span>
+                    }
+                    error={rmUserErr}
+                    onBlur={() => {
+                      if (rmUser > 0) {
+                        setRMUserErr(false);
+                      }
+                    }}
+                    helperText={rmUserErr ? "This is a required field." : ""}
                   />
                 )}
               />

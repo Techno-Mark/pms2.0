@@ -13,6 +13,7 @@ const UnProcessActionBar = ({
   handleClearSelection,
   getOverLay,
   tab = "Unprocess",
+  getTabData,
 }: {
   selectedRowsCount: number;
   selectedRows: number[];
@@ -21,6 +22,7 @@ const UnProcessActionBar = ({
   handleClearSelection: () => void;
   getOverLay?: (e: boolean) => void;
   tab?: string;
+  getTabData?: () => void;
 }) => {
   const propsForActionBar = {
     selectedRowsCount,
@@ -59,6 +61,7 @@ const UnProcessActionBar = ({
         toast.success("Task moved to inbox successfully.");
         handleClearSelection();
         getData();
+        getTabData?.();
         getOverLay?.(false);
       } else if (ResponseStatus === "Warning") {
         toast.warning(ResponseData);
@@ -97,6 +100,7 @@ const UnProcessActionBar = ({
               selectedRowsCount: selectedRowsCount,
               getData: getData,
               handleClearSelection: handleClearSelection,
+              getTabData: getTabData,
             }}
             getOverLay={getOverLay}
           />

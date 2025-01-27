@@ -134,6 +134,8 @@ const Conversations = forwardRef<
           TicketId: ticketId,
           TabId: 1,
           AttachmentType: 0,
+          FromDate: null,
+          ToDate: null,
         },
         successCallback,
         "post"
@@ -421,7 +423,9 @@ const Conversations = forwardRef<
                           <FileIcon fileName={attachment?.UserFileName} />
                           {attachment?.UserFileName}
                           {attachment?.uploading ? (
-                            <Loading />
+                            <div className="!w-fit m-0 p-0">
+                              <Loading />
+                            </div>
                           ) : (
                             <span
                               className="cursor-pointer"
@@ -520,7 +524,11 @@ const Conversations = forwardRef<
               </Avatar>
               <div className="flex flex-col items-start justify-center w-full">
                 <div className="flex items-center justify-between mb-1 w-full">
-                  <p className="gap-2 flex">
+                  <p
+                    className={`flex ${
+                      i.FromUser.length > 20 ? "flex-col" : "gap-2"
+                    }`}
+                  >
                     <b>{i.FromUser}</b>
                     <span>{i.ReceivedOn}</span>
                   </p>
