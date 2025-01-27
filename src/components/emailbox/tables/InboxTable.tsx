@@ -578,6 +578,7 @@ const InboxTable = ({
       )}
       {/* Action Bar */}
       <InboxActionBar
+        tab={""}
         {...propsForActionBar}
         getOverLay={(e: boolean) => setLoading(e)}
       />

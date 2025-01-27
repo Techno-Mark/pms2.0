@@ -30,8 +30,8 @@ import {
   getTagData,
 } from "@/utils/commonDropdownApiCall";
 import { LabelValue } from "@/utils/Types/types";
-import { FilterType } from "../reports/types/ReportsFilterType";
 import { emailBoxStatusOptions } from "@/utils/staticDropdownData";
+import { EmailFilterType } from "../reports/types/ReportsFilterType";
 
 const initialFilter = {
   ClientId: null,
@@ -64,7 +64,7 @@ const EmailBoxFilter = ({
   onDialogClose,
   activeTab,
   tagDropdown,
-}: FilterType) => {
+}: EmailFilterType) => {
   const [client, setClient] = useState<LabelValue | null>(null);
   const [clientDropdown, setClientDropdown] = useState<LabelValue[]>([]);
   const [ticketStatus, setTicketStatus] = useState<LabelValue | null>(null);
