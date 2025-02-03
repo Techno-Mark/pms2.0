@@ -137,10 +137,13 @@ const Page = () => {
     useState<boolean>(false);
   const [isProjectStatusDialogOpen, setIsProjectStatusDialogOpen] =
     useState<boolean>(false);
+  const [isErrorlogDialogOpen, setIsErrorlogDialogOpen] =
+    useState<boolean>(false);
   const [isSummaryDialogOpen, setIsSummaryDialogOpen] =
     useState<boolean>(false);
   const [clickedProjectStatusName, setClickedProjectStatusName] =
     useState<number>(0);
+  const [clickedErrorlog, setClickedErrorlog] = useState<number>(0);
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [clickedBillingTypeName, setClickedBillingTypeName] =
     useState<string>("");
@@ -244,6 +247,14 @@ const Page = () => {
   ) => {
     setIsProjectStatusDialogOpen(isDialogOpen);
     setClickedProjectStatusName(selectedPointData);
+  };
+
+  const handleValueFromErrorlog = (
+    isDialogOpen: boolean,
+    selectedPointData: number
+  ) => {
+    setIsErrorlogDialogOpen(isDialogOpen);
+    setClickedErrorlog(selectedPointData);
   };
 
   useEffect(() => {
@@ -768,13 +779,12 @@ const Page = () => {
           <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
             <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
               <Chart_Errorlog
-                sendData={handleValueFromProjectStatus}
+                sendData={handleValueFromErrorlog}
                 onSelectedProjectIds={[]}
                 currentFilterData={currentFilterData}
               />
             </Card>
-            <Card className="w-full">
-            </Card>
+            <Card className="w-full"></Card>
           </section>
         </div>
       )}
@@ -823,10 +833,10 @@ const Page = () => {
       {/* Errorlog Dialog & Datatable */}
       {activeTab === 1 && (
         <Dialog_Errorlog
-          onOpen={isProjectStatusDialogOpen}
-          onClose={() => setIsProjectStatusDialogOpen(false)}
+          onOpen={isErrorlogDialogOpen}
+          onClose={() => setIsErrorlogDialogOpen(false)}
           currentFilterData={currentFilterData}
-          onSelectedErrorlog={clickedProjectStatusName}
+          onSelectedErrorlog={clickedErrorlog}
           onSelectedProjectIds={[]}
         />
       )}
