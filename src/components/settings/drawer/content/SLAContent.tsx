@@ -326,6 +326,14 @@ const SLAContent = forwardRef<
             setText={setText}
             textError={textError}
             setTextError={setTextError}
+            placeholders={[
+              { label: "Ticket ID", value: "{{TicketID}}" },
+              { label: "Ticket Subject", value: "{{TicketSubject}}" },
+              { label: "Ticket URL", value: "{{TicketURL}}" },
+              { label: "Client Name", value: "{{ClientName}}" },
+              { label: "Client Email", value: "{{ClientEmail}}" },
+              { label: "OrganizationName", value: "{{OrganizationName}}" },
+            ]}
           />
         </div>
 

@@ -58,6 +58,10 @@ import SearchIcon from "@/assets/icons/SearchIcon";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import Chart_Errorlog from "@/components/admin-dashboard/charts/Chart_Errorlog";
 import Dialog_Errorlog from "@/components/admin-dashboard/dialog/Dialog_Errorlog";
+import Chart_EmailType from "@/components/admin-dashboard/charts/Chart_EmailType";
+import Dialog_EmailType from "@/components/admin-dashboard/dialog/Dialog_EmailType";
+import Chart_SLA from "@/components/admin-dashboard/charts/Chart_SLA";
+import Dialog_SLA from "@/components/admin-dashboard/dialog/Dialog_SLA";
 
 interface ClientSummaryStatus {
   ClientName: string;
@@ -131,16 +135,25 @@ const currentFilter = {
 const Page = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<number>(1);
+  const [dashboardActiveTab, setDashboardActiveTab] = useState<number>(1);
   const [isBillingTypeDialogOpen, setIsBillingTypeDialogOpen] =
     useState<boolean>(false);
   const [isTaskStatusDialogOpen, setIsTaskStatusDialogOpen] =
     useState<boolean>(false);
   const [isProjectStatusDialogOpen, setIsProjectStatusDialogOpen] =
     useState<boolean>(false);
+  const [isErrorlogDialogOpen, setIsErrorlogDialogOpen] =
+    useState<boolean>(false);
+  const [isEmailTypeDialogOpen, setIsEmailTypeDialogOpen] =
+    useState<boolean>(false);
+  const [isSLADialogOpen, setIsSLADialogOpen] = useState<boolean>(false);
   const [isSummaryDialogOpen, setIsSummaryDialogOpen] =
     useState<boolean>(false);
   const [clickedProjectStatusName, setClickedProjectStatusName] =
     useState<number>(0);
+  const [clickedErrorlog, setClickedErrorlog] = useState<number>(0);
+  const [clickedSLA, setClickedSLA] = useState<number>(0);
+  const [clickedEmailType, setClickedEmailType] = useState<string>("");
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [clickedBillingTypeName, setClickedBillingTypeName] =
     useState<string>("");
@@ -244,6 +257,30 @@ const Page = () => {
   ) => {
     setIsProjectStatusDialogOpen(isDialogOpen);
     setClickedProjectStatusName(selectedPointData);
+  };
+
+  const handleValueFromErrorlog = (
+    isDialogOpen: boolean,
+    selectedPointData: number
+  ) => {
+    setIsErrorlogDialogOpen(isDialogOpen);
+    setClickedErrorlog(selectedPointData);
+  };
+
+  const handleValueFromEmailType = (
+    isDialogOpen: boolean,
+    selectedPointData: string
+  ) => {
+    setIsEmailTypeDialogOpen(isDialogOpen);
+    setClickedEmailType(selectedPointData);
+  };
+
+  const handleValueFromSLA = (
+    isDialogOpen: boolean,
+    selectedPointData: number
+  ) => {
+    setIsSLADialogOpen(isDialogOpen);
+    setClickedSLA(selectedPointData);
   };
 
   useEffect(() => {
@@ -447,7 +484,7 @@ const Page = () => {
 
   return (
     <WrapperNavbar className="min-h-screen overflow-y-auto">
-      <div className="flex items-center justify-between w-full px-6">
+      <div className="flex items-center justify-between w-full px-6 border-b border-gray-300">
         <div className="flex gap-[16px] items-center py-[6.5px]">
           <label
             onClick={() => {
@@ -610,8 +647,35 @@ const Page = () => {
           )}
         </div>
       </div>
+      <div className="flex gap-[16px] items-center py-[6.5px] pl-6">
+        <label
+          onClick={() => {
+            setDashboardActiveTab(1);
+          }}
+          className={`py-[10px] text-[16px] cursor-pointer select-none ${
+            dashboardActiveTab === 1
+              ? "text-secondary font-semibold"
+              : "text-slatyGrey"
+          }`}
+        >
+          Task
+        </label>
+        <span className="text-lightSilver">|</span>
+        <label
+          onClick={() => {
+            setDashboardActiveTab(2);
+          }}
+          className={`py-[10px] text-[16px] cursor-pointer select-none ${
+            dashboardActiveTab === 2
+              ? "text-secondary font-semibold"
+              : "text-slatyGrey"
+          }`}
+        >
+          Email Ticket
+        </label>
+      </div>
 
-      {activeTab === 1 && (
+      {dashboardActiveTab === 1 && (
         <div className="py-[10px]">
           <Grid
             container
@@ -768,18 +832,162 @@ const Page = () => {
           <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
             <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
               <Chart_Errorlog
-                sendData={handleValueFromProjectStatus}
+                sendData={handleValueFromErrorlog}
                 onSelectedProjectIds={[]}
                 currentFilterData={currentFilterData}
               />
             </Card>
-            <Card className="w-full"></Card>
+            <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]"></Card>
+          </section>
+        </div>
+      )}
+
+      {dashboardActiveTab === 2 && (
+        <div className="py-[10px]">
+          <Grid
+            container
+            className="flex items-center px-[20px] py-[10px]"
+            gap={1}
+          >
+            {dashboardSummary &&
+              dashboardSummary
+                .slice(0, 4)
+                .map((item: KeyValueColorCodeSequence) => (
+                  <Grid xs={2.9} item key={item.Key}>
+                    <Card
+                      className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
+                      style={{ borderColor: item.ColorCode }}
+                    >
+                      <div
+                        className="flex p-[20px] items-center"
+                        onClick={() => {
+                          setClickedCardName(item.Sequence);
+                          setIsSummaryDialogOpen(true);
+                        }}
+                      >
+                        <span
+                          style={{ color: item.ColorCode }}
+                          className={`border-r border-lightSilver pr-[20px]`}
+                        >
+                          {statusIconMapping[item.Sequence]}
+                        </span>
+                        <div className="inline-flex flex-col items-start pl-[20px]">
+                          <span className="text-[14px] font-normal text-darkCharcoal">
+                            {item.Key}
+                          </span>
+                          <span className="text-[20px] text-slatyGrey font-semibold">
+                            {item.Value}
+                          </span>
+                        </div>
+                      </div>
+                    </Card>
+                  </Grid>
+                ))}
+          </Grid>
+
+          <Grid
+            container
+            className="flex items-center px-[20px] py-[10px]"
+            gap={1}
+          >
+            {dashboardSummary &&
+              dashboardSummary
+                .slice(4, 8)
+                .map((item: KeyValueColorCodeSequence) => (
+                  <Grid xs={2.9} item key={item.Key}>
+                    <Card
+                      className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
+                      style={{ borderColor: item.ColorCode }}
+                    >
+                      <div
+                        className="flex p-[20px] items-center"
+                        onClick={() => {
+                          setClickedCardName(item.Sequence);
+                          setIsSummaryDialogOpen(true);
+                        }}
+                      >
+                        <span
+                          style={{ color: item.ColorCode }}
+                          className={`border-r border-lightSilver pr-[20px]`}
+                        >
+                          {statusIconMapping[item.Sequence]}
+                        </span>
+                        <div className="inline-flex flex-col items-start pl-[20px]">
+                          <span className="text-[14px] font-normal text-darkCharcoal">
+                            {item.Key}
+                          </span>
+                          <span className="text-[20px] text-slatyGrey font-semibold">
+                            {item.Value}
+                          </span>
+                        </div>
+                      </div>
+                    </Card>
+                  </Grid>
+                ))}
+          </Grid>
+
+          <Grid
+            container
+            className="flex items-center px-[20px] py-[10px]"
+            gap={1}
+          >
+            {dashboardSummary &&
+              dashboardSummary
+                .slice(8, 12)
+                .map((item: KeyValueColorCodeSequence) => (
+                  <Grid xs={2.9} item key={item.Key}>
+                    <Card
+                      className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
+                      style={{ borderColor: item.ColorCode }}
+                    >
+                      <div
+                        className="flex p-[20px] items-center"
+                        onClick={() => {
+                          setClickedCardName(item.Sequence);
+                          setIsSummaryDialogOpen(true);
+                        }}
+                      >
+                        <span
+                          style={{ color: item.ColorCode }}
+                          className={`border-r border-lightSilver pr-[20px]`}
+                        >
+                          {statusIconMapping[item.Sequence]}
+                        </span>
+                        <div className="inline-flex flex-col items-start pl-[20px]">
+                          <span className="text-[14px] font-normal text-darkCharcoal">
+                            {item.Key}
+                          </span>
+                          <span className="text-[20px] text-slatyGrey font-semibold">
+                            {item.Value}
+                          </span>
+                        </div>
+                      </div>
+                    </Card>
+                  </Grid>
+                ))}
+          </Grid>
+
+          {/* email type and sla ticket Charts */}
+          <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
+            <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
+              <Chart_EmailType
+                sendData={handleValueFromEmailType}
+                currentFilterData={currentFilterData}
+              />
+            </Card>
+            <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
+              <Chart_SLA
+                sendData={handleValueFromSLA}
+                onSelectedProjectIds={[]}
+                currentFilterData={currentFilterData}
+              />
+            </Card>
           </section>
         </div>
       )}
 
       {/* Dashboard Summary Dialog & Datatable */}
-      {activeTab === 1 && (
+      {dashboardActiveTab === 1 && (
         <Dialog_DashboardSummaryList
           onOpen={isSummaryDialogOpen}
           onClose={() => setIsSummaryDialogOpen(false)}
@@ -789,7 +997,7 @@ const Page = () => {
       )}
 
       {/* Task Status Dialog & Datatable */}
-      {activeTab === 1 && (
+      {dashboardActiveTab === 1 && (
         <Dialog_TaskStatus
           onOpen={isTaskStatusDialogOpen}
           onClose={() => setIsTaskStatusDialogOpen(false)}
@@ -799,7 +1007,7 @@ const Page = () => {
       )}
 
       {/* Billing Type Dialog & Datatable */}
-      {activeTab === 1 && (
+      {dashboardActiveTab === 1 && (
         <Dialog_BillingType
           onOpen={isBillingTypeDialogOpen}
           onClose={() => setIsBillingTypeDialogOpen(false)}
@@ -809,7 +1017,7 @@ const Page = () => {
       )}
 
       {/* Project Status Dialog & Datatable */}
-      {activeTab === 1 && (
+      {dashboardActiveTab === 1 && (
         <Dialog_ProjectStatus
           onOpen={isProjectStatusDialogOpen}
           onClose={() => setIsProjectStatusDialogOpen(false)}
@@ -820,12 +1028,33 @@ const Page = () => {
       )}
 
       {/* Errorlog Dialog & Datatable */}
-      {activeTab === 1 && (
+      {dashboardActiveTab === 1 && (
         <Dialog_Errorlog
-          onOpen={isProjectStatusDialogOpen}
-          onClose={() => setIsProjectStatusDialogOpen(false)}
+          onOpen={isErrorlogDialogOpen}
+          onClose={() => setIsErrorlogDialogOpen(false)}
           currentFilterData={currentFilterData}
-          onSelectedErrorlog={clickedProjectStatusName}
+          onSelectedErrorlog={clickedErrorlog}
+          onSelectedProjectIds={[]}
+        />
+      )}
+
+      {/* EmailType Dialog & Datatable */}
+      {dashboardActiveTab === 2 && (
+        <Dialog_EmailType
+          onOpen={isEmailTypeDialogOpen}
+          onClose={() => setIsEmailTypeDialogOpen(false)}
+          currentFilterData={currentFilterData}
+          onSelectedStatusName={clickedEmailType}
+        />
+      )}
+
+      {/* SLA Dialog & Datatable */}
+      {dashboardActiveTab === 2 && (
+        <Dialog_SLA
+          onOpen={isSLADialogOpen}
+          onClose={() => setIsSLADialogOpen(false)}
+          currentFilterData={currentFilterData}
+          onSelectedErrorlog={clickedSLA}
           onSelectedProjectIds={[]}
         />
       )}

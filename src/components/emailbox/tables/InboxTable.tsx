@@ -101,6 +101,20 @@ const InboxTable = ({
           data: ResponseData.List,
           dataCount: ResponseData.TotalCount,
         });
+        if (typeof window !== "undefined") {
+          const pathname = window.location.href.includes("id=");
+          if (pathname) {
+            const idMatch = window.location.href.match(/id=([^?&]+)/);
+            const id = idMatch ? idMatch[1] : 0;
+            const clientId: any = ResponseData.List.filter(
+              (i: EmailBoxListResponseList) => i.Id == Number(id)
+            );
+            if (clientId.length > 0) {
+              handleDrawerOpen?.();
+              getId?.(Number(id), clientId[0].ClientId);
+            }
+          }
+        }
       } else {
         setFileds({ ...fileds, loaded: true });
       }
@@ -254,6 +268,35 @@ const InboxTable = ({
     callAPI(url, params, successCallback, "POST");
   };
 
+  const createTask = (ticketId: number) => {
+    setLoading(true);
+    const params = {
+      TicketIds: [ticketId],
+    };
+    const url = `${process.env.emailbox_api_url}/emailbox/saveWorkItemFromTicket`;
+    const successCallback = (
+      ResponseData: {
+        InvalidStatusCount: number;
+        ValidTicketCount: number;
+        InvalidTicketCount: number;
+      },
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        ResponseData.ValidTicketCount > 0 &&
+          toast.success("Task created successfully.");
+        (ResponseData.InvalidStatusCount > 0 ||
+          ResponseData.InvalidTicketCount > 0) &&
+          toast.error("Please try again later.");
+        setLoading(false);
+      } else {
+        setLoading(false);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
   const generateConditionalColumn = (column: {
     name: string;
     label: string;
@@ -270,15 +313,19 @@ const InboxTable = ({
             generateCustomHeaderName("Create Task Icon"),
           customBodyRender: (value: number, tableMeta: any) => {
             const isAllowed =
-              tableMeta.rowData[tableMeta.rowData.length - 2] === 2 ||
-              tableMeta.rowData[tableMeta.rowData.length - 2] === 3 ||
-              tableMeta.rowData[tableMeta.rowData.length - 2] === 5;
+              tableMeta.rowData[3] !== null &&
+              tableMeta.rowData[4] !== null &&
+              tableMeta.rowData[5] !== null &&
+              tableMeta.rowData[tableMeta.rowData.length - 3] !== null &&
+              (tableMeta.rowData[tableMeta.rowData.length - 2] === 2 ||
+                tableMeta.rowData[tableMeta.rowData.length - 2] === 3 ||
+                tableMeta.rowData[tableMeta.rowData.length - 2] === 5);
             return (
               <div
                 className={`${
                   isAllowed ? "cursor-pointer" : "cursor-not-allowed"
                 } flex items-center justify-center`}
-                onClick={() => isAllowed && console.log(value)}
+                onClick={() => isAllowed && createTask(value)}
               >
                 <AddPlusIcon color={isAllowed ? "black" : "gray"} />
               </div>
@@ -470,6 +517,14 @@ const InboxTable = ({
           viewColumns: false,
         },
       };
+    } else if (column.name === "ApprovalId") {
+      return {
+        name: "ApprovalId",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
     } else {
       return generateCustomColumn(
         column.name,
@@ -480,11 +535,18 @@ const InboxTable = ({
   };
 
   const inboxCols = [
-    ...inboxColsConfig.slice(0, inboxColsConfig.length - 2),
+    ...inboxColsConfig.slice(0, inboxColsConfig.length - 1),
     {
       name: "UpdatedBy",
       label: "Create Task Icon",
       bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ApprovalId",
+      options: {
+        display: false,
+        viewColumns: false,
+      },
     },
     {
       name: "Status",
@@ -493,7 +555,7 @@ const InboxTable = ({
         viewColumns: false,
       },
     },
-    ...inboxColsConfig.slice(inboxColsConfig.length - 2),
+    ...inboxColsConfig.slice(inboxColsConfig.length - 1),
   ].map((col: any) => {
     return generateConditionalColumn(col);
   });

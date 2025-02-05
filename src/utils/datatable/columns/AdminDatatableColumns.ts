@@ -61,6 +61,33 @@ const adminDashboardBillingTypeCols = [
   )
 );
 
+const adminDashboardEmailTypeCols = [
+  { header: "TicketID", label: "Ticket ID" },
+  { header: "TypeOfWorkName", label: "Subject Name" },
+  { header: "BillingTypeName", label: "Client Name" },
+  { header: "Status", label: "Email Type" },
+  { header: "ContractedHours", label: "Standard SLA Time" },
+  { header: "InternalHours", label: "Actual Time Taken" },
+  { header: "InternalHours", label: "SLA Status" },
+  { header: "InternalHours", label: "Ticket Status" },
+  { header: "InternalHours", label: "Priority" },
+  { header: "InternalHours", label: "Tags" },
+  { header: "InternalHours", label: "Received On" },
+  { header: "InternalHours", label: "Opened Time" },
+  { header: "InternalHours", label: "Due On" },
+  { header: "InternalHours", label: "Assigned To" },
+  { header: "InternalHours", label: "Reporting Manager" },
+  { header: "InternalHours", label: "Department" },
+].map((i: { header: string; label: string }) =>
+  generateCustomColumn(
+    i.header,
+    i.label,
+    i.header === "Status"
+      ? generateBillingStatusBodyRender
+      : generateDashboardReportBodyRender
+  )
+);
+
 const SummaryColConfig = [
   {
     name: "TaskId",
@@ -356,4 +383,5 @@ export {
   adminDashboardProjectStatusCols,
   adminDashboardTaskStatusCols,
   adminDashboardErrorlogCols,
+  adminDashboardEmailTypeCols,
 };

@@ -241,13 +241,11 @@ const Attachments = ({
   const handleDownloadAll = async () => {
     const zip = new JSZip();
 
-    // Loop through all files in historyData.data
     const filePromises = historyData.data.map(async (file: any) => {
       try {
         const blob = await getFileFromBlobForZip(file.SystemFileName);
 
         if (blob) {
-          // Add file to the zip using the original file name
           zip.file(file.UserFileName, blob);
         }
       } catch (err) {
@@ -255,11 +253,10 @@ const Attachments = ({
       }
     });
 
-    await Promise.all(filePromises); // Wait for all file downloads to complete
+    await Promise.all(filePromises);
 
-    // Generate the zip and trigger download
     zip.generateAsync({ type: "blob" }).then((content) => {
-      saveAs(content, "Attachments.zip"); // Trigger download of the zip
+      saveAs(content, "Attachments.zip");
     });
   };
 

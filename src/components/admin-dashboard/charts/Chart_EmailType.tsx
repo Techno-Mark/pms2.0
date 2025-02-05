@@ -4,34 +4,36 @@ import HighchartsReact from "highcharts-react-official";
 
 import HighchartsVariablePie from "highcharts/modules/variable-pie";
 import { callAPI } from "@/utils/API/callAPI";
-import {
-  DashboardInitialFilter,
-  ListProjectStatusSequence,
-} from "@/utils/Types/dashboardTypes";
+import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
-interface ChartProjectStatusProps {
-  onSelectedProjectIds: number[];
+
+interface ChartEmailTypeProps {
   currentFilterData: DashboardInitialFilter;
-  sendData: (isDialogOpen: boolean, selectedPointData: number) => void;
+  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
+}
+
+interface List {
+  Percentage: number;
+  Key: string;
+  Value: number;
 }
 
 interface Response {
-  List: ListProjectStatusSequence[] | [];
+  List: List[] | [];
   TotalCount: number;
 }
 
-const Chart_ProjectStatus = ({
-  onSelectedProjectIds,
+const Chart_EmailType = ({
   currentFilterData,
   sendData,
-}: ChartProjectStatusProps) => {
+}: ChartEmailTypeProps) => {
   const [data, setData] = useState<any[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
-  const getProjectStatusData = async () => {
+  const getBillingTypeData = async () => {
     const workTypeIdFromLocalStorage =
       typeof localStorage !== "undefined"
         ? localStorage.getItem("workTypeId")
@@ -47,25 +49,19 @@ const Chart_ProjectStatus = ({
       ReviewerIds: currentFilterData.ReviewerIds,
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,
-      ProjectId:
-        onSelectedProjectIds.length === 0 ? null : onSelectedProjectIds,
     };
-    const url = `${process.env.report_api_url}/dashboard/projectstatusgraph`;
+    const url = `${process.env.report_api_url}/dashboard/billingstatusgraph`;
     const successCallback = (
       ResponseData: Response,
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        const chartData = ResponseData.List.map(
-          (item: ListProjectStatusSequence) => ({
-            name: item.Key,
-            y: item.Value,
-            percentage: item.Percentage,
-            ColorCode: item.ColorCode,
-            Sequence: item.Sequence,
-          })
-        );
+        const chartData = ResponseData.List.map((item: List) => ({
+          name: item.Key,
+          y: item.Value,
+          percentage: item.Percentage,
+        }));
 
         setData(chartData);
         setTotalCount(ResponseData.TotalCount);
@@ -76,7 +72,7 @@ const Chart_ProjectStatus = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      await getProjectStatusData();
+      await getBillingTypeData();
     };
     const timer = setTimeout(() => {
       fetchData();
@@ -88,7 +84,7 @@ const Chart_ProjectStatus = ({
     chart: {
       type: "variablepie",
       width: 480,
-      height: 260,
+      height: 240,
       spacingTop: 10,
     },
     title: {
@@ -124,11 +120,11 @@ const Chart_ProjectStatus = ({
         cursor: "pointer",
         point: {
           events: {
-            click: (event: { point: { Sequence: number } }) => {
+            click: (event: { point: { name: string } }) => {
               const selectedPointData = {
-                Sequence: (event.point && event.point.Sequence) || 0,
+                name: (event.point && event.point.name) || "",
               };
-              sendData(true, selectedPointData.Sequence);
+              sendData(true, selectedPointData.name);
             },
           },
         },
@@ -151,7 +147,6 @@ const Chart_ProjectStatus = ({
         borderRadius: 4,
         showInLegend: true,
         data: data,
-        colors: data.map((item: { ColorCode: string }) => item.ColorCode),
       },
     ],
     accessibility: {
@@ -165,7 +160,7 @@ const Chart_ProjectStatus = ({
   return (
     <div className="flex flex-col px-[20px]">
       <span className="flex items-start pt-[30px] px-[10px] text-lg font-medium">
-        Project Status
+        Billing Type
       </span>
       <div className="flex justify-between relative">
         <div className="mt-5">
@@ -181,7 +176,7 @@ const Chart_ProjectStatus = ({
               {totalCount}
             </span>
             <span className="text-lg text-slatyGrey">
-              {totalCount > 1 ? "Tasks" : "Task"}
+              {totalCount > 1 ? "Clients" : "Client"}
             </span>
           </span>
         )}
@@ -190,4 +185,4 @@ const Chart_ProjectStatus = ({
   );
 };
 
-export default Chart_ProjectStatus;
+export default Chart_EmailType;

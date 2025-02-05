@@ -9,6 +9,7 @@ import "quill/dist/quill.snow.css"; // Quill CSS
 import TextBox from "@/assets/icons/TextBox";
 import { getTextLength } from "@/utils/commonFunction";
 import FileIcon from "@/assets/icons/worklogs/FileIcon";
+import { callAPI } from "@/utils/API/callAPI";
 
 const RichTextEditor = ({
   text,
@@ -18,6 +19,9 @@ const RichTextEditor = ({
   height = "220px",
   addImage = false,
   handleImageChange,
+  placeholders = [],
+  ChangeValue = false,
+  ticketId,
 }: any) => {
   const [showPopup, setShowPopup] = useState(false);
   const editorRef: any = useRef(null);
@@ -25,45 +29,54 @@ const RichTextEditor = ({
   const buttonRef: any = useRef(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const placeholders = [
-    { label: "Ticket ID", value: "{{TicketID}}" },
-    { label: "Ticket Subject", value: "{{TicketSubject}}" },
-    { label: "Ticket Priority", value: "{{TicketPriority}}" },
-    { label: "Ticket URL", value: "{{TicketURL}}" },
-    { label: "Tag", value: "{{Tag}}" },
-    { label: "Group name", value: "{{GroupName}}" },
-    { label: "Assignee Name", value: "{{AssigneeName}}" },
-    { label: "Assignee Email", value: "{{AssigneeEmail}}" },
-    { label: "Status", value: "{{Status}}" },
-    { label: "Ticket Type", value: "{{TicketType}}" },
-    { label: "Due by Time", value: "{{DueByTime}}" },
-    { label: "Client Email", value: "{{ClientEmail}}" },
-    { label: "Client Name", value: "{{ClientName}}" },
-    { label: "Due Date", value: "{{DueDate}}" },
-    { label: "Updated By", value: "{{UpdatedBy}}" },
-    { label: "SLA Due Time", value: "{{SLADueTime}}" },
-    { label: "Reopened By", value: "{{ReopenedBy}}" },
-    { label: "Company Name", value: "{{CompanyName}}" },
-    { label: "Resolved By", value: "{{ResolvedBy}}" },
-    { label: "Resolved Date", value: "{{ResolvedDate}}" },
-    { label: "New Assignee Name", value: "{{NewAssigneeName}}" },
-    { label: "Closed Date", value: "{{ClosedDate}}" },
-  ];
-
   const handleTextChange = (e: { htmlValue: any }) => {
     setText(e.htmlValue || "");
     setTextError(false);
   };
 
-  const handleInsertPlaceholder = (placeholder: string | any[]) => {
+  const fetchPlaceholderValue = async (
+    placeholder: string
+  ): Promise<string> => {
+    return new Promise((resolve) => {
+      const url = `${process.env.emailbox_api_url}/emailbox/getslugvalue`;
+
+      const successCallback = (
+        ResponseData: string,
+        error: boolean,
+        ResponseStatus: string
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          resolve(ResponseData);
+        } else {
+          resolve(placeholder);
+        }
+      };
+
+      callAPI(
+        url,
+        {
+          SlugKey: placeholder,
+          TicketId: ticketId,
+        },
+        successCallback,
+        "post"
+      );
+    });
+  };
+
+  const handleInsertPlaceholder = async (placeholder: string) => {
+    let valueToInsert = placeholder;
+
+    if (ChangeValue) {
+      valueToInsert = await fetchPlaceholderValue(placeholder);
+    }
+
     if (editorRef.current) {
       const quill = editorRef.current.getQuill();
       const range = quill.getSelection();
       if (range) {
-        // Insert placeholder at the current cursor position
-        quill.insertText(range.index, placeholder, "user");
-        // Move cursor immediately after the inserted placeholder
-        quill.setSelection(range.index + placeholder.length, 0);
+        quill.insertText(range.index, valueToInsert, "user");
+        quill.setSelection(range.index + valueToInsert.length, 0);
       }
     }
     setShowPopup(false);
@@ -109,21 +122,22 @@ const RichTextEditor = ({
           value="bullet"
           aria-label="Bullet List"
         ></button>
-        {/* <button className="ql-image" aria-label="Insert Image"></button> */}
         <select className="ql-color"></select>
         <select className="ql-background"></select>
         <button className="ql-clean" aria-label="Remove Style"></button>
-        <button
-          onClick={() => setShowPopup((prev) => !prev)}
-          ref={buttonRef}
-          className="w-fit"
-        >
-          <TextBox />
-        </button>
+        {placeholders.length > 0 && (
+          <button
+            onClick={() => setShowPopup((prev) => !prev)}
+            ref={buttonRef}
+            className="w-fit"
+          >
+            <TextBox />
+          </button>
+        )}
         {addImage && (
           <button>
             <span
-              className={`text-white cursor-pointer max-w-1 mt-6`}
+              className="text-white cursor-pointer max-w-1 mt-6"
               onClick={() => fileInputRef.current?.click()}
             >
               <FileIcon />
@@ -183,26 +197,31 @@ const RichTextEditor = ({
                 gap: "10px",
               }}
             >
-              {placeholders.map((placeholder) => (
-                <li
-                  key={placeholder.value}
-                  style={{ flex: "0 0 calc(33% - 10px)" }}
-                  className="hover:bg-gray-100 rounded-lg text-sm"
-                >
-                  <Button
-                    label={placeholder.label}
-                    onClick={() => handleInsertPlaceholder(placeholder.value)}
-                    className="p-button-text"
-                    style={{
-                      padding: "5px",
-                      fontSize: "14px",
-                      background: "transparent",
-                      textAlign: "start",
-                      width: "100%",
-                    }}
-                  />
-                </li>
-              ))}
+              {placeholders.length > 0 &&
+                placeholders.map(
+                  (placeholder: { label: string; value: string }) => (
+                    <li
+                      key={placeholder.value}
+                      style={{ flex: "0 0 calc(33% - 10px)" }}
+                      className="hover:bg-gray-100 rounded-lg text-sm"
+                    >
+                      <Button
+                        label={placeholder.label}
+                        onClick={() =>
+                          handleInsertPlaceholder(placeholder.value)
+                        }
+                        className="p-button-text"
+                        style={{
+                          padding: "5px",
+                          fontSize: "14px",
+                          background: "transparent",
+                          textAlign: "start",
+                          width: "100%",
+                        }}
+                      />
+                    </li>
+                  )
+                )}
             </ul>
           </div>
         )}

@@ -14,12 +14,15 @@ import { TablePagination, ThemeProvider } from "@mui/material";
 import { FieldsType } from "@/components/reports/types/FieldsType";
 import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import {
+  generateCommonBodyRender,
   generateCustomHeaderName,
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
 import { inboxColsConfig } from "@/utils/datatable/columns/EmailBoxDatatableColumns";
 import OverLay from "@/components/common/OverLay";
+import AddPlusIcon from "@/assets/icons/AddPlusIcon";
+import { toast } from "react-toastify";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -149,36 +152,66 @@ const SentEmailTable = ({
     return () => clearTimeout(timer);
   }, [filteredObject, filteredData, searchValue]);
 
+  const createTask = (ticketId: number) => {
+    setLoading(true);
+    const params = {
+      TicketIds: [ticketId],
+    };
+    const url = `${process.env.emailbox_api_url}/emailbox/saveWorkItemFromTicket`;
+    const successCallback = (
+      ResponseData: {
+        InvalidStatusCount: number;
+        ValidTicketCount: number;
+        InvalidTicketCount: number;
+      },
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        ResponseData.ValidTicketCount > 0 &&
+          toast.success("Task created successfully.");
+        (ResponseData.InvalidStatusCount > 0 ||
+          ResponseData.InvalidTicketCount > 0) &&
+          toast.error("Please try again later.");
+        setLoading(false);
+      } else {
+        setLoading(false);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
   const generateConditionalColumn = (column: {
     name: string;
     label: string;
     bodyRenderer: (arg0: any) => any;
   }) => {
-    if (column.name === "Status") {
+    if (column.name === "UpdatedBy") {
       return {
-        name: "Status",
+        name: "Id",
         options: {
           filter: true,
           sort: true,
           viewColumns: false,
-          customHeadLabelRender: () => generateCustomHeaderName("Status"),
-          customBodyRender: (value: string, tableMeta: any) => {
-            const statusColorCode =
-              tableMeta.rowData[tableMeta.rowData.length - 1];
-
+          customHeadLabelRender: () =>
+            generateCustomHeaderName("Create Task Icon"),
+          customBodyRender: (value: number, tableMeta: any) => {
+            const isAllowed =
+              tableMeta.rowData[3] !== null &&
+              tableMeta.rowData[4] !== null &&
+              tableMeta.rowData[5] !== null &&
+              tableMeta.rowData[tableMeta.rowData.length - 3] !== null &&
+              (tableMeta.rowData[tableMeta.rowData.length - 2] === 2 ||
+                tableMeta.rowData[tableMeta.rowData.length - 2] === 3 ||
+                tableMeta.rowData[tableMeta.rowData.length - 2] === 5);
             return (
-              <div>
-                {value === null || value === "" || value === "0" ? (
-                  "-"
-                ) : (
-                  <div className="inline-block mr-1">
-                    <div
-                      className="w-[10px] h-[10px] rounded-full inline-block mr-2"
-                      style={{ backgroundColor: statusColorCode }}
-                    ></div>
-                    {value}
-                  </div>
-                )}
+              <div
+                className={`${
+                  isAllowed ? "cursor-pointer" : "cursor-not-allowed"
+                } flex items-center justify-center`}
+                onClick={() => isAllowed && createTask(value)}
+              >
+                <AddPlusIcon color={isAllowed ? "black" : "gray"} />
               </div>
             );
           },
@@ -335,6 +368,22 @@ const SentEmailTable = ({
           viewColumns: false,
         },
       };
+    } else if (column.name === "Status") {
+      return {
+        name: "Status",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
+    } else if (column.name === "ApprovalId") {
+      return {
+        name: "ApprovalId",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
     } else {
       return generateCustomColumn(
         column.name,
@@ -344,7 +393,29 @@ const SentEmailTable = ({
     }
   };
 
-  const inboxCols = inboxColsConfig.map((col: any) => {
+  const inboxCols = [
+    ...inboxColsConfig.slice(0, inboxColsConfig.length - 1),
+    {
+      name: "UpdatedBy",
+      label: "Create Task Icon",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ApprovalId",
+      options: {
+        display: false,
+        viewColumns: false,
+      },
+    },
+    {
+      name: "Status",
+      options: {
+        display: false,
+        viewColumns: false,
+      },
+    },
+    ...inboxColsConfig.slice(inboxColsConfig.length - 1),
+  ].map((col: any) => {
     return generateConditionalColumn(col);
   });
 
@@ -369,6 +440,7 @@ const SentEmailTable = ({
               tableBodyHeight: "73vh",
               selectAllRows: isPopupOpen && selectedRowsCount === 0,
               rowsSelected: selectedRows,
+              selectableRows: "none",
               textLabels: {
                 body: {
                   noMatch: (

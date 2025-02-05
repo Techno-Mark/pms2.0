@@ -378,6 +378,14 @@ const DraftEmailTable = ({
           viewColumns: false,
         },
       };
+    } else if (column.name === "Status") {
+      return {
+        name: "Status",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
     } else {
       return generateCustomColumn(
         column.name,
@@ -387,7 +395,17 @@ const DraftEmailTable = ({
     }
   };
 
-  const inboxCols = inboxColsConfig.map((col: any) => {
+  const inboxCols = [
+    ...inboxColsConfig.slice(0, inboxColsConfig.length - 1),
+    {
+      name: "Status",
+      options: {
+        display: false,
+        viewColumns: false,
+      },
+    },
+    ...inboxColsConfig.slice(inboxColsConfig.length - 1),
+  ].map((col: any) => {
     return generateConditionalColumn(col);
   });
 
@@ -412,6 +430,7 @@ const DraftEmailTable = ({
               tableBodyHeight: "73vh",
               selectAllRows: isPopupOpen && selectedRowsCount === 0,
               rowsSelected: selectedRows,
+              selectableRows: "none",
               textLabels: {
                 body: {
                   noMatch: (

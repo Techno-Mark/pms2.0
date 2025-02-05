@@ -4,6 +4,7 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { List, Popover, TextField } from "@mui/material";
 import { callAPI } from "@/utils/API/callAPI";
 import { TagSharp } from "@mui/icons-material";
+import DeleteTagDialog from "./DeleteTagDialog";
 
 const Tag = ({
   selectedRowIds,
@@ -11,17 +12,21 @@ const Tag = ({
   getOverLay,
   tagDropdown,
   getTagDropdownData,
+  handleClearSelection,
 }: {
   selectedRowIds: number[];
   getData: () => void;
   getOverLay: (e: boolean) => void;
   tagDropdown: { label: string; value: string }[];
   getTagDropdownData: () => void;
+  handleClearSelection: () => void;
 }) => {
   const [anchorElTag, setAnchorElTag] =
     React.useState<HTMLButtonElement | null>(null);
   const [newTagName, setNewTagName] = useState("");
   const [inputError, setInputError] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [id, setId] = useState("");
 
   const handleClickTag = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorElTag(event.currentTarget);
@@ -39,6 +44,16 @@ const Tag = ({
   const handleOptionTag = (id: string) => {
     updateTag(selectedRowIds, id, false);
     handleCloseTag();
+  };
+
+  const handleDeleteTag = (value: string) => {
+    setId(value);
+    setOpenDialog(true);
+  };
+
+  const handleClose = () => {
+    setId("");
+    setOpenDialog(false);
   };
 
   const handleNewTagSubmit = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -137,7 +152,7 @@ const Tag = ({
               tagDropdown.map((option: { value: string; label: string }) => (
                 <span
                   key={option.value}
-                  className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                  className="flex items-center justify-between py-2 px-4 hover:bg-gray-100 text-sm"
                 >
                   <span
                     className="p-1 cursor-pointer"
@@ -145,11 +160,30 @@ const Tag = ({
                   >
                     {option.label}
                   </span>
+                  <span
+                    onClick={() => handleDeleteTag(option.value)}
+                    style={{
+                      marginLeft: "8px",
+                      color: "#A5A5A5",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    ✕
+                  </span>
                 </span>
               ))}
           </List>
         </nav>
       </Popover>
+      <DeleteTagDialog
+        id={id}
+        onOpen={openDialog}
+        handleClose={handleClose}
+        getTagDropdownData={getTagDropdownData}
+        getOverLay={getOverLay}
+        handleClearSelection={handleClearSelection}
+      />
     </div>
   );
 };

@@ -577,7 +577,6 @@ const Comments = ({
                 <span
                   className={`text-white cursor-pointer max-w-1 mt-6`}
                   onClick={() => {
-                    console.log("hi");
                     fileInputRef.current?.click();
                   }}
                 >
@@ -670,7 +669,7 @@ const Comments = ({
           </div>
         )}
       </div>
-      {loading ? <OverLay /> : ""}
+      {loading ? <OverLay className="!-top-[1px] !-left-[1px]" /> : ""}
     </div>
   );
 };

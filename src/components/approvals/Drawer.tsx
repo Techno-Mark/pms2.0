@@ -102,6 +102,8 @@ import {
   rootCauseOptions,
 } from "@/utils/staticDropdownData";
 import FileIcon from "../common/FileIcon";
+import DrawerEmailbox from "../common/workloags/DrawerEmailbox";
+import DrawerLogs from "../common/workloags/DrawerLogs";
 
 interface EditDrawer {
   onOpen: boolean;
@@ -162,6 +164,7 @@ const EditDrawer = ({
     hasPermissionWorklog("Reminder", "View", "WorkLogs") && "Reminder",
     hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && "Error Logs",
     "Reviewer's Note",
+    "Email Box",
     "Logs",
   ];
 
@@ -1765,62 +1768,6 @@ const EditDrawer = ({
     }
   };
 
-  // Logs
-  const [logsWorklogsDrawer, setLogsWorklogsDrawer] = useState(true);
-  const [logsDataWorklogs, setLogsDateWorklogs] = useState<any>([]);
-
-  const logsDatatableTaskCols = [
-    {
-      name: "Filed",
-      label: "Filed Name",
-      options: {
-        customBodyRender: (value: string) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "OldValue",
-      label: "Old Value",
-      options: {
-        customBodyRender: (value: string) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "NewValue",
-      label: "New Value",
-      options: {
-        customBodyRender: (value: string) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-  ];
-
-  const getLogsDataWorklogs = async () => {
-    const params = {
-      WorkitemId: onEdit,
-    };
-    const url = `${process.env.report_api_url}/auditlog/getbyworkitem`;
-    const successCallback = (
-      ResponseData: { List: AuditlogGetByWorkitem[] | []; TotalCount: number },
-      error: boolean,
-      ResponseStatus: string
-    ) => {
-      if (
-        ResponseStatus === "Success" &&
-        ResponseData !== null &&
-        ResponseData.List.length >= 0 &&
-        error === false
-      ) {
-        setLogsDateWorklogs(ResponseData.List);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
-  };
-
   // Reviewer's Note
   const [reasonDrawerApprovals, setReasonDrawerApprovals] = useState(true);
   const [reviewerNoteDataApprovals, setReviewerNoteDataApprovals] = useState<
@@ -2775,7 +2722,6 @@ const EditDrawer = ({
       getCheckListDataApprovals();
       getCommentDataApprovals(1);
       getReviewerNoteDataApprovals();
-      getLogsDataWorklogs();
     }
   }, [onEdit]);
 
@@ -3155,9 +3101,6 @@ const EditDrawer = ({
     setDocumentNumberErrApprovals([false]);
     setVendorNameErrApprovals([false]);
     setDeletedErrorLogApprovals([]);
-
-    // Logs
-    setLogsDateWorklogs([]);
 
     if (typeof window !== "undefined") {
       const pathname = window.location.href.includes("id=");
@@ -5424,8 +5367,7 @@ const EditDrawer = ({
                                       <div className="flex items-start justify-center">
                                         <FileIcon
                                           fileName={
-                                            i.Attachment[0]
-                                              ?.UserFileName
+                                            i.Attachment[0]?.UserFileName
                                           }
                                         />
                                         <span className="cursor-pointer">
@@ -7579,8 +7521,7 @@ const EditDrawer = ({
                                       <div className="flex items-center justify-center gap-2 mt-6 ml-2">
                                         <FileIcon
                                           fileName={
-                                            field.Attachments[0]
-                                              ?.UserFileName
+                                            field.Attachments[0]?.UserFileName
                                           }
                                         />
                                         <span>
@@ -7777,72 +7718,22 @@ const EditDrawer = ({
                 )}
             </div>
 
-            {/* Logs */}
+            {/* Emailbox */}
             {onEdit > 0 && (
               <div className="mt-14" id="tabpanel-10">
-                <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
-                  <span className="flex items-center">
-                    <HistoryIcon />
-                    <span className="ml-[21px]">Logs</span>
-                  </span>
-                  <span
-                    className={`cursor-pointer ${
-                      logsWorklogsDrawer ? "rotate-180" : ""
-                    }`}
-                    onClick={() => setLogsWorklogsDrawer(!logsWorklogsDrawer)}
-                  >
-                    <ChevronDownIcon />
-                  </span>
-                </div>
-                {logsWorklogsDrawer &&
-                  logsDataWorklogs.length > 0 &&
-                  logsDataWorklogs.map(
-                    (i: AuditlogGetByWorkitem, index: number) => (
-                      <div
-                        className="mt-5 pl-[70px] text-sm"
-                        key={i.UpdatedBy + Math.random()}
-                      >
-                        <div className="flex gap-3 mt-4">
-                          <b className="mt-2">{index + 1}</b>
-                          <div className="flex flex-col items-start">
-                            <b>Modify By: {i.UpdatedBy}</b>
-                            <b>
-                              Date & Time:&nbsp;
-                              {i.UpdatedOn.split("T")[0]
-                                .split("-")
-                                .slice(1)
-                                .concat(i.UpdatedOn.split("T")[0].split("-")[0])
-                                .join("-")}
-                              &nbsp;&&nbsp;
-                              {i.UpdatedOn.split("T")[1]}
-                            </b>
-                            <br />
-                            <ThemeProvider theme={getMuiTheme()}>
-                              <MUIDataTable
-                                data={i.UpdatedFieldsList}
-                                columns={logsDatatableTaskCols}
-                                title={undefined}
-                                options={{
-                                  responsive: "standard",
-                                  viewColumns: false,
-                                  filter: false,
-                                  print: false,
-                                  download: false,
-                                  search: false,
-                                  selectToolbarPlacement: "none",
-                                  selectableRows: "none",
-                                  elevation: 0,
-                                  pagination: false,
-                                }}
-                                data-tableid="task_Report_Datatable"
-                              />
-                            </ThemeProvider>
-                            <br />
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  )}
+                <DrawerEmailbox
+                  onOpen={onOpen}
+                  onEdit={onEdit}
+                  ticketId={!!editData ? editData.TicketId : 0}
+                  clientId={!!editData ? editData.ClientId : 0}
+                />
+              </div>
+            )}
+
+            {/* Logs */}
+            {onEdit > 0 && (
+              <div className="mt-14" id="tabpanel-11">
+                <DrawerLogs onOpen={onOpen} onEdit={onEdit} />
               </div>
             )}
 

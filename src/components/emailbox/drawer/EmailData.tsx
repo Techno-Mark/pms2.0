@@ -51,6 +51,7 @@ const EmailData = forwardRef<
     getTagDropdownData: () => void;
     onOpen: boolean;
     isDisabled: boolean;
+    activeTabList: number;
   }
 >(
   (
@@ -65,6 +66,7 @@ const EmailData = forwardRef<
       getTagDropdownData,
       onOpen,
       isDisabled,
+      activeTabList,
     },
     ref
   ) => {
@@ -90,10 +92,12 @@ const EmailData = forwardRef<
     const [rmUserErr, setRMUserErr] = useState<boolean>(false);
     const [rmDropdown, setRMDropdown] = useState<LabelValue[]>([]);
     const [isSaveEnabled, setIsSaveEnabled] = useState<boolean>(false);
+    const [statusOption, setStatusOption] = useState<LabelValue[]>([]);
 
     useEffect(() => {
       const getDropdowns = async () => {
-        setEmailTypeDropdown(await getEmailTypeData());
+        const data = await getEmailTypeData();
+        data.length > 0 ? setEmailTypeDropdown(data) : setEmailTypeDropdown([]);
       };
       getDropdowns();
     }, []);
@@ -127,6 +131,21 @@ const EmailData = forwardRef<
           !!ticketDetails.Assignee ? Number(ticketDetails.Assignee) : 0
         );
         setStatus(!!ticketDetails.Status ? Number(ticketDetails.Status) : 0);
+        const option = emailBoxStatusOptions.filter((i) => {
+          if (activeTabList === 3) {
+            return i.value !== 1 && i.value !== 2 && i.value !== 7;
+          }
+          return i.value !== 1 && i.value !== 4 && i.value !== 7;
+        });
+        option.filter((i) => i.value === Number(ticketDetails.Status)).length <=
+        0
+          ? setStatusOption([
+              ...option,
+              ...emailBoxStatusOptions.filter(
+                (i) => i.value === Number(ticketDetails.Status)
+              ),
+            ])
+          : setStatusOption(option);
         setDueDate(
           !!ticketDetails.DueDate ? String(ticketDetails.DueDate) : ""
         );
@@ -181,7 +200,8 @@ const EmailData = forwardRef<
     const handleAddNewTag = () => {
       if (inputValue.trim() !== "") {
         const existingTag = tagData.find(
-          (tag: { label: string; value: string }) => tag.value === inputValue.trim()
+          (tag: { label: string; value: string }) =>
+            tag.value === inputValue.trim()
         );
         if (!existingTag) {
           const newTag = { label: inputValue.trim(), value: inputValue.trim() };
@@ -244,6 +264,7 @@ const EmailData = forwardRef<
         } else {
           setIsSaveEnabled(false);
           setOverlayOpen(false);
+          getTicketDetails();
         }
       };
 
@@ -308,11 +329,7 @@ const EmailData = forwardRef<
             <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 250 }}>
               <Autocomplete
                 id="tags-standard"
-                options={
-                  !!ticketDetails?.Status && Number(ticketDetails.Status) !== 1
-                    ? emailBoxStatusOptions.filter((i) => i.value !== 1)
-                    : emailBoxStatusOptions
-                }
+                options={statusOption}
                 getOptionLabel={(option: LabelValue) => option.label}
                 onChange={(e, data: any) => {
                   setStatus(data.value);
@@ -320,9 +337,8 @@ const EmailData = forwardRef<
                 }}
                 disabled={isDisabled}
                 value={
-                  emailBoxStatusOptions.find(
-                    (i: LabelValue) => i.value === status
-                  ) || null
+                  statusOption.find((i: LabelValue) => i.value === status) ||
+                  null
                 }
                 renderInput={(params: any) => (
                   <TextField

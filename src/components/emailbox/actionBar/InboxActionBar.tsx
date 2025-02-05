@@ -140,15 +140,17 @@ const InboxActionBar = ({
           }}
           getOverLay={getOverLay}
         />
-        <ConditionalComponent
-          condition={
-            areAllValuesSame(selectedRowClientId) &&
-            !selectedRowEmailType.includes(0)
-          }
-          Component={Assignee}
-          propsForActionBar={propsForActionBar}
-          getOverLay={getOverLay}
-        />
+        {tab !== "Approval" && (
+          <ConditionalComponent
+            condition={
+              areAllValuesSame(selectedRowClientId) &&
+              !selectedRowEmailType.includes(0)
+            }
+            Component={Assignee}
+            propsForActionBar={propsForActionBar}
+            getOverLay={getOverLay}
+          />
+        )}
         <ConditionalComponentWithoutConditions
           Component={Priority}
           propsForActionBar={{
@@ -165,6 +167,7 @@ const InboxActionBar = ({
             selectedRowIds: selectedRowIds,
             selectedRowsCount: selectedRowsCount,
             getData: getData,
+            tab: tab,
           }}
           getOverLay={getOverLay}
         />
@@ -177,10 +180,11 @@ const InboxActionBar = ({
             getData: getData,
             tagDropdown: tagDropdown,
             getTagDropdownData: getTagDropdownData,
+            handleClearSelection: handleClearSelection,
           }}
           getOverLay={getOverLay}
         />
-        {tab === "Approval" && <AcceptButton />}
+        {/* {tab === "Approval" && <AcceptButton />} */}
       </CustomActionBar>
     </div>
   );

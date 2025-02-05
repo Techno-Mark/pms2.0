@@ -23,13 +23,12 @@ interface Response {
   TotalCount: number;
 }
 
-const Chart_ProjectStatus = ({
+const Chart_Emailbox = ({
   onSelectedProjectIds,
   currentFilterData,
   sendData,
 }: ChartProjectStatusProps) => {
   const [data, setData] = useState<any[]>([]);
-  const [totalCount, setTotalCount] = useState<number>(0);
 
   const getProjectStatusData = async () => {
     const workTypeIdFromLocalStorage =
@@ -50,7 +49,7 @@ const Chart_ProjectStatus = ({
       ProjectId:
         onSelectedProjectIds.length === 0 ? null : onSelectedProjectIds,
     };
-    const url = `${process.env.report_api_url}/dashboard/projectstatusgraph`;
+    const url = `${process.env.report_api_url}/dashboard/errorloggraph`;
     const successCallback = (
       ResponseData: Response,
       error: boolean,
@@ -61,14 +60,13 @@ const Chart_ProjectStatus = ({
           (item: ListProjectStatusSequence) => ({
             name: item.Key,
             y: item.Value,
-            percentage: item.Percentage,
+            z: item.Percentage,
             ColorCode: item.ColorCode,
-            Sequence: item.Sequence,
+            // Sequence: item.Sequence,
           })
         );
 
         setData(chartData);
-        setTotalCount(ResponseData.TotalCount);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -84,15 +82,37 @@ const Chart_ProjectStatus = ({
     return () => clearTimeout(timer);
   }, [currentFilterData]);
 
+  const drilldownData = data;
+
   const chartOptions = {
     chart: {
-      type: "variablepie",
-      width: 480,
-      height: 260,
+      type: "pie",
+      width: 500,
+      height: 280,
       spacingTop: 10,
+      marginLeft: -180,
     },
     title: {
       text: null,
+    },
+
+    plotOptions: {
+      series: {
+        dataLabels: {
+          enabled: false,
+        },
+        cursor: "pointer",
+        point: {
+          events: {
+            click: (event: { point: { name: any } }) => {
+              const selectedPointData = {
+                name: (event.point && event.point.name) || "",
+              };
+              sendData(true, selectedPointData.name);
+            },
+          },
+        },
+      },
     },
     tooltip: {
       headerFormat: "",
@@ -116,44 +136,26 @@ const Chart_ProjectStatus = ({
         );
       },
     },
-    plotOptions: {
-      variablepie: {
-        dataLabels: {
-          enabled: false,
-        },
-        cursor: "pointer",
-        point: {
-          events: {
-            click: (event: { point: { Sequence: number } }) => {
-              const selectedPointData = {
-                Sequence: (event.point && event.point.Sequence) || 0,
-              };
-              sendData(true, selectedPointData.Sequence);
-            },
-          },
-        },
-      },
-    },
     legend: {
       layout: "vertical",
       align: "right",
-      verticalAlign: "middle",
-      width: 150,
-      itemMarginBottom: 10,
+      verticalAlign: "center",
+      // itemMarginTop: 10,
+      // width: 400,
+      // x: 200,
     },
     series: [
       {
-        type: "variablepie",
-        minPointSize: 30,
-        innerSize: "60%",
-        zMin: 0,
-        name: "projects",
-        borderRadius: 4,
-        showInLegend: true,
+        type: "pie",
+        colorByPoint: true,
         data: data,
+        showInLegend: true,
         colors: data.map((item: { ColorCode: string }) => item.ColorCode),
       },
     ],
+    drilldown: {
+      series: drilldownData,
+    },
     accessibility: {
       enabled: false,
     },
@@ -165,29 +167,15 @@ const Chart_ProjectStatus = ({
   return (
     <div className="flex flex-col px-[20px]">
       <span className="flex items-start pt-[30px] px-[10px] text-lg font-medium">
-        Project Status
+        Email box
       </span>
       <div className="flex justify-between relative">
-        <div className="mt-5">
+        <div>
           <HighchartsReact highcharts={Highcharts} options={chartOptions} />
         </div>
-        {data.length > 0 && (
-          <span
-            className={`flex flex-col items-center absolute bottom-[5.9rem] z-0 ${
-              totalCount <= 1 ? "left-[8.45rem]" : "left-[8.35rem]"
-            }`}
-          >
-            <span className="text-xl font-semibold text-darkCharcoal">
-              {totalCount}
-            </span>
-            <span className="text-lg text-slatyGrey">
-              {totalCount > 1 ? "Tasks" : "Task"}
-            </span>
-          </span>
-        )}
       </div>
     </div>
   );
 };
 
-export default Chart_ProjectStatus;
+export default Chart_Emailbox;

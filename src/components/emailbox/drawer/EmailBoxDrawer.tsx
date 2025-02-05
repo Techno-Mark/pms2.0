@@ -12,6 +12,8 @@ import Attachments from "./Attachments";
 import { callAPI } from "@/utils/API/callAPI";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import DrawerOverlay from "@/components/settings/drawer/DrawerOverlay";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 interface EmailBoxDrawerProps {
   onOpen: boolean;
@@ -34,6 +36,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
   tagDropdown,
   getTagDropdownData,
 }) => {
+  const router = useRouter();
   const clientRef = useRef<EmailDataContenRef>(null);
   const conversationRef = useRef<ConversationDataContenRef>(null);
   const [overlayOpen, setOverlayOpen] = useState(false);
@@ -50,7 +53,34 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
   const [activeTab, setActiveTab] = useState(0);
   const [syncTime, setSyncTime] = useState(0);
 
-  const handleTaskCreate = () => {};
+  const handleTaskCreate = () => {
+    setOverlayOpen(true);
+    const params = {
+      TicketIds: [ticketId],
+    };
+    const url = `${process.env.emailbox_api_url}/emailbox/saveWorkItemFromTicket`;
+    const successCallback = (
+      ResponseData: {
+        InvalidStatusCount: number;
+        ValidTicketCount: number;
+        InvalidTicketCount: number;
+      },
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        ResponseData.ValidTicketCount > 0 &&
+          toast.success("Task created successfully.");
+        (ResponseData.InvalidStatusCount > 0 ||
+          ResponseData.InvalidTicketCount > 0) &&
+          toast.error("Please try again later.");
+        setOverlayOpen(false);
+      } else {
+        setOverlayOpen(false);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
 
   const handleClose = () => {
     if (clientRef.current) {
@@ -59,12 +89,21 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
     if (conversationRef.current) {
       conversationRef.current.clearConversationData();
     }
-    onDataFetch?.();
     setActiveTab(0);
     setTabs([]);
     setTicketDetails(null);
     setCreateTask(false);
-    onClose();
+
+    if (typeof window !== "undefined") {
+      const pathname = window.location.href.includes("id=");
+      if (pathname) {
+        onClose();
+        router.push("/emailbox");
+      } else {
+        onClose();
+        onDataFetch?.();
+      }
+    }
   };
 
   const getTicketDetails = (open: boolean = false) => {
@@ -79,13 +118,13 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
         setTabs(ResponseData.Tabs);
         setTicketDetails(ResponseData.TicketDetails);
         setCreateTask(
-          !ResponseData.TicketDetails.Assignee ||
-            !ResponseData.TicketDetails.DueDate ||
-            !ResponseData.TicketDetails.EmailType ||
-            !ResponseData.TicketDetails.Priority ||
-            !ResponseData.TicketDetails.Status ||
-            !ResponseData.TicketDetails.ApprovalId ||
-            ResponseData.TicketDetails.Tags.length <= 0
+          !!ResponseData.TicketDetails.Assignee &&
+            !!ResponseData.TicketDetails.EmailType &&
+            !!ResponseData.TicketDetails.Priority &&
+            (ResponseData.TicketDetails.Status === 2 ||
+              ResponseData.TicketDetails.Status === 3 ||
+              ResponseData.TicketDetails.Status === 5) &&
+            !!ResponseData.TicketDetails.ApprovalId
         );
         setSyncTime(ResponseData.TicketDetails.RemainingSyncTime);
         open && setActiveTab(1);
@@ -203,15 +242,15 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
             <Button
               variant="contained"
               className={`rounded-[4px] !h-[36px] ${
-                createTask
+                !createTask
                   ? "bg-gray-500 !cursor-not-allowed"
                   : "!bg-secondary cursor-pointer"
               } mr-2`}
               onClick={handleTaskCreate}
-              disabled={createTask}
+              disabled={!createTask}
             >
               <span className="flex items-center gap-[10px] px-[5px]">
-                <AddPlusIcon color={createTask ? "gray" : "white"} />
+                <AddPlusIcon color={!createTask ? "gray" : "white"} />
                 <span className="pt-1">Create Task</span>
               </span>
             </Button>
@@ -235,6 +274,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
             setOverlayOpen={setOverlayOpen}
             tagDropdown={tagDropdown}
             getTagDropdownData={getTagDropdownData}
+            activeTabList={activeTabList}
             isDisabled={activeTabList === 2}
           />
         </div>
@@ -247,6 +287,11 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
               setOverlayOpen={setOverlayOpen}
               getTicketDetails={getTicketDetails}
               ticketDetails={ticketDetails}
+              clientId={clientId}
+              activeTabList={activeTabList}
+              onClose={onClose}
+              onDataFetch={onDataFetch}
+              createTask={createTask}
             />
           ) : activeTab === 2 ? (
             <Comments
@@ -264,7 +309,11 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
         </div>
       </div>
 
-      <DrawerOverlay isOpen={overlayOpen} onClose={handleDrawerClose} />
+      <DrawerOverlay
+        isOpen={overlayOpen}
+        className="!-top-[1px] !-left-[1px]"
+        onClose={handleDrawerClose}
+      />
     </div>
   );
 };

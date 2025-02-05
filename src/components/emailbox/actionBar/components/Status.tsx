@@ -11,10 +11,12 @@ const Status = ({
   selectedRowIds,
   getData,
   getOverLay,
+  tab,
 }: {
   selectedRowIds: number[];
   getData: () => void;
   getOverLay: (e: boolean) => void;
+  tab: string;
 }) => {
   const [anchorElStatus, setAnchorElStatus] =
     React.useState<HTMLButtonElement | null>(null);
@@ -43,16 +45,23 @@ const Status = ({
     };
     const url = `${process.env.emailbox_api_url}/emailbox/UpdateStatus`;
     const successCallback = (
-      ResponseData: boolean | number | string,
+      ResponseData: {
+        Result: number;
+        SuccessTicketIds: string;
+        NotProcessedTicketIds: string;
+      },
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        toast.success("Status has been updated successfully.");
-        getData();
-        getOverLay(false);
-      } else if (ResponseStatus === "Warning" && error === false) {
-        toast.warning(ResponseData);
+        !!ResponseData.SuccessTicketIds &&
+          ResponseData.SuccessTicketIds.length > 0 &&
+          toast.success("Status has been updated successfully.");
+        !!ResponseData.NotProcessedTicketIds &&
+          ResponseData.NotProcessedTicketIds.length > 0 &&
+          toast.warning(
+            `Please set bussiness hours for ${ResponseData.NotProcessedTicketIds}.`
+          );
         getData();
         getOverLay(false);
       } else {
@@ -88,7 +97,17 @@ const Status = ({
         <nav className="!w-52">
           <List>
             {emailBoxStatusOptions
-              .filter((i) => i.value !== 1)
+              .filter((i) => {
+                if (tab === "Approval") {
+                  return (
+                    i.value !== 1 &&
+                    i.value !== 2 &&
+                    i.value !== 4 &&
+                    i.value !== 7
+                  );
+                }
+                return i.value !== 1 && i.value !== 4 && i.value !== 7;
+              })
               .map((option: { value: number; label: string }) => (
                 <span
                   key={option.value}

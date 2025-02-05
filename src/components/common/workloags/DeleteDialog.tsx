@@ -33,6 +33,7 @@ interface DeleteModalProps {
   Title: string;
   firstContent: string;
   secondContent: string;
+  buttonContent?: boolean;
 }
 
 const DeleteDialog = ({
@@ -42,6 +43,7 @@ const DeleteDialog = ({
   Title,
   firstContent,
   secondContent,
+  buttonContent = false,
 }: DeleteModalProps) => {
   return (
     <div>
@@ -81,7 +83,7 @@ const DeleteDialog = ({
             variant="contained"
             color="error"
           >
-            No, cancel
+            {buttonContent ? "No" : "No, cancel"}
           </Button>
           <Button
             className="!bg-secondary"
@@ -92,7 +94,7 @@ const DeleteDialog = ({
             autoFocus
             variant="contained"
           >
-            Yes, delete
+            {buttonContent ? "Yes" : "Yes, delete"}
           </Button>
         </DialogActions>
       </Dialog>

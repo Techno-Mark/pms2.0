@@ -294,6 +294,23 @@ const EmailTemplateContent = forwardRef<
             setText={setText}
             textError={textError}
             setTextError={setTextError}
+            placeholders={[
+              { label: "Ticket ID", value: "{{TicketID}}" },
+              { label: "Ticket Subject", value: "{{TicketSubject}}" },
+              { label: "Ticket Priority", value: "{{TicketPriority}}" },
+              { label: "Ticket URL", value: "{{TicketURL}}" },
+              { label: "Tag", value: "{{Tag}}" },
+              { label: "Assignee Name", value: "{{AssigneeName}}" },
+              { label: "Assignee Email", value: "{{AssigneeEmail}}" },
+              { label: "Status", value: "{{Status}}" },
+              { label: "Ticket Type", value: "{{TicketType}}" },
+              { label: "Client Name", value: "{{ClientName}}" },
+              { label: "Client Email", value: "{{ClientEmail}}" },
+              { label: "Updated By", value: "{{UpdatedBy}}" },
+              { label: "SLA Due Time", value: "{{SLADueTime}}" },
+              { label: "OrganizationName", value: "{{OrganizationName}}" },
+              { label: "Closed Date", value: "{{ClosedDate}}" },
+            ]}
           />
         </div>
 
