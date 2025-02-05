@@ -93,7 +93,7 @@ const Conversations = forwardRef<
     activeTabList: number;
     onClose: () => void;
     onDataFetch: (() => void) | null;
-    createTask: boolean;
+    allFieldsFilled: boolean;
   }
 >(
   (
@@ -107,7 +107,7 @@ const Conversations = forwardRef<
       activeTabList,
       onClose,
       onDataFetch,
-      createTask,
+      allFieldsFilled,
     },
     ref
   ) => {
@@ -150,7 +150,88 @@ const Conversations = forwardRef<
         ResponseStatus: string
       ) => {
         if (ResponseStatus === "Success" && error === false) {
-          setData(ResponseData.ConversationDetails);
+          // setData(ResponseData.ConversationDetails);
+          setData([
+            {
+              TrailId: 63,
+              From: "varun.vataliya@technomark.io",
+              To: "",
+              MessageId:
+                "PN3PPF6ED4D0A96CF1AA3D38CB93E241E0293F72@PN3PPF6ED4D0A96.INDPRD01.PROD.OUTLOOK.COM",
+              CC: "bhumika.vyas@technomark.io",
+              BCC: null,
+              Subject: "Test Bank Statement05-02-2025",
+              Body: '<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmlns="http://www.w3.org/TR/REC-html40">\r\n<head>\r\n<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">\r\n<meta name="Generator" content="Microsoft Word 15 (filtered medium)">\r\n<!--[if !mso]><style>v\\:* {behavior:url(#default#VML);}\r\no\\:* {behavior:url(#default#VML);}\r\nw\\:* {behavior:url(#default#VML);}\r\n.shape {behavior:url(#default#VML);}\r\n</style><![endif]--><style><!--\r\n/* Font Definitions */\r\n@font-face\r\n\t{font-family:Shruti;\r\n\tpanose-1:2 0 5 0 0 0 0 0 0 0;}\r\n@font-face\r\n\t{font-family:"Cambria Math";\r\n\tpanose-1:2 4 5 3 5 4 6 3 2 4;}\r\n@font-face\r\n\t{font-family:Calibri;\r\n\tpanose-1:2 15 5 2 2 2 4 3 2 4;}\r\n/* Style Definitions */\r\np.MsoNormal, li.MsoNormal, div.MsoNormal\r\n\t{margin:0cm;\r\n\tmargin-bottom:.0001pt;\r\n\tfont-size:11.0pt;\r\n\tfont-family:"Calibri",sans-serif;\r\n\tmso-fareast-language:EN-US;}\r\na:link, span.MsoHyperlink\r\n\t{mso-style-priority:99;\r\n\tcolor:#0563C1;\r\n\ttext-decoration:underline;}\r\na:visited, span.MsoHyperlinkFollowed\r\n\t{mso-style-priority:99;\r\n\tcolor:#954F72;\r\n\ttext-decoration:underline;}\r\nspan.EmailStyle17\r\n\t{mso-style-type:personal-compose;\r\n\tfont-family:"Calibri",sans-serif;\r\n\tcolor:windowtext;}\r\n.MsoChpDefault\r\n\t{mso-style-type:export-only;\r\n\tfont-family:"Calibri",sans-serif;\r\n\tmso-fareast-language:EN-US;}\r\n@page WordSection1\r\n\t{size:612.0pt 792.0pt;\r\n\tmargin:72.0pt 72.0pt 72.0pt 72.0pt;}\r\ndiv.WordSection1\r\n\t{page:WordSection1;}\r\n--></style><!--[if gte mso 9]><xml>\r\n<o:shapedefaults v:ext="edit" spidmax="1026" />\r\n</xml><![endif]--><!--[if gte mso 9]><xml>\r\n<o:shapelayout v:ext="edit">\r\n<o:idmap v:ext="edit" data="1" />\r\n</o:shapelayout></xml><![endif]-->\r\n</head>\r\n<body lang="EN-IN" link="#0563C1" vlink="#954F72">\r\n<div class="WordSection1">\r\n<p class="MsoNormal"><o:p>&nbsp;</o:p></p>\r\n<p class="MsoNormal"><o:p>&nbsp;</o:p></p>\r\n<p class="MsoNormal"><span style="mso-fareast-language:EN-IN"><o:p>&nbsp;</o:p></span></p>\r\n<p class="MsoNormal"><span style="mso-fareast-language:EN-IN"><o:p>&nbsp;</o:p></span></p>\r\n<p class="MsoNormal"><span style="mso-fareast-language:EN-IN"><o:p>&nbsp;</o:p></span></p>\r\n<p class="MsoNormal"><span style="mso-fareast-language:EN-IN"><o:p>&nbsp;</o:p></span></p>\r\n<p class="MsoNormal"><span style="mso-fareast-language:EN-IN"><o:p>&nbsp;</o:p></span></p>\r\n<p class="MsoNormal"><span style="mso-fareast-language:EN-IN"><o:p>&nbsp;</o:p></span></p>\r\n<p class="MsoNormal"><span style="mso-fareast-language:EN-IN"><o:p>&nbsp;</o:p></span></p>\r\n<table class="MsoTableGrid" border="0" cellspacing="0" cellpadding="0" width="548" style="width:410.85pt;border-collapse:collapse;border:none">\r\n<tbody>\r\n<tr style="height:112.95pt">\r\n<td width="257" valign="top" style="width:193.05pt;border:none;border-right:solid #000099 1.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:112.95pt">\r\n<p class="MsoNormal" align="center" style="text-align:center"><img width="77" height="103" style="width:.802in;height:1.0729in" id="Picture_x0020_1" src="cid:image001.jpg@01DB77D8.9FC4D5C0"><o:p></o:p></p>\r\n<p class="MsoNormal" align="center" style="text-align:center"><img width="243" height="45" style="width:2.5312in;height:.4687in" id="Graphic_x0020_2" src="cid:image002.png@01DB77D8.9FC4D5C0"><o:p></o:p></p>\r\n</td>\r\n<td width="290" valign="top" style="width:217.8pt;border:none;padding:0cm 5.4pt 0cm 5.4pt;height:112.95pt">\r\n<p class="MsoNormal" style="line-height:115%"><b><span style="font-size:16.0pt;line-height:115%;color:#000099">Varun Vataliya</span></b><span style="font-size:16.0pt;line-height:115%;color:#0070C0">\r\n</span>| Jr. Quality Analyst<o:p></o:p></p>\r\n<p class="MsoNormal" style="line-height:115%">Email: varun.vataliya@technomark.io<o:p></o:p></p>\r\n<p class="MsoNormal" style="line-height:115%">Phone: (808)838-4854<o:p></o:p></p>\r\n<p class="MsoNormal" style="line-height:115%">Address: Texas | California | Hawaii<o:p></o:p></p>\r\n<p class="MsoNormal" style="line-height:115%">Sydney | Ahmedabad | Mumbai | Hyderabad<o:p></o:p></p>\r\n<p class="MsoNormal" style="line-height:115%"><b><span style="font-size:12.0pt;line-height:115%;color:#000099"><a href="http://www.technomark.io"><span style="color:#000099">www.technomark.io</span></a></span></b><b><span style="font-size:12.0pt;line-height:115%;color:#0070C0"><o:p></o:p></span></b></p>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n<p class="MsoNormal"><span style="mso-fareast-language:EN-IN"><o:p>&nbsp;</o:p></span></p>\r\n<p class="MsoNormal"><o:p>&nbsp;</o:p></p>\r\n</div>\r\n</body>\r\n</html>\r\n',
+              isHTML: true,
+              ReceivedOn: "05 February 2025 02:17 PM (1 hours ago)",
+              Attachments: null,
+              Type: 2,
+              FromUser: "varun.vataliya@technomark.io",
+              IsDraft: false,
+              IsInReview: false,
+              HasPermission: true,
+              InReplyTo: null,
+            },
+            {
+              TrailId: 66,
+              From: "pmstest.manager1@yopmail.com",
+              To: "varun.vataliya@technomark.io",
+              MessageId: "F9GA2DONBPU4.ITP9JR3ZSP513@10-30-19-127",
+              CC: "bhumika.vyas@technomark.io",
+              BCC: "",
+              Subject: "Test Bank Statement05-02-2025",
+              Body: "<p>draft mail for that functionality</p>",
+              isHTML: true,
+              ReceivedOn: "05 February 2025 03:14 PM (18 minutes ago)",
+              Attachments: null,
+              Type: 1,
+              FromUser: "PMS Test Manager",
+              IsDraft: false,
+              IsInReview: false,
+              HasPermission: true,
+              InReplyTo:
+                "PN3PPF6ED4D0A96CF1AA3D38CB93E241E0293F72@PN3PPF6ED4D0A96.INDPRD01.PROD.OUTLOOK.COM",
+            },
+            {
+              TrailId: 69,
+              From: "pmstest.manager1@yopmail.com",
+              To: "varun.vataliya@technomark.io,bhumika.vyas@technomark.io",
+              MessageId: "W8S4I5QNBPU4.ZWQ2DUVQ2KOQ@10-30-19-127",
+              CC: "varun.vataliya@technomark.io",
+              BCC: "",
+              Subject: "Email Statement",
+              Body: "<p>checking draft mail</p>",
+              isHTML: true,
+              ReceivedOn: "05 February 2025 03:20 PM (12 minutes ago)",
+              Attachments: null,
+              Type: 1,
+              FromUser: "PMS Test Manager",
+              IsDraft: false,
+              IsInReview: false,
+              HasPermission: true,
+              InReplyTo:
+                "PN3PPF6ED4D0A96F9248CCDF9E29632890C93F52@PN3PPF6ED4D0A96.INDPRD01.PROD.OUTLOOK.COM",
+            },
+            {
+              TrailId: 71,
+              From: "pmstest.manager1@yopmail.com",
+              To: "pmstest.manager1@yopmail.com,varun.vataliya@technomark.io,bhumika.vyas@technomark.io",
+              MessageId: "H9MR50RNBPU4.8555QOBKQ4OM3@10-30-19-127",
+              CC: "varun.vataliya@technomark.io",
+              BCC: "",
+              Subject: "Email Statement",
+              Body: "<p>edit draft mail with attachment</p>",
+              isHTML: true,
+              ReceivedOn: "05 February 2025 03:21 PM (11 minutes ago)",
+              Attachments: null,
+              Type: 1,
+              FromUser: "PMS Test Manager",
+              IsDraft: false,
+              IsInReview: false,
+              HasPermission: true,
+              InReplyTo: "W8S4I5QNBPU4.ZWQ2DUVQ2KOQ@10-30-19-127",
+            },
+          ]);
         } else {
           setData([]);
         }
@@ -308,7 +389,7 @@ const Conversations = forwardRef<
     );
 
     const handleDraftMail = (isDraft: boolean) => {
-      if (!createTask)
+      if (!allFieldsFilled)
         return toast.warning("Please fill all mendatory details.");
       if (
         !!toInputValueError ||
@@ -373,7 +454,7 @@ const Conversations = forwardRef<
     };
 
     const handleSubmitMail = () => {
-      if (!createTask)
+      if (!allFieldsFilled)
         return toast.warning("Please fill all mendatory details.");
       if (
         !!toInputValueError ||
@@ -429,7 +510,7 @@ const Conversations = forwardRef<
     };
 
     const handleSubmitDraftOrApproval = () => {
-      if (!createTask)
+      if (!allFieldsFilled)
         return toast.warning("Please fill all mendatory details.");
       if (
         !!toInputValueError ||
@@ -490,7 +571,7 @@ const Conversations = forwardRef<
     };
 
     const deleteDraftMail = () => {
-      if (!createTask)
+      if (!allFieldsFilled)
         return toast.warning("Please fill all mendatory details.");
       setOverlayOpen(true);
 
@@ -530,7 +611,7 @@ const Conversations = forwardRef<
     };
 
     const submitMail = () => {
-      if (!createTask)
+      if (!allFieldsFilled)
         return toast.warning("Please fill all mendatory details.");
       setOverlayOpen(true);
 
@@ -630,13 +711,16 @@ const Conversations = forwardRef<
             data[active - 1].To?.trim() ? data[active - 1].To.split(",") : []
           );
         } else {
+          const fromMembers = data[active - 1].From?.trim()
+            ? data[active - 1].From.split(",")
+            : [];
+          const toMembers = data[active - 1].To?.trim()
+            ? data[active - 1].To.split(",")
+            : [];
+
           setToMembers([
-            ...(data[active - 1].From?.trim()
-              ? data[active - 1].From.split(",")
-              : []),
-            ...(data[active - 1].To?.trim()
-              ? data[active - 1].To.split(",")
-              : []),
+            ...fromMembers,
+            ...toMembers.filter((to) => !fromMembers.includes(to)), // Remove duplicates
           ]);
         }
       }
@@ -658,6 +742,7 @@ const Conversations = forwardRef<
                     setInputValue={setToInputValue}
                     error={toInputValueError}
                     setError={setToInputValueError}
+                    validate={true}
                   />
                   <MemberInput
                     label="Cc"

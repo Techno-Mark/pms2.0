@@ -50,6 +50,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
   ]);
   const [ticketDetails, setTicketDetails] = useState<any>(null);
   const [createTask, setCreateTask] = useState(false);
+  const [allFieldsFilled,setAllFieldsFilled]=useState(false)
   const [activeTab, setActiveTab] = useState(0);
   const [syncTime, setSyncTime] = useState(0);
 
@@ -92,7 +93,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
     setActiveTab(0);
     setTabs([]);
     setTicketDetails(null);
-    setCreateTask(false);
+    setCreateTask(false);setAllFieldsFilled(false)
 
     if (typeof window !== "undefined") {
       const pathname = window.location.href.includes("id=");
@@ -124,6 +125,13 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
             (ResponseData.TicketDetails.Status === 2 ||
               ResponseData.TicketDetails.Status === 3 ||
               ResponseData.TicketDetails.Status === 5) &&
+            !!ResponseData.TicketDetails.ApprovalId
+        );
+        setAllFieldsFilled(
+          !!ResponseData.TicketDetails.Assignee &&
+            !!ResponseData.TicketDetails.EmailType &&
+            !!ResponseData.TicketDetails.Priority &&
+            !!ResponseData.TicketDetails.Status &&
             !!ResponseData.TicketDetails.ApprovalId
         );
         setSyncTime(ResponseData.TicketDetails.RemainingSyncTime);
@@ -291,7 +299,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
               activeTabList={activeTabList}
               onClose={onClose}
               onDataFetch={onDataFetch}
-              createTask={createTask}
+              allFieldsFilled={allFieldsFilled}
             />
           ) : activeTab === 2 ? (
             <Comments
