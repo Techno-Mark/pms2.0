@@ -81,12 +81,17 @@ const InboxTable = ({
     []
   );
 
-  const getData = async () => {
+  const getData = async (IsDelay = false) => {
     setFileds({
       ...fileds,
       loaded: false,
     });
     handleClearSelection();
+
+    if (IsDelay) {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+    }
+
     const url = `${process.env.emailbox_api_url}/emailbox/getticketlist`;
 
     const successCallback = (
@@ -384,7 +389,7 @@ const InboxTable = ({
                       2,
                       "0"
                     )}`}
-                    {tableMeta.rowData[tableMeta.rowData.length - 2] !== 1 && (
+                    {tableMeta.rowData[tableMeta.rowData.length - 4] && (
                       <ColorToolTip title="Sync" placement="top" arrow>
                         <span
                           className="cursor-pointer"
@@ -472,7 +477,11 @@ const InboxTable = ({
 
             return (
               <div
-                className="ml-2 text-[#0592C6] cursor-pointer"
+                className={`ml-2 text-[#0592C6] cursor-pointer ${
+                  !tableMeta.rowData[tableMeta.rowData.length - 5]
+                    ? "font-bold"
+                    : ""
+                }`}
                 onClick={() => {
                   handleDrawerOpen?.();
                   getId?.(
@@ -525,6 +534,22 @@ const InboxTable = ({
           viewColumns: false,
         },
       };
+    } else if (column.name === "IsSyncOn") {
+      return {
+        name: "IsSyncOn",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
+    } else if (column.name === "MarkAsRead") {
+      return {
+        name: "MarkAsRead",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
     } else {
       return generateCustomColumn(
         column.name,
@@ -540,6 +565,20 @@ const InboxTable = ({
       name: "UpdatedBy",
       label: "Create Task Icon",
       bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "MarkAsRead",
+      options: {
+        display: false,
+        viewColumns: false,
+      },
+    },
+    {
+      name: "IsSyncOn",
+      options: {
+        display: false,
+        viewColumns: false,
+      },
     },
     {
       name: "ApprovalId",

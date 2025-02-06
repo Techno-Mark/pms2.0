@@ -32,14 +32,21 @@ const DashboardItems = ({ pathname, isCollapsed, sidebarItems }: any) => {
                   pathname === `${item.href}`
                     ? "border-[#0592C6] bg-[#F6F6F6]"
                     : "border-pureWhite"
-                }`}
+                } no-underline text-black`}
+                style={{ textDecoration: "none" }}
               >
                 {isCollapsed ? (
                   <span className="py-[18px]">{item.icon}</span>
                 ) : (
                   <>
-                    <span className="py-[18px]">{item.icon}</span>
-                    <span className="pl-[10px] py-[18px]">{item.name}</span>
+                    <span className="py-[18px] text-black">
+                      {item.icon}
+                    </span>
+                    <span
+                      className="pl-[10px] py-[18px] text-black"
+                    >
+                      {item.name}
+                    </span>
                   </>
                 )}
               </Link>

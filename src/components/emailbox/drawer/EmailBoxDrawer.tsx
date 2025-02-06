@@ -50,7 +50,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
   ]);
   const [ticketDetails, setTicketDetails] = useState<any>(null);
   const [createTask, setCreateTask] = useState(false);
-  const [allFieldsFilled,setAllFieldsFilled]=useState(false)
+  const [allFieldsFilled, setAllFieldsFilled] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [syncTime, setSyncTime] = useState(0);
 
@@ -93,7 +93,8 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
     setActiveTab(0);
     setTabs([]);
     setTicketDetails(null);
-    setCreateTask(false);setAllFieldsFilled(false)
+    setCreateTask(false);
+    setAllFieldsFilled(false);
 
     if (typeof window !== "undefined") {
       const pathname = window.location.href.includes("id=");
@@ -198,13 +199,18 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
               2,
               "0"
             )}`}
-            {activeTabList !== 2 && (
-              <ColorToolTip title="Sync" placement="top" arrow>
-                <span onClick={() => getSyncTime()} className="cursor-pointer">
-                  <RestartButton />
-                </span>
-              </ColorToolTip>
-            )}
+            {activeTabList !== 2 &&
+              !!ticketDetails &&
+              ticketDetails.IsSyncOn && (
+                <ColorToolTip title="Sync" placement="top" arrow>
+                  <span
+                    onClick={() => getSyncTime()}
+                    className="cursor-pointer"
+                  >
+                    <RestartButton />
+                  </span>
+                </ColorToolTip>
+              )}
           </span>
         </div>
         <Tooltip title="Close" placement="top" arrow>

@@ -11,6 +11,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 interface emailTemplateDrawerProps {
   onOpen: boolean;
@@ -109,6 +110,7 @@ const EmailTemplateDrawer: React.FC<emailTemplateDrawerProps> = ({
   };
 
   const handleSubmit = () => {
+    if(activeTemplate===0) return toast.warning("Please select atleast one email template.")
     setLoading(true);
     const url = `${process.env.emailbox_api_url}/emailbox/getemailcontent`;
 
@@ -168,6 +170,7 @@ const EmailTemplateDrawer: React.FC<emailTemplateDrawerProps> = ({
         onChange={(e, data: any) => {
           setEmailType(data.value);
           getEmailTemplate(data.value);
+          setActiveTemplate(0);
         }}
         value={
           emailTypeOption.find((i: LabelValue) => i.value === emailType) || null

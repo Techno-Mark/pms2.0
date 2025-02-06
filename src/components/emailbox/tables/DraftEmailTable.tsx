@@ -266,7 +266,7 @@ const DraftEmailTable = ({
                       2,
                       "0"
                     )}`}
-                    {tableMeta.rowData[tableMeta.rowData.length - 2] !== 1 && (
+                    {tableMeta.rowData[tableMeta.rowData.length - 3] && (
                       <ColorToolTip title="Sync" placement="top" arrow>
                         <span
                           className="cursor-pointer"
@@ -386,6 +386,14 @@ const DraftEmailTable = ({
           viewColumns: false,
         },
       };
+    } else if (column.name === "IsSyncOn") {
+      return {
+        name: "IsSyncOn",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
     } else {
       return generateCustomColumn(
         column.name,
@@ -397,6 +405,13 @@ const DraftEmailTable = ({
 
   const inboxCols = [
     ...inboxColsConfig.slice(0, inboxColsConfig.length - 1),
+    {
+      name: "IsSyncOn",
+      options: {
+        display: false,
+        viewColumns: false,
+      },
+    },
     {
       name: "Status",
       options: {

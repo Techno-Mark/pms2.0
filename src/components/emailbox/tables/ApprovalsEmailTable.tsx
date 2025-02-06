@@ -80,12 +80,17 @@ const ApprovalsEmailTable = ({
     []
   );
 
-  const getData = async () => {
+  const getData = async (IsDelay=false) => {
     setFileds({
       ...fileds,
       loaded: false,
     });
     handleClearSelection();
+    
+    if (IsDelay) {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+    }
+    
     const url = `${process.env.emailbox_api_url}/emailbox/getticketlist`;
 
     const successCallback = (
@@ -339,7 +344,7 @@ const ApprovalsEmailTable = ({
                       2,
                       "0"
                     )}`}
-                    {tableMeta.rowData[tableMeta.rowData.length - 2] !== 1 && (
+                    {tableMeta.rowData[tableMeta.rowData.length - 2] && (
                       <ColorToolTip title="Sync" placement="top" arrow>
                         <span
                           className="cursor-pointer"
@@ -472,6 +477,14 @@ const ApprovalsEmailTable = ({
           viewColumns: false,
         },
       };
+    } else if (column.name === "IsSyncOn") {
+      return {
+        name: "IsSyncOn",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
     } else {
       return generateCustomColumn(
         column.name,
@@ -481,7 +494,17 @@ const ApprovalsEmailTable = ({
     }
   };
 
-  const inboxCols = inboxColsConfig.map((col: any) => {
+  const inboxCols = [
+    ...inboxColsConfig.slice(0, inboxColsConfig.length - 1),
+    {
+      name: "IsSyncOn",
+      options: {
+        display: false,
+        viewColumns: false,
+      },
+    },
+    ...inboxColsConfig.slice(inboxColsConfig.length - 1),
+  ].map((col: any) => {
     return generateConditionalColumn(col);
   });
 

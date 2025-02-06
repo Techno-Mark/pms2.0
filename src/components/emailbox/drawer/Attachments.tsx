@@ -38,8 +38,8 @@ const Attachments = ({
   const [attachmentType, setAttachmentType] = useState(0);
   const attachmentTypeDropdown = [
     { label: "All", value: 0 },
-    { label: "Internal Attachment", value: 3 },
-    { label: "Email Attachment", value: 4 },
+    { label: "Email Attachment", value: 3 },
+    { label: "Internal Attachment", value: 4 },
   ];
 
   const getAttachmentData = async (AttachmentType: number) => {
@@ -181,10 +181,14 @@ const Attachments = ({
           sort: true,
           customHeadLabelRender: () =>
             generateCustomHeaderName("Attachment Type"),
-          customBodyRender: (value: string) => {
+          customBodyRender: (value: number) => {
             return (
               <div>
-                {value === "3" ? "Internal Attachment" : "Email Attachment"}
+                {value == 4
+                  ? "Internal Attachment"
+                  : value == 3
+                  ? "Email Attachment"
+                  : "-"}
               </div>
             );
           },

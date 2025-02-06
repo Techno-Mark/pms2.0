@@ -14,7 +14,7 @@ const Status = ({
   tab,
 }: {
   selectedRowIds: number[];
-  getData: () => void;
+  getData: (IsDelay: boolean) => void;
   getOverLay: (e: boolean) => void;
   tab: string;
 }) => {
@@ -62,7 +62,7 @@ const Status = ({
           toast.warning(
             `Please set bussiness hours for ${ResponseData.NotProcessedTicketIds}.`
           );
-        getData();
+        getData(statusId === 2);
         getOverLay(false);
       } else {
         getOverLay(false);

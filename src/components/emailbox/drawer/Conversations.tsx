@@ -910,155 +910,165 @@ const Conversations = forwardRef<
                     </p>
                     {(ticketDetails.Assignee ===
                       Number(localStorage.getItem("UserId")) ||
-                      activeTabList === 3) && (
-                      <div className="flex items-center justify-center gap-3 relative">
-                        {activeTabList === 1 && (
-                          <>
-                            <ColorToolTip
-                              title="Email Template"
-                              placement="top"
-                              arrow
-                            >
-                              <p
-                                className="cursor-pointer"
-                                onClick={() => {
-                                  setActive(index + 1);
-                                  // setTrailId(i.TrailId);
-                                  setConversationAttachment([]);
-                                  setActiveType("EmailTemplate");
-                                }}
+                      activeTabList === 3) &&
+                      !!ticketDetails &&
+                      (ticketDetails.Status === 2 ||
+                        ticketDetails.Status === 4 ||
+                        ticketDetails.Status === 7) && (
+                        <div className="flex items-center justify-center gap-3 relative">
+                          {activeTabList === 1 && (
+                            <>
+                              <ColorToolTip
+                                title="Email Template"
+                                placement="top"
+                                arrow
                               >
-                                <EmailTemplate />
-                              </p>
-                            </ColorToolTip>
-                            <ColorToolTip
-                              title="ReplyAll"
-                              placement="top"
-                              arrow
-                            >
-                              <p
-                                className="cursor-pointer"
-                                onClick={() => {
-                                  setActive(index + 1);
-                                  // setTrailId(i.TrailId);
-                                  setConversationAttachment([]);
-                                  setActiveType("ReplyAll");
-                                }}
-                              >
-                                <ReplayAll />
-                              </p>
-                            </ColorToolTip>
-                            <ColorToolTip title="Forward" placement="top" arrow>
-                              <p
-                                className="cursor-pointer"
-                                onClick={() => {
-                                  setActive(index + 1);
-                                  // setTrailId(i.TrailId);
-                                  setConversationAttachment(
-                                    !!i.Attachments ? i.Attachments : []
-                                  );
-                                  setActiveType("Forward");
-                                }}
-                              >
-                                <Forward />
-                              </p>
-                            </ColorToolTip>
-                          </>
-                        )}
-                        {((activeTabList === 4 && i.IsDraft) ||
-                          (activeTabList === 3 &&
-                            i.IsInReview &&
-                            i.HasPermission)) && (
-                          <p
-                            className="cursor-pointer"
-                            onClick={() => setShowPopup(i.TrailId)}
-                            ref={buttonRef}
-                          >
-                            <ThreeDot />
-                          </p>
-                        )}
-                        {i.TrailId === showPopup && (
-                          <div
-                            ref={popupRef}
-                            style={{
-                              position: "absolute",
-                              top: 30,
-                              right: 0,
-                              background: "#fff",
-                              border: "1px solid #ccc",
-                              borderRadius: "4px",
-                              boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
-                              padding: "10px",
-                              zIndex: 10,
-                              width: "120px",
-                            }}
-                          >
-                            <ul
-                              style={{
-                                listStyle: "none",
-                                margin: 0,
-                                padding: 0,
-                                display: "flex",
-                                flexWrap: "wrap",
-                                gap: "2px",
-                              }}
-                            >
-                              {(activeTabList === 4
-                                ? draftPlaceholders
-                                : activeTabList === 3 && i.HasPermission
-                                ? approvalPlaceholders
-                                : []
-                              ).map((placeholder: string, j: number) => (
-                                <li
-                                  key={j}
-                                  className="hover:bg-gray-100 rounded-lg text-sm w-full py-1 px-2 break-all"
+                                <p
+                                  className="cursor-pointer"
                                   onClick={() => {
-                                    setShowPopup(0);
-                                    setActiveType(placeholder);
-                                    if (
-                                      placeholder === "Edit Draft" ||
-                                      placeholder === "Edit Mail"
-                                    ) {
-                                      setActive(index + 1);
-                                      setConversationAttachment(
-                                        !!i.Attachments ? i.Attachments : []
-                                      );
-                                    }
-                                    if (
-                                      placeholder === "Send Draft" ||
-                                      placeholder === "Send Mail"
-                                    ) {
-                                      setTrailId(i.TrailId);
-                                      setToMembers(
-                                        i.From?.trim() ? i.From.split(",") : []
-                                      );
-                                      setCcMembers(
-                                        i.CC?.trim()
-                                          ? i.CC?.split(",") ?? []
-                                          : []
-                                      );
-                                      setBccMembers(
-                                        i.BCC?.trim()
-                                          ? i.BCC?.split(",") ?? []
-                                          : []
-                                      );
-                                      setText(i.Body ?? "");
-                                      setIsDeleteOpen(true);
-                                    }
-                                    if (placeholder === "Discard Draft") {
-                                      setDeleteId(i.TrailId);
-                                      setIsDeleteOpen(true);
-                                    }
+                                    setActive(index + 1);
+                                    // setTrailId(i.TrailId);
+                                    setConversationAttachment([]);
+                                    setActiveType("EmailTemplate");
                                   }}
                                 >
-                                  {placeholder}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                                  <EmailTemplate />
+                                </p>
+                              </ColorToolTip>
+                              <ColorToolTip
+                                title="ReplyAll"
+                                placement="top"
+                                arrow
+                              >
+                                <p
+                                  className="cursor-pointer"
+                                  onClick={() => {
+                                    setActive(index + 1);
+                                    // setTrailId(i.TrailId);
+                                    setConversationAttachment([]);
+                                    setActiveType("ReplyAll");
+                                  }}
+                                >
+                                  <ReplayAll />
+                                </p>
+                              </ColorToolTip>
+                              <ColorToolTip
+                                title="Forward"
+                                placement="top"
+                                arrow
+                              >
+                                <p
+                                  className="cursor-pointer"
+                                  onClick={() => {
+                                    setActive(index + 1);
+                                    // setTrailId(i.TrailId);
+                                    setConversationAttachment(
+                                      !!i.Attachments ? i.Attachments : []
+                                    );
+                                    setActiveType("Forward");
+                                  }}
+                                >
+                                  <Forward />
+                                </p>
+                              </ColorToolTip>
+                            </>
+                          )}
+                          {((activeTabList === 4 && i.IsDraft) ||
+                            (activeTabList === 3 &&
+                              i.IsInReview &&
+                              i.HasPermission)) && (
+                            <p
+                              className="cursor-pointer"
+                              onClick={() => setShowPopup(i.TrailId)}
+                              ref={buttonRef}
+                            >
+                              <ThreeDot />
+                            </p>
+                          )}
+                          {i.TrailId === showPopup && (
+                            <div
+                              ref={popupRef}
+                              style={{
+                                position: "absolute",
+                                top: 30,
+                                right: 0,
+                                background: "#fff",
+                                border: "1px solid #ccc",
+                                borderRadius: "4px",
+                                boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
+                                padding: "10px",
+                                zIndex: 10,
+                                width: "120px",
+                              }}
+                            >
+                              <ul
+                                style={{
+                                  listStyle: "none",
+                                  margin: 0,
+                                  padding: 0,
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  gap: "2px",
+                                }}
+                              >
+                                {(activeTabList === 4
+                                  ? draftPlaceholders
+                                  : activeTabList === 3 && i.HasPermission
+                                  ? approvalPlaceholders
+                                  : []
+                                ).map((placeholder: string, j: number) => (
+                                  <li
+                                    key={j}
+                                    className="hover:bg-gray-100 rounded-lg text-sm w-full py-1 px-2 break-all"
+                                    onClick={() => {
+                                      setShowPopup(0);
+                                      setActiveType(placeholder);
+                                      if (
+                                        placeholder === "Edit Draft" ||
+                                        placeholder === "Edit Mail"
+                                      ) {
+                                        setActive(index + 1);
+                                        setConversationAttachment(
+                                          !!i.Attachments ? i.Attachments : []
+                                        );
+                                      }
+                                      if (
+                                        placeholder === "Send Draft" ||
+                                        placeholder === "Send Mail"
+                                      ) {
+                                        setTrailId(i.TrailId);
+                                        setToMembers(
+                                          i.From?.trim()
+                                            ? i.From.split(",")
+                                            : []
+                                        );
+                                        setCcMembers(
+                                          i.CC?.trim()
+                                            ? i.CC?.split(",") ?? []
+                                            : []
+                                        );
+                                        setBccMembers(
+                                          i.BCC?.trim()
+                                            ? i.BCC?.split(",") ?? []
+                                            : []
+                                        );
+                                        setText(i.Body ?? "");
+                                        setIsDeleteOpen(true);
+                                      }
+                                      if (placeholder === "Discard Draft") {
+                                        setDeleteId(i.TrailId);
+                                        setIsDeleteOpen(true);
+                                      }
+                                    }}
+                                  >
+                                    {placeholder}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      )}
                   </div>
                   <p className="break-all">From: {i.From}</p>
                   {i.To && (
