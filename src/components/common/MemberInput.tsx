@@ -15,43 +15,27 @@ const MemberInput = ({
     return emailRegex.test(email);
   };
 
+  const addMember = (email: string) => {
+    if (!email.trim()) return;
+
+    if (!isValidEmail(email.trim())) {
+      setError("Please provide a valid email address.");
+      return;
+    }
+
+    if (members.includes(email.trim())) {
+      setError("This email is already added.");
+      return;
+    }
+
+    setMembers([...members, email.trim()]);
+    setInputValue("");
+    setError("");
+  };
+
   const handleAddMember = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      if (validate) {
-        if (!inputValue.trim()) {
-          setError("Please provide an email address.");
-          return;
-        }
-
-        if (!isValidEmail(inputValue.trim())) {
-          setError("Please provide a valid email address.");
-          return;
-        }
-
-        if (members.includes(inputValue.trim())) {
-          setError("This email is already added.");
-          return;
-        }
-      }
-
-      if (!validate && inputValue.trim() === "") {
-        setError("");
-        return;
-      }
-
-      if (inputValue.trim() && !isValidEmail(inputValue.trim())) {
-        setError("Please provide a valid email address.");
-        return;
-      }
-
-      if (members.includes(inputValue.trim())) {
-        setError("This email is already added.");
-        return;
-      }
-
-      setMembers([...members, inputValue.trim()]);
-      setInputValue("");
-      setError("");
+      addMember(inputValue);
     }
   };
 
@@ -60,19 +44,7 @@ const MemberInput = ({
   };
 
   const handleBlur = () => {
-    if (inputValue.trim()) {
-      if (!isValidEmail(inputValue.trim())) {
-        setError("Please provide a valid email address.");
-        return;
-      }
-
-      if (members.includes(inputValue.trim())) {
-        setError("This email is already added.");
-        return;
-      }
-    } else if (validate) {
-      setError("Please provide an email address.");
-    }
+    addMember(inputValue);
   };
 
   return (

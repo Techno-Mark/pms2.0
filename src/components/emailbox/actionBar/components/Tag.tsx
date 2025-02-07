@@ -58,10 +58,20 @@ const Tag = ({
 
   const handleNewTagSubmit = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Enter") {
-      if (!newTagName.trim()) {
+      const trimmedTag = newTagName.trim();
+      if (!trimmedTag) {
         setInputError(true);
       } else {
-        updateTag(selectedRowIds, newTagName.trim(), true);
+        const existingTag = tagDropdown.find(
+          (tag) => tag.label.toLowerCase() === trimmedTag.toLowerCase()
+        );
+        if (existingTag) {
+          // If the tag exists, select it instead of creating a new one
+          updateTag(selectedRowIds, existingTag.value, false);
+        } else {
+          // Create a new tag
+          updateTag(selectedRowIds, trimmedTag, true);
+        }
         setInputError(false);
         handleCloseTag();
       }
@@ -99,6 +109,14 @@ const Tag = ({
     };
     callAPI(url, params, successCallback, "POST");
   };
+
+  // Filter tag list based on input
+  const filteredTags =
+    newTagName.trim() === ""
+      ? tagDropdown
+      : tagDropdown.filter((tag) =>
+          tag.label.toLowerCase().includes(newTagName.toLowerCase())
+        );
 
   return (
     <div>
@@ -148,8 +166,8 @@ const Tag = ({
           </div>
           {/* Tag Options */}
           <List>
-            {tagDropdown.length > 0 &&
-              tagDropdown.map((option: { value: string; label: string }) => (
+            {filteredTags.length > 0 ? (
+              filteredTags.map((option) => (
                 <span
                   key={option.value}
                   className="flex items-center justify-between py-2 px-4 hover:bg-gray-100 text-sm"
@@ -172,7 +190,12 @@ const Tag = ({
                     ✕
                   </span>
                 </span>
-              ))}
+              ))
+            ) : (
+              <div className="text-center text-gray-500">
+                No matching tags. Press Enter to add a new one.
+              </div>
+            )}
           </List>
         </nav>
       </Popover>

@@ -3,7 +3,6 @@ import {
   getAssigneeDropdownData,
   getEmailTypeData,
   getGroupWiseRMDropdownData,
-  getTagData,
 } from "@/utils/commonDropdownApiCall";
 import {
   emailBoxStatusOptions,
@@ -11,9 +10,6 @@ import {
 } from "@/utils/staticDropdownData";
 import { LabelValue } from "@/utils/Types/types";
 import { Autocomplete, Button, FormControl, TextField } from "@mui/material";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from "dayjs";
 import React, {
   forwardRef,
   useEffect,
@@ -354,29 +350,23 @@ const EmailData = forwardRef<
                 )}
               />
             </FormControl>
-            <div
-              className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[250px]`}
-            >
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Due Date"
-                  // shouldDisableDate={isWeekend}
-                  //   minDate={dayjs(startDate)}
-                  //   maxDate={dayjs(Date.now())}
-                  disabled
-                  value={dueDate === "" ? null : dayjs(dueDate)}
-                  onChange={(newValue: any) => {
-                    setDueDate(newValue);
-                    handleValueChange();
-                  }}
-                  slotProps={{
-                    textField: {
-                      readOnly: true,
-                    } as Record<string, any>,
-                  }}
-                />
-              </LocalizationProvider>
-            </div>
+            <TextField
+              label="Due Date"
+              fullWidth
+              disabled
+              value={
+                !!dueDate
+                  ? `${dueDate.split("T")[0].split("-")[1]}-${
+                      dueDate.split("T")[0].split("-")[2]
+                    }-${dueDate.split("T")[0].split("-")[0]} ${
+                      dueDate.split("T")[1]
+                    }`
+                  : ""
+              }
+              margin="normal"
+              variant="standard"
+              sx={{ mx: 0.75, width: 250, my: 0 }}
+            />
             <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 250 }}>
               <Autocomplete
                 id="tags-standard"
