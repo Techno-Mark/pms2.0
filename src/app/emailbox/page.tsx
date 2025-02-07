@@ -155,7 +155,7 @@ const page = () => {
           if (matchingData) {
             return {
               ...tab,
-              name: `${tab.name}:${matchingData.TotalCount}(${matchingData.UnReadCount})`,
+              name: `${tab.name}:${matchingData.TotalCount} (${matchingData.UnReadCount})`,
             };
           }
           return tab;

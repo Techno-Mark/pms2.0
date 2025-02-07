@@ -117,7 +117,6 @@ const Conversations = forwardRef<
     const [activeType, setActiveType] = useState("");
     const [trailId, setTrailId] = useState(0);
     const [showPopup, setShowPopup] = useState(0);
-    const conversationEndRef = useRef<HTMLDivElement | null>(null);
     const popupRef: any = useRef(null);
     const buttonRef: any = useRef(null);
     const isCalledRef = useRef(false);
@@ -176,12 +175,6 @@ const Conversations = forwardRef<
         isCalledRef.current = true;
       }
     }, [activeTab, ticketId]);
-
-    useEffect(() => {
-      if (data.length > 0) {
-        conversationEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }
-    }, [data]);
 
     const handleOutsideClick = (e: any) => {
       if (
@@ -1123,7 +1116,6 @@ const Conversations = forwardRef<
                     ))}
                 </div>
               </div>
-              <div ref={conversationEndRef} />
             </div>
           ))}
         </div>

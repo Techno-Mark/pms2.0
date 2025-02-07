@@ -169,11 +169,11 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
 
   return (
     <div
-      className={`fixed top-0 right-0 z-30 h-screen w-[1000px] border border-lightSilver bg-pureWhite transform ${
+      className={`fixed top-0 right-0 z-30 h-screen w-[85vw] border border-lightSilver bg-pureWhite transform ${
         onOpen ? "translate-x-0" : "translate-x-full"
       } transition-transform duration-300 ease-in-out`}
     >
-      <div className="flex items-center justify-between p-4 bg-gray-100">
+      <div className="flex items-center justify-between p-3 bg-gray-100">
         <div className="flex items-center gap-6">
           <span className="font-bold text-lg">
             #{ticketId}&nbsp;
@@ -200,6 +200,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
               "0"
             )}`}
             {activeTabList !== 2 &&
+              activeTabList !== 5 &&
               !!ticketDetails &&
               ticketDetails.IsSyncOn && (
                 <ColorToolTip title="Sync" placement="top" arrow>
@@ -276,7 +277,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
         className="w-[100%] flex items-center justify-center"
         style={{ height: "calc(100% - 123px)" }}
       >
-        <div className="bg-white w-[30%] h-full">
+        <div className="bg-white w-[20%] h-full">
           <EmailData
             ref={clientRef}
             onOpen={onOpen}
@@ -292,7 +293,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
             isDisabled={activeTabList === 2}
           />
         </div>
-        <div className="w-[70%] h-full">
+        <div className="w-[80%] h-full">
           {activeTab === 1 ? (
             <Conversations
               ref={conversationRef}

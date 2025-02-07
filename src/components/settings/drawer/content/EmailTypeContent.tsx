@@ -358,6 +358,12 @@ const EmailTypeContent = forwardRef<
             setNewKeyword(e.target.value);
             setKeywordErr("");
           }}
+          onBlur={(e) => {
+            if (e.target.value.trim().length > 0) {
+              setKeywords([...keywords, newKeyword.trim()]);
+              setNewKeyword("");
+            }
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter") addKeyword();
           }}
