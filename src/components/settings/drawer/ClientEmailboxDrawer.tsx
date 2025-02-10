@@ -58,28 +58,35 @@ const ClientEmailboxDrawer: React.FC<ClientEmailboxDrawerProps> = ({
   }, [onOpen]);
 
   const validateDomains = (domains: string[]): string | null => {
-    const domainPattern = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // Validates domain format
+    const domainPattern = /^[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})$/;
     const uniqueDomains = new Set(domains);
+
     if (uniqueDomains.size !== domains.length) {
       return "Duplicate domains are not allowed. Please remove duplicates and try again.";
     }
+
     for (const domain of domains) {
-      if (!domainPattern.test(domain)) {
-        return "Please enter valid domain formats (e.g., example.com).";
+      if (
+        !domainPattern.test(domain) ||
+        (domain.match(/\./g) || []).length !== 1
+      ) {
+        return "Please enter a valid domain format (e.g., example.com) with only one dot.";
       }
     }
     return null;
   };
 
   const validateEmails = (emails: string[]): string | null => {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Validates email format
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const uniqueEmails = new Set(emails);
+
     if (uniqueEmails.size !== emails.length) {
       return "Duplicate email addresses are not allowed. Please remove duplicates and try again.";
     }
+
     for (const email of emails) {
       if (!emailPattern.test(email)) {
-        return "Please enter valid email formats (e.g., email@example.com).";
+        return "Please enter a valid email format (e.g., email@example.com).";
       }
     }
     return null;
@@ -87,12 +94,12 @@ const ClientEmailboxDrawer: React.FC<ClientEmailboxDrawerProps> = ({
 
   const handleDomainChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setClientDomains(e.target.value);
-    setErrors((prev) => ({ ...prev, domains: undefined }));
+    setErrors((prev) => ({ emails: undefined, domains: undefined }));
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCustomEmails(e.target.value);
-    setErrors((prev) => ({ ...prev, emails: undefined }));
+    setErrors((prev) => ({ emails: undefined, domains: undefined }));
   };
 
   const handleSubmit = () => {
@@ -106,31 +113,24 @@ const ClientEmailboxDrawer: React.FC<ClientEmailboxDrawerProps> = ({
       .map((email) => email.trim())
       .filter((email) => email.length > 0);
 
-    // Validate domains and emails
-    const domainError = validateDomains(domains);
-    const emailError = validateEmails(emails);
+    const domainError = domains.length > 0 ? validateDomains(domains) : null;
+    const emailError = emails.length > 0 ? validateEmails(emails) : null;
 
-    // Check for required fields
-    const requiredDomainError = !clientDomains.trim()
-      ? "Client domains are required."
-      : null;
-    const requiredEmailError = !customEmails.trim()
-      ? "Custom email addresses are required."
-      : null;
+    // Check if at least one field is filled
+    if (domains.length === 0 && emails.length === 0) {
+      setErrors({
+        domains: "Either domains or emails must be provided.",
+        emails: "Either domains or emails must be provided.",
+      });
+      return;
+    }
 
-    // Update errors state
     setErrors({
-      domains: domainError || requiredDomainError || undefined,
-      emails: emailError || requiredEmailError || undefined,
+      domains: domainError || undefined,
+      emails: emailError || undefined,
     });
 
-    // Stop submission if there are errors
-    if (
-      domainError ||
-      emailError ||
-      requiredDomainError ||
-      requiredEmailError
-    ) {
+    if (domainError || emailError) {
       return;
     }
 
@@ -191,7 +191,7 @@ const ClientEmailboxDrawer: React.FC<ClientEmailboxDrawerProps> = ({
             label={
               <span>
                 Client Domain(s)
-                <span className="!text-defaultRed">&nbsp;*</span>
+                {/* <span className="!text-defaultRed">&nbsp;*</span> */}
               </span>
             }
             fullWidth
@@ -208,7 +208,7 @@ const ClientEmailboxDrawer: React.FC<ClientEmailboxDrawerProps> = ({
             label={
               <span>
                 Client Custom Email(s)
-                <span className="!text-defaultRed">&nbsp;*</span>
+                {/* <span className="!text-defaultRed">&nbsp;*</span> */}
               </span>
             }
             fullWidth

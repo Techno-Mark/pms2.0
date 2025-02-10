@@ -277,7 +277,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
         className="w-[100%] flex items-center justify-center"
         style={{ height: "calc(100% - 123px)" }}
       >
-        <div className="bg-white w-[20%] h-full">
+        <div className="bg-white w-[20vw] h-full">
           <EmailData
             ref={clientRef}
             onOpen={onOpen}
@@ -293,7 +293,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
             isDisabled={activeTabList === 2}
           />
         </div>
-        <div className="w-[80%] h-full">
+        <div className="w-[80vw] h-full">
           {activeTab === 1 ? (
             <Conversations
               ref={conversationRef}
