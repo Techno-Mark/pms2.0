@@ -1365,7 +1365,10 @@ const TaskEditDrawer = ({
                   <Grid item xs={3} className="pt-4">
                     <TextField
                       label={
-                        departmentWorklogsType === "WhitelabelTaxation" ? (
+                        departmentWorklogsType === "WhitelabelTaxation" &&
+                        typeOfWorkWorklogs === 3 ? (
+                          "Missing Info/Description"
+                        ) : departmentWorklogsType === "WhitelabelTaxation" ? (
                           "Description"
                         ) : (
                           <span>
@@ -1373,6 +1376,10 @@ const TaskEditDrawer = ({
                             <span className="!text-defaultRed">&nbsp;*</span>
                           </span>
                         )
+                      }
+                      multiline={
+                        departmentWorklogsType === "WhitelabelTaxation" &&
+                        typeOfWorkWorklogs === 3
                       }
                       fullWidth
                       value={
@@ -2468,8 +2475,11 @@ const TaskEditDrawer = ({
                     <Grid item xs={3} className="pt-4">
                       <TextField
                         label={
-                          departmentWorklogsTypeEdit ===
-                          "WhitelabelTaxation" ? (
+                          departmentWorklogsType === "WhitelabelTaxation" &&
+                          typeOfWorkWorklogs === 3 ? (
+                            "Missing Info/Description"
+                          ) : departmentWorklogsTypeEdit ===
+                            "WhitelabelTaxation" ? (
                             "Description"
                           ) : (
                             <span>
@@ -2477,6 +2487,10 @@ const TaskEditDrawer = ({
                               <span className="!text-defaultRed">&nbsp;*</span>
                             </span>
                           )
+                        }
+                        multiline={
+                          departmentWorklogsType === "WhitelabelTaxation" &&
+                          typeOfWorkWorklogs === 3
                         }
                         fullWidth
                         value={
