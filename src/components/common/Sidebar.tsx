@@ -39,12 +39,8 @@ const DashboardItems = ({ pathname, isCollapsed, sidebarItems }: any) => {
                   <span className="py-[18px]">{item.icon}</span>
                 ) : (
                   <>
-                    <span className="py-[18px] text-black">
-                      {item.icon}
-                    </span>
-                    <span
-                      className="pl-[10px] py-[18px] text-black"
-                    >
+                    <span className="py-[18px] text-black">{item.icon}</span>
+                    <span className="pl-[10px] py-[18px] text-black">
                       {item.name}
                     </span>
                   </>
@@ -195,11 +191,12 @@ const Sidebar = ({
               href: "/settings",
               icon: <Settings />,
             },
-          !isClient && {
-            name: "Email Box",
-            href: "/emailbox",
-            icon: <EmailBox />,
-          },
+          hasPermissionWorklog("", "View", "EmailBox") &&
+            !isClient && {
+              name: "Email Box",
+              href: "/emailbox",
+              icon: <EmailBox />,
+            },
           !isClient && {
             name: "Help",
             href: "/help",

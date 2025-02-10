@@ -647,35 +647,37 @@ const Page = () => {
           )}
         </div>
       </div>
-      <div className="flex gap-[16px] items-center py-[6.5px] pl-6">
-        <label
-          onClick={() => {
-            setDashboardActiveTab(1);
-          }}
-          className={`py-[10px] text-[16px] cursor-pointer select-none ${
-            dashboardActiveTab === 1
-              ? "text-secondary font-semibold"
-              : "text-slatyGrey"
-          }`}
-        >
-          Task
-        </label>
-        <span className="text-lightSilver">|</span>
-        <label
-          onClick={() => {
-            setDashboardActiveTab(2);
-          }}
-          className={`py-[10px] text-[16px] cursor-pointer select-none ${
-            dashboardActiveTab === 2
-              ? "text-secondary font-semibold"
-              : "text-slatyGrey"
-          }`}
-        >
-          Email Ticket
-        </label>
-      </div>
+      {activeTab === 1 && (
+        <div className="flex gap-[16px] items-center py-[6.5px] pl-6">
+          <label
+            onClick={() => {
+              setDashboardActiveTab(1);
+            }}
+            className={`py-[10px] text-[16px] cursor-pointer select-none ${
+              dashboardActiveTab === 1
+                ? "text-secondary font-semibold"
+                : "text-slatyGrey"
+            }`}
+          >
+            Task
+          </label>
+          <span className="text-lightSilver">|</span>
+          <label
+            onClick={() => {
+              setDashboardActiveTab(2);
+            }}
+            className={`py-[10px] text-[16px] cursor-pointer select-none ${
+              dashboardActiveTab === 2
+                ? "text-secondary font-semibold"
+                : "text-slatyGrey"
+            }`}
+          >
+            Email Ticket
+          </label>
+        </div>
+      )}
 
-      {dashboardActiveTab === 1 && (
+      {activeTab === 1 && dashboardActiveTab === 1 && (
         <div className="py-[10px]">
           <Grid
             container
@@ -842,7 +844,7 @@ const Page = () => {
         </div>
       )}
 
-      {dashboardActiveTab === 2 && (
+      {activeTab === 1 && dashboardActiveTab === 2 && (
         <div className="py-[10px]">
           <Grid
             container

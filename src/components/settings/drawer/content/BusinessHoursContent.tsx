@@ -565,9 +565,9 @@ const BusinessHoursContent = forwardRef<
               Select the working hours (
               {daysConfig.filter((day) => day.selected).length} days selected)
             </FormLabel>
-            <div className="mt-2 flex items-center justify-start gap-6">
+            <div className="mt-2 flex items-center justify-start gap-4">
               {dayNames.map((day, index) => (
-                <div key={index} className="flex items-center gap-4">
+                <div key={index} className="flex items-center gap-2">
                   <CheckboxComponentDay
                     id={index + Math.random()}
                     name={`${index + Math.random()}`}
