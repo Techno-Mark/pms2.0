@@ -189,30 +189,32 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
             </ColorToolTip>{" "}
             - {!!ticketDetails && ticketDetails.AttachmentCount} Attachments
           </span>
-          <span className="flex items-center gap-1 text-lg text-[#02B89D]">
-            <AlarmIcon />
-            {`${syncTime < 0 ? "-" : ""}${String(
-              Math.floor(Math.abs(syncTime) / 3600)
-            ).padStart(2, "0")}:${String(
-              Math.floor((Math.abs(syncTime) % 3600) / 60)
-            ).padStart(2, "0")}:${String(Math.abs(syncTime) % 60).padStart(
-              2,
-              "0"
-            )}`}
-            {activeTabList !== 2 &&
-              activeTabList !== 5 &&
-              !!ticketDetails &&
-              ticketDetails.IsSyncOn && (
-                <ColorToolTip title="Sync" placement="top" arrow>
-                  <span
-                    onClick={() => getSyncTime()}
-                    className="cursor-pointer"
-                  >
-                    <RestartButton />
-                  </span>
-                </ColorToolTip>
-              )}
-          </span>
+          {!!ticketDetails && ticketDetails.IsSyncOn && (
+            <span className="flex items-center gap-1 text-lg text-[#02B89D]">
+              <AlarmIcon />
+              {`${syncTime < 0 ? "-" : ""}${String(
+                Math.floor(Math.abs(syncTime) / 3600)
+              ).padStart(2, "0")}:${String(
+                Math.floor((Math.abs(syncTime) % 3600) / 60)
+              ).padStart(2, "0")}:${String(Math.abs(syncTime) % 60).padStart(
+                2,
+                "0"
+              )}`}
+              {activeTabList !== 2 &&
+                activeTabList !== 5 &&
+                !!ticketDetails &&
+                ticketDetails.IsSyncOn && (
+                  <ColorToolTip title="Sync" placement="top" arrow>
+                    <span
+                      onClick={() => getSyncTime()}
+                      className="cursor-pointer"
+                    >
+                      <RestartButton />
+                    </span>
+                  </ColorToolTip>
+                )}
+            </span>
+          )}
         </div>
         <Tooltip title="Close" placement="top" arrow>
           <IconButton className="mr-[4px]" onClick={handleClose}>
@@ -277,7 +279,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
         className="w-[100%] flex items-center justify-center"
         style={{ height: "calc(100% - 123px)" }}
       >
-        <div className="bg-white w-[20vw] h-full">
+        <div className="bg-white w-[25vw] h-full">
           <EmailData
             ref={clientRef}
             onOpen={onOpen}
@@ -293,7 +295,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
             isDisabled={activeTabList === 2}
           />
         </div>
-        <div className="w-[80vw] h-full">
+        <div className="w-[75vw] h-full">
           {activeTab === 1 ? (
             <Conversations
               ref={conversationRef}

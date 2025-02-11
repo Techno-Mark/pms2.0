@@ -4,7 +4,9 @@ import { Avatar, InputBase, List, Popover } from "@mui/material";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import AssigneeIcon from "@/assets/icons/worklogs/Assignee";
-import { getAssigneeDropdownData } from "@/utils/commonDropdownApiCall";
+import {
+  getAssigneeDropdownDataForEmailBox,
+} from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
 import { LabelValue } from "@/utils/Types/types";
 
@@ -32,9 +34,10 @@ const Assignee = ({
     if (selectedRowClientId.length > 0) {
       const getAssignee = async () => {
         setAssignee(
-          await getAssigneeDropdownData(
+          await getAssigneeDropdownDataForEmailBox(
             selectedRowClientId,
-            Number(localStorage.getItem("workTypeId"))
+            Number(localStorage.getItem("workTypeId")),
+            localStorage.getItem("isAdmin") == "true"
           )
         );
       };

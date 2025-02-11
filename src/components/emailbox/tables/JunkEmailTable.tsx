@@ -18,7 +18,7 @@ import {
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
-import { inboxColsConfig } from "@/utils/datatable/columns/EmailBoxDatatableColumns";
+import { unProcessedColsConfig } from "@/utils/datatable/columns/EmailBoxDatatableColumns";
 import OverLay from "@/components/common/OverLay";
 import InboxActionBar from "../actionBar/InboxActionBar";
 import UnProcessActionBar from "../actionBar/UnProcessActionBar";
@@ -185,6 +185,36 @@ const JunkEmailTable = ({
           },
         },
       };
+    } else if (column.name === "Id") {
+      return {
+        name: "Id",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          setCellProps: () => ({
+            style: {
+              width: "80px",
+              minWidth: "80px",
+              maxWidth: "80px",
+              overflow: "hidden",
+            },
+          }),
+          setCellHeaderProps: () => ({
+            style: {
+              width: "80px",
+              minWidth: "80px",
+              maxWidth: "80px",
+              overflow: "hidden",
+            },
+          }),
+
+          customHeadLabelRender: () => generateCustomHeaderName("Id"),
+          customBodyRender: (value: string) => {
+            return <span>{value}</span>;
+          },
+        },
+      };
     } else if (column.name === "ClientId") {
       return {
         name: "ClientId",
@@ -203,8 +233,8 @@ const JunkEmailTable = ({
   };
 
   const inboxCols = [
-    ...inboxColsConfig.slice(0, 8),
-    ...inboxColsConfig.slice(10),
+    ...unProcessedColsConfig.slice(0, 2),
+    ...unProcessedColsConfig.slice(3),
   ].map((col: any) => {
     return generateConditionalColumn(col);
   });

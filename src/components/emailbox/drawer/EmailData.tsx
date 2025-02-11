@@ -1,6 +1,6 @@
 import { callAPI } from "@/utils/API/callAPI";
 import {
-  getAssigneeDropdownData,
+  getAssigneeDropdownDataForEmailBox,
   getEmailTypeData,
   getGroupWiseRMDropdownData,
 } from "@/utils/commonDropdownApiCall";
@@ -105,9 +105,10 @@ const EmailData = forwardRef<
     useEffect(() => {
       const assigneeDropdown = async () => {
         setAssigneeDropdown(
-          await getAssigneeDropdownData(
+          await getAssigneeDropdownDataForEmailBox(
             clientId,
-            Number(localStorage.getItem("workTypeId"))
+            Number(localStorage.getItem("workTypeId")),
+            localStorage.getItem("isAdmin") == "true"
           )
         );
       };

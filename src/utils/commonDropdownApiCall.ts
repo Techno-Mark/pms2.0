@@ -269,6 +269,34 @@ export const getAssigneeDropdownData = async (
     }
   );
 };
+
+export const getAssigneeDropdownDataForEmailBox = async (
+  clientId: any,
+  workTypeId: any,
+  IsAll: boolean
+) => {
+  let clientIdsArray: number[];
+
+  if (Array.isArray(clientId)) {
+    clientIdsArray = clientId.map(Number);
+  } else {
+    clientIdsArray = [Number(clientId)];
+  }
+
+  // Remove duplicates without using Set and spread operator
+  const uniqueClientIdsArray = clientIdsArray.filter(
+    (value, index, self) => self.indexOf(value) === index
+  );
+
+  return await postApiFunction(
+    `${process.env.api_url}/user/GetAssigneeUserDropdown`,
+    {
+      ClientIds: uniqueClientIdsArray,
+      WorktypeId: workTypeId,
+      IsAll: IsAll,
+    }
+  );
+};
 // LabelValue
 
 export const getDepartmentDropdownData = async () => {

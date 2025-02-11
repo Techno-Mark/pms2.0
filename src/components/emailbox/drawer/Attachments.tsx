@@ -276,7 +276,7 @@ const Attachments = ({
             options={attachmentTypeDropdown}
             getOptionLabel={(option: LabelValue) => option.label}
             onChange={(e, data: LabelValue | null) => {
-              setAttachmentType(!!data ? data.value : 0);
+              !!data && setAttachmentType(data.value);
               !!data && getAttachmentData(data.value);
             }}
             value={
