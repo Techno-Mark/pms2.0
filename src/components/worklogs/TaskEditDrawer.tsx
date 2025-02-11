@@ -1365,7 +1365,10 @@ const TaskEditDrawer = ({
                   <Grid item xs={3} className="pt-4">
                     <TextField
                       label={
-                        departmentWorklogsType === "WhitelabelTaxation" ? (
+                        departmentWorklogsType === "WhitelabelTaxation" &&
+                        typeOfWorkWorklogs === 3 ? (
+                          "Missing Info/Description"
+                        ) : departmentWorklogsType === "WhitelabelTaxation" ? (
                           "Description"
                         ) : (
                           <span>
@@ -1373,6 +1376,10 @@ const TaskEditDrawer = ({
                             <span className="!text-defaultRed">&nbsp;*</span>
                           </span>
                         )
+                      }
+                      multiline={
+                        departmentWorklogsType === "WhitelabelTaxation" &&
+                        typeOfWorkWorklogs === 3
                       }
                       fullWidth
                       value={
@@ -2062,7 +2069,7 @@ const TaskEditDrawer = ({
           )}
 
           {/* Edit form data */}
-          <form onSubmit={handleSubmit} className="mt-20">
+          <form className="mt-20">
             {hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && (
               <div className="pt-1" id="tabpanel-0">
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
@@ -2468,8 +2475,11 @@ const TaskEditDrawer = ({
                     <Grid item xs={3} className="pt-4">
                       <TextField
                         label={
-                          departmentWorklogsTypeEdit ===
-                          "WhitelabelTaxation" ? (
+                          departmentWorklogsType === "WhitelabelTaxation" &&
+                          typeOfWorkWorklogs === 3 ? (
+                            "Missing Info/Description"
+                          ) : departmentWorklogsTypeEdit ===
+                            "WhitelabelTaxation" ? (
                             "Description"
                           ) : (
                             <span>
@@ -2477,6 +2487,10 @@ const TaskEditDrawer = ({
                               <span className="!text-defaultRed">&nbsp;*</span>
                             </span>
                           )
+                        }
+                        multiline={
+                          departmentWorklogsType === "WhitelabelTaxation" &&
+                          typeOfWorkWorklogs === 3
                         }
                         fullWidth
                         value={
@@ -3267,8 +3281,9 @@ const TaskEditDrawer = ({
                   </span>
                 </Button>
                 <Button
-                  type="submit"
+                  type="button"
                   variant="contained"
+                  onClick={handleSubmit}
                   className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary cursor-pointer"
                 >
                   <span className="flex items-center justify-center gap-[10px] px-[5px]">

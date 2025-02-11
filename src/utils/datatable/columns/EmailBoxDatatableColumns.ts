@@ -111,16 +111,16 @@ export const unProcessedColsConfig = [
     label: "Client Name",
     bodyRenderer: generateCommonBodyRender,
   },
-  {
-    name: "EmailTypeName",
-    label: "Email Type",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "AssignToName",
-    label: "Assign To",
-    bodyRenderer: generateCommonBodyRender,
-  },
+  // {
+  //   name: "EmailTypeName",
+  //   label: "Email Type",
+  //   bodyRenderer: generateCommonBodyRender,
+  // },
+  // {
+  //   name: "AssignToName",
+  //   label: "Assign To",
+  //   bodyRenderer: generateCommonBodyRender,
+  // },
   // {
   //   name: "SLATime",
   //   label: "SLA Time",
@@ -136,31 +136,31 @@ export const unProcessedColsConfig = [
     label: "Status",
     bodyRenderer: generateEmailboxStatusWithColor,
   },
-  {
-    name: "PriorityName",
-    label: "Priority",
-    bodyRenderer: generatePriorityWithColor,
-  },
-  {
-    name: "TagList",
-    label: "Tag",
-    bodyRenderer: generateCommonBodyRender,
-  },
+  // {
+  //   name: "PriorityName",
+  //   label: "Priority",
+  //   bodyRenderer: generatePriorityWithColor,
+  // },
+  // {
+  //   name: "TagList",
+  //   label: "Tag",
+  //   bodyRenderer: generateCommonBodyRender,
+  // },
   {
     name: "ReceivedOn",
     label: "Received On",
     bodyRenderer: generateDateWithTime,
   },
-  {
-    name: "DueOn",
-    label: "Due On",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "DepartmentNames",
-    label: "Department",
-    bodyRenderer: generateCommonBodyRender,
-  },
+  // {
+  //   name: "DueOn",
+  //   label: "Due On",
+  //   bodyRenderer: generateCommonBodyRender,
+  // },
+  // {
+  //   name: "DepartmentNames",
+  //   label: "Department",
+  //   bodyRenderer: generateCommonBodyRender,
+  // },
   {
     name: "ClientId",
     options: {

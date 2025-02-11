@@ -240,6 +240,36 @@ const UnprocessedTable = ({
           },
         },
       };
+    } else if (column.name === "Id") {
+      return {
+        name: "Id",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          setCellProps: () => ({
+            style: {
+              width: "80px",
+              minWidth: "80px",
+              maxWidth: "80px",
+              overflow: "hidden",
+            },
+          }),
+          setCellHeaderProps: () => ({
+            style: {
+              width: "80px",
+              minWidth: "80px",
+              maxWidth: "80px",
+              overflow: "hidden",
+            },
+          }),
+
+          customHeadLabelRender: () => generateCustomHeaderName("Id"),
+          customBodyRender: (value: string) => {
+            return <span>{value}</span>;
+          },
+        },
+      };
     } else if (column.name === "ClientId") {
       return {
         name: "ClientId",

@@ -3169,7 +3169,7 @@ const EditDrawer = ({
           </div>
         </div>
         <div className="overflow-y-scroll !h-[91%]">
-          <form onSubmit={handleSubmit}>
+          <form>
             {hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && (
               <div className="pt-1" id="tabpanel-0">
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
@@ -3681,7 +3681,11 @@ const EditDrawer = ({
                     <Grid item xs={3} className="pt-4">
                       <TextField
                         label={
-                          departmentApprovalsType === "WhitelabelTaxation" ? (
+                          departmentApprovalsType === "WhitelabelTaxation" &&
+                          typeOfWorkApprovals === 3 ? (
+                            "Missing Info/Description"
+                          ) : departmentApprovalsType ===
+                            "WhitelabelTaxation" ? (
                             "Description"
                           ) : (
                             <span>
@@ -3689,6 +3693,10 @@ const EditDrawer = ({
                               <span className="!text-defaultRed">&nbsp;*</span>
                             </span>
                           )
+                        }
+                        multiline={
+                          departmentApprovalsType === "WhitelabelTaxation" &&
+                          typeOfWorkApprovals === 3
                         }
                         fullWidth
                         className="pt-1"
@@ -7753,8 +7761,9 @@ const EditDrawer = ({
                     Number(localStorage.getItem("workTypeId")) == 3 &&
                     localStorage.getItem("UserId") == editData.ReviewerId)) && (
                   <Button
-                    type="submit"
+                    type="button"
                     variant="contained"
+                    onClick={handleSubmit}
                     className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary"
                   >
                     <span className="flex items-center justify-center gap-[10px] px-[5px]">

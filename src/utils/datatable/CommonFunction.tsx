@@ -3,7 +3,7 @@ import React from "react";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 
 export const generateCustomHeaderName = (headerName: string) => {
-  return <span className="font-extrabold capitalize">{headerName}</span>;
+  return <span className="font-extrabold capitalize max-w-[10px] p-0 m-0">{headerName}</span>;
 };
 
 export const generateCommonBodyRender = (bodyValue: any) => {

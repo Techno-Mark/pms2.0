@@ -3641,7 +3641,7 @@ const EditDrawer = ({
           </div>
         </div>
         <div className="overflow-y-scroll !h-[91%]">
-          <form onSubmit={handleSubmit}>
+          <form>
             {(hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") ||
               isDisabled) && (
               <div className="pt-1" id="tabpanel-0">
@@ -4095,7 +4095,11 @@ const EditDrawer = ({
                     <Grid item xs={3} className="pt-[14px]">
                       <TextField
                         label={
-                          departmentWorklogsType === "WhitelabelTaxation" ? (
+                          departmentWorklogsType === "WhitelabelTaxation" &&
+                          typeOfWorkWorklogs === 3 ? (
+                            "Missing Info/Description"
+                          ) : departmentWorklogsType ===
+                            "WhitelabelTaxation" ? (
                             "Description"
                           ) : (
                             <span>
@@ -4103,6 +4107,10 @@ const EditDrawer = ({
                               <span className="!text-defaultRed">&nbsp;*</span>
                             </span>
                           )
+                        }
+                        multiline={
+                          departmentWorklogsType === "WhitelabelTaxation" &&
+                          typeOfWorkWorklogs === 3
                         }
                         fullWidth
                         value={
@@ -9078,8 +9086,9 @@ const EditDrawer = ({
                   </span>
                 </Button>
                 <Button
-                  type="submit"
+                  type="button"
                   variant="contained"
+                  onClick={handleSubmit}
                   className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary cursor-pointer"
                 >
                   <span className="flex items-center justify-center gap-[10px] px-[5px]">

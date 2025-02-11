@@ -283,8 +283,8 @@ const EmailData = forwardRef<
     return (
       <div className="pt-4 px-4 h-full flex flex-col">
         <div className="py-3 mb-2 h-full overflow-y-auto overflow-x-hidden flex flex-grow flex-col items-center justify-between gap-4">
-          <div className="flex flex-col gap-4">
-            <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 250 }}>
+          <div className="flex flex-col gap-4 w-full">
+            <FormControl variant="standard" sx={{ mx: 0.75 }}>
               <Autocomplete
                 id="tags-standard"
                 options={assigneeDropdown}
@@ -322,7 +322,7 @@ const EmailData = forwardRef<
                 )}
               />
             </FormControl>
-            <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 250 }}>
+            <FormControl variant="standard" sx={{ mx: 0.75 }}>
               <Autocomplete
                 id="tags-standard"
                 options={statusOption}
@@ -365,9 +365,9 @@ const EmailData = forwardRef<
               }
               margin="normal"
               variant="standard"
-              sx={{ mx: 0.75, width: 250, my: 0 }}
+              sx={{ mx: 0.75, my: 0 }}
             />
-            <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 250 }}>
+            <FormControl variant="standard" sx={{ mx: 0.75 }}>
               <Autocomplete
                 id="tags-standard"
                 options={emailTypeDropdown}
@@ -406,7 +406,7 @@ const EmailData = forwardRef<
                 )}
               />
             </FormControl>
-            <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 250 }}>
+            <FormControl variant="standard" sx={{ mx: 0.75 }}>
               <Autocomplete
                 id="tags-standard"
                 options={priorityOptions}
@@ -443,7 +443,7 @@ const EmailData = forwardRef<
                 )}
               />
             </FormControl>
-            <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 250 }}>
+            <FormControl variant="standard" sx={{ mx: 0.75 }}>
               <Autocomplete
                 multiple
                 id="tags-standard"
@@ -481,7 +481,7 @@ const EmailData = forwardRef<
                 )}
               />
             </FormControl>
-            <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 250 }}>
+            <FormControl variant="standard" sx={{ mx: 0.75 }}>
               <Autocomplete
                 id="tags-standard"
                 options={rmDropdown}
