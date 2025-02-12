@@ -311,3 +311,7 @@ input[type="time"]::-moz-time-text {
   white-space: -o-pre-wrap;    /* Opera 7 */
   word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
+
+.libraryDatatable thead {
+  display: none;
+}

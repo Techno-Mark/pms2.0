@@ -22,6 +22,7 @@ interface EmailBoxDrawerProps {
   clientId: number;
   ticketId: number;
   activeTabList: number;
+  activeTabPermission: boolean;
   tagDropdown: { label: string; value: string }[];
   getTagDropdownData: () => void;
 }
@@ -33,6 +34,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
   clientId,
   ticketId,
   activeTabList,
+  activeTabPermission,
   tagDropdown,
   getTagDropdownData,
 }) => {
@@ -226,10 +228,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
       <div className="pl-4 gap-1 border-t border-b border-gray-200 flex items-center justify-between">
         <div className="flex items-center justify-center pt-2">
           {tabs.length > 0 &&
-            (activeTabList !== 2
-              ? tabs
-              : [...tabs.slice(0, 1), ...tabs.slice(2, 3)]
-            ).map((tab) => (
+            tabs.map((tab) => (
               <p
                 key={tab.TabId}
                 className={`cursor-pointer px-4 py-2 ${
@@ -255,7 +254,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
               <span className="pt-1">Submit for Approval</span>
             </span>
           </Button> */}
-          {activeTabList !== 2 && (
+          {activeTabList !== 2 && activeTabPermission && (
             <Button
               variant="contained"
               className={`rounded-[4px] !h-[36px] ${
@@ -292,7 +291,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
             tagDropdown={tagDropdown}
             getTagDropdownData={getTagDropdownData}
             activeTabList={activeTabList}
-            isDisabled={activeTabList === 2}
+            isDisabled={activeTabList === 2 || !activeTabPermission}
           />
         </div>
         <div className="w-[75vw] h-full">
@@ -309,12 +308,14 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
               onClose={onClose}
               onDataFetch={onDataFetch}
               allFieldsFilled={allFieldsFilled}
+              isDisabled={activeTabList === 2 || !activeTabPermission}
             />
           ) : activeTab === 2 ? (
             <Comments
               activeTab={activeTab}
               ticketId={ticketId}
               clientId={clientId}
+              isDisabled={activeTabList === 2 || !activeTabPermission}
             />
           ) : activeTab === 3 ? (
             <Attachments activeTab={activeTab} ticketId={ticketId} />

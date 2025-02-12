@@ -49,10 +49,12 @@ const Comments = ({
   activeTab,
   ticketId,
   clientId,
+  isDisabled,
 }: {
   activeTab: number;
   ticketId: number;
   clientId: number;
+  isDisabled: boolean;
 }) => {
   const isCalledRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -412,7 +414,11 @@ const Comments = ({
                       }
                     }}
                   >
-                    {comment.CommentId === editComment ? <Save /> : <Edit />}
+                    {comment.CommentId === editComment && !isDisabled ? (
+                      <Save />
+                    ) : (
+                      !isDisabled && <Edit />
+                    )}
                   </div>
                 </div>
               </div>
@@ -552,123 +558,127 @@ const Comments = ({
           No comments yet.
         </div>
       )}
-      <div className="sticky bottom-2">
-        <div className="bg-white border border-slatyGrey gap-2 py-2 rounded-lg my-2 mx-4 px-4 flex items-center justify-center">
-          <MentionsInput
-            style={mentionsInputStyle}
-            className="!w-[92%] textareaOutlineNone"
-            value={value}
-            onChange={(e) => {
-              setValue(e.target.value);
-              setValueError(false);
-              handleCommentChange(e.target.value);
-            }}
-            placeholder="Type a next message OR type @ if you want to mention anyone in the message."
-          >
-            <Mention
-              data={users}
-              style={{ backgroundColor: "#cee4e5" }}
-              trigger="@"
-            />
-          </MentionsInput>
-          <div className="flex flex-col -mt-5">
-            <div className="flex">
-              <ColorToolTip title="Attachment" placement="top" arrow>
-                <span
-                  className={`text-white cursor-pointer max-w-1 mt-6`}
-                  onClick={() => {
-                    fileInputRef.current?.click();
-                  }}
-                >
-                  <FileIconUpload />
-                  <input
-                    type="file"
-                    accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
-                    ref={fileInputRef}
-                    className="input-field hidden"
-                    onChange={(e) => handleImageChange(e, false)}
-                    multiple // Enable multiple file selection
-                  />
+      {!isDisabled && (
+        <div className="sticky bottom-2">
+          <div className="bg-white border border-slatyGrey gap-2 py-2 rounded-lg my-2 mx-4 px-4 flex items-center justify-center">
+            <MentionsInput
+              style={mentionsInputStyle}
+              className="!w-[92%] textareaOutlineNone"
+              value={value}
+              onChange={(e) => {
+                setValue(e.target.value);
+                setValueError(false);
+                handleCommentChange(e.target.value);
+              }}
+              placeholder="Type a next message OR type @ if you want to mention anyone in the message."
+            >
+              <Mention
+                data={users}
+                style={{ backgroundColor: "#cee4e5" }}
+                trigger="@"
+              />
+            </MentionsInput>
+            <div className="flex flex-col -mt-5">
+              <div className="flex">
+                <ColorToolTip title="Attachment" placement="top" arrow>
+                  <span
+                    className={`text-white cursor-pointer max-w-1 mt-6`}
+                    onClick={() => {
+                      fileInputRef.current?.click();
+                    }}
+                  >
+                    <FileIconUpload />
+                    <input
+                      type="file"
+                      accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                      ref={fileInputRef}
+                      className="input-field hidden"
+                      onChange={(e) => handleImageChange(e, false)}
+                      multiple // Enable multiple file selection
+                    />
+                  </span>
+                </ColorToolTip>
+              </div>
+            </div>
+            <button
+              type="button"
+              className={`${
+                commentAttachment.length > 0 &&
+                commentAttachment.filter(
+                  (attachment: any) => attachment.uploading
+                ).length > 0
+                  ? "cursor-not-allowed !bg-gray-500"
+                  : "cursor-pointer !bg-secondary"
+              } text-white p-[6px] rounded-md mr-2`}
+              onClick={(e) =>
+                commentAttachment.length > 0 &&
+                commentAttachment.filter(
+                  (attachment: any) => attachment.uploading
+                ).length > 0
+                  ? undefined
+                  : handleSubmitComment(e)
+              }
+            >
+              <SendIcon />
+            </button>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
+              {valueError &&
+              value.trim().length > 1 &&
+              value.trim().length < 5 ? (
+                <span className="text-defaultRed text-[14px] ml-20">
+                  Minimum 5 characters required.
                 </span>
-              </ColorToolTip>
+              ) : valueError ? (
+                <span className="text-defaultRed text-[14px] ml-20">
+                  This is a required field.
+                </span>
+              ) : (
+                ""
+              )}
             </div>
           </div>
-          <button
-            type="button"
-            className={`${
-              commentAttachment.length > 0 &&
-              commentAttachment.filter(
-                (attachment: any) => attachment.uploading
-              ).length > 0
-                ? "cursor-not-allowed"
-                : "cursor-pointer !bg-secondary"
-            } text-white p-[6px] rounded-md mr-2`}
-            onClick={(e) =>
-              commentAttachment.length > 0 &&
-              commentAttachment.filter(
-                (attachment: any) => attachment.uploading
-              ).length > 0
-                ? undefined
-                : handleSubmitComment(e)
-            }
-          >
-            <SendIcon />
-          </button>
-        </div>
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col">
-            {valueError &&
-            value.trim().length > 1 &&
-            value.trim().length < 5 ? (
-              <span className="text-defaultRed text-[14px] ml-20">
-                Minimum 5 characters required.
-              </span>
-            ) : valueError ? (
-              <span className="text-defaultRed text-[14px] ml-20">
-                This is a required field.
-              </span>
-            ) : (
-              ""
-            )}
-          </div>
-        </div>
-        {commentAttachment.length > 0 && (
-          <div className="flex flex-col items-start justify-center ml-5 gap-4 mb-2">
-            {commentAttachment
-              .filter((attachment: CommentAttachment) => !attachment.IsRemoved)
-              .map((attachment: any, index: number) => (
-                <div
-                  className="flex items-center justify-center gap-2 mr-6 border rounded-full py-2 px-4"
-                  key={index}
-                >
-                  <FileIcon fileName={attachment?.UserFileName} />
-                  {attachment?.UserFileName}
-                  {attachment?.uploading ? (
-                    <div className="!w-fit m-0 p-0">
-                      <Loading />
-                    </div>
-                  ) : (
-                    <span
-                      className="cursor-pointer"
-                      onClick={() =>
-                        setCommentAttachment(
-                          commentAttachment.map(
-                            (i: CommentAttachment, attachmentIndex: number) =>
-                              attachmentIndex === index
-                                ? { ...i, IsRemoved: true }
-                                : i
+          {commentAttachment.length > 0 && (
+            <div className="flex flex-col items-start justify-center ml-5 gap-4 mb-2">
+              {commentAttachment
+                .filter(
+                  (attachment: CommentAttachment) => !attachment.IsRemoved
+                )
+                .map((attachment: any, index: number) => (
+                  <div
+                    className="flex items-center justify-center gap-2 mr-6 border rounded-full py-2 px-4"
+                    key={index}
+                  >
+                    <FileIcon fileName={attachment?.UserFileName} />
+                    {attachment?.UserFileName}
+                    {attachment?.uploading ? (
+                      <div className="!w-fit m-0 p-0">
+                        <Loading />
+                      </div>
+                    ) : (
+                      <span
+                        className="cursor-pointer"
+                        onClick={() =>
+                          setCommentAttachment(
+                            commentAttachment.map(
+                              (i: CommentAttachment, attachmentIndex: number) =>
+                                attachmentIndex === index
+                                  ? { ...i, IsRemoved: true }
+                                  : i
+                            )
                           )
-                        )
-                      }
-                    >
-                      <Close />
-                    </span>
-                  )}
-                </div>
-              ))}
-          </div>
-        )}
-      </div>
+                        }
+                      >
+                        <Close />
+                      </span>
+                    )}
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      )}
       {loading ? <OverLay className="!-top-[1px] !-left-[1px]" /> : ""}
     </div>
   );

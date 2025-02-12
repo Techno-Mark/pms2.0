@@ -24,6 +24,7 @@ import OverLay from "@/components/common/OverLay";
 import InboxActionBar from "../actionBar/InboxActionBar";
 import RestartButton from "@/assets/icons/worklogs/RestartButton";
 import { toast } from "react-toastify";
+import { hasPermissionWorklog } from "@/utils/commonFunction";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -80,17 +81,17 @@ const ApprovalsEmailTable = ({
     []
   );
 
-  const getData = async (IsDelay=false) => {
+  const getData = async (IsDelay = false) => {
     setFileds({
       ...fileds,
       loaded: false,
     });
     handleClearSelection();
-    
+
     if (IsDelay) {
       await new Promise((resolve) => setTimeout(resolve, 3000));
     }
-    
+
     const url = `${process.env.emailbox_api_url}/emailbox/getticketlist`;
 
     const successCallback = (
@@ -535,6 +536,13 @@ const ApprovalsEmailTable = ({
               tableBodyHeight: "73vh",
               selectAllRows: isPopupOpen && selectedRowsCount === 0,
               rowsSelected: selectedRows,
+              selectableRows: hasPermissionWorklog(
+                "Approvals",
+                "Save",
+                "EmailBox"
+              )
+                ? "multiple"
+                : "none",
               textLabels: {
                 body: {
                   noMatch: (

@@ -26,6 +26,7 @@ import InboxActionBar from "../actionBar/InboxActionBar";
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
 import { toast } from "react-toastify";
 import RestartButton from "@/assets/icons/worklogs/RestartButton";
+import { hasPermissionWorklog } from "@/utils/commonFunction";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -625,6 +626,9 @@ const InboxTable = ({
               tableBodyHeight: "73vh",
               selectAllRows: isPopupOpen && selectedRowsCount === 0,
               rowsSelected: selectedRows,
+              selectableRows: hasPermissionWorklog("Inbox", "Save", "EmailBox")
+                ? "multiple"
+                : "none",
               textLabels: {
                 body: {
                   noMatch: (

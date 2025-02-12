@@ -91,6 +91,7 @@ const Conversations = forwardRef<
     };
     clientId: number;
     activeTabList: number;
+    isDisabled: boolean;
     onClose: () => void;
     onDataFetch: (() => void) | null;
     allFieldsFilled: boolean;
@@ -105,6 +106,7 @@ const Conversations = forwardRef<
       ticketDetails,
       clientId,
       activeTabList,
+      isDisabled,
       onClose,
       onDataFetch,
       allFieldsFilled,
@@ -904,6 +906,7 @@ const Conversations = forwardRef<
                     {(ticketDetails.Assignee ===
                       Number(localStorage.getItem("UserId")) ||
                       activeTabList === 3) &&
+                      !isDisabled &&
                       !!ticketDetails &&
                       (ticketDetails.Status === 2 ||
                         ticketDetails.Status === 4 ||
@@ -1110,7 +1113,9 @@ const Conversations = forwardRef<
                             )
                           }
                         >
-                          <Download />
+                          <ColorToolTip title="Download" placement="top" arrow>
+                            <Download />
+                          </ColorToolTip>
                         </span>
                       </div>
                     ))}

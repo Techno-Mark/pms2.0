@@ -35,12 +35,12 @@ interface MoreTabs {
 }
 
 const tabs = [
-  { label: "project", value: 1, name: "Inbox" },
-  { label: "project", value: 2, name: "Unprocessed" },
-  { label: "project", value: 3, name: "Approvals" },
-  { label: "project", value: 4, name: "Draft Mails" },
-  { label: "project", value: 5, name: "Sent Mails" },
-  { label: "project", value: 6, name: "Junk Mails" },
+  { label: "Inbox", value: 1, name: "Inbox" },
+  { label: "Unprocessed", value: 2, name: "Unprocessed" },
+  { label: "Approvals", value: 3, name: "Approvals" },
+  { label: "Draft Mails", value: 4, name: "Draft Mails" },
+  { label: "Sent Mails", value: 5, name: "Sent Mails" },
+  { label: "Junk Mails", value: 6, name: "Junk Mails" },
 ];
 
 const initialFilter = {
@@ -85,12 +85,12 @@ const page = () => {
   const router = useRouter();
   const moreTabsRef = useRef<HTMLDivElement>(null);
   const [allTabs, setAllTabs] = useState([
-    { label: "project", value: 1, name: "Inbox" },
-    { label: "project", value: 2, name: "Unprocessed" },
-    { label: "project", value: 3, name: "Approvals" },
-    { label: "project", value: 4, name: "Draft Mails" },
-    { label: "project", value: 5, name: "Sent Mails" },
-    { label: "project", value: 6, name: "Junk Mails" },
+    { label: "Inbox", value: 1, name: "Inbox" },
+    { label: "Unprocessed", value: 2, name: "Unprocessed" },
+    { label: "Approvals", value: 3, name: "Approvals" },
+    { label: "Draft Mails", value: 4, name: "Draft Mails" },
+    { label: "Sent Mails", value: 5, name: "Sent Mails" },
+    { label: "Junk Mails", value: 6, name: "Junk Mails" },
   ]);
   // { label: "project", value: 7, name: "Failed Emails" },
   const [activeTabs, setActiveTabs] = useState<any[]>([]);
@@ -190,9 +190,13 @@ const page = () => {
 
   const hasTabsPermission = () => {
     return (
-      hasPermissionWorklog("", "View", "Report") &&
-      (hasPermissionWorklog("project", "View", "Report") ||
-        hasPermissionWorklog("user", "View", "Report"))
+      hasPermissionWorklog("", "View", "EmailBox") &&
+      (hasPermissionWorklog("Inbox", "View", "EmailBox") ||
+        hasPermissionWorklog("Unprocessed", "View", "EmailBox") ||
+        hasPermissionWorklog("Approvals", "View", "EmailBox") ||
+        hasPermissionWorklog("Draft Mails", "View", "EmailBox") ||
+        hasPermissionWorklog("Sent Mails", "View", "EmailBox") ||
+        hasPermissionWorklog("Junk Mails", "View", "EmailBox"))
     );
   };
 
@@ -203,46 +207,10 @@ const page = () => {
       setTabs();
       setActiveTab(
         allTabs
-          .filter((tab) => hasPermissionWorklog(tab.label, "view", "report"))
+          .filter((tab) => hasPermissionWorklog(tab.label, "view", "EmailBox"))
           .map((tab) => tab.value)[0]
       );
     }
-  };
-
-  const setTabs = () => {
-    setActiveTabs(
-      activeTab > 4
-        ? [
-            ...allTabs
-              .map((tab) =>
-                hasPermissionWorklog(tab.label, "view", "report") ? tab : false
-              )
-              .filter((tab) => tab !== false)
-              .slice(0, 3),
-            allTabs
-              .map((tab) =>
-                hasPermissionWorklog(tab.label, "view", "report") ? tab : false
-              )
-              .filter((tab) => tab !== false)
-              .find((tab: any) => tab.value === activeTab),
-          ]
-        : allTabs
-            .map((tab) =>
-              hasPermissionWorklog(tab.label, "view", "report") ? tab : false
-            )
-            .filter((tab) => tab !== false)
-            .slice(0, 4)
-    );
-
-    setMoreTabs(
-      allTabs
-        .map((tab) =>
-          hasPermissionWorklog(tab.label, "view", "report") ? tab : false
-        )
-        .filter((tab) => tab !== false)
-        .filter((tab: any) => tab.value !== activeTab)
-        .slice(3)
-    );
   };
 
   useEffect(() => {
@@ -254,6 +222,46 @@ const page = () => {
       router.push("/");
     }
   }, [router]);
+
+  const setTabs = () => {
+    setActiveTabs(
+      activeTab > 4
+        ? [
+            ...allTabs
+              .map((tab) =>
+                hasPermissionWorklog(tab.label, "view", "EmailBox")
+                  ? tab
+                  : false
+              )
+              .filter((tab) => tab !== false)
+              .slice(0, 3),
+            allTabs
+              .map((tab) =>
+                hasPermissionWorklog(tab.label, "view", "EmailBox")
+                  ? tab
+                  : false
+              )
+              .filter((tab) => tab !== false)
+              .find((tab: any) => tab.value === activeTab),
+          ]
+        : allTabs
+            .map((tab) =>
+              hasPermissionWorklog(tab.label, "view", "EmailBox") ? tab : false
+            )
+            .filter((tab) => tab !== false)
+            .slice(0, 4)
+    );
+
+    setMoreTabs(
+      allTabs
+        .map((tab) =>
+          hasPermissionWorklog(tab.label, "view", "EmailBox") ? tab : false
+        )
+        .filter((tab) => tab !== false)
+        .filter((tab: any) => tab.value !== activeTab)
+        .slice(3)
+    );
+  };
 
   useEffect(() => {
     setTabs();
@@ -485,6 +493,11 @@ const page = () => {
         clientId={clientId}
         ticketId={ticketId}
         activeTabList={activeTab}
+        activeTabPermission={hasPermissionWorklog(
+          allTabs.filter((tab) => tab.value === activeTab)[0]?.label,
+          "Save",
+          "EmailBox"
+        )}
         tagDropdown={tagDropdown}
         getTagDropdownData={getTagDropdownData}
       />

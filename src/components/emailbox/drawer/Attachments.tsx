@@ -213,7 +213,9 @@ const Attachments = ({
                 }}
                 className="cursor-pointer"
               >
-                <Download />
+                <ColorToolTip title="Download" placement="top" arrow>
+                  <Download />
+                </ColorToolTip>
               </div>
             );
           },
@@ -295,7 +297,7 @@ const Attachments = ({
         </FormControl>
         {historyData.data.length > 0 && (
           <ColorToolTip
-            title="Download"
+            title="Download All"
             placement="top"
             arrow
             className="cursor-pointer"

@@ -17,6 +17,7 @@ const UserPermissionDrawer = ({
 }: UserPermissionDrawer) => {
   const [isLoadingUserPermission, setIsLoadingUserPermission] = useState(false);
   const [data, setData] = useState<PermissionsMenuItem[]>([]);
+  const [activeTab, setActiveTab] = useState(1);
 
   const getData = async () => {
     const token = await localStorage.getItem("token");
@@ -62,6 +63,7 @@ const UserPermissionDrawer = ({
 
   useEffect(() => {
     if (roleId > 0) {
+      setActiveTab(1);
       getData();
     }
   }, [roleId]);
@@ -258,40 +260,46 @@ const UserPermissionDrawer = ({
       });
   };
 
-  let tableData = data.map((i: PermissionsMenuItem) => {
-    const isViewChecked = i.ActionList;
-    const Id = i.Sequence - 1;
+  let tableData = (activeTab === 1 ? data.slice(0, 6) : data.slice(6)).map(
+    (i: PermissionsMenuItem) => {
+      const isViewChecked = i.ActionList;
+      const Id = i.Sequence - 1;
 
-    return {
-      ...i,
-      ...getCheckbox(isViewChecked, Id),
+      return {
+        ...i,
+        ...getCheckbox(isViewChecked, Id),
 
-      details:
-        i.Children.length > 0 ? (
-          <div className="ml-12">
-            <DataTable
-              noHeader
-              columns={[
-                { header: "", accessor: "name", sortable: false },
-                ...getLargestArray(i?.Children).map(
-                  (child: null, index: number) =>
-                    new Object({ header: "", accessor: index, sortable: false })
-                ),
-              ]}
-              data={i.Children.map(
-                ({ Name, ActionList, ...more }: any, index: number) =>
-                  new Object({
-                    name: Name,
-                    ...getCheckbox(ActionList, Id, index),
-                  })
-              )}
-            />
-          </div>
-        ) : (
-          ""
-        ),
-    };
-  });
+        details:
+          i.Children.length > 0 ? (
+            <div className="ml-12">
+              <DataTable
+                noHeader
+                columns={[
+                  { header: "", accessor: "name", sortable: false },
+                  ...getLargestArray(i?.Children).map(
+                    (child: null, index: number) =>
+                      new Object({
+                        header: "",
+                        accessor: index,
+                        sortable: false,
+                      })
+                  ),
+                ]}
+                data={i.Children.map(
+                  ({ Name, ActionList, ...more }: any, index: number) =>
+                    new Object({
+                      name: Name,
+                      ...getCheckbox(ActionList, Id, index),
+                    })
+                )}
+              />
+            </div>
+          ) : (
+            ""
+          ),
+      };
+    }
+  );
 
   const handleClose = () => {
     setData([]);
@@ -313,6 +321,35 @@ const UserPermissionDrawer = ({
             <Close variant="medium" />
           </span>
         </div>
+        {data.length > 4 && (
+          <div className="flex gap-[16px] items-center py-[6.5px] ml-4">
+            <label
+              onClick={() => {
+                setActiveTab(1);
+              }}
+              className={`py-[10px] text-[16px] cursor-pointer select-none ${
+                activeTab === 1
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
+              }`}
+            >
+              PMS
+            </label>
+            <span className="text-lightSilver">|</span>
+            <label
+              onClick={() => {
+                setActiveTab(2);
+              }}
+              className={`py-[10px] text-[16px] cursor-pointer select-none ${
+                activeTab === 2
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
+              }`}
+            >
+              Email box
+            </label>
+          </div>
+        )}
         <div className="max-h-[75%] overflow-y-auto">
           {data.length > 0 && (
             <DataTable

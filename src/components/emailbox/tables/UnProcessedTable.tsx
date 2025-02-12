@@ -22,6 +22,7 @@ import { unProcessedColsConfig } from "@/utils/datatable/columns/EmailBoxDatatab
 import OverLay from "@/components/common/OverLay";
 import InboxActionBar from "../actionBar/InboxActionBar";
 import UnProcessActionBar from "../actionBar/UnProcessActionBar";
+import { hasPermissionWorklog } from "@/utils/commonFunction";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -313,6 +314,13 @@ const UnprocessedTable = ({
               tableBodyHeight: "73vh",
               selectAllRows: isPopupOpen && selectedRowsCount === 0,
               rowsSelected: selectedRows,
+              selectableRows: hasPermissionWorklog(
+                "Unprocessed",
+                "Save",
+                "EmailBox"
+              )
+                ? "multiple"
+                : "none",
               textLabels: {
                 body: {
                   noMatch: (

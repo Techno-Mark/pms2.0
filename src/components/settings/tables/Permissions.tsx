@@ -23,9 +23,11 @@ const Permissions = ({
   canEdit,
 }: PermissionsProps) => {
   const [data, setData] = useState<PermissionsMenuItem[]>([]);
+  const [activeTab, setActiveTab] = useState(1);
 
   useEffect(() => {
     if (permissionValue > 0) {
+      setActiveTab(1);
       const timer = setTimeout(() => {
         getData();
       }, 500);
@@ -182,41 +184,47 @@ const Permissions = ({
     return columns;
   }
 
-  let tableData = data.map((i: PermissionsMenuItem) => {
-    const isViewChecked = i.ActionList;
-    const Id = i.Sequence - 1;
+  let tableData = (activeTab === 1 ? data.slice(0, 6) : data.slice(6)).map(
+    (i: PermissionsMenuItem) => {
+      const isViewChecked = i.ActionList;
+      const Id = i.Sequence - 1;
 
-    return {
-      ...i,
-      Name: <div className="text-sm">{i.Name}</div>,
-      ...getCheckbox(isViewChecked, Id),
+      return {
+        ...i,
+        Name: <div className="text-sm">{i.Name}</div>,
+        ...getCheckbox(isViewChecked, Id),
 
-      details:
-        i.Children.length > 0 ? (
-          <div className="ml-12">
-            <DataTable
-              columns={[
-                { header: "", accessor: "name", sortable: false },
-                ...getLargestArray(i?.Children).map(
-                  (child: null, index: number) =>
-                    new Object({ header: "", accessor: index, sortable: false })
-                ),
-              ]}
-              noHeader
-              data={i.Children.map(
-                ({ Name, ActionList, ...more }: any, index: number) =>
-                  new Object({
-                    name: <div className="text-sm">{Name}</div>,
-                    ...getCheckbox(ActionList, Id, index),
-                  })
-              )}
-            />
-          </div>
-        ) : (
-          ""
-        ),
-    };
-  });
+        details:
+          i.Children.length > 0 ? (
+            <div className="ml-12">
+              <DataTable
+                columns={[
+                  { header: "", accessor: "name", sortable: false },
+                  ...getLargestArray(i?.Children).map(
+                    (child: null, index: number) =>
+                      new Object({
+                        header: "",
+                        accessor: index,
+                        sortable: false,
+                      })
+                  ),
+                ]}
+                noHeader
+                data={i.Children.map(
+                  ({ Name, ActionList, ...more }: any, index: number) =>
+                    new Object({
+                      name: <div className="text-sm">{Name}</div>,
+                      ...getCheckbox(ActionList, Id, index),
+                    })
+                )}
+              />
+            </div>
+          ) : (
+            ""
+          ),
+      };
+    }
+  );
 
   const getData = async () => {
     const token = await localStorage.getItem("token");
@@ -282,20 +290,51 @@ const Permissions = ({
             &nbsp;to continue
           </p>
         ) : (
-          <div
-            className={`${
-              tableData.length === 0 ? "!h-full" : "!h-[80vh] !w-full"
-            }`}
-          >
-            {data.length > 0 && (
-              <DataTable
-                expandable
-                columns={generateColumns(data)}
-                data={tableData}
-                isExpanded={expanded}
-              />
+          <>
+            {data.length > 4 && (
+              <div className="flex gap-[16px] items-center py-[6.5px] ml-4">
+                <label
+                  onClick={() => {
+                    setActiveTab(1);
+                  }}
+                  className={`py-[10px] text-[16px] cursor-pointer select-none ${
+                    activeTab === 1
+                      ? "text-secondary font-semibold"
+                      : "text-slatyGrey"
+                  }`}
+                >
+                  PMS
+                </label>
+                <span className="text-lightSilver">|</span>
+                <label
+                  onClick={() => {
+                    setActiveTab(2);
+                  }}
+                  className={`py-[10px] text-[16px] cursor-pointer select-none ${
+                    activeTab === 2
+                      ? "text-secondary font-semibold"
+                      : "text-slatyGrey"
+                  }`}
+                >
+                  Email box
+                </label>
+              </div>
             )}
-          </div>
+            <div
+              className={`${
+                tableData.length === 0 ? "!h-full" : "!h-[80vh] !w-full"
+              } libraryDatatable border-t border-gray-300`}
+            >
+              {data.length > 0 && (
+                <DataTable
+                  expandable
+                  columns={generateColumns(data)}
+                  data={tableData}
+                  isExpanded={expanded}
+                />
+              )}
+            </div>
+          </>
         )
       ) : (
         <div className="flex justify-center items-center py-[17px] text-[14px] text-red-500">
