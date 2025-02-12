@@ -23,11 +23,11 @@ const Permissions = ({
   canEdit,
 }: PermissionsProps) => {
   const [data, setData] = useState<PermissionsMenuItem[]>([]);
-  const [activeTab, setActiveTab] = useState(1);
+  // const [activeTab, setActiveTab] = useState(1);
 
   useEffect(() => {
     if (permissionValue > 0) {
-      setActiveTab(1);
+      // setActiveTab(1);
       const timer = setTimeout(() => {
         getData();
       }, 500);
@@ -134,37 +134,6 @@ const Permissions = ({
             disabled={!canEdit}
           />
         );
-        // permissionValueType === 2 ? (
-        //   action.ActionId !== 12 && (
-        //     <CheckBox
-        //       key={uniqueId}
-        //       label={action.ActionName}
-        //       type="checkbox"
-        //       id={uniqueId}
-        //       checked={action.IsChecked}
-        //       onChange={() =>
-        //         parentId === 3 && data.length === 3
-        //           ? handleCheckboxChange(2, childIndex, index)
-        //           : handleCheckboxChange(parentId, childIndex, index)
-        //       }
-        //       disabled={!canEdit}
-        //     />
-        //   )
-        // ) : (
-        //   <CheckBox
-        //     key={uniqueId}
-        //     label={action.ActionName}
-        //     type="checkbox"
-        //     id={uniqueId}
-        //     checked={action.IsChecked}
-        //     onChange={() =>
-        //       parentId === 3 && data.length === 3
-        //         ? handleCheckboxChange(2, childIndex, index)
-        //         : handleCheckboxChange(parentId, childIndex, index)
-        //     }
-        //     disabled={!canEdit}
-        //   />
-        // );
       });
   };
 
@@ -184,8 +153,9 @@ const Permissions = ({
     return columns;
   }
 
-  let tableData = (activeTab === 1 ? data.slice(0, 6) : data.slice(6)).map(
-    (i: PermissionsMenuItem) => {
+  let tableData =
+    // (activeTab === 1 ? data.slice(0, 6) : data.slice(6))
+    data.map((i: PermissionsMenuItem) => {
       const isViewChecked = i.ActionList;
       const Id = i.Sequence - 1;
 
@@ -223,8 +193,7 @@ const Permissions = ({
             ""
           ),
       };
-    }
-  );
+    });
 
   const getData = async () => {
     const token = await localStorage.getItem("token");
@@ -291,7 +260,7 @@ const Permissions = ({
           </p>
         ) : (
           <>
-            {data.length > 4 && (
+            {/* {data.length > 4 && (
               <div className="flex gap-[16px] items-center py-[6.5px] ml-4">
                 <label
                   onClick={() => {
@@ -319,7 +288,7 @@ const Permissions = ({
                   Email box
                 </label>
               </div>
-            )}
+            )} */}
             <div
               className={`${
                 tableData.length === 0 ? "!h-full" : "!h-[80vh] !w-full"

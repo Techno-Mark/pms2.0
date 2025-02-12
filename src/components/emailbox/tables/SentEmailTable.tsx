@@ -207,13 +207,21 @@ const SentEmailTable = ({
                 tableMeta.rowData[tableMeta.rowData.length - 2] === 3 ||
                 tableMeta.rowData[tableMeta.rowData.length - 2] === 5);
             return (
-              <div
-                className={`${
-                  isAllowed ? "cursor-pointer" : "cursor-not-allowed"
-                } flex items-center justify-center`}
-                onClick={() => isAllowed && createTask(value)}
-              >
-                <AddPlusIcon color={isAllowed ? "black" : "gray"} />
+              <div className={`flex items-center justify-center`}>
+                {isAllowed ? (
+                  <ColorToolTip title="Create Task" placement="left">
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => isAllowed && createTask(value)}
+                    >
+                      <AddPlusIcon color="black" />
+                    </div>
+                  </ColorToolTip>
+                ) : (
+                  <div className="cursor-not-allowed">
+                    <AddPlusIcon color={"gray"} />
+                  </div>
+                )}
               </div>
             );
           },

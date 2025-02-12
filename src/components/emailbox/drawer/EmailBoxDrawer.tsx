@@ -294,7 +294,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
             isDisabled={activeTabList === 2 || !activeTabPermission}
           />
         </div>
-        <div className="w-[75vw] h-full">
+        <div className="w-[75vw] h-full contents">
           {activeTab === 1 ? (
             <Conversations
               ref={conversationRef}

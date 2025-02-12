@@ -17,7 +17,7 @@ const UserPermissionDrawer = ({
 }: UserPermissionDrawer) => {
   const [isLoadingUserPermission, setIsLoadingUserPermission] = useState(false);
   const [data, setData] = useState<PermissionsMenuItem[]>([]);
-  const [activeTab, setActiveTab] = useState(1);
+  // const [activeTab, setActiveTab] = useState(1);
 
   const getData = async () => {
     const token = await localStorage.getItem("token");
@@ -63,7 +63,7 @@ const UserPermissionDrawer = ({
 
   useEffect(() => {
     if (roleId > 0) {
-      setActiveTab(1);
+      // setActiveTab(1);
       getData();
     }
   }, [roleId]);
@@ -260,8 +260,9 @@ const UserPermissionDrawer = ({
       });
   };
 
-  let tableData = (activeTab === 1 ? data.slice(0, 6) : data.slice(6)).map(
-    (i: PermissionsMenuItem) => {
+  let tableData =
+    // (activeTab === 1 ? data.slice(0, 6) : data.slice(6))
+    data.map((i: PermissionsMenuItem) => {
       const isViewChecked = i.ActionList;
       const Id = i.Sequence - 1;
 
@@ -298,8 +299,7 @@ const UserPermissionDrawer = ({
             ""
           ),
       };
-    }
-  );
+    });
 
   const handleClose = () => {
     setData([]);
@@ -321,7 +321,7 @@ const UserPermissionDrawer = ({
             <Close variant="medium" />
           </span>
         </div>
-        {data.length > 4 && (
+        {/* {data.length > 4 && (
           <div className="flex gap-[16px] items-center py-[6.5px] ml-4">
             <label
               onClick={() => {
@@ -349,7 +349,7 @@ const UserPermissionDrawer = ({
               Email box
             </label>
           </div>
-        )}
+        )} */}
         <div className="max-h-[75%] overflow-y-auto">
           {data.length > 0 && (
             <DataTable

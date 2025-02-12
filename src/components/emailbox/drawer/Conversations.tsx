@@ -642,7 +642,7 @@ const Conversations = forwardRef<
 
     return (
       <>
-        <div className="p-4 flex flex-col gap-4 h-full overflow-y-auto bg-gray-100 w-full">
+        <div className="p-4 flex flex-col gap-4 h-full overflow-y-auto bg-gray-100 w-full overflow-x-hidden">
           {data.map((i: conversationData, index: number) => (
             <div key={index} className="bg-white">
               {active > 0 && active - 1 === index && (
@@ -866,7 +866,7 @@ const Conversations = forwardRef<
                   </div>
                 </div>
               )}
-              <div className="max-w-full rounded-lg flex items-start justify-start p-4 gap-4">
+              <div className="w-full rounded-lg flex items-start justify-start p-4 gap-4">
                 <Avatar
                   sx={{
                     width: 34,
@@ -887,7 +887,7 @@ const Conversations = forwardRef<
                     .map((word: string) => word.charAt(0).toUpperCase())
                     .join("")}
                 </Avatar>
-                <div className="flex flex-col items-start justify-center w-full">
+                <div className="flex flex-col items-start justify-center w-full max-w-[95%]">
                   <div className="flex items-start justify-between mb-1 w-full">
                     <p
                       className={`flex ${
@@ -1074,18 +1074,18 @@ const Conversations = forwardRef<
                   {!!i.CC && <p className="break-all">Cc: {i.CC}</p>}
                   {!!i.BCC && <p className="break-all">Bcc: {i.BCC}</p>}
                   <p className="break-all">Subject: {i.Subject}</p>
-                  {/* <p
+                  <p
                     className="mt-2 !break-all"
                     dangerouslySetInnerHTML={{
                       __html: i.Body,
                     }}
                     style={{
-                      wordBreak: 'break-all',
-                      maxWidth:"100%",
-                      overflow:"auto"
+                      wordBreak: "break-all",
+                      maxWidth: "98%",
+                      overflow: "auto",
                     }}
-                  /> */}
-                  <p
+                  />
+                  {/* <p
                     className="mt-2 !break-all w-full [&>*]:w-full [&>font>pre]:w-full pretag"
                     dangerouslySetInnerHTML={{
                       __html: i.Body,
@@ -1093,7 +1093,7 @@ const Conversations = forwardRef<
                     style={{
                       wordBreak: "break-all",
                     }}
-                  />
+                  /> */}
                   {!!i.Attachments &&
                     i.Attachments.length > 0 &&
                     i.Attachments.map((attachment: any, index: number) => (
