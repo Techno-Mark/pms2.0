@@ -140,6 +140,7 @@ const UnprocessedTable = ({
         GlobalSearch: searchValue.trim(),
       });
     }
+    getTabData?.();
   }, [filteredData, searchValue]);
 
   useEffect(() => {

@@ -414,6 +414,7 @@ const page = () => {
           getId={getId}
           tagDropdown={tagDropdown}
           getTagDropdownData={getTagDropdownData}
+          getTabData={getTabData}
         />
       )}
 
@@ -448,6 +449,7 @@ const page = () => {
           onDataFetch={handleDataFetch}
           handleDrawerOpen={handleDrawerOpen}
           getId={getId}
+          getTabData={getTabData}
         />
       )}
 
@@ -458,6 +460,7 @@ const page = () => {
           onDataFetch={handleDataFetch}
           handleDrawerOpen={handleDrawerOpen}
           getId={getId}
+          getTabData={getTabData}
         />
       )}
 

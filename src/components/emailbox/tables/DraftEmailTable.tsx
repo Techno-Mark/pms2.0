@@ -49,6 +49,7 @@ const DraftEmailTable = ({
   onDataFetch,
   handleDrawerOpen,
   getId,
+  getTabData,
 }: EmailBoxProps) => {
   const [loading, setLoading] = useState(false);
   const [fileds, setFileds] = useState<FieldsType>({
@@ -167,6 +168,7 @@ const DraftEmailTable = ({
         GlobalSearch: searchValue.trim(),
       });
     }
+    getTabData?.();
   }, [filteredData, searchValue]);
 
   useEffect(() => {

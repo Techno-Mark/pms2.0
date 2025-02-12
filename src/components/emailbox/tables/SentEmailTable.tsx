@@ -49,6 +49,7 @@ const SentEmailTable = ({
   onDataFetch,
   handleDrawerOpen,
   getId,
+  getTabData,
 }: EmailBoxProps) => {
   const [loading, setLoading] = useState(false);
   const [fileds, setFileds] = useState<FieldsType>({
@@ -139,6 +140,7 @@ const SentEmailTable = ({
         GlobalSearch: searchValue.trim(),
       });
     }
+    getTabData?.();
   }, [filteredData, searchValue]);
 
   useEffect(() => {

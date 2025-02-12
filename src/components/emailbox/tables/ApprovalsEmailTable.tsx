@@ -219,6 +219,7 @@ const ApprovalsEmailTable = ({
         GlobalSearch: searchValue.trim(),
       });
     }
+    getTabData?.();
   }, [filteredData, searchValue]);
 
   useEffect(() => {

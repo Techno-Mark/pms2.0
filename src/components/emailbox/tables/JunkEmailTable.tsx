@@ -138,6 +138,7 @@ const JunkEmailTable = ({
         GlobalSearch: searchValue.trim(),
       });
     }
+    getTabData?.();
   }, [filteredData, searchValue]);
 
   useEffect(() => {

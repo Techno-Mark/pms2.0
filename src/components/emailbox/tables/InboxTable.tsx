@@ -50,6 +50,7 @@ const initialFilter = {
 const InboxTable = ({
   filteredData,
   searchValue,
+  getTabData,
   onDataFetch,
   handleDrawerOpen,
   getId,
@@ -234,6 +235,7 @@ const InboxTable = ({
         GlobalSearch: searchValue.trim(),
       });
     }
+    getTabData?.();
   }, [filteredData, searchValue]);
 
   useEffect(() => {
