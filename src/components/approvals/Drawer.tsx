@@ -3737,7 +3737,11 @@ const EditDrawer = ({
                     <Grid item xs={3} className="pt-4">
                       <TextField
                         label={
-                          departmentApprovalsType === "WhitelabelTaxation" ? (
+                          departmentApprovalsType === "WhitelabelTaxation" &&
+                          typeOfWorkApprovals === 3 ? (
+                            "Missing Info/Description"
+                          ) : departmentApprovalsType ===
+                            "WhitelabelTaxation" ? (
                             "Description"
                           ) : (
                             <span>
@@ -3745,6 +3749,10 @@ const EditDrawer = ({
                               <span className="!text-defaultRed">&nbsp;*</span>
                             </span>
                           )
+                        }
+                        multiline={
+                          departmentApprovalsType === "WhitelabelTaxation" &&
+                          typeOfWorkApprovals === 3
                         }
                         fullWidth
                         className="pt-1"

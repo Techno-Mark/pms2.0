@@ -4152,7 +4152,11 @@ const EditDrawer = ({
                     <Grid item xs={3} className="pt-[14px]">
                       <TextField
                         label={
-                          departmentWorklogsType === "WhitelabelTaxation" ? (
+                          departmentWorklogsType === "WhitelabelTaxation" &&
+                          typeOfWorkWorklogs === 3 ? (
+                            "Missing Info/Description"
+                          ) : departmentWorklogsType ===
+                            "WhitelabelTaxation" ? (
                             "Description"
                           ) : (
                             <span>
@@ -4160,6 +4164,10 @@ const EditDrawer = ({
                               <span className="!text-defaultRed">&nbsp;*</span>
                             </span>
                           )
+                        }
+                        multiline={
+                          departmentWorklogsType === "WhitelabelTaxation" &&
+                          typeOfWorkWorklogs === 3
                         }
                         fullWidth
                         value={
