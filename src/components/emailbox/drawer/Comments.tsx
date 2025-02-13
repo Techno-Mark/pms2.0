@@ -427,7 +427,7 @@ const Comments = ({
                   <div className="flex items-center justify-between w-full gap-5">
                     <MentionsInput
                       style={mentionsInputStyle}
-                      className="!w-[100%] textareaOutlineNoneEdit max-w-[60vw]"
+                      className="!w-[100%] textareaOutlineNoneEdit max-w-[90%]"
                       value={valueEdit}
                       onChange={(e) => {
                         setValueEdit(e.target.value);
@@ -502,7 +502,12 @@ const Comments = ({
                   )}
                 </>
               ) : (
-                <div className="pl-12 ml-2">
+                <div
+                  className="pl-12 ml-2"
+                  style={{
+                    wordBreak: "break-all",
+                  }}
+                >
                   {extractText(comment.Message).map((i: string) => {
                     const assignee = commentUserData.map(
                       (j: LabelValue) => j.label
