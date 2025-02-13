@@ -12,7 +12,14 @@ import { getFileFromBlob, getFileFromBlobForZip } from "@/utils/downloadFile";
 import { LabelValue } from "@/utils/Types/types";
 import { ThemeProvider } from "@emotion/react";
 import { Download } from "@mui/icons-material";
-import { Autocomplete, FormControl, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
 import MUIDataTable from "mui-datatables";
 import React, { useEffect, useRef, useState } from "react";
 import JSZip from "jszip";
@@ -273,27 +280,26 @@ const Attachments = ({
           variant="standard"
           sx={{ mx: 0.75, minWidth: 210, pt: "3px" }}
         >
-          <Autocomplete
-            id="tags-standard"
-            options={attachmentTypeDropdown}
-            getOptionLabel={(option: LabelValue) => option.label}
-            onChange={(e, data: LabelValue | null) => {
-              setAttachmentType(!!data ? data.value : 0);
-              getAttachmentData(!!data ? data.value : 0);
-            }}
-            value={
-              attachmentTypeDropdown.find(
-                (i: LabelValue) => i.value === attachmentType
-              ) || null
-            }
-            renderInput={(params: any) => (
-              <TextField
-                {...params}
-                variant="standard"
-                label="Attachment Type"
-              />
-            )}
-          />
+          <FormControl variant="standard" sx={{ mx: 0.75 }}>
+            <InputLabel id="demo-simple-select-standard-label">
+              Attachment Type
+            </InputLabel>
+            <Select
+              labelId="demo-simple-select-standard-label"
+              id="demo-simple-select-standard"
+              onChange={(e) => {
+                setAttachmentType(Number(e.target.value));
+                getAttachmentData(Number(e.target.value));
+              }}
+              value={attachmentType}
+            >
+              {attachmentTypeDropdown.map((i) => (
+                <MenuItem value={i.value} key={i.value}>
+                  {i.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </FormControl>
         {historyData.data.length > 0 && (
           <ColorToolTip

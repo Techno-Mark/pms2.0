@@ -518,7 +518,10 @@ const SentEmailTable = ({
       /> */}
       <DeleteDialog
         isOpen={isCreateTaskOpen}
-        onClose={() => setIsCreateTaskOpen(false)}
+        onClose={() => {
+          setIsCreateTaskOpen(false);
+          setCreateTaskId(0);
+        }}
         onActionClick={createTask}
         Title={"Create Task"}
         firstContent={"Are you sure you want to create task?"}

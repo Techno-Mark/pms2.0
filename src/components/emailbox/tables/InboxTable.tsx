@@ -331,6 +331,8 @@ const InboxTable = ({
               (tableMeta.rowData[tableMeta.rowData.length - 2] === 2 ||
                 tableMeta.rowData[tableMeta.rowData.length - 2] === 3 ||
                 tableMeta.rowData[tableMeta.rowData.length - 2] === 5);
+            // &&
+            // !tableMeta.rowData[tableMeta.rowData.length - 6];
             return (
               <div className={`flex items-center justify-center`}>
                 {isAllowed ? (
@@ -569,6 +571,14 @@ const InboxTable = ({
           viewColumns: false,
         },
       };
+    } else if (column.name === "IsWorkItemCreated") {
+      return {
+        name: "IsWorkItemCreated",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
     } else {
       return generateCustomColumn(
         column.name,
@@ -584,6 +594,13 @@ const InboxTable = ({
       name: "UpdatedBy",
       label: "Create Task Icon",
       bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "IsWorkItemCreated",
+      options: {
+        display: false,
+        viewColumns: false,
+      },
     },
     {
       name: "MarkAsRead",
@@ -708,7 +725,10 @@ const InboxTable = ({
 
       <DeleteDialog
         isOpen={isCreateTaskOpen}
-        onClose={() => setIsCreateTaskOpen(false)}
+        onClose={() => {
+          setIsCreateTaskOpen(false);
+          setCreateTaskId(0);
+        }}
         onActionClick={createTask}
         Title={"Create Task"}
         firstContent={"Are you sure you want to create task?"}

@@ -14,6 +14,7 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import DrawerOverlay from "@/components/settings/drawer/DrawerOverlay";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 
 interface EmailBoxDrawerProps {
   onOpen: boolean;
@@ -55,6 +56,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
   const [allFieldsFilled, setAllFieldsFilled] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [syncTime, setSyncTime] = useState(0);
+  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
 
   const handleTaskCreate = () => {
     setOverlayOpen(true);
@@ -262,7 +264,11 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
                   ? "bg-gray-500 !cursor-not-allowed"
                   : "!bg-secondary cursor-pointer"
               } mr-2`}
-              onClick={handleTaskCreate}
+              onClick={() => {
+                if (createTask) {
+                  setIsCreateTaskOpen(true);
+                }
+              }}
               disabled={!createTask}
             >
               <span className="flex items-center gap-[10px] px-[5px]">
@@ -278,7 +284,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
         className="w-[100%] flex items-center justify-center"
         style={{ height: "calc(100% - 123px)" }}
       >
-        <div className="bg-white w-[25vw] h-full">
+        <div className="bg-white min-w-[25%] h-full">
           <EmailData
             ref={clientRef}
             onOpen={onOpen}
@@ -294,7 +300,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
             isDisabled={activeTabList === 2 || !activeTabPermission}
           />
         </div>
-        <div className="w-[75vw] h-full contents">
+        <div className="w-[75%] h-full">
           {activeTab === 1 ? (
             <Conversations
               ref={conversationRef}
@@ -331,6 +337,16 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
         isOpen={overlayOpen}
         className="!-top-[1px] !-left-[1px]"
         onClose={handleDrawerClose}
+      />
+
+      <DeleteDialog
+        isOpen={isCreateTaskOpen}
+        onClose={() => setIsCreateTaskOpen(false)}
+        onActionClick={handleTaskCreate}
+        Title={"Create Task"}
+        firstContent={"Are you sure you want to create task?"}
+        secondContent={""}
+        buttonContent={true}
       />
     </div>
   );
