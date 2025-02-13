@@ -6642,7 +6642,7 @@ const EditDrawer = ({
                           value={4}
                           checked={reminderCheckboxValue == 4}
                           control={<Radio />}
-                          label="Days Before Due Date"
+                          label="Day Before Due Date"
                         />
                       </RadioGroup>
                     </div>

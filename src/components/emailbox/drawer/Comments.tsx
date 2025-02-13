@@ -338,7 +338,7 @@ const Comments = ({
   }, [activeTab]);
 
   return (
-    <div className="flex flex-col gap-4 h-full bg-gray-100">
+    <div className="flex flex-col gap-4 h-full bg-gray-100 w-full">
       {commentData.length > 0 ? (
         <div className="flex-grow pt-3 px-4 mb-2 h-[85%] overflow-y-auto flex flex-col items-start justify-start gap-4">
           {commentData.map((comment: CommentsData, index: number) => (

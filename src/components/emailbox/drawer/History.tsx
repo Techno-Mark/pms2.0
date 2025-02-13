@@ -125,8 +125,8 @@ const History = ({
   );
 
   return (
-    <div className="p-2">
-      <div className="flex items-center justify-between mb-4 mt-2">
+    <div className="p-2 w-full h-full">
+      <div className="flex items-center justify-start mb-4 mt-2">
         <div
           className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
         >

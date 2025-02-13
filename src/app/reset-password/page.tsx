@@ -43,7 +43,11 @@ const Page = () => {
       cPasswordHasError
     ) {
       setClicked(true);
-      const params = { Token: token, Password: password, TokenType: 2 };
+      const params = {
+        Token: token?.trim(),
+        Password: password.trim(),
+        TokenType: 2,
+      };
       const url = `${process.env.api_url}/auth/setpassword`;
       const successCallback = (
         ResponseData: null,

@@ -58,8 +58,8 @@ const Page = () => {
     ) {
       setClicked(true);
       const params = {
-        Username: email,
-        Password: password,
+        Username: email.trim(),
+        Password: password.trim(),
       };
       const url = `${process.env.api_url}/auth/token`;
       const successCallback = (

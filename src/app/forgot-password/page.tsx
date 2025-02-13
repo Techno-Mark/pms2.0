@@ -31,7 +31,7 @@ const ForgetPassword = () => {
       regex.test(email)
     ) {
       setClicked(true);
-      const params = { Username: email };
+      const params = { Username: email.trim() };
       const url = `${process.env.api_url}/auth/forgotpassword`;
       const successCallback = (
         ResponseData: null,

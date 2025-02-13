@@ -267,7 +267,7 @@ const Attachments = ({
   };
 
   return (
-    <div className="p-2">
+    <div className="p-2 w-full h-full">
       <div className="flex items-center justify-between mb-4 mt-2 mr-20">
         <FormControl
           variant="standard"
@@ -278,8 +278,8 @@ const Attachments = ({
             options={attachmentTypeDropdown}
             getOptionLabel={(option: LabelValue) => option.label}
             onChange={(e, data: LabelValue | null) => {
-              !!data && setAttachmentType(data.value);
-              !!data && getAttachmentData(data.value);
+              setAttachmentType(!!data ? data.value : 0);
+              getAttachmentData(!!data ? data.value : 0);
             }}
             value={
               attachmentTypeDropdown.find(

@@ -6201,7 +6201,7 @@ const EditDrawer = ({
                           disabled={!reminderSwitchApprovals || activeTab === 2}
                           value={4}
                           control={<Radio />}
-                          label="Days Before Due Date"
+                          label="Day Before Due Date"
                         />
                       </RadioGroup>
                     </div>

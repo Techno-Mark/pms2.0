@@ -23,6 +23,7 @@ import { inboxColsConfig } from "@/utils/datatable/columns/EmailBoxDatatableColu
 import OverLay from "@/components/common/OverLay";
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
 import { toast } from "react-toastify";
+import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -67,6 +68,8 @@ const SentEmailTable = ({
   >([]);
   const [selectedRows, setSelectedRows] = useState<number[] | []>([]);
   const [selectedRowIds, setSelectedRowIds] = useState<number[] | []>([]);
+  const [createTaskId, setCreateTaskId] = useState(0);
+  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
 
   const getData = async () => {
     setFileds({
@@ -154,10 +157,10 @@ const SentEmailTable = ({
     return () => clearTimeout(timer);
   }, [filteredObject, filteredData, searchValue]);
 
-  const createTask = (ticketId: number) => {
+  const createTask = () => {
     setLoading(true);
     const params = {
-      TicketIds: [ticketId],
+      TicketIds: [createTaskId],
     };
     const url = `${process.env.emailbox_api_url}/emailbox/saveWorkItemFromTicket`;
     const successCallback = (
@@ -212,7 +215,12 @@ const SentEmailTable = ({
                   <ColorToolTip title="Create Task" placement="left">
                     <div
                       className="cursor-pointer"
-                      onClick={() => isAllowed && createTask(value)}
+                      onClick={() => {
+                        if (isAllowed) {
+                          setIsCreateTaskOpen(true);
+                          setCreateTaskId(value);
+                        }
+                      }}
                     >
                       <AddPlusIcon color="black" />
                     </div>
@@ -508,6 +516,15 @@ const SentEmailTable = ({
         {...propsForActionBar}
         getOverLay={(e: boolean) => setLoading(e)}
       /> */}
+      <DeleteDialog
+        isOpen={isCreateTaskOpen}
+        onClose={() => setIsCreateTaskOpen(false)}
+        onActionClick={createTask}
+        Title={"Create Task"}
+        firstContent={"Are you sure you want to create task?"}
+        secondContent={""}
+        buttonContent={true}
+      />
       {loading ? <OverLay /> : ""}
     </>
   );
