@@ -38,6 +38,7 @@ import MUIDataTable from "mui-datatables";
 import TablePagination from "@mui/material/TablePagination";
 import {
   generateDashboardReportBodyRender,
+  generateEmailboxStatusColor,
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
@@ -190,6 +191,22 @@ const Page = () => {
       StartDate: null,
       EndDate: null,
     });
+  const [dashboardEmailboxSummary, setDashboardEmailboxSummary] = useState<
+    {
+      Status: string;
+      Count: number;
+    }[]
+  >([]);
+  const [
+    dashboardEmailboxEmailTypeCounts,
+    setDashboardEmailboxEmailTypeCounts,
+  ] = useState<
+    {
+      Type: number;
+      EmailTypeCount: number;
+      EmailType: string;
+    }[]
+  >([]);
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
@@ -404,15 +421,147 @@ const Page = () => {
     callAPI(url, params, successCallback, "POST");
   };
 
+  const getSummary = async () => {
+    const workTypeIdFromLocalStorage =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("workTypeId")
+        : 3;
+    const params = {
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.WorkTypeId === null
+          ? Number(workTypeIdFromLocalStorage)
+          : currentFilterData.WorkTypeId,
+      DepartmentIds: currentFilterData.DepartmentIds,
+      AssigneeIds: currentFilterData.AssigneeIds,
+      ReviewerIds: currentFilterData.ReviewerIds,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
+    };
+    const url = `${process.env.report_api_url}/dashboard/GetDashboardWidgetsCounts`;
+    const successCallback = (
+      ResponseData: {
+        TicketCounts: {
+          Status: string;
+          Count: number;
+        }[];
+        EmailTypeCounts: {
+          Type: number;
+          EmailTypeCount: number;
+          EmailType: string;
+        }[];
+        PriorityCounts: {
+          Priority: string;
+          Count: number;
+        }[];
+        SLACounts: {
+          Type: number;
+          SLAType: string;
+          Count: number;
+        }[];
+      },
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        // setDashboardEmailboxSummary(ResponseData.TicketCounts);
+        // setDashboardEmailboxEmailTypeCounts(ResponseData.EmailTypeCounts);
+      }
+    };
+    setDashboardEmailboxSummary([
+      {
+        Status: "Total",
+        Count: 314,
+      },
+      {
+        Status: "Not Started",
+        Count: 270,
+      },
+      {
+        Status: "In Progress",
+        Count: 24,
+      },
+      {
+        Status: "In Review",
+        Count: 12,
+      },
+      {
+        Status: "Waiting For Client",
+        Count: 3,
+      },
+      {
+        Status: "Closed",
+        Count: 1,
+      },
+      {
+        Status: "Cancelled",
+        Count: 0,
+      },
+      {
+        Status: "Re-Open",
+        Count: 4,
+      },
+    ]);
+    setDashboardEmailboxEmailTypeCounts([
+      {
+        Type: 16,
+        EmailTypeCount: 3,
+        EmailType: "TLTYpe",
+      },
+      {
+        Type: 2,
+        EmailTypeCount: 9,
+        EmailType: "Invoice1",
+      },
+      {
+        Type: 4,
+        EmailTypeCount: 2,
+        EmailType: "Billing",
+      },
+      {
+        Type: 6,
+        EmailTypeCount: 2,
+        EmailType: "Tax",
+      },
+      {
+        Type: 15,
+        EmailTypeCount: 10,
+        EmailType: "ironman",
+      },
+      {
+        Type: 5,
+        EmailTypeCount: 40,
+        EmailType: "Amount",
+      },
+      {
+        Type: 14,
+        EmailTypeCount: 12,
+        EmailType: "Technomark",
+      },
+      {
+        Type: 13,
+        EmailTypeCount: 27,
+        EmailType: "Bill",
+      },
+      {
+        Type: 7,
+        EmailTypeCount: 1,
+        EmailType: "TaxRate",
+      },
+    ]);
+    // callAPI(url, params, successCallback, "POST");
+  };
+
   useEffect(() => {
     const fetchData = async () => {
-      await getProjectSummary();
+      dashboardActiveTab === 1 && (await getProjectSummary());
+      dashboardActiveTab === 2 && (await getSummary());
     };
     const timer = setTimeout(() => {
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [currentFilterData]);
+  }, [currentFilterData, dashboardActiveTab]);
 
   const statusIconMapping: { [key: number | string]: JSX.Element } = {
     2: <Person4OutlinedIcon />,
@@ -429,6 +578,18 @@ const Page = () => {
     12: <PlaylistAddCheckOutlinedIcon />,
     6: <TaskOutlinedIcon />,
   };
+
+  const statusIconMappingForEmailbox: { [key: number | string]: JSX.Element } =
+    {
+      Total: <PlaylistAddCheckOutlinedIcon />,
+      "Not Started": <PendingActionsOutlinedIcon />,
+      "In Progress": <InPreparation />,
+      "In Review": <InReview />,
+      "Waiting For Client": <PauseCircleOutlineOutlinedIcon />,
+      Closed: <Withdraw_Outlined />,
+      Cancelled: <CancelOutlinedIcon />,
+      "Re-Open": <RestorePageOutlinedIcon />,
+    };
 
   const exportSummaryReport = async () => {
     try {
@@ -851,34 +1012,38 @@ const Page = () => {
             className="flex items-center px-[20px] py-[10px]"
             gap={1}
           >
-            {dashboardSummary &&
-              dashboardSummary
+            {dashboardEmailboxSummary &&
+              dashboardEmailboxSummary
                 .slice(0, 4)
-                .map((item: KeyValueColorCodeSequence) => (
-                  <Grid xs={2.9} item key={item.Key}>
+                .map((item: { Status: string; Count: number }, index) => (
+                  <Grid xs={2.9} item key={index}>
                     <Card
                       className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
-                      style={{ borderColor: item.ColorCode }}
+                      style={{
+                        borderColor: generateEmailboxStatusColor(item.Status),
+                      }}
                     >
                       <div
                         className="flex p-[20px] items-center"
                         onClick={() => {
-                          setClickedCardName(item.Sequence);
+                          // setClickedCardName(item.Status);
                           setIsSummaryDialogOpen(true);
                         }}
                       >
                         <span
-                          style={{ color: item.ColorCode }}
+                          style={{
+                            color: generateEmailboxStatusColor(item.Status),
+                          }}
                           className={`border-r border-lightSilver pr-[20px]`}
                         >
-                          {statusIconMapping[item.Sequence]}
+                          {statusIconMappingForEmailbox[item.Status]}
                         </span>
                         <div className="inline-flex flex-col items-start pl-[20px]">
                           <span className="text-[14px] font-normal text-darkCharcoal">
-                            {item.Key}
+                            {item.Status}
                           </span>
                           <span className="text-[20px] text-slatyGrey font-semibold">
-                            {item.Value}
+                            {item.Count}
                           </span>
                         </div>
                       </div>
@@ -892,75 +1057,38 @@ const Page = () => {
             className="flex items-center px-[20px] py-[10px]"
             gap={1}
           >
-            {dashboardSummary &&
-              dashboardSummary
+            {dashboardEmailboxSummary &&
+              dashboardEmailboxSummary
                 .slice(4, 8)
-                .map((item: KeyValueColorCodeSequence) => (
-                  <Grid xs={2.9} item key={item.Key}>
+                .map((item: { Status: string; Count: number }, index) => (
+                  <Grid xs={2.9} item key={index}>
                     <Card
                       className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
-                      style={{ borderColor: item.ColorCode }}
+                      style={{
+                        borderColor: generateEmailboxStatusColor(item.Status),
+                      }}
                     >
                       <div
                         className="flex p-[20px] items-center"
                         onClick={() => {
-                          setClickedCardName(item.Sequence);
+                          // setClickedCardName(item.Status);
                           setIsSummaryDialogOpen(true);
                         }}
                       >
                         <span
-                          style={{ color: item.ColorCode }}
+                          style={{
+                            color: generateEmailboxStatusColor(item.Status),
+                          }}
                           className={`border-r border-lightSilver pr-[20px]`}
                         >
-                          {statusIconMapping[item.Sequence]}
+                          {statusIconMappingForEmailbox[item.Status]}
                         </span>
                         <div className="inline-flex flex-col items-start pl-[20px]">
                           <span className="text-[14px] font-normal text-darkCharcoal">
-                            {item.Key}
+                            {item.Status}
                           </span>
                           <span className="text-[20px] text-slatyGrey font-semibold">
-                            {item.Value}
-                          </span>
-                        </div>
-                      </div>
-                    </Card>
-                  </Grid>
-                ))}
-          </Grid>
-
-          <Grid
-            container
-            className="flex items-center px-[20px] py-[10px]"
-            gap={1}
-          >
-            {dashboardSummary &&
-              dashboardSummary
-                .slice(8, 12)
-                .map((item: KeyValueColorCodeSequence) => (
-                  <Grid xs={2.9} item key={item.Key}>
-                    <Card
-                      className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
-                      style={{ borderColor: item.ColorCode }}
-                    >
-                      <div
-                        className="flex p-[20px] items-center"
-                        onClick={() => {
-                          setClickedCardName(item.Sequence);
-                          setIsSummaryDialogOpen(true);
-                        }}
-                      >
-                        <span
-                          style={{ color: item.ColorCode }}
-                          className={`border-r border-lightSilver pr-[20px]`}
-                        >
-                          {statusIconMapping[item.Sequence]}
-                        </span>
-                        <div className="inline-flex flex-col items-start pl-[20px]">
-                          <span className="text-[14px] font-normal text-darkCharcoal">
-                            {item.Key}
-                          </span>
-                          <span className="text-[20px] text-slatyGrey font-semibold">
-                            {item.Value}
+                            {item.Count}
                           </span>
                         </div>
                       </div>
@@ -973,6 +1101,9 @@ const Page = () => {
           <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
             <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
               <Chart_EmailType
+                dashboardEmailboxEmailTypeCounts={
+                  dashboardEmailboxEmailTypeCounts
+                }
                 sendData={handleValueFromEmailType}
                 currentFilterData={currentFilterData}
               />

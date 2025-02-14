@@ -59,21 +59,27 @@ const Client = ({
     };
     const url = `${process.env.emailbox_api_url}/emailbox/UpdateClient`;
     const successCallback = (
-      ResponseData: boolean | string,
+      ResponseData: {
+        Result: number;
+        ListSuccessTicketIds: number[];
+        ListFailedTicketIds: number[];
+      },
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        toast.success("Client has been updated successfully.");
+        !!ResponseData.ListSuccessTicketIds &&
+          ResponseData.ListSuccessTicketIds.length > 0 &&
+          toast.success("Client has been updated successfully.");
+        !!ResponseData.ListFailedTicketIds &&
+          ResponseData.ListFailedTicketIds.length > 0 &&
+          toast.warning(
+            `Failed to update Client for ${ResponseData.ListFailedTicketIds.join(", ")}.`
+          );
         handleClearSelection();
         getData();
         getOverLay(false);
         getTabData();
-      } else if (ResponseStatus === "Warning" && error === false) {
-        toast.warning(ResponseData);
-        handleClearSelection();
-        getData();
-        getOverLay(false);
       } else {
         getOverLay(false);
       }

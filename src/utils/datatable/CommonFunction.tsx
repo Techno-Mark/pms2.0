@@ -163,6 +163,29 @@ export const generateEmailboxStatusWithColor = (value: any) => {
   );
 };
 
+export const generateEmailboxStatusColor = (value: any) => {
+  const statusColorCode =
+    value.toLowerCase() === "not started"
+      ? "#A5A5A5"
+      : value.toLowerCase() === "in progress"
+      ? "#4472C4"
+      : value.toLowerCase() === "waiting for client"
+      ? "#FFC000"
+      : value.toLowerCase() === "in review"
+      ? "#00B0F0"
+      : value.toLowerCase() === "closed"
+      ? "#e5801c"
+      : value.toLowerCase() === "cancelled"
+      ? "#C00000"
+      : value.toLowerCase() === "re-open"
+      ? "#833C0C"
+      : value.toLowerCase() === "total"
+      ? "#008080"
+      : "#D8D8D8";
+
+  return statusColorCode;
+};
+
 export const generateStatusWithColor = (value: string, rowIndex: any) => {
   const statusColorCode = rowIndex;
 

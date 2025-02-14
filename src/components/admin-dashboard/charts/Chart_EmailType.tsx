@@ -13,6 +13,11 @@ if (typeof Highcharts === "object") {
 interface ChartEmailTypeProps {
   currentFilterData: DashboardInitialFilter;
   sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
+  dashboardEmailboxEmailTypeCounts: {
+    Type: number;
+    EmailTypeCount: number;
+    EmailType: string;
+  }[];
 }
 
 interface List {
@@ -27,6 +32,7 @@ interface Response {
 }
 
 const Chart_EmailType = ({
+  dashboardEmailboxEmailTypeCounts,
   currentFilterData,
   sendData,
 }: ChartEmailTypeProps) => {

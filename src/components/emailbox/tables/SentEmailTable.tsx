@@ -208,7 +208,8 @@ const SentEmailTable = ({
               tableMeta.rowData[tableMeta.rowData.length - 3] !== null &&
               (tableMeta.rowData[tableMeta.rowData.length - 2] === 2 ||
                 tableMeta.rowData[tableMeta.rowData.length - 2] === 3 ||
-                tableMeta.rowData[tableMeta.rowData.length - 2] === 5);
+                tableMeta.rowData[tableMeta.rowData.length - 2] === 5) &&
+              !tableMeta.rowData[tableMeta.rowData.length - 4];
             return (
               <div className={`flex items-center justify-center`}>
                 {isAllowed ? (
@@ -402,6 +403,14 @@ const SentEmailTable = ({
           viewColumns: false,
         },
       };
+    } else if (column.name === "IsWorkItemCreated") {
+      return {
+        name: "IsWorkItemCreated",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
     } else {
       return generateCustomColumn(
         column.name,
@@ -413,6 +422,13 @@ const SentEmailTable = ({
 
   const inboxCols = [
     ...inboxColsConfig.slice(0, inboxColsConfig.length - 1),
+    {
+      name: "IsWorkItemCreated",
+      options: {
+        display: false,
+        viewColumns: false,
+      },
+    },
     {
       name: "UpdatedBy",
       label: "Create Task Icon",

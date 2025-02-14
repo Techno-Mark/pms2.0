@@ -330,9 +330,8 @@ const InboxTable = ({
               tableMeta.rowData[tableMeta.rowData.length - 3] !== null &&
               (tableMeta.rowData[tableMeta.rowData.length - 2] === 2 ||
                 tableMeta.rowData[tableMeta.rowData.length - 2] === 3 ||
-                tableMeta.rowData[tableMeta.rowData.length - 2] === 5);
-            // &&
-            // !tableMeta.rowData[tableMeta.rowData.length - 6];
+                tableMeta.rowData[tableMeta.rowData.length - 2] === 5) &&
+              !tableMeta.rowData[tableMeta.rowData.length - 6];
             return (
               <div className={`flex items-center justify-center`}>
                 {isAllowed ? (

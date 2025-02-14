@@ -80,6 +80,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
           ResponseData.InvalidTicketCount > 0) &&
           toast.error("Please try again later.");
         setOverlayOpen(false);
+        getTicketDetails();
       } else {
         setOverlayOpen(false);
       }
@@ -256,27 +257,30 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
               <span className="pt-1">Submit for Approval</span>
             </span>
           </Button> */}
-          {activeTabList !== 2 && activeTabPermission && (
-            <Button
-              variant="contained"
-              className={`rounded-[4px] !h-[36px] ${
-                !createTask
-                  ? "bg-gray-500 !cursor-not-allowed"
-                  : "!bg-secondary cursor-pointer"
-              } mr-2`}
-              onClick={() => {
-                if (createTask) {
-                  setIsCreateTaskOpen(true);
-                }
-              }}
-              disabled={!createTask}
-            >
-              <span className="flex items-center gap-[10px] px-[5px]">
-                <AddPlusIcon color={!createTask ? "gray" : "white"} />
-                <span className="pt-1">Create Task</span>
-              </span>
-            </Button>
-          )}
+          {activeTabList !== 2 &&
+            activeTabPermission &&
+            !!ticketDetails &&
+            !ticketDetails.IsWorkItemCreated && (
+              <Button
+                variant="contained"
+                className={`rounded-[4px] !h-[36px] ${
+                  !createTask
+                    ? "bg-gray-500 !cursor-not-allowed"
+                    : "!bg-secondary cursor-pointer"
+                } mr-2`}
+                onClick={() => {
+                  if (createTask) {
+                    setIsCreateTaskOpen(true);
+                  }
+                }}
+                disabled={!createTask}
+              >
+                <span className="flex items-center gap-[10px] px-[5px]">
+                  <AddPlusIcon color={!createTask ? "gray" : "white"} />
+                  <span className="pt-1">Create Task</span>
+                </span>
+              </Button>
+            )}
         </div>
       </div>
 
