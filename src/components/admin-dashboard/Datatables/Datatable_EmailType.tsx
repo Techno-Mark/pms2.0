@@ -8,7 +8,9 @@ import {
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
-import { adminDashboardBillingTypeCols, adminDashboardEmailTypeCols } from "@/utils/datatable/columns/AdminDatatableColumns";
+import {
+  adminDashboardEmailTypeCols,
+} from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 
@@ -16,7 +18,6 @@ interface BillingTypeProps {
   currentFilterData: DashboardInitialFilter;
   onSelectedStatusName: string;
   onCurrentSelectedBillingType: number | null;
-  onSearchValue: string;
   isClose: boolean;
 }
 
@@ -42,7 +43,6 @@ const Datatable_EmailType = ({
   currentFilterData,
   onSelectedStatusName,
   onCurrentSelectedBillingType,
-  onSearchValue,
   isClose,
 }: BillingTypeProps) => {
   const [data, setData] = useState<any[]>([]);
@@ -55,33 +55,17 @@ const Datatable_EmailType = ({
     isClose && setRowsPerPage(10);
   }, [isClose]);
 
-  const getBillingTypeData = async (value: string) => {
-    const workTypeIdFromLocalStorage =
-      typeof localStorage !== "undefined"
-        ? localStorage.getItem("workTypeId")
-        : 3;
+  const getBillingTypeData = async () => {
     const params = {
-      PageNo: page + 1,
-      PageSize: rowsPerPage,
-      SortColumn: null,
-      IsDesc: true,
-      Clients: currentFilterData.Clients,
-      WorkTypeId:
-        currentFilterData.WorkTypeId === null
-          ? Number(workTypeIdFromLocalStorage)
-          : currentFilterData.WorkTypeId,
-      DepartmentIds: currentFilterData.DepartmentIds,
-      AssigneeIds: currentFilterData.AssigneeIds,
-      ReviewerIds: currentFilterData.ReviewerIds,
+      ClientId: currentFilterData.Clients,
+      AssignTo: currentFilterData.AssigneeIds,
+      ReportingManagerId: currentFilterData.ReviewerIds,
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,
-      GlobalSearch: value,
-      BillingTypeId:
-        onCurrentSelectedBillingType === 0
-          ? null
-          : onCurrentSelectedBillingType,
+      IsDownload: false,
+      Type: onCurrentSelectedBillingType,
     };
-    const url = `${process.env.report_api_url}/dashboard/billingstatuslist`;
+    const url = `${process.env.emailbox_api_url}/dashboard/GetEmailTypeDetailsForDashboard`;
     const successCallback = (
       ResponseData: Response,
       error: boolean,
@@ -101,13 +85,7 @@ const Datatable_EmailType = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      if (onSearchValue.trim().length > 0) {
-        setPage(0);
-        setRowsPerPage(10);
-        await getBillingTypeData(onSearchValue);
-      } else {
-        await getBillingTypeData("");
-      }
+      await getBillingTypeData();
     };
     const timer = setTimeout(() => {
       fetchData();
@@ -117,7 +95,6 @@ const Datatable_EmailType = ({
     currentFilterData,
     onSelectedStatusName,
     onCurrentSelectedBillingType,
-    onSearchValue,
     page,
     rowsPerPage,
   ]);

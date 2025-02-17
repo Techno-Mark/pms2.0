@@ -205,6 +205,15 @@ const Page = () => {
       Type: number;
       EmailTypeCount: number;
       EmailType: string;
+      CountInPercentage: number;
+    }[]
+  >([]);
+  const [dashboardEmailboxSLACounts, setDashboardEmailboxSLACounts] = useState<
+    {
+      Type: number;
+      SLAType: string;
+      Count: number;
+      CountInPercentage: number;
     }[]
   >([]);
 
@@ -438,7 +447,7 @@ const Page = () => {
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,
     };
-    const url = `${process.env.report_api_url}/dashboard/GetDashboardWidgetsCounts`;
+    const url = `${process.env.emailbox_api_url}/dashboard/GetDashboardWidgetsCounts`;
     const successCallback = (
       ResponseData: {
         TicketCounts: {
@@ -449,6 +458,7 @@ const Page = () => {
           Type: number;
           EmailTypeCount: number;
           EmailType: string;
+          CountInPercentage: number;
         }[];
         PriorityCounts: {
           Priority: string;
@@ -458,104 +468,25 @@ const Page = () => {
           Type: number;
           SLAType: string;
           Count: number;
+          CountInPercentage: number;
         }[];
       },
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        // setDashboardEmailboxSummary(ResponseData.TicketCounts);
-        // setDashboardEmailboxEmailTypeCounts(ResponseData.EmailTypeCounts);
+        setDashboardEmailboxSummary(ResponseData.TicketCounts);
+        setDashboardEmailboxEmailTypeCounts(ResponseData.EmailTypeCounts);
+        setDashboardEmailboxSLACounts(ResponseData.SLACounts);
       }
     };
-    setDashboardEmailboxSummary([
-      {
-        Status: "Total",
-        Count: 314,
-      },
-      {
-        Status: "Not Started",
-        Count: 270,
-      },
-      {
-        Status: "In Progress",
-        Count: 24,
-      },
-      {
-        Status: "In Review",
-        Count: 12,
-      },
-      {
-        Status: "Waiting For Client",
-        Count: 3,
-      },
-      {
-        Status: "Closed",
-        Count: 1,
-      },
-      {
-        Status: "Cancelled",
-        Count: 0,
-      },
-      {
-        Status: "Re-Open",
-        Count: 4,
-      },
-    ]);
-    setDashboardEmailboxEmailTypeCounts([
-      {
-        Type: 16,
-        EmailTypeCount: 3,
-        EmailType: "TLTYpe",
-      },
-      {
-        Type: 2,
-        EmailTypeCount: 9,
-        EmailType: "Invoice1",
-      },
-      {
-        Type: 4,
-        EmailTypeCount: 2,
-        EmailType: "Billing",
-      },
-      {
-        Type: 6,
-        EmailTypeCount: 2,
-        EmailType: "Tax",
-      },
-      {
-        Type: 15,
-        EmailTypeCount: 10,
-        EmailType: "ironman",
-      },
-      {
-        Type: 5,
-        EmailTypeCount: 40,
-        EmailType: "Amount",
-      },
-      {
-        Type: 14,
-        EmailTypeCount: 12,
-        EmailType: "Technomark",
-      },
-      {
-        Type: 13,
-        EmailTypeCount: 27,
-        EmailType: "Bill",
-      },
-      {
-        Type: 7,
-        EmailTypeCount: 1,
-        EmailType: "TaxRate",
-      },
-    ]);
-    // callAPI(url, params, successCallback, "POST");
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
     const fetchData = async () => {
-      dashboardActiveTab === 1 && (await getProjectSummary());
-      dashboardActiveTab === 2 && (await getSummary());
+      dashboardActiveTab == 1 && (await getProjectSummary());
+      dashboardActiveTab == 2 && (await getSummary());
     };
     const timer = setTimeout(() => {
       fetchData();
@@ -1110,6 +1041,7 @@ const Page = () => {
             </Card>
             <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
               <Chart_SLA
+                dashboardEmailboxSLACounts={dashboardEmailboxSLACounts}
                 sendData={handleValueFromSLA}
                 onSelectedProjectIds={[]}
                 currentFilterData={currentFilterData}

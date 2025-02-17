@@ -268,7 +268,7 @@ const DraftEmailTable = ({
                       2,
                       "0"
                     )}`}
-                    {tableMeta.rowData[tableMeta.rowData.length - 3] && (
+                    {tableMeta.rowData[tableMeta.rowData.length - 2] && (
                       <ColorToolTip title="Sync" placement="top" arrow>
                         <span
                           className="cursor-pointer"
@@ -409,13 +409,6 @@ const DraftEmailTable = ({
     ...inboxColsConfig.slice(0, inboxColsConfig.length - 1),
     {
       name: "IsSyncOn",
-      options: {
-        display: false,
-        viewColumns: false,
-      },
-    },
-    {
-      name: "Status",
       options: {
         display: false,
         viewColumns: false,

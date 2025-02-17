@@ -38,7 +38,6 @@ const Dialog_EmailType = ({
   const [allBillingType, setAllBillingType] = useState<LabelValue[]>([]);
   const [billingType, setBillingType] = useState<number>(0);
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
-  const [searchValue, setSearchValue] = useState("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isClose, setIsClose] = useState<boolean>(false);
 
@@ -50,7 +49,6 @@ const Dialog_EmailType = ({
     onClose();
     setBillingType(0);
     setClickedStatusName("");
-    setSearchValue("");
     setIsClose(false);
   };
 
@@ -73,7 +71,6 @@ const Dialog_EmailType = ({
 
   const handleChangeValue = (e: number) => {
     setBillingType(e);
-    setSearchValue("");
   };
 
   const getAllStatus = async () => {
@@ -94,21 +91,13 @@ const Dialog_EmailType = ({
       const response = await axios.post(
         `${process.env.report_api_url}/dashboard/billingstatuslist/export`,
         {
-          PageNo: 1,
-          PageSize: 50000,
-          SortColumn: null,
-          IsDesc: true,
-          Clients: currentFilterData.Clients,
-          WorkTypeId:
-            currentFilterData.WorkTypeId === null
-              ? 0
-              : currentFilterData.WorkTypeId,
-          DepartmentIds: currentFilterData.DepartmentIds,
+          ClientId: currentFilterData.Clients,
+          AssignTo: currentFilterData.AssigneeIds,
+          ReportingManagerId: currentFilterData.ReviewerIds,
           StartDate: currentFilterData.StartDate,
           EndDate: currentFilterData.EndDate,
-          GlobalSearch: searchValue,
-          BillingTypeId: billingType === 0 ? null : billingType,
           IsDownload: true,
+          Type: onSelectedStatusName,
         },
         {
           headers: { Authorization: `bearer ${token}`, org_token: Org_Token },
@@ -167,23 +156,6 @@ const Dialog_EmailType = ({
 
         <DialogContent className="flex flex-col gap-2 mt-[10px] !py-0">
           <div className="flex justify-between items-center">
-            <FormControl sx={{ mx: 0.75, minWidth: 220 }}>
-              <div className="flex items-center h-full relative">
-                <TextField
-                  className="m-0"
-                  placeholder="Search"
-                  fullWidth
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  margin="normal"
-                  variant="standard"
-                  sx={{ mx: 0.75, maxWidth: 300 }}
-                />
-                <span className="absolute right-1 pl-1">
-                  <SearchIcon />
-                </span>
-              </div>
-            </FormControl>
             <div className="flex items-center justify-center">
               <FormControl sx={{ mx: 0.75, minWidth: 220 }}>
                 <Select
@@ -217,7 +189,6 @@ const Dialog_EmailType = ({
             currentFilterData={currentFilterData}
             onSelectedStatusName={onSelectedStatusName}
             onCurrentSelectedBillingType={billingType}
-            onSearchValue={searchValue}
             isClose={isClose}
           />
         </DialogContent>

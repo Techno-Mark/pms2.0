@@ -12,7 +12,16 @@ import {
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
+
+interface chartData {
+  Type: number;
+  SLAType: string;
+  Count: number;
+  CountInPercentage: number;
+}
+
 interface ChartProjectStatusProps {
+  dashboardEmailboxSLACounts: chartData[];
   onSelectedProjectIds: number[];
   currentFilterData: DashboardInitialFilter;
   sendData: (isDialogOpen: boolean, selectedPointData: number) => void;
@@ -24,6 +33,7 @@ interface Response {
 }
 
 const Chart_SLA = ({
+  dashboardEmailboxSLACounts,
   onSelectedProjectIds,
   currentFilterData,
   sendData,
@@ -31,45 +41,22 @@ const Chart_SLA = ({
   const [data, setData] = useState<any[]>([]);
 
   const getProjectStatusData = async () => {
-    const workTypeIdFromLocalStorage =
-      typeof localStorage !== "undefined"
-        ? localStorage.getItem("workTypeId")
-        : 3;
-    const params = {
-      Clients: currentFilterData.Clients,
-      WorkTypeId:
-        currentFilterData.WorkTypeId === null
-          ? Number(workTypeIdFromLocalStorage)
-          : currentFilterData.WorkTypeId,
-      DepartmentIds: currentFilterData.DepartmentIds,
-      AssigneeIds: currentFilterData.AssigneeIds,
-      ReviewerIds: currentFilterData.ReviewerIds,
-      StartDate: currentFilterData.StartDate,
-      EndDate: currentFilterData.EndDate,
-      ProjectId:
-        onSelectedProjectIds.length === 0 ? null : onSelectedProjectIds,
-    };
-    const url = `${process.env.report_api_url}/dashboard/errorloggraph`;
-    const successCallback = (
-      ResponseData: Response,
-      error: boolean,
-      ResponseStatus: string
-    ) => {
-      if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        const chartData = ResponseData.List.map(
-          (item: ListProjectStatusSequence) => ({
-            name: item.Key,
-            y: item.Value,
-            z: item.Percentage,
-            ColorCode: item.ColorCode,
-            // Sequence: item.Sequence,
-          })
-        );
+    const chartData = dashboardEmailboxSLACounts.map((item: chartData) => ({
+      name: item.SLAType,
+      y: item.Count,
+      z: item.CountInPercentage,
+      ColorCode:
+        item.SLAType?.toLowerCase() === "achieved"
+          ? "#00E272"
+          : item.SLAType?.toLowerCase() === "not achieved"
+          ? "#FA4B42"
+          : item.SLAType?.toLowerCase() === "at risk"
+          ? "#FFC000"
+          : "#000000",
+      // Sequence: item.Sequence,
+    }));
 
-        setData(chartData);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
+    setData(chartData);
   };
 
   useEffect(() => {
@@ -80,7 +67,7 @@ const Chart_SLA = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [currentFilterData]);
+  }, [currentFilterData, dashboardEmailboxSLACounts]);
 
   const drilldownData = data;
 

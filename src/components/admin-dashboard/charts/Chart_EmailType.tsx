@@ -10,25 +10,23 @@ if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
 
+interface chartData {
+  Type: number;
+  EmailTypeCount: number;
+  EmailType: string;
+  CountInPercentage: number;
+}
+
 interface ChartEmailTypeProps {
   currentFilterData: DashboardInitialFilter;
   sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
-  dashboardEmailboxEmailTypeCounts: {
-    Type: number;
-    EmailTypeCount: number;
-    EmailType: string;
-  }[];
+  dashboardEmailboxEmailTypeCounts: chartData[];
 }
 
 interface List {
   Percentage: number;
   Key: string;
   Value: number;
-}
-
-interface Response {
-  List: List[] | [];
-  TotalCount: number;
 }
 
 const Chart_EmailType = ({
@@ -39,52 +37,28 @@ const Chart_EmailType = ({
   const [data, setData] = useState<any[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
-  const getBillingTypeData = async () => {
-    const workTypeIdFromLocalStorage =
-      typeof localStorage !== "undefined"
-        ? localStorage.getItem("workTypeId")
-        : 3;
-    const params = {
-      Clients: currentFilterData.Clients,
-      WorkTypeId:
-        currentFilterData.WorkTypeId === null
-          ? Number(workTypeIdFromLocalStorage)
-          : currentFilterData.WorkTypeId,
-      DepartmentIds: currentFilterData.DepartmentIds,
-      AssigneeIds: currentFilterData.AssigneeIds,
-      ReviewerIds: currentFilterData.ReviewerIds,
-      StartDate: currentFilterData.StartDate,
-      EndDate: currentFilterData.EndDate,
-    };
-    const url = `${process.env.report_api_url}/dashboard/billingstatusgraph`;
-    const successCallback = (
-      ResponseData: Response,
-      error: boolean,
-      ResponseStatus: string
-    ) => {
-      if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        const chartData = ResponseData.List.map((item: List) => ({
-          name: item.Key,
-          y: item.Value,
-          percentage: item.Percentage,
-        }));
+  const getEmailTypeData = async () => {
+    const chartData = dashboardEmailboxEmailTypeCounts.map(
+      (item: chartData) => ({
+        name: item.EmailType,
+        y: item.EmailTypeCount,
+        percentage: item.CountInPercentage,
+      })
+    );
 
-        setData(chartData);
-        setTotalCount(ResponseData.TotalCount);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
+    setData(chartData);
+    setTotalCount(dashboardEmailboxEmailTypeCounts.length);
   };
 
   useEffect(() => {
     const fetchData = async () => {
-      await getBillingTypeData();
+      await getEmailTypeData();
     };
     const timer = setTimeout(() => {
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [currentFilterData]);
+  }, [currentFilterData, dashboardEmailboxEmailTypeCounts]);
 
   const chartOptions = {
     chart: {
@@ -166,7 +140,7 @@ const Chart_EmailType = ({
   return (
     <div className="flex flex-col px-[20px]">
       <span className="flex items-start pt-[30px] px-[10px] text-lg font-medium">
-        Billing Type
+        Email Type
       </span>
       <div className="flex justify-between relative">
         <div className="mt-5">
