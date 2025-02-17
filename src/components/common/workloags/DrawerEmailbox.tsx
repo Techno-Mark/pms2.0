@@ -95,7 +95,7 @@ const DrawerEmailbox = ({
     ) => {
       if (ResponseStatus === "Success" && error === false) {
         setTabs(ResponseData.Tabs);
-        // setTicketDetails(ResponseData.TicketDetails);
+        setTicketDetails(ResponseData.TicketDetails);
       } else {
         setTabs([]);
         setTicketDetails(null);
@@ -197,9 +197,9 @@ const DrawerEmailbox = ({
               )
             )}
           </div>
-          <div className="flex flex-col gap-2 w-[88%] border-l border-gray-300">
+          <div className="flex flex-col gap-2 w-[88%] max-w-[88%] border-l border-gray-300">
             {!!ticketDetails && (
-              <div className="flex pl-8 bg-[#F6F6F6] py-3 gap-4 w-full">
+              <div className="flex flex-wrap pl-8 bg-[#F6F6F6] py-3 gap-4 w-full">
                 <span>Assignee: {ticketDetails.AssigneeName}</span>
                 <span className="flex">
                   Status:&nbsp;
@@ -220,11 +220,13 @@ const DrawerEmailbox = ({
                     ? generatePriorityWithColor(ticketDetails.PriorityName)
                     : ""}
                 </span>
-                <span>
-                  Tag:{" "}
-                  {ticketDetails.Tags.length > 0
-                    ? ticketDetails.Tags.join(", ")
-                    : ""}
+                <span className="flex items-center gap-2 break-words">
+                  Tag:
+                  <span className="break-words">
+                    {ticketDetails.Tags.length > 0
+                      ? ticketDetails.Tags.join(", ")
+                      : "-"}
+                  </span>
                 </span>
               </div>
             )}
@@ -284,6 +286,17 @@ const DrawerEmailbox = ({
                       {!!i.BCC && <p className="break-all">Bcc: {i.BCC}</p>}
                       <p className="break-all">Subject: {i.Subject}</p>
                       <p
+                        className="mt-2 !break-all"
+                        dangerouslySetInnerHTML={{
+                          __html: i.Body,
+                        }}
+                        style={{
+                          wordBreak: "break-all",
+                          maxWidth: "95%",
+                          overflow: "auto",
+                        }}
+                      />
+                      {/* <p
                         className="mt-2 !break-all w-full [&>*]:w-full [&>font>pre]:w-full pretag"
                         dangerouslySetInnerHTML={{
                           __html: i.Body,
@@ -291,7 +304,7 @@ const DrawerEmailbox = ({
                         style={{
                           wordBreak: "break-all",
                         }}
-                      />
+                      /> */}
                       {!!i.Attachments &&
                         i.Attachments.length > 0 &&
                         i.Attachments.map((attachment: any, index: number) => (
@@ -363,7 +376,7 @@ const DrawerEmailbox = ({
                         </span>
                       </div>
                     </div>
-                    <div className="pl-12 ml-2">
+                    <div className="pl-12 ml-2 break-all">
                       {extractText(comment.Message).map((i: string) => {
                         const assignee = commentUserData.map(
                           (j: LabelValue) => j.label
