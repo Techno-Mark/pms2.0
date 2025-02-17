@@ -91,11 +91,20 @@ const Chart_SLA = ({
         cursor: "pointer",
         point: {
           events: {
-            click: (event: { point: { name: any } }) => {
+            click: (event: { point: { name: string } }) => {
               const selectedPointData = {
                 name: (event.point && event.point.name) || "",
               };
-              sendData(true, selectedPointData.name);
+              sendData(
+                true,
+                selectedPointData.name.toLowerCase() === "not achieved"
+                  ? 1
+                  : selectedPointData.name.toLowerCase() === "achieved"
+                  ? 2
+                  : selectedPointData.name.toLowerCase() === "at risk"
+                  ? 3
+                  : 0
+              );
             },
           },
         },

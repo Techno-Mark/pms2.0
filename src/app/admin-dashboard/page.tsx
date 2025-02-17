@@ -956,10 +956,6 @@ const Page = () => {
                     >
                       <div
                         className="flex p-[20px] items-center"
-                        onClick={() => {
-                          // setClickedCardName(item.Status);
-                          setIsSummaryDialogOpen(true);
-                        }}
                       >
                         <span
                           style={{
@@ -1001,10 +997,6 @@ const Page = () => {
                     >
                       <div
                         className="flex p-[20px] items-center"
-                        onClick={() => {
-                          // setClickedCardName(item.Status);
-                          setIsSummaryDialogOpen(true);
-                        }}
                       >
                         <span
                           style={{
@@ -1119,8 +1111,7 @@ const Page = () => {
           onOpen={isSLADialogOpen}
           onClose={() => setIsSLADialogOpen(false)}
           currentFilterData={currentFilterData}
-          onSelectedErrorlog={clickedSLA}
-          onSelectedProjectIds={[]}
+          onSelectedSLA={clickedSLA}
         />
       )}
 

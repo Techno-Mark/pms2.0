@@ -3,7 +3,11 @@ import React from "react";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 
 export const generateCustomHeaderName = (headerName: string) => {
-  return <span className="font-extrabold capitalize max-w-[10px] p-0 m-0">{headerName}</span>;
+  return (
+    <span className="font-extrabold capitalize max-w-[10px] p-0 m-0">
+      {headerName}
+    </span>
+  );
 };
 
 export const generateCommonBodyRender = (bodyValue: any) => {
@@ -59,6 +63,77 @@ export const generateDashboardReportBodyRender = (bodyValue: any) => {
   return (
     <div className="ml-2">
       {bodyValue === "" || bodyValue === null ? "-" : bodyValue}
+    </div>
+  );
+};
+
+export const generateDashboardReportBodyRenderShortName = (bodyValue: any) => {
+  const shortProcessName =
+    bodyValue !== null &&
+    bodyValue !== undefined &&
+    bodyValue !== "" &&
+    bodyValue !== "0" &&
+    bodyValue.length > 20
+      ? bodyValue.slice(0, 20)
+      : bodyValue;
+
+  return (
+    <div className="ml-2">
+      {!bodyValue ||
+      bodyValue === "0" ||
+      bodyValue === null ||
+      bodyValue === "null" ? (
+        "-"
+      ) : bodyValue.length > 20 ? (
+        <>
+          <ColorToolTip title={bodyValue} placement="top">
+            <span>{shortProcessName}</span>
+          </ColorToolTip>
+          <span>...</span>
+        </>
+      ) : (
+        shortProcessName
+      )}
+    </div>
+  );
+};
+
+export const generateDashboardReportBodyRenderSecondToTime = (
+  bodyValue: any
+) => {
+  return (
+    <div className="ml-2">
+      {`${bodyValue < 0 ? "-" : ""}${String(
+        Math.floor(Math.abs(bodyValue) / 3600)
+      ).padStart(2, "0")}:${String(
+        Math.floor((Math.abs(bodyValue) % 3600) / 60)
+      ).padStart(2, "0")}:${String(Math.abs(bodyValue) % 60).padStart(2, "0")}`}
+    </div>
+  );
+};
+
+export const getTagDataForDashboard = (bodyValue: any) => {
+  return !!bodyValue && JSON.parse(bodyValue).length <= 0 ? (
+    "-"
+  ) : (
+    <div className="flex items-center justify-start gap-2">
+      {!!bodyValue &&
+        JSON.parse(bodyValue).map((item: string, index: number) => (
+          <div
+            key={index}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              backgroundColor: "#e0e0e0",
+              borderRadius: "12px",
+              padding: "4px 8px",
+              fontSize: "14px",
+              cursor: "default",
+            }}
+          >
+            <span>{item}</span>
+          </div>
+        ))}
     </div>
   );
 };

@@ -3,8 +3,13 @@ import {
   generateCommonBodyRender,
   generateCustomFormatDate,
   generateDashboardReportBodyRender,
+  generateDashboardReportBodyRenderSecondToTime,
+  generateDashboardReportBodyRenderShortName,
+  generateDateWithTime,
+  generateEmailboxStatusWithColor,
   generatePriorityWithColor,
   generateStatusWithColor,
+  getTagDataForDashboard,
 } from "../CommonFunction";
 import {
   generateCustomColumn,
@@ -62,29 +67,39 @@ const adminDashboardBillingTypeCols = [
 );
 
 const adminDashboardEmailTypeCols = [
-  { header: "TicketID", label: "Ticket ID" },
-  { header: "TypeOfWorkName", label: "Subject Name" },
-  { header: "BillingTypeName", label: "Client Name" },
-  { header: "Status", label: "Email Type" },
-  { header: "ContractedHours", label: "Standard SLA Time" },
-  { header: "InternalHours", label: "Actual Time Taken" },
-  { header: "InternalHours", label: "SLA Status" },
+  { header: "TicketId", label: "Ticket ID" },
+  { header: "Subject", label: "Subject Name" },
+  { header: "ClientName", label: "Client Name" },
+  { header: "Type", label: "Email Type" },
+  { header: "StandardSLATime", label: "Standard SLA Time" },
+  { header: "ActualTimeTaken", label: "Actual Time Taken" },
+  { header: "StatusName", label: "SLA Status" },
   { header: "InternalHours", label: "Ticket Status" },
-  { header: "InternalHours", label: "Priority" },
-  { header: "InternalHours", label: "Tags" },
-  { header: "InternalHours", label: "Received On" },
-  { header: "InternalHours", label: "Opened Time" },
-  { header: "InternalHours", label: "Due On" },
-  { header: "InternalHours", label: "Assigned To" },
-  { header: "InternalHours", label: "Reporting Manager" },
-  { header: "InternalHours", label: "Department" },
+  { header: "PriorityName", label: "Priority" },
+  { header: "Tag", label: "Tags" },
+  { header: "ReceivedOn", label: "Received On" },
+  { header: "OpenDate", label: "Opened Time" },
+  { header: "DueOn", label: "Due On" },
+  { header: "AssignTo", label: "Assigned To" },
+  { header: "ReportingManager", label: "Reporting Manager" },
+  { header: "Department", label: "Department" },
 ].map((i: { header: string; label: string }) =>
   generateCustomColumn(
     i.header,
     i.label,
-    i.header === "Status"
-      ? generateBillingStatusBodyRender
-      : generateDashboardReportBodyRender
+    i.header === "StatusName"
+      ? generateEmailboxStatusWithColor
+      : i.header === "StandardSLATime" || i.header === "ActualTimeTaken"
+      ? generateDashboardReportBodyRenderSecondToTime
+      : i.header === "PriorityName"
+      ? generatePriorityWithColor
+      : i.header === "Tag"
+      ? getTagDataForDashboard
+      : i.header === "ReceivedOn" ||
+        i.header === "OpenDate" ||
+        i.header === "DueOn"
+      ? generateDateWithTime
+      : generateDashboardReportBodyRenderShortName
   )
 );
 

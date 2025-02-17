@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
 import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
-import TablePagination from "@mui/material/TablePagination";
-import {
-  handleChangePage,
-  handleChangeRowsPerPage,
-} from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardEmailTypeCols } from "@/utils/datatable/columns/AdminDatatableColumns";
@@ -18,84 +13,70 @@ import {
 
 interface ErrorlogProps {
   currentFilterData: DashboardInitialFilter;
-  onSelectedErrorlog: number;
-  onSelectedProjectIds: number[];
-  onCurrSelectedProjectStatus: number;
-  errorlogImportStatus: number;
-  onOpen: boolean;
-  isClose: boolean;
+  onSelectedSLA: number;
 }
 
-const Datatable_SLA = ({
-  currentFilterData,
-  onSelectedErrorlog,
-  onCurrSelectedProjectStatus,
-  errorlogImportStatus,
-  onOpen,
-  isClose,
-}: ErrorlogProps) => {
-  const [data, setData] = useState<ListDashboard[] | []>([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [tableDataCount, setTableDataCount] = useState(0);
+interface List {
+  TicketId: number;
+  MessageId: string;
+  Subject: string;
+  ClientName: string | null;
+  Type: string | null;
+  StandardSLATime: number;
+  ActualTimeTaken: number;
+  Status: number;
+  StatusName: string;
+  Priority: number | null;
+  PriorityName: string;
+  Tag: string[] | null;
+  ReceivedOn: string;
+  OpenDate: string | null;
+  DueOn: string | null;
+  AssignTo: string | null;
+  ReportingManager: string | null;
+  Department: string | null;
+}
 
-  useEffect(() => {
-    (isClose || onOpen) && setPage(0);
-    (isClose || onOpen) && setRowsPerPage(10);
-  }, [onOpen, isClose]);
+const Datatable_SLA = ({ currentFilterData, onSelectedSLA }: ErrorlogProps) => {
+  const [data, setData] = useState<List[] | []>([]);
 
   const getErrorlogStatusData = async () => {
-    const workTypeIdFromLocalStorage =
-      typeof localStorage !== "undefined"
-        ? localStorage.getItem("workTypeId")
-        : 3;
     const params = {
-      PageNo: page + 1,
-      PageSize: rowsPerPage,
-      SortColumn: null,
-      IsDesc: true,
-      Clients: currentFilterData.Clients,
-      WorkTypeId:
-        currentFilterData.WorkTypeId === null
-          ? Number(workTypeIdFromLocalStorage)
-          : currentFilterData.WorkTypeId,
-      DepartmentIds: currentFilterData.DepartmentIds,
-      AssigneeIds: currentFilterData.AssigneeIds,
-      ReviewerIds: currentFilterData.ReviewerIds,
+      ClientId:
+        !!currentFilterData.Clients && currentFilterData.Clients.length > 0
+          ? currentFilterData.Clients
+          : null,
+      AssignTo:
+        !!currentFilterData.AssigneeIds &&
+        currentFilterData.AssigneeIds.length > 0
+          ? currentFilterData.AssigneeIds
+          : null,
+      ReportingManagerId:
+        !!currentFilterData.ReviewerIds &&
+        currentFilterData.ReviewerIds.length > 0
+          ? currentFilterData.ReviewerIds
+          : null,
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,
-      ProjectId: null,
-      Key: onCurrSelectedProjectStatus
-        ? onCurrSelectedProjectStatus
-        : onSelectedErrorlog,
-      IsImported:
-        errorlogImportStatus > 0
-          ? errorlogImportStatus == 2
-            ? 0
-            : errorlogImportStatus
-          : null,
+      IsDownload: false,
+      Type: onSelectedSLA,
     };
-    const url = `${process.env.report_api_url}/dashboard/errorloglist`;
+    const url = `${process.env.emailbox_api_url}/dashboard/GetSLATypeDetailsForDashboard`;
     const successCallback = (
-      ResponseData: ResponseDashboardErrorlog,
+      ResponseData: List[],
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setData(ResponseData.ErrorlogList);
-        setTableDataCount(ResponseData.TotalCount);
+        setData(ResponseData);
       }
     };
     callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
-    setPage(0);
-  }, [onCurrSelectedProjectStatus]);
-
-  useEffect(() => {
     const fetchData = async () => {
-      if (onCurrSelectedProjectStatus !== null || onSelectedErrorlog > 0) {
+      if (onSelectedSLA > 0) {
         await getErrorlogStatusData();
       }
     };
@@ -103,14 +84,7 @@ const Datatable_SLA = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [
-    currentFilterData,
-    onSelectedErrorlog,
-    onCurrSelectedProjectStatus,
-    errorlogImportStatus,
-    page,
-    rowsPerPage,
-  ]);
+  }, [currentFilterData, onSelectedSLA]);
 
   return (
     <div>
@@ -121,20 +95,6 @@ const Datatable_SLA = ({
           title={undefined}
           options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="ProjectStatusList_Datatable"
-        />
-        <TablePagination
-          component="div"
-          count={tableDataCount}
-          page={page}
-          onPageChange={(event: any, newPage) => {
-            handleChangePage(event, newPage, setPage);
-          }}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(
-            event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-          ) => {
-            handleChangeRowsPerPage(event, setRowsPerPage, setPage);
-          }}
         />
       </ThemeProvider>
     </div>

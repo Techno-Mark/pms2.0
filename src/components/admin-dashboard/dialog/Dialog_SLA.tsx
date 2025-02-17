@@ -22,41 +22,30 @@ interface ErrorlogDialogProps {
   onOpen: boolean;
   onClose: () => void;
   currentFilterData: DashboardInitialFilter;
-  onSelectedErrorlog: number;
-  onSelectedProjectIds: number[];
+  onSelectedSLA: number;
 }
 
 const Dialog_SLA = ({
   onOpen,
   onClose,
   currentFilterData,
-  onSelectedErrorlog,
-  onSelectedProjectIds,
+  onSelectedSLA,
 }: ErrorlogDialogProps) => {
-  const [errorlogImportStatus, setErrorlogImportStatus] = useState<number>(0);
-  const [errorlogStatus, setErrorlogStatus] = useState<number>(0);
+  const [slaStatus, setSLAStatus] = useState<number>(0);
   const [isExporting, setIsExporting] = useState<boolean>(false);
-  const [isClose, setIsClose] = useState<boolean>(false);
-  const allErrorlogStatus = [
-    { label: "Resolved", value: 2 },
-    { label: "Unresolved", value: 1 },
-  ];
-  const allErrorlogImportStatus = [
-    { label: "None", value: 0 },
-    { label: "Imported", value: 1 },
-    { label: "Not Imported", value: 2 },
+  const allSLAStatus = [
+    { label: "Not Achieved", value: 1 },
+    { label: "Achieved", value: 2 },
+    { label: "At Risk", value: 3 },
   ];
 
   useEffect(() => {
-    onOpen && setIsClose(false);
-    onOpen &&
-      setErrorlogStatus(onSelectedErrorlog.toString() == "Resolved" ? 2 : 1);
+    onOpen && setSLAStatus(onSelectedSLA);
   }, [onOpen]);
 
   const handleClose = () => {
     onClose();
-    setErrorlogStatus(0);
-    setIsClose(false);
+    setSLAStatus(0);
   };
 
   const exportTaskStatusListReport = async () => {
@@ -67,29 +56,26 @@ const Dialog_SLA = ({
       const Org_Token = await localStorage.getItem("Org_Token");
 
       const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/errorloglist/export`,
+        `${process.env.emailbox_api_url}/dashboard/GetSLATypeDetailsForDashboard/export`,
         {
-          PageNo: 1,
-          PageSize: 50000,
-          SortColumn: null,
-          IsDesc: true,
-          Clients: currentFilterData.Clients,
-          WorkTypeId:
-            currentFilterData.WorkTypeId === null
-              ? 0
-              : currentFilterData.WorkTypeId,
-          DepartmentIds: currentFilterData.DepartmentIds,
+          ClientId:
+            !!currentFilterData.Clients && currentFilterData.Clients.length > 0
+              ? currentFilterData.Clients
+              : null,
+          AssignTo:
+            !!currentFilterData.AssigneeIds &&
+            currentFilterData.AssigneeIds.length > 0
+              ? currentFilterData.AssigneeIds
+              : null,
+          ReportingManagerId:
+            !!currentFilterData.ReviewerIds &&
+            currentFilterData.ReviewerIds.length > 0
+              ? currentFilterData.ReviewerIds
+              : null,
           StartDate: currentFilterData.StartDate,
           EndDate: currentFilterData.EndDate,
-          ProjectId: null,
-          Key: errorlogStatus !== null ? errorlogStatus : onSelectedErrorlog,
           IsDownload: true,
-          IsImported:
-            errorlogImportStatus > 0
-              ? errorlogImportStatus == 2
-                ? 0
-                : errorlogImportStatus
-              : null,
+          Type: slaStatus !== null ? slaStatus : onSelectedSLA,
         },
         {
           headers: { Authorization: `bearer ${token}`, org_token: Org_Token },
@@ -150,39 +136,17 @@ const Dialog_SLA = ({
           <div className="flex justify-end items-center">
             <FormControl sx={{ mx: 0.75, minWidth: 220, marginTop: 1 }}>
               <Select
-                labelId="Errorlog import Staus"
-                id="Errorlog import Staus"
-                value={errorlogImportStatus}
-                onChange={(e) =>
-                  setErrorlogImportStatus(Number(e.target.value))
-                }
+                labelId="SLA Type"
+                id="SLA Type"
+                value={slaStatus > 0 ? slaStatus : onSelectedSLA}
+                onChange={(e) => setSLAStatus(Number(e.target.value))}
                 sx={{ height: "36px" }}
               >
-                {allErrorlogImportStatus.map(
-                  (i: { label: string; value: number }) => (
-                    <MenuItem value={i.value} key={i.label}>
-                      {i.label}
-                    </MenuItem>
-                  )
-                )}
-              </Select>
-            </FormControl>
-
-            <FormControl sx={{ mx: 0.75, minWidth: 220, marginTop: 1 }}>
-              <Select
-                labelId="Errorlog Staus"
-                id="Errorlog Staus"
-                value={errorlogStatus > 0 ? errorlogStatus : onSelectedErrorlog}
-                onChange={(e) => setErrorlogStatus(Number(e.target.value))}
-                sx={{ height: "36px" }}
-              >
-                {allErrorlogStatus.map(
-                  (i: { label: string; value: number }) => (
-                    <MenuItem value={i.value} key={i.label}>
-                      {i.label}
-                    </MenuItem>
-                  )
-                )}
+                {allSLAStatus.map((i: { label: string; value: number }) => (
+                  <MenuItem value={i.value} key={i.label}>
+                    {i.label}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
             <ColorToolTip title="Export" placement="top" arrow>
@@ -198,12 +162,7 @@ const Dialog_SLA = ({
           </div>
           <Datatable_SLA
             currentFilterData={currentFilterData}
-            onSelectedErrorlog={onSelectedErrorlog}
-            onSelectedProjectIds={onSelectedProjectIds}
-            onCurrSelectedProjectStatus={errorlogStatus}
-            errorlogImportStatus={errorlogImportStatus}
-            onOpen={onOpen}
-            isClose={isClose}
+            onSelectedSLA={slaStatus > 0 ? slaStatus : onSelectedSLA}
           />
         </DialogContent>
       </Dialog>

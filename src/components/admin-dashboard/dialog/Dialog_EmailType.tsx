@@ -12,7 +12,10 @@ import {
 import { Close } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { DialogTransition } from "@/utils/style/DialogTransition";
-import { getBillingTypeData } from "@/utils/commonDropdownApiCall";
+import {
+  getBillingTypeData,
+  getEmailTypeData,
+} from "@/utils/commonDropdownApiCall";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import Loading from "@/assets/icons/reports/Loading";
 import ExportIcon from "@/assets/icons/ExportIcon";
@@ -35,29 +38,23 @@ const Dialog_EmailType = ({
   currentFilterData,
   onSelectedStatusName,
 }: EmailTypeDialogProps) => {
-  const [allBillingType, setAllBillingType] = useState<LabelValue[]>([]);
-  const [billingType, setBillingType] = useState<number>(0);
+  const [allEmailType, setAllEmailType] = useState<LabelValue[]>([]);
+  const [emailType, setEmailType] = useState<number>(0);
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
-  const [isClose, setIsClose] = useState<boolean>(false);
-
-  useEffect(() => {
-    onOpen && setIsClose(false);
-  }, [onOpen]);
 
   const handleClose = () => {
     onClose();
-    setBillingType(0);
+    setEmailType(0);
     setClickedStatusName("");
-    setIsClose(false);
   };
 
   function getValueByLabelOrType(labelOrType: string): number {
-    const billingType = allBillingType.find(
-      (billingType: LabelValue) => billingType.label === labelOrType
+    const email = allEmailType.find(
+      (email: LabelValue) => email.label === labelOrType
     );
-    if (billingType) {
-      return billingType.value;
+    if (email) {
+      return email.value;
     } else {
       return 0;
     }
@@ -65,16 +62,16 @@ const Dialog_EmailType = ({
 
   useEffect(() => {
     setClickedStatusName(onSelectedStatusName);
-    const billingTypeValue: number = getValueByLabelOrType(clickedStatusName);
-    setBillingType(billingTypeValue);
+    const emailTypeValue: number = getValueByLabelOrType(clickedStatusName);
+    setEmailType(emailTypeValue);
   }, [clickedStatusName, onSelectedStatusName]);
 
   const handleChangeValue = (e: number) => {
-    setBillingType(e);
+    setEmailType(e);
   };
 
   const getAllStatus = async () => {
-    setAllBillingType(await getBillingTypeData());
+    setAllEmailType(await getEmailTypeData());
   };
 
   useEffect(() => {
@@ -89,11 +86,22 @@ const Dialog_EmailType = ({
       const Org_Token = await localStorage.getItem("Org_Token");
 
       const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/billingstatuslist/export`,
+        `${process.env.emailbox_api_url}/dashboard/GetEmailTypeDetailsForDashboard/export`,
         {
-          ClientId: currentFilterData.Clients,
-          AssignTo: currentFilterData.AssigneeIds,
-          ReportingManagerId: currentFilterData.ReviewerIds,
+          ClientId:
+            !!currentFilterData.Clients && currentFilterData.Clients.length > 0
+              ? currentFilterData.Clients
+              : null,
+          AssignTo:
+            !!currentFilterData.AssigneeIds &&
+            currentFilterData.AssigneeIds.length > 0
+              ? currentFilterData.AssigneeIds
+              : null,
+          ReportingManagerId:
+            !!currentFilterData.ReviewerIds &&
+            currentFilterData.ReviewerIds.length > 0
+              ? currentFilterData.ReviewerIds
+              : null,
           StartDate: currentFilterData.StartDate,
           EndDate: currentFilterData.EndDate,
           IsDownload: true,
@@ -155,18 +163,17 @@ const Dialog_EmailType = ({
         </DialogTitle>
 
         <DialogContent className="flex flex-col gap-2 mt-[10px] !py-0">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-end items-center">
             <div className="flex items-center justify-center">
               <FormControl sx={{ mx: 0.75, minWidth: 220 }}>
                 <Select
-                  labelId="Billing Type"
-                  id="Billing Type"
-                  value={billingType ? billingType : 0}
+                  labelId="Email Type"
+                  id="Email Type"
+                  value={emailType ? emailType : 0}
                   onChange={(e) => handleChangeValue(Number(e.target.value))}
                   sx={{ height: "36px" }}
                 >
-                  <MenuItem value={0}>All</MenuItem>
-                  {allBillingType.map((i: LabelValue) => (
+                  {allEmailType.map((i: LabelValue) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
@@ -187,9 +194,11 @@ const Dialog_EmailType = ({
           </div>
           <Datatable_EmailType
             currentFilterData={currentFilterData}
-            onSelectedStatusName={onSelectedStatusName}
-            onCurrentSelectedBillingType={billingType}
-            isClose={isClose}
+            onCurrentSelectedEmailType={
+              emailType > 0
+                ? emailType
+                : getValueByLabelOrType(onSelectedStatusName)
+            }
           />
         </DialogContent>
       </Dialog>
