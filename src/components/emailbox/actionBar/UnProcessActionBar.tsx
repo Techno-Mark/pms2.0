@@ -75,16 +75,19 @@ const UnProcessActionBar = ({
           "Selected emails have been moved to the Inbox successfully."
         );
         handleClearSelection();
+        setIsSentOpen(false);
         getData();
         getTabData?.();
         getOverLay?.(false);
       } else if (ResponseStatus === "Warning") {
         toast.warning(ResponseData);
         handleClearSelection();
+        setIsSentOpen(false);
         getData();
         getOverLay?.(false);
       } else {
         getOverLay?.(false);
+        setIsSentOpen(false);
         handleClearSelection();
       }
     };
