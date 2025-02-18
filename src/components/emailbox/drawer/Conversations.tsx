@@ -155,20 +155,22 @@ const Conversations = forwardRef<
         } else {
           setData([]);
         }
+        isCalledRef.current = false;
       };
 
-      callAPI(
-        url,
-        {
-          TicketId: ticketId,
-          TabId: 1,
-          AttachmentType: 0,
-          FromDate: null,
-          ToDate: null,
-        },
-        successCallback,
-        "post"
-      );
+      ticketId > 0 &&
+        callAPI(
+          url,
+          {
+            TicketId: ticketId,
+            TabId: 1,
+            AttachmentType: 0,
+            FromDate: null,
+            ToDate: null,
+          },
+          successCallback,
+          "post"
+        );
     };
 
     useEffect(() => {
