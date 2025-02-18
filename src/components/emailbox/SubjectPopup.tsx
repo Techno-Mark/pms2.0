@@ -44,8 +44,10 @@ const SubjectPopup = ({
     if (feedbackRef.current) {
       const rect = feedbackRef.current.getBoundingClientRect();
       setFeedbackPosition({
-        top: rect.top - 73,
-        left: rect.left - 300,
+        // top: rect.top - 73,
+        // left: rect.left - 300,
+        top: rect.top - 110,
+        left: rect.left - 170,
       });
     }
   }, [hoveredRow]);
