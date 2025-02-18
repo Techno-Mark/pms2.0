@@ -1,9 +1,21 @@
 import CustomActionBar from "@/components/common/actionBar/CustomActionBar";
-import React from "react";
+import React, { useState } from "react";
 import Client from "./components/Client";
-import { Button } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
+import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import { Close } from "@mui/icons-material";
 
 const UnProcessActionBar = ({
   selectedRowsCount,
@@ -24,6 +36,7 @@ const UnProcessActionBar = ({
   tab?: string;
   getTabData?: () => void;
 }) => {
+  const [isSentOpen, setIsSentOpen] = useState(false);
   const propsForActionBar = {
     selectedRowsCount,
     selectedRows,
@@ -58,7 +71,9 @@ const UnProcessActionBar = ({
       ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        toast.success("Task moved to inbox successfully.");
+        toast.success(
+          "Selected emails have been moved to the Inbox successfully."
+        );
         handleClearSelection();
         getData();
         getTabData?.();
@@ -81,7 +96,7 @@ const UnProcessActionBar = ({
       <Button
         variant="outlined"
         className=" rounded-[4px] h-8 !text-[10px]"
-        onClick={submitWorkItem}
+        onClick={() => setIsSentOpen(true)}
       >
         Move to Inbox
       </Button>
@@ -107,6 +122,62 @@ const UnProcessActionBar = ({
         )}
         {tab === "Junk" && <MoveToInboxButton />}
       </CustomActionBar>
+      <Dialog
+        open={isSentOpen}
+        onClose={() => {
+          setIsSentOpen(false);
+          handleClearSelection();
+        }}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          <div className="flex flex-row justify-between items-center">
+            <span>Move to Inbox</span>
+            <ColorToolTip title="Close" placement="top" arrow>
+              <IconButton
+                onClick={() => {
+                  setIsSentOpen(false);
+                  handleClearSelection();
+                }}
+              >
+                <Close />
+              </IconButton>
+            </ColorToolTip>
+          </div>
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText
+            id="alert-dialog-description"
+            className="border-y border-y-lightSilver w-full p-4"
+          >
+            <Typography className="pb-2 text-darkCharcoal">
+              Are you sure you want to move the selected emails to the Inbox?
+            </Typography>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions className="mb-2">
+          <Button
+            className="bg-defaultRed"
+            onClick={() => {
+              setIsSentOpen(false);
+              handleClearSelection();
+            }}
+            variant="contained"
+            color="error"
+          >
+            Cancel
+          </Button>
+          <Button
+            className="!bg-secondary"
+            onClick={() => submitWorkItem()}
+            autoFocus
+            variant="contained"
+          >
+            Move to Inbox
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
