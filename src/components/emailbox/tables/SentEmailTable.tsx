@@ -353,10 +353,7 @@ const SentEmailTable = ({
               <SubjectPopup
                 value={value}
                 shortProcessName={shortProcessName}
-                tableMeta={{
-                  rowData: tableMeta.rowData,
-                  rowIndex: tableMeta.index,
-                }}
+                tableMeta={tableMeta}
                 handleDrawerOpen={handleDrawerOpen}
                 getId={getId}
                 id={tableMeta.rowData[0]}

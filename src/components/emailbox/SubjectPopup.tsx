@@ -46,7 +46,7 @@ const SubjectPopup = ({
       setFeedbackPosition({
         // top: rect.top - 73,
         // left: rect.left - 300,
-        top: rect.top - 110,
+        top: rect.top - (tableMeta.rowIndex <= 7 ? 110 : 150),
         left: rect.left - 170,
       });
     }

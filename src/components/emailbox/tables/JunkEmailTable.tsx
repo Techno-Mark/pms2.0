@@ -240,10 +240,7 @@ const JunkEmailTable = ({
               <SubjectPopup
                 value={value}
                 shortProcessName={shortProcessName}
-                tableMeta={{
-                  rowData: tableMeta.rowData,
-                  rowIndex: tableMeta.index,
-                }}
+                tableMeta={tableMeta}
                 isDrawerOpen={false}
                 id={tableMeta.rowData[0]}
               />
