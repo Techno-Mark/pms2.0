@@ -25,6 +25,7 @@ import InboxActionBar from "../actionBar/InboxActionBar";
 import RestartButton from "@/assets/icons/worklogs/RestartButton";
 import { toast } from "react-toastify";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
+import SubjectPopup from "../SubjectPopup";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -441,32 +442,17 @@ const ApprovalsEmailTable = ({
                 : value;
 
             return (
-              <div
-                className="ml-2 text-[#0592C6] cursor-pointer"
-                onClick={() => {
-                  handleDrawerOpen?.();
-                  getId?.(
-                    tableMeta.rowData[0],
-                    tableMeta.rowData[tableMeta.rowData.length - 1]
-                  );
+              <SubjectPopup
+                value={value}
+                shortProcessName={shortProcessName}
+                tableMeta={{
+                  rowData: tableMeta.rowData,
+                  rowIndex: tableMeta.index,
                 }}
-              >
-                {!value ||
-                value === "0" ||
-                value === null ||
-                value === "null" ? (
-                  "-"
-                ) : value.length > 20 ? (
-                  <>
-                    <ColorToolTip title={value} placement="top">
-                      <span>{shortProcessName}</span>
-                    </ColorToolTip>
-                    <span>...</span>
-                  </>
-                ) : (
-                  shortProcessName
-                )}
-              </div>
+                handleDrawerOpen={handleDrawerOpen}
+                getId={getId}
+                id={tableMeta.rowData[0]}
+              />
             );
           },
         },

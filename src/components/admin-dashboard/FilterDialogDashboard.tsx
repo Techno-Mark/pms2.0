@@ -32,6 +32,7 @@ import { toast } from "react-toastify";
 
 interface FilterModalProps {
   activeTab: number;
+  dashboardActiveTab: number;
   onOpen: boolean;
   onClose: () => void;
   onActionClick?: () => void;
@@ -45,6 +46,7 @@ const ALLDepartment = -1;
 
 const FilterDialogDashboard = ({
   activeTab,
+  dashboardActiveTab,
   onOpen,
   onClose,
   currentFilterData,
@@ -464,7 +466,7 @@ const FilterDialogDashboard = ({
                 />
               </FormControl>
 
-              {activeTab === 1 && (
+              {activeTab === 1 && dashboardActiveTab === 1 && (
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, mt: 0, width: 210 }}
@@ -566,39 +568,74 @@ const FilterDialogDashboard = ({
                   )}
                 />
               </FormControl>
+              {dashboardActiveTab === 2 && (
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, mt: 0.5, width: 210 }}
+                >
+                  <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={assigneeDropdown.filter(
+                      (option) =>
+                        !assignees.find(
+                          (assignee) => assignee.value === option.value
+                        )
+                    )}
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(
+                      e: React.ChangeEvent<{}>,
+                      data: LabelValue[] | []
+                    ) => {
+                      setAssignees(data);
+                      setAssigneeName(data.map((d: LabelValue) => d.value));
+                    }}
+                    value={assignees}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Preparer/Assignee"
+                      />
+                    )}
+                  />
+                </FormControl>
+              )}
             </div>
             <div className="flex gap-[20px]">
-              <FormControl
-                variant="standard"
-                sx={{ mx: 0.75, mt: 0.5, width: 210 }}
-              >
-                <Autocomplete
-                  multiple
-                  id="tags-standard"
-                  options={assigneeDropdown.filter(
-                    (option) =>
-                      !assignees.find(
-                        (assignee) => assignee.value === option.value
-                      )
-                  )}
-                  getOptionLabel={(option: LabelValue) => option.label}
-                  onChange={(
-                    e: React.ChangeEvent<{}>,
-                    data: LabelValue[] | []
-                  ) => {
-                    setAssignees(data);
-                    setAssigneeName(data.map((d: LabelValue) => d.value));
-                  }}
-                  value={assignees}
-                  renderInput={(params: any) => (
-                    <TextField
-                      {...params}
-                      variant="standard"
-                      label="Preparer/Assignee"
-                    />
-                  )}
-                />
-              </FormControl>
+              {dashboardActiveTab !== 2 && (
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, mt: 0.5, width: 210 }}
+                >
+                  <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={assigneeDropdown.filter(
+                      (option) =>
+                        !assignees.find(
+                          (assignee) => assignee.value === option.value
+                        )
+                    )}
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(
+                      e: React.ChangeEvent<{}>,
+                      data: LabelValue[] | []
+                    ) => {
+                      setAssignees(data);
+                      setAssigneeName(data.map((d: LabelValue) => d.value));
+                    }}
+                    value={assignees}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Preparer/Assignee"
+                      />
+                    )}
+                  />
+                </FormControl>
+              )}
               <FormControl
                 variant="standard"
                 sx={{ mx: 0.75, mt: 0.5, width: 210 }}
@@ -687,9 +724,32 @@ const FilterDialogDashboard = ({
                   </LocalizationProvider>
                 </div>
               )}
+              {dashboardActiveTab === 2 && (
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="To"
+                      value={endDate === null ? null : dayjs(endDate)}
+                      // shouldDisableDate={isWeekend}
+                      minDate={dayjs(startDate)}
+                      maxDate={dayjs(Date.now())}
+                      onChange={(newDate: any) => {
+                        setEndDate(newDate.$d);
+                      }}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+              )}
             </div>
             <div className="flex gap-[20px]">
-              {activeTab === 1 && (
+              {dashboardActiveTab === 1 && (
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
                 >

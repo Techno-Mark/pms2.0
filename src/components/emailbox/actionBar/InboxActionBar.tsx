@@ -117,16 +117,6 @@ const InboxActionBar = ({
     callAPI(url, params, successCallback, "POST");
   };
 
-  const AcceptButton = () => (
-    <span className="pl-2 pr-2 border-t-0 cursor-pointer border-b-0 border-x-[1.5px] border-gray-300">
-      <ColorToolTip title="Accept" arrow>
-        <div onClick={submitWorkItem}>
-          <AcceptTask />
-        </div>
-      </ColorToolTip>
-    </span>
-  );
-
   return (
     <div>
       <CustomActionBar small={true} {...propsForActionBar}>

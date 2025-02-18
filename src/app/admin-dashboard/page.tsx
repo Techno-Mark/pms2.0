@@ -54,8 +54,6 @@ import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import ReportLoader from "@/components/common/ReportLoader";
 import WrapperNavbar from "@/components/common/WrapperNavbar";
-import { Delete, Edit } from "@mui/icons-material";
-import SearchIcon from "@/assets/icons/SearchIcon";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import Chart_Errorlog from "@/components/admin-dashboard/charts/Chart_Errorlog";
 import Dialog_Errorlog from "@/components/admin-dashboard/dialog/Dialog_Errorlog";
@@ -63,6 +61,7 @@ import Chart_EmailType from "@/components/admin-dashboard/charts/Chart_EmailType
 import Dialog_EmailType from "@/components/admin-dashboard/dialog/Dialog_EmailType";
 import Chart_SLA from "@/components/admin-dashboard/charts/Chart_SLA";
 import Dialog_SLA from "@/components/admin-dashboard/dialog/Dialog_SLA";
+import FilterModel from "@/components/admin-dashboard/FilterModel";
 
 interface ClientSummaryStatus {
   ClientName: string;
@@ -605,127 +604,35 @@ const Page = () => {
           </label>
         </div>
 
-        <div className="flex items-center justify-center gap-2">
-          {filterList.length > 0 ? (
-            <div>
-              <span
-                aria-describedby={idFilter}
-                onClick={handleClickFilter}
-                className="cursor-pointer"
-              >
-                <FilterIcon />
-              </span>
+        {activeTab === 2 && (
+          <div className="flex items-center justify-center gap-2">
+            {filterList.length > 0 ? (
+              <FilterModel
+                idFilter={idFilter}
+                handleClickFilter={handleClickFilter}
+                openFilter={openFilter}
+                anchorElFilter={anchorElFilter}
+                handleCloseFilter={handleCloseFilter}
+                setIsFilterOpen={setIsFilterOpen}
+                setCurrentFilterId={setCurrentFilterId}
+                searchValue={searchValue}
+                handleSearchChangeWorklog={handleSearchChangeWorklog}
+                filteredFilters={filteredFilters}
+                currentFilter={currentFilter}
+                setCurrentFilterData={setCurrentFilterData}
+                setIsDeleteOpen={setIsDeleteOpen}
+              />
+            ) : (
+              <ColorToolTip title="Filter" placement="top" arrow>
+                <span
+                  className="cursor-pointer"
+                  onClick={() => setIsFilterOpen(true)}
+                >
+                  <FilterIcon />
+                </span>
+              </ColorToolTip>
+            )}
 
-              <Popover
-                id={idFilter}
-                open={openFilter}
-                anchorEl={anchorElFilter}
-                onClose={handleCloseFilter}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "right",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-              >
-                <div className="flex flex-col py-2 w-[250px]">
-                  <span
-                    className="p-2 cursor-pointer hover:bg-lightGray"
-                    onClick={() => {
-                      setIsFilterOpen(true);
-                      setCurrentFilterId(0);
-                      handleCloseFilter();
-                    }}
-                  >
-                    Default Filter
-                  </span>
-                  <hr className="text-lightSilver mt-2" />
-
-                  <span className="py-3 px-2 relative">
-                    <InputBase
-                      className="pr-7 border-b border-b-slatyGrey w-full"
-                      placeholder="Search saved filters"
-                      inputProps={{ "aria-label": "search" }}
-                      value={searchValue}
-                      onChange={(e) =>
-                        handleSearchChangeWorklog(e.target.value)
-                      }
-                      sx={{ fontSize: 14 }}
-                    />
-                    <span className="absolute top-4 right-3 text-slatyGrey">
-                      <SearchIcon />
-                    </span>
-                  </span>
-
-                  {filteredFilters.map((i: any) => {
-                    return (
-                      <div
-                        key={i.FilterId}
-                        className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
-                      >
-                        <span
-                          className="pl-1"
-                          onClick={() => {
-                            setCurrentFilterData(i.AppliedFilter);
-                            handleCloseFilter();
-                          }}
-                        >
-                          {i.Name}
-                        </span>
-                        <span className="flex gap-[10px] pr-[10px]">
-                          <span
-                            onClick={() => {
-                              setCurrentFilterId(i.FilterId);
-                              setIsFilterOpen(true);
-                              handleCloseFilter();
-                            }}
-                          >
-                            <Tooltip title="Edit" placement="top" arrow>
-                              <Edit className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
-                            </Tooltip>
-                          </span>
-                          <span
-                            onClick={() => {
-                              setIsDeleteOpen(true);
-                              setCurrentFilterId(i.FilterId);
-                              handleCloseFilter();
-                            }}
-                          >
-                            <Tooltip title="Delete" placement="top" arrow>
-                              <Delete className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
-                            </Tooltip>
-                          </span>
-                        </span>
-                      </div>
-                    );
-                  })}
-                  <hr className="text-lightSilver mt-2" />
-                  <Button
-                    onClick={() => {
-                      handleCloseFilter();
-                      setCurrentFilterData(currentFilter);
-                    }}
-                    className="mt-2"
-                    color="error"
-                  >
-                    clear all
-                  </Button>
-                </div>
-              </Popover>
-            </div>
-          ) : (
-            <ColorToolTip title="Filter" placement="top" arrow>
-              <span
-                className="cursor-pointer"
-                onClick={() => setIsFilterOpen(true)}
-              >
-                <FilterIcon />
-              </span>
-            </ColorToolTip>
-          )}
-          {activeTab === 2 && (
             <ColorToolTip title="Export" placement="top" arrow>
               <span
                 className={`${
@@ -736,36 +643,66 @@ const Page = () => {
                 {isExporting ? <Loading /> : <ExportIcon />}
               </span>
             </ColorToolTip>
-          )}
-        </div>
+          </div>
+        )}
       </div>
       {activeTab === 1 && (
-        <div className="flex gap-[16px] items-center py-[6.5px] pl-6">
-          <label
-            onClick={() => {
-              setDashboardActiveTab(1);
-            }}
-            className={`py-[10px] text-[16px] cursor-pointer select-none ${
-              dashboardActiveTab === 1
-                ? "text-secondary font-semibold"
-                : "text-slatyGrey"
-            }`}
-          >
-            Task
-          </label>
-          <span className="text-lightSilver">|</span>
-          <label
-            onClick={() => {
-              setDashboardActiveTab(2);
-            }}
-            className={`py-[10px] text-[16px] cursor-pointer select-none ${
-              dashboardActiveTab === 2
-                ? "text-secondary font-semibold"
-                : "text-slatyGrey"
-            }`}
-          >
-            Email Ticket
-          </label>
+        <div className="flex items-center justify-between px-6">
+          <div className="flex gap-[16px] items-center py-[6.5px]">
+            <label
+              onClick={() => {
+                setDashboardActiveTab(1);
+              }}
+              className={`py-[10px] text-[16px] cursor-pointer select-none ${
+                dashboardActiveTab === 1
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
+              }`}
+            >
+              Task
+            </label>
+            <span className="text-lightSilver">|</span>
+            <label
+              onClick={() => {
+                setDashboardActiveTab(2);
+              }}
+              className={`py-[10px] text-[16px] cursor-pointer select-none ${
+                dashboardActiveTab === 2
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
+              }`}
+            >
+              Email Ticket
+            </label>
+          </div>
+          <div>
+            {filterList.length > 0 ? (
+              <FilterModel
+                idFilter={idFilter}
+                handleClickFilter={handleClickFilter}
+                openFilter={openFilter}
+                anchorElFilter={anchorElFilter}
+                handleCloseFilter={handleCloseFilter}
+                setIsFilterOpen={setIsFilterOpen}
+                setCurrentFilterId={setCurrentFilterId}
+                searchValue={searchValue}
+                handleSearchChangeWorklog={handleSearchChangeWorklog}
+                filteredFilters={filteredFilters}
+                currentFilter={currentFilter}
+                setCurrentFilterData={setCurrentFilterData}
+                setIsDeleteOpen={setIsDeleteOpen}
+              />
+            ) : (
+              <ColorToolTip title="Filter" placement="top" arrow>
+                <span
+                  className="cursor-pointer"
+                  onClick={() => setIsFilterOpen(true)}
+                >
+                  <FilterIcon />
+                </span>
+              </ColorToolTip>
+            )}
+          </div>
         </div>
       )}
 
@@ -954,9 +891,7 @@ const Page = () => {
                         borderColor: generateEmailboxStatusColor(item.Status),
                       }}
                     >
-                      <div
-                        className="flex p-[20px] items-center"
-                      >
+                      <div className="flex p-[20px] items-center">
                         <span
                           style={{
                             color: generateEmailboxStatusColor(item.Status),
@@ -995,9 +930,7 @@ const Page = () => {
                         borderColor: generateEmailboxStatusColor(item.Status),
                       }}
                     >
-                      <div
-                        className="flex p-[20px] items-center"
-                      >
+                      <div className="flex p-[20px] items-center">
                         <span
                           style={{
                             color: generateEmailboxStatusColor(item.Status),
@@ -1184,6 +1117,7 @@ const Page = () => {
 
       <FilterDialogDashboard
         activeTab={activeTab}
+        dashboardActiveTab={dashboardActiveTab}
         onOpen={isFilterOpen}
         onClose={handleCloseFilterDialog}
         getFilterList={getFilterList}

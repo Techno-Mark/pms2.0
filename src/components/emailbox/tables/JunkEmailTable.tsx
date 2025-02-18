@@ -23,6 +23,7 @@ import OverLay from "@/components/common/OverLay";
 import InboxActionBar from "../actionBar/InboxActionBar";
 import UnProcessActionBar from "../actionBar/UnProcessActionBar";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
+import SubjectPopup from "../SubjectPopup";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -214,6 +215,39 @@ const JunkEmailTable = ({
           customHeadLabelRender: () => generateCustomHeaderName("Id"),
           customBodyRender: (value: string) => {
             return <span>{value}</span>;
+          },
+        },
+      };
+    } else if (column.name === "Subject") {
+      return {
+        name: "Subject",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Subject"),
+          customBodyRender: (value: string, tableMeta: any) => {
+            const shortProcessName =
+              value !== null &&
+              value !== undefined &&
+              value !== "" &&
+              value !== "0" &&
+              value.length > 20
+                ? value.slice(0, 20)
+                : value;
+
+            return (
+              <SubjectPopup
+                value={value}
+                shortProcessName={shortProcessName}
+                tableMeta={{
+                  rowData: tableMeta.rowData,
+                  rowIndex: tableMeta.index,
+                }}
+                isDrawerOpen={false}
+                id={tableMeta.rowData[0]}
+              />
+            );
           },
         },
       };

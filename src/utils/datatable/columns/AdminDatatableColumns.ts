@@ -74,7 +74,7 @@ const adminDashboardEmailTypeCols = [
   { header: "StandardSLATime", label: "Standard SLA Time" },
   { header: "ActualTimeTaken", label: "Actual Time Taken" },
   { header: "StatusName", label: "SLA Status" },
-  { header: "InternalHours", label: "Ticket Status" },
+  { header: "StatusName", label: "Ticket Status" },
   { header: "PriorityName", label: "Priority" },
   { header: "Tag", label: "Tags" },
   { header: "ReceivedOn", label: "Received On" },

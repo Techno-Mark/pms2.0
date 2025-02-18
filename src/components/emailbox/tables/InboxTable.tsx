@@ -28,6 +28,7 @@ import { toast } from "react-toastify";
 import RestartButton from "@/assets/icons/worklogs/RestartButton";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+import SubjectPopup from "../SubjectPopup";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -496,36 +497,18 @@ const InboxTable = ({
                 : value;
 
             return (
-              <div
-                className={`ml-2 text-[#0592C6] cursor-pointer ${
-                  !tableMeta.rowData[tableMeta.rowData.length - 5]
-                    ? "font-bold"
-                    : ""
-                }`}
-                onClick={() => {
-                  handleDrawerOpen?.();
-                  getId?.(
-                    tableMeta.rowData[0],
-                    tableMeta.rowData[tableMeta.rowData.length - 1]
-                  );
+              <SubjectPopup
+                value={value}
+                shortProcessName={shortProcessName}
+                tableMeta={{
+                  rowData: tableMeta.rowData,
+                  rowIndex: tableMeta.index,
                 }}
-              >
-                {!value ||
-                value === "0" ||
-                value === null ||
-                value === "null" ? (
-                  "-"
-                ) : value.length > 20 ? (
-                  <>
-                    <ColorToolTip title={value} placement="top">
-                      <span>{shortProcessName}</span>
-                    </ColorToolTip>
-                    <span>...</span>
-                  </>
-                ) : (
-                  shortProcessName
-                )}
-              </div>
+                handleDrawerOpen={handleDrawerOpen}
+                getId={getId}
+                id={tableMeta.rowData[0]}
+                isBold={true}
+              />
             );
           },
         },
@@ -650,68 +633,74 @@ const InboxTable = ({
   return (
     <>
       {fileds.loaded ? (
-        <ThemeProvider theme={getMuiTheme()}>
-          <MUIDataTable
-            columns={inboxCols}
-            data={fileds.data}
-            title={undefined}
-            options={{
-              ...worklogs_Options,
-              tableBodyHeight: "73vh",
-              selectAllRows: isPopupOpen && selectedRowsCount === 0,
-              rowsSelected: selectedRows,
-              selectableRows: hasPermissionWorklog("Inbox", "Save", "EmailBox")
-                ? "multiple"
-                : "none",
-              textLabels: {
-                body: {
-                  noMatch: (
-                    <div className="flex items-start">
-                      <span>No emails available for your group.</span>
-                    </div>
-                  ),
-                  toolTip: "",
+        <div className="relative">
+          <ThemeProvider theme={getMuiTheme()}>
+            <MUIDataTable
+              columns={inboxCols}
+              data={fileds.data}
+              title={undefined}
+              options={{
+                ...worklogs_Options,
+                tableBodyHeight: "73vh",
+                selectAllRows: isPopupOpen && selectedRowsCount === 0,
+                rowsSelected: selectedRows,
+                selectableRows: hasPermissionWorklog(
+                  "Inbox",
+                  "Save",
+                  "EmailBox"
+                )
+                  ? "multiple"
+                  : "none",
+                textLabels: {
+                  body: {
+                    noMatch: (
+                      <div className="flex items-start">
+                        <span>No emails available for your group.</span>
+                      </div>
+                    ),
+                    toolTip: "",
+                  },
                 },
-              },
-              onRowSelectionChange: (
-                currentRowsSelected:
-                  | { index: number; dataIndex: number }[]
-                  | [],
-                allRowsSelected: { index: number; dataIndex: number }[] | [],
-                rowsSelected: number[] | []
-              ) =>
-                handleRowSelect(
-                  currentRowsSelected,
-                  allRowsSelected,
-                  rowsSelected
-                ),
-            }}
-          />
-          <TablePagination
-            component="div"
-            count={fileds.dataCount}
-            page={page}
-            onPageChange={(
-              event: React.MouseEvent<HTMLButtonElement> | null,
-              newPage: number
-            ) => {
-              handlePageChangeWithFilter(newPage, setPage, setFilteredOject);
-              handleClearSelection();
-            }}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={(
-              event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-            ) => {
-              handleChangeRowsPerPageWithFilter(
-                event,
-                setRowsPerPage,
-                setPage,
-                setFilteredOject
-              );
-              handleClearSelection();
-            }}
-          />
-        </ThemeProvider>
+                onRowSelectionChange: (
+                  currentRowsSelected:
+                    | { index: number; dataIndex: number }[]
+                    | [],
+                  allRowsSelected: { index: number; dataIndex: number }[] | [],
+                  rowsSelected: number[] | []
+                ) =>
+                  handleRowSelect(
+                    currentRowsSelected,
+                    allRowsSelected,
+                    rowsSelected
+                  ),
+              }}
+            />
+            <TablePagination
+              component="div"
+              count={fileds.dataCount}
+              page={page}
+              onPageChange={(
+                event: React.MouseEvent<HTMLButtonElement> | null,
+                newPage: number
+              ) => {
+                handlePageChangeWithFilter(newPage, setPage, setFilteredOject);
+                handleClearSelection();
+              }}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={(
+                event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+              ) => {
+                handleChangeRowsPerPageWithFilter(
+                  event,
+                  setRowsPerPage,
+                  setPage,
+                  setFilteredOject
+                );
+                handleClearSelection();
+              }}
+            />
+          </ThemeProvider>
+        </div>
       ) : (
         <ReportLoader />
       )}
