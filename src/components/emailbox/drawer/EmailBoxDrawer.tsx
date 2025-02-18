@@ -231,7 +231,7 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
       <div className="pl-4 gap-1 border-t border-b border-gray-200 flex items-center justify-between">
         <div className="flex items-center justify-center pt-2">
           {tabs.length > 0 &&
-            tabs.map((tab) => (
+            (activeTabList === 2 ? [...tabs.slice(0, 1),...tabs.slice(2, 3)] : tabs).map((tab) => (
               <p
                 key={tab.TabId}
                 className={`cursor-pointer px-4 py-2 ${
