@@ -55,8 +55,17 @@ const SubjectPopup: React.FC<SubjectPopupProps> = ({
   useEffect(() => {
     if (feedbackRef.current) {
       const rect = feedbackRef.current.getBoundingClientRect();
+      console.log(rect);
       setFeedbackPosition({
-        top: rect.top - (tableMeta.rowIndex < 7 ? 0 : 200),
+        top:
+          rect.top -
+          (tableMeta.rowIndex <= 2
+            ? 0
+            : tableMeta.rowIndex >= 3 && tableMeta.rowIndex <= 4
+            ? 100
+            : tableMeta.rowIndex >= 5 && tableMeta.rowIndex <= 6
+            ? 180
+            : 200),
         left: rect.left + 50,
       });
     }
@@ -192,9 +201,20 @@ const SubjectPopup: React.FC<SubjectPopupProps> = ({
                   .map((word: string) => word.charAt(0).toUpperCase())
                   .join("")}
               </Avatar>
-              <div className="flex flex-col items-start justify-center gap-1 w-full max-w-[95%]">
+              <div
+                className="flex flex-col items-start justify-center gap-1 w-full max-w-[95%]"
+                style={{
+                  overflowWrap: "break-word",
+                  wordBreak: "break-all",
+                  whiteSpace: "normal",
+                }}
+              >
                 <div className="flex items-start justify-between mb-1 w-full">
-                  <p className="flex gap-1">
+                  <p
+                    className={`flex gap-1 ${
+                      data.UserName.length > 20 ? "flex-col" : "gap-2"
+                    }`}
+                  >
                     <b>{data.UserName}</b>
                     <span>{data.ReceivedOn}</span>
                   </p>
@@ -220,7 +240,9 @@ const SubjectPopup: React.FC<SubjectPopupProps> = ({
                   </p>
                 )}
                 <p className="w-full">
-                  {data.PreviewText || "No preview available."}
+                  {!!data.PreviewText
+                    ? data.PreviewText
+                    : "No preview available."}
                 </p>
               </div>
             </div>
