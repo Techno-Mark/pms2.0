@@ -198,7 +198,7 @@ const SubjectPopup: React.FC<SubjectPopupProps> = ({
                 className="flex flex-col items-start justify-center gap-1 w-full max-w-[95%]"
                 style={{
                   overflowWrap: "break-word",
-                  wordBreak: "break-all",
+                  wordBreak: "break-word",
                   whiteSpace: "normal",
                 }}
               >

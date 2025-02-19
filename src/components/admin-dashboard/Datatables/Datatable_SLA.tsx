@@ -76,7 +76,7 @@ const Datatable_SLA = ({ currentFilterData, onSelectedSLA }: ErrorlogProps) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (onSelectedSLA > 0) {
+      if (onSelectedSLA >= 0) {
         await getErrorlogStatusData();
       }
     };

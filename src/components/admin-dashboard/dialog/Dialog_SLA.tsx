@@ -134,15 +134,17 @@ const Dialog_SLA = ({
               <Select
                 labelId="SLA Type"
                 id="SLA Type"
-                value={slaStatus > 0 ? slaStatus : onSelectedSLA}
+                value={slaStatus ? slaStatus : 0}
                 onChange={(e) => setSLAStatus(Number(e.target.value))}
                 sx={{ height: "36px" }}
               >
-                {emailBoxSLAStatusOptions.map((i: { label: string; value: number }) => (
-                  <MenuItem value={i.value} key={i.label}>
-                    {i.label}
-                  </MenuItem>
-                ))}
+                {[{ label: "All", value: 0 }, ...emailBoxSLAStatusOptions].map(
+                  (i: { label: string; value: number }) => (
+                    <MenuItem value={i.value} key={i.label}>
+                      {i.label}
+                    </MenuItem>
+                  )
+                )}
               </Select>
             </FormControl>
             <ColorToolTip title="Export" placement="top" arrow>
@@ -158,7 +160,7 @@ const Dialog_SLA = ({
           </div>
           <Datatable_SLA
             currentFilterData={currentFilterData}
-            onSelectedSLA={slaStatus > 0 ? slaStatus : onSelectedSLA}
+            onSelectedSLA={slaStatus >= 0 ? slaStatus : onSelectedSLA}
           />
         </DialogContent>
       </Dialog>

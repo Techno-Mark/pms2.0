@@ -206,7 +206,7 @@ const Dialog_EmailType = ({
           <Datatable_EmailType
             currentFilterData={currentFilterData}
             onCurrentSelectedEmailType={
-              emailType > 0
+              emailType > -2
                 ? emailType
                 : getValueByLabelOrType(onSelectedStatusName)
             }

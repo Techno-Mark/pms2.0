@@ -39,10 +39,8 @@ const Datatable_EmailType = ({
   onCurrentSelectedEmailType,
 }: EmailTypeProps) => {
   const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
 
   const getEmailTypeData = async () => {
-    setLoading(true);
     const params = {
       ClientId:
         !!currentFilterData.Clients && currentFilterData.Clients.length > 0
@@ -71,9 +69,6 @@ const Datatable_EmailType = ({
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setData(ResponseData);
-        setLoading(false);
-      } else {
-        setLoading(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -81,9 +76,7 @@ const Datatable_EmailType = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      !!onCurrentSelectedEmailType &&
-        onCurrentSelectedEmailType > 0 &&
-        (await getEmailTypeData());
+      onCurrentSelectedEmailType > -2 && (await getEmailTypeData());
     };
     const timer = setTimeout(() => {
       fetchData();
