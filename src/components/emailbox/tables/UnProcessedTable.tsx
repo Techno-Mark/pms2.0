@@ -219,7 +219,6 @@ const UnprocessedTable = ({
                 tableMeta={tableMeta}
                 handleDrawerOpen={handleDrawerOpen}
                 getId={getId}
-                id={tableMeta.rowData[0]}
               />
             );
           },

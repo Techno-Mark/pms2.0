@@ -503,7 +503,6 @@ const InboxTable = ({
                 tableMeta={tableMeta}
                 handleDrawerOpen={handleDrawerOpen}
                 getId={getId}
-                id={tableMeta.rowData[0]}
                 isBold={true}
               />
             );
@@ -630,7 +629,7 @@ const InboxTable = ({
   return (
     <>
       {fileds.loaded ? (
-        <div className="relative">
+        <div>
           <ThemeProvider theme={getMuiTheme()}>
             <MUIDataTable
               columns={inboxCols}

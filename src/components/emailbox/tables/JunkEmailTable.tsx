@@ -242,7 +242,6 @@ const JunkEmailTable = ({
                 shortProcessName={shortProcessName}
                 tableMeta={tableMeta}
                 isDrawerOpen={false}
-                id={tableMeta.rowData[0]}
               />
             );
           },
