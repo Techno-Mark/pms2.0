@@ -339,6 +339,11 @@ const Conversations = forwardRef<
           getTicketDetails();
           handleClearMailData();
         } else {
+          toast.error(
+            isDraft
+              ? "Unable to save draft. Please try again later."
+              : "Unable to send email. Please try again later."
+          );
           setSending(false);
           setOverlayOpen(false);
         }
@@ -400,6 +405,7 @@ const Conversations = forwardRef<
           onClose();
           onDataFetch?.();
         } else {
+          toast.error("Unable to send email. Please try again later.");
           setSending(false);
           setOverlayOpen(false);
         }
@@ -456,6 +462,7 @@ const Conversations = forwardRef<
           onClose();
           onDataFetch?.();
         } else {
+          toast.error("Unable to send email. Please try again later.");
           setSending(false);
           setOverlayOpen(false);
         }
@@ -508,6 +515,7 @@ const Conversations = forwardRef<
           onClose();
           onDataFetch?.();
         } else {
+          toast.error("Unable to delete draft. Please try again later.");
           setTrailId(0);
           setDeleteId(0);
           setIsDeleteOpen(false);
@@ -551,6 +559,7 @@ const Conversations = forwardRef<
           onClose();
           onDataFetch?.();
         } else {
+          toast.error("Unable to send email. Please try again later.");
           setTrailId(0);
           setDeleteId(0);
           setIsDeleteOpen(false);
