@@ -198,7 +198,7 @@ const SubjectPopup: React.FC<SubjectPopupProps> = ({
                 className="flex flex-col items-start justify-center gap-1 w-full max-w-[95%]"
                 style={{
                   overflowWrap: "break-word",
-                  wordBreak: "break-word",
+                  wordBreak: "break-all",
                   whiteSpace: "normal",
                 }}
               >
@@ -232,7 +232,14 @@ const SubjectPopup: React.FC<SubjectPopupProps> = ({
                     <b>Bcc:</b> {data.BCC}
                   </p>
                 )}
-                <p className="w-full">
+                <p
+                  className="w-full"
+                  style={{
+                    overflowWrap: "break-word",
+                    wordBreak: "break-word",
+                    whiteSpace: "normal",
+                  }}
+                >
                   {!!data.PreviewText && data.PreviewText.trim().length > 0 ? (
                     <>
                       {data.PreviewText}
