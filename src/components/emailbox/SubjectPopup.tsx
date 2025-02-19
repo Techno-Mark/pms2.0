@@ -55,7 +55,6 @@ const SubjectPopup: React.FC<SubjectPopupProps> = ({
   useEffect(() => {
     if (feedbackRef.current) {
       const rect = feedbackRef.current.getBoundingClientRect();
-      console.log(rect);
       setFeedbackPosition({
         top:
           rect.top -
