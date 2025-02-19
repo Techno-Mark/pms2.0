@@ -147,17 +147,11 @@ const Chart_EmailType = ({
           <HighchartsReact highcharts={Highcharts} options={chartOptions} />
         </div>
         {data.length > 0 && (
-          <span
-            className={`flex flex-col items-center absolute bottom-[5.9rem] z-0 ${
-              totalCount <= 1 ? "left-[8.45rem]" : "left-[8.35rem]"
-            }`}
-          >
+          <span className="flex flex-col items-center absolute bottom-[5.9rem] z-0 left-[7.2rem]">
             <span className="text-xl font-semibold text-darkCharcoal">
               {totalCount}
             </span>
-            <span className="text-lg text-slatyGrey">
-              {totalCount > 1 ? "Clients" : "Client"}
-            </span>
+            <span className="text-lg text-slatyGrey">Email Type</span>
           </span>
         )}
       </div>

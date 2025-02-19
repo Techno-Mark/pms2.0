@@ -238,21 +238,49 @@ export const generateEmailboxStatusWithColor = (value: any) => {
   );
 };
 
+export const generateEmailboxSLAStatusWithColor = (value: any) => {
+  let statusColorCode;
+  if (!!value) {
+    statusColorCode =
+      value?.toLowerCase() === "achieved"
+        ? "#00E272"
+        : value?.toLowerCase() === "not achieved"
+        ? "#FA4B42"
+        : value?.toLowerCase() === "at risk"
+        ? "#FFC000"
+        : "#000000";
+  }
+
+  return (
+    <div>
+      {value === null || value === "" || value === 0 || value === "0" ? (
+        "-"
+      ) : (
+        <div className="inline-block mr-1">
+          <div
+            className={"w-[10px] h-[10px] rounded-full inline-block mr-2 "}
+            style={{ backgroundColor: statusColorCode }}
+          ></div>
+          {value}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const generateEmailboxStatusColor = (value: any) => {
   const statusColorCode =
-    value.toLowerCase() === "not started"
+    value.toLowerCase() === "unprocessed"
       ? "#A5A5A5"
-      : value.toLowerCase() === "in progress"
+      : value.toLowerCase() === "inbox"
       ? "#4472C4"
-      : value.toLowerCase() === "waiting for client"
+      : value.toLowerCase() === "draft"
       ? "#FFC000"
-      : value.toLowerCase() === "in review"
+      : value.toLowerCase() === "approval"
       ? "#00B0F0"
-      : value.toLowerCase() === "closed"
+      : value.toLowerCase() === "junk"
       ? "#e5801c"
-      : value.toLowerCase() === "cancelled"
-      ? "#C00000"
-      : value.toLowerCase() === "re-open"
+      : value.toLowerCase() === "sent"
       ? "#833C0C"
       : value.toLowerCase() === "total"
       ? "#008080"
@@ -317,6 +345,32 @@ export const generateDateWithTime = (value: any) => {
           {value.split("T")[1]}
         </>
       )}
+    </div>
+  );
+};
+
+export const getTagDataForReport = (bodyValue: any) => {
+  return !!bodyValue && bodyValue.length <= 0 ? (
+    "-"
+  ) : (
+    <div className="flex items-center justify-start gap-2">
+      {!!bodyValue &&
+        bodyValue.map((item: string, index: number) => (
+          <div
+            key={index}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              backgroundColor: "#e0e0e0",
+              borderRadius: "12px",
+              padding: "4px 8px",
+              fontSize: "14px",
+              cursor: "default",
+            }}
+          >
+            <span>{item}</span>
+          </div>
+        ))}
     </div>
   );
 };

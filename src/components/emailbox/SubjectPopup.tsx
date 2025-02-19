@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { Avatar } from "@mui/material";
 import Feedback from "@/assets/icons/Feedback";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import { callAPI } from "@/utils/API/callAPI";
 
 const Red = ["A", "F", "K", "P", "U", "Z"];
 const Blue = ["B", "G", "L", "Q", "V"];
@@ -61,44 +62,31 @@ const SubjectPopup: React.FC<SubjectPopupProps> = ({
           (tableMeta.rowIndex <= 2
             ? 0
             : tableMeta.rowIndex >= 3 && tableMeta.rowIndex <= 4
-            ? 100
+            ? 120
             : tableMeta.rowIndex >= 5 && tableMeta.rowIndex <= 6
             ? 180
             : 200),
-        left: rect.left + 50,
+        left: rect.left + 20,
       });
     }
   }, [hoveredRow]);
 
-  const getData = () => {
-    setData({
-      TicketId: 188,
-      FromId: null,
-      UserName: "varun.vataliya@technomark.io",
-      EmailFrom: "varun.vataliya@technomark.io",
-      ReceivedOn: "18 February 2025 09:08 AM",
-      To: "varun.vataliya@technomark.io",
-      CC: "varun.vataliya@technomark.io",
-      BCC: "varun.vataliya@technomark.io",
-      PastTime: "5 hours ago",
-      PreviewText:
-        "Junk mail Testing-3 Varun Vataliya | Jr. Quality Analyst Email: varun.vataliya@technomark.io Phone: (808)838-4854 Address: Texas | California | Hawaii Sydney | Ahmedabad | Mumbai | Hyderabad www.technomark.io",
-    });
-    // const url = `${process.env.emailbox_api_url}/emailbox/getLastTrailPlainBody`;
+  const getData = (id: number) => {
+    const url = `${process.env.emailbox_api_url}/emailbox/getLastTrailPlainBody`;
 
-    // const successCallback = (
-    //   ResponseData: Response,
-    //   error: boolean,
-    //   ResponseStatus: string
-    // ) => {
-    //   if (ResponseStatus === "Success" && error === false) {
-    //     setData(ResponseData);
-    //   } else {
-    //     setData(null);
-    //   }
-    // };
+    const successCallback = (
+      ResponseData: Response,
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setData(ResponseData);
+      } else {
+        setData(null);
+      }
+    };
 
-    // callAPI(url, { TicketId: hoveredRow }, successCallback, "post");
+    callAPI(url, { TicketId: id }, successCallback, "post");
   };
 
   return (
@@ -155,10 +143,14 @@ const SubjectPopup: React.FC<SubjectPopupProps> = ({
             )}
             <span
               ref={feedbackRef}
-              className="text-gray-500 ml-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+              className={`text-gray-500 ml-3 transition-opacity duration-200 ${
+                hoveredRow !== null
+                  ? "opacity-100"
+                  : "opacity-0 group-hover:opacity-100"
+              }`}
               onMouseEnter={() => {
                 setHoveredRow(tableMeta.rowData[0]);
-                getData();
+                getData(tableMeta.rowData[0]);
               }}
               onMouseLeave={() => setHoveredRow(null)}
             >
@@ -178,6 +170,8 @@ const SubjectPopup: React.FC<SubjectPopupProps> = ({
               left: feedbackPosition.left,
               position: "absolute",
             }}
+            onMouseEnter={() => setHoveredRow(tableMeta.rowData[0])} // Keep it visible
+            onMouseLeave={() => setHoveredRow(null)} // Hide when mouse leaves
           >
             <div className="w-full rounded-lg flex items-start justify-start p-4 gap-4">
               <Avatar
@@ -239,9 +233,28 @@ const SubjectPopup: React.FC<SubjectPopupProps> = ({
                   </p>
                 )}
                 <p className="w-full">
-                  {!!data.PreviewText
-                    ? data.PreviewText
-                    : "No preview available."}
+                  {!!data.PreviewText && data.PreviewText.trim().length > 0 ? (
+                    <>
+                      {data.PreviewText}
+                      <p
+                        className="text-secondary cursor-pointer"
+                        onClick={() => {
+                          if (isDrawerOpen) {
+                            handleDrawerOpen?.();
+                            getId?.(
+                              tableMeta.rowData[0],
+                              tableMeta.rowData[tableMeta.rowData.length - 1]
+                            );
+                            setHoveredRow(null);
+                          }
+                        }}
+                      >
+                        View more...
+                      </p>
+                    </>
+                  ) : (
+                    "No preview available."
+                  )}
                 </p>
               </div>
             </div>

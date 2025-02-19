@@ -38,6 +38,12 @@ export const emailBoxStatusOptions = [
   { value: 7, label: "Reopen" },
 ];
 
+export const emailBoxSLAStatusOptions = [
+  { label: "Not Achieved", value: 1 },
+  { label: "Achieved", value: 2 },
+  { label: "At Risk", value: 3 },
+];
+
 export const natureOfErrorOptions = [
   {
     label: "Memo/Decriprion Not Updated",

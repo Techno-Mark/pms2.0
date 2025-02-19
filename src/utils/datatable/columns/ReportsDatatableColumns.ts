@@ -5,11 +5,14 @@ import {
   generateCustomHeaderName,
   generateDateWithTime,
   generateDateWithoutTime,
+  generateEmailboxSLAStatusWithColor,
+  generateEmailboxStatusWithColor,
   generateInitialTimer,
   generateIsLoggedInBodyRender,
   generatePriorityWithColor,
   generateRatingsBodyRender,
   generateStatusWithColor,
+  getTagDataForReport,
 } from "../CommonFunction";
 import { generateCustomColumn } from "../ColsGenerateFunctions";
 
@@ -831,6 +834,84 @@ const reportsErrorLogColConfig = [
   },
 ];
 
+const reportsEmailTypeColConfig = [
+  {
+    header: "TicketId",
+    label: "ID",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "SubjectName",
+    label: "Sub Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ClientName",
+    label: "Client Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "EmailType",
+    label: "Email Type",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "STD_SLA_Time",
+    label: "STD SLA Time",
+    bodyRenderer: generateDateWithTime,
+  },
+  {
+    header: "ActualTime",
+    label: "Actual Time",
+    bodyRenderer: generateDateWithTime,
+  },
+  {
+    header: "TagList",
+    label: "Tag",
+    bodyRenderer: getTagDataForReport,
+  },
+  {
+    header: "TicketStatusName",
+    label: "Ticket Status",
+    bodyRenderer: generateEmailboxStatusWithColor,
+  },
+  {
+    header: "SLAStatus",
+    label: "SLA Status",
+    bodyRenderer: generateEmailboxSLAStatusWithColor,
+  },
+  {
+    header: "ReceivedOn",
+    label: "Received On",
+    bodyRenderer: generateDateWithTime,
+  },
+  {
+    header: "OpenedTime",
+    label: "Opened Time",
+    bodyRenderer: generateDateWithTime,
+  },
+  {
+    header: "DueOn",
+    label: "Due On",
+    bodyRenderer: generateDateWithTime,
+  },
+  {
+    header: "AssignedToName",
+    label: "Assigned To",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ReportingManagerName",
+    label: "Reporting Manager",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "DepartmentNames",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+];
+
 const generateCustomizableCols = (
   column: {
     name: string;
@@ -964,6 +1045,10 @@ const reportsAMCols = reportsAMColConfig.map((col: any) =>
 );
 
 const reportsErrorLogCols = reportsErrorLogColConfig.map((col: any) =>
+  generateCustomColumn(col.header, col.label, col.bodyRenderer)
+);
+
+const reportsEmailTypeCols = reportsEmailTypeColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
 
@@ -1113,4 +1198,5 @@ export {
   reportsKRACols,
   reportsAMCols,
   reportsErrorLogCols,
+  reportsEmailTypeCols,
 };

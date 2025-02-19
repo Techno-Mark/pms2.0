@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 import Datatable_SLA from "../Datatables/Datatable_SLA";
+import { emailBoxSLAStatusOptions } from "@/utils/staticDropdownData";
 
 interface ErrorlogDialogProps {
   onOpen: boolean;
@@ -33,11 +34,6 @@ const Dialog_SLA = ({
 }: ErrorlogDialogProps) => {
   const [slaStatus, setSLAStatus] = useState<number>(0);
   const [isExporting, setIsExporting] = useState<boolean>(false);
-  const allSLAStatus = [
-    { label: "Not Achieved", value: 1 },
-    { label: "Achieved", value: 2 },
-    { label: "At Risk", value: 3 },
-  ];
 
   useEffect(() => {
     onOpen && setSLAStatus(onSelectedSLA);
@@ -142,7 +138,7 @@ const Dialog_SLA = ({
                 onChange={(e) => setSLAStatus(Number(e.target.value))}
                 sx={{ height: "36px" }}
               >
-                {allSLAStatus.map((i: { label: string; value: number }) => (
+                {emailBoxSLAStatusOptions.map((i: { label: string; value: number }) => (
                   <MenuItem value={i.value} key={i.label}>
                     {i.label}
                   </MenuItem>

@@ -71,7 +71,18 @@ const Dialog_EmailType = ({
   };
 
   const getAllStatus = async () => {
-    setAllEmailType(await getEmailTypeData());
+    const data = await getEmailTypeData();
+    setAllEmailType([
+      {
+        label: "All",
+        value: 0,
+      },
+      ...data,
+      {
+        label: "Un-categorized",
+        value: -1,
+      },
+    ]);
   };
 
   useEffect(() => {

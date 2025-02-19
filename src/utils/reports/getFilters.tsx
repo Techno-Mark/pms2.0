@@ -269,6 +269,28 @@ export const errorLog_InitialFilter = {
   IsDownload: false,
 };
 
+export const emailType_InitialFilter = {
+  PageNo: 1,
+  PageSize: 10,
+  SortColumn: "",
+  IsDesc: true,
+  GlobalSearch: "",
+  IsDownload: false,
+  ClientId: null,
+  DepartmentId: null,
+  EmailType: null,
+  Tags: null,
+  TicketStatus: null,
+  SlaStatus: null,
+  ReportingManagerId: null,
+  ReceivedFrom: null,
+  ReceivedTo: null,
+  DueFrom: null,
+  DueTo: null,
+  OpenFrom: null,
+  OpenTo: null,
+};
+
 export const getCurrentTabDetails = (activeTab: number, getBody?: boolean) => {
   if (activeTab === 1) {
     return getBody ? client_project_InitialFilter : "project";
@@ -320,5 +342,8 @@ export const getCurrentTabDetails = (activeTab: number, getBody?: boolean) => {
   }
   if (activeTab === 17) {
     return getBody ? errorLog_InitialFilter : "errorLog";
+  }
+  if (activeTab === 18) {
+    return getBody ? emailType_InitialFilter : "emailType";
   }
 };

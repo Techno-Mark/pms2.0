@@ -192,7 +192,7 @@ const Page = () => {
     });
   const [dashboardEmailboxSummary, setDashboardEmailboxSummary] = useState<
     {
-      Status: string;
+      TabName: string;
       Count: number;
     }[]
   >([]);
@@ -430,56 +430,174 @@ const Page = () => {
   };
 
   const getSummary = async () => {
-    const workTypeIdFromLocalStorage =
-      typeof localStorage !== "undefined"
-        ? localStorage.getItem("workTypeId")
-        : 3;
-    const params = {
-      Clients: currentFilterData.Clients,
-      WorkTypeId:
-        currentFilterData.WorkTypeId === null
-          ? Number(workTypeIdFromLocalStorage)
-          : currentFilterData.WorkTypeId,
-      DepartmentIds: currentFilterData.DepartmentIds,
-      AssigneeIds: currentFilterData.AssigneeIds,
-      ReviewerIds: currentFilterData.ReviewerIds,
-      StartDate: currentFilterData.StartDate,
-      EndDate: currentFilterData.EndDate,
-    };
-    const url = `${process.env.emailbox_api_url}/dashboard/GetDashboardWidgetsCounts`;
-    const successCallback = (
-      ResponseData: {
-        TicketCounts: {
-          Status: string;
-          Count: number;
-        }[];
-        EmailTypeCounts: {
-          Type: number;
-          EmailTypeCount: number;
-          EmailType: string;
-          CountInPercentage: number;
-        }[];
-        PriorityCounts: {
-          Priority: string;
-          Count: number;
-        }[];
-        SLACounts: {
-          Type: number;
-          SLAType: string;
-          Count: number;
-          CountInPercentage: number;
-        }[];
+    // const params = {
+    //   ClientId: currentFilterData.Clients,
+    //   DepartmentId: currentFilterData.DepartmentIds,
+    //   AssignTo: currentFilterData.AssigneeIds,
+    //   ReportingManagerId: currentFilterData.ReviewerIds,
+    //   StartDate: currentFilterData.StartDate,
+    //   EndDate: currentFilterData.EndDate,
+    // };
+    // const url = `${process.env.emailbox_api_url}/dashboard/GetDashboardWidgetsCounts`;
+    // const successCallback = (
+    //   ResponseData: {
+    //     TicketMetricsCounts: {
+    //       TabName: string;
+    //       Count: number;
+    //     }[];
+    //     TicketStatusCounts: {
+    //       Type: number;
+    //       StatusType: string;
+    //       Count: number;
+    //       CountInPercentage: number;
+    //     }[];
+    //     EmailTypeCounts: {
+    //       Type: number;
+    //       EmailTypeCount: number;
+    //       EmailType: string;
+    //       CountInPercentage: number;
+    //     }[];
+    //     PriorityCounts: {
+    //       Type: number;
+    //       Priority: string;
+    //       Count: number;
+    //       CountInPercentage: number;
+    //     }[];
+    //     SLACounts: {
+    //       Type: number;
+    //       SLAType: string;
+    //       Count: number;
+    //       CountInPercentage: number;
+    //     }[];
+    //   },
+    //   error: boolean,
+    //   ResponseStatus: string
+    // ) => {
+    //   if (ResponseStatus === "Success" && error === false) {
+    //     setDashboardEmailboxSummary(ResponseData.TicketCounts);
+    //     setDashboardEmailboxEmailTypeCounts(ResponseData.EmailTypeCounts);
+    //     setDashboardEmailboxSLACounts(ResponseData.SLACounts);
+    //   }
+    // };
+    // callAPI(url, params, successCallback, "POST");
+    const dashboardEmailboxSummary = [
+      {
+        TabName: "Approval",
+        Count: 14,
       },
-      error: boolean,
-      ResponseStatus: string
-    ) => {
-      if (ResponseStatus === "Success" && error === false) {
-        setDashboardEmailboxSummary(ResponseData.TicketCounts);
-        setDashboardEmailboxEmailTypeCounts(ResponseData.EmailTypeCounts);
-        setDashboardEmailboxSLACounts(ResponseData.SLACounts);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
+      {
+        TabName: "Draft",
+        Count: 9,
+      },
+      {
+        TabName: "Inbox",
+        Count: 167,
+      },
+      {
+        TabName: "Junk",
+        Count: 21,
+      },
+      {
+        TabName: "Sent",
+        Count: 17,
+      },
+      {
+        TabName: "Unprocessed",
+        Count: 168,
+      },
+    ];
+
+    const totalCount = dashboardEmailboxSummary.reduce(
+      (sum, item) => sum + item.Count,
+      0
+    );
+
+    setDashboardEmailboxSummary([
+      ...dashboardEmailboxSummary,
+      { TabName: "Total", Count: totalCount },
+    ]);
+    setDashboardEmailboxEmailTypeCounts([
+      {
+        Type: 16,
+        EmailTypeCount: 12,
+        EmailType: "TLTYpe",
+        CountInPercentage: 1.05,
+      },
+      {
+        Type: 2,
+        EmailTypeCount: 75,
+        EmailType: "Invoice1",
+        CountInPercentage: 6.58,
+      },
+      {
+        Type: 4,
+        EmailTypeCount: 21,
+        EmailType: "Billing",
+        CountInPercentage: 1.84,
+      },
+      {
+        Type: 6,
+        EmailTypeCount: 11,
+        EmailType: "Tax",
+        CountInPercentage: 0.97,
+      },
+      {
+        Type: 15,
+        EmailTypeCount: 100,
+        EmailType: "ironman",
+        CountInPercentage: 8.78,
+      },
+      {
+        Type: 5,
+        EmailTypeCount: 412,
+        EmailType: "Amount",
+        CountInPercentage: 36.17,
+      },
+      {
+        Type: 14,
+        EmailTypeCount: 120,
+        EmailType: "Technomark",
+        CountInPercentage: 10.54,
+      },
+      {
+        Type: 13,
+        EmailTypeCount: 141,
+        EmailType: "Bill",
+        CountInPercentage: 12.38,
+      },
+      {
+        Type: 7,
+        EmailTypeCount: 10,
+        EmailType: "TaxRate",
+        CountInPercentage: 0.88,
+      },
+      {
+        Type: -1,
+        EmailTypeCount: 237,
+        EmailType: "Un-categorized",
+        CountInPercentage: 20.81,
+      },
+    ]);
+    setDashboardEmailboxSLACounts([
+      {
+        Type: 1,
+        SLAType: "Achieved",
+        Count: 22,
+        CountInPercentage: 7.1,
+      },
+      {
+        Type: 2,
+        SLAType: "Not Achieved",
+        Count: 288,
+        CountInPercentage: 92.9,
+      },
+      {
+        Type: 3,
+        SLAType: "At Risk",
+        Count: 0,
+        CountInPercentage: 0,
+      },
+    ]);
   };
 
   useEffect(() => {
@@ -512,13 +630,12 @@ const Page = () => {
   const statusIconMappingForEmailbox: { [key: number | string]: JSX.Element } =
     {
       Total: <PlaylistAddCheckOutlinedIcon />,
-      "Not Started": <PendingActionsOutlinedIcon />,
-      "In Progress": <InPreparation />,
-      "In Review": <InReview />,
-      "Waiting For Client": <PauseCircleOutlineOutlinedIcon />,
-      Closed: <Withdraw_Outlined />,
-      Cancelled: <CancelOutlinedIcon />,
-      "Re-Open": <RestorePageOutlinedIcon />,
+      Unprocessed: <PendingActionsOutlinedIcon />,
+      Inbox: <InPreparation />,
+      Approval: <InReview />,
+      Draft: <PauseCircleOutlineOutlinedIcon />,
+      Junk: <Withdraw_Outlined />,
+      Sent: <RestorePageOutlinedIcon />,
     };
 
   const exportSummaryReport = async () => {
@@ -883,26 +1000,26 @@ const Page = () => {
             {dashboardEmailboxSummary &&
               dashboardEmailboxSummary
                 .slice(0, 4)
-                .map((item: { Status: string; Count: number }, index) => (
+                .map((item: { TabName: string; Count: number }, index) => (
                   <Grid xs={2.9} item key={index}>
                     <Card
                       className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
                       style={{
-                        borderColor: generateEmailboxStatusColor(item.Status),
+                        borderColor: generateEmailboxStatusColor(item.TabName),
                       }}
                     >
                       <div className="flex p-[20px] items-center">
                         <span
                           style={{
-                            color: generateEmailboxStatusColor(item.Status),
+                            color: generateEmailboxStatusColor(item.TabName),
                           }}
                           className={`border-r border-lightSilver pr-[20px]`}
                         >
-                          {statusIconMappingForEmailbox[item.Status]}
+                          {statusIconMappingForEmailbox[item.TabName]}
                         </span>
                         <div className="inline-flex flex-col items-start pl-[20px]">
                           <span className="text-[14px] font-normal text-darkCharcoal">
-                            {item.Status}
+                            {item.TabName}
                           </span>
                           <span className="text-[20px] text-slatyGrey font-semibold">
                             {item.Count}
@@ -922,26 +1039,26 @@ const Page = () => {
             {dashboardEmailboxSummary &&
               dashboardEmailboxSummary
                 .slice(4, 8)
-                .map((item: { Status: string; Count: number }, index) => (
+                .map((item: { TabName: string; Count: number }, index) => (
                   <Grid xs={2.9} item key={index}>
                     <Card
                       className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
                       style={{
-                        borderColor: generateEmailboxStatusColor(item.Status),
+                        borderColor: generateEmailboxStatusColor(item.TabName),
                       }}
                     >
                       <div className="flex p-[20px] items-center">
                         <span
                           style={{
-                            color: generateEmailboxStatusColor(item.Status),
+                            color: generateEmailboxStatusColor(item.TabName),
                           }}
                           className={`border-r border-lightSilver pr-[20px]`}
                         >
-                          {statusIconMappingForEmailbox[item.Status]}
+                          {statusIconMappingForEmailbox[item.TabName]}
                         </span>
                         <div className="inline-flex flex-col items-start pl-[20px]">
                           <span className="text-[14px] font-normal text-darkCharcoal">
-                            {item.Status}
+                            {item.TabName}
                           </span>
                           <span className="text-[20px] text-slatyGrey font-semibold">
                             {item.Count}

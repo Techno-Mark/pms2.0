@@ -63,6 +63,8 @@ import { DialogTransition } from "@/utils/style/DialogTransition";
 import ErrorLogReport from "@/components/reports/tables/ErrorLogReport";
 import ErrorLogReportFilter from "@/components/reports/Filter/ErrorLogReportFilter";
 import WrapperNavbar from "@/components/common/WrapperNavbar";
+import EmailTypeReport from "@/components/reports/tables/EmailTypeReport";
+import EmailTypeReportFilter from "@/components/reports/Filter/EmailTypeReportFilter";
 
 interface Tabs {
   label: string;
@@ -88,6 +90,7 @@ const allTabs = [
   { label: "auto/manual", value: 15, name: "Auto/Manual" },
   { label: "wltr", value: 16, name: "WLTR" },
   { label: "errorlog", value: 17, name: "Error Log" },
+  { label: "errorlog", value: 18, name: "Email Type" },
 ];
 
 interface MoreTabs {
@@ -108,12 +111,12 @@ const MoreTabs = ({ moreTabs, handleMoreTabsClick }: MoreTabs) => {
         .map((tab: Tabs, index: number) => (
           <div
             key={tab.value}
-            className={`py-2 w-full hover:bg-[#0000000e] ${
+            className={`py-1 w-full hover:bg-[#0000000e] ${
               index === 0 ? "rounded-t" : ""
             } ${index === moreTabs.length - 1 ? "rounded-b" : ""}`}
             onClick={() => handleMoreTabsClick(tab, index)}
           >
-            <label className={`mx-4 my-[2px] flex cursor-pointer text-base`}>
+            <label className={`mx-4 my-[3px] flex cursor-pointer text-base`}>
               {tab.name}
             </label>
           </div>
@@ -634,6 +637,14 @@ const Page = () => {
         />
       )}
 
+      {activeTab === 18 && (
+        <EmailTypeReport
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onHandleExport={handleCanExport}
+        />
+      )}
+
       {/* tabs filter */}
       {activeTab === 1 && (
         <ProjectReportFilter
@@ -755,6 +766,13 @@ const Page = () => {
       )}
       {activeTab === 17 && (
         <ErrorLogReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 18 && (
+        <EmailTypeReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}
