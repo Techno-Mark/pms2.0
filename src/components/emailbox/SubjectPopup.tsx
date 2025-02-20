@@ -209,7 +209,7 @@ const SubjectPopup: React.FC<SubjectPopupProps> = ({
                     }`}
                   >
                     <b>{data.UserName}</b>
-                    <span>{data.ReceivedOn}</span>
+                    <span>{data.ReceivedOn} ({data.PastTime})</span>
                   </p>
                 </div>
                 {!!data.EmailFrom && (
