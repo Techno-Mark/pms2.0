@@ -6,11 +6,10 @@ import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardEmailTypeCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
-import ReportLoader from "@/components/common/ReportLoader";
 
-interface EmailTypeProps {
+interface ErrorlogProps {
   currentFilterData: DashboardInitialFilter;
-  onCurrentSelectedEmailType: number | null;
+  onSelectedPriority: number | null;
 }
 
 interface List {
@@ -34,13 +33,13 @@ interface List {
   Department: string | null;
 }
 
-const Datatable_EmailType = ({
+const Datatable_Priority = ({
   currentFilterData,
-  onCurrentSelectedEmailType,
-}: EmailTypeProps) => {
-  const [data, setData] = useState<any[]>([]);
+  onSelectedPriority,
+}: ErrorlogProps) => {
+  const [data, setData] = useState<List[] | []>([]);
 
-  const getEmailTypeData = async () => {
+  const getErrorlogPriorityData = async () => {
     const params = {
       ClientId:
         !!currentFilterData.Clients && currentFilterData.Clients.length > 0
@@ -64,9 +63,9 @@ const Datatable_EmailType = ({
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,
       IsDownload: false,
-      Type: onCurrentSelectedEmailType,
+      Type: onSelectedPriority,
     };
-    const url = `${process.env.emailbox_api_url}/dashboard/GetEmailTypeDetailsForDashboard`;
+    const url = `${process.env.emailbox_api_url}/dashboard/GetPriorityDetailsForDashboard`;
     const successCallback = (
       ResponseData: List[],
       error: boolean,
@@ -81,13 +80,15 @@ const Datatable_EmailType = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      onCurrentSelectedEmailType !== null && (await getEmailTypeData());
+      if (onSelectedPriority !== null) {
+        await getErrorlogPriorityData();
+      }
     };
     const timer = setTimeout(() => {
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [currentFilterData, onCurrentSelectedEmailType]);
+  }, [currentFilterData, onSelectedPriority]);
 
   return (
     <div>
@@ -97,11 +98,11 @@ const Datatable_EmailType = ({
           columns={adminDashboardEmailTypeCols}
           title={undefined}
           options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
-          data-tableid="taskStatusInfo_Datatable"
+          data-tableid="ProjectStatusList_Datatable"
         />
       </ThemeProvider>
     </div>
   );
 };
 
-export default Datatable_EmailType;
+export default Datatable_Priority;

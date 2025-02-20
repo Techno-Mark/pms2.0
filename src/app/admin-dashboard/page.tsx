@@ -62,6 +62,10 @@ import Dialog_EmailType from "@/components/admin-dashboard/dialog/Dialog_EmailTy
 import Chart_SLA from "@/components/admin-dashboard/charts/Chart_SLA";
 import Dialog_SLA from "@/components/admin-dashboard/dialog/Dialog_SLA";
 import FilterModel from "@/components/admin-dashboard/FilterModel";
+import Chart_Status from "@/components/admin-dashboard/charts/Chart_Status";
+import Chart_EmailPriority from "@/components/admin-dashboard/charts/Chart_EmailPriority";
+import Dialog_Status from "@/components/admin-dashboard/dialog/Dialog_Status";
+import Dialog_Priority from "@/components/admin-dashboard/dialog/Dialog_Priority";
 
 interface ClientSummaryStatus {
   ClientName: string;
@@ -147,12 +151,17 @@ const Page = () => {
   const [isEmailTypeDialogOpen, setIsEmailTypeDialogOpen] =
     useState<boolean>(false);
   const [isSLADialogOpen, setIsSLADialogOpen] = useState<boolean>(false);
+  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState<boolean>(false);
+  const [isPriorityDialogOpen, setIsPriorityDialogOpen] =
+    useState<boolean>(false);
   const [isSummaryDialogOpen, setIsSummaryDialogOpen] =
     useState<boolean>(false);
   const [clickedProjectStatusName, setClickedProjectStatusName] =
     useState<number>(0);
   const [clickedErrorlog, setClickedErrorlog] = useState<number>(0);
   const [clickedSLA, setClickedSLA] = useState<number>(0);
+  const [clickedStatus, setClickedStatus] = useState<number>(0);
+  const [clickedPriority, setClickedPriority] = useState<number>(0);
   const [clickedEmailType, setClickedEmailType] = useState<string>("");
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [clickedBillingTypeName, setClickedBillingTypeName] =
@@ -211,6 +220,22 @@ const Page = () => {
     {
       Type: number;
       SLAType: string;
+      Count: number;
+      CountInPercentage: number;
+    }[]
+  >([]);
+  const [dashboardEmailboxStatus, setDashboardEmailboxStatus] = useState<
+    {
+      Type: number;
+      StatusType: string;
+      Count: number;
+      CountInPercentage: number;
+    }[]
+  >([]);
+  const [dashboardEmailboxPriority, setDashboardEmailboxPriority] = useState<
+    {
+      Type: number;
+      Priority: string;
       Count: number;
       CountInPercentage: number;
     }[]
@@ -306,6 +331,22 @@ const Page = () => {
   ) => {
     setIsSLADialogOpen(isDialogOpen);
     setClickedSLA(selectedPointData);
+  };
+
+  const handleValueFromStatus = (
+    isDialogOpen: boolean,
+    selectedPointData: number
+  ) => {
+    setIsStatusDialogOpen(isDialogOpen);
+    setClickedStatus(selectedPointData);
+  };
+
+  const handleValueFromPriority = (
+    isDialogOpen: boolean,
+    selectedPointData: number
+  ) => {
+    setIsPriorityDialogOpen(isDialogOpen);
+    setClickedPriority(selectedPointData);
   };
 
   useEffect(() => {
@@ -477,6 +518,8 @@ const Page = () => {
     //     setDashboardEmailboxSummary(ResponseData.TicketCounts);
     //     setDashboardEmailboxEmailTypeCounts(ResponseData.EmailTypeCounts);
     //     setDashboardEmailboxSLACounts(ResponseData.SLACounts);
+    //     setDashboardEmailboxStatus(ResponseData.TicketStatusCounts);
+    //     setDashboardEmailboxPriority(ResponseData.PriorityCounts);
     //   }
     // };
     // callAPI(url, params, successCallback, "POST");
@@ -596,6 +639,76 @@ const Page = () => {
         SLAType: "At Risk",
         Count: 0,
         CountInPercentage: 0,
+      },
+    ]);
+    setDashboardEmailboxStatus([
+      {
+        Type: 1,
+        StatusType: "Not Started",
+        Count: 1097,
+        CountInPercentage: 74.52,
+      },
+      {
+        Type: 2,
+        StatusType: "In Progress",
+        Count: 202,
+        CountInPercentage: 13.72,
+      },
+      {
+        Type: 3,
+        StatusType: "In Review",
+        Count: 140,
+        CountInPercentage: 9.51,
+      },
+      {
+        Type: 4,
+        StatusType: "Waiting For Client",
+        Count: 5,
+        CountInPercentage: 0.34,
+      },
+      {
+        Type: 5,
+        StatusType: "Closed",
+        Count: 0,
+        CountInPercentage: 0,
+      },
+      {
+        Type: 6,
+        StatusType: "Cancelled",
+        Count: 0,
+        CountInPercentage: 0,
+      },
+      {
+        Type: 7,
+        StatusType: "Re-Open",
+        Count: 28,
+        CountInPercentage: 1.9,
+      },
+    ]);
+    setDashboardEmailboxPriority([
+      {
+        Type: 1,
+        Priority: "High",
+        Count: 295,
+        CountInPercentage: 20.04,
+      },
+      {
+        Type: 2,
+        Priority: "Medium",
+        Count: 52,
+        CountInPercentage: 3.53,
+      },
+      {
+        Type: 3,
+        Priority: "Low",
+        Count: 20,
+        CountInPercentage: 1.36,
+      },
+      {
+        Type: 4,
+        Priority: "NoPriority",
+        Count: 1105,
+        CountInPercentage: 75.07,
       },
     ]);
   };
@@ -1085,7 +1198,24 @@ const Page = () => {
               <Chart_SLA
                 dashboardEmailboxSLACounts={dashboardEmailboxSLACounts}
                 sendData={handleValueFromSLA}
-                onSelectedProjectIds={[]}
+                currentFilterData={currentFilterData}
+              />
+            </Card>
+          </section>
+
+          {/* status and priority Charts */}
+          <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
+            <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
+              <Chart_Status
+                dashboardEmailboxStatus={dashboardEmailboxStatus}
+                sendData={handleValueFromStatus}
+                currentFilterData={currentFilterData}
+              />
+            </Card>
+            <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
+              <Chart_EmailPriority
+                dashboardEmailboxPriority={dashboardEmailboxPriority}
+                sendData={handleValueFromPriority}
                 currentFilterData={currentFilterData}
               />
             </Card>
@@ -1107,7 +1237,10 @@ const Page = () => {
       {dashboardActiveTab === 1 && (
         <Dialog_TaskStatus
           onOpen={isTaskStatusDialogOpen}
-          onClose={() => setIsTaskStatusDialogOpen(false)}
+          onClose={() => {
+            setIsTaskStatusDialogOpen(false);
+            setClickedStatusName("");
+          }}
           currentFilterData={currentFilterData}
           onSelectedStatusName={clickedStatusName}
         />
@@ -1117,7 +1250,10 @@ const Page = () => {
       {dashboardActiveTab === 1 && (
         <Dialog_BillingType
           onOpen={isBillingTypeDialogOpen}
-          onClose={() => setIsBillingTypeDialogOpen(false)}
+          onClose={() => {
+            setIsBillingTypeDialogOpen(false);
+            setClickedBillingTypeName("");
+          }}
           currentFilterData={currentFilterData}
           onSelectedStatusName={clickedBillingTypeName}
         />
@@ -1138,7 +1274,10 @@ const Page = () => {
       {dashboardActiveTab === 1 && (
         <Dialog_Errorlog
           onOpen={isErrorlogDialogOpen}
-          onClose={() => setIsErrorlogDialogOpen(false)}
+          onClose={() => {
+            setIsErrorlogDialogOpen(false);
+            setClickedErrorlog(0);
+          }}
           currentFilterData={currentFilterData}
           onSelectedErrorlog={clickedErrorlog}
           onSelectedProjectIds={[]}
@@ -1149,7 +1288,10 @@ const Page = () => {
       {dashboardActiveTab === 2 && (
         <Dialog_EmailType
           onOpen={isEmailTypeDialogOpen}
-          onClose={() => setIsEmailTypeDialogOpen(false)}
+          onClose={() => {
+            setIsEmailTypeDialogOpen(false);
+            setClickedEmailType("");
+          }}
           currentFilterData={currentFilterData}
           onSelectedStatusName={clickedEmailType}
         />
@@ -1159,9 +1301,38 @@ const Page = () => {
       {dashboardActiveTab === 2 && (
         <Dialog_SLA
           onOpen={isSLADialogOpen}
-          onClose={() => setIsSLADialogOpen(false)}
+          onClose={() => {
+            setIsSLADialogOpen(false);
+            setClickedSLA(0);
+          }}
           currentFilterData={currentFilterData}
           onSelectedSLA={clickedSLA}
+        />
+      )}
+
+      {/* Status Dialog & Datatable */}
+      {dashboardActiveTab === 2 && (
+        <Dialog_Status
+          onOpen={isStatusDialogOpen}
+          onClose={() => {
+            setIsStatusDialogOpen(false);
+            setClickedStatus(0);
+          }}
+          currentFilterData={currentFilterData}
+          onSelectedStatus={clickedStatus}
+        />
+      )}
+
+      {/* Priority Dialog & Datatable */}
+      {dashboardActiveTab === 2 && (
+        <Dialog_Priority
+          onOpen={isPriorityDialogOpen}
+          onClose={() => {
+            setIsPriorityDialogOpen(false);
+            setClickedPriority(0);
+          }}
+          currentFilterData={currentFilterData}
+          onSelectedPriority={clickedPriority}
         />
       )}
 

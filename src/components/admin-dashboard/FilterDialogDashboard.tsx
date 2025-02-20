@@ -3,8 +3,10 @@ import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 import { LabelValue, LabelValueType } from "@/utils/Types/types";
 import {
   getAssigneeDropdownDataByHierarchy,
+  getCCDropdownData,
   getClientDropdownData,
   getDepartmentDropdownData,
+  getGroupWiseRMDropdownData,
   getReviewerDropdownDataByHierarchy,
   getStatusDropdownData,
   getTypeOfWorkDropdownData,
@@ -157,6 +159,11 @@ const FilterDialogDashboard = ({
     setReviewerDropdown(await getReviewerDropdownDataByHierarchy(workType));
   };
 
+  const getDropdownsForEmailbox = async () => {
+    setAssigneeDropdown(await getCCDropdownData());
+    setReviewerDropdown(await getGroupWiseRMDropdownData(0, 0));
+  };
+
   useEffect(() => {
     const customDropdowns = async () => {
       setStatusDropdown(await getStatusDropdownData(workTypeActive?.value));
@@ -169,8 +176,15 @@ const FilterDialogDashboard = ({
   }, [workTypeActive]);
 
   useEffect(() => {
-    workTypeActive !== null && workType > 0 && getDropdowns(workType);
-  }, [workTypeActive, workType]);
+    workTypeActive !== null &&
+      workType > 0 &&
+      dashboardActiveTab === 1 &&
+      getDropdowns(workType);
+  }, [workTypeActive, workType, dashboardActiveTab]);
+
+  useEffect(() => {
+    dashboardActiveTab === 2 && getDropdownsForEmailbox();
+  }, [dashboardActiveTab]);
 
   useEffect(() => {
     onOpen && getDropdownData();

@@ -14,7 +14,6 @@ import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 
 interface BillingTypeProps {
   currentFilterData: DashboardInitialFilter;
-  onSelectedStatusName: string;
   onCurrentSelectedBillingType: number | null;
   onSearchValue: string;
   isClose: boolean;
@@ -40,7 +39,6 @@ interface Response {
 
 const Datatable_BillingType = ({
   currentFilterData,
-  onSelectedStatusName,
   onCurrentSelectedBillingType,
   onSearchValue,
   isClose,
@@ -110,12 +108,11 @@ const Datatable_BillingType = ({
       }
     };
     const timer = setTimeout(() => {
-      fetchData();
+      onCurrentSelectedBillingType !== null && fetchData();
     }, 500);
     return () => clearTimeout(timer);
   }, [
     currentFilterData,
-    onSelectedStatusName,
     onCurrentSelectedBillingType,
     onSearchValue,
     page,

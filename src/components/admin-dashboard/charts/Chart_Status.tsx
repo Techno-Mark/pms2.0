@@ -3,6 +3,7 @@ import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import HighchartsVariablePie from "highcharts/modules/variable-pie";
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
+import { generateEmailboxStatusOnlyColor } from "@/utils/datatable/CommonFunction";
 
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
@@ -10,37 +11,30 @@ if (typeof Highcharts === "object") {
 
 interface chartData {
   Type: number;
-  SLAType: string;
+  StatusType: string;
   Count: number;
   CountInPercentage: number;
 }
 
 interface ChartProjectStatusProps {
-  dashboardEmailboxSLACounts: chartData[];
+  dashboardEmailboxStatus: chartData[];
   currentFilterData: DashboardInitialFilter;
   sendData: (isDialogOpen: boolean, selectedPointData: number) => void;
 }
 
-const Chart_SLA = ({
-  dashboardEmailboxSLACounts,
+const Chart_Status = ({
+  dashboardEmailboxStatus,
   currentFilterData,
   sendData,
 }: ChartProjectStatusProps) => {
   const [data, setData] = useState<any[]>([]);
 
   const getProjectStatusData = async () => {
-    const chartData = dashboardEmailboxSLACounts.map((item: chartData) => ({
-      name: item.SLAType,
+    const chartData = dashboardEmailboxStatus.map((item: chartData) => ({
+      name: item.StatusType,
       y: item.Count,
       z: item.CountInPercentage,
-      ColorCode:
-        item.SLAType?.toLowerCase() === "achieved"
-          ? "#00E272"
-          : item.SLAType?.toLowerCase() === "not achieved"
-          ? "#FA4B42"
-          : item.SLAType?.toLowerCase() === "at risk"
-          ? "#FFC000"
-          : "#000000",
+      ColorCode: generateEmailboxStatusOnlyColor(item.StatusType),
       Type: item.Type,
     }));
 
@@ -55,7 +49,7 @@ const Chart_SLA = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [currentFilterData, dashboardEmailboxSLACounts]);
+  }, [currentFilterData, dashboardEmailboxStatus]);
 
   const drilldownData = data;
 
@@ -139,7 +133,7 @@ const Chart_SLA = ({
   return (
     <div className="flex flex-col px-[20px]">
       <span className="flex items-start pt-[30px] px-[10px] text-lg font-medium">
-        SLA Tickets
+        Ticket Created - By Status
       </span>
       <div className="flex justify-between relative">
         <div>
@@ -150,4 +144,4 @@ const Chart_SLA = ({
   );
 };
 
-export default Chart_SLA;
+export default Chart_Status;

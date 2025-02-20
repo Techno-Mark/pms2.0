@@ -17,7 +17,6 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 import Datatable_SLA from "../Datatables/Datatable_SLA";
-import { emailBoxSLAStatusOptions } from "@/utils/staticDropdownData";
 
 interface ErrorlogDialogProps {
   onOpen: boolean;
@@ -32,16 +31,16 @@ const Dialog_SLA = ({
   currentFilterData,
   onSelectedSLA,
 }: ErrorlogDialogProps) => {
-  const [slaStatus, setSLAStatus] = useState<number>(0);
+  const [slaStatus, setSLAStatus] = useState<number | null>(null);
   const [isExporting, setIsExporting] = useState<boolean>(false);
 
   useEffect(() => {
-    onOpen && setSLAStatus(onSelectedSLA);
+    onOpen && onSelectedSLA > 0 && setSLAStatus(onSelectedSLA);
   }, [onOpen]);
 
   const handleClose = () => {
     onClose();
-    setSLAStatus(0);
+    setSLAStatus(null);
   };
 
   const exportTaskStatusListReport = async () => {
@@ -57,6 +56,11 @@ const Dialog_SLA = ({
           ClientId:
             !!currentFilterData.Clients && currentFilterData.Clients.length > 0
               ? currentFilterData.Clients
+              : null,
+          DepartmentId:
+            !!currentFilterData.DepartmentIds &&
+            currentFilterData.DepartmentIds.length > 0
+              ? currentFilterData.DepartmentIds
               : null,
           AssignTo:
             !!currentFilterData.AssigneeIds &&
@@ -98,7 +102,7 @@ const Dialog_SLA = ({
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `Task_Status_report.xlsx`;
+        a.download = `EmailBox_SLA_report.xlsx`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -134,17 +138,20 @@ const Dialog_SLA = ({
               <Select
                 labelId="SLA Type"
                 id="SLA Type"
-                value={slaStatus ? slaStatus : 0}
+                value={slaStatus !== null ? slaStatus : null}
                 onChange={(e) => setSLAStatus(Number(e.target.value))}
                 sx={{ height: "36px" }}
               >
-                {[{ label: "All", value: 0 }, ...emailBoxSLAStatusOptions].map(
-                  (i: { label: string; value: number }) => (
-                    <MenuItem value={i.value} key={i.label}>
-                      {i.label}
-                    </MenuItem>
-                  )
-                )}
+                {[
+                  { label: "All", value: 0 },
+                  { label: "SLA Achieved", value: 2 },
+                  { label: "At Risk", value: 3 },
+                  { label: "SLA Not Achieved", value: 1 },
+                ].map((i: { label: string; value: number }) => (
+                  <MenuItem value={i.value} key={i.label}>
+                    {i.label}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
             <ColorToolTip title="Export" placement="top" arrow>
@@ -160,7 +167,13 @@ const Dialog_SLA = ({
           </div>
           <Datatable_SLA
             currentFilterData={currentFilterData}
-            onSelectedSLA={slaStatus >= 0 ? slaStatus : onSelectedSLA}
+            onSelectedSLA={
+              slaStatus !== null
+                ? slaStatus
+                : onSelectedSLA > 0
+                ? onSelectedSLA
+                : null
+            }
           />
         </DialogContent>
       </Dialog>

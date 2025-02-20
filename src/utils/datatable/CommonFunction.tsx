@@ -238,6 +238,42 @@ export const generateEmailboxStatusWithColor = (value: any) => {
   );
 };
 
+export const generateEmailboxStatusOnlyColor = (value: any) => {
+  const statusColorCode =
+    value.toLowerCase() === "not started"
+      ? "#A5A5A5"
+      : value.toLowerCase() === "in progress"
+      ? "#4472C4"
+      : value.toLowerCase() === "waiting for client"
+      ? "#FFC000"
+      : value.toLowerCase() === "in review"
+      ? "#00B0F0"
+      : value.toLowerCase() === "closed"
+      ? "#e5801c"
+      : value.toLowerCase() === "canceled"
+      ? "#C00000"
+      : value.toLowerCase() === "reopen" || value.toLowerCase() === "re-open"
+      ? "#833C0C"
+      : "#D8D8D8";
+
+  return statusColorCode;
+};
+
+export const generateEmailboxPriorityOnlyColor = (value: any) => {
+  const priorityColorCode =
+    value.toLowerCase() === "high"
+      ? "#DC3545"
+      : value.toLowerCase() === "medium"
+      ? "#FFC107"
+      : value.toLowerCase() === "low"
+      ? "#02B89D"
+      : value.toLowerCase() === "nopriority"
+      ? "#D8D8D8"
+      : "#D8D8D8";
+
+  return priorityColorCode;
+};
+
 export const generateEmailboxSLAStatusWithColor = (value: any) => {
   let statusColorCode;
   if (!!value) {

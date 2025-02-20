@@ -5,15 +5,11 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardEmailTypeCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
-import {
-  DashboardInitialFilter,
-  ListDashboard,
-  ResponseDashboardErrorlog,
-} from "@/utils/Types/dashboardTypes";
+import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 
 interface ErrorlogProps {
   currentFilterData: DashboardInitialFilter;
-  onSelectedSLA: number;
+  onSelectedSLA: number | null;
 }
 
 interface List {
@@ -46,6 +42,11 @@ const Datatable_SLA = ({ currentFilterData, onSelectedSLA }: ErrorlogProps) => {
         !!currentFilterData.Clients && currentFilterData.Clients.length > 0
           ? currentFilterData.Clients
           : null,
+      DepartmentId:
+        !!currentFilterData.DepartmentIds &&
+        currentFilterData.DepartmentIds.length > 0
+          ? currentFilterData.DepartmentIds
+          : null,
       AssignTo:
         !!currentFilterData.AssigneeIds &&
         currentFilterData.AssigneeIds.length > 0
@@ -76,7 +77,7 @@ const Datatable_SLA = ({ currentFilterData, onSelectedSLA }: ErrorlogProps) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (onSelectedSLA >= 0) {
+      if (onSelectedSLA !== null) {
         await getErrorlogStatusData();
       }
     };

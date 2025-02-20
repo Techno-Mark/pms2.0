@@ -18,15 +18,13 @@ import {
 
 interface TaskStatusProps {
   currentFilterData: DashboardInitialFilter;
-  onSelectedStatusName: string;
-  onCurrSelectedStatus: number;
+  onCurrSelectedStatus: number | null;
   onSearchValue: string;
   isClose: boolean;
 }
 
 const Datatable_TaskStatus = ({
   currentFilterData,
-  onSelectedStatusName,
   onCurrSelectedStatus,
   onSearchValue,
   isClose,
@@ -93,14 +91,13 @@ const Datatable_TaskStatus = ({
       }
     };
     const timer = setTimeout(() => {
-      fetchData();
+      onCurrSelectedStatus !== null && fetchData();
     }, 500);
     return () => clearTimeout(timer);
   }, [
     onSearchValue,
     onCurrSelectedStatus,
     currentFilterData,
-    onSelectedStatusName,
     page,
     rowsPerPage,
   ]);

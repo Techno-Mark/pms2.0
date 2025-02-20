@@ -61,7 +61,7 @@ const EmailData = forwardRef<
       tagDropdown,
       getTagDropdownData,
       onOpen,
-      isDisabled,
+      isDisabled = false,
       activeTabList,
     },
     ref
@@ -89,6 +89,11 @@ const EmailData = forwardRef<
     const [rmDropdown, setRMDropdown] = useState<LabelValue[]>([]);
     const [isSaveEnabled, setIsSaveEnabled] = useState<boolean>(false);
     const [statusOption, setStatusOption] = useState<LabelValue[]>([]);
+    const [disableField, setDisableField] = useState(false);
+
+    useEffect(() => {
+      setDisableField(isDisabled);
+    }, [isDisabled]);
 
     useEffect(() => {
       const getDropdowns = async () => {
@@ -296,7 +301,7 @@ const EmailData = forwardRef<
                   setRMUser(0);
                   handleValueChange();
                 }}
-                disabled={isDisabled}
+                disabled={disableField}
                 value={
                   assigneeDropdown.find(
                     (i: LabelValue) => i.value === assignee
@@ -332,7 +337,7 @@ const EmailData = forwardRef<
                   setStatus(data.value);
                   handleValueChange();
                 }}
-                disabled={isDisabled}
+                disabled={disableField}
                 value={
                   statusOption.find((i: LabelValue) => i.value === status) ||
                   null
@@ -378,7 +383,7 @@ const EmailData = forwardRef<
                   setEmailTypeErr(false);
                   handleValueChange();
                 }}
-                disabled={isDisabled}
+                disabled={disableField}
                 value={
                   (emailTypeDropdown.length > 0 &&
                     emailTypeDropdown.find(
@@ -417,7 +422,7 @@ const EmailData = forwardRef<
                   setPriorityErr(false);
                   handleValueChange();
                 }}
-                disabled={isDisabled}
+                disabled={disableField}
                 value={
                   priorityOptions.find(
                     (i: LabelValue) => i.value === priority
@@ -459,7 +464,7 @@ const EmailData = forwardRef<
                   );
                   handleValueChange();
                 }}
-                disabled={isDisabled}
+                disabled={disableField}
                 onInputChange={(e, value) => {
                   if (value.trim().length <= 25) {
                     setInputValue(value);
@@ -492,7 +497,7 @@ const EmailData = forwardRef<
                   setRMUserErr(false);
                   handleValueChange();
                 }}
-                disabled={isDisabled}
+                disabled={disableField}
                 value={
                   rmDropdown.find((i: LabelValue) => i.value === rmUser) || null
                 }

@@ -36,7 +36,7 @@ const Dialog_BillingType = ({
   onSelectedStatusName,
 }: BillingTypeDialogProps) => {
   const [allBillingType, setAllBillingType] = useState<LabelValue[]>([]);
-  const [billingType, setBillingType] = useState<number>(0);
+  const [billingType, setBillingType] = useState<number | null>(null);
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [searchValue, setSearchValue] = useState("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
@@ -48,26 +48,27 @@ const Dialog_BillingType = ({
 
   const handleClose = () => {
     onClose();
-    setBillingType(0);
+    setBillingType(null);
     setClickedStatusName("");
     setSearchValue("");
     setIsClose(false);
   };
 
-  function getValueByLabelOrType(labelOrType: string): number {
+  function getValueByLabelOrType(labelOrType: string): number | null {
     const billingType = allBillingType.find(
       (billingType: LabelValue) => billingType.label === labelOrType
     );
     if (billingType) {
       return billingType.value;
     } else {
-      return 0;
+      return null;
     }
   }
 
   useEffect(() => {
     setClickedStatusName(onSelectedStatusName);
-    const billingTypeValue: number = getValueByLabelOrType(clickedStatusName);
+    const billingTypeValue: number | null =
+      getValueByLabelOrType(clickedStatusName);
     setBillingType(billingTypeValue);
   }, [clickedStatusName, onSelectedStatusName]);
 
@@ -215,8 +216,11 @@ const Dialog_BillingType = ({
           </div>
           <Datatable_BillingType
             currentFilterData={currentFilterData}
-            onSelectedStatusName={onSelectedStatusName}
-            onCurrentSelectedBillingType={billingType}
+            onCurrentSelectedBillingType={
+              billingType !== null
+                ? billingType
+                : getValueByLabelOrType(onSelectedStatusName)
+            }
             onSearchValue={searchValue}
             isClose={isClose}
           />

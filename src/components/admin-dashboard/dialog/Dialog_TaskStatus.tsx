@@ -36,7 +36,7 @@ const Dialog_TaskStatus = ({
   onSelectedStatusName,
 }: TaskStatusInfoDialogProps) => {
   const [allStatus, setAllStatus] = useState<LabelValueType[] | []>([]);
-  const [status, setStatus] = useState<number>(0);
+  const [status, setStatus] = useState<number | null>(null);
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [searchValue, setSearchValue] = useState("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
@@ -48,13 +48,13 @@ const Dialog_TaskStatus = ({
 
   const handleClose = () => {
     onClose();
-    setStatus(0);
+    setStatus(null);
     setClickedStatusName("");
     setSearchValue("");
     setIsClose(false);
   };
 
-  function getValueByLabelOrType(labelOrType: string): number {
+  function getValueByLabelOrType(labelOrType: string): number | null {
     const status = allStatus.find(
       (status: LabelValueType) =>
         status.Type === labelOrType || status.label === labelOrType
@@ -62,7 +62,7 @@ const Dialog_TaskStatus = ({
     if (status) {
       return status.value;
     } else {
-      return 0;
+      return null;
     }
   }
 
@@ -73,7 +73,7 @@ const Dialog_TaskStatus = ({
 
   useEffect(() => {
     setClickedStatusName(onSelectedStatusName);
-    const statusValue: number = getValueByLabelOrType(clickedStatusName);
+    const statusValue: number | null = getValueByLabelOrType(clickedStatusName);
     setStatus(statusValue);
   }, [clickedStatusName, onSelectedStatusName]);
 
@@ -226,8 +226,11 @@ const Dialog_TaskStatus = ({
           </div>
           <Datatable_TaskStatus
             currentFilterData={currentFilterData}
-            onSelectedStatusName={onSelectedStatusName}
-            onCurrSelectedStatus={status}
+            onCurrSelectedStatus={
+              status !== null
+                ? status
+                : getValueByLabelOrType(onSelectedStatusName)
+            }
             onSearchValue={searchValue}
             isClose={isClose}
           />

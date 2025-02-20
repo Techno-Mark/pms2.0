@@ -50,9 +50,8 @@ const Dialog_Errorlog = ({
   useEffect(() => {
     onOpen && setIsClose(false);
     onOpen &&
-      setErrorlogStatus(
-        onSelectedErrorlog.toString() == "Resolved" ? 2 : 1
-      );
+      !!onSelectedErrorlog &&
+      setErrorlogStatus(onSelectedErrorlog.toString() == "Resolved" ? 2 : 1);
   }, [onOpen]);
 
   const handleClose = () => {
@@ -84,8 +83,7 @@ const Dialog_Errorlog = ({
           StartDate: currentFilterData.StartDate,
           EndDate: currentFilterData.EndDate,
           ProjectId: null,
-          Key:
-            errorlogStatus !== null ? errorlogStatus : onSelectedErrorlog,
+          Key: errorlogStatus !== null ? errorlogStatus : onSelectedErrorlog,
           IsDownload: true,
           IsImported:
             errorlogImportStatus > 0
@@ -193,9 +191,7 @@ const Dialog_Errorlog = ({
               <Select
                 labelId="Errorlog Staus"
                 id="Errorlog Staus"
-                value={
-                  errorlogStatus > 0 ? errorlogStatus : onSelectedErrorlog
-                }
+                value={errorlogStatus > 0 ? errorlogStatus : onSelectedErrorlog}
                 onChange={(e) => setErrorlogStatus(Number(e.target.value))}
                 sx={{ height: "36px" }}
               >

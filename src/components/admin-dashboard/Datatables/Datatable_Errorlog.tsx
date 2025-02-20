@@ -95,7 +95,7 @@ const Datatable_Errorlog = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      if (onCurrSelectedProjectStatus !== null || onSelectedErrorlog > 0) {
+      if (!!onCurrSelectedProjectStatus || !!onSelectedErrorlog) {
         await getErrorlogStatusData();
       }
     };
