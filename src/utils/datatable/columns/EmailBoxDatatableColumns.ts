@@ -66,11 +66,11 @@ export const inboxColsConfig = [
     label: "Received On",
     bodyRenderer: generateDateWithTime,
   },
-  // {
-  //   name: "TicketStartOn",
-  //   label: "Start On",
-  //   bodyRenderer: generateDateWithTime,
-  // },
+  {
+    name: "TicketStartOn",
+    label: "Start On",
+    bodyRenderer: generateDateWithTime,
+  },
   {
     name: "OpenDate",
     label: "Open Time",

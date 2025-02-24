@@ -18,4 +18,4 @@ export const kraReport = 18;
 export const clientReport = 4;
 export const wltrReport = 19;
 export const errorLogReport = 20;
-export const emailTypeReport = 21;
+export const emailTypeReport = 28;

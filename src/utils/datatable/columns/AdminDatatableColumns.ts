@@ -6,6 +6,7 @@ import {
   generateDashboardReportBodyRenderSecondToTime,
   generateDashboardReportBodyRenderShortName,
   generateDateWithTime,
+  generateEmailboxSLAStatusWithColor,
   generateEmailboxStatusWithColor,
   generatePriorityWithColor,
   generateStatusWithColor,
@@ -73,7 +74,7 @@ const adminDashboardEmailTypeCols = [
   { header: "Type", label: "Email Type" },
   { header: "StandardSLATime", label: "Standard SLA Time" },
   { header: "ActualTimeTaken", label: "Actual Time Taken" },
-  { header: "StatusName", label: "SLA Status" },
+  { header: "SLAStatusType", label: "SLA Status" },
   { header: "StatusName", label: "Ticket Status" },
   { header: "PriorityName", label: "Priority" },
   { header: "Tag", label: "Tags" },
@@ -89,6 +90,8 @@ const adminDashboardEmailTypeCols = [
     i.label,
     i.header === "StatusName"
       ? generateEmailboxStatusWithColor
+      : i.header === "SLAStatusType"
+      ? generateEmailboxSLAStatusWithColor
       : i.header === "StandardSLATime" || i.header === "ActualTimeTaken"
       ? generateDashboardReportBodyRenderSecondToTime
       : i.header === "PriorityName"

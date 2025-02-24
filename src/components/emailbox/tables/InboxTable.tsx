@@ -112,38 +112,37 @@ const InboxTable = ({
           data: ResponseData.List,
           dataCount: ResponseData.TotalCount,
         });
-        if (typeof window !== "undefined") {
-          const pathname = window.location.href.includes("id=");
-          if (pathname) {
-            const idMatch = window.location.href.match(/id=([^?&]+)/);
-            const id = idMatch ? idMatch[1] : 0;
-            const clientId: any = ResponseData.List.filter(
-              (i: EmailBoxListResponseList) => i.Id == Number(id)
-            );
-            if (clientId.length > 0) {
-              handleDrawerOpen?.();
-              getId?.(Number(id), clientId[0].ClientId);
-            }
-          }
-        }
         // if (typeof window !== "undefined") {
         //   const pathname = window.location.href.includes("id=");
-        //   const clientPathname = window.location.href.includes("clientId=");
-        //   if (pathname && clientPathname) {
+        //   if (pathname) {
         //     const idMatch = window.location.href.match(/id=([^?&]+)/);
-        //     const clientIdMatch =
-        //       window.location.href.match(/clientId=([^?&]+)/);
-        //     const id: number = idMatch ? Number(idMatch[1]) : 0;
-        //     const clientId: number = clientIdMatch
-        //       ? Number(clientIdMatch[1])
-        //       : 0;
-        //     console.log(id, clientId);
-        //     if (id > 0 && clientId > 0) {
+        //     const id = idMatch ? idMatch[1] : 0;
+        //     const clientId: any = ResponseData.List.filter(
+        //       (i: EmailBoxListResponseList) => i.Id == Number(id)
+        //     );
+        //     if (clientId.length > 0) {
         //       handleDrawerOpen?.();
-        //       getId?.(id, clientId);
+        //       getId?.(Number(id), clientId[0].ClientId);
         //     }
         //   }
         // }
+        if (typeof window !== "undefined") {
+          const pathname = window.location.href.includes("id=");
+          const clientPathname = window.location.href.includes("clientId=");
+          if (pathname && clientPathname) {
+            const idMatch = window.location.href.match(/id=([^?&]+)/);
+            const clientIdMatch =
+              window.location.href.match(/clientId=([^?&]+)/);
+            const id: number = idMatch ? Number(idMatch[1]) : 0;
+            const clientId: number = clientIdMatch
+              ? Number(clientIdMatch[1])
+              : 0;
+            if (id > 0 && clientId > 0) {
+              handleDrawerOpen?.();
+              getId?.(id, clientId);
+            }
+          }
+        }
       } else {
         setFileds({ ...fileds, loaded: true });
       }

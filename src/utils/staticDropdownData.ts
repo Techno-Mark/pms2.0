@@ -39,8 +39,8 @@ export const emailBoxStatusOptions = [
 ];
 
 export const emailBoxSLAStatusOptions = [
-  { label: "Not Achieved", value: 1 },
-  { label: "Achieved", value: 2 },
+  { label: "Not Achieved", value: 2 },
+  { label: "Achieved", value: 1 },
   { label: "At Risk", value: 3 },
 ];
 

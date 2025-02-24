@@ -76,7 +76,7 @@ const EmailTypeReport = ({
       loaded: false,
     });
 
-    const url = `${process.env.report_api_url}/report/errorlog`;
+    const url = `${process.env.emailbox_api_url}/emailbox/getemailtypereportlist`;
 
     const successCallback = (
       ResponseData: Response,

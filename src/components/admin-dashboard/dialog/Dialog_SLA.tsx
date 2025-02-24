@@ -144,9 +144,9 @@ const Dialog_SLA = ({
               >
                 {[
                   { label: "All", value: 0 },
-                  { label: "SLA Achieved", value: 2 },
+                  { label: "SLA Achieved", value: 1 },
                   { label: "At Risk", value: 3 },
-                  { label: "SLA Not Achieved", value: 1 },
+                  { label: "SLA Not Achieved", value: 2 },
                 ].map((i: { label: string; value: number }) => (
                   <MenuItem value={i.value} key={i.label}>
                     {i.label}

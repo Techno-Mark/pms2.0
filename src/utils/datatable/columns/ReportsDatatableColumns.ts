@@ -858,12 +858,12 @@ const reportsEmailTypeColConfig = [
   {
     header: "STD_SLA_Time",
     label: "STD SLA Time",
-    bodyRenderer: generateDateWithTime,
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "ActualTime",
     label: "Actual Time",
-    bodyRenderer: generateDateWithTime,
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     header: "TagList",

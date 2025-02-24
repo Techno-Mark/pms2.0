@@ -360,7 +360,7 @@ const Page = () => {
 
   const getFilterList = async () => {
     const params = {
-      type: activeTab === 1 ? 23 : 24,
+      type: activeTab === 2 ? 24 : dashboardActiveTab === 1 ? 23 : 29,
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
@@ -397,7 +397,7 @@ const Page = () => {
 
   useEffect(() => {
     getFilterList();
-  }, [activeTab]);
+  }, [activeTab, dashboardActiveTab]);
 
   const getReportData = async () => {
     setReportLoader(true);
@@ -515,7 +515,7 @@ const Page = () => {
     //   ResponseStatus: string
     // ) => {
     //   if (ResponseStatus === "Success" && error === false) {
-    //     setDashboardEmailboxSummary(ResponseData.TicketCounts);
+    //     setDashboardEmailboxSummary(ResponseData.TicketMetricsCounts);
     //     setDashboardEmailboxEmailTypeCounts(ResponseData.EmailTypeCounts);
     //     setDashboardEmailboxSLACounts(ResponseData.SLACounts);
     //     setDashboardEmailboxStatus(ResponseData.TicketStatusCounts);
