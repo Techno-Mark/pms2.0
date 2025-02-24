@@ -84,6 +84,7 @@ const InboxTable = ({
   const [selectedRowAssignee, setSelectedRowAssignee] = useState<number[] | []>(
     []
   );
+  const [selectedRowStatus, setSelectedRowStatus] = useState<number[] | []>([]);
   const [createTaskId, setCreateTaskId] = useState(0);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
 
@@ -226,6 +227,15 @@ const InboxTable = ({
 
     setSelectedRowAssignee(selectedWorkItemAssignTo);
 
+    const selectedWorkItemStatus =
+      selectedData.length > 0
+        ? selectedData.map(
+            (selectedRow: EmailBoxListResponseList) => selectedRow?.Status
+          )
+        : [];
+
+    setSelectedRowStatus(selectedWorkItemStatus);
+
     setIsPopupOpen(allRowsSelected);
   };
 
@@ -236,6 +246,7 @@ const InboxTable = ({
     setSelectedRowClientId([]);
     setSelectedRowEmailType([]);
     setSelectedRowAssignee([]);
+    setSelectedRowStatus([]);
   };
 
   useEffect(() => {
@@ -637,6 +648,7 @@ const InboxTable = ({
     selectedRowClientId,
     selectedRowEmailType,
     selectedRowAssignee,
+    selectedRowStatus,
     getData,
     handleClearSelection,
     tagDropdown,

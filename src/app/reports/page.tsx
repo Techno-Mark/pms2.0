@@ -1,8 +1,6 @@
 "use client";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import Navbar from "@/components/common/Navbar";
-import Wrapper from "@/components/common/Wrapper";
 import {
   Button,
   Dialog,
@@ -63,8 +61,8 @@ import { DialogTransition } from "@/utils/style/DialogTransition";
 import ErrorLogReport from "@/components/reports/tables/ErrorLogReport";
 import ErrorLogReportFilter from "@/components/reports/Filter/ErrorLogReportFilter";
 import WrapperNavbar from "@/components/common/WrapperNavbar";
-import EmailTypeReport from "@/components/reports/tables/EmailTypeReport";
-import EmailTypeReportFilter from "@/components/reports/Filter/EmailTypeReportFilter";
+import EmailBoxReport from "@/components/reports/tables/EmailBoxReport";
+import EmailBoxReportFilter from "@/components/reports/Filter/EmailBoxReportFilter";
 
 interface Tabs {
   label: string;
@@ -90,7 +88,7 @@ const allTabs = [
   { label: "auto/manual", value: 15, name: "Auto/Manual" },
   { label: "wltr", value: 16, name: "WLTR" },
   { label: "errorlog", value: 17, name: "Error Log" },
-  { label: "errorlog", value: 18, name: "Email Type" },
+  { label: "errorlog", value: 18, name: "Email Box" },
 ];
 
 interface MoreTabs {
@@ -638,7 +636,7 @@ const Page = () => {
       )}
 
       {activeTab === 18 && (
-        <EmailTypeReport
+        <EmailBoxReport
           searchValue={searchValue}
           filteredData={filteredData}
           onHandleExport={handleCanExport}
@@ -772,7 +770,7 @@ const Page = () => {
         />
       )}
       {activeTab === 18 && (
-        <EmailTypeReportFilter
+        <EmailBoxReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}

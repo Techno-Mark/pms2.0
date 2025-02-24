@@ -134,10 +134,15 @@ const EmailData = forwardRef<
         );
         setStatus(!!ticketDetails.Status ? Number(ticketDetails.Status) : 0);
         const option = emailBoxStatusOptions.filter((i) => {
-          if (activeTabList === 3) {
-            return i.value !== 1 && i.value !== 2 && i.value !== 7;
+          if (Number(ticketDetails.Status) === 1) {
+            return i.value === 2;
+          } else {
+            if (activeTabList === 3) {
+              return i.value !== 1 && i.value !== 2 && i.value !== 7;
+            } else {
+              return i.value !== 1 && i.value !== 4 && i.value !== 7;
+            }
           }
-          return i.value !== 1 && i.value !== 4 && i.value !== 7;
         });
         option.filter((i) => i.value === Number(ticketDetails.Status)).length <=
         0

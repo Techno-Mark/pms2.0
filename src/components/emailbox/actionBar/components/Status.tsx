@@ -12,11 +12,13 @@ const Status = ({
   getData,
   getOverLay,
   tab,
+  selectedRowStatus,
 }: {
   selectedRowIds: number[];
   getData: (IsDelay: boolean) => void;
   getOverLay: (e: boolean) => void;
   tab: string;
+  selectedRowStatus: number[];
 }) => {
   const [anchorElStatus, setAnchorElStatus] =
     React.useState<HTMLButtonElement | null>(null);
@@ -98,15 +100,20 @@ const Status = ({
           <List>
             {emailBoxStatusOptions
               .filter((i) => {
-                if (tab === "Approval") {
-                  return (
-                    i.value !== 1 &&
-                    i.value !== 2 &&
-                    i.value !== 4 &&
-                    i.value !== 7
-                  );
+                if (selectedRowStatus.includes(1)) {
+                  return i.value === 2;
+                } else {
+                  if (tab === "Approval") {
+                    return (
+                      i.value !== 1 &&
+                      i.value !== 2 &&
+                      i.value !== 4 &&
+                      i.value !== 7
+                    );
+                  } else {
+                    return i.value !== 1 && i.value !== 4 && i.value !== 7;
+                  }
                 }
-                return i.value !== 1 && i.value !== 4 && i.value !== 7;
               })
               .map((option: { value: number; label: string }) => (
                 <span

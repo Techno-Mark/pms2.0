@@ -81,6 +81,7 @@ const ApprovalsEmailTable = ({
   const [selectedRowAssignee, setSelectedRowAssignee] = useState<number[] | []>(
     []
   );
+  const [selectedRowStatus, setSelectedRowStatus] = useState<number[] | []>([]);
 
   const getData = async (IsDelay = false) => {
     setFileds({
@@ -190,6 +191,15 @@ const ApprovalsEmailTable = ({
 
     setSelectedRowAssignee(selectedWorkItemAssignTo);
 
+    const selectedWorkItemStatus =
+      selectedData.length > 0
+        ? selectedData.map(
+            (selectedRow: EmailBoxListResponseList) => selectedRow?.Status
+          )
+        : [];
+
+    setSelectedRowStatus(selectedWorkItemStatus);
+
     setIsPopupOpen(allRowsSelected);
   };
 
@@ -200,6 +210,7 @@ const ApprovalsEmailTable = ({
     setSelectedRowClientId([]);
     setSelectedRowEmailType([]);
     setSelectedRowAssignee([]);
+    setSelectedRowStatus([]);
   };
 
   useEffect(() => {
@@ -499,6 +510,7 @@ const ApprovalsEmailTable = ({
     selectedRowClientId,
     selectedRowEmailType,
     selectedRowAssignee,
+    selectedRowStatus,
     getData,
     handleClearSelection,
     tagDropdown,

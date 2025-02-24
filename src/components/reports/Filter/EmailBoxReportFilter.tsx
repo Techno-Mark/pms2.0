@@ -58,7 +58,7 @@ interface SavedFilter {
   };
 }
 
-const EmailTypeReportFilter = ({
+const EmailBoxReportFilter = ({
   isFiltering,
   onDialogClose,
   sendFilterToPage,
@@ -944,4 +944,4 @@ const EmailTypeReportFilter = ({
   );
 };
 
-export default EmailTypeReportFilter;
+export default EmailBoxReportFilter;

@@ -57,7 +57,7 @@ interface Response {
   TotalCount: number;
 }
 
-const EmailTypeReport = ({
+const EmailBoxReport = ({
   filteredData,
   searchValue,
   onHandleExport,
@@ -189,4 +189,4 @@ const EmailTypeReport = ({
   );
 };
 
-export default EmailTypeReport;
+export default EmailBoxReport;

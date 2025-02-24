@@ -7,9 +7,6 @@ import Assignee from "./components/Assignee";
 import Tag from "./components/Tag";
 import { callAPI } from "@/utils/API/callAPI";
 import { toast } from "react-toastify";
-import { Button } from "@mui/material";
-import AcceptTask from "@/assets/icons/AcceptTask";
-import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 
 const InboxActionBar = ({
   selectedRowsCount,
@@ -18,6 +15,7 @@ const InboxActionBar = ({
   selectedRowClientId,
   selectedRowEmailType,
   selectedRowAssignee,
+  selectedRowStatus,
   getData,
   handleClearSelection,
   getOverLay,
@@ -32,6 +30,7 @@ const InboxActionBar = ({
   selectedRowClientId: number[];
   selectedRowEmailType: number[];
   selectedRowAssignee: number[];
+  selectedRowStatus: number[];
   getData: () => void;
   handleClearSelection: () => void;
   getOverLay?: (e: boolean) => void;
@@ -47,6 +46,7 @@ const InboxActionBar = ({
     selectedRowClientId,
     selectedRowEmailType,
     selectedRowAssignee,
+    selectedRowStatus,
     getData,
     handleClearSelection,
     getOverLay,
@@ -158,6 +158,7 @@ const InboxActionBar = ({
             selectedRowsCount: selectedRowsCount,
             getData: getData,
             tab: tab,
+            selectedRowStatus: selectedRowStatus,
           }}
           getOverLay={getOverLay}
         />
