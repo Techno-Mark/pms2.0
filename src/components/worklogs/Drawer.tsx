@@ -2509,7 +2509,7 @@ const EditDrawer = ({
       subProcess: validateField(subProcessWorklogs),
       clientTaskName: validateField(clientTaskNameWorklogs),
       descriptionWorklogs:
-        departmentWorklogsType !== "WhitelabelTaxation" &&
+        // departmentWorklogsType !== "WhitelabelTaxation" &&
         validateField(descriptionWorklogs),
       quantity: validateField(quantityWorklogs),
       receiverDate: validateField(receiverDateWorklogs),
@@ -2542,8 +2542,8 @@ const EditDrawer = ({
     setProcessNameWorklogsErr(fieldValidations.processName);
     setSubProcessWorklogsErr(fieldValidations.subProcess);
     setClientTaskNameWorklogsErr(fieldValidations.clientTaskName);
-    departmentWorklogsType !== "WhitelabelTaxation" &&
-      setDescriptionWorklogsErr(fieldValidations.descriptionWorklogs);
+    // departmentWorklogsType !== "WhitelabelTaxation" &&
+    setDescriptionWorklogsErr(fieldValidations.descriptionWorklogs);
     setQuantityWorklogsErr(fieldValidations.quantity);
     setReceiverDateWorklogsErr(fieldValidations.receiverDate);
     assigneeWorklogsDisable &&
@@ -2609,7 +2609,7 @@ const EditDrawer = ({
       subProcess: validateField(subProcessWorklogs),
       clientTaskName: validateField(clientTaskNameWorklogs),
       descriptionWorklogs:
-        departmentWorklogsType !== "WhitelabelTaxation" &&
+        // departmentWorklogsType !== "WhitelabelTaxation" &&
         validateField(descriptionWorklogs),
       quantity: validateField(quantityWorklogs),
       receiverDate: validateField(receiverDateWorklogs),
@@ -4151,19 +4151,30 @@ const EditDrawer = ({
                     </Grid>
                     <Grid item xs={3} className="pt-[14px]">
                       <TextField
+                        // label={
+                        //   departmentWorklogsType === "WhitelabelTaxation" &&
+                        //   typeOfWorkWorklogs === 3 ? (
+                        //     "Missing Info/Description"
+                        //   ) : departmentWorklogsType ===
+                        //     "WhitelabelTaxation" ? (
+                        //     "Description"
+                        //   ) : (
+                        //     <span>
+                        //       Description
+                        //       <span className="!text-defaultRed">
+                        //         &nbsp;*
+                        //       </span>
+                        //     </span>
+                        //   )
+                        // }
                         label={
-                          departmentWorklogsType === "WhitelabelTaxation" &&
-                          typeOfWorkWorklogs === 3 ? (
-                            "Missing Info/Description"
-                          ) : departmentWorklogsType ===
-                            "WhitelabelTaxation" ? (
-                            "Description"
-                          ) : (
-                            <span>
-                              Description
-                              <span className="!text-defaultRed">&nbsp;*</span>
-                            </span>
-                          )
+                          <span>
+                            {departmentWorklogsType === "WhitelabelTaxation" &&
+                            typeOfWorkWorklogs === 3
+                              ? "Missing Info/Description"
+                              : "Description"}
+                            <span className="!text-defaultRed">&nbsp;*</span>
+                          </span>
                         }
                         multiline={
                           departmentWorklogsType === "WhitelabelTaxation" &&
@@ -4181,9 +4192,10 @@ const EditDrawer = ({
                           setDescriptionWorklogsErr(false);
                         }}
                         onBlur={(e) => {
-                          if (departmentWorklogsType === "WhitelabelTaxation") {
-                            setDescriptionWorklogsErr(false);
-                          } else if (
+                          // if (departmentWorklogsType === "WhitelabelTaxation") {
+                          //   setDescriptionWorklogsErr(false);
+                          // } else 
+                          if (
                             e.target.value.trim().length <= 0 ||
                             e.target.value.trim().length > 100
                           ) {

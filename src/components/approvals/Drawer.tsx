@@ -2198,7 +2198,7 @@ const EditDrawer = ({
       subProcess: validateField(subProcessApprovals),
       clientTaskName: validateField(clientTaskNameApprovals),
       descriptionApprovals:
-        departmentApprovalsType !== "WhitelabelTaxation" &&
+        // departmentApprovalsType !== "WhitelabelTaxation" &&
         validateField(descriptionApprovals),
       quantity: validateField(quantityApprovals),
       receiverDate: validateField(receiverDateApprovals),
@@ -2228,7 +2228,7 @@ const EditDrawer = ({
     setProcessNameApprovalsErr(fieldValidations.processName);
     setSubProcessApprovalsErr(fieldValidations.subProcess);
     setClientTaskNameApprovalsErr(fieldValidations.clientTaskName);
-    departmentApprovalsType !== "WhitelabelTaxation" &&
+    // departmentApprovalsType !== "WhitelabelTaxation" &&
       setDescriptionApprovalsErr(fieldValidations.descriptionApprovals);
     setQuantityApprovalsErr(fieldValidations.quantity);
     setReceiverDateApprovalsErr(fieldValidations.receiverDate);
@@ -2273,7 +2273,7 @@ const EditDrawer = ({
       subProcess: validateField(subProcessApprovals),
       clientTaskName: validateField(clientTaskNameApprovals),
       descriptionApprovals:
-        departmentApprovalsType !== "WhitelabelTaxation" &&
+        // departmentApprovalsType !== "WhitelabelTaxation" &&
         validateField(descriptionApprovals),
       status: validateField(statusApprovals),
       quantity: validateField(quantityApprovals),
@@ -3736,19 +3736,28 @@ const EditDrawer = ({
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <TextField
+                        // label={
+                        //   departmentApprovalsType === "WhitelabelTaxation" &&
+                        //   typeOfWorkApprovals === 3 ? (
+                        //     "Missing Info/Description"
+                        //   ) : departmentApprovalsType ===
+                        //     "WhitelabelTaxation" ? (
+                        //     "Description"
+                        //   ) : (
+                        //     <span>
+                        //       Description
+                        //       <span className="!text-defaultRed">&nbsp;*</span>
+                        //     </span>
+                        //   )
+                        // }
                         label={
-                          departmentApprovalsType === "WhitelabelTaxation" &&
-                          typeOfWorkApprovals === 3 ? (
-                            "Missing Info/Description"
-                          ) : departmentApprovalsType ===
-                            "WhitelabelTaxation" ? (
-                            "Description"
-                          ) : (
-                            <span>
-                              Description
-                              <span className="!text-defaultRed">&nbsp;*</span>
-                            </span>
-                          )
+                          <span>
+                            {departmentApprovalsType === "WhitelabelTaxation" &&
+                            typeOfWorkApprovals === 3
+                              ? "Missing Info/Description"
+                              : "Description"}
+                            <span className="text-defaultRed">&nbsp;*</span>
+                          </span>
                         }
                         multiline={
                           departmentApprovalsType === "WhitelabelTaxation" &&
@@ -3766,11 +3775,12 @@ const EditDrawer = ({
                           setDescriptionApprovalsErr(false);
                         }}
                         onBlur={(e) => {
+                          // if (
+                          //   departmentApprovalsType === "WhitelabelTaxation"
+                          // ) {
+                          //   setDescriptionApprovalsErr(false);
+                          // } else 
                           if (
-                            departmentApprovalsType === "WhitelabelTaxation"
-                          ) {
-                            setDescriptionApprovalsErr(false);
-                          } else if (
                             e.target.value.trim().length <= 0 ||
                             e.target.value.trim().length > 100
                           ) {

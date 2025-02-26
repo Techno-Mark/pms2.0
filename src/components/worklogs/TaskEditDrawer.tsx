@@ -279,7 +279,7 @@ const TaskEditDrawer = ({
       subProcess: validateField(subProcessWorklogsEdit),
       clientTaskName: validateField(clientTaskNameWorklogsEdit),
       descriptionWorklogs:
-        departmentWorklogsTypeEdit !== "WhitelabelTaxation" &&
+        // departmentWorklogsTypeEdit !== "WhitelabelTaxation" &&
         validateField(descriptionWorklogsEdit),
       status: validateField(statusWorklogsEdit),
       quantity: validateField(quantityWorklogsEdit),
@@ -303,7 +303,7 @@ const TaskEditDrawer = ({
     setProcessNameWorklogsEditErr(fieldValidationsEdit.processName);
     setSubProcessWorklogsEditErr(fieldValidationsEdit.subProcess);
     setClientTaskNameWorklogsEditErr(fieldValidationsEdit.clientTaskName);
-    departmentWorklogsTypeEdit !== "WhitelabelTaxation" &&
+    // departmentWorklogsTypeEdit !== "WhitelabelTaxation" &&
       setDescriptionWorklogsEditErr(fieldValidationsEdit.descriptionWorklogs);
     setQuantityWorklogsEditErr(fieldValidationsEdit.quantity);
     setReceiverDateWorklogsEditErr(fieldValidationsEdit.receiverDate);
@@ -1364,18 +1364,27 @@ const TaskEditDrawer = ({
                   </Grid>
                   <Grid item xs={3} className="pt-4">
                     <TextField
+                      // label={
+                      //   departmentWorklogsType === "WhitelabelTaxation" &&
+                      //   typeOfWorkWorklogs === 3 ? (
+                      //     "Missing Info/Description"
+                      //   ) : departmentWorklogsType === "WhitelabelTaxation" ? (
+                      //     "Description"
+                      //   ) : (
+                      //     <span>
+                      //       Description
+                      //       <span className="!text-defaultRed">&nbsp;*</span>
+                      //     </span>
+                      //   )
+                      // }
                       label={
-                        departmentWorklogsType === "WhitelabelTaxation" &&
-                        typeOfWorkWorklogs === 3 ? (
-                          "Missing Info/Description"
-                        ) : departmentWorklogsType === "WhitelabelTaxation" ? (
-                          "Description"
-                        ) : (
-                          <span>
-                            Description
-                            <span className="!text-defaultRed">&nbsp;*</span>
-                          </span>
-                        )
+                        <span>
+                          {departmentWorklogsType === "WhitelabelTaxation" &&
+                          typeOfWorkWorklogs === 3
+                            ? "Missing Info/Description"
+                            : "Description"}
+                          <span className="!text-defaultRed">&nbsp;*</span>
+                        </span>
                       }
                       multiline={
                         departmentWorklogsType === "WhitelabelTaxation" &&
@@ -2474,23 +2483,32 @@ const TaskEditDrawer = ({
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <TextField
+                        // label={
+                        //   departmentWorklogsTypeEdit === "WhitelabelTaxation" &&
+                        //   typeOfWorkWorklogsEdit === 3 ? (
+                        //     "Missing Info/Description"
+                        //   ) : departmentWorklogsTypeEdit ===
+                        //     "WhitelabelTaxation" ? (
+                        //     "Description"
+                        //   ) : (
+                        //     <span>
+                        //       Description
+                        //       <span className="!text-defaultRed">&nbsp;*</span>
+                        //     </span>
+                        //   )
+                        // }
                         label={
-                          departmentWorklogsType === "WhitelabelTaxation" &&
-                          typeOfWorkWorklogs === 3 ? (
-                            "Missing Info/Description"
-                          ) : departmentWorklogsTypeEdit ===
-                            "WhitelabelTaxation" ? (
-                            "Description"
-                          ) : (
-                            <span>
-                              Description
-                              <span className="!text-defaultRed">&nbsp;*</span>
-                            </span>
-                          )
+                          <span>
+                            {departmentWorklogsTypeEdit === "WhitelabelTaxation" &&
+                            typeOfWorkWorklogsEdit === 3
+                              ? "Missing Info/Description"
+                              : "Description"}
+                            <span className="!text-defaultRed">&nbsp;*</span>
+                          </span>
                         }
                         multiline={
-                          departmentWorklogsType === "WhitelabelTaxation" &&
-                          typeOfWorkWorklogs === 3
+                          departmentWorklogsTypeEdit === "WhitelabelTaxation" &&
+                          typeOfWorkWorklogsEdit === 3
                         }
                         fullWidth
                         value={
@@ -2503,11 +2521,12 @@ const TaskEditDrawer = ({
                           setDescriptionWorklogsEditErr(false);
                         }}
                         onBlur={(e) => {
+                          // if (
+                          //   departmentWorklogsTypeEdit === "WhitelabelTaxation"
+                          // ) {
+                          //   setDescriptionWorklogsEditErr(false);
+                          // } else 
                           if (
-                            departmentWorklogsTypeEdit === "WhitelabelTaxation"
-                          ) {
-                            setDescriptionWorklogsEditErr(false);
-                          } else if (
                             e.target.value.trim().length <= 0 ||
                             e.target.value.trim().length > 100
                           ) {
