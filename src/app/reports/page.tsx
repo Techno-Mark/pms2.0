@@ -88,7 +88,7 @@ const allTabs = [
   { label: "auto/manual", value: 15, name: "Auto/Manual" },
   { label: "wltr", value: 16, name: "WLTR" },
   { label: "errorlog", value: 17, name: "Error Log" },
-  { label: "errorlog", value: 18, name: "Email Box" },
+  { label: "emailbox", value: 18, name: "Email Box" },
 ];
 
 interface MoreTabs {
@@ -178,7 +178,8 @@ const Page = () => {
         hasPermissionWorklog("kra", "View", "Report") ||
         hasPermissionWorklog("Auto/Manual", "View", "Report") ||
         hasPermissionWorklog("wltr", "View", "Report") ||
-        hasPermissionWorklog("errorlog", "View", "Report"))
+        hasPermissionWorklog("errorlog", "View", "Report") ||
+        hasPermissionWorklog("emailbox", "View", "Report"))
     );
   };
 
@@ -272,7 +273,9 @@ const Page = () => {
         : filteredData;
 
     const response = await axios.post(
-      getCurrentTabDetails(activeTab).toLowerCase() === "billing"
+      getCurrentTabDetails(activeTab).toLowerCase() === "emailbox"
+        ? `${process.env.emailbox_api_url}/emailbox/getemailtypereportlist`
+        : getCurrentTabDetails(activeTab).toLowerCase() === "billing"
         ? `${process.env.report_api_url}/report/billing/exportclientwisezipReport`
         : getCurrentTabDetails(activeTab).toLowerCase() === "auto/manual"
         ? `${process.env.report_api_url}/report/automanual/export`

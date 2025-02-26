@@ -74,7 +74,7 @@ const Client = ({
         !!ResponseData.ListFailedTicketIds &&
           ResponseData.ListFailedTicketIds.length > 0 &&
           toast.warning(
-            `Failed to update Client for ${ResponseData.ListFailedTicketIds.join(", ")}.`
+            `This email ID is already mapped with another client.`
           );
         handleClearSelection();
         getData();

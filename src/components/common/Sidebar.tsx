@@ -166,7 +166,8 @@ const Sidebar = ({
               hasPermissionWorklog("kra", "View", "Report") ||
               hasPermissionWorklog("Auto/Manual", "View", "Report") ||
               hasPermissionWorklog("wltr", "View", "Report") ||
-              hasPermissionWorklog("errorlog", "View", "Report")) &&
+              hasPermissionWorklog("errorlog", "View", "Report") ||
+              hasPermissionWorklog("emailbox", "View", "Report")) &&
             !isClient && {
               name: "Reports",
               href: "/reports",

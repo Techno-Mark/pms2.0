@@ -42,13 +42,13 @@ interface SavedFilter {
   FilterId: number;
   Name: string;
   AppliedFilter: {
-    ClientId: number | null;
-    DepartmentId: number | null;
-    EmailType: number | null;
+    ClientId: number[] | null;
+    DepartmentId: number[] | null;
+    EmailType: number[] | null;
     Tags: string[] | null;
-    TicketStatus: number | null;
-    SlaStatus: number | null;
-    ReportingManagerId: number | null;
+    TicketStatus: number[] | null;
+    SlaStatus: number[] | null;
+    ReportingManagerId: number[] | null;
     ReceivedFrom: string | null;
     ReceivedTo: string | null;
     DueFrom: string | null;
@@ -63,24 +63,28 @@ const EmailBoxReportFilter = ({
   onDialogClose,
   sendFilterToPage,
 }: FilterType) => {
-  const [clientId, setClientId] = useState<LabelValue | null>(null);
+  const [clientId, setClientId] = useState<LabelValue[]>([]);
+  const [clientName, setClientName] = useState<number[]>([]);
   const [clientDropdown, setClientDropdown] = useState<LabelValue[]>([]);
-  const [departmentId, setDepartmentId] = useState<LabelValue | null>(null);
+  const [departmentId, setDepartmentId] = useState<LabelValue[]>([]);
+  const [departmentName, setDepartmentName] = useState<number[]>([]);
   const [departmentDropdown, setDepartmentDropdown] = useState<LabelValue[]>(
     []
   );
-  const [emailTypeId, setEmailTypeId] = useState<LabelValue | null>(null);
+  const [emailTypeId, setEmailTypeId] = useState<LabelValue[]>([]);
+  const [emailTypeName, setEmailTypeName] = useState<number[]>([]);
   const [emailTypeDropdown, setEmailTypeDropdown] = useState<LabelValue[]>([]);
   const [tag, setTag] = useState<{ label: string; value: string }[]>([]);
   const [tagName, setTagName] = useState<string[]>([]);
   const [tagDropdown, setTagDropdown] = useState<
     { label: string; value: string }[]
   >([]);
-  const [ticketStatusId, setTicketStatusId] = useState<LabelValue | null>(null);
-  const [slaStatusId, setSLAStatusId] = useState<LabelValue | null>(null);
-  const [reportingManager, setReportingManager] = useState<LabelValue | null>(
-    null
-  );
+  const [ticketStatusId, setTicketStatusId] = useState<LabelValue[]>([]);
+  const [ticketName, setTicketName] = useState<number[]>([]);
+  const [slaStatusId, setSLAStatusId] = useState<LabelValue[]>([]);
+  const [slaName, setSLAName] = useState<number[]>([]);
+  const [reportingManager, setReportingManager] = useState<LabelValue[]>([]);
+  const [rmName, setRMName] = useState<number[]>([]);
   const [rmDropdown, setRMDropdown] = useState<LabelValue[]>([]);
   const [receivedFrom, setReceivedFrom] = useState<string | number>("");
   const [receivedTo, setReceivedTo] = useState<string | number>("");
@@ -108,14 +112,20 @@ const EmailBoxReportFilter = ({
   }, [openFilter]);
 
   const handleResetAll = (close: boolean) => {
-    setClientId(null);
-    setDepartmentId(null);
-    setEmailTypeId(null);
+    setClientId([]);
+    setClientName([]);
+    setDepartmentId([]);
+    setDepartmentName([]);
+    setEmailTypeId([]);
+    setEmailTypeName([]);
     setTagName([]);
     setTag([]);
-    setTicketStatusId(null);
-    setSLAStatusId(null);
-    setReportingManager(null);
+    setTicketStatusId([]);
+    setTicketName([]);
+    setSLAStatusId([]);
+    setSLAName([]);
+    setReportingManager([]);
+    setRMName([]);
     setReceivedFrom("");
     setReceivedTo("");
     setDueFrom("");
@@ -139,14 +149,20 @@ const EmailBoxReportFilter = ({
     onDialogClose(false);
     setDefaultFilter(false);
 
-    setClientId(null);
-    setDepartmentId(null);
-    setEmailTypeId(null);
+    setClientId([]);
+    setClientName([]);
+    setDepartmentId([]);
+    setDepartmentName([]);
+    setEmailTypeId([]);
+    setEmailTypeName([]);
     setTagName([]);
     setTag([]);
-    setTicketStatusId(null);
-    setSLAStatusId(null);
-    setReportingManager(null);
+    setTicketStatusId([]);
+    setTicketName([]);
+    setSLAStatusId([]);
+    setSLAName([]);
+    setReportingManager([]);
+    setRMName([]);
     setReceivedFrom("");
     setReceivedTo("");
     setDueFrom("");
@@ -171,14 +187,13 @@ const EmailBoxReportFilter = ({
   const handleFilterApply = () => {
     sendFilterToPage({
       ...emailType_InitialFilter,
-      ClientId: clientId !== null ? clientId.value : null,
-      DepartmentId: departmentId !== null ? departmentId.value : null,
-      EmailType: emailTypeId !== null ? emailTypeId.value : null,
+      ClientId: clientName.length > 0 ? clientName : null,
+      DepartmentId: departmentName.length > 0 ? departmentName : null,
+      EmailType: emailTypeName.length > 0 ? emailTypeName : null,
       Tags: tagName.length > 0 ? tagName : null,
-      TicketStatus: ticketStatusId !== null ? ticketStatusId.value : null,
-      SlaStatus: slaStatusId !== null ? slaStatusId.value : null,
-      ReportingManagerId:
-        reportingManager !== null ? reportingManager.value : null,
+      TicketStatus: ticketName.length > 0 ? ticketName : null,
+      SlaStatus: slaName.length > 0 ? slaName : null,
+      ReportingManagerId: rmName.length > 0 ? rmName : null,
       ReceivedFrom:
         receivedFrom.toString().trim().length <= 0
           ? receivedTo.toString().trim().length <= 0
@@ -260,14 +275,13 @@ const EmailBoxReportFilter = ({
       filterId: currentFilterId > 0 ? currentFilterId : null,
       name: filterName,
       AppliedFilter: {
-        ClientId: clientId !== null ? clientId.value : null,
-        DepartmentId: departmentId !== null ? departmentId.value : null,
-        EmailType: emailTypeId !== null ? emailTypeId.value : null,
+        ClientId: clientName.length > 0 ? clientName : null,
+        DepartmentId: departmentName.length > 0 ? departmentName : null,
+        EmailType: emailTypeName.length > 0 ? emailTypeName : null,
         Tags: tagName.length > 0 ? tagName : null,
-        TicketStatus: ticketStatusId !== null ? ticketStatusId.value : null,
-        SlaStatus: slaStatusId !== null ? slaStatusId.value : null,
-        ReportingManagerId:
-          reportingManager !== null ? reportingManager.value : null,
+        TicketStatus: ticketName.length > 0 ? ticketName : null,
+        SlaStatus: slaName.length > 0 ? slaName : null,
+        ReportingManagerId: rmName.length > 0 ? rmName : null,
         ReceivedFrom:
           receivedFrom.toString().trim().length <= 0
             ? receivedTo.toString().trim().length <= 0
@@ -330,13 +344,13 @@ const EmailBoxReportFilter = ({
 
   useEffect(() => {
     const isAnyFieldSelected =
-      clientId !== null ||
-      departmentId !== null ||
-      emailTypeId !== null ||
+      clientName.length > 0 ||
+      departmentName.length > 0 ||
+      emailTypeName.length > 0 ||
       tagName.length > 0 ||
-      ticketStatusId !== null ||
-      slaStatusId !== null ||
-      reportingManager !== null ||
+      ticketName.length > 0 ||
+      slaName.length > 0 ||
+      rmName.length > 0 ||
       receivedFrom.toString().trim().length > 0 ||
       receivedTo.toString().trim().length > 0 ||
       dueFrom.toString().trim().length > 0 ||
@@ -347,13 +361,13 @@ const EmailBoxReportFilter = ({
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
   }, [
-    clientId,
-    departmentId,
-    emailTypeId,
+    clientName,
+    departmentName,
+    emailTypeName,
     tagName,
-    ticketStatusId,
-    slaStatusId,
-    reportingManager,
+    ticketName,
+    slaName,
+    rmName,
     receivedFrom,
     receivedTo,
     dueFrom,
@@ -387,30 +401,33 @@ const EmailBoxReportFilter = ({
     setFilterName(Name);
     setCurrentFilterId(FilterId);
 
+    const clients = AppliedFilter?.ClientId || [];
     setClientId(
-      savedFilters[index].AppliedFilter.ClientId !== null
-        ? clientDropdown.filter(
-            (item: LabelValue) =>
-              item.value === savedFilters[index].AppliedFilter.ClientId
-          )[0]
-        : null
+      clients.length > 0
+        ? clientDropdown.filter((t: LabelValue) => clients.includes(t.value))
+        : []
     );
+    setClientName(clients);
+
+    const departments = AppliedFilter?.DepartmentId || [];
     setDepartmentId(
-      savedFilters[index].AppliedFilter.DepartmentId !== null
-        ? departmentDropdown.filter(
-            (item: LabelValue) =>
-              item.value === savedFilters[index].AppliedFilter.DepartmentId
-          )[0]
-        : null
+      departments.length > 0
+        ? departmentDropdown.filter((t: LabelValue) =>
+            departments.includes(t.value)
+          )
+        : []
     );
+    setDepartmentName(departments);
+
+    const emailTypes = AppliedFilter?.EmailType || [];
     setEmailTypeId(
-      savedFilters[index].AppliedFilter.EmailType !== null
-        ? emailTypeDropdown.filter(
-            (item: LabelValue) =>
-              item.value === savedFilters[index].AppliedFilter.EmailType
-          )[0]
-        : null
+      emailTypes.length > 0
+        ? emailTypeDropdown.filter((t: LabelValue) =>
+            emailTypes.includes(t.value)
+          )
+        : []
     );
+    setEmailTypeName(emailTypes);
 
     const tags = AppliedFilter?.Tags || [];
     setTag(
@@ -421,31 +438,35 @@ const EmailBoxReportFilter = ({
         : []
     );
     setTagName(tags);
+
+    const tickets = AppliedFilter?.TicketStatus || [];
     setTicketStatusId(
-      savedFilters[index].AppliedFilter.TicketStatus !== null
-        ? emailBoxStatusOptions.filter(
-            (item: LabelValue) =>
-              item.value === savedFilters[index].AppliedFilter.TicketStatus
-          )[0]
-        : null
+      tickets.length > 0
+        ? emailBoxStatusOptions.filter((t: LabelValue) =>
+            tickets.includes(t.value)
+          )
+        : []
     );
+    setTicketName(tickets);
+
+    const slas = AppliedFilter?.SlaStatus || [];
     setSLAStatusId(
-      savedFilters[index].AppliedFilter.SlaStatus !== null
-        ? emailBoxSLAStatusOptions.filter(
-            (item: LabelValue) =>
-              item.value === savedFilters[index].AppliedFilter.SlaStatus
-          )[0]
-        : null
+      slas.length > 0
+        ? emailBoxSLAStatusOptions.filter((t: LabelValue) =>
+            slas.includes(t.value)
+          )
+        : []
     );
+    setSLAName(slas);
+
+    const rms = AppliedFilter?.ReportingManagerId || [];
     setReportingManager(
-      savedFilters[index].AppliedFilter.ReportingManagerId !== null
-        ? rmDropdown.filter(
-            (item: LabelValue) =>
-              item.value ===
-              savedFilters[index].AppliedFilter.ReportingManagerId
-          )[0]
-        : null
+      rms.length > 0
+        ? rmDropdown.filter((t: LabelValue) => rms.includes(t.value))
+        : []
     );
+    setRMName(rms);
+
     setReceivedFrom(AppliedFilter?.ReceivedFrom || "");
     setReceivedTo(AppliedFilter?.ReceivedTo || "");
     setDueFrom(AppliedFilter?.DueFrom || "");
@@ -587,11 +608,16 @@ const EmailBoxReportFilter = ({
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
-                    options={clientDropdown}
+                    options={clientDropdown.filter(
+                      (option) =>
+                        !clientId.find((c) => c.value === option.value)
+                    )}
                     getOptionLabel={(option: LabelValue) => option.label}
-                    onChange={(e, data: LabelValue | null) => {
+                    onChange={(e, data: LabelValue[]) => {
                       setClientId(data);
+                      setClientName(data.map((d: LabelValue) => d.value));
                     }}
                     value={clientId}
                     renderInput={(params: any) => (
@@ -608,11 +634,16 @@ const EmailBoxReportFilter = ({
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
-                    options={departmentDropdown}
+                    options={departmentDropdown.filter(
+                      (option) =>
+                        !departmentId.find((c) => c.value === option.value)
+                    )}
                     getOptionLabel={(option: LabelValue) => option.label}
-                    onChange={(e, data: LabelValue | null) => {
+                    onChange={(e, data: LabelValue[]) => {
                       setDepartmentId(data);
+                      setDepartmentName(data.map((d: LabelValue) => d.value));
                     }}
                     value={departmentId}
                     renderInput={(params: any) => (
@@ -629,11 +660,16 @@ const EmailBoxReportFilter = ({
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
-                    options={emailTypeDropdown}
+                    options={emailTypeDropdown.filter(
+                      (option) =>
+                        !emailTypeId.find((c) => c.value === option.value)
+                    )}
                     getOptionLabel={(option: LabelValue) => option.label}
-                    onChange={(e, data: LabelValue | null) => {
+                    onChange={(e, data: LabelValue[]) => {
                       setEmailTypeId(data);
+                      setEmailTypeName(data.map((d: LabelValue) => d.value));
                     }}
                     value={emailTypeId}
                     renderInput={(params: any) => (
@@ -680,11 +716,16 @@ const EmailBoxReportFilter = ({
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
-                    options={emailBoxStatusOptions}
+                    options={emailBoxStatusOptions.filter(
+                      (option) =>
+                        !ticketStatusId.find((c) => c.value === option.value)
+                    )}
                     getOptionLabel={(option: LabelValue) => option.label}
-                    onChange={(e, data: LabelValue | null) => {
+                    onChange={(e, data: LabelValue[]) => {
                       setTicketStatusId(data);
+                      setTicketName(data.map((d: LabelValue) => d.value));
                     }}
                     value={ticketStatusId}
                     renderInput={(params: any) => (
@@ -701,11 +742,16 @@ const EmailBoxReportFilter = ({
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
-                    options={emailBoxSLAStatusOptions}
+                    options={emailBoxSLAStatusOptions.filter(
+                      (option) =>
+                        !slaStatusId.find((c) => c.value === option.value)
+                    )}
                     getOptionLabel={(option: LabelValue) => option.label}
-                    onChange={(e, data: LabelValue | null) => {
+                    onChange={(e, data: LabelValue[]) => {
                       setSLAStatusId(data);
+                      setSLAName(data.map((d: LabelValue) => d.value));
                     }}
                     value={slaStatusId}
                     renderInput={(params: any) => (
@@ -724,11 +770,16 @@ const EmailBoxReportFilter = ({
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <Autocomplete
+                    multiple
                     id="tags-standard"
-                    options={rmDropdown}
+                    options={rmDropdown.filter(
+                      (option) =>
+                        !reportingManager.find((c) => c.value === option.value)
+                    )}
                     getOptionLabel={(option: LabelValue) => option.label}
-                    onChange={(e, data: LabelValue | null) => {
+                    onChange={(e, data: LabelValue[]) => {
                       setReportingManager(data);
+                      setRMName(data.map((d: LabelValue) => d.value));
                     }}
                     value={reportingManager}
                     renderInput={(params: any) => (
