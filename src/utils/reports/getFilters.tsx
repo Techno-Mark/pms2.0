@@ -344,6 +344,6 @@ export const getCurrentTabDetails = (activeTab: number, getBody?: boolean) => {
     return getBody ? errorLog_InitialFilter : "errorLog";
   }
   if (activeTab === 18) {
-    return getBody ? emailType_InitialFilter : "emailType";
+    return getBody ? emailType_InitialFilter : "emailbox";
   }
 };

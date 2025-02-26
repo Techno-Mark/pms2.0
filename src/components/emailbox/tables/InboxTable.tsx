@@ -378,9 +378,14 @@ const InboxTable = ({
                     </div>
                   </ColorToolTip>
                 ) : (
-                  <div className="cursor-not-allowed">
-                    <AddPlusIcon color={"gray"} />
-                  </div>
+                  <ColorToolTip
+                    title="Task creation allowed for 'In Progress,' 'Waiting for Client,' and 'Closed' tickets."
+                    placement="left"
+                  >
+                    <div className="cursor-not-allowed">
+                      <AddPlusIcon color={"gray"} />
+                    </div>
+                  </ColorToolTip>
                 )}
               </div>
             );
