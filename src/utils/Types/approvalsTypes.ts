@@ -77,6 +77,7 @@ export interface List {
   QAQuantity: number | null;
   PrevReviewerTime: string | null;
   PrevReviewerName: string | null;
+  DepartmentType: string | null;
 }
 
 export interface InitialFilterApprovals {
@@ -108,6 +109,7 @@ export interface ApprovalsActionBarData {
   selectedWorkItemIds: number[];
   selectedRowClientId: number[] | [];
   selectedRowWorkTypeId: number[] | [];
+  selectedRowDepartmentType: (string | null)[];
   settingSelectedId: () => void;
   id: number;
   workitemId: number;

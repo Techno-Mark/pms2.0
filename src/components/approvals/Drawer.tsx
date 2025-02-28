@@ -249,6 +249,9 @@ const EditDrawer = ({
   const [editStatusApprovals, setEditStatusApprovals] = useState(0);
   const [statusApprovals, setStatusApprovals] = useState<any>(0);
   const [statusApprovalsErr, setStatusApprovalsErr] = useState(false);
+  const [statusApprovalsType, setStatusApprovalsType] = useState<string | null>(
+    null
+  );
   const [assigneeApprovalsDropdownData, setAssigneeApprovalsDropdownData] =
     useState<any>([]);
   const [assigneeApprovals, setAssigneeApprovals] = useState<any>(0);
@@ -314,11 +317,16 @@ const EditDrawer = ({
     useState(false);
   const [valueMonthYearFrom, setValueMonthYearFrom] = useState<any>(null);
   const [valueMonthYearTo, setValueMonthYearTo] = useState<any>(null);
-  const [reworkReceiverDateWorklogs, setReworkReceiverDateWorklogs] =
+  const [reworkReceiverDateApprovals, setReworkReceiverDateApprovals] =
     useState("");
-  const [reworkReceiverDateWorklogsErr, setReworkReceiverDateWorklogsErr] =
+  const [reworkReceiverDateApprovalsErr, setReworkReceiverDateApprovalsErr] =
     useState(false);
-  const [reworkDueDateWorklogs, setReworkDueDateWorklogs] = useState("");
+  const [reworkDueDateApprovals, setReworkDueDateApprovals] = useState("");
+  const [missingInfoApprovals, setMissingInfoApprovals] = useState<
+    string | null
+  >(null);
+  const [missingInfoApprovalsErr, setMissingInfoApprovalsErr] =
+    useState<boolean>(false);
 
   const previousYearStartDate = dayjs()
     .subtract(1, "year")
@@ -1765,8 +1773,8 @@ const EditDrawer = ({
   };
 
   // Logs
-  const [logsWorklogsDrawer, setLogsWorklogsDrawer] = useState(true);
-  const [logsDataWorklogs, setLogsDateWorklogs] = useState<any>([]);
+  const [logsApprovalsDrawer, setLogsApprovalsDrawer] = useState(true);
+  const [logsDataApprovals, setLogsDateApprovals] = useState<any>([]);
 
   const logsDatatableTaskCols = [
     {
@@ -1798,7 +1806,7 @@ const EditDrawer = ({
     },
   ];
 
-  const getLogsDataWorklogs = async () => {
+  const getLogsDataApprovals = async () => {
     const params = {
       WorkitemId: onEdit,
     };
@@ -1814,7 +1822,7 @@ const EditDrawer = ({
         ResponseData.List.length >= 0 &&
         error === false
       ) {
-        setLogsDateWorklogs(ResponseData.List);
+        setLogsDateApprovals(ResponseData.List);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -1953,7 +1961,7 @@ const EditDrawer = ({
     }
   };
 
-  const handleSubmitManualWorklogsRemove = async (id: number) => {
+  const handleSubmitManualApprovalsRemove = async (id: number) => {
     const localString: string | null = localStorage.getItem("UserId");
     const localNumber: number = localString ? parseInt(localString) : 0;
 
@@ -2089,7 +2097,7 @@ const EditDrawer = ({
     reviewermanualFields.length === 1 &&
       index === 0 &&
       reviewermanualFields[index].Id > 0 &&
-      handleSubmitManualWorklogsRemove(reviewermanualFields[index].Id);
+      handleSubmitManualApprovalsRemove(reviewermanualFields[index].Id);
   };
 
   const addManualField = async () => {
@@ -2126,11 +2134,11 @@ const EditDrawer = ({
 
   const handleStartTimeChange = (e: string, index: number) => {
     if (e.length === 0) {
-      const newManualWorklogsFields: ManualFieldsWorklogs[] = [
+      const newManualApprovalsFields: ManualFieldsWorklogs[] = [
         ...reviewermanualFields,
       ];
-      newManualWorklogsFields[index].startTime = 0;
-      setReviewerManualFields(newManualWorklogsFields);
+      newManualApprovalsFields[index].startTime = 0;
+      setReviewerManualFields(newManualApprovalsFields);
       return;
     }
 
@@ -2142,11 +2150,11 @@ const EditDrawer = ({
       return;
     }
 
-    const newManualWorklogsFields: ManualFieldsWorklogs[] = [
+    const newManualApprovalsFields: ManualFieldsWorklogs[] = [
       ...reviewermanualFields,
     ];
-    newManualWorklogsFields[index].startTime = Number(e) || 0;
-    setReviewerManualFields(newManualWorklogsFields);
+    newManualApprovalsFields[index].startTime = Number(e) || 0;
+    setReviewerManualFields(newManualApprovalsFields);
   };
 
   const handleManualDescChange = (e: string, index: number) => {
@@ -2198,7 +2206,7 @@ const EditDrawer = ({
       subProcess: validateField(subProcessApprovals),
       clientTaskName: validateField(clientTaskNameApprovals),
       descriptionApprovals:
-        // departmentApprovalsType !== "WhitelabelTaxation" &&
+        departmentApprovalsType !== "WhitelabelTaxation" &&
         validateField(descriptionApprovals),
       quantity: validateField(quantityApprovals),
       receiverDate: validateField(receiverDateApprovals),
@@ -2219,6 +2227,10 @@ const EditDrawer = ({
         reminderSwitchApprovals &&
         reminderCheckboxValueApprovals === 2 &&
         validateField(reminderDateApprovals),
+      missingInfo:
+        departmentApprovalsType === "WhitelabelTaxation" &&
+        statusApprovalsType === "OnHoldFromClient" &&
+        validateField(missingInfoApprovals),
     };
 
     setClientNameApprovalsErr(fieldValidations.clientName);
@@ -2228,7 +2240,7 @@ const EditDrawer = ({
     setProcessNameApprovalsErr(fieldValidations.processName);
     setSubProcessApprovalsErr(fieldValidations.subProcess);
     setClientTaskNameApprovalsErr(fieldValidations.clientTaskName);
-    // departmentApprovalsType !== "WhitelabelTaxation" &&
+    departmentApprovalsType !== "WhitelabelTaxation" &&
       setDescriptionApprovalsErr(fieldValidations.descriptionApprovals);
     setQuantityApprovalsErr(fieldValidations.quantity);
     setReceiverDateApprovalsErr(fieldValidations.receiverDate);
@@ -2253,6 +2265,9 @@ const EditDrawer = ({
       reminderSwitchApprovals &&
       reminderCheckboxValueApprovals === 2 &&
       setReminderDateApprovalsErr(fieldValidations.reminderDate);
+    departmentApprovalsType === "WhitelabelTaxation" &&
+      statusApprovalsType === "OnHoldFromClient" &&
+      setMissingInfoApprovalsErr(fieldValidations.missingInfo);
 
     setClientTaskNameApprovalsErr(
       clientTaskNameApprovals.trim().length < 4 ||
@@ -2273,7 +2288,7 @@ const EditDrawer = ({
       subProcess: validateField(subProcessApprovals),
       clientTaskName: validateField(clientTaskNameApprovals),
       descriptionApprovals:
-        // departmentApprovalsType !== "WhitelabelTaxation" &&
+        departmentApprovalsType !== "WhitelabelTaxation" &&
         validateField(descriptionApprovals),
       status: validateField(statusApprovals),
       quantity: validateField(quantityApprovals),
@@ -2286,6 +2301,10 @@ const EditDrawer = ({
         typeOfWorkApprovals === 3 && validateField(returnYearApprovals),
       checklistWorkpaper:
         typeOfWorkApprovals === 3 && validateField(checklistWorkpaperApprovals),
+      missingInfo:
+        departmentApprovalsType === "WhitelabelTaxation" &&
+        statusApprovalsType === "OnHoldFromClient" &&
+        validateField(missingInfoApprovals),
     };
 
     const hasEditErrors = Object.values(fieldValidationsEdit).some(
@@ -2333,11 +2352,11 @@ const EditDrawer = ({
           : checklistWorkpaperApprovals === 2
           ? false
           : null,
-      ReworkReceivedDate: !!reworkReceiverDateWorklogs
-        ? dayjs(reworkReceiverDateWorklogs).format("YYYY/MM/DD")
+      ReworkReceivedDate: !!reworkReceiverDateApprovals
+        ? dayjs(reworkReceiverDateApprovals).format("YYYY/MM/DD")
         : null,
-      ReworkDueDate: !!reworkDueDateWorklogs
-        ? dayjs(reworkDueDateWorklogs).format("YYYY/MM/DD")
+      ReworkDueDate: !!reworkDueDateApprovals
+        ? dayjs(reworkDueDateApprovals).format("YYYY/MM/DD")
         : null,
       PeriodFrom:
         valueMonthYearFrom === null || valueMonthYearFrom === ""
@@ -2349,6 +2368,12 @@ const EditDrawer = ({
           : dayjs(valueMonthYearTo).format("YYYY/MM/DD"),
       IsQARequired: departmentApprovalsType == "SMB" ? isQaApprovals : null,
       QAQuantity: departmentApprovalsType == "SMB" ? qaQuantityApprovals : null,
+      MissingInfo:
+        departmentApprovalsType === "WhitelabelTaxation" &&
+        !!missingInfoApprovals &&
+        statusApprovalsType === "OnHoldFromClient"
+          ? missingInfoApprovals.toString().trim()
+          : null,
       ManualTimeList: null,
       SubTaskList: null,
       RecurringObj: null,
@@ -2396,7 +2421,7 @@ const EditDrawer = ({
       quantityApprovals < 10000 &&
       !quantityApprovalsErr &&
       !quantityApprovals.toString().includes(".") &&
-      !reworkReceiverDateWorklogsErr
+      !reworkReceiverDateApprovalsErr
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
@@ -2489,12 +2514,12 @@ const EditDrawer = ({
         setValueMonthYearTo(
           ResponseData.PeriodTo === null ? null : dayjs(ResponseData.PeriodTo)
         );
-        setReworkReceiverDateWorklogs(
+        setReworkReceiverDateApprovals(
           !!ResponseData.ReworkReceivedDate
             ? ResponseData.ReworkReceivedDate
             : ""
         );
-        setReworkDueDateWorklogs(
+        setReworkDueDateApprovals(
           !!ResponseData.ReworkDueDate ? ResponseData.ReworkDueDate : ""
         );
         setIsQaApprovals(
@@ -2502,6 +2527,9 @@ const EditDrawer = ({
         );
         setQAQuantityApprovals(
           !!ResponseData.QAQuantity ? Number(ResponseData.QAQuantity) : null
+        );
+        setMissingInfoApprovals(
+          !!ResponseData.MissingInfo ? ResponseData.MissingInfo : null
         );
       }
     };
@@ -2517,6 +2545,7 @@ const EditDrawer = ({
       const getType = statusData.filter(
         (item: LabelValueType) => item.value === editStatusApprovals
       )[0].Type;
+      setStatusApprovalsType(getType);
 
       !errorlogSignedOffPendingApprovals &&
         setStatusApprovalsDropdownDataUse(
@@ -2527,19 +2556,7 @@ const EditDrawer = ({
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient" ||
-              // (getType !== "PartialSubmitted" && item.Type === "Accept") ||
-              // (getType !== "PartialSubmitted" &&
-              //   item.Type === "AcceptWithNotes") ||
               (getType !== "PartialSubmitted" && item.Type === "InReview") ||
-              // (getType !== "PartialSubmitted" &&
-              //   getType !== "SecondManagerReview" &&
-              //   getType !== "QASubmitted" &&
-              //   item.Type === "Submitted") ||
-              // (typeOfWorkApprovals !== 3 &&
-              //   getType !== "Submitted" &&
-              //   getType !== "QASubmitted" &&
-              //   getType !== "SecondManagerReview" &&
-              //   item.Type === "PartialSubmitted") ||
               item.value === editStatusApprovals
           )
         );
@@ -2552,21 +2569,8 @@ const EditDrawer = ({
               item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient" ||
-              // (getType !== "PartialSubmitted" &&
-              //   item.Type === "ReworkAccept") ||
-              // (getType !== "PartialSubmitted" &&
-              //   item.Type === "ReworkAcceptWithNotes") ||
               (getType !== "PartialSubmitted" &&
                 item.Type === "ReworkInReview") ||
-              // (getType !== "PartialSubmitted" &&
-              //   getType !== "SecondManagerReview" &&
-              //   getType !== "QASubmitted" &&
-              //   item.Type === "ReworkSubmitted") ||
-              // (typeOfWorkApprovals !== 3 &&
-              //   getType !== "ReworkSubmitted" &&
-              //   getType !== "QASubmitted" &&
-              //   getType !== "SecondManagerReview" &&
-              //   item.Type === "PartialSubmitted") ||
               item.value === editStatusApprovals
           )
         );
@@ -2774,7 +2778,7 @@ const EditDrawer = ({
       getCheckListDataApprovals();
       getCommentDataApprovals(1);
       getReviewerNoteDataApprovals();
-      getLogsDataWorklogs();
+      getLogsDataApprovals();
     }
   }, [onEdit]);
 
@@ -2978,6 +2982,7 @@ const EditDrawer = ({
     setEditStatusApprovals(0);
     setStatusApprovals(0);
     setStatusApprovalsErr(false);
+    setStatusApprovalsType(null);
     setStatusApprovalsDropdownData([]);
     setStatusApprovalsDropdownDataUse([]);
     setStatusApprovalsDropdownDataUseAllTask([]);
@@ -3013,6 +3018,8 @@ const EditDrawer = ({
     setValueMonthYearTo(null);
     setIsQaApprovals(0);
     setQAQuantityApprovals(null);
+    setMissingInfoApprovals(null);
+    setMissingInfoApprovalsErr(false);
 
     // Sub-Task
     setSubTaskSwitchApprovals(false);
@@ -3156,7 +3163,7 @@ const EditDrawer = ({
     setDeletedErrorLogApprovals([]);
 
     // Logs
-    setLogsDateWorklogs([]);
+    setLogsDateApprovals([]);
 
     if (typeof window !== "undefined") {
       const pathname = window.location.href.includes("id=");
@@ -3269,6 +3276,7 @@ const EditDrawer = ({
                           setProjectNameApprovalsErr(false);
                           setStatusApprovals(0);
                           setStatusApprovalsErr(false);
+                          setStatusApprovalsType(null);
                           setProcessNameApprovals(0);
                           setProcessNameApprovalsErr(false);
                           setSubProcessApprovals(0);
@@ -3295,6 +3303,8 @@ const EditDrawer = ({
                           setCheckListNameApprovalsError(false);
                           setValueMonthYearFrom(null);
                           setValueMonthYearTo(null);
+                          setMissingInfoApprovals(null);
+                          setMissingInfoApprovalsErr(false);
                         }}
                         disabled={
                           (activeTab !== 2 &&
@@ -3374,6 +3384,7 @@ const EditDrawer = ({
                             setProjectNameApprovalsErr(false);
                             setStatusApprovals(0);
                             setStatusApprovalsErr(false);
+                            setStatusApprovalsType(null);
                             setProcessNameApprovals(0);
                             setProcessNameApprovalsErr(false);
                             setSubProcessApprovals(0);
@@ -3384,6 +3395,8 @@ const EditDrawer = ({
                             setValueMonthYearTo(null);
                             setManagerApprovals(0);
                             setManagerApprovalsErr(false);
+                            setMissingInfoApprovals(null);
+                            setMissingInfoApprovalsErr(false);
                           }}
                           onBlur={() => {
                             if (typeOfWorkApprovals > 0) {
@@ -3460,7 +3473,13 @@ const EditDrawer = ({
                       <Autocomplete
                         id="combo-box-demo"
                         options={
-                          activeTab === 2
+                          activeTab === 2 &&
+                          statusApprovalsType === "NotStarted"
+                            ? statusApprovalsDropdownDataUseAllTask.filter(
+                                (i: any) => i.Type !== "OnHoldFromClient"
+                              )
+                            : activeTab === 2 &&
+                              statusApprovalsType !== "NotStarted"
                             ? statusApprovalsDropdownDataUseAllTask
                             : statusApprovalsDropdownDataUse
                         }
@@ -3477,6 +3496,7 @@ const EditDrawer = ({
                         }
                         onChange={(e, value: LabelValueType | null) => {
                           value && setStatusApprovals(value.value);
+                          value && setStatusApprovalsType(String(value.Type));
                         }}
                         disabled={
                           (activeTab !== 2 &&
@@ -3550,6 +3570,7 @@ const EditDrawer = ({
                           setAllInfoDateApprovals("");
                           setValueMonthYearFrom(null);
                           setValueMonthYearTo(null);
+                          setMissingInfoApprovalsErr(false);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3736,28 +3757,19 @@ const EditDrawer = ({
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <TextField
-                        // label={
-                        //   departmentApprovalsType === "WhitelabelTaxation" &&
-                        //   typeOfWorkApprovals === 3 ? (
-                        //     "Missing Info/Description"
-                        //   ) : departmentApprovalsType ===
-                        //     "WhitelabelTaxation" ? (
-                        //     "Description"
-                        //   ) : (
-                        //     <span>
-                        //       Description
-                        //       <span className="!text-defaultRed">&nbsp;*</span>
-                        //     </span>
-                        //   )
-                        // }
                         label={
-                          <span>
-                            {departmentApprovalsType === "WhitelabelTaxation" &&
-                            typeOfWorkApprovals === 3
-                              ? "Missing Info/Description"
-                              : "Description"}
-                            <span className="text-defaultRed">&nbsp;*</span>
-                          </span>
+                          departmentApprovalsType === "WhitelabelTaxation" &&
+                          typeOfWorkApprovals === 3 ? (
+                            "Missing Info/Description"
+                          ) : departmentApprovalsType ===
+                            "WhitelabelTaxation" ? (
+                            "Description"
+                          ) : (
+                            <span>
+                              Description
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          )
                         }
                         multiline={
                           departmentApprovalsType === "WhitelabelTaxation" &&
@@ -3775,12 +3787,11 @@ const EditDrawer = ({
                           setDescriptionApprovalsErr(false);
                         }}
                         onBlur={(e) => {
-                          // if (
-                          //   departmentApprovalsType === "WhitelabelTaxation"
-                          // ) {
-                          //   setDescriptionApprovalsErr(false);
-                          // } else 
                           if (
+                            departmentApprovalsType === "WhitelabelTaxation"
+                          ) {
+                            setDescriptionApprovalsErr(false);
+                          } else if (
                             e.target.value.trim().length <= 0 ||
                             e.target.value.trim().length > 100
                           ) {
@@ -4042,11 +4053,11 @@ const EditDrawer = ({
                                   .toDate();
                               }
                               setDueDateApprovals(nextDate);
-                              !!reworkReceiverDateWorklogs &&
-                              new Date(reworkReceiverDateWorklogs) <
+                              !!reworkReceiverDateApprovals &&
+                              new Date(reworkReceiverDateApprovals) <
                                 new Date(newDate.$d)
-                                ? setReworkReceiverDateWorklogsErr(true)
-                                : setReworkReceiverDateWorklogsErr(false);
+                                ? setReworkReceiverDateApprovalsErr(true)
+                                : setReworkReceiverDateApprovalsErr(false);
                             }}
                             slotProps={{
                               textField: {
@@ -4636,6 +4647,77 @@ const EditDrawer = ({
                         </Grid>
                       </>
                     )}
+                    {departmentApprovalsType === "WhitelabelTaxation" &&
+                      statusApprovals > 0 &&
+                      statusApprovalsType === "OnHoldFromClient" && (
+                        <Grid item xs={3} className="pt-4">
+                          <TextField
+                            label={
+                              <span>
+                                Missing Info
+                                <span className="!text-defaultRed">
+                                  &nbsp;*
+                                </span>
+                              </span>
+                            }
+                            fullWidth
+                            value={
+                              !missingInfoApprovals ||
+                              missingInfoApprovals?.trim().length <= 0
+                                ? ""
+                                : missingInfoApprovals
+                            }
+                            disabled={
+                              (activeTab !== 2 &&
+                                isCreatedByClient &&
+                                editData.SubProcessId > 0) ||
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) ==
+                                  3 &&
+                                localStorage.getItem("UserId") !=
+                                  editData.ReviewerId) ||
+                              (activeTab === 2 &&
+                                Number(localStorage.getItem("workTypeId")) != 3)
+                            }
+                            onChange={(e) => {
+                              setMissingInfoApprovals(e.target.value);
+                              setMissingInfoApprovalsErr(false);
+                            }}
+                            onBlur={(e) => {
+                              if (
+                                e.target.value.trim().length <= 0 ||
+                                e.target.value.trim().length > 100
+                              ) {
+                                setMissingInfoApprovalsErr(true);
+                              }
+                            }}
+                            error={missingInfoApprovalsErr}
+                            helperText={
+                              missingInfoApprovalsErr &&
+                              !!missingInfoApprovals &&
+                              missingInfoApprovals?.trim().length > 100
+                                ? "Maximum 100 characters allowed."
+                                : missingInfoApprovalsErr
+                                ? "This is a required field."
+                                : ""
+                            }
+                            margin="normal"
+                            variant="standard"
+                            sx={{
+                              mx: 0.75,
+                              width: 300,
+                              mt:
+                                departmentApprovalsType ===
+                                  "WhitelabelTaxation" &&
+                                statusApprovals > 0 &&
+                                statusApprovalsType === "OnHoldFromClient" &&
+                                typeOfWorkApprovals !== 3
+                                  ? -0.5
+                                  : 0,
+                            }}
+                          />
+                        </Grid>
+                      )}
                     {onEdit > 0 && (
                       <>
                         <Grid
@@ -4649,6 +4731,12 @@ const EditDrawer = ({
                                 "WhitelabelAustralia" ||
                               departmentApprovalsType === "Germany") &&
                             typeOfWorkApprovals !== 3
+                              ? "pt-6"
+                              : departmentApprovalsType ===
+                                  "WhitelabelTaxation" &&
+                                statusApprovals > 0 &&
+                                statusApprovalsType === "OnHoldFromClient" &&
+                                typeOfWorkApprovals !== 3
                               ? "pt-6"
                               : "pt-5"
                           }`}
@@ -4714,7 +4802,7 @@ const EditDrawer = ({
                             }}
                           />
                         </Grid>
-                        {!!reworkReceiverDateWorklogs && (
+                        {!!reworkReceiverDateApprovals && (
                           <Grid item xs={3} className="pt-5">
                             <div
                               className={`inline-flex -mt-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
@@ -4745,26 +4833,28 @@ const EditDrawer = ({
                                       ) != 3)
                                   }
                                   value={
-                                    reworkReceiverDateWorklogs === ""
+                                    reworkReceiverDateApprovals === ""
                                       ? null
-                                      : dayjs(reworkReceiverDateWorklogs)
+                                      : dayjs(reworkReceiverDateApprovals)
                                   }
                                   // shouldDisableDate={isWeekend}
                                   minDate={dayjs(receiverDateApprovals)}
                                   maxDate={dayjs(Date.now())}
                                   onChange={(newDate: any) => {
-                                    setReworkReceiverDateWorklogs(newDate.$d);
+                                    setReworkReceiverDateApprovals(newDate.$d);
                                     const selectedDate = dayjs(newDate.$d);
                                     let nextDate: any = selectedDate;
                                     nextDate = dayjs(newDate.$d)
                                       .add(1, "day")
                                       .toDate();
-                                    setReworkDueDateWorklogs(nextDate);
+                                    setReworkDueDateApprovals(nextDate);
                                     !!receiverDateApprovals &&
                                     new Date(receiverDateApprovals) >
                                       new Date(newDate.$d)
-                                      ? setReworkReceiverDateWorklogsErr(true)
-                                      : setReworkReceiverDateWorklogsErr(false);
+                                      ? setReworkReceiverDateApprovalsErr(true)
+                                      : setReworkReceiverDateApprovalsErr(
+                                          false
+                                        );
                                   }}
                                   slotProps={{
                                     textField: {
@@ -4776,7 +4866,7 @@ const EditDrawer = ({
                             </div>
                           </Grid>
                         )}
-                        {!!reworkDueDateWorklogs && (
+                        {!!reworkDueDateApprovals && (
                           <Grid item xs={3} className="pt-5">
                             <div
                               className={`inline-flex ${
@@ -4796,9 +4886,9 @@ const EditDrawer = ({
                                     </span>
                                   }
                                   value={
-                                    reworkDueDateWorklogs === ""
+                                    reworkDueDateApprovals === ""
                                       ? null
-                                      : dayjs(reworkDueDateWorklogs)
+                                      : dayjs(reworkDueDateApprovals)
                                   }
                                   disabled={
                                     (activeTab !== 2 &&
@@ -4815,10 +4905,10 @@ const EditDrawer = ({
                                         localStorage.getItem("workTypeId")
                                       ) != 3)
                                   }
-                                  minDate={dayjs(reworkReceiverDateWorklogs)}
+                                  minDate={dayjs(reworkReceiverDateApprovals)}
                                   shouldDisableDate={isWeekend}
                                   onChange={(newDate: any) => {
-                                    setReworkDueDateWorklogs(newDate.$d);
+                                    setReworkDueDateApprovals(newDate.$d);
                                   }}
                                   slotProps={{
                                     textField: {
@@ -6019,17 +6109,17 @@ const EditDrawer = ({
                               e.target.value.trim().toString() == "000" ||
                               Number(e.target.value.trim()) > 480
                             ) {
-                              const newStartTimeWorklogsErrors = [
+                              const newStartTimeApprovalsErrors = [
                                 ...startTimeErrors,
                               ];
-                              newStartTimeWorklogsErrors[index] = true;
-                              setStartTimeErrors(newStartTimeWorklogsErrors);
+                              newStartTimeApprovalsErrors[index] = true;
+                              setStartTimeErrors(newStartTimeApprovalsErrors);
                             } else {
-                              const newStartTimeWorklogsErrors = [
+                              const newStartTimeApprovalsErrors = [
                                 ...startTimeErrors,
                               ];
-                              newStartTimeWorklogsErrors[index] = false;
-                              setStartTimeErrors(newStartTimeWorklogsErrors);
+                              newStartTimeApprovalsErrors[index] = false;
+                              setStartTimeErrors(newStartTimeApprovalsErrors);
                             }
                           }}
                           error={startTimeErrors[index]}
@@ -7781,16 +7871,16 @@ const EditDrawer = ({
                   </span>
                   <span
                     className={`cursor-pointer ${
-                      logsWorklogsDrawer ? "rotate-180" : ""
+                      logsApprovalsDrawer ? "rotate-180" : ""
                     }`}
-                    onClick={() => setLogsWorklogsDrawer(!logsWorklogsDrawer)}
+                    onClick={() => setLogsApprovalsDrawer(!logsApprovalsDrawer)}
                   >
                     <ChevronDownIcon />
                   </span>
                 </div>
-                {logsWorklogsDrawer &&
-                  logsDataWorklogs.length > 0 &&
-                  logsDataWorklogs.map(
+                {logsApprovalsDrawer &&
+                  logsDataApprovals.length > 0 &&
+                  logsDataApprovals.map(
                     (i: AuditlogGetByWorkitem, index: number) => (
                       <div
                         className="mt-5 pl-[70px] text-sm"

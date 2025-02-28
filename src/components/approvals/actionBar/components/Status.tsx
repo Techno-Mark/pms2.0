@@ -19,6 +19,7 @@ interface Status {
   getReviewList: () => void;
   selectedRowClientId: number[] | [];
   selectedRowWorkTypeId: number[] | [];
+  selectedRowDepartmentType: (string | null)[];
   getOverLay?: (e: boolean) => void;
   activeTab: number;
 }
@@ -30,6 +31,7 @@ const Status = ({
   getReviewList,
   selectedRowClientId,
   selectedRowWorkTypeId,
+  selectedRowDepartmentType,
   getOverLay,
   activeTab,
 }: Status) => {
@@ -93,7 +95,7 @@ const Status = ({
     }
     handleCloseStatus();
   };
-
+console.log(selectedRowDepartmentType)
   const getAllStatus = async () => {
     let isRework: any = [];
     let isNotRework: any = [];
@@ -110,9 +112,9 @@ const Status = ({
       Array.from(new Set(selectedRowWorkTypeId))[0]
     );
 
-    data.length > 0 && activeTab === 1
-      ? setAllStatus(
-          data.filter(
+    const newData =
+      data.length > 0 && activeTab === 1
+        ? data.filter(
             (item: LabelValueType) =>
               item.Type === "InReviewWithClients" ||
               item.Type === "Rework" ||
@@ -129,10 +131,15 @@ const Status = ({
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient"
           )
-        )
-      : data.length > 0 && activeTab === 2
-      ? setAllStatus(data)
-      : setAllStatus([]);
+        : data.length > 0 && activeTab === 2
+        ? data
+        : [];
+    setAllStatus(
+      selectedRowDepartmentType.includes("WhitelabelTaxation") ||
+        selectedRowDepartmentType.includes(null)
+        ? newData.filter((i: LabelValueType) => i.Type !== "OnHoldFromClient")
+        : newData
+    );
   };
 
   const updateStatus = async (

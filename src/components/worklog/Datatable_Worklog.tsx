@@ -73,6 +73,9 @@ const Datatable_Worklog = ({
   const [isCreatedByClient, setIsCreatedByClient] = useState<null | boolean>(
     null
   );
+  const [selectedRowDepartmentType, setSelectedRowDepartmentType] = useState<
+    (string | null)[] | []
+  >([]);
   const [filteredObject, setFilteredOject] =
     useState<InitialFilter>(initialFilter);
 
@@ -120,6 +123,15 @@ const Datatable_Worklog = ({
         ? selectedData[selectedData.length - 1].IsCreatedByClient
         : null;
     setIsCreatedByClient(IsCreatedByClient);
+
+    const selectedWorkItemDepartmentTypes: (string | null)[] | [] =
+      selectedData.length > 0
+        ? selectedData.map(
+            (selectedRow: DatatableWorklog) => selectedRow?.DepartmentType
+          )
+        : [];
+
+    setSelectedRowDepartmentType(selectedWorkItemDepartmentTypes);
 
     setIsPopupOpen(allRowsSelected);
   };
@@ -205,6 +217,7 @@ const Datatable_Worklog = ({
     workItemData,
     getWorkItemList,
     isCreatedByClient,
+    selectedRowDepartmentType,
   };
 
   return (

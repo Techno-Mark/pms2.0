@@ -107,6 +107,9 @@ const TaskEditDrawer = ({
   const [statusWorklogsDropdownDataUse, setStatusWorklogsDropdownDataUse] =
     useState<LabelValueType[] | []>([]);
   const [statusWorklogs, setStatusWorklogs] = useState<number>(0);
+  const [statusWorklogsType, setStatusWorklogsType] = useState<string | null>(
+    null
+  );
   const [descriptionWorklogs, setDescriptionWorklogs] = useState<string>("");
   const [priorityWorklogs, setPriorityWorklogs] = useState<number>(0);
   const [quantityWorklogs, setQuantityWorklogs] = useState<number>(1);
@@ -138,6 +141,11 @@ const TaskEditDrawer = ({
   const [reworkReceiverDateWorklogs, setReworkReceiverDateWorklogs] =
     useState<any>("");
   const [reworkDueDateWorklogs, setReworkDueDateWorklogs] = useState<any>("");
+  const [missingInfoWorklogs, setMissingInfoWorklogs] = useState<string | null>(
+    null
+  );
+  const [missingInfoWorklogsErr, setMissingInfoWorklogsErr] =
+    useState<boolean>(false);
 
   const previousYearStartDate = dayjs()
     .subtract(1, "year")
@@ -192,6 +200,9 @@ const TaskEditDrawer = ({
     number | null
   >(null);
   const [statusWorklogsEdit, setStatusWorklogsEdit] = useState<number>(0);
+  const [statusWorklogsEditType, setStatusWorklogsEditType] = useState<
+    string | null
+  >(null);
   const [statusWorklogsEditErr, setStatusWorklogsEditErr] = useState(false);
   const [descriptionWorklogsEdit, setDescriptionWorklogsEdit] =
     useState<string>("");
@@ -255,6 +266,11 @@ const TaskEditDrawer = ({
   ] = useState(false);
   const [reworkDueDateWorklogsEdit, setReworkDueDateWorklogsEdit] =
     useState<any>("");
+  const [missingInfoWorklogsEdit, setMissingInfoWorklogsEdit] = useState<
+    string | null
+  >(null);
+  const [missingInfoWorklogsEditErr, setMissingInfoWorklogsEditErr] =
+    useState<boolean>(false);
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -279,7 +295,7 @@ const TaskEditDrawer = ({
       subProcess: validateField(subProcessWorklogsEdit),
       clientTaskName: validateField(clientTaskNameWorklogsEdit),
       descriptionWorklogs:
-        // departmentWorklogsTypeEdit !== "WhitelabelTaxation" &&
+        departmentWorklogsTypeEdit !== "WhitelabelTaxation" &&
         validateField(descriptionWorklogsEdit),
       status: validateField(statusWorklogsEdit),
       quantity: validateField(quantityWorklogsEdit),
@@ -294,6 +310,10 @@ const TaskEditDrawer = ({
       checklistWorkpaper:
         typeOfWorkWorklogsEdit === 3 &&
         validateField(checklistWorkpaperWorklogsEdit),
+      missingInfo:
+        departmentWorklogsTypeEdit === "WhitelabelTaxation" &&
+        statusWorklogsEditType === "OnHoldFromClient" &&
+        validateField(missingInfoWorklogsEdit),
     };
 
     setClientNameWorklogsEditErr(fieldValidationsEdit.clientName);
@@ -303,7 +323,7 @@ const TaskEditDrawer = ({
     setProcessNameWorklogsEditErr(fieldValidationsEdit.processName);
     setSubProcessWorklogsEditErr(fieldValidationsEdit.subProcess);
     setClientTaskNameWorklogsEditErr(fieldValidationsEdit.clientTaskName);
-    // departmentWorklogsTypeEdit !== "WhitelabelTaxation" &&
+    departmentWorklogsTypeEdit !== "WhitelabelTaxation" &&
       setDescriptionWorklogsEditErr(fieldValidationsEdit.descriptionWorklogs);
     setQuantityWorklogsEditErr(fieldValidationsEdit.quantity);
     setReceiverDateWorklogsEditErr(fieldValidationsEdit.receiverDate);
@@ -393,6 +413,12 @@ const TaskEditDrawer = ({
         departmentWorklogsTypeEdit == "SMB" ? isQaWorklogsEdit : null,
       QAQuantity:
         departmentWorklogsTypeEdit == "SMB" ? qaQuantityWorklogsEdit : null,
+      MissingInfo:
+        departmentWorklogsTypeEdit === "WhitelabelTaxation" &&
+        !!missingInfoWorklogsEdit &&
+        statusWorklogsEditType === "OnHoldFromClient"
+          ? missingInfoWorklogsEdit.toString().trim()
+          : null,
       ManualTimeList: null,
       SubTaskList: null,
       RecurringObj: null,
@@ -414,6 +440,9 @@ const TaskEditDrawer = ({
           );
           onEdit > 0 && getEditDataWorklogs();
           handleClose();
+          setIsLoadingWorklogs(false);
+        } else if (ResponseStatus === "Warning" && error === false) {
+          toast.warning(ResponseData);
           setIsLoadingWorklogs(false);
         } else {
           setIsLoadingWorklogs(false);
@@ -634,6 +663,12 @@ const TaskEditDrawer = ({
             ? Number(ResponseData.QAQuantity)
             : null
         );
+        setMissingInfoWorklogs(
+          !!ResponseData.MissingInfo ? ResponseData.MissingInfo : null
+        );
+        setMissingInfoWorklogsEdit(
+          !!ResponseData.MissingInfo ? ResponseData.MissingInfo : null
+        );
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -651,6 +686,14 @@ const TaskEditDrawer = ({
       const statusData =
         typeOfWorkWorklogs > 0 &&
         (await getStatusDropdownData(typeOfWorkWorklogs));
+      const getType = statusData.filter(
+        (item: LabelValueType) => item.value === statusWorklogs
+      )[0].Type;
+      setStatusWorklogsType(getType);
+      const getTypeEdit = statusData.filter(
+        (item: LabelValueType) => item.value === statusWorklogsEdit
+      )[0].Type;
+      setStatusWorklogsEditType(getTypeEdit);
       onOpen &&
         onEdit === 0 &&
         (await setStatusWorklogsDropdownDataUse(
@@ -991,6 +1034,7 @@ const TaskEditDrawer = ({
     setSubProcessWorklogs(0);
     setManagerWorklogs(0);
     setStatusWorklogs(0);
+    setStatusWorklogsType(null);
     setDescriptionWorklogs("");
     setPriorityWorklogs(0);
     setQuantityWorklogs(1);
@@ -1013,6 +1057,8 @@ const TaskEditDrawer = ({
     setReworkReceiverDateWorklogs(null);
     setReworkDueDateWorklogs(null);
     setIsQaWorklogs(0);
+    setMissingInfoWorklogs(null);
+    setMissingInfoWorklogsErr(false);
 
     setClientNameWorklogsEdit(0);
     setClientNameWorklogsEditErr(false);
@@ -1030,6 +1076,7 @@ const TaskEditDrawer = ({
     setManagerWorklogsEditErr(false);
     setStatusWorklogsEdit(0);
     setStatusWorklogsEditErr(false);
+    setStatusWorklogsEditType(null);
     setDescriptionWorklogsEdit("");
     setPriorityWorklogsEdit(0);
     setQuantityWorklogsEdit(1);
@@ -1057,6 +1104,8 @@ const TaskEditDrawer = ({
     setReworkDueDateWorklogsEdit(null);
     setIsQaWorklogsEdit(0);
     setQAQuantityWorklogsEdit(null);
+    setMissingInfoWorklogsEdit(null);
+    setMissingInfoWorklogsEditErr(false);
 
     setClientWorklogsDropdownData([]);
     setTypeOfWorkWorklogsDropdownData([]);
@@ -1364,27 +1413,18 @@ const TaskEditDrawer = ({
                   </Grid>
                   <Grid item xs={3} className="pt-4">
                     <TextField
-                      // label={
-                      //   departmentWorklogsType === "WhitelabelTaxation" &&
-                      //   typeOfWorkWorklogs === 3 ? (
-                      //     "Missing Info/Description"
-                      //   ) : departmentWorklogsType === "WhitelabelTaxation" ? (
-                      //     "Description"
-                      //   ) : (
-                      //     <span>
-                      //       Description
-                      //       <span className="!text-defaultRed">&nbsp;*</span>
-                      //     </span>
-                      //   )
-                      // }
                       label={
-                        <span>
-                          {departmentWorklogsType === "WhitelabelTaxation" &&
-                          typeOfWorkWorklogs === 3
-                            ? "Missing Info/Description"
-                            : "Description"}
-                          <span className="!text-defaultRed">&nbsp;*</span>
-                        </span>
+                        departmentWorklogsType === "WhitelabelTaxation" &&
+                        typeOfWorkWorklogs === 3 ? (
+                          "Missing Info/Description"
+                        ) : departmentWorklogsType === "WhitelabelTaxation" ? (
+                          "Description"
+                        ) : (
+                          <span>
+                            Description
+                            <span className="!text-defaultRed">&nbsp;*</span>
+                          </span>
+                        )
                       }
                       multiline={
                         departmentWorklogsType === "WhitelabelTaxation" &&
@@ -1888,6 +1928,41 @@ const TaskEditDrawer = ({
                       </Grid>
                     </>
                   )}
+                  {departmentWorklogsType === "WhitelabelTaxation" &&
+                    statusWorklogs > 0 &&
+                    statusWorklogsType === "OnHoldFromClient" && (
+                      <Grid item xs={3} className="pt-4">
+                        <TextField
+                          label={
+                            <span>
+                              Missing Info
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          fullWidth
+                          value={
+                            !missingInfoWorklogs ||
+                            missingInfoWorklogs?.trim().length <= 0
+                              ? ""
+                              : missingInfoWorklogs
+                          }
+                          disabled
+                          margin="normal"
+                          variant="standard"
+                          sx={{
+                            mx: 0.75,
+                            width: 300,
+                            mt:
+                              departmentWorklogsType === "WhitelabelTaxation" &&
+                              statusWorklogs > 0 &&
+                              statusWorklogsType === "OnHoldFromClient" &&
+                              typeOfWorkWorklogs !== 3
+                                ? -0.5
+                                : 0,
+                          }}
+                        />
+                      </Grid>
+                    )}
                   {onEdit > 0 && (
                     <>
                       <Grid
@@ -2120,6 +2195,7 @@ const TaskEditDrawer = ({
                           setProjectNameWorklogsEditErr(false);
                           setStatusWorklogsEdit(0);
                           setStatusWorklogsEditErr(false);
+                          setStatusWorklogsEditType(null);
                           setProcessNameWorklogsEdit(0);
                           setProcessNameWorklogsEditErr(false);
                           setSubProcessWorklogsEdit(0);
@@ -2136,6 +2212,8 @@ const TaskEditDrawer = ({
                           setValueMonthYearToEdit(null);
                           setManagerWorklogsEdit(0);
                           setManagerWorklogsEditErr(false);
+                          setMissingInfoWorklogsEdit(null);
+                          setMissingInfoWorklogsEditErr(false);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -2194,6 +2272,7 @@ const TaskEditDrawer = ({
                             setSubProcessWorklogsEditErr(false);
                             setStatusWorklogsEdit(0);
                             setStatusWorklogsEditErr(false);
+                            setStatusWorklogsEditType(null);
                             setDepartmentWorklogsEdit(0);
                             setDepartmentWorklogsEditErr(false);
                             setDepartmentWorklogsTypeEdit("");
@@ -2201,6 +2280,8 @@ const TaskEditDrawer = ({
                             setValueMonthYearToEdit(null);
                             setManagerWorklogsEdit(0);
                             setManagerWorklogsEditErr(false);
+                            setMissingInfoWorklogsEdit(null);
+                            setMissingInfoWorklogsEditErr(false);
                           }}
                           onBlur={() => {
                             if (typeOfWorkWorklogsEdit > 0) {
@@ -2275,6 +2356,8 @@ const TaskEditDrawer = ({
                         }
                         onChange={(e, value: LabelValueType | null) => {
                           value && setStatusWorklogsEdit(value.value);
+                          value &&
+                            setStatusWorklogsEditType(String(value.Type));
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -2322,6 +2405,7 @@ const TaskEditDrawer = ({
                           setDescriptionWorklogsEdit("");
                           setDescriptionWorklogsEditErr(false);
                           setAllInfoDateWorklogsEdit("");
+                          setMissingInfoWorklogsEditErr(false);
                         }}
                         sx={{
                           width: 300,
@@ -2483,32 +2567,23 @@ const TaskEditDrawer = ({
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <TextField
-                        // label={
-                        //   departmentWorklogsTypeEdit === "WhitelabelTaxation" &&
-                        //   typeOfWorkWorklogsEdit === 3 ? (
-                        //     "Missing Info/Description"
-                        //   ) : departmentWorklogsTypeEdit ===
-                        //     "WhitelabelTaxation" ? (
-                        //     "Description"
-                        //   ) : (
-                        //     <span>
-                        //       Description
-                        //       <span className="!text-defaultRed">&nbsp;*</span>
-                        //     </span>
-                        //   )
-                        // }
                         label={
-                          <span>
-                            {departmentWorklogsTypeEdit === "WhitelabelTaxation" &&
-                            typeOfWorkWorklogsEdit === 3
-                              ? "Missing Info/Description"
-                              : "Description"}
-                            <span className="!text-defaultRed">&nbsp;*</span>
-                          </span>
+                          departmentWorklogsType === "WhitelabelTaxation" &&
+                          typeOfWorkWorklogs === 3 ? (
+                            "Missing Info/Description"
+                          ) : departmentWorklogsTypeEdit ===
+                            "WhitelabelTaxation" ? (
+                            "Description"
+                          ) : (
+                            <span>
+                              Description
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          )
                         }
                         multiline={
-                          departmentWorklogsTypeEdit === "WhitelabelTaxation" &&
-                          typeOfWorkWorklogsEdit === 3
+                          departmentWorklogsType === "WhitelabelTaxation" &&
+                          typeOfWorkWorklogs === 3
                         }
                         fullWidth
                         value={
@@ -2521,12 +2596,11 @@ const TaskEditDrawer = ({
                           setDescriptionWorklogsEditErr(false);
                         }}
                         onBlur={(e) => {
-                          // if (
-                          //   departmentWorklogsTypeEdit === "WhitelabelTaxation"
-                          // ) {
-                          //   setDescriptionWorklogsEditErr(false);
-                          // } else 
                           if (
+                            departmentWorklogsTypeEdit === "WhitelabelTaxation"
+                          ) {
+                            setDescriptionWorklogsEditErr(false);
+                          } else if (
                             e.target.value.trim().length <= 0 ||
                             e.target.value.trim().length > 100
                           ) {
@@ -3190,6 +3264,65 @@ const TaskEditDrawer = ({
                         </Grid>
                       </>
                     )}
+                    {departmentWorklogsTypeEdit === "WhitelabelTaxation" &&
+                      statusWorklogsEdit > 0 &&
+                      statusWorklogsEditType === "OnHoldFromClient" && (
+                        <Grid item xs={3} className="pt-4">
+                          <TextField
+                            label={
+                              <span>
+                                Missing Info
+                                <span className="!text-defaultRed">
+                                  &nbsp;*
+                                </span>
+                              </span>
+                            }
+                            fullWidth
+                            value={
+                              !missingInfoWorklogsEdit ||
+                              missingInfoWorklogsEdit?.trim().length <= 0
+                                ? ""
+                                : missingInfoWorklogsEdit
+                            }
+                            onChange={(e) => {
+                              setMissingInfoWorklogsEdit(e.target.value);
+                              setMissingInfoWorklogsEditErr(false);
+                            }}
+                            onBlur={(e) => {
+                              if (
+                                e.target.value.trim().length <= 0 ||
+                                e.target.value.trim().length > 100
+                              ) {
+                                setMissingInfoWorklogsEditErr(true);
+                              }
+                            }}
+                            error={missingInfoWorklogsEditErr}
+                            helperText={
+                              missingInfoWorklogsEditErr &&
+                              !!missingInfoWorklogsEdit &&
+                              missingInfoWorklogsEdit?.trim().length > 100
+                                ? "Maximum 100 characters allowed."
+                                : missingInfoWorklogsEditErr
+                                ? "This is a required field."
+                                : ""
+                            }
+                            margin="normal"
+                            variant="standard"
+                            sx={{
+                              mx: 0.75,
+                              width: 300,
+                              mt:
+                                departmentWorklogsTypeEdit ===
+                                  "WhitelabelTaxation" &&
+                                statusWorklogsEdit > 0 &&
+                                statusWorklogsEditType === "OnHoldFromClient" &&
+                                typeOfWorkWorklogsEdit !== 3
+                                  ? -0.5
+                                  : 0,
+                            }}
+                          />
+                        </Grid>
+                      )}
                     {!!reworkReceiverDateWorklogsEdit && (
                       <Grid
                         item

@@ -1132,6 +1132,17 @@ const CustomReport = ({
       },
     },
     {
+      name: "MissingInfo",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("MissingInfo"),
+        customBodyRender: (value: string | number) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
       name: "WorkItemId",
       options: {
         filter: true,
