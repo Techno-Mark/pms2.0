@@ -286,6 +286,8 @@ const Page = () => {
           )}/export`,
       {
         ...filtered,
+        PageNo: 1,
+        PageSize: 50000,
         globalSearch: searchValue.trim().length > 0 ? searchValue : "",
         isDownload: true,
       },

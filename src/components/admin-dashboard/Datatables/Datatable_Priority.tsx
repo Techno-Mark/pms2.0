@@ -6,10 +6,17 @@ import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardEmailTypeCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
+import { TablePagination } from "@mui/material";
+import {
+  handleChangePage,
+  handleChangeRowsPerPage,
+} from "@/utils/datatable/CommonFunction";
+import OverLay from "@/components/common/OverLay";
 
 interface ErrorlogProps {
   currentFilterData: DashboardInitialFilter;
   onSelectedPriority: number | null;
+  isClose: boolean;
 }
 
 interface List {
@@ -36,11 +43,25 @@ interface List {
 const Datatable_Priority = ({
   currentFilterData,
   onSelectedPriority,
+  isClose,
 }: ErrorlogProps) => {
   const [data, setData] = useState<List[] | []>([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [tableDataCount, setTableDataCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    isClose && setPage(0);
+    isClose && setRowsPerPage(10);
+    isClose && setLoading(false);
+  }, [isClose]);
 
   const getErrorlogPriorityData = async () => {
+    setLoading(true);
     const params = {
+      PageNo: page + 1,
+      PageSize: rowsPerPage,
       ClientId:
         !!currentFilterData.Clients && currentFilterData.Clients.length > 0
           ? currentFilterData.Clients
@@ -67,16 +88,24 @@ const Datatable_Priority = ({
     };
     const url = `${process.env.emailbox_api_url}/dashboard/GetPriorityDetailsForDashboard`;
     const successCallback = (
-      ResponseData: List[],
+      ResponseData: { List: List[]; TotalCount: number },
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setData(ResponseData);
+        setData(ResponseData.List);
+        setTableDataCount(ResponseData.TotalCount);
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
   };
+
+  useEffect(() => {
+    setPage(0);
+  }, [onSelectedPriority]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,10 +117,11 @@ const Datatable_Priority = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [currentFilterData, onSelectedPriority]);
+  }, [currentFilterData, onSelectedPriority, page, rowsPerPage]);
 
   return (
     <div>
+      {loading && <OverLay />}
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
@@ -99,6 +129,20 @@ const Datatable_Priority = ({
           title={undefined}
           options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="ProjectStatusList_Datatable"
+        />
+        <TablePagination
+          component="div"
+          count={tableDataCount}
+          page={page}
+          onPageChange={(event: any, newPage) => {
+            handleChangePage(event, newPage, setPage);
+          }}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={(
+            event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+          ) => {
+            handleChangeRowsPerPage(event, setRowsPerPage, setPage);
+          }}
         />
       </ThemeProvider>
     </div>

@@ -471,246 +471,67 @@ const Page = () => {
   };
 
   const getSummary = async () => {
-    // const params = {
-    //   ClientId: currentFilterData.Clients,
-    //   DepartmentId: currentFilterData.DepartmentIds,
-    //   AssignTo: currentFilterData.AssigneeIds,
-    //   ReportingManagerId: currentFilterData.ReviewerIds,
-    //   StartDate: currentFilterData.StartDate,
-    //   EndDate: currentFilterData.EndDate,
-    // };
-    // const url = `${process.env.emailbox_api_url}/dashboard/GetDashboardWidgetsCounts`;
-    // const successCallback = (
-    //   ResponseData: {
-    //     TicketMetricsCounts: {
-    //       TabName: string;
-    //       Count: number;
-    //     }[];
-    //     TicketStatusCounts: {
-    //       Type: number;
-    //       StatusType: string;
-    //       Count: number;
-    //       CountInPercentage: number;
-    //     }[];
-    //     EmailTypeCounts: {
-    //       Type: number;
-    //       EmailTypeCount: number;
-    //       EmailType: string;
-    //       CountInPercentage: number;
-    //     }[];
-    //     PriorityCounts: {
-    //       Type: number;
-    //       Priority: string;
-    //       Count: number;
-    //       CountInPercentage: number;
-    //     }[];
-    //     SLACounts: {
-    //       Type: number;
-    //       SLAType: string;
-    //       Count: number;
-    //       CountInPercentage: number;
-    //     }[];
-    //   },
-    //   error: boolean,
-    //   ResponseStatus: string
-    // ) => {
-    //   if (ResponseStatus === "Success" && error === false) {
-    //     setDashboardEmailboxSummary(ResponseData.TicketMetricsCounts);
-    //     setDashboardEmailboxEmailTypeCounts(ResponseData.EmailTypeCounts);
-    //     setDashboardEmailboxSLACounts(ResponseData.SLACounts);
-    //     setDashboardEmailboxStatus(ResponseData.TicketStatusCounts);
-    //     setDashboardEmailboxPriority(ResponseData.PriorityCounts);
-    //   }
-    // };
-    // callAPI(url, params, successCallback, "POST");
-    const dashboardEmailboxSummary = [
-      {
-        TabName: "Approval",
-        Count: 14,
+    const params = {
+      ClientId: currentFilterData.Clients,
+      DepartmentId: currentFilterData.DepartmentIds,
+      AssignTo: currentFilterData.AssigneeIds,
+      ReportingManagerId: currentFilterData.ReviewerIds,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
+    };
+    const url = `${process.env.emailbox_api_url}/dashboard/GetDashboardWidgetsCounts`;
+    const successCallback = (
+      ResponseData: {
+        TicketMetricsCounts: {
+          TabName: string;
+          Count: number;
+        }[];
+        TicketStatusCounts: {
+          Type: number;
+          StatusType: string;
+          Count: number;
+          CountInPercentage: number;
+        }[];
+        EmailTypeCounts: {
+          Type: number;
+          EmailTypeCount: number;
+          EmailType: string;
+          CountInPercentage: number;
+        }[];
+        PriorityCounts: {
+          Type: number;
+          Priority: string;
+          Count: number;
+          CountInPercentage: number;
+        }[];
+        SLACounts: {
+          Type: number;
+          SLAType: string;
+          Count: number;
+          CountInPercentage: number;
+        }[];
       },
-      {
-        TabName: "Draft",
-        Count: 9,
-      },
-      {
-        TabName: "Inbox",
-        Count: 167,
-      },
-      {
-        TabName: "Junk",
-        Count: 21,
-      },
-      {
-        TabName: "Sent",
-        Count: 17,
-      },
-      {
-        TabName: "Unprocessed",
-        Count: 168,
-      },
-    ];
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        const totalCount = ResponseData.TicketMetricsCounts.reduce(
+          (sum, item) => sum + item.Count,
+          0
+        );
 
-    const totalCount = dashboardEmailboxSummary.reduce(
-      (sum, item) => sum + item.Count,
-      0
-    );
-
-    setDashboardEmailboxSummary([
-      ...dashboardEmailboxSummary,
-      { TabName: "Total", Count: totalCount },
-    ]);
-    setDashboardEmailboxEmailTypeCounts([
-      {
-        Type: 16,
-        EmailTypeCount: 12,
-        EmailType: "TLTYpe",
-        CountInPercentage: 1.05,
-      },
-      {
-        Type: 2,
-        EmailTypeCount: 75,
-        EmailType: "Invoice1",
-        CountInPercentage: 6.58,
-      },
-      {
-        Type: 4,
-        EmailTypeCount: 21,
-        EmailType: "Billing",
-        CountInPercentage: 1.84,
-      },
-      {
-        Type: 6,
-        EmailTypeCount: 11,
-        EmailType: "Tax",
-        CountInPercentage: 0.97,
-      },
-      {
-        Type: 15,
-        EmailTypeCount: 100,
-        EmailType: "ironman",
-        CountInPercentage: 8.78,
-      },
-      {
-        Type: 5,
-        EmailTypeCount: 412,
-        EmailType: "Amount",
-        CountInPercentage: 36.17,
-      },
-      {
-        Type: 14,
-        EmailTypeCount: 120,
-        EmailType: "Technomark",
-        CountInPercentage: 10.54,
-      },
-      {
-        Type: 13,
-        EmailTypeCount: 141,
-        EmailType: "Bill",
-        CountInPercentage: 12.38,
-      },
-      {
-        Type: 7,
-        EmailTypeCount: 10,
-        EmailType: "TaxRate",
-        CountInPercentage: 0.88,
-      },
-      {
-        Type: -1,
-        EmailTypeCount: 237,
-        EmailType: "Un-categorized",
-        CountInPercentage: 20.81,
-      },
-    ]);
-    setDashboardEmailboxSLACounts([
-      {
-        Type: 1,
-        SLAType: "Achieved",
-        Count: 22,
-        CountInPercentage: 7.1,
-      },
-      {
-        Type: 2,
-        SLAType: "Not Achieved",
-        Count: 288,
-        CountInPercentage: 92.9,
-      },
-      {
-        Type: 3,
-        SLAType: "At Risk",
-        Count: 0,
-        CountInPercentage: 0,
-      },
-    ]);
-    setDashboardEmailboxStatus([
-      {
-        Type: 1,
-        StatusType: "Not Started",
-        Count: 1097,
-        CountInPercentage: 74.52,
-      },
-      {
-        Type: 2,
-        StatusType: "In Progress",
-        Count: 202,
-        CountInPercentage: 13.72,
-      },
-      {
-        Type: 3,
-        StatusType: "In Review",
-        Count: 140,
-        CountInPercentage: 9.51,
-      },
-      {
-        Type: 4,
-        StatusType: "Waiting For Client",
-        Count: 5,
-        CountInPercentage: 0.34,
-      },
-      {
-        Type: 5,
-        StatusType: "Closed",
-        Count: 0,
-        CountInPercentage: 0,
-      },
-      {
-        Type: 6,
-        StatusType: "Cancelled",
-        Count: 0,
-        CountInPercentage: 0,
-      },
-      {
-        Type: 7,
-        StatusType: "Re-Open",
-        Count: 28,
-        CountInPercentage: 1.9,
-      },
-    ]);
-    setDashboardEmailboxPriority([
-      {
-        Type: 1,
-        Priority: "High",
-        Count: 295,
-        CountInPercentage: 20.04,
-      },
-      {
-        Type: 2,
-        Priority: "Medium",
-        Count: 52,
-        CountInPercentage: 3.53,
-      },
-      {
-        Type: 3,
-        Priority: "Low",
-        Count: 20,
-        CountInPercentage: 1.36,
-      },
-      {
-        Type: 4,
-        Priority: "NoPriority",
-        Count: 1105,
-        CountInPercentage: 75.07,
-      },
-    ]);
+        setDashboardEmailboxSummary([
+          ...ResponseData.TicketMetricsCounts,
+          { TabName: "Total", Count: totalCount },
+        ]);
+        // setDashboardEmailboxSummary(ResponseData.TicketMetricsCounts);
+        setDashboardEmailboxEmailTypeCounts(ResponseData.EmailTypeCounts);
+        setDashboardEmailboxSLACounts(ResponseData.SLACounts);
+        setDashboardEmailboxStatus(ResponseData.TicketStatusCounts);
+        setDashboardEmailboxPriority(ResponseData.PriorityCounts);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
@@ -1116,7 +937,7 @@ const Page = () => {
                 .map((item: { TabName: string; Count: number }, index) => (
                   <Grid xs={2.9} item key={index}>
                     <Card
-                      className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
+                      className={`w-full border shadow-md hover:shadow-xl`}
                       style={{
                         borderColor: generateEmailboxStatusColor(item.TabName),
                       }}
@@ -1155,7 +976,7 @@ const Page = () => {
                 .map((item: { TabName: string; Count: number }, index) => (
                   <Grid xs={2.9} item key={index}>
                     <Card
-                      className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
+                      className={`w-full border shadow-md hover:shadow-xl`}
                       style={{
                         borderColor: generateEmailboxStatusColor(item.TabName),
                       }}

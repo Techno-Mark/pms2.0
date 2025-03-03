@@ -50,19 +50,26 @@ const EmailType = ({
     };
     const url = `${process.env.emailbox_api_url}/emailbox/UpdateEmailType`;
     const successCallback = (
-      ResponseData: boolean | number | string,
+      ResponseData: {
+        Result: number;
+        NotExceedTicketIds: string;
+        ExceedTicketIds: string;
+      },
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        toast.success("EmailType has been updated successfully.");
+        !!ResponseData.NotExceedTicketIds &&
+          ResponseData.NotExceedTicketIds.trim().length > 0 &&
+          toast.success("EmailType has been updated successfully.");
+        !!ResponseData.ExceedTicketIds &&
+          ResponseData.ExceedTicketIds.trim().length > 0 &&
+          toast.warning(
+            `Email type cannot be changed as 15% of the total time has already been spent on this email.`
+          );
         getData();
         getOverLay(false);
         handleClearSelection();
-      } else if (ResponseStatus === "Warning" && error === false) {
-        toast.warning(ResponseData);
-        getData();
-        getOverLay(false);
       } else {
         getOverLay(false);
       }

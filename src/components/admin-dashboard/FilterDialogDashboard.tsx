@@ -286,8 +286,18 @@ const FilterDialogDashboard = ({
       const params = {
         filterId: onCurrentFilterId !== 0 ? onCurrentFilterId : null,
         name: filterName,
-        AppliedFilter: currSelectedFields,
-        type: activeTab === 1 ? 23 : 24,
+        AppliedFilter:
+          dashboardActiveTab === 2
+            ? {
+                ClientId: currSelectedFields.Clients,
+                DepartmentId: currSelectedFields.DepartmentIds,
+                AssignTo: currSelectedFields.AssigneeIds,
+                ReportingManagerId: currSelectedFields.ReviewerIds,
+                StartDate: currSelectedFields.StartDate,
+                EndDate: currSelectedFields.EndDate,
+              }
+            : currSelectedFields,
+        type: activeTab === 2 ? 24 : dashboardActiveTab === 1 ? 23 : 29,
       };
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
@@ -314,7 +324,7 @@ const FilterDialogDashboard = ({
 
   const getFilterListById = async (filterId: number) => {
     const params = {
-      type: activeTab === 1 ? 23 : 24,
+      type: activeTab === 2 ? 24 : dashboardActiveTab === 1 ? 23 : 29,
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = async (
@@ -335,72 +345,106 @@ const FilterDialogDashboard = ({
             { label: "Select All", value: ALL },
             ...(await getClientDropdownData()),
           ];
-          setClients(
-            data.Clients.length > 0
-              ? clientDropdown.filter((client: LabelValue) =>
-                  data.Clients.includes(client.value)
+          if (dashboardActiveTab === 2) {
+            setClients(
+              data.ClientId.length > 0
+                ? clientDropdown.filter((client: LabelValue) =>
+                    data.ClientId.includes(client.value)
+                  )
+                : []
+            );
+            setClientName(data.ClientId);
+            setDepartments(
+              data.DepartmentId.length > 0
+                ? departmentDropdownData.filter((dep: LabelValue) =>
+                    data.DepartmentId.includes(dep.value)
+                  )
+                : []
+            );
+            setDepartmentName(data.DepartmentId);
+            setAssignees(
+              data.AssignTo.length > 0
+                ? assigneeDropdown.filter((a: LabelValue) =>
+                    data.AssignTo.includes(a.value)
+                  )
+                : []
+            );
+            setAssigneeName(data.AssignTo);
+            setReviewers(
+              data.ReportingManagerId.length > 0
+                ? reviewerDropdown.filter((r: LabelValue) =>
+                    data.ReportingManagerId.includes(r.value)
+                  )
+                : []
+            );
+            setReviewerName(data.ReportingManagerId);
+          } else {
+            setClients(
+              data.Clients.length > 0
+                ? clientDropdown.filter((client: LabelValue) =>
+                    data.Clients.includes(client.value)
+                  )
+                : []
+            );
+            setClientName(data.Clients);
+            activeTab === 1
+              ? setWorkType(
+                  !!data.WorkTypeId && data.WorkTypeId > 0 ? data.WorkTypeId : 0
                 )
-              : []
-          );
-          setClientName(data.Clients);
-          activeTab === 1
-            ? setWorkType(
-                !!data.WorkTypeId && data.WorkTypeId > 0 ? data.WorkTypeId : 0
-              )
-            : setWorkType(
-                activeTab === 1 ? Number(workTypeIdFromLocalStorage) : 0
-              );
-          activeTab === 2
-            ? setWorkTypeActive(
-                !!data.WorkTypeId &&
-                  data.WorkTypeId > 0 &&
-                  typeOfWorkData.length > 0
-                  ? typeOfWorkData.filter(
-                      (w: LabelValue) => w.value == data.WorkTypeId
-                    )[0]
-                  : null
-              )
-            : setWorkTypeActive(null);
-          const departmentData = await getDepartmentDropdownData();
-          setDepartments(
-            data.DepartmentIds.length > 0
-              ? departmentData.filter((dep: LabelValue) =>
-                  data.DepartmentIds.includes(dep.value)
+              : setWorkType(
+                  activeTab === 1 ? Number(workTypeIdFromLocalStorage) : 0
+                );
+            activeTab === 2
+              ? setWorkTypeActive(
+                  !!data.WorkTypeId &&
+                    data.WorkTypeId > 0 &&
+                    typeOfWorkData.length > 0
+                    ? typeOfWorkData.filter(
+                        (w: LabelValue) => w.value == data.WorkTypeId
+                      )[0]
+                    : null
                 )
-              : []
-          );
-          setDepartmentName(data.DepartmentIds);
-          setAssignees(
-            data.AssigneeIds.length > 0
-              ? assigneeDropdown.filter((a: LabelValue) =>
-                  data.AssigneeIds.includes(a.value)
-                )
-              : []
-          );
-          setAssigneeName(data.AssigneeIds);
-          setReviewers(
-            data.ReviewerIds.length > 0
-              ? reviewerDropdown.filter((r: LabelValue) =>
-                  data.ReviewerIds.includes(r.value)
-                )
-              : []
-          );
-          setReviewerName(data.ReviewerIds);
-          const statusDropdown =
-            activeTab === 2 && data.WorkTypeId > 0
-              ? await getStatusDropdownData(data.WorkTypeId)
-              : [];
-          setStatus(
-            activeTab === 2 &&
-              data.WorkTypeId > 0 &&
-              data.StatusIds.length > 0 &&
-              statusDropdown.length > 0
-              ? statusDropdown.filter((s: LabelValue) =>
-                  data.StatusIds.includes(s.value)
-                )
-              : []
-          );
-          setStatusName(data.StatusIds);
+              : setWorkTypeActive(null);
+            setDepartments(
+              data.DepartmentIds.length > 0
+                ? departmentDropdownData.filter((dep: LabelValue) =>
+                    data.DepartmentIds.includes(dep.value)
+                  )
+                : []
+            );
+            setDepartmentName(data.DepartmentIds);
+            setAssignees(
+              data.AssigneeIds.length > 0
+                ? assigneeDropdown.filter((a: LabelValue) =>
+                    data.AssigneeIds.includes(a.value)
+                  )
+                : []
+            );
+            setAssigneeName(data.AssigneeIds);
+            setReviewers(
+              data.ReviewerIds.length > 0
+                ? reviewerDropdown.filter((r: LabelValue) =>
+                    data.ReviewerIds.includes(r.value)
+                  )
+                : []
+            );
+            setReviewerName(data.ReviewerIds);
+            const statusDropdown =
+              activeTab === 2 && data.WorkTypeId > 0
+                ? await getStatusDropdownData(data.WorkTypeId)
+                : [];
+            setStatus(
+              activeTab === 2 &&
+                data.WorkTypeId > 0 &&
+                data.StatusIds.length > 0 &&
+                statusDropdown.length > 0
+                ? statusDropdown.filter((s: LabelValue) =>
+                    data.StatusIds.includes(s.value)
+                  )
+                : []
+            );
+            setStatusName(data.StatusIds);
+          }
           setStartDate(data.StartDate !== null ? data.StartDate : null);
           setEndDate(data.EndDate !== null ? data.EndDate : null);
         }

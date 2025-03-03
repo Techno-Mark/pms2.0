@@ -34,14 +34,17 @@ const Dialog_Status = ({
 }: ErrorlogDialogProps) => {
   const [status, setStatus] = useState<number | null>(null);
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [isClose, setIsClose] = useState<boolean>(false);
 
   useEffect(() => {
     onOpen && onSelectedStatus > 0 && setStatus(onSelectedStatus);
+    onOpen && setIsClose(false);
   }, [onOpen]);
 
   const handleClose = () => {
     onClose();
     setStatus(null);
+    setIsClose(true);
   };
 
   const exportTaskStatusListReport = async () => {
@@ -52,8 +55,10 @@ const Dialog_Status = ({
       const Org_Token = await localStorage.getItem("Org_Token");
 
       const response = await axios.post(
-        `${process.env.emailbox_api_url}/dashboard/GetTicketStatusDetailsForDashboard/export`,
+        `${process.env.emailbox_api_url}/dashboard/GetTicketStatusDetailsForDashboard`,
         {
+          PageNo: 1,
+          PageSize: 50000,
           ClientId:
             !!currentFilterData.Clients && currentFilterData.Clients.length > 0
               ? currentFilterData.Clients
@@ -174,6 +179,7 @@ const Dialog_Status = ({
                 ? onSelectedStatus
                 : null
             }
+            isClose={isClose}
           />
         </DialogContent>
       </Dialog>

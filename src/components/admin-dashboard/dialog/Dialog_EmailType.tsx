@@ -37,11 +37,17 @@ const Dialog_EmailType = ({
   const [emailType, setEmailType] = useState<number | null>(null);
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
-  
+  const [isClose, setIsClose] = useState<boolean>(false);
+
+  useEffect(() => {
+    onOpen && setIsClose(false);
+  }, [onOpen]);
+
   const handleClose = () => {
     onClose();
     setEmailType(null);
     setClickedStatusName("");
+    setIsClose(true);
   };
 
   function getValueByLabelOrType(labelOrType: string): number | null {
@@ -93,8 +99,10 @@ const Dialog_EmailType = ({
       const Org_Token = await localStorage.getItem("Org_Token");
 
       const response = await axios.post(
-        `${process.env.emailbox_api_url}/dashboard/GetEmailTypeDetailsForDashboard/export`,
+        `${process.env.emailbox_api_url}/dashboard/GetEmailTypeDetailsForDashboard`,
         {
+          PageNo: 1,
+          PageSize: 50000,
           ClientId:
             !!currentFilterData.Clients && currentFilterData.Clients.length > 0
               ? currentFilterData.Clients
@@ -117,7 +125,10 @@ const Dialog_EmailType = ({
           StartDate: currentFilterData.StartDate,
           EndDate: currentFilterData.EndDate,
           IsDownload: true,
-          Type: onSelectedStatusName,
+          Type:
+            emailType !== null
+              ? emailType
+              : getValueByLabelOrType(onSelectedStatusName),
         },
         {
           headers: { Authorization: `bearer ${token}`, org_token: Org_Token },
@@ -211,6 +222,7 @@ const Dialog_EmailType = ({
                 ? emailType
                 : getValueByLabelOrType(onSelectedStatusName)
             }
+            isClose={isClose}
           />
         </DialogContent>
       </Dialog>

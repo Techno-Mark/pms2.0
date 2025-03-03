@@ -6,11 +6,17 @@ import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardEmailTypeCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
-import ReportLoader from "@/components/common/ReportLoader";
+import { TablePagination } from "@mui/material";
+import {
+  handleChangePage,
+  handleChangeRowsPerPage,
+} from "@/utils/datatable/CommonFunction";
+import OverLay from "@/components/common/OverLay";
 
 interface EmailTypeProps {
   currentFilterData: DashboardInitialFilter;
   onCurrentSelectedEmailType: number | null;
+  isClose: boolean;
 }
 
 interface List {
@@ -37,11 +43,25 @@ interface List {
 const Datatable_EmailType = ({
   currentFilterData,
   onCurrentSelectedEmailType,
+  isClose,
 }: EmailTypeProps) => {
   const [data, setData] = useState<any[]>([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [tableDataCount, setTableDataCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    isClose && setPage(0);
+    isClose && setRowsPerPage(10);
+    isClose && setLoading(false);
+  }, [isClose]);
 
   const getEmailTypeData = async () => {
+    setLoading(true);
     const params = {
+      PageNo: page + 1,
+      PageSize: rowsPerPage,
       ClientId:
         !!currentFilterData.Clients && currentFilterData.Clients.length > 0
           ? currentFilterData.Clients
@@ -68,16 +88,24 @@ const Datatable_EmailType = ({
     };
     const url = `${process.env.emailbox_api_url}/dashboard/GetEmailTypeDetailsForDashboard`;
     const successCallback = (
-      ResponseData: List[],
+      ResponseData: { List: List[]; TotalCount: number },
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setData(ResponseData);
+        setData(ResponseData.List);
+        setTableDataCount(ResponseData.TotalCount);
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
   };
+
+  useEffect(() => {
+    setPage(0);
+  }, [onCurrentSelectedEmailType]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -87,10 +115,11 @@ const Datatable_EmailType = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [currentFilterData, onCurrentSelectedEmailType]);
+  }, [currentFilterData, onCurrentSelectedEmailType, page, rowsPerPage]);
 
   return (
     <div>
+      {loading && <OverLay />}
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
@@ -98,6 +127,20 @@ const Datatable_EmailType = ({
           title={undefined}
           options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
           data-tableid="taskStatusInfo_Datatable"
+        />
+        <TablePagination
+          component="div"
+          count={tableDataCount}
+          page={page}
+          onPageChange={(event: any, newPage) => {
+            handleChangePage(event, newPage, setPage);
+          }}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={(
+            event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+          ) => {
+            handleChangeRowsPerPage(event, setRowsPerPage, setPage);
+          }}
         />
       </ThemeProvider>
     </div>
