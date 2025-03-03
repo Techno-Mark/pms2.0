@@ -313,7 +313,11 @@ const TaskEditDrawer = ({
       missingInfo:
         departmentWorklogsTypeEdit === "WhitelabelTaxation" &&
         statusWorklogsEditType === "OnHoldFromClient" &&
-        validateField(missingInfoWorklogsEdit),
+        validateField(
+          !!missingInfoWorklogsEdit
+            ? missingInfoWorklogsEdit?.trim()
+            : missingInfoWorklogsEdit
+        ),
     };
 
     setClientNameWorklogsEditErr(fieldValidationsEdit.clientName);

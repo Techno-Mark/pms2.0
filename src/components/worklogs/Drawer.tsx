@@ -2544,7 +2544,11 @@ const EditDrawer = ({
       missingInfoWorklogs:
         departmentWorklogsType === "WhitelabelTaxation" &&
         statusWorklogsType === "OnHoldFromClient" &&
-        validateField(missingInfoWorklogs),
+        validateField(
+          !!missingInfoWorklogs
+            ? missingInfoWorklogs?.trim()
+            : missingInfoWorklogs
+        ),
     };
 
     setClientNameWorklogsErr(fieldValidations.clientName);
@@ -2639,7 +2643,11 @@ const EditDrawer = ({
       missingInfoWorklogs:
         departmentWorklogsType === "WhitelabelTaxation" &&
         statusWorklogsType === "OnHoldFromClient" &&
-        validateField(missingInfoWorklogs),
+        validateField(
+          !!missingInfoWorklogs
+            ? missingInfoWorklogs?.trim()
+            : missingInfoWorklogs
+        ),
     };
     const hasEditErrors = Object.values(fieldValidationsEdit).some(
       (error) => error

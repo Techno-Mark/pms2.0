@@ -2230,7 +2230,11 @@ const EditDrawer = ({
       missingInfo:
         departmentApprovalsType === "WhitelabelTaxation" &&
         statusApprovalsType === "OnHoldFromClient" &&
-        validateField(missingInfoApprovals),
+        validateField(
+          !!missingInfoApprovals
+            ? missingInfoApprovals?.trim()
+            : missingInfoApprovals
+        ),
     };
 
     setClientNameApprovalsErr(fieldValidations.clientName);
@@ -2304,7 +2308,11 @@ const EditDrawer = ({
       missingInfo:
         departmentApprovalsType === "WhitelabelTaxation" &&
         statusApprovalsType === "OnHoldFromClient" &&
-        validateField(missingInfoApprovals),
+        validateField(
+          !!missingInfoApprovals
+            ? missingInfoApprovals?.trim()
+            : missingInfoApprovals
+        ),
     };
 
     const hasEditErrors = Object.values(fieldValidationsEdit).some(
