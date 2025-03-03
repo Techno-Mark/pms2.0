@@ -14,6 +14,7 @@ const Status = ({
   getWorkItemList,
   handleClearSelection,
   selectedRowWorkTypeId,
+  selectedRowDepartmentType,
   getOverLay,
 }: {
   selectedRowIds: number[];
@@ -21,6 +22,7 @@ const Status = ({
   getWorkItemList: () => void;
   handleClearSelection: () => void;
   selectedRowWorkTypeId: number[];
+  selectedRowDepartmentType: (string | null)[];
   getOverLay?: (e: boolean) => void;
 }) => {
   const [allStatus, setAllStatus] = useState<LabelValueType[]>([]);
@@ -44,7 +46,7 @@ const Status = ({
     updateStatus(selectedRowIds, id);
     handleCloseStatus();
   };
-
+console.log(selectedRowDepartmentType)
   const getAllStatus = async () => {
     let isRework: number[] = [];
     let isNotRework: number[] = [];
@@ -61,26 +63,31 @@ const Status = ({
     const data = await getStatusDropdownData(
       Array.from(new Set(selectedRowWorkTypeId))[0]
     );
-    data.length > 0 &&
-      setAllStatus(
-        data.filter(
-          (item: LabelValueType) =>
-            item.Type === "PendingFromAccounting" ||
-            item.Type === "Rework" ||
-            item.Type === "Assigned" ||
-            (isNotRework.length > 0
-              ? item.Type === "NotStarted" ||
-                item.Type === "InProgress" ||
-                item.Type === "Stop" ||
-                item.Type === "Submitted"
-              : item.Type === "ReworkInProgress" ||
-                item.Type === "ReworkPrepCompleted" ||
-                item.Type === "ReworkSubmitted") ||
-            item.Type === "OnHoldFromClient" ||
-            item.Type === "WithDraw" ||
-            item.Type === "WithdrawnbyClient"
-        )
+    const newData =
+      data.length > 0 &&
+      data.filter(
+        (item: LabelValueType) =>
+          item.Type === "PendingFromAccounting" ||
+          item.Type === "Rework" ||
+          item.Type === "Assigned" ||
+          (isNotRework.length > 0
+            ? item.Type === "NotStarted" ||
+              item.Type === "InProgress" ||
+              item.Type === "Stop" ||
+              item.Type === "Submitted"
+            : item.Type === "ReworkInProgress" ||
+              item.Type === "ReworkPrepCompleted" ||
+              item.Type === "ReworkSubmitted") ||
+          item.Type === "OnHoldFromClient" ||
+          item.Type === "WithDraw" ||
+          item.Type === "WithdrawnbyClient"
       );
+    setAllStatus(
+      selectedRowDepartmentType.includes("WhitelabelTaxation") ||
+        selectedRowDepartmentType.includes(null)
+        ? newData.filter((i: LabelValueType) => i.Type !== "OnHoldFromClient")
+        : newData
+    );
   };
 
   const updateStatus = async (id: number[], statusId: number) => {

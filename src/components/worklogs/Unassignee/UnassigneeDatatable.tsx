@@ -19,6 +19,7 @@ import WorklogsActionBar from "../actionBar/WorklogsActionBar";
 import ReportLoader from "../../common/ReportLoader";
 import OverLay from "../../common/OverLay";
 import { callAPI } from "@/utils/API/callAPI";
+import { WorkitemList } from "@/utils/Types/worklogsTypes";
 
 interface InitialFilter {
   PageNo: number;
@@ -94,6 +95,9 @@ const UnassigneeDatatable = ({
   const [selectedRowDepartmentId, setSelectedRowDepartmentId] = useState<
     number[] | []
   >([]);
+  const [selectedRowDepartmentType, setSelectedRowDepartmentType] = useState<
+    (string | null)[] | []
+  >([]);
   const [selectedRowId, setSelectedRowId] = useState<null | number>(null);
   const [filteredObject, setFilteredOject] =
     useState<InitialFilter>(initialFilter);
@@ -120,7 +124,9 @@ const UnassigneeDatatable = ({
 
     const selectedWorkItemIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow?.WorkitemId)
+        ? selectedData.map(
+            (selectedRow: WorkitemList) => selectedRow?.WorkitemId
+          )
         : [];
     setSelectedRowIds(selectedWorkItemIds);
 
@@ -132,26 +138,28 @@ const UnassigneeDatatable = ({
 
     const selectedWorkItemStatusIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow?.StatusId)
+        ? selectedData.map((selectedRow: WorkitemList) => selectedRow?.StatusId)
         : [];
     setSelectedRowStatusId(selectedWorkItemStatusIds);
 
     const selectedWorkItemClientIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow?.ClientId)
+        ? selectedData.map((selectedRow: WorkitemList) => selectedRow?.ClientId)
         : [];
     setSelectedRowClientId(selectedWorkItemClientIds);
 
     const selectedWorkItemWorkTypeIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow?.WorkTypeId)
+        ? selectedData.map(
+            (selectedRow: WorkitemList) => selectedRow?.WorkTypeId
+          )
         : [];
     setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
 
     const selectedWorkItemDepartmentIds: number[] | [] =
       selectedData.length > 0
         ? selectedData
-            .map((selectedRow: any) =>
+            .map((selectedRow: WorkitemList) =>
               selectedRow?.DepartmentId !== 0
                 ? selectedRow?.DepartmentId
                 : false
@@ -160,6 +168,15 @@ const UnassigneeDatatable = ({
         : [];
 
     setSelectedRowDepartmentId(selectedWorkItemDepartmentIds);
+
+    const selectedWorkItemDepartmentTypes: (string | null)[] | [] =
+      selectedData.length > 0
+        ? selectedData.map(
+            (selectedRow: WorkitemList) => selectedRow?.DepartmentType
+          )
+        : [];
+
+    setSelectedRowDepartmentType(selectedWorkItemDepartmentTypes);
 
     setIsPopupOpen(allRowsSelected);
   };
@@ -509,6 +526,7 @@ const UnassigneeDatatable = ({
     selectedRowClientId,
     selectedRowWorkTypeId,
     selectedRowDepartmentId,
+    selectedRowDepartmentType,
     selectedRowIds,
     onEdit,
     handleClearSelection,
