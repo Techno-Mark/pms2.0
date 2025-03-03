@@ -1136,7 +1136,7 @@ const CustomReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("MissingInfo"),
+        customHeadLabelRender: () => generateCustomHeaderName("Missing Info"),
         customBodyRender: (value: string | number) => {
           return generateCommonBodyRender(value);
         },

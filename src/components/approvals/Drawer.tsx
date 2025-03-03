@@ -3760,7 +3760,7 @@ const EditDrawer = ({
                         label={
                           departmentApprovalsType === "WhitelabelTaxation" &&
                           typeOfWorkApprovals === 3 ? (
-                            "Missing Info/Description"
+                            "Description"
                           ) : departmentApprovalsType ===
                             "WhitelabelTaxation" ? (
                             "Description"

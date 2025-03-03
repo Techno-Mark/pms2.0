@@ -1416,7 +1416,7 @@ const TaskEditDrawer = ({
                       label={
                         departmentWorklogsType === "WhitelabelTaxation" &&
                         typeOfWorkWorklogs === 3 ? (
-                          "Missing Info/Description"
+                          "Description"
                         ) : departmentWorklogsType === "WhitelabelTaxation" ? (
                           "Description"
                         ) : (
@@ -2570,7 +2570,7 @@ const TaskEditDrawer = ({
                         label={
                           departmentWorklogsType === "WhitelabelTaxation" &&
                           typeOfWorkWorklogs === 3 ? (
-                            "Missing Info/Description"
+                            "Description"
                           ) : departmentWorklogsTypeEdit ===
                             "WhitelabelTaxation" ? (
                             "Description"

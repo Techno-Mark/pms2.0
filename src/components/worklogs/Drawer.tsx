@@ -4212,7 +4212,7 @@ const EditDrawer = ({
                         label={
                           departmentWorklogsType === "WhitelabelTaxation" &&
                           typeOfWorkWorklogs === 3 ? (
-                            "Missing Info/Description"
+                            "Description"
                           ) : departmentWorklogsType ===
                             "WhitelabelTaxation" ? (
                             "Description"
