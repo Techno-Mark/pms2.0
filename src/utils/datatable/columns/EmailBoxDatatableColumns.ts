@@ -182,12 +182,12 @@ export const failedColsConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "SubjectName",
+    name: "Subject",
     label: "Subject Name",
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "Sender",
+    name: "From",
     label: "Sender",
     bodyRenderer: generateCommonBodyRender,
   },
@@ -197,9 +197,9 @@ export const failedColsConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "ReceivedTime",
+    name: "ReceivedOn",
     label: "Received Time",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateDateWithTime,
   },
   {
     name: "EmailTypeName",
@@ -207,13 +207,27 @@ export const failedColsConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "FailureReason",
+    name: "ExceptionMessage",
     label: "Failure Reason",
     bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "FailureTime",
     label: "Failure Time",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateDateWithTime,
+  },
+  {
+    name: "SentErrorMessage",
+    options: {
+      display: false,
+      viewColumns: false,
+    },
+  },
+  {
+    name: "ClientId",
+    options: {
+      display: false,
+      viewColumns: false,
+    },
   },
 ];

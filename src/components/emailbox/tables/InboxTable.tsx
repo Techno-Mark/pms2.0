@@ -330,6 +330,7 @@ const InboxTable = ({
           ResponseData.InvalidTicketCount > 0) &&
           toast.error("Please try again later.");
         setLoading(false);
+        getData();
       } else {
         setLoading(false);
       }
@@ -361,9 +362,12 @@ const InboxTable = ({
                 tableMeta.rowData[tableMeta.rowData.length - 2] === 3 ||
                 tableMeta.rowData[tableMeta.rowData.length - 2] === 5) &&
               !tableMeta.rowData[tableMeta.rowData.length - 6];
-            return (
+
+              return (
               <div className={`flex items-center justify-center`}>
-                {isAllowed ? (
+                {tableMeta.rowData[tableMeta.rowData.length - 6] ? (
+                  <>-</>
+                ) : isAllowed ? (
                   <ColorToolTip title="Create Task" placement="left">
                     <div
                       className="cursor-pointer"

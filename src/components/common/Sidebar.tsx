@@ -198,7 +198,8 @@ const Sidebar = ({
               hasPermissionWorklog("Approvals", "View", "EmailBox") ||
               hasPermissionWorklog("Draft Mails", "View", "EmailBox") ||
               hasPermissionWorklog("Sent Mails", "View", "EmailBox") ||
-              hasPermissionWorklog("Junk Mails", "View", "EmailBox")) &&
+              hasPermissionWorklog("Junk Mails", "View", "EmailBox") ||
+              hasPermissionWorklog("Failed Mails", "View", "EmailBox")) &&
             !isClient && {
               name: "Email Box",
               href: "/emailbox",

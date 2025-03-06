@@ -181,15 +181,15 @@ const ImportDialog = ({
         open={onOpen}
         TransitionComponent={TransitionDown}
         keepMounted
-        maxWidth="xs"
+        maxWidth="lg"
         onClose={handleClose}
       >
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
           <span className="text-lg font-medium">Import</span>
         </DialogTitle>
         <DialogContent>
-          <div className="pt-6 px-[10px] pb-[10px] h-[200px] w-[23vw]">
-            <div className="flex items-center justify-around gap-5">
+          <div className="pt-6 px-[10px] pb-[10px] h-[200px] w-[20vw] flex items-center justify-center gap-4">
+            <div className="flex items-center justify-around gap-5 w-[100%]">
               <input
                 key={fileInputKey}
                 accept=".xls,.xlsx"
@@ -214,6 +214,31 @@ const ImportDialog = ({
                 </div>
               </label>
             </div>
+            {/* <div className="flex items-center justify-around gap-5 w-[50%]">
+              <input
+                key={fileInputKey}
+                accept=".xls,.xlsx"
+                style={{ display: "none" }}
+                id="raised-button-file"
+                onChange={handleFileChange}
+                type="file"
+              />
+              <label
+                htmlFor="raised-button-file"
+                className="flex items-center justify-center border border-lightSilver rounded-md w-full h-44 shadow-md hover:shadow-xl hover:bg-[#f5fcff] hover:border-[#a4e3fe] cursor-pointer"
+              >
+                <div className="flex flex-col items-center gap-3">
+                  {isUploading ? (
+                    <span>Uploading..</span>
+                  ) : (
+                    <>
+                      <ExcelIcon />
+                      <span className="text-darkCharcoal">Import Excel</span>
+                    </>
+                  )}
+                </div>
+              </label>
+            </div> */}
           </div>
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] mx-[15px] gap-[10px] h-[64px] flex items-center justify-between">

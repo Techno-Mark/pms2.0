@@ -41,6 +41,7 @@ const tabs = [
   { label: "Draft Mails", value: 4, name: "Draft Mails" },
   { label: "Sent Mails", value: 5, name: "Sent Mails" },
   { label: "Junk Mails", value: 6, name: "Junk Mails" },
+  { label: "Failed Mails", value: 7, name: "Failed Mails" },
 ];
 
 const initialFilter = {
@@ -91,6 +92,7 @@ const page = () => {
     { label: "Draft Mails", value: 4, name: "Draft Mails" },
     { label: "Sent Mails", value: 5, name: "Sent Mails" },
     { label: "Junk Mails", value: 6, name: "Junk Mails" },
+    { label: "Failed Mails", value: 7, name: "Failed Mails" },
   ]);
   // { label: "project", value: 7, name: "Failed Emails" },
   const [activeTabs, setActiveTabs] = useState<any[]>([]);
@@ -196,7 +198,8 @@ const page = () => {
         hasPermissionWorklog("Approvals", "View", "EmailBox") ||
         hasPermissionWorklog("Draft Mails", "View", "EmailBox") ||
         hasPermissionWorklog("Sent Mails", "View", "EmailBox") ||
-        hasPermissionWorklog("Junk Mails", "View", "EmailBox"))
+        hasPermissionWorklog("Junk Mails", "View", "EmailBox") ||
+        hasPermissionWorklog("Failed Mails", "View", "EmailBox"))
     );
   };
 
@@ -478,6 +481,9 @@ const page = () => {
           searchValue={searchValue}
           filteredData={filteredData}
           onDataFetch={handleDataFetch}
+          getTabData={getTabData}
+          handleDrawerOpen={handleDrawerOpen}
+          getId={getId}
         />
       )}
 

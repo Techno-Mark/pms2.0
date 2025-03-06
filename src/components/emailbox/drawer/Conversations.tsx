@@ -58,6 +58,8 @@ interface conversationData {
   IsDraft: boolean;
   IsInReview: boolean;
   HasPermission: boolean;
+  SentError: string | null;
+  Exception: string | null;
 }
 
 const Red = ["A", "F", "K", "P", "U", "Z"];
@@ -352,7 +354,9 @@ const Conversations = forwardRef<
             ? data[active - 1].MessageId
             : data[active - 1].InReplyTo,
           TicketTrailId:
-            activeTabList === 3 || activeTabList === 4 ? trailId : 0,
+            activeTabList === 3 || activeTabList === 4 || activeTabList === 7
+              ? trailId
+              : 0,
           ApprovalId: ticketDetails.ApprovalId,
           To: toMembers.join(","),
           CC: ccMembers.join(","),
@@ -477,8 +481,14 @@ const Conversations = forwardRef<
           TicketAttachments: conversationAttachment,
           TicketId: ticketId,
           TicketTrailId: trailId,
-          IsApproval: activeTabList === 3,
-          IsDraft: activeTabList === 4,
+          IsApproval:
+            activeTabList === 7
+              ? data[active - 1].HasPermission
+              : activeTabList === 3,
+          IsDraft:
+            activeTabList === 7
+              ? !data[active - 1].HasPermission
+              : activeTabList === 4,
           ApprovalId: ticketDetails.ApprovalId,
         },
         successCallback,
@@ -971,7 +981,8 @@ const Conversations = forwardRef<
                               </ColorToolTip>
                             </>
                           )}
-                          {((activeTabList === 4 && i.IsDraft) ||
+                          {(activeTabList === 7 ||
+                            (activeTabList === 4 && i.IsDraft) ||
                             (activeTabList === 3 &&
                               i.IsInReview &&
                               i.HasPermission)) && (
@@ -1013,6 +1024,12 @@ const Conversations = forwardRef<
                                   ? draftPlaceholders
                                   : activeTabList === 3 && i.HasPermission
                                   ? approvalPlaceholders
+                                  : activeTabList === 7 && i.HasPermission
+                                  ? approvalPlaceholders
+                                  : activeTabList === 7 && !i.HasPermission
+                                  ? draftPlaceholders.filter(
+                                      (i: string) => i !== "Discard Draft"
+                                    )
                                   : []
                                 ).map((placeholder: string, j: number) => (
                                   <li

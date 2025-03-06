@@ -14,13 +14,13 @@ import { TablePagination, ThemeProvider } from "@mui/material";
 import { FieldsType } from "@/components/reports/types/FieldsType";
 import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import {
+  generateCommonBodyRender,
   generateCustomHeaderName,
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
 import { failedColsConfig } from "@/utils/datatable/columns/EmailBoxDatatableColumns";
-import OverLay from "@/components/common/OverLay";
-import InboxActionBar from "../actionBar/InboxActionBar";
+import SubjectPopup from "../SubjectPopup";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -37,16 +37,18 @@ const initialFilter = {
   EmailTypeId: null,
   ReceivedFrom: null,
   ReceivedTo: null,
-  Tags: [],
-  TabType: 1,
+  Tags: null,
+  TabType: 7,
 };
 
 const FailedEmailTable = ({
   filteredData,
   searchValue,
   onDataFetch,
+  getTabData,
+  handleDrawerOpen,
+  getId,
 }: EmailBoxProps) => {
-  const [loading, setLoading] = useState(false);
   const [fileds, setFileds] = useState<FieldsType>({
     loaded: false,
     data: [],
@@ -56,12 +58,6 @@ const FailedEmailTable = ({
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [filteredObject, setFilteredOject] =
     useState<EmailBoxFilterProps>(initialFilter);
-  const [selectedRowsCount, setSelectedRowsCount] = useState<number>(0);
-  const [isPopupOpen, setIsPopupOpen] = useState<
-    { index: number; dataIndex: number }[] | []
-  >([]);
-  const [selectedRows, setSelectedRows] = useState<number[] | []>([]);
-  const [selectedRowIds, setSelectedRowIds] = useState<number[] | []>([]);
 
   const getData = async () => {
     setFileds({
@@ -87,34 +83,18 @@ const FailedEmailTable = ({
       }
     };
 
-    callAPI(url, filteredObject, successCallback, "post");
-  };
-
-  const handleRowSelect = (
-    currentRowsSelected: { index: number; dataIndex: number }[] | [],
-    allRowsSelected: { index: number; dataIndex: number }[] | [],
-    rowsSelected: number[] | []
-  ) => {
-    const selectedData: any = allRowsSelected.map(
-      (row: { index: number; dataIndex: number }) => fileds.data[row.dataIndex]
+    callAPI(
+      url,
+      {
+        ...filteredObject,
+        ClientId: null,
+        AssigneeId: null,
+        Tags: null,
+        TicketStatus: null,
+      },
+      successCallback,
+      "post"
     );
-    setSelectedRowsCount(rowsSelected?.length);
-    setSelectedRows(rowsSelected);
-
-    const selectedWorkItemIds =
-      selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow?.Id)
-        : [];
-
-    setSelectedRowIds(selectedWorkItemIds);
-
-    setIsPopupOpen(allRowsSelected);
-  };
-
-  const handleClearSelection = () => {
-    setSelectedRowsCount(0);
-    setSelectedRows([]);
-    setIsPopupOpen([]);
   };
 
   useEffect(() => {
@@ -135,6 +115,7 @@ const FailedEmailTable = ({
         GlobalSearch: searchValue.trim(),
       });
     }
+    getTabData?.();
   }, [filteredData, searchValue]);
 
   useEffect(() => {
@@ -153,34 +134,107 @@ const FailedEmailTable = ({
     label: string;
     bodyRenderer: (arg0: any) => any;
   }) => {
-    if (column.name === "Status") {
+    if (column.name === "Id") {
       return {
-        name: "Status",
+        name: "Id",
         options: {
           filter: true,
           sort: true,
           viewColumns: false,
-          customHeadLabelRender: () => generateCustomHeaderName("Status"),
+          setCellProps: () => ({
+            style: {
+              width: "80px",
+              minWidth: "80px",
+              maxWidth: "80px",
+              overflow: "hidden",
+            },
+          }),
+          setCellHeaderProps: () => ({
+            style: {
+              width: "80px",
+              minWidth: "80px",
+              maxWidth: "80px",
+              overflow: "hidden",
+            },
+          }),
+
+          customHeadLabelRender: () => generateCustomHeaderName("Id"),
+          customBodyRender: (value: string) => {
+            return <span>{value}</span>;
+          },
+        },
+      };
+    } else if (column.name === "Subject") {
+      return {
+        name: "Subject",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Subject"),
           customBodyRender: (value: string, tableMeta: any) => {
-            const statusColorCode =
-              tableMeta.rowData[tableMeta.rowData.length - 1];
+            const shortProcessName =
+              value !== null &&
+              value !== undefined &&
+              value !== "" &&
+              value !== "0" &&
+              value.length > 20
+                ? value.slice(0, 20)
+                : value;
+
+            return (
+              <SubjectPopup
+                value={value}
+                shortProcessName={shortProcessName}
+                tableMeta={tableMeta}
+                handleDrawerOpen={handleDrawerOpen}
+                getId={getId}
+                isBold={true}
+              />
+            );
+          },
+        },
+      };
+    } else if (column.name === "ExceptionMessage") {
+      return {
+        name: "ExceptionMessage",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          customHeadLabelRender: () =>
+            generateCustomHeaderName("Failure Reason"),
+          customBodyRender: (value: string, tableMeta: any) => {
+            const newValue = !!value
+              ? value
+              : tableMeta.rowData[tableMeta.rowData.length - 2];
 
             return (
               <div>
-                {value === null || value === "" || value === "0" ? (
+                {newValue === null || newValue === "" ? (
                   "-"
                 ) : (
-                  <div className="inline-block mr-1">
-                    <div
-                      className="w-[10px] h-[10px] rounded-full inline-block mr-2"
-                      style={{ backgroundColor: statusColorCode }}
-                    ></div>
-                    {value}
-                  </div>
+                  <div>{generateCommonBodyRender(newValue)}</div>
                 )}
               </div>
             );
           },
+        },
+      };
+    } else if (column.name === "SentErrorMessage") {
+      return {
+        name: "SentErrorMessage",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
+    } else if (column.name === "ClientId") {
+      return {
+        name: "ClientId",
+        options: {
+          display: false,
+          viewColumns: false,
         },
       };
     } else {
@@ -196,14 +250,6 @@ const FailedEmailTable = ({
     return generateConditionalColumn(col);
   });
 
-  const propsForActionBar = {
-    selectedRowsCount,
-    selectedRows,
-    selectedRowIds,
-    getData,
-    handleClearSelection,
-  };
-
   return (
     <>
       {fileds.loaded ? (
@@ -214,9 +260,8 @@ const FailedEmailTable = ({
             title={undefined}
             options={{
               ...worklogs_Options,
+              selectableRows: "none",
               tableBodyHeight: "73vh",
-              selectAllRows: isPopupOpen && selectedRowsCount === 0,
-              rowsSelected: selectedRows,
               textLabels: {
                 body: {
                   noMatch: (
@@ -227,18 +272,6 @@ const FailedEmailTable = ({
                   toolTip: "",
                 },
               },
-              onRowSelectionChange: (
-                currentRowsSelected:
-                  | { index: number; dataIndex: number }[]
-                  | [],
-                allRowsSelected: { index: number; dataIndex: number }[] | [],
-                rowsSelected: number[] | []
-              ) =>
-                handleRowSelect(
-                  currentRowsSelected,
-                  allRowsSelected,
-                  rowsSelected
-                ),
             }}
           />
           <TablePagination
@@ -250,7 +283,6 @@ const FailedEmailTable = ({
               newPage: number
             ) => {
               handlePageChangeWithFilter(newPage, setPage, setFilteredOject);
-              handleClearSelection();
             }}
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={(
@@ -262,19 +294,12 @@ const FailedEmailTable = ({
                 setPage,
                 setFilteredOject
               );
-              handleClearSelection();
             }}
           />
         </ThemeProvider>
       ) : (
         <ReportLoader />
       )}
-      {/* Action Bar */}
-      {/* <InboxActionBar
-        {...propsForActionBar}
-        getOverLay={(e: boolean) => setLoading(e)}
-      /> */}
-      {loading ? <OverLay /> : ""}
     </>
   );
 };

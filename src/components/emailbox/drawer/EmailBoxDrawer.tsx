@@ -231,7 +231,10 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
       <div className="pl-4 gap-1 border-t border-b border-gray-200 flex items-center justify-between">
         <div className="flex items-center justify-center pt-2">
           {tabs.length > 0 &&
-            (activeTabList === 2 ? [...tabs.slice(0, 1),...tabs.slice(2, 3)] : tabs).map((tab) => (
+            (activeTabList === 2
+              ? [...tabs.slice(0, 1), ...tabs.slice(2, 3)]
+              : tabs
+            ).map((tab) => (
               <p
                 key={tab.TabId}
                 className={`cursor-pointer px-4 py-2 ${
@@ -301,7 +304,9 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
             tagDropdown={tagDropdown}
             getTagDropdownData={getTagDropdownData}
             activeTabList={activeTabList}
-            isDisabled={activeTabList === 2 || !activeTabPermission}
+            isDisabled={
+              activeTabList === 2 || activeTabList === 7 || !activeTabPermission
+            }
           />
         </div>
         <div className="w-[75%] h-full">
@@ -325,7 +330,11 @@ const EmailBoxDrawer: React.FC<EmailBoxDrawerProps> = ({
               activeTab={activeTab}
               ticketId={ticketId}
               clientId={clientId}
-              isDisabled={activeTabList === 2 || !activeTabPermission}
+              isDisabled={
+                activeTabList === 2 ||
+                activeTabList === 7 ||
+                !activeTabPermission
+              }
             />
           ) : activeTab === 3 ? (
             <Attachments activeTab={activeTab} ticketId={ticketId} />
