@@ -981,7 +981,8 @@ const Conversations = forwardRef<
                               </ColorToolTip>
                             </>
                           )}
-                          {(activeTabList === 7 ||
+                          {((activeTabList === 7 &&
+                            (!!i.SentError || !!i.Exception)) ||
                             (activeTabList === 4 && i.IsDraft) ||
                             (activeTabList === 3 &&
                               i.IsInReview &&
