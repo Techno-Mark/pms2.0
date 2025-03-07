@@ -50,6 +50,7 @@ export interface WorkitemList {
   PreparorTime: string;
   DepartmentId: number;
   DepartmentName: string;
+  DepartmentType: string | null;
   TaskType: string | null;
   ReworkReceivedDate: string | null;
   ReworkDueDate: string | null;
@@ -62,6 +63,7 @@ export interface WorklogsActionBarProps {
   selectedRowClientId: number[];
   selectedRowWorkTypeId: number[];
   selectedRowDepartmentId: number[];
+  selectedRowDepartmentType: (string | null)[];
   selectedRowIds: number[];
   onEdit: (rowData: number) => void;
   handleClearSelection: () => void;
@@ -185,6 +187,7 @@ export interface WorkitemGetbyid {
   QAQuantity: number | null;
   QAId: number | null;
   PrevReviewerId: number | null;
+  MissingInfo: string | null;
 }
 
 export interface SubtaskGetByWorkitem {

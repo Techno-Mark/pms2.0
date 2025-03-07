@@ -278,6 +278,9 @@ const EditDrawer = ({
     useState([]);
   const [errorlogSignedOffPending, setErrorlogSignOffPending] = useState(false);
   const [statusWorklogs, setStatusWorklogs] = useState<number>(0);
+  const [statusWorklogsType, setStatusWorklogsType] = useState<string | null>(
+    null
+  );
   const [editStatusWorklogs, setEditStatusWorklogs] = useState<number>(0);
   const [statusWorklogsErr, setStatusWorklogsErr] = useState(false);
   const [descriptionWorklogs, setDescriptionWorklogs] = useState<string>("");
@@ -325,6 +328,11 @@ const EditDrawer = ({
   const [reworkReceiverDateWorklogsErr, setReworkReceiverDateWorklogsErr] =
     useState(false);
   const [reworkDueDateWorklogs, setReworkDueDateWorklogs] = useState("");
+  const [missingInfoWorklogs, setMissingInfoWorklogs] = useState<string | null>(
+    null
+  );
+  const [missingInfoWorklogsErr, setMissingInfoWorklogsErr] =
+    useState<boolean>(false);
 
   const previousYearStartDate = dayjs()
     .subtract(1, "year")
@@ -2481,6 +2489,14 @@ const EditDrawer = ({
         reminderSwitch &&
         reminderCheckboxValue === 2 &&
         validateField(reminderDate),
+      missingInfoWorklogs:
+        departmentWorklogsType === "WhitelabelTaxation" &&
+        statusWorklogsType === "OnHoldFromClient" &&
+        validateField(
+          !!missingInfoWorklogs
+            ? missingInfoWorklogs?.trim()
+            : missingInfoWorklogs
+        ),
     };
 
     setClientNameWorklogsErr(fieldValidations.clientName);
@@ -2527,6 +2543,9 @@ const EditDrawer = ({
       reminderSwitch &&
       reminderCheckboxValue === 2 &&
       setReminderDateErr(fieldValidations.reminderDate);
+    departmentWorklogsType === "WhitelabelTaxation" &&
+      statusWorklogsType === "OnHoldFromClient" &&
+      setMissingInfoWorklogsErr(fieldValidations.missingInfoWorklogs);
 
     setClientTaskNameWorklogsErr(
       clientTaskNameWorklogs.trim().length < 4 ||
@@ -2569,6 +2588,14 @@ const EditDrawer = ({
       returnYear: typeOfWorkWorklogs === 3 && validateField(returnYearWorklogs),
       checklistWorkpaper:
         typeOfWorkWorklogs === 3 && validateField(checklistWorkpaperWorklogs),
+      missingInfoWorklogs:
+        departmentWorklogsType === "WhitelabelTaxation" &&
+        statusWorklogsType === "OnHoldFromClient" &&
+        validateField(
+          !!missingInfoWorklogs
+            ? missingInfoWorklogs?.trim()
+            : missingInfoWorklogs
+        ),
     };
 
     const hasEditErrors = Object.values(fieldValidationsEdit).some(
@@ -2695,6 +2722,12 @@ const EditDrawer = ({
           : dayjs(valueMonthYearTo).format("YYYY/MM/DD"),
       IsQARequired: departmentWorklogsType == "SMB" ? isQaWorklogs : null,
       QAQuantity: departmentWorklogsType == "SMB" ? qaQuantityWorklogs : null,
+      MissingInfo:
+        departmentWorklogsType === "WhitelabelTaxation" &&
+        !!missingInfoWorklogs &&
+        statusWorklogsType === "OnHoldFromClient"
+          ? missingInfoWorklogs.toString().trim()
+          : null,
       ManualTimeList:
         onEdit > 0
           ? null
@@ -2997,6 +3030,9 @@ const EditDrawer = ({
             ? Number(ResponseData.QAQuantity)
             : null
         );
+        setMissingInfoWorklogs(
+          !!ResponseData.MissingInfo ? ResponseData.MissingInfo : null
+        );
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -3047,7 +3083,7 @@ const EditDrawer = ({
       statusWorklogsDropdownData.length === 0 &&
         (await setStatusWorklogsDropdownData(statusData));
       onOpen &&
-        onEdit === 0 &&
+        (onEdit === 0 || isUnassigneeClicked) &&
         !!statusData &&
         (await setStatusWorklogsDropdownDataUse(
           statusData.filter(
@@ -3057,7 +3093,7 @@ const EditDrawer = ({
               item.Type === "NotStarted" ||
               item.Type === "InProgress" ||
               // item.Type === "Stop" ||
-              item.Type === "OnHoldFromClient" ||
+              // item.Type === "OnHoldFromClient" ||
               item.Type === "WithDraw" ||
               item.Type === "WithdrawnbyClient" ||
               // (typeOfWorkWorklogs !== 3 && item.Type === "PartialSubmitted") ||
@@ -3070,6 +3106,7 @@ const EditDrawer = ({
 
       onOpen &&
         onEdit > 0 &&
+        !isUnassigneeClicked &&
         !!statusData &&
         !errorlogSignedOffPending &&
         setStatusWorklogsDropdownDataUse(
@@ -3090,6 +3127,7 @@ const EditDrawer = ({
         );
       onOpen &&
         onEdit > 0 &&
+        !isUnassigneeClicked &&
         !!statusData &&
         errorlogSignedOffPending &&
         setStatusWorklogsDropdownDataUse(
@@ -3113,6 +3151,24 @@ const EditDrawer = ({
           statusData
             .map((i: LabelValueType) =>
               i.Type === "NotStarted" ? i.value : undefined
+            )
+            .filter((i: LabelValueType | undefined) => i !== undefined)[0]
+        );
+      onOpen &&
+        onEdit === 0 &&
+        setStatusWorklogsType(
+          statusData
+            .map((i: LabelValueType) =>
+              i.Type === "NotStarted" ? i.Type : undefined
+            )
+            .filter((i: LabelValueType | undefined) => i !== undefined)[0]
+        );
+      onOpen &&
+        onEdit > 0 &&
+        setStatusWorklogsType(
+          statusData
+            .map((i: LabelValueType) =>
+              i.value === editStatusWorklogs ? i.Type : undefined
             )
             .filter((i: LabelValueType | undefined) => i !== undefined)[0]
         );
@@ -3387,6 +3443,7 @@ const EditDrawer = ({
     setErrorlogSignOffPending(false);
     setEditStatusWorklogs(0);
     setStatusWorklogs(0);
+    setStatusWorklogsType(null);
     setStatusWorklogsErr(false);
     setDescriptionWorklogs("");
     setDescriptionWorklogsErr(false);
@@ -3418,6 +3475,8 @@ const EditDrawer = ({
     setIsQaWorklogs(0);
     setQAQuantityWorklogs(null);
     setQAQuantityWorklogsErr(false);
+    setMissingInfoWorklogs(null);
+    setMissingInfoWorklogsErr(false);
 
     // Sub-Task
     setSubTaskSwitchWorklogs(false);
@@ -3687,6 +3746,7 @@ const EditDrawer = ({
                           setProjectNameWorklogsErr(false);
                           onEdit > 0 && setStatusWorklogs(0);
                           onEdit > 0 && setStatusWorklogsErr(false);
+                          onEdit > 0 && setStatusWorklogsType(null);
                           setProcessNameWorklogs(0);
                           setProcessNameWorklogsErr(false);
                           setSubProcessWorklogs(0);
@@ -3715,6 +3775,8 @@ const EditDrawer = ({
                           setValueMonthYearTo(null);
                           setClientTaskNameWorklogsErr(false);
                           setStatusWorklogsErr(false);
+                          setMissingInfoWorklogs(null);
+                          setMissingInfoWorklogsErr(false);
                         }}
                         disabled={
                           (isCreatedByClientWorklogsDrawer &&
@@ -3774,6 +3836,7 @@ const EditDrawer = ({
                             setProjectNameWorklogs(0);
                             setProjectNameWorklogsErr(false);
                             onEdit > 0 && setStatusWorklogs(0);
+                            onEdit > 0 && setStatusWorklogsType(null);
                             onEdit > 0 && setStatusWorklogsErr(false);
                             setProcessNameWorklogs(0);
                             setProcessNameWorklogsErr(false);
@@ -3793,6 +3856,8 @@ const EditDrawer = ({
                             setValueMonthYearTo(null);
                             setManagerWorklogs(0);
                             setManagerWorklogsErr(false);
+                            setMissingInfoWorklogs(null);
+                            setMissingInfoWorklogsErr(false);
                           }}
                           onBlur={() => {
                             if (typeOfWorkWorklogs > 0) {
@@ -3872,6 +3937,7 @@ const EditDrawer = ({
                         disabled={isIdDisabled || isDisabled}
                         onChange={(e, value: LabelValueType | null) => {
                           value && setStatusWorklogs(value.value);
+                          value && setStatusWorklogsType(String(value.Type));
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3925,6 +3991,7 @@ const EditDrawer = ({
                           setDescriptionWorklogs("");
                           setDescriptionWorklogsErr(false);
                           setAllInfoDateWorklogs("");
+                          setMissingInfoWorklogsErr(false);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -4097,7 +4164,7 @@ const EditDrawer = ({
                         label={
                           departmentWorklogsType === "WhitelabelTaxation" &&
                           typeOfWorkWorklogs === 3 ? (
-                            "Missing Info/Description"
+                            "Description"
                           ) : departmentWorklogsType ===
                             "WhitelabelTaxation" ? (
                             "Description"
@@ -4874,6 +4941,66 @@ const EditDrawer = ({
                         </Grid>
                       </>
                     )}
+                    {departmentWorklogsType === "WhitelabelTaxation" &&
+                      statusWorklogs > 0 &&
+                      statusWorklogsType === "OnHoldFromClient" && (
+                        <Grid item xs={3} className="pt-4">
+                          <TextField
+                            label={
+                              <span>
+                                Missing Info
+                                <span className="!text-defaultRed">
+                                  &nbsp;*
+                                </span>
+                              </span>
+                            }
+                            fullWidth
+                            value={
+                              !missingInfoWorklogs ||
+                              missingInfoWorklogs?.trim().length <= 0
+                                ? ""
+                                : missingInfoWorklogs
+                            }
+                            disabled={isIdDisabled || isDisabled}
+                            onChange={(e) => {
+                              setMissingInfoWorklogs(e.target.value);
+                              setMissingInfoWorklogsErr(false);
+                            }}
+                            onBlur={(e) => {
+                              if (
+                                e.target.value.trim().length <= 0 ||
+                                e.target.value.trim().length > 100
+                              ) {
+                                setMissingInfoWorklogsErr(true);
+                              }
+                            }}
+                            error={missingInfoWorklogsErr}
+                            helperText={
+                              missingInfoWorklogsErr &&
+                              !!missingInfoWorklogs &&
+                              missingInfoWorklogs?.trim().length > 100
+                                ? "Maximum 100 characters allowed."
+                                : missingInfoWorklogsErr
+                                ? "This is a required field."
+                                : ""
+                            }
+                            margin="normal"
+                            variant="standard"
+                            sx={{
+                              mx: 0.75,
+                              width: 300,
+                              mt:
+                                departmentWorklogsType ===
+                                  "WhitelabelTaxation" &&
+                                statusWorklogs > 0 &&
+                                statusWorklogsType === "OnHoldFromClient" &&
+                                typeOfWorkWorklogs !== 3
+                                  ? -0.5
+                                  : 0,
+                            }}
+                          />
+                        </Grid>
+                      )}
                     {onEdit > 0 && (
                       <>
                         <Grid
@@ -4888,6 +5015,12 @@ const EditDrawer = ({
                               (departmentWorklogsType === "SMB" &&
                                 isDisabled)) &&
                             typeOfWorkWorklogs !== 3
+                              ? "pt-6"
+                              : departmentWorklogsType ===
+                                  "WhitelabelTaxation" &&
+                                statusWorklogs > 0 &&
+                                statusWorklogsType === "OnHoldFromClient" &&
+                                typeOfWorkWorklogs !== 3
                               ? "pt-6"
                               : "pt-5"
                           }`}

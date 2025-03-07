@@ -141,6 +141,9 @@ const Datatable = ({
   const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<
     number[] | []
   >([]);
+  const [selectedRowDepartmentType, setSelectedRowDepartmentType] = useState<
+    (string | null)[] | []
+  >([]);
   const [isWorkloadExpanded, setIsWorkloadExpanded] = useState<boolean>(false);
   const [clickedWorkloadRowId, setClickedWorkloadRowId] = useState<number>(-1);
   const [reviewListInsideData, setReviewListInsideData] = useState<
@@ -362,7 +365,11 @@ const Datatable = ({
 
     setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
 
-    // adding all selected row's status Ids in an array
+    const selectedWorkItemDepartmentTypes: (string | null)[] | [] =
+      selectedData.length > 0
+        ? selectedData.map((selectedRow: List) => selectedRow?.DepartmentType)
+        : [];
+    setSelectedRowDepartmentType(selectedWorkItemDepartmentTypes);
 
     if (allRowsSelected) {
       setIsPopupOpen(true);
@@ -1526,6 +1533,7 @@ const Datatable = ({
     selectedWorkItemIds,
     selectedRowClientId,
     selectedRowWorkTypeId,
+    selectedRowDepartmentType,
     settingSelectedId,
     id,
     workitemId,

@@ -143,6 +143,9 @@ const Datatable = ({
   const [selectedRowDepartmentId, setSelectedRowDepartmentId] = useState<
     number[] | []
   >([]);
+  const [selectedRowDepartmentType, setSelectedRowDepartmentType] = useState<
+    (string | null)[] | []
+  >([]);
   const [selectedRowsdata, setSelectedRowsData] = useState<WorkitemList[] | []>(
     []
   );
@@ -230,6 +233,15 @@ const Datatable = ({
         : [];
 
     setSelectedRowDepartmentId(selectedWorkItemDepartmentIds);
+
+    const selectedWorkItemDepartmentTypes: (string | null)[] | [] =
+      selectedData.length > 0
+        ? selectedData.map(
+            (selectedRow: WorkitemList) => selectedRow?.DepartmentType
+          )
+        : [];
+
+    setSelectedRowDepartmentType(selectedWorkItemDepartmentTypes);
 
     setIsPopupOpen(allRowsSelected);
   };
@@ -1176,7 +1188,25 @@ const Datatable = ({
     (data: WorkitemList) => data.WorkitemId === isRunning
   );
 
-  const propsForActionBar = {
+  const propsForActionBar: {
+    selectedRowsCount: number;
+    selectedRows: number[];
+    selectedRowId: number | null;
+    selectedRowsdata: WorkitemList[];
+    selectedRowClientId: number[];
+    selectedRowWorkTypeId: number[];
+    selectedRowDepartmentId: number[];
+    selectedRowDepartmentType: (string | null)[];
+    selectedRowStatusName: string[];
+    selectedRowIds: number[];
+    onEdit: (rowData: number) => void;
+    handleClearSelection: () => void;
+    onRecurring: (rowData: boolean, selectedId: number) => void;
+    onComment: (rowData: boolean, selectedId: number) => void;
+    workItemData: WorkitemList[];
+    getWorkItemList: () => void;
+    isUnassigneeClicked: boolean;
+  } = {
     selectedRowsCount,
     selectedRows,
     selectedRowId,
@@ -1184,6 +1214,7 @@ const Datatable = ({
     selectedRowClientId,
     selectedRowWorkTypeId,
     selectedRowDepartmentId,
+    selectedRowDepartmentType,
     selectedRowStatusName,
     selectedRowIds,
     onEdit,

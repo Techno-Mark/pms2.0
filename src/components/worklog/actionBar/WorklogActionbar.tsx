@@ -29,6 +29,7 @@ interface Props {
   workItemData: DatatableWorklog[];
   getWorkItemList: () => void;
   isCreatedByClient: null | boolean;
+  selectedRowDepartmentType: (string | null)[];
   getOverLay: (e: boolean) => void;
 }
 
@@ -44,6 +45,7 @@ const WorklogActionbar = ({
   workItemData,
   getWorkItemList,
   isCreatedByClient,
+  selectedRowDepartmentType,
   getOverLay,
 }: Props) => {
   const [allStatus, setAllStatus] = useState<LabelValueType[]>([]);
@@ -226,16 +228,21 @@ const WorklogActionbar = ({
     const data = await getStatusDropdownData(
       Array.from(new Set(selectedRowWorkTypeId))[0]
     );
-    data.length > 0 &&
-      setAllStatus(
-        data
-          .map((i: LabelValueType) =>
-            i.Type === "WithdrawnbyClient" || i.Type === "OnHoldFromClient"
-              ? i
-              : ""
-          )
-          .filter((i: LabelValueType | undefined | string) => i !== "")
-      );
+    const newData =
+      data.length > 0 &&
+      data
+        .map((i: LabelValueType) =>
+          i.Type === "WithdrawnbyClient" || i.Type === "OnHoldFromClient"
+            ? i
+            : ""
+        )
+        .filter((i: LabelValueType | undefined | string) => i !== "");
+    setAllStatus(
+      selectedRowDepartmentType.includes("WhitelabelTaxation") ||
+        selectedRowDepartmentType.includes(null)
+        ? newData.filter((i: LabelValueType) => i.Type !== "OnHoldFromClient")
+        : newData
+    );
   };
 
   const updateStatus = async (id: number[], statusId: number) => {
