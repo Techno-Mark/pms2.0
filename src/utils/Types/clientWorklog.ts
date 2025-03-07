@@ -66,6 +66,7 @@ export interface DatatableWorklog {
   EndDate: string | null;
   Quantity: number | null;
   IsCreatedByClient: boolean;
+  DepartmentType: string | null;
 }
 
 export interface ClientWorkitemGetById {
