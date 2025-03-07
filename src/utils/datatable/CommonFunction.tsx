@@ -318,6 +318,8 @@ export const generateEmailboxStatusColor = (value: any) => {
       ? "#e5801c"
       : value.toLowerCase() === "sent"
       ? "#833C0C"
+      : value.toLowerCase() === "failed"
+      ? "#FF0000"
       : value.toLowerCase() === "total"
       ? "#008080"
       : "#D8D8D8";

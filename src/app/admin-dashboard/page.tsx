@@ -570,6 +570,7 @@ const Page = () => {
       Draft: <PauseCircleOutlineOutlinedIcon />,
       Junk: <Withdraw_Outlined />,
       Sent: <RestorePageOutlinedIcon />,
+      Failed: <ErrorOutlineIcon />,
     };
 
   const exportSummaryReport = async () => {
