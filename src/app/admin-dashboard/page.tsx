@@ -536,8 +536,8 @@ const Page = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      dashboardActiveTab == 1 && (await getProjectSummary());
-      dashboardActiveTab == 2 && (await getSummary());
+      activeTab === 1 && dashboardActiveTab == 1 && (await getProjectSummary());
+      activeTab === 1 && dashboardActiveTab == 2 && (await getSummary());
     };
     const timer = setTimeout(() => {
       fetchData();
