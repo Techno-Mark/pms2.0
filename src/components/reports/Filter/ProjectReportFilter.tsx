@@ -372,6 +372,10 @@ const ProjectReportFilter = ({
     callAPI(url, params, successCallback, "POST");
   };
 
+  const filteredFilters = project_savedFilters.filter((filter: any) =>
+    filter.Name.toLowerCase().includes(project_searchValue.toLowerCase())
+  );
+
   return (
     <>
       {project_savedFilters.length > 0 && !project_defaultFilter ? (
@@ -414,7 +418,7 @@ const ProjectReportFilter = ({
                 <SearchIcon />
               </span>
             </span>
-            {project_savedFilters.map((i: SavedFilter, index: number) => {
+            {filteredFilters.map((i: SavedFilter, index: number) => {
               return (
                 <div
                   key={i.FilterId}

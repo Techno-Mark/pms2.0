@@ -272,6 +272,10 @@ const WorkLoadReportFilter = ({
     callAPI(url, params, successCallback, "POST");
   };
 
+  const filteredFilters = workload_savedFilters.filter((filter: any) =>
+    filter.Name.toLowerCase().includes(workload_searchValue.toLowerCase())
+  );
+
   return (
     <>
       {workload_savedFilters.length > 0 && !workload_defaultFilter ? (
@@ -314,7 +318,7 @@ const WorkLoadReportFilter = ({
                 <SearchIcon />
               </span>
             </span>
-            {workload_savedFilters.map((i: SavedFilter, index: number) => {
+            {filteredFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div

@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { callAPI } from "@/utils/API/callAPI";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import ReportLoader from "@/components/common/ReportLoader";
-import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { ColorToolTip, getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { TablePagination, ThemeProvider } from "@mui/material";
 import { FieldsType } from "@/components/reports/types/FieldsType";
 import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
@@ -209,12 +209,31 @@ const FailedEmailTable = ({
               ? value
               : tableMeta.rowData[tableMeta.rowData.length - 2];
 
+            const shortName =
+              newValue !== null &&
+              newValue !== undefined &&
+              newValue !== "" &&
+              newValue !== "0" &&
+              newValue.length > 20
+                ? newValue.slice(0, 20)
+                : newValue;
+
             return (
-              <div>
-                {newValue === null || newValue === "" ? (
+              <div className="text-defaultRed">
+                {!newValue ||
+                newValue === "0" ||
+                newValue === null ||
+                newValue === "null" ? (
                   "-"
+                ) : newValue.length > 20 ? (
+                  <>
+                    <ColorToolTip title={newValue} placement="top">
+                      <span>{shortName}</span>
+                    </ColorToolTip>
+                    <span>...</span>
+                  </>
                 ) : (
-                  <div>{generateCommonBodyRender(newValue)}</div>
+                  shortName
                 )}
               </div>
             );

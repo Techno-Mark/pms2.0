@@ -301,6 +301,10 @@ const TimesheetReportFilter = ({
     callAPI(url, params, successCallback, "POST");
   };
 
+  const filteredFilters = timesheetSavedFilters.filter((filter: any) =>
+    filter.Name.toLowerCase().includes(timesheetSearchValue.toLowerCase())
+  );
+
   return (
     <>
       {timesheetSavedFilters.length > 0 && !timesheetDefaultFilter ? (
@@ -343,7 +347,7 @@ const TimesheetReportFilter = ({
                 <SearchIcon />
               </span>
             </span>
-            {timesheetSavedFilters.map((i: SavedFilter, index: number) => {
+            {filteredFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div

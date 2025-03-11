@@ -306,6 +306,10 @@ const UserLogsReportFilter = ({
     callAPI(url, params, successCallback, "POST");
   };
 
+  const filteredFilters = userlogs_savedFilters.filter((filter: any) =>
+    filter.Name.toLowerCase().includes(userlogs_searchValue.toLowerCase())
+  );
+
   return (
     <>
       {userlogs_savedFilters.length > 0 && !userlogs_defaultFilter ? (
@@ -348,7 +352,7 @@ const UserLogsReportFilter = ({
                 <SearchIcon />
               </span>
             </span>
-            {userlogs_savedFilters.map((i: SavedFilter, index: number) => {
+            {filteredFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div

@@ -384,6 +384,10 @@ const RatingReportFilter = ({
     filterDropdowns();
   }, [ratingreport_clientName]);
 
+  const filteredFilters = ratingreport_savedFilters.filter((filter: any) =>
+    filter.Name.toLowerCase().includes(ratingreport_searchValue.toLowerCase())
+  );
+
   return (
     <>
       {ratingreport_savedFilters.length > 0 && !ratingreport_defaultFilter ? (
@@ -426,7 +430,7 @@ const RatingReportFilter = ({
                 <SearchIcon />
               </span>
             </span>
-            {ratingreport_savedFilters.map((i: SavedFilter, index: number) => {
+            {filteredFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div

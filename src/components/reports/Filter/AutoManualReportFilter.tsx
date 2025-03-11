@@ -289,6 +289,10 @@ const AutoManualReportFilter = ({
     callAPI(url, params, successCallback, "POST");
   };
 
+  const filteredFilters = savedFilters.filter((filter: any) =>
+    filter.Name.toLowerCase().includes(searchValue.toLowerCase())
+  );
+
   return (
     <>
       {savedFilters.length > 0 && !defaultFilter ? (
@@ -331,7 +335,7 @@ const AutoManualReportFilter = ({
                 <SearchIcon />
               </span>
             </span>
-            {savedFilters.map((i: SavedFilter, index: number) => {
+            {filteredFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div

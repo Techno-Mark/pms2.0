@@ -282,6 +282,10 @@ const UserReportFilter = ({
     callAPI(url, params, successCallback, "POST");
   };
 
+  const filteredFilters = user_savedFilters.filter((filter: any) =>
+    filter.Name.toLowerCase().includes(user_searchValue.toLowerCase())
+  );
+
   return (
     <>
       {user_savedFilters.length > 0 && !user_defaultFilter ? (
@@ -324,7 +328,7 @@ const UserReportFilter = ({
                 <SearchIcon />
               </span>
             </span>
-            {user_savedFilters.map((i: SavedFilter, index: number) => {
+            {filteredFilters.map((i: SavedFilter, index: number) => {
               return (
                 <>
                   <div
