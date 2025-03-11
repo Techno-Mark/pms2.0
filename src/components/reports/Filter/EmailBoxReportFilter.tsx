@@ -240,20 +240,20 @@ const EmailBoxReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...emailType_InitialFilter,
-          ClientId: savedFilters[index].AppliedFilter.ClientId,
-          DepartmentId: savedFilters[index].AppliedFilter.DepartmentId,
-          EmailType: savedFilters[index].AppliedFilter.EmailType,
-          Tags: savedFilters[index].AppliedFilter.Tags,
-          TicketStatus: savedFilters[index].AppliedFilter.TicketStatus,
-          SlaStatus: savedFilters[index].AppliedFilter.SlaStatus,
+          ClientId: filteredFilters[index].AppliedFilter.ClientId,
+          DepartmentId: filteredFilters[index].AppliedFilter.DepartmentId,
+          EmailType: filteredFilters[index].AppliedFilter.EmailType,
+          Tags: filteredFilters[index].AppliedFilter.Tags,
+          TicketStatus: filteredFilters[index].AppliedFilter.TicketStatus,
+          SlaStatus: filteredFilters[index].AppliedFilter.SlaStatus,
           ReportingManagerId:
-            savedFilters[index].AppliedFilter.ReportingManagerId,
-          ReceivedFrom: savedFilters[index].AppliedFilter.ReceivedFrom,
-          ReceivedTo: savedFilters[index].AppliedFilter.ReceivedTo,
-          DueFrom: savedFilters[index].AppliedFilter.DueFrom,
-          DueTo: savedFilters[index].AppliedFilter.DueTo,
-          OpenFrom: savedFilters[index].AppliedFilter.OpenFrom,
-          OpenTo: savedFilters[index].AppliedFilter.OpenTo,
+            filteredFilters[index].AppliedFilter.ReportingManagerId,
+          ReceivedFrom: filteredFilters[index].AppliedFilter.ReceivedFrom,
+          ReceivedTo: filteredFilters[index].AppliedFilter.ReceivedTo,
+          DueFrom: filteredFilters[index].AppliedFilter.DueFrom,
+          DueTo: filteredFilters[index].AppliedFilter.DueTo,
+          OpenFrom: filteredFilters[index].AppliedFilter.OpenFrom,
+          OpenTo: filteredFilters[index].AppliedFilter.OpenTo,
         });
       }
     }
@@ -397,7 +397,7 @@ const EmailBoxReportFilter = ({
     setSaveFilter(true);
     setDefaultFilter(true);
 
-    const { Name, FilterId, AppliedFilter } = savedFilters[index];
+    const { Name, FilterId, AppliedFilter } = filteredFilters[index];
     setFilterName(Name);
     setCurrentFilterId(FilterId);
 

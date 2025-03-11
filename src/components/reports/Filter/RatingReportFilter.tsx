@@ -188,16 +188,16 @@ const RatingReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...rating_InitialFilter,
-          Clients: ratingreport_savedFilters[index].AppliedFilter.Clients,
+          Clients: filteredFilters[index].AppliedFilter.Clients,
           Projects:
-            ratingreport_savedFilters[index].AppliedFilter.Projects.length > 0
+            filteredFilters[index].AppliedFilter.Projects.length > 0
               ? []
-              : ratingreport_savedFilters[index].AppliedFilter.Projects[0],
+              : filteredFilters[index].AppliedFilter.Projects[0],
           ReturnTypeId:
-            ratingreport_savedFilters[index].AppliedFilter.ReturnTypeId,
-          Ratings: ratingreport_savedFilters[index].AppliedFilter.Ratings,
-          StartDate: ratingreport_savedFilters[index].AppliedFilter.StartDate,
-          EndDate: ratingreport_savedFilters[index].AppliedFilter.EndDate,
+            filteredFilters[index].AppliedFilter.ReturnTypeId,
+          Ratings: filteredFilters[index].AppliedFilter.Ratings,
+          StartDate: filteredFilters[index].AppliedFilter.StartDate,
+          EndDate: filteredFilters[index].AppliedFilter.EndDate,
         });
       }
     }
@@ -282,7 +282,7 @@ const RatingReportFilter = ({
     setRatingReport_SaveFilter(true);
     setRatingReport_DefaultFilter(true);
 
-    const { Name, FilterId, AppliedFilter } = ratingreport_savedFilters[index];
+    const { Name, FilterId, AppliedFilter } = filteredFilters[index];
     setRatingReport_FilterName(Name);
     setCurrentFilterId(FilterId);
 

@@ -137,10 +137,10 @@ const AuditReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...audit_InitialFilter,
-          Clients: savedFilters[index].AppliedFilter.clients,
-          Users: savedFilters[index].AppliedFilter.users,
-          StartDate: savedFilters[index].AppliedFilter.startDate,
-          EndDate: savedFilters[index].AppliedFilter.endDate,
+          Clients: filteredFilters[index].AppliedFilter.clients,
+          Users: filteredFilters[index].AppliedFilter.users,
+          StartDate: filteredFilters[index].AppliedFilter.startDate,
+          EndDate: filteredFilters[index].AppliedFilter.endDate,
         });
       }
     }
@@ -240,7 +240,7 @@ const AuditReportFilter = ({
     setSaveFilter(true);
     setDefaultFilter(true);
 
-    const { Name, FilterId, AppliedFilter } = savedFilters[index];
+    const { Name, FilterId, AppliedFilter } = filteredFilters[index];
     setFilterName(Name);
     setCurrentFilterId(FilterId);
 

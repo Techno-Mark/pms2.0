@@ -131,10 +131,10 @@ const WorkLoadReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...workLoad_InitialFilter,
-          users: workload_savedFilters[index].AppliedFilter.users,
+          users: filteredFilters[index].AppliedFilter.users,
           departmentIds:
-            workload_savedFilters[index].AppliedFilter.departmentIds,
-          dateFilter: workload_savedFilters[index].AppliedFilter.dateFilter,
+          filteredFilters[index].AppliedFilter.departmentIds,
+          dateFilter: filteredFilters[index].AppliedFilter.dateFilter,
         });
       }
     }
@@ -224,7 +224,7 @@ const WorkLoadReportFilter = ({
     setWorkload_SaveFilter(true);
     setWorkload_DefaultFilter(true);
 
-    const { Name, FilterId, AppliedFilter } = workload_savedFilters[index];
+    const { Name, FilterId, AppliedFilter } = filteredFilters[index];
     setWorkload_FilterName(Name);
     setCurrentFilterId(FilterId);
 

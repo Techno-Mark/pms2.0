@@ -144,11 +144,11 @@ const TimesheetReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...timeSheet_InitialFilter,
-          users: timesheetSavedFilters[index].AppliedFilter.users,
+          users: filteredFilters[index].AppliedFilter.users,
           departmentIds:
-            timesheetSavedFilters[index].AppliedFilter.departmentIds,
-          startDate: timesheetSavedFilters[index].AppliedFilter.startDate,
-          endDate: timesheetSavedFilters[index].AppliedFilter.endDate,
+          filteredFilters[index].AppliedFilter.departmentIds,
+          startDate: filteredFilters[index].AppliedFilter.startDate,
+          endDate: filteredFilters[index].AppliedFilter.endDate,
         });
       }
     }
@@ -252,7 +252,7 @@ const TimesheetReportFilter = ({
     setTimesheetSaveFilter(true);
     setTimesheetDefaultFilter(true);
 
-    const { Name, FilterId, AppliedFilter } = timesheetSavedFilters[index];
+    const { Name, FilterId, AppliedFilter } = filteredFilters[index];
     setTimesheetFilterName(Name);
     setCurrentFilterId(FilterId);
 

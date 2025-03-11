@@ -136,10 +136,10 @@ const ActivityReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...activity_InitialFilter,
-          Users: savedFilters[index].AppliedFilter.Users,
-          DepartmentIds: savedFilters[index].AppliedFilter.DepartmentIds,
-          StartDate: savedFilters[index].AppliedFilter.StartDate,
-          EndDate: savedFilters[index].AppliedFilter.EndDate,
+          Users: filteredFilters[index].AppliedFilter.Users,
+          DepartmentIds: filteredFilters[index].AppliedFilter.DepartmentIds,
+          StartDate: filteredFilters[index].AppliedFilter.StartDate,
+          EndDate: filteredFilters[index].AppliedFilter.EndDate,
         });
       }
     }

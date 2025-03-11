@@ -214,16 +214,16 @@ const ErrorLogReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...errorLog_InitialFilter,
-          ErrorType: savedFilters[index].AppliedFilter.ErrorType,
-          RootCause: savedFilters[index].AppliedFilter.RootCause,
-          Impact: savedFilters[index].AppliedFilter.Impact,
-          NatureOfError: savedFilters[index].AppliedFilter.NatureOfError,
-          Priority: savedFilters[index].AppliedFilter.Priority,
-          Assignee: savedFilters[index].AppliedFilter.Assignee,
-          Reviewer: savedFilters[index].AppliedFilter.Reviewer,
-          ReceivedFrom: savedFilters[index].AppliedFilter.ReceivedFrom,
-          ReceivedTo: savedFilters[index].AppliedFilter.ReceivedTo,
-          ResolvedOn: savedFilters[index].AppliedFilter.ResolvedOn,
+          ErrorType: filteredFilters[index].AppliedFilter.ErrorType,
+          RootCause: filteredFilters[index].AppliedFilter.RootCause,
+          Impact: filteredFilters[index].AppliedFilter.Impact,
+          NatureOfError: filteredFilters[index].AppliedFilter.NatureOfError,
+          Priority: filteredFilters[index].AppliedFilter.Priority,
+          Assignee: filteredFilters[index].AppliedFilter.Assignee,
+          Reviewer: filteredFilters[index].AppliedFilter.Reviewer,
+          ReceivedFrom: filteredFilters[index].AppliedFilter.ReceivedFrom,
+          ReceivedTo: filteredFilters[index].AppliedFilter.ReceivedTo,
+          ResolvedOn: filteredFilters[index].AppliedFilter.ResolvedOn,
         });
       }
     }
@@ -341,7 +341,7 @@ const ErrorLogReportFilter = ({
     setSaveFilter(true);
     setDefaultFilter(true);
 
-    const { Name, FilterId, AppliedFilter } = savedFilters[index];
+    const { Name, FilterId, AppliedFilter } = filteredFilters[index];
     setFilterName(Name);
     setCurrentFilterId(FilterId);
 

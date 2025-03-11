@@ -170,12 +170,12 @@ const ProjectReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...project_filter_InitialFilter,
-          clients: project_savedFilters[index].AppliedFilter.clients,
-          projects: project_savedFilters[index].AppliedFilter.projects,
-          typeOfWork: project_savedFilters[index].AppliedFilter.TypeOfWork,
-          billType: project_savedFilters[index].AppliedFilter.BillingType,
-          startDate: project_savedFilters[index].AppliedFilter.startDate,
-          endDate: project_savedFilters[index].AppliedFilter.endDate,
+          clients: filteredFilters[index].AppliedFilter.clients,
+          projects: filteredFilters[index].AppliedFilter.projects,
+          typeOfWork: filteredFilters[index].AppliedFilter.TypeOfWork,
+          billType: filteredFilters[index].AppliedFilter.BillingType,
+          startDate: filteredFilters[index].AppliedFilter.startDate,
+          endDate: filteredFilters[index].AppliedFilter.endDate,
         });
       }
     }
@@ -302,7 +302,7 @@ const ProjectReportFilter = ({
     setProject_SaveFilter(true);
     setProject_DefaultFilter(true);
 
-    const { Name, FilterId, AppliedFilter } = project_savedFilters[index];
+    const { Name, FilterId, AppliedFilter } = filteredFilters[index];
     setProject_FilterName(Name);
     setCurrentFilterId(FilterId);
 
@@ -328,8 +328,8 @@ const ProjectReportFilter = ({
       AppliedFilter.projects.length > 0 && AppliedFilter.TypeOfWork !== null
         ? (
             await getProjectDropdownData(
-              project_savedFilters[index].AppliedFilter.clients[0],
-              project_savedFilters[index].AppliedFilter.TypeOfWork
+              filteredFilters[index].AppliedFilter.clients[0],
+              filteredFilters[index].AppliedFilter.TypeOfWork
             )
           ).filter(
             (item: LabelValue) => item.value === AppliedFilter.projects[0]

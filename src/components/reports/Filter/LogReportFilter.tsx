@@ -155,12 +155,12 @@ const LogReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...logReport_InitialFilter,
-          ClientFilter: savedFilters[index].AppliedFilter.ClientFilter,
-          ProjectFilter: savedFilters[index].AppliedFilter.ProjectFilter,
-          ProcessFilter: savedFilters[index].AppliedFilter.ProcessFilter,
-          UpdatedByFilter: savedFilters[index].AppliedFilter.UpdatedByFilter,
-          StartDate: savedFilters[index].AppliedFilter.StartDate,
-          EndDate: savedFilters[index].AppliedFilter.EndDate,
+          ClientFilter: filteredFilters[index].AppliedFilter.ClientFilter,
+          ProjectFilter: filteredFilters[index].AppliedFilter.ProjectFilter,
+          ProcessFilter: filteredFilters[index].AppliedFilter.ProcessFilter,
+          UpdatedByFilter: filteredFilters[index].AppliedFilter.UpdatedByFilter,
+          StartDate: filteredFilters[index].AppliedFilter.StartDate,
+          EndDate: filteredFilters[index].AppliedFilter.EndDate,
         });
       }
     }
@@ -282,7 +282,7 @@ const LogReportFilter = ({
     setSaveFilter(true);
     setDefaultFilter(true);
 
-    const { Name, FilterId, AppliedFilter } = savedFilters[index];
+    const { Name, FilterId, AppliedFilter } = filteredFilters[index];
     setFilterName(Name);
     setCurrentFilterId(FilterId);
 
@@ -301,7 +301,7 @@ const LogReportFilter = ({
       clients.length > 0 && project.length > 0
         ? (
             await getProjectDropdownData(
-              savedFilters[index].AppliedFilter.ClientFilter[0],
+              filteredFilters[index].AppliedFilter.ClientFilter[0],
               null
             )
           ).filter((proj: LabelValue) => project.includes(proj.value))

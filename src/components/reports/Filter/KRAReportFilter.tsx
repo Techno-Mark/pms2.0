@@ -149,11 +149,11 @@ const KRAReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...kra_InitialFilter,
-          Clients: savedFilters[index].AppliedFilter.Clients,
-          Users: savedFilters[index].AppliedFilter.Users,
-          DepartmentIds: savedFilters[index].AppliedFilter.DepartmentIds,
-          StartDate: savedFilters[index].AppliedFilter.StartDate,
-          EndDate: savedFilters[index].AppliedFilter.EndDate,
+          Clients: filteredFilters[index].AppliedFilter.Clients,
+          Users: filteredFilters[index].AppliedFilter.Users,
+          DepartmentIds: filteredFilters[index].AppliedFilter.DepartmentIds,
+          StartDate: filteredFilters[index].AppliedFilter.StartDate,
+          EndDate: filteredFilters[index].AppliedFilter.EndDate,
         });
       }
     }
@@ -256,7 +256,7 @@ const KRAReportFilter = ({
     setSaveFilter(true);
     setDefaultFilter(true);
 
-    const { Name, FilterId, AppliedFilter } = savedFilters[index];
+    const { Name, FilterId, AppliedFilter } = filteredFilters[index];
     setFilterName(Name);
     setCurrentFilterId(FilterId);
 

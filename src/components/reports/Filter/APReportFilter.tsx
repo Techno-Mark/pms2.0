@@ -164,13 +164,13 @@ const APReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...ap_InitialFilter,
-          Clients: savedFilters[index].AppliedFilter.Clients,
-          Users: savedFilters[index].AppliedFilter.Users,
+          Clients: filteredFilters[index].AppliedFilter.Clients,
+          Users: filteredFilters[index].AppliedFilter.Users,
           ReportingManagers:
-            savedFilters[index].AppliedFilter.ReportingManagers,
-          DepartmentIds: savedFilters[index].AppliedFilter.DepartmentIds,
-          StartDate: savedFilters[index].AppliedFilter.StartDate,
-          EndDate: savedFilters[index].AppliedFilter.EndDate,
+          filteredFilters[index].AppliedFilter.ReportingManagers,
+          DepartmentIds: filteredFilters[index].AppliedFilter.DepartmentIds,
+          StartDate: filteredFilters[index].AppliedFilter.StartDate,
+          EndDate: filteredFilters[index].AppliedFilter.EndDate,
         });
       }
     }
@@ -285,7 +285,7 @@ const APReportFilter = ({
     setSaveFilter(true);
     setDefaultFilter(true);
 
-    const { Name, FilterId, AppliedFilter } = savedFilters[index];
+    const { Name, FilterId, AppliedFilter } = filteredFilters[index];
     setFilterName(Name);
     setCurrentFilterId(FilterId);
 

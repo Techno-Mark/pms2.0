@@ -204,17 +204,17 @@ const BillingReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...billingreport_InitialFilter,
-          clients: savedFilters[index].AppliedFilter.clients,
-          projects: savedFilters[index].AppliedFilter.projects,
-          QAId: savedFilters[index].AppliedFilter.QAId,
-          assigneeId: savedFilters[index].AppliedFilter.assigneeId,
-          reviewerId: savedFilters[index].AppliedFilter.reviewerId,
-          numberOfPages: savedFilters[index].AppliedFilter.numberOfPages,
-          IsBTC: savedFilters[index].AppliedFilter.IsBTC,
-          startDate: savedFilters[index].AppliedFilter.startDate,
-          endDate: savedFilters[index].AppliedFilter.endDate,
-          startDateReview: savedFilters[index].AppliedFilter.startDateReview,
-          endDateReview: savedFilters[index].AppliedFilter.endDateReview,
+          clients: filteredFilters[index].AppliedFilter.clients,
+          projects: filteredFilters[index].AppliedFilter.projects,
+          QAId: filteredFilters[index].AppliedFilter.QAId,
+          assigneeId: filteredFilters[index].AppliedFilter.assigneeId,
+          reviewerId: filteredFilters[index].AppliedFilter.reviewerId,
+          numberOfPages: filteredFilters[index].AppliedFilter.numberOfPages,
+          IsBTC: filteredFilters[index].AppliedFilter.IsBTC,
+          startDate: filteredFilters[index].AppliedFilter.startDate,
+          endDate: filteredFilters[index].AppliedFilter.endDate,
+          startDateReview: filteredFilters[index].AppliedFilter.startDateReview,
+          endDateReview: filteredFilters[index].AppliedFilter.endDateReview,
         });
       }
     }
@@ -369,59 +369,59 @@ const BillingReportFilter = ({
 
   const handleSavedFilterEdit = async (index: number) => {
     setClients(
-      savedFilters[index].AppliedFilter.clients === null
+      filteredFilters[index].AppliedFilter.clients === null
         ? []
         : clientDropdown.filter((client: LabelValue) =>
-            savedFilters[index].AppliedFilter.clients.includes(client.value)
+          filteredFilters[index].AppliedFilter.clients.includes(client.value)
           )
     );
-    setClientName(savedFilters[index].AppliedFilter.clients);
+    setClientName(filteredFilters[index].AppliedFilter.clients);
     setProjectName(
-      savedFilters[index].AppliedFilter.projects.length > 0
+      filteredFilters[index].AppliedFilter.projects.length > 0
         ? (
             await getProjectDropdownData(
-              savedFilters[index].AppliedFilter.clients[0],
+              filteredFilters[index].AppliedFilter.clients[0],
               null
             )
           ).filter(
             (item: LabelValue) =>
-              item.value === savedFilters[index].AppliedFilter.projects[0]
+              item.value === filteredFilters[index].AppliedFilter.projects[0]
           )[0]
         : null
     );
     setQaId(
-      savedFilters[index].AppliedFilter.QAId === null
+      filteredFilters[index].AppliedFilter.QAId === null
         ? null
         : qaDropdown.filter(
             (item: LabelValue) =>
-              item.value === savedFilters[index].AppliedFilter.QAId
+              item.value === filteredFilters[index].AppliedFilter.QAId
           )[0]
     );
     setAssignee(
-      savedFilters[index].AppliedFilter.assigneeId === null
+      filteredFilters[index].AppliedFilter.assigneeId === null
         ? null
         : assigneeDropdown.filter(
             (item: LabelValueProfileImage) =>
-              item.value === savedFilters[index].AppliedFilter.assigneeId
+              item.value === filteredFilters[index].AppliedFilter.assigneeId
           )[0]
     );
     setReviewer(
-      savedFilters[index].AppliedFilter.reviewerId === null
+      filteredFilters[index].AppliedFilter.reviewerId === null
         ? null
         : reviewerDropdown.filter(
             (item: LabelValueProfileImage) =>
-              item.value === savedFilters[index].AppliedFilter.reviewerId
+              item.value === filteredFilters[index].AppliedFilter.reviewerId
           )[0]
     );
-    setNoOfPages(savedFilters[index].AppliedFilter.numberOfPages ?? "");
-    setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
-    setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
-    setStartDateReview(savedFilters[index].AppliedFilter.startDateReview ?? "");
-    setEndDateReview(savedFilters[index].AppliedFilter.endDateReview ?? "");
-    setIsBTC(savedFilters[index].AppliedFilter.IsBTC ?? false);
+    setNoOfPages(filteredFilters[index].AppliedFilter.numberOfPages ?? "");
+    setStartDate(filteredFilters[index].AppliedFilter.startDate ?? "");
+    setEndDate(filteredFilters[index].AppliedFilter.endDate ?? "");
+    setStartDateReview(filteredFilters[index].AppliedFilter.startDateReview ?? "");
+    setEndDateReview(filteredFilters[index].AppliedFilter.endDateReview ?? "");
+    setIsBTC(filteredFilters[index].AppliedFilter.IsBTC ?? false);
 
-    setCurrentFilterId(savedFilters[index].FilterId);
-    setFilterName(savedFilters[index].Name);
+    setCurrentFilterId(filteredFilters[index].FilterId);
+    setFilterName(filteredFilters[index].Name);
     setDefaultFilter(true);
     setSaveFilter(true);
   };

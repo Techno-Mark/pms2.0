@@ -150,11 +150,10 @@ const UserLogsReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...userLogs_InitialFilter,
-          users: userlogs_savedFilters[index].AppliedFilter.users,
-          departmentIds:
-            userlogs_savedFilters[index].AppliedFilter.departmentIds,
+          users: filteredFilters[index].AppliedFilter.users,
+          departmentIds: filteredFilters[index].AppliedFilter.departmentIds,
           isLoggedInFilter:
-            userlogs_savedFilters[index].AppliedFilter.isLoggedInFilter,
+            filteredFilters[index].AppliedFilter.isLoggedInFilter,
         });
       }
     }
@@ -251,7 +250,7 @@ const UserLogsReportFilter = ({
     setUserlogs_SaveFilter(true);
     setUserlogs_DefaultFilter(true);
 
-    const { Name, FilterId, AppliedFilter } = userlogs_savedFilters[index];
+    const { Name, FilterId, AppliedFilter } = filteredFilters[index];
     setUserlogs_FilterName(Name);
     setCurrentFilterId(FilterId);
 

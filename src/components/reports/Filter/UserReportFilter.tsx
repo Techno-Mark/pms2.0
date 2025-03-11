@@ -132,10 +132,10 @@ const UserReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...user_InitialFilter,
-          users: user_savedFilters[index].AppliedFilter.users,
-          departmentIds: user_savedFilters[index].AppliedFilter.departmentIds,
-          startDate: user_savedFilters[index].AppliedFilter.startDate,
-          endDate: user_savedFilters[index].AppliedFilter.endDate,
+          users: filteredFilters[index].AppliedFilter.users,
+          departmentIds: filteredFilters[index].AppliedFilter.departmentIds,
+          startDate: filteredFilters[index].AppliedFilter.startDate,
+          endDate: filteredFilters[index].AppliedFilter.endDate,
         });
       }
     }
@@ -233,7 +233,7 @@ const UserReportFilter = ({
     setUser_SaveFilter(true);
     setUser_DefaultFilter(true);
 
-    const { Name, FilterId, AppliedFilter } = user_savedFilters[index];
+    const { Name, FilterId, AppliedFilter } = filteredFilters[index];
     setUser_FilterName(Name);
     setCurrentFilterId(FilterId);
 

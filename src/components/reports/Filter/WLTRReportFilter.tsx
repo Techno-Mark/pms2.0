@@ -123,9 +123,9 @@ const WLTRReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...wltr_InitialFilter,
-          Clients: savedFilters[index].AppliedFilter.Clients,
-          StartDate: savedFilters[index].AppliedFilter.StartDate,
-          EndDate: savedFilters[index].AppliedFilter.EndDate,
+          Clients: filteredFilters[index].AppliedFilter.Clients,
+          StartDate: filteredFilters[index].AppliedFilter.StartDate,
+          EndDate: filteredFilters[index].AppliedFilter.EndDate,
         });
       }
     }
@@ -222,7 +222,7 @@ const WLTRReportFilter = ({
     setSaveFilter(true);
     setDefaultFilter(true);
 
-    const { Name, FilterId, AppliedFilter } = savedFilters[index];
+    const { Name, FilterId, AppliedFilter } = filteredFilters[index];
     setFilterName(Name);
     setCurrentFilterId(FilterId);
 

@@ -373,32 +373,32 @@ const CustomReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...customreport_InitialFilter,
-          clientIdsJSON: savedFilters[index].AppliedFilter.clientIdsJSON,
-          WorkTypeId: savedFilters[index].AppliedFilter.WorkTypeId,
-          projectIdsJSON: savedFilters[index].AppliedFilter.projectIdsJSON,
-          processIdsJSON: savedFilters[index].AppliedFilter.processIdsJSON,
-          QAId: savedFilters[index].AppliedFilter.QAId,
-          assignedByIds: savedFilters[index].AppliedFilter.assignedByIds,
-          assigneeIds: savedFilters[index].AppliedFilter.assigneeIds,
-          reviewerIds: savedFilters[index].AppliedFilter.reviewerIds,
-          returnTypeId: savedFilters[index].AppliedFilter.returnTypeId,
-          numberOfPages: savedFilters[index].AppliedFilter.numberOfPages,
-          returnYear: savedFilters[index].AppliedFilter.returnYear,
-          subProcessId: savedFilters[index].AppliedFilter.subProcessId,
-          StatusIds: savedFilters[index].AppliedFilter.StatusIds,
-          priority: savedFilters[index].AppliedFilter.priority,
-          IsHoursShared: savedFilters[index].AppliedFilter.IsHoursShared,
-          PeriodFrom: savedFilters[index].AppliedFilter.PeriodFrom,
-          PeriodTo: savedFilters[index].AppliedFilter.PeriodTo,
-          startDate: savedFilters[index].AppliedFilter.startDate,
-          endDate: savedFilters[index].AppliedFilter.endDate,
+          clientIdsJSON: filteredFilters[index].AppliedFilter.clientIdsJSON,
+          WorkTypeId: filteredFilters[index].AppliedFilter.WorkTypeId,
+          projectIdsJSON: filteredFilters[index].AppliedFilter.projectIdsJSON,
+          processIdsJSON: filteredFilters[index].AppliedFilter.processIdsJSON,
+          QAId: filteredFilters[index].AppliedFilter.QAId,
+          assignedByIds: filteredFilters[index].AppliedFilter.assignedByIds,
+          assigneeIds: filteredFilters[index].AppliedFilter.assigneeIds,
+          reviewerIds: filteredFilters[index].AppliedFilter.reviewerIds,
+          returnTypeId: filteredFilters[index].AppliedFilter.returnTypeId,
+          numberOfPages: filteredFilters[index].AppliedFilter.numberOfPages,
+          returnYear: filteredFilters[index].AppliedFilter.returnYear,
+          subProcessId: filteredFilters[index].AppliedFilter.subProcessId,
+          StatusIds: filteredFilters[index].AppliedFilter.StatusIds,
+          priority: filteredFilters[index].AppliedFilter.priority,
+          IsHoursShared: filteredFilters[index].AppliedFilter.IsHoursShared,
+          PeriodFrom: filteredFilters[index].AppliedFilter.PeriodFrom,
+          PeriodTo: filteredFilters[index].AppliedFilter.PeriodTo,
+          startDate: filteredFilters[index].AppliedFilter.startDate,
+          endDate: filteredFilters[index].AppliedFilter.endDate,
           ReworkReceivedDate:
-            savedFilters[index].AppliedFilter.ReworkReceivedDate,
-          ReworkDueDate: savedFilters[index].AppliedFilter.ReworkDueDate,
-          startDateReview: savedFilters[index].AppliedFilter.startDateReview,
-          endDateReview: savedFilters[index].AppliedFilter.endDateReview,
-          dueDate: savedFilters[index].AppliedFilter.dueDate,
-          allInfoDate: savedFilters[index].AppliedFilter.allInfoDate,
+            filteredFilters[index].AppliedFilter.ReworkReceivedDate,
+          ReworkDueDate: filteredFilters[index].AppliedFilter.ReworkDueDate,
+          startDateReview: filteredFilters[index].AppliedFilter.startDateReview,
+          endDateReview: filteredFilters[index].AppliedFilter.endDateReview,
+          dueDate: filteredFilters[index].AppliedFilter.dueDate,
+          allInfoDate: filteredFilters[index].AppliedFilter.allInfoDate,
         });
       }
     }
@@ -680,7 +680,7 @@ const CustomReportFilter = ({
     setSaveFilter(true);
     setDefaultFilter(true);
 
-    const { Name, FilterId, AppliedFilter } = savedFilters[index];
+    const { Name, FilterId, AppliedFilter } = filteredFilters[index];
     setFilterName(Name);
     setCurrentFilterId(FilterId);
 
@@ -728,11 +728,11 @@ const CustomReportFilter = ({
         : null
     );
     setQaId(
-      savedFilters[index].AppliedFilter.QAId === null
+      filteredFilters[index].AppliedFilter.QAId === null
         ? null
         : qaDropdown.filter(
             (item: LabelValue) =>
-              item.value === savedFilters[index].AppliedFilter.QAId
+              item.value === filteredFilters[index].AppliedFilter.QAId
           )[0]
     );
 

@@ -137,10 +137,10 @@ const AutoManualReportFilter = ({
         sendFilterToPage({
           ...am_InitialFilter,
           ReportingManagerId:
-            savedFilters[index].AppliedFilter.ReportingManagerId,
-          DepartmentIds: savedFilters[index].AppliedFilter.DepartmentIds,
-          StartDate: savedFilters[index].AppliedFilter.StartDate,
-          EndDate: savedFilters[index].AppliedFilter.EndDate,
+          filteredFilters[index].AppliedFilter.ReportingManagerId,
+          DepartmentIds: filteredFilters[index].AppliedFilter.DepartmentIds,
+          StartDate: filteredFilters[index].AppliedFilter.StartDate,
+          EndDate: filteredFilters[index].AppliedFilter.EndDate,
         });
       }
     }
@@ -240,32 +240,32 @@ const AutoManualReportFilter = ({
   const handleSavedFilterEdit = async (index: number) => {
     setSaveFilter(true);
     setDefaultFilter(true);
-    setFilterName(savedFilters[index].Name);
-    setCurrentFilterId(savedFilters[index].FilterId);
+    setFilterName(filteredFilters[index].Name);
+    setCurrentFilterId(filteredFilters[index].FilterId);
 
     setReportingManager(
-      savedFilters[index].AppliedFilter.ReportingManagerId !== null
+      filteredFilters[index].AppliedFilter.ReportingManagerId !== null
         ? rmDropdown.filter(
             (item: LabelValueProfileImage) =>
               item.value ===
-              savedFilters[index].AppliedFilter.ReportingManagerId
+            filteredFilters[index].AppliedFilter.ReportingManagerId
           )[0]
         : null
     );
     setDepts(
-      savedFilters[index].AppliedFilter.DepartmentIds === null
+      filteredFilters[index].AppliedFilter.DepartmentIds === null
         ? []
         : departmentDropdown.filter((dept: LabelValue) =>
-            savedFilters[index].AppliedFilter.DepartmentIds.includes(dept.value)
+          filteredFilters[index].AppliedFilter.DepartmentIds.includes(dept.value)
           )
     );
     setDeptName(
-      savedFilters[index].AppliedFilter.DepartmentIds === null
+      filteredFilters[index].AppliedFilter.DepartmentIds === null
         ? []
-        : savedFilters[index].AppliedFilter.DepartmentIds
+        : filteredFilters[index].AppliedFilter.DepartmentIds
     );
-    setStartDate(savedFilters[index].AppliedFilter.StartDate ?? "");
-    setEndDate(savedFilters[index].AppliedFilter.EndDate ?? "");
+    setStartDate(filteredFilters[index].AppliedFilter.StartDate ?? "");
+    setEndDate(filteredFilters[index].AppliedFilter.EndDate ?? "");
   };
 
   const handleSavedFilterDelete = async () => {
