@@ -88,6 +88,10 @@ const EmailBoxFilter = ({
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
 
+  const filteredFilters = savedFilters.filter((filter: any) =>
+    filter.Name.toLowerCase().includes(searchValue.toLowerCase())
+  );
+
   useEffect(() => {
     openFilter ? setIdFilter("simple-popover") : setIdFilter(undefined);
   }, [openFilter]);
@@ -161,13 +165,13 @@ const EmailBoxFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...initialFilter,
-          ClientId: savedFilters[index].AppliedFilter.ClientId,
-          TicketStatus: savedFilters[index].AppliedFilter.TicketStatus,
-          AssigneeId: savedFilters[index].AppliedFilter.AssigneeId,
-          EmailTypeId: savedFilters[index].AppliedFilter.EmailTypeId,
-          Tags: savedFilters[index].AppliedFilter.Tags,
-          ReceivedFrom: savedFilters[index].AppliedFilter.ReceivedFrom,
-          ReceivedTo: savedFilters[index].AppliedFilter.ReceivedTo,
+          ClientId: filteredFilters[index].AppliedFilter.ClientId,
+          TicketStatus: filteredFilters[index].AppliedFilter.TicketStatus,
+          AssigneeId: filteredFilters[index].AppliedFilter.AssigneeId,
+          EmailTypeId: filteredFilters[index].AppliedFilter.EmailTypeId,
+          Tags: filteredFilters[index].AppliedFilter.Tags,
+          ReceivedFrom: filteredFilters[index].AppliedFilter.ReceivedFrom,
+          ReceivedTo: filteredFilters[index].AppliedFilter.ReceivedTo,
         });
       }
     }
@@ -272,7 +276,7 @@ const EmailBoxFilter = ({
     setSaveFilter(true);
     setDefaultFilter(true);
 
-    const { Name, FilterId, AppliedFilter } = savedFilters[index];
+    const { Name, FilterId, AppliedFilter } = filteredFilters[index];
     setFilterName(Name);
     setCurrentFilterId(FilterId);
 
@@ -342,10 +346,6 @@ const EmailBoxFilter = ({
     };
     callAPI(url, params, successCallback, "POST");
   };
-
-  const filteredFilters = savedFilters.filter((filter: any) =>
-    filter.Name.toLowerCase().includes(searchValue.toLowerCase())
-  );
 
   return (
     <>
