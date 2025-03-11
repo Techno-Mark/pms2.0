@@ -191,7 +191,7 @@ export const generatePriorityWithColor = (value: any) => {
       {value === null || value === "" || value === 0 || value === "0" ? (
         "-"
       ) : (
-        <div className="flex items-center justify-center mr-1">
+        <div className="flex items-center justify-start mr-1">
           <div
             className={"w-[10px] h-[10px] rounded-full inline-block mr-2 "}
             style={{ backgroundColor: priorityColorCode }}
