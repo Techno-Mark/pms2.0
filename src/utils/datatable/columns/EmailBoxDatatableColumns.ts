@@ -197,6 +197,11 @@ export const failedColsConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
+    name: "PriorityName",
+    label: "Priority",
+    bodyRenderer: generatePriorityWithColor,
+  },
+  {
     name: "ReceivedOn",
     label: "Received Time",
     bodyRenderer: generateDateWithTime,
