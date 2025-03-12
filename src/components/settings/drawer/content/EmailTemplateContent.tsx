@@ -123,12 +123,12 @@ const EmailTemplateContent = forwardRef<
       const trimmedEmailType = emailTemplateName.trim();
 
       if (trimmedEmailType.length === 0) {
-        setEmailTemplateNameErr("Email Template Name is required.");
+        setEmailTemplateNameErr("Email Type Name is required.");
         return false;
       }
       if (trimmedEmailType.length > 100) {
         setEmailTemplateNameErr(
-          "Email Template name cannot exceed 100 characters."
+          "Email Type Name cannot exceed 100 characters."
         );
         return false;
       }
