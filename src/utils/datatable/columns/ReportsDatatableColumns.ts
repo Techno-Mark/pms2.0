@@ -818,6 +818,11 @@ const reportsErrorLogColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
+    header: "MissingInfo",
+    label: "Missing Info",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     header: "ReportingManagerName",
     label: "Reporting Manager",
     bodyRenderer: generateCommonBodyRender,

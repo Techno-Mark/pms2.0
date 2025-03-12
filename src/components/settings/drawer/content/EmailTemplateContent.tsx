@@ -123,12 +123,12 @@ const EmailTemplateContent = forwardRef<
       const trimmedEmailType = emailTemplateName.trim();
 
       if (trimmedEmailType.length === 0) {
-        setEmailTemplateNameErr("Email Type Name is required.");
+        setEmailTemplateNameErr("Email Template Name is required.");
         return false;
       }
       if (trimmedEmailType.length > 100) {
         setEmailTemplateNameErr(
-          "Email Type Name cannot exceed 100 characters."
+          "Email Template Name cannot exceed 100 characters."
         );
         return false;
       }
@@ -243,18 +243,18 @@ const EmailTemplateContent = forwardRef<
                 variant="standard"
                 label={
                   <span>
-                    Email Type
+                    Email Template
                     <span className="text-defaultRed">&nbsp;*</span>
                   </span>
                 }
-                placeholder="Please Select Email Type"
+                placeholder="Please Select Email Template"
                 error={emailTypeError}
                 onBlur={() => {
                   if (emailType > 0) {
                     setEmailTypeError(false);
                   }
                 }}
-                helperText={emailTypeError ? "Email Type is required." : ""}
+                helperText={emailTypeError ? "Email Template is required." : ""}
               />
             )}
           />
@@ -262,7 +262,7 @@ const EmailTemplateContent = forwardRef<
           <TextField
             label={
               <span>
-                Email Type Name
+                Email Template Name
                 <span className="!text-defaultRed">&nbsp;*</span>
               </span>
             }
@@ -341,7 +341,7 @@ const EmailTemplateContent = forwardRef<
             className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary"
             onClick={() => handleSubmit(true)}
           >
-            {onEdit > 0 ? "Save" : "Create Email Type"}
+            {onEdit > 0 ? "Save" : "Create Email Template"}
           </Button>
         </div>
       </>
