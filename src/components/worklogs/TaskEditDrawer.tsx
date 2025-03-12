@@ -144,8 +144,6 @@ const TaskEditDrawer = ({
   const [missingInfoWorklogs, setMissingInfoWorklogs] = useState<string | null>(
     null
   );
-  const [missingInfoWorklogsErr, setMissingInfoWorklogsErr] =
-    useState<boolean>(false);
 
   const previousYearStartDate = dayjs()
     .subtract(1, "year")
@@ -1062,7 +1060,6 @@ const TaskEditDrawer = ({
     setReworkDueDateWorklogs(null);
     setIsQaWorklogs(0);
     setMissingInfoWorklogs(null);
-    setMissingInfoWorklogsErr(false);
 
     setClientNameWorklogsEdit(0);
     setClientNameWorklogsEditErr(false);
