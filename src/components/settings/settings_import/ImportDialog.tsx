@@ -27,6 +27,7 @@ const ImportDialog = ({
   tab,
 }: ImportDialogProp) => {
   const [fileInputKey, setFileInputKey] = useState(0);
+  const [fileInputKeyClient, setFileInputKeyClient] = useState(0);
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [selectedFileId, setSelectedFileId] = useState<number>(0);
   const [isUploading, setIsUplaoding] = useState<boolean>(false);
@@ -34,13 +35,13 @@ const ImportDialog = ({
   const [isUploadingClient, setIsUplaodingClient] = useState<boolean>(false);
   const [loadingClient, setLoadingClient] = useState<boolean>(false);
 
-  const handleFileChange = (event: any, id: number) => {
+  const handleFileChange = (event: any) => {
     setSelectedFile(event.target.files[0]);
-    setSelectedFileId(id);
   };
 
   const handleClose = () => {
     setFileInputKey((prevKey) => prevKey + 1);
+    setFileInputKeyClient((prevKey) => prevKey + 1);
     setSelectedFile(null);
     setSelectedFileId(0);
     onClose();
@@ -189,7 +190,7 @@ const ImportDialog = ({
           tab === "User" && id == 1
             ? "Employee"
             : tab === "User" && id == 2
-            ? "Client"
+            ? "Client_User"
             : tab
         }_SampleExcel.xlsx`;
         document.body.appendChild(a);
@@ -223,7 +224,7 @@ const ImportDialog = ({
         <DialogContent>
           <div
             className={`pt-6 px-[10px] pb-[10px] h-[200px] ${
-              tab === "User" ? "w-[40vw]" : "w-[20vw]"
+              tab === "User" ? "w-full" : "min-w-[20vw] w-full"
             } flex items-center justify-center gap-4`}
           >
             <div
@@ -236,7 +237,10 @@ const ImportDialog = ({
                 accept=".xls,.xlsx"
                 style={{ display: "none" }}
                 id="raised-button-file"
-                onChange={(e) => handleFileChange(e, 1)}
+                onChange={(e) => {
+                  setSelectedFileId(1);
+                  handleFileChange(e);
+                }}
                 type="file"
               />
               <label
@@ -260,15 +264,18 @@ const ImportDialog = ({
             {tab === "User" && (
               <div className="flex items-center justify-around gap-5 w-[50%]">
                 <input
-                  key={fileInputKey}
+                  key={fileInputKeyClient}
                   accept=".xls,.xlsx"
                   style={{ display: "none" }}
-                  id="raised-button-file"
-                  onChange={(e) => handleFileChange(e, 2)}
+                  id="raised-button-file-client"
+                  onChange={(e) => {
+                    setSelectedFileId(2);
+                    handleFileChange(e);
+                  }}
                   type="file"
                 />
                 <label
-                  htmlFor="raised-button-file"
+                  htmlFor="raised-button-file-client"
                   className="flex items-center justify-center border border-lightSilver rounded-md w-full h-44 shadow-md hover:shadow-xl hover:bg-[#f5fcff] hover:border-[#a4e3fe] cursor-pointer"
                 >
                   <div className="flex flex-col items-center gap-3">
