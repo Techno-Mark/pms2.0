@@ -1053,8 +1053,33 @@ const reportsErrorLogCols = reportsErrorLogColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
 
+const generateCustomizableColsForEmail = (column: {
+  header: string;
+  label: string;
+  bodyRenderer: (arg0: any) => any;
+}) => {
+  if (column.header === "TagList") {
+    return {
+      name: "TagList",
+      options: {
+        filter: true,
+        sort: false,
+        customHeadLabelRender: () => generateCustomHeaderName("Tag"),
+        customBodyRender: (value: string[] | null) =>
+          !!value ? getTagDataForReport(value) : "-",
+      },
+    };
+  } else {
+    return generateCustomColumn(
+      column.header,
+      column.label,
+      column.bodyRenderer
+    );
+  }
+};
+
 const reportsEmailTypeCols = reportsEmailTypeColConfig.map((col: any) =>
-  generateCustomColumn(col.header, col.label, col.bodyRenderer)
+  generateCustomizableColsForEmail(col)
 );
 
 const reportsUserLogsCols: any[] = [

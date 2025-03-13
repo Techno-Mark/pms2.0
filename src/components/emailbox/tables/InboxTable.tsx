@@ -473,7 +473,7 @@ const InboxTable = ({
         name: "TagList",
         options: {
           filter: true,
-          sort: true,
+          sort: false,
           viewColumns: false,
           customHeadLabelRender: () => generateCustomHeaderName("Tag"),
           customBodyRender: (value: string[], tableMeta: any) => {
