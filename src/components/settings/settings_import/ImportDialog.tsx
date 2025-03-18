@@ -27,9 +27,13 @@ const ImportDialog = ({
   tab,
 }: ImportDialogProp) => {
   const [fileInputKey, setFileInputKey] = useState(0);
+  const [fileInputKeyClient, setFileInputKeyClient] = useState(0);
   const [selectedFile, setSelectedFile] = useState<any>(null);
+  const [selectedFileId, setSelectedFileId] = useState<number>(0);
   const [isUploading, setIsUplaoding] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isUploadingClient, setIsUplaodingClient] = useState<boolean>(false);
+  const [loadingClient, setLoadingClient] = useState<boolean>(false);
 
   const handleFileChange = (event: any) => {
     setSelectedFile(event.target.files[0]);
@@ -37,7 +41,9 @@ const ImportDialog = ({
 
   const handleClose = () => {
     setFileInputKey((prevKey) => prevKey + 1);
+    setFileInputKeyClient((prevKey) => prevKey + 1);
     setSelectedFile(null);
+    setSelectedFileId(0);
     onClose();
   };
 
@@ -53,9 +59,13 @@ const ImportDialog = ({
 
     if (selectedFile) {
       try {
-        setIsUplaoding(true);
+        selectedFileId === 1 && setIsUplaoding(true);
+        selectedFileId === 2 && setIsUplaodingClient(true);
         const formData = new FormData();
-        formData.append("file", selectedFile);
+        formData.append("File", selectedFile);
+        if (tab === "User") {
+          formData.append("RoleType", selectedFileId.toString());
+        }
 
         const response = await axios.post(`${apiEndPoint}`, formData, {
           headers: {
@@ -69,7 +79,8 @@ const ImportDialog = ({
           if (response.data.ResponseStatus === "Success") {
             toast.success("Task has been imported successfully.");
             onDataFetch?.();
-            setIsUplaoding(false);
+            selectedFileId === 1 && setIsUplaoding(false);
+            selectedFileId === 2 && setIsUplaodingClient(false);
             handleClose();
           } else if (response.data.ResponseStatus === "Warning") {
             toast.warning(
@@ -102,18 +113,21 @@ const ImportDialog = ({
             URL.revokeObjectURL(fileURL);
 
             onDataFetch?.();
-            setIsUplaoding(false);
+            selectedFileId === 1 && setIsUplaoding(false);
+            selectedFileId === 2 && setIsUplaodingClient(false);
             handleClose();
           } else {
             toast.error(
               "The uploaded file is not in the format of the sample file."
             );
-            setIsUplaoding(false);
+            selectedFileId === 1 && setIsUplaoding(false);
+            selectedFileId === 2 && setIsUplaodingClient(false);
             handleClose();
           }
         } else {
           toast.error("Please try again later.");
-          setIsUplaoding(false);
+          selectedFileId === 1 && setIsUplaoding(false);
+          selectedFileId === 2 && setIsUplaodingClient(false);
         }
       } catch (error) {
         console.error(error);
@@ -127,75 +141,106 @@ const ImportDialog = ({
     }
   }, [selectedFile]);
 
-  const handleDownloadSampleFile = async () => {
-    setLoading(true);
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    const apiEndPoint =
-      tab === "Client"
-        ? `${process.env.pms_api_url}/client/exportexcelfordemo`
-        : tab === "Project"
-        ? `${process.env.pms_api_url}/project/exportexcelfordemo`
-        : tab === "User" && `${process.env.api_url}/user/exportexcelfordemo`;
+  const handleDownloadSampleFile = async (id?: number) => {
+    id === 1 && setLoading(true);
+    id === 2 && setLoadingClient(true);
+    const token = localStorage.getItem("token");
+    const Org_Token = localStorage.getItem("Org_Token");
+
+    let apiEndPoint = "";
+
+    if (tab === "Client") {
+      apiEndPoint = `${process.env.pms_api_url}/client/exportexcelfordemo`;
+    } else if (tab === "Project") {
+      apiEndPoint = `${process.env.pms_api_url}/project/exportexcelfordemo`;
+    } else if (tab === "User") {
+      apiEndPoint = `${process.env.api_url}/user/exportexcelfordemo`;
+    }
 
     try {
-      const response = await axios.get(`${apiEndPoint}`, {
-        headers: {
-          Authorization: `bearer ${token}`,
-          org_token: `${Org_Token}`,
-        },
-        responseType: "blob",
-      });
+      let response;
+
+      if (tab === "User" && id) {
+        response = await axios.post(apiEndPoint, id, {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+            "Content-Type": "Text",
+          },
+          responseType: "blob",
+        });
+      } else {
+        response = await axios.get(apiEndPoint, {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+          responseType: "blob",
+        });
+      }
 
       if (response.status === 200) {
-        if (response.data.ResponseStatus === "Failure") {
-          toast.error("Please try again later.");
-          setLoading(false);
-        } else {
-          const blob = new Blob([response.data], {
-            type: response.headers["content-type"],
-          });
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = `${tab}_SampleExcel.xlsx`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);
-          toast.success("File has been downloaded successfully.");
-          setLoading(false);
-        }
+        const blob = new Blob([response.data], {
+          type: response.headers["content-type"],
+        });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${
+          tab === "User" && id == 1
+            ? "Employee"
+            : tab === "User" && id == 2
+            ? "Client_User"
+            : tab
+        }_SampleExcel.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        toast.success("File has been downloaded successfully.");
       } else {
         toast.error("Please try again later.");
-        setLoading(false);
       }
     } catch (error) {
       toast.error("Error downloading data.");
-      setLoading(false);
+    } finally {
+      id === 1 && setLoading(false);
+      id === 2 && setLoadingClient(false);
     }
   };
+
   return (
     <div>
       <Dialog
         open={onOpen}
         TransitionComponent={TransitionDown}
         keepMounted
-        maxWidth="xs"
+        maxWidth="lg"
         onClose={handleClose}
       >
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
           <span className="text-lg font-medium">Import</span>
         </DialogTitle>
         <DialogContent>
-          <div className="pt-6 px-[10px] pb-[10px] h-[200px] w-[23vw]">
-            <div className="flex items-center justify-around gap-5">
+          <div
+            className={`pt-6 px-[10px] pb-[10px] h-[200px] ${
+              tab === "User" ? "w-full" : "min-w-[20vw] w-full"
+            } flex items-center justify-center gap-4`}
+          >
+            <div
+              className={`flex items-center justify-around gap-5 ${
+                tab === "User" ? "w-[50%]" : "w-[100%]"
+              }`}
+            >
               <input
                 key={fileInputKey}
                 accept=".xls,.xlsx"
                 style={{ display: "none" }}
                 id="raised-button-file"
-                onChange={handleFileChange}
+                onChange={(e) => {
+                  setSelectedFileId(1);
+                  handleFileChange(e);
+                }}
                 type="file"
               />
               <label
@@ -208,32 +253,87 @@ const ImportDialog = ({
                   ) : (
                     <>
                       <ExcelIcon />
-                      <span className="text-darkCharcoal">Import Excel</span>
+                      <span className="text-darkCharcoal">
+                        {tab === "User" ? "Employee Excel" : "Import Excel"}
+                      </span>
                     </>
                   )}
                 </div>
               </label>
             </div>
+            {tab === "User" && (
+              <div className="flex items-center justify-around gap-5 w-[50%]">
+                <input
+                  key={fileInputKeyClient}
+                  accept=".xls,.xlsx"
+                  style={{ display: "none" }}
+                  id="raised-button-file-client"
+                  onChange={(e) => {
+                    setSelectedFileId(2);
+                    handleFileChange(e);
+                  }}
+                  type="file"
+                />
+                <label
+                  htmlFor="raised-button-file-client"
+                  className="flex items-center justify-center border border-lightSilver rounded-md w-full h-44 shadow-md hover:shadow-xl hover:bg-[#f5fcff] hover:border-[#a4e3fe] cursor-pointer"
+                >
+                  <div className="flex flex-col items-center gap-3">
+                    {isUploadingClient ? (
+                      <span>Uploading..</span>
+                    ) : (
+                      <>
+                        <ExcelIcon />
+                        <span className="text-darkCharcoal">
+                          {tab === "User" ? "Client Excel" : "Import Excel"}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </label>
+              </div>
+            )}
           </div>
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] mx-[15px] gap-[10px] h-[64px] flex items-center justify-between">
-          {loading ? (
-            <span className="flex items-center justify-center w-40">
-              <Spinner size="20px" />
-            </span>
-          ) : (
-            <Button
-              variant="contained"
-              color="success"
-              className="rounded-[4px] !h-[36px] !bg-[#388e3c] hover:!bg-darkSuccess"
-              onClick={handleDownloadSampleFile}
-            >
-              Sample File&nbsp;
-              <span className="text-xl">
-                <Download />
+          <div className="flex items-center justify-start gap-4">
+            {loading ? (
+              <span className="flex items-center justify-center w-40">
+                <Spinner size="20px" />
               </span>
-            </Button>
-          )}
+            ) : (
+              <Button
+                variant="contained"
+                color="success"
+                className="rounded-[4px] !h-[36px] !bg-[#388e3c] hover:!bg-darkSuccess"
+                onClick={() => handleDownloadSampleFile(1)}
+              >
+                {tab === "User" ? "Employee Sample File" : "Sample File"}&nbsp;
+                <span className="text-xl">
+                  <Download />
+                </span>
+              </Button>
+            )}
+            {tab === "User" && loadingClient ? (
+              <span className="flex items-center justify-center w-40">
+                <Spinner size="20px" />
+              </span>
+            ) : (
+              tab === "User" && (
+                <Button
+                  variant="contained"
+                  color="success"
+                  className="rounded-[4px] !h-[36px] !bg-[#388e3c] hover:!bg-darkSuccess"
+                  onClick={() => handleDownloadSampleFile(2)}
+                >
+                  Client Sample File&nbsp;
+                  <span className="text-xl">
+                    <Download />
+                  </span>
+                </Button>
+              )
+            )}
+          </div>
           <Button
             variant="outlined"
             className="rounded-[4px] !h-[36px]"
