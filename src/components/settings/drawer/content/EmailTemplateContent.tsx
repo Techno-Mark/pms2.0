@@ -243,18 +243,18 @@ const EmailTemplateContent = forwardRef<
                 variant="standard"
                 label={
                   <span>
-                    Email Template
+                    Email Type
                     <span className="text-defaultRed">&nbsp;*</span>
                   </span>
                 }
-                placeholder="Please Select Email Template"
+                placeholder="Please Select Email Type"
                 error={emailTypeError}
                 onBlur={() => {
                   if (emailType > 0) {
                     setEmailTypeError(false);
                   }
                 }}
-                helperText={emailTypeError ? "Email Template is required." : ""}
+                helperText={emailTypeError ? "Email Type is required." : ""}
               />
             )}
           />
