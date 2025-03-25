@@ -427,7 +427,15 @@ const EditDrawer = ({
     const newBillApprovalsErrors = [...billAmountApprovalsErr];
     newBillApprovalsErrors.splice(index, 1);
     setBillAmountApprovalsErr(newBillApprovalsErrors);
+
+    subTaskFieldsApprovals.length === 1 &&
+      subTaskFieldsApprovals[0].SubtaskId > 0 &&
+      handleRemoveSubTaskApprovals(subTaskFieldsApprovals[0].SubtaskId);
   };
+
+  useEffect(() => {
+    subTaskFieldsApprovals.length <= 0 && addTaskFieldApprovals();
+  }, [subTaskFieldsApprovals]);
 
   const handleSubTaskChangeApprovals = (e: string, index: number) => {
     const newTaskFields = [...subTaskFieldsApprovals];
@@ -484,12 +492,17 @@ const EditDrawer = ({
     setSubTaskFieldsApprovals(newDateApprovalsFields);
 
     const newDateApprovalsErrors = [...dateApprovalsErr];
-    newDateApprovalsErrors[index] = e.trim().length <= 0;
+    newDateApprovalsErrors[index] =
+      e.trim().length <= 0 ||
+      new Date(e) <=
+        new Date(
+          dayjs(receiverDateApprovals).subtract(1, "day").format("YYYY/MM/DD")
+        );
     setDateApprovalsErr(newDateApprovalsErrors);
   };
 
   const handleSubTaskBillAmountChangeApprovals = (e: string, index: number) => {
-    const regex = /^\d{0,10}(\.\d{0,2})?$/;
+    const regex = /^\d{0,8}(\.\d{0,2})?$/;
 
     if (regex.test(e)) {
       const newBillAmountApprovalsFields = [...subTaskFieldsApprovals];
@@ -497,7 +510,8 @@ const EditDrawer = ({
       setSubTaskFieldsApprovals(newBillAmountApprovalsFields);
 
       const newBillAmountApprovalsErrors = [...billAmountApprovalsErr];
-      newBillAmountApprovalsErrors[index] = e.trim().length < 1;
+      newBillAmountApprovalsErrors[index] =
+        e.trim().length < 1 || parseFloat(e) === 0;
       setBillAmountApprovalsErr(newBillAmountApprovalsErrors);
     }
   };
@@ -676,12 +690,22 @@ const EditDrawer = ({
     );
     subTaskSwitchApprovals && setInvoiceNameApprovalsErr(newInvoiceErrors);
     const newDateErrors = subTaskFieldsApprovals.map(
-      (field) => subTaskSwitchApprovals && field.SubTaskDate.trim().length <= 0
+      (field) =>
+        subTaskSwitchApprovals &&
+        (field.SubTaskDate.trim().length <= 0 ||
+          new Date(field.SubTaskDate.trim()) <=
+            new Date(
+              dayjs(receiverDateApprovals)
+                .subtract(1, "day")
+                .format("YYYY/MM/DD")
+            ))
     );
     subTaskSwitchApprovals && setDateApprovalsErr(newDateErrors);
     const newBillAmountErrors = subTaskFieldsApprovals.map(
       (field) =>
-        subTaskSwitchApprovals && field.BillAmount.toString().trim().length <= 0
+        subTaskSwitchApprovals &&
+        (field.BillAmount.toString().trim().length <= 0 ||
+          parseFloat(field.BillAmount.toString().trim()) === 0)
     );
     subTaskSwitchApprovals && setBillAmountApprovalsErr(newBillAmountErrors);
     hasSubErrors =
@@ -745,6 +769,47 @@ const EditDrawer = ({
         };
         callAPI(url, params, successCallback, "POST");
       }
+    } else {
+      toast.error("User don't have permission to Update Sub-Task.");
+      getSubTaskDataApprovals();
+    }
+  };
+  const handleRemoveSubTaskApprovals = async (id: number) => {
+    if (hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")) {
+      setIsLoadingApprovals(true);
+      const params = {
+        workitemId: onEdit,
+        subtasks: null,
+        deletedWorkitemSubtaskIds: [...deletedSubTaskApprovals, id],
+      };
+      const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
+      const successCallback = (
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success(`Sub Task Updated successfully.`);
+          setDeletedSubTaskApprovals([]);
+          setSubTaskFieldsApprovals([
+            {
+              SubtaskId: 0,
+              Title: "",
+              Description: "",
+              CustomerName: "",
+              InvoiceNumber: "",
+              SubTaskDate: "",
+              BillAmount: "",
+              SubTaskErrorLogFlag: false,
+            },
+          ]);
+          setIsLoadingApprovals(false);
+          getSubTaskDataOption();
+          getSubTaskDataApprovals();
+        }
+        setIsLoadingApprovals(false);
+      };
+      callAPI(url, params, successCallback, "POST");
     } else {
       toast.error("User don't have permission to Update Sub-Task.");
       getSubTaskDataApprovals();
@@ -5310,7 +5375,7 @@ const EditDrawer = ({
                   </span>
                 </div>
                 {subTaskApprovalsDrawer && (
-                  <div className="mt-3 pl-6">
+                  <div className="mt-3 pl-6 flex flex-col gap-5">
                     {subTaskFieldsApprovals.map((field, index) => (
                       <div
                         className="w-[100%] flex"
@@ -5547,9 +5612,14 @@ const EditDrawer = ({
                                   }
                                   slotProps={{
                                     textField: {
-                                      helperText: dateApprovalsErr[index]
-                                        ? "This is a required field."
-                                        : "",
+                                      helperText:
+                                        dateApprovalsErr[index] &&
+                                        field.SubTaskDate.length <= 0
+                                          ? "This is a required field."
+                                          : dateApprovalsErr[index] &&
+                                            field.SubTaskDate.length > 1
+                                          ? "Enter a valid date."
+                                          : "",
                                       readOnly: true,
                                     } as Record<string, any>,
                                   }}
@@ -5577,7 +5647,10 @@ const EditDrawer = ({
                                 )
                               }
                               onBlur={(e) => {
-                                if (e.target.value.trim().length > 1) {
+                                if (
+                                  e.target.value.trim().length > 1 &&
+                                  parseFloat(e.target.value.trim()) > 0
+                                ) {
                                   const newBillAmountApprovalsErrors = [
                                     ...billAmountApprovalsErr,
                                   ];
@@ -5599,7 +5672,38 @@ const EditDrawer = ({
                             />
                             {subTaskSwitchApprovals &&
                               activeTab === 1 &&
-                              (index === 0 ? (
+                              !field.SubTaskErrorLogFlag && (
+                                <span
+                                  className="cursor-pointer"
+                                  onClick={
+                                    hasPermissionWorklog(
+                                      "Task/SubTask",
+                                      "Delete",
+                                      "WorkLogs"
+                                    ) &&
+                                    hasPermissionWorklog(
+                                      "Task/SubTask",
+                                      "Save",
+                                      "WorkLogs"
+                                    )
+                                      ? () => removeTaskFieldApprovals(index)
+                                      : undefined
+                                  }
+                                >
+                                  <svg
+                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    focusable="false"
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    data-testid="RemoveIcon"
+                                  >
+                                    <path d="M19 13H5v-2h14v2z"></path>
+                                  </svg>
+                                </span>
+                              )}
+                            {subTaskSwitchApprovals &&
+                              activeTab === 1 &&
+                              index === 0 && (
                                 <span
                                   className="cursor-pointer"
                                   onClick={addTaskFieldApprovals}
@@ -5614,37 +5718,7 @@ const EditDrawer = ({
                                     <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
                                   </svg>
                                 </span>
-                              ) : (
-                                !field.SubTaskErrorLogFlag && (
-                                  <span
-                                    className="cursor-pointer"
-                                    onClick={
-                                      hasPermissionWorklog(
-                                        "Task/SubTask",
-                                        "Delete",
-                                        "WorkLogs"
-                                      ) &&
-                                      hasPermissionWorklog(
-                                        "Task/SubTask",
-                                        "Save",
-                                        "WorkLogs"
-                                      )
-                                        ? () => removeTaskFieldApprovals(index)
-                                        : undefined
-                                    }
-                                  >
-                                    <svg
-                                      className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                      focusable="false"
-                                      aria-hidden="true"
-                                      viewBox="0 0 24 24"
-                                      data-testid="RemoveIcon"
-                                    >
-                                      <path d="M19 13H5v-2h14v2z"></path>
-                                    </svg>
-                                  </span>
-                                )
-                              ))}
+                              )}
                           </div>
                         </div>
                       </div>

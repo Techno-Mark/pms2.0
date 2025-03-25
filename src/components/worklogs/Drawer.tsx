@@ -432,7 +432,15 @@ const EditDrawer = ({
     const newBillWorklogsErrors = [...billAmountWorklogsErr];
     newBillWorklogsErrors.splice(index, 1);
     setBillAmountWorklogsErr(newBillWorklogsErrors);
+
+    subTaskFieldsWorklogs.length === 1 &&
+      subTaskFieldsWorklogs[0].SubtaskId > 0 &&
+      handleRemoveSubTaskWorklogs(subTaskFieldsWorklogs[0].SubtaskId);
   };
+
+  useEffect(() => {
+    subTaskFieldsWorklogs.length <= 0 && addTaskFieldWorklogs();
+  }, [subTaskFieldsWorklogs]);
 
   const handleSubTaskChangeWorklogs = (e: string, index: number) => {
     const newTaskWorklogsFields = [...subTaskFieldsWorklogs];
@@ -489,12 +497,17 @@ const EditDrawer = ({
     setSubTaskFieldsWorklogs(newDateWorklogsFields);
 
     const newDateWorklogsErrors = [...dateWorklogsErr];
-    newDateWorklogsErrors[index] = e.trim().length <= 0;
+    newDateWorklogsErrors[index] =
+      e.trim().length <= 0 ||
+      new Date(e) <=
+        new Date(
+          dayjs(receiverDateWorklogs).subtract(1, "day").format("YYYY/MM/DD")
+        );
     setDateWorklogsErr(newDateWorklogsErrors);
   };
 
   const handleSubTaskBillAmountChangeWorklogs = (e: string, index: number) => {
-    const regex = /^\d{0,10}(\.\d{0,2})?$/;
+    const regex = /^\d{0,8}(\.\d{0,2})?$/;
 
     if (regex.test(e)) {
       const newBillAmountWorklogsFields = [...subTaskFieldsWorklogs];
@@ -502,7 +515,8 @@ const EditDrawer = ({
       setSubTaskFieldsWorklogs(newBillAmountWorklogsFields);
 
       const newBillAmountWorklogsErrors = [...billAmountWorklogsErr];
-      newBillAmountWorklogsErrors[index] = e.trim().length < 1;
+      newBillAmountWorklogsErrors[index] =
+        e.trim().length < 1 || parseFloat(e) === 0;
       setBillAmountWorklogsErr(newBillAmountWorklogsErrors);
     }
   };
@@ -681,12 +695,22 @@ const EditDrawer = ({
     );
     subTaskSwitchWorklogs && setInvoiceNameWorklogsErr(newInvoiceErrors);
     const newDateErrors = subTaskFieldsWorklogs.map(
-      (field) => subTaskSwitchWorklogs && field.SubTaskDate.trim().length <= 0
+      (field) =>
+        subTaskSwitchWorklogs &&
+        (field.SubTaskDate.trim().length <= 0 ||
+          new Date(field.SubTaskDate.trim()) <=
+            new Date(
+              dayjs(receiverDateWorklogs)
+                .subtract(1, "day")
+                .format("YYYY/MM/DD")
+            ))
     );
     subTaskSwitchWorklogs && setDateWorklogsErr(newDateErrors);
     const newBillAmountErrors = subTaskFieldsWorklogs.map(
       (field) =>
-        subTaskSwitchWorklogs && field.BillAmount.toString().trim().length <= 0
+        subTaskSwitchWorklogs &&
+        (field.BillAmount.toString().trim().length <= 0 ||
+          parseFloat(field.BillAmount.toString().trim()) === 0)
     );
     subTaskSwitchWorklogs && setBillAmountWorklogsErr(newBillAmountErrors);
     hasSubErrors =
@@ -750,6 +774,48 @@ const EditDrawer = ({
         };
         callAPI(url, params, successCallback, "POST");
       }
+    } else {
+      toast.error("User don't have permission to Update Sub-Task.");
+      getSubTaskDataWorklogs();
+    }
+  };
+
+  const handleRemoveSubTaskWorklogs = async (id: number) => {
+    if (hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")) {
+      setIsLoadingWorklogs(true);
+      const params = {
+        workitemId: onEdit,
+        subtasks: null,
+        deletedWorkitemSubtaskIds: [...deletedSubTaskWorklogs, id],
+      };
+      const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
+      const successCallback = (
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success(`Sub Task Updated successfully.`);
+          setDeletedSubTaskWorklogs([]);
+          setSubTaskFieldsWorklogs([
+            {
+              SubtaskId: 0,
+              Title: "",
+              Description: "",
+              CustomerName: "",
+              InvoiceNumber: "",
+              SubTaskDate: "",
+              BillAmount: "",
+              SubTaskErrorLogFlag: false,
+            },
+          ]);
+          setIsLoadingWorklogs(false);
+          getSubTaskDataOption();
+          getSubTaskDataWorklogs();
+        }
+        setIsLoadingWorklogs(false);
+      };
+      callAPI(url, params, successCallback, "POST");
     } else {
       toast.error("User don't have permission to Update Sub-Task.");
       getSubTaskDataWorklogs();
@@ -2962,14 +3028,21 @@ const EditDrawer = ({
       (field) =>
         onEdit === 0 &&
         subTaskSwitchWorklogs &&
-        field.SubTaskDate.trim().length <= 0
+        (field.SubTaskDate.trim().length <= 0 ||
+          new Date(field.SubTaskDate.trim()) <=
+            new Date(
+              dayjs(receiverDateWorklogs)
+                .subtract(1, "day")
+                .format("YYYY/MM/DD")
+            ))
     );
     subTaskSwitchWorklogs && setDateWorklogsErr(newDateErrors);
     const newBillAmountErrors = subTaskFieldsWorklogs.map(
       (field) =>
         onEdit === 0 &&
         subTaskSwitchWorklogs &&
-        field.BillAmount.toString().trim().length <= 0
+        (field.BillAmount.toString().trim().length <= 0 ||
+          parseFloat(field.BillAmount.toString().trim()) === 0)
     );
     subTaskSwitchWorklogs && setBillAmountWorklogsErr(newBillAmountErrors);
     hasSubErrors =
@@ -5689,7 +5762,7 @@ const EditDrawer = ({
                   </span>
                 </div>
                 {subTaskWorklogsDrawer && (
-                  <div className="mt-3 pl-6">
+                  <div className="mt-3 pl-6 flex flex-col gap-5">
                     {subTaskFieldsWorklogs.map((field, index) => (
                       <div className="w-[100%] flex" key={index}>
                         <TextField
@@ -5933,9 +6006,14 @@ const EditDrawer = ({
                                   }
                                   slotProps={{
                                     textField: {
-                                      helperText: dateWorklogsErr[index]
-                                        ? "This is a required field."
-                                        : "",
+                                      helperText:
+                                        dateWorklogsErr[index] &&
+                                        field.SubTaskDate.length <= 0
+                                          ? "This is a required field."
+                                          : dateWorklogsErr[index] &&
+                                            field.SubTaskDate.length > 1
+                                          ? "Enter a valid date."
+                                          : "",
                                       readOnly: true,
                                     } as Record<string, any>,
                                   }}
@@ -5965,7 +6043,10 @@ const EditDrawer = ({
                                 )
                               }
                               onBlur={(e) => {
-                                if (e.target.value.trim().length > 1) {
+                                if (
+                                  e.target.value.trim().length > 1 &&
+                                  parseFloat(e.target.value.trim()) > 0
+                                ) {
                                   const newBillAmountWorklogsErrors = [
                                     ...billAmountWorklogsErr,
                                   ];
@@ -5985,65 +6066,65 @@ const EditDrawer = ({
                               variant="standard"
                               sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
                             />
-                            {index === 0
-                              ? !isIdDisabled &&
-                                !isDisabled &&
-                                subTaskSwitchWorklogs && (
-                                  <span
-                                    className="cursor-pointer"
-                                    onClick={
-                                      hasPermissionWorklog(
-                                        "Task/SubTask",
-                                        "Save",
-                                        "WorkLogs"
-                                      )
-                                        ? () => addTaskFieldWorklogs()
-                                        : undefined
-                                    }
+                            {!isIdDisabled &&
+                              !isDisabled &&
+                              subTaskSwitchWorklogs &&
+                              !field.SubTaskErrorLogFlag && (
+                                <span
+                                  className="cursor-pointer"
+                                  onClick={
+                                    hasPermissionWorklog(
+                                      "Task/SubTask",
+                                      "Delete",
+                                      "WorkLogs"
+                                    ) &&
+                                    hasPermissionWorklog(
+                                      "Task/SubTask",
+                                      "Save",
+                                      "WorkLogs"
+                                    )
+                                      ? () => removeTaskFieldWorklogs(index)
+                                      : undefined
+                                  }
+                                >
+                                  <svg
+                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    focusable="false"
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    data-testid="RemoveIcon"
                                   >
-                                    <svg
-                                      className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                      focusable="false"
-                                      aria-hidden="true"
-                                      viewBox="0 0 24 24"
-                                      data-testid="AddIcon"
-                                    >
-                                      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
-                                    </svg>
-                                  </span>
-                                )
-                              : !isIdDisabled &&
-                                !isDisabled &&
-                                subTaskSwitchWorklogs &&
-                                !field.SubTaskErrorLogFlag && (
-                                  <span
-                                    className="cursor-pointer"
-                                    onClick={
-                                      hasPermissionWorklog(
-                                        "Task/SubTask",
-                                        "Delete",
-                                        "WorkLogs"
-                                      ) &&
-                                      hasPermissionWorklog(
-                                        "Task/SubTask",
-                                        "Save",
-                                        "WorkLogs"
-                                      )
-                                        ? () => removeTaskFieldWorklogs(index)
-                                        : undefined
-                                    }
+                                    <path d="M19 13H5v-2h14v2z"></path>
+                                  </svg>
+                                </span>
+                              )}
+                            {index === 0 &&
+                              !isIdDisabled &&
+                              !isDisabled &&
+                              subTaskSwitchWorklogs && (
+                                <span
+                                  className="cursor-pointer"
+                                  onClick={
+                                    hasPermissionWorklog(
+                                      "Task/SubTask",
+                                      "Save",
+                                      "WorkLogs"
+                                    )
+                                      ? () => addTaskFieldWorklogs()
+                                      : undefined
+                                  }
+                                >
+                                  <svg
+                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    focusable="false"
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    data-testid="AddIcon"
                                   >
-                                    <svg
-                                      className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                      focusable="false"
-                                      aria-hidden="true"
-                                      viewBox="0 0 24 24"
-                                      data-testid="RemoveIcon"
-                                    >
-                                      <path d="M19 13H5v-2h14v2z"></path>
-                                    </svg>
-                                  </span>
-                                )}
+                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                                  </svg>
+                                </span>
+                              )}
                           </div>
                         </div>
                       </div>
