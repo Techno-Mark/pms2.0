@@ -5842,7 +5842,7 @@ const EditDrawer = ({
                               sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
                             />
                           </div>
-                          <div>
+                          <div className="flex">
                             <TextField
                               label={
                                 <span>
