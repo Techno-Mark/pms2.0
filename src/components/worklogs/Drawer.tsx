@@ -5715,11 +5715,8 @@ const EditDrawer = ({
                           Update
                         </Button>
                       )}
-                    {hasPermissionWorklog(
-                      "Task/SubTask",
-                      "Save",
-                      "WorkLogs"
-                    ) ? (
+                    {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+                    !!receiverDateWorklogs ? (
                       <Switch
                         checked={subTaskSwitchWorklogs}
                         disabled={isDisabled}
