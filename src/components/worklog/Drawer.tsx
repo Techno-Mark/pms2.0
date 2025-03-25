@@ -102,9 +102,15 @@ const Drawer = ({
   {
     onEdit > 0
       ? errorLog
-        ? (Task = ["Task", "Sub-Task", "Comments", "Error Logs"])
-        : (Task = ["Task", "Sub-Task", "Comments"])
-      : (Task = ["Task", "Sub-Task"]);
+        ? (Task = ["Task", 
+          // "Sub-Task", 
+          "Comments", "Error Logs"])
+        : (Task = ["Task", 
+          // "Sub-Task", 
+          "Comments"])
+      : (Task = ["Task"
+        // , "Sub-Task"
+        ]);
   }
 
   const handleTabClickClientWorklog = (index: number) => {
