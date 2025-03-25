@@ -319,70 +319,70 @@ const Drawer = ({
     callAPI(url, params, successCallback, "POST");
   };
 
-  const handleSubmitSubTaskClientWorklog = async () => {
-    let hasSubErrors = false;
-    const newTaskErrors = subTaskClientWorklogFields.map(
-      (field) =>
-        (subTaskClientWorklogSwitch && field.Title.trim().length < 5) ||
-        (subTaskClientWorklogSwitch && field.Title.trim().length > 50)
-    );
-    subTaskClientWorklogSwitch && setTaskNameClientWorklogErr(newTaskErrors);
-    const newSubTaskDescErrors = subTaskClientWorklogFields.map(
-      (field) =>
-        (subTaskClientWorklogSwitch && field.Description.trim().length < 5) ||
-        (subTaskClientWorklogSwitch && field.Description.trim().length > 500)
-    );
-    subTaskClientWorklogSwitch &&
-      setSubTaskDescriptionClientWorklogErr(newSubTaskDescErrors);
-    hasSubErrors =
-      newTaskErrors.some((error) => error) ||
-      newSubTaskDescErrors.some((error) => error);
+  // const handleSubmitSubTaskClientWorklog = async () => {
+  //   let hasSubErrors = false;
+  //   const newTaskErrors = subTaskClientWorklogFields.map(
+  //     (field) =>
+  //       (subTaskClientWorklogSwitch && field.Title.trim().length < 5) ||
+  //       (subTaskClientWorklogSwitch && field.Title.trim().length > 50)
+  //   );
+  //   subTaskClientWorklogSwitch && setTaskNameClientWorklogErr(newTaskErrors);
+  //   const newSubTaskDescErrors = subTaskClientWorklogFields.map(
+  //     (field) =>
+  //       (subTaskClientWorklogSwitch && field.Description.trim().length < 5) ||
+  //       (subTaskClientWorklogSwitch && field.Description.trim().length > 500)
+  //   );
+  //   subTaskClientWorklogSwitch &&
+  //     setSubTaskDescriptionClientWorklogErr(newSubTaskDescErrors);
+  //   hasSubErrors =
+  //     newTaskErrors.some((error) => error) ||
+  //     newSubTaskDescErrors.some((error) => error);
 
-    if (hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")) {
-      if (!hasSubErrors) {
-        setIsLoadingClientWorklog(true);
-        const params = {
-          workitemId: onEdit,
-          subtasks: subTaskClientWorklogSwitch
-            ? subTaskClientWorklogFields.map(
-                (i: SubtaskGetByWorkitem) =>
-                  new Object({
-                    SubtaskId: i.SubtaskId,
-                    Title: i.Title.trim(),
-                    Description: i.Description.trim(),
-                  })
-              )
-            : null,
-          deletedWorkitemSubtaskIds: deletedSubTaskClientWorklog,
-        };
-        const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
-        const successCallback = (
-          ResponseData: null,
-          error: boolean,
-          ResponseStatus: string
-        ) => {
-          if (ResponseStatus === "Success" && error === false) {
-            toast.success(`Sub Task Updated successfully.`);
-            setDeletedSubTaskClientWorklog([]);
-            setSubTaskClientWorklogFields([
-              {
-                SubtaskId: 0,
-                Title: "",
-                Description: "",
-              },
-            ]);
-            getSubTaskDataClientWorklog();
-            setIsLoadingClientWorklog(false);
-          }
-          setIsLoadingClientWorklog(false);
-        };
-        callAPI(url, params, successCallback, "POST");
-      }
-    } else {
-      toast.error("User don't have permission to Update Sub-Task.");
-      getSubTaskDataClientWorklog();
-    }
-  };
+  //   if (hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")) {
+  //     if (!hasSubErrors) {
+  //       setIsLoadingClientWorklog(true);
+  //       const params = {
+  //         workitemId: onEdit,
+  //         subtasks: subTaskClientWorklogSwitch
+  //           ? subTaskClientWorklogFields.map(
+  //               (i: SubtaskGetByWorkitem) =>
+  //                 new Object({
+  //                   SubtaskId: i.SubtaskId,
+  //                   Title: i.Title.trim(),
+  //                   Description: i.Description.trim(),
+  //                 })
+  //             )
+  //           : null,
+  //         deletedWorkitemSubtaskIds: deletedSubTaskClientWorklog,
+  //       };
+  //       const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
+  //       const successCallback = (
+  //         ResponseData: null,
+  //         error: boolean,
+  //         ResponseStatus: string
+  //       ) => {
+  //         if (ResponseStatus === "Success" && error === false) {
+  //           toast.success(`Sub Task Updated successfully.`);
+  //           setDeletedSubTaskClientWorklog([]);
+  //           setSubTaskClientWorklogFields([
+  //             {
+  //               SubtaskId: 0,
+  //               Title: "",
+  //               Description: "",
+  //             },
+  //           ]);
+  //           getSubTaskDataClientWorklog();
+  //           setIsLoadingClientWorklog(false);
+  //         }
+  //         setIsLoadingClientWorklog(false);
+  //       };
+  //       callAPI(url, params, successCallback, "POST");
+  //     }
+  //   } else {
+  //     toast.error("User don't have permission to Update Sub-Task.");
+  //     getSubTaskDataClientWorklog();
+  //   }
+  // };
 
   // Comments
   const [commentsClientWorklogDrawer, setCommentsClientWorklogDrawer] =
@@ -647,6 +647,7 @@ const Drawer = ({
         ResolutionStatus: 0,
         IdentifiedBy: "",
         isSolved: false,
+        SubTaskId: 0,
       },
     ]);
   const [remarkClientWorklogErr, setRemarkClientWorklogErr] = useState([false]);
@@ -688,6 +689,7 @@ const Drawer = ({
         ResolutionStatus: 0,
         IdentifiedBy: "",
         isSolved: false,
+        SubTaskId: 0,
       },
     ]);
     setRemarkClientWorklogErr([...remarkClientWorklogErr, false]);
@@ -809,6 +811,7 @@ const Drawer = ({
                 ? i.IdentifiedBy?.toString().trim()
                 : null,
             isSolved: i.IsSolved,
+            SubTaskId: !!i.SubTaskId && i.SubTaskId > 0 ? i.SubTaskId : 0,
           }))
         );
       } else {
@@ -844,6 +847,7 @@ const Drawer = ({
             ResolutionStatus: 0,
             IdentifiedBy: "",
             isSolved: false,
+            SubTaskId: 0,
           },
         ]);
       }
@@ -1048,18 +1052,19 @@ const Drawer = ({
                 NoOfPages: null,
               },
         SubTaskList:
-          onEdit > 0
-            ? null
-            : subTaskClientWorklogSwitch
-            ? subTaskClientWorklogFields.map(
-                (i: SubtaskGetByWorkitem) =>
-                  new Object({
-                    SubtaskId: i.SubtaskId,
-                    Title: i.Title.trim(),
-                    Description: i.Description.trim(),
-                  })
-              )
-            : null,
+          // onEdit > 0
+          //   ? null
+          //   : subTaskClientWorklogSwitch
+          //   ? subTaskClientWorklogFields.map(
+          //       (i: SubtaskGetByWorkitem) =>
+          //         new Object({
+          //           SubtaskId: i.SubtaskId,
+          //           Title: i.Title.trim(),
+          //           Description: i.Description.trim(),
+          //         })
+          //     )
+          //   :
+          null,
       };
       const url = `${process.env.worklog_api_url}/ClientWorkitem/saveworkitem`;
       const successCallback = (
@@ -1364,6 +1369,7 @@ const Drawer = ({
         ResolutionStatus: 0,
         IdentifiedBy: "",
         isSolved: false,
+        SubTaskId: 0,
       },
     ]);
     setRemarkClientWorklogErr([false]);
@@ -1888,7 +1894,7 @@ const Drawer = ({
                   </Grid>
                 )}
               </div>
-              {clientWorklogFieldsData
+              {/* {clientWorklogFieldsData
                 .map((field: GetFields) => field.IsChecked)
                 .includes(true) && (
                 <div className="mt-14" id="tabpanel-1">
@@ -2112,7 +2118,7 @@ const Drawer = ({
                     </>
                   )}
                 </div>
-              )}
+              )} */}
               {onEdit > 0 && (
                 <div className="mt-14" id="tabpanel-2">
                   <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">

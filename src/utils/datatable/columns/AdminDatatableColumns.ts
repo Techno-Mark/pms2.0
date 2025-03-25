@@ -1,6 +1,7 @@
 import {
   generateBillingStatusBodyRender,
   generateCommonBodyRender,
+  generateCommonBodyRenderWithZero,
   generateCustomFormatDate,
   generateDashboardReportBodyRender,
   generatePriorityWithColor,
@@ -322,6 +323,36 @@ const errorlogColConfig = [
     name: "IsImported",
     label: "Is Imported",
     bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "SubTaskName",
+    label: "Sub Task Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "SubTaskDescription",
+    label: "Sub Task Description",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "CustomerName",
+    label: "Vendor/Customer Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "InvoiceNumber",
+    label: "Bill/Invoice Number",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "SubTaskDate",
+    label: "Date",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "BillAmount",
+    label: "Bill Amount",
+    bodyRenderer: generateCommonBodyRenderWithZero,
   },
   // {
   //   name: "StatusColorCode",

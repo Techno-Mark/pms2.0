@@ -37,6 +37,35 @@ export const generateCommonBodyRender = (bodyValue: any) => {
   );
 };
 
+export const generateCommonBodyRenderWithZero = (bodyValue: any) => {
+  const shortProcessName =
+    bodyValue !== null &&
+    bodyValue !== undefined &&
+    bodyValue !== "" &&
+    bodyValue.length > 20
+      ? bodyValue.slice(0, 20)
+      : bodyValue;
+
+  return (
+    <div className="ml-2">
+      {!bodyValue ||
+      bodyValue === null ||
+      bodyValue === "null" ? (
+        "-"
+      ) : bodyValue.length > 20 ? (
+        <>
+          <ColorToolTip title={bodyValue} placement="top">
+            <span>{shortProcessName}</span>
+          </ColorToolTip>
+          <span>...</span>
+        </>
+      ) : (
+        shortProcessName
+      )}
+    </div>
+  );
+};
+
 export const generateCommonBodyInvoice = (bodyValue: any) => {
   return bodyValue === 1 ? "Invoice Raised" : "Invoice Pending";
 };
