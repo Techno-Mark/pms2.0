@@ -346,7 +346,7 @@ const errorlogColConfig = [
   {
     name: "SubTaskDate",
     label: "Date",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "BillAmount",
