@@ -261,7 +261,7 @@ const errorlogColConfig = [
   {
     name: "DateOfTransaction",
     label: "Transaction Recorded Date",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "Remark",
@@ -296,7 +296,7 @@ const errorlogColConfig = [
   {
     name: "ErrorIdentificationDate",
     label: "Error Identification Date",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "ResolutionStatusVal",
@@ -316,7 +316,7 @@ const errorlogColConfig = [
   {
     name: "SolvedOn",
     label: "Resolved On",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "IsImported",
