@@ -2991,7 +2991,7 @@ const EditDrawer = ({
       (field, index) =>
         (onEdit === 0 &&
           subTaskSwitchWorklogs &&
-          field.Title.trim().length < 1) ||
+          field.Title.trim().length < 2) ||
         (onEdit === 0 &&
           subTaskSwitchWorklogs &&
           field.Title.trim().length > 50) ||

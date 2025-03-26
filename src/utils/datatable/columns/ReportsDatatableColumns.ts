@@ -1,7 +1,6 @@
 import {
   generateCommonBodyRender,
   generateCommonBodyRenderPercentage,
-  generateCommonBodyRenderWithZero,
   generateCustomFormatDate,
   generateCustomHeaderName,
   generateDateWithTime,
@@ -863,7 +862,7 @@ const reportsErrorLogColConfig = [
   {
     header: "BillAmount",
     label: "Bill Amount",
-    bodyRenderer: generateCommonBodyRenderWithZero,
+    bodyRenderer: generateCommonBodyRender,
   },
 ];
 

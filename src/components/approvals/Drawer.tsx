@@ -774,6 +774,7 @@ const EditDrawer = ({
       getSubTaskDataApprovals();
     }
   };
+  
   const handleRemoveSubTaskApprovals = async (id: number) => {
     if (hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")) {
       setIsLoadingApprovals(true);

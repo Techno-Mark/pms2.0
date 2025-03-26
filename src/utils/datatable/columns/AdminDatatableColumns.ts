@@ -1,7 +1,6 @@
 import {
   generateBillingStatusBodyRender,
   generateCommonBodyRender,
-  generateCommonBodyRenderWithZero,
   generateCustomFormatDate,
   generateDashboardReportBodyRender,
   generatePriorityWithColor,
@@ -352,7 +351,7 @@ const errorlogColConfig = [
   {
     name: "BillAmount",
     label: "Bill Amount",
-    bodyRenderer: generateCommonBodyRenderWithZero,
+    bodyRenderer: generateCommonBodyRender,
   },
   // {
   //   name: "StatusColorCode",
