@@ -95,7 +95,7 @@ const Status = ({
     }
     handleCloseStatus();
   };
-console.log(selectedRowDepartmentType)
+
   const getAllStatus = async () => {
     let isRework: any = [];
     let isNotRework: any = [];

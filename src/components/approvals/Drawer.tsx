@@ -39,7 +39,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import {
   extractText,
-  getTimeDifference,
   getYears,
   hasPermissionWorklog,
   isWeekend,
@@ -62,6 +61,7 @@ import {
   getReviewerDropdownData,
   getStatusDropdownData,
   getSubProcessDropdownData,
+  getSubTaskDropdownData,
   getTypeOfWorkDropdownData,
   hours,
   months,
@@ -101,6 +101,9 @@ import {
   resolutionStatusOptions,
   rootCauseOptions,
 } from "@/utils/staticDropdownData";
+import axios from "axios";
+import ImportIcon from "@/assets/icons/ImportIcon";
+import ImportDialogSubTask from "../worklogs/worklogs_Import/ImportDialogSubTask";
 
 interface EditDrawer {
   onOpen: boolean;
@@ -343,20 +346,36 @@ const EditDrawer = ({
 
   // Sub-Task
   const [subTaskApprovalsDrawer, setSubTaskApprovalsDrawer] = useState(true);
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<null | File>(null);
+  const [fileInputKey, setFileInputKey] = useState(0);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
   const [subTaskSwitchApprovals, setSubTaskSwitchApprovals] = useState(false);
   const [subTaskFieldsApprovals, setSubTaskFieldsApprovals] = useState([
     {
       SubtaskId: 0,
       Title: "",
       Description: "",
+      CustomerName: "",
+      InvoiceNumber: "",
+      SubTaskDate: "",
+      BillAmount: "",
+      SubTaskErrorLogFlag: false,
     },
   ]);
   const [taskNameApprovalsErr, setTaskNameApprovalsErr] = useState([false]);
-  const [subTaskDescriptionApprovalsErr, setSubTaskDescriptionApprovalsErr] =
-    useState([false]);
+  const [vendorNameApprovalsErr, setVendorNameApprovalsErr] = useState([false]);
+  const [invoiceNameApprovalsErr, setInvoiceNameApprovalsErr] = useState([
+    false,
+  ]);
+  const [dateApprovalsErr, setDateApprovalsErr] = useState([false]);
+  const [billAmountApprovalsErr, setBillAmountApprovalsErr] = useState([false]);
   const [deletedSubTaskApprovals, setDeletedSubTaskApprovals] = useState<any>(
     []
   );
+  const [subTaskOptions, setSubTaskOptions] = useState<
+    { value: number; label: string }[]
+  >([]);
 
   const addTaskFieldApprovals = () => {
     setSubTaskFieldsApprovals([
@@ -365,13 +384,18 @@ const EditDrawer = ({
         SubtaskId: 0,
         Title: "",
         Description: "",
+        CustomerName: "",
+        InvoiceNumber: "",
+        SubTaskDate: "",
+        BillAmount: "",
+        SubTaskErrorLogFlag: false,
       },
     ]);
     setTaskNameApprovalsErr([...taskNameApprovalsErr, false]);
-    setSubTaskDescriptionApprovalsErr([
-      ...subTaskDescriptionApprovalsErr,
-      false,
-    ]);
+    setVendorNameApprovalsErr([...vendorNameApprovalsErr, false]);
+    setInvoiceNameApprovalsErr([...invoiceNameApprovalsErr, false]);
+    setDateApprovalsErr([...dateApprovalsErr, false]);
+    setBillAmountApprovalsErr([...billAmountApprovalsErr, false]);
   };
 
   const removeTaskFieldApprovals = (index: number) => {
@@ -388,10 +412,30 @@ const EditDrawer = ({
     newTaskErrors.splice(index, 1);
     setTaskNameApprovalsErr(newTaskErrors);
 
-    const newSubTaskDescriptionErrors = [...subTaskDescriptionApprovalsErr];
-    newSubTaskDescriptionErrors.splice(index, 1);
-    setSubTaskDescriptionApprovalsErr(newSubTaskDescriptionErrors);
+    const newVendorApprovalsErrors = [...vendorNameApprovalsErr];
+    newVendorApprovalsErrors.splice(index, 1);
+    setVendorNameApprovalsErr(newVendorApprovalsErrors);
+
+    const newInvoiceApprovalsErrors = [...invoiceNameApprovalsErr];
+    newInvoiceApprovalsErrors.splice(index, 1);
+    setInvoiceNameApprovalsErr(newInvoiceApprovalsErrors);
+
+    const newDateApprovalsErrors = [...dateApprovalsErr];
+    newDateApprovalsErrors.splice(index, 1);
+    setDateApprovalsErr(newDateApprovalsErrors);
+
+    const newBillApprovalsErrors = [...billAmountApprovalsErr];
+    newBillApprovalsErrors.splice(index, 1);
+    setBillAmountApprovalsErr(newBillApprovalsErrors);
+
+    subTaskFieldsApprovals.length === 1 &&
+      subTaskFieldsApprovals[0].SubtaskId > 0 &&
+      handleRemoveSubTaskApprovals(subTaskFieldsApprovals[0].SubtaskId);
   };
+
+  useEffect(() => {
+    subTaskFieldsApprovals.length <= 0 && addTaskFieldApprovals();
+  }, [subTaskFieldsApprovals]);
 
   const handleSubTaskChangeApprovals = (e: string, index: number) => {
     const newTaskFields = [...subTaskFieldsApprovals];
@@ -399,7 +443,13 @@ const EditDrawer = ({
     setSubTaskFieldsApprovals(newTaskFields);
 
     const newTaskErrors = [...taskNameApprovalsErr];
-    newTaskErrors[index] = e.trim().length < 5 || e.trim().length > 50;
+    const isDuplicate = newTaskFields
+      .filter((_, idx) => idx !== index)
+      .some(
+        (task) => task.Title.trim().toLowerCase() === e.trim().toLowerCase()
+      );
+    newTaskErrors[index] =
+      e.trim().length < 2 || e.trim().length > 50 || isDuplicate;
     setTaskNameApprovalsErr(newTaskErrors);
   };
 
@@ -410,11 +460,153 @@ const EditDrawer = ({
     const newTaskFields = [...subTaskFieldsApprovals];
     newTaskFields[index].Description = e;
     setSubTaskFieldsApprovals(newTaskFields);
+  };
 
-    const newSubTaskDescErrors = [...subTaskDescriptionApprovalsErr];
-    newSubTaskDescErrors[index] =
-      e.trim().length === 0 || e.trim().length > 500;
-    setSubTaskDescriptionApprovalsErr(newSubTaskDescErrors);
+  const handleSubTaskVendorChangeApprovals = (e: string, index: number) => {
+    const newVendorApprovalsFields = [...subTaskFieldsApprovals];
+    newVendorApprovalsFields[index].CustomerName = e;
+    setSubTaskFieldsApprovals(newVendorApprovalsFields);
+
+    const newVendorApprovalsErrors = [...vendorNameApprovalsErr];
+    newVendorApprovalsErrors[index] =
+      e.trim().length < 2 || e.trim().length > 50;
+    setVendorNameApprovalsErr(newVendorApprovalsErrors);
+  };
+
+  const handleSubTaskInvoiceChangeApprovals = (e: string, index: number) => {
+    const sanitizedValue = e.replace(/[^a-zA-Z0-9]/g, "");
+
+    const newInvoiceApprovalsFields = [...subTaskFieldsApprovals];
+    newInvoiceApprovalsFields[index].InvoiceNumber = sanitizedValue;
+    setSubTaskFieldsApprovals(newInvoiceApprovalsFields);
+
+    const newInvoiceApprovalsErrors = [...invoiceNameApprovalsErr];
+    newInvoiceApprovalsErrors[index] =
+      e.trim().length < 1 || e.trim().length > 25;
+    setInvoiceNameApprovalsErr(newInvoiceApprovalsErrors);
+  };
+
+  const handleSubTaskDateChangeApprovals = (e: string, index: number) => {
+    const newDateApprovalsFields = [...subTaskFieldsApprovals];
+    newDateApprovalsFields[index].SubTaskDate = e;
+    setSubTaskFieldsApprovals(newDateApprovalsFields);
+
+    const newDateApprovalsErrors = [...dateApprovalsErr];
+    newDateApprovalsErrors[index] =
+      e.trim().length <= 0 ||
+      new Date(e) <=
+        new Date(
+          dayjs(receiverDateApprovals).subtract(1, "day").format("YYYY/MM/DD")
+        );
+    setDateApprovalsErr(newDateApprovalsErrors);
+  };
+
+  const handleSubTaskBillAmountChangeApprovals = (e: string, index: number) => {
+    const regex = /^\d{0,8}(\.\d{0,2})?$/;
+
+    if (regex.test(e)) {
+      const newBillAmountApprovalsFields = [...subTaskFieldsApprovals];
+      newBillAmountApprovalsFields[index].BillAmount = e;
+      setSubTaskFieldsApprovals(newBillAmountApprovalsFields);
+
+      const newBillAmountApprovalsErrors = [...billAmountApprovalsErr];
+      newBillAmountApprovalsErrors[index] =
+        e.trim().length < 1 || parseFloat(e) === 0;
+      setBillAmountApprovalsErr(newBillAmountApprovalsErrors);
+    }
+  };
+
+  const handleApplyImportExcel = async (taskId: number) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    if (selectedFile) {
+      try {
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append("Files", selectedFile);
+        formData.append(
+          "WorkItemId",
+          onEdit > 0 ? onEdit.toString() : taskId.toString()
+        );
+
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/workitem/importWorkSubItemexcel`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          if (response.data.ResponseStatus === "Success") {
+            toast.success("Task has been imported successfully.");
+            getSubTaskDataOption();
+            getSubTaskDataApprovals();
+            setIsUploading(false);
+            setIsImportOpen(false);
+            setSelectedFile(null);
+            setFileInputKey((prevKey: any) => prevKey + 1);
+            onEdit === 0 && handleClose();
+          } else if (response.data.ResponseStatus === "Warning") {
+            toast.warning(
+              `Valid Task has been imported and an Excel file ${response.data.ResponseData.FileDownloadName} has been downloaded for invalid tasks.`
+            );
+
+            const byteCharacters = atob(
+              response.data.ResponseData.FileContents
+            );
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+
+            const fileBlob = new Blob([byteArray], {
+              type: `${response.data.ResponseData.ContentType}`,
+            });
+
+            const fileURL = URL.createObjectURL(fileBlob);
+            const downloadLink = document.createElement("a");
+            downloadLink.href = fileURL;
+            downloadLink.setAttribute(
+              "download",
+              response.data.ResponseData.FileDownloadName
+            );
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            URL.revokeObjectURL(fileURL);
+
+            setIsUploading(false);
+            getSubTaskDataOption();
+            getSubTaskDataApprovals();
+            setIsImportOpen(false);
+            setSelectedFile(null);
+            setFileInputKey((prevKey: any) => prevKey + 1);
+            onEdit === 0 && handleClose();
+          } else {
+            toast.error(
+              "The uploaded file is not in the format of the sample file."
+            );
+            setIsUploading(false);
+            setIsImportOpen(false);
+            setSelectedFile(null);
+            setFileInputKey((prevKey: any) => prevKey + 1);
+            onEdit === 0 && handleClose();
+          }
+        } else {
+          toast.error("Please try again later.");
+          setIsUploading(false);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
   };
 
   const getSubTaskDataApprovals = async () => {
@@ -435,7 +627,20 @@ const EditDrawer = ({
         setSubTaskSwitchApprovals(
           hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")
         );
-        setSubTaskFieldsApprovals(ResponseData);
+        setSubTaskFieldsApprovals(
+          ResponseData.map((i) => ({
+            SubtaskId: i.SubtaskId,
+            Title: i.Title,
+            Description: i.Description,
+            CustomerName: !!i.CustomerName ? i.CustomerName : "",
+            InvoiceNumber: !!i.InvoiceNumber ? i.InvoiceNumber : "",
+            SubTaskDate: !!i.SubTaskDate ? i.SubTaskDate : "",
+            BillAmount: i.BillAmount !== null ? i.BillAmount : "",
+            SubTaskErrorLogFlag: !!i.SubTaskErrorLogFlag
+              ? i.SubTaskErrorLogFlag
+              : false,
+          }))
+        );
       } else {
         setSubTaskSwitchApprovals(false);
         setSubTaskFieldsApprovals([
@@ -443,6 +648,11 @@ const EditDrawer = ({
             SubtaskId: 0,
             Title: "",
             Description: "",
+            CustomerName: "",
+            InvoiceNumber: "",
+            SubTaskDate: "",
+            BillAmount: "",
+            SubTaskErrorLogFlag: false,
           },
         ]);
       }
@@ -453,21 +663,57 @@ const EditDrawer = ({
   const handleSubmitSubTaskApprovals = async () => {
     let hasSubErrors = false;
     const newTaskErrors = subTaskFieldsApprovals.map(
-      (field) =>
-        (subTaskSwitchApprovals && field.Title.trim().length < 5) ||
-        (subTaskSwitchApprovals && field.Title.trim().length > 50)
+      (field, index) =>
+        (subTaskSwitchApprovals && field.Title.trim().length < 2) ||
+        (subTaskSwitchApprovals && field.Title.trim().length > 50) ||
+        (subTaskSwitchApprovals &&
+          subTaskFieldsApprovals.some(
+            (task, idx) =>
+              idx !== index &&
+              task.Title.trim().toLowerCase() ===
+                field.Title.trim().toLowerCase()
+          ))
     );
     subTaskSwitchApprovals && setTaskNameApprovalsErr(newTaskErrors);
-    const newSubTaskDescErrors = subTaskFieldsApprovals.map(
+    const newVendorErrors = subTaskFieldsApprovals.map(
       (field) =>
-        (subTaskSwitchApprovals && field.Description.trim().length <= 0) ||
-        (subTaskSwitchApprovals && field.Description.trim().length > 500)
+        (subTaskSwitchApprovals && field.CustomerName.trim().length < 2) ||
+        (subTaskSwitchApprovals && field.CustomerName.trim().length > 50)
     );
-    subTaskSwitchApprovals &&
-      setSubTaskDescriptionApprovalsErr(newSubTaskDescErrors);
+    subTaskSwitchApprovals && setVendorNameApprovalsErr(newVendorErrors);
+    const newInvoiceErrors = subTaskFieldsApprovals.map(
+      (field) =>
+        (subTaskSwitchApprovals &&
+          field.InvoiceNumber.toString().trim().length < 1) ||
+        (subTaskSwitchApprovals &&
+          field.InvoiceNumber.toString().trim().length > 25)
+    );
+    subTaskSwitchApprovals && setInvoiceNameApprovalsErr(newInvoiceErrors);
+    const newDateErrors = subTaskFieldsApprovals.map(
+      (field) =>
+        subTaskSwitchApprovals &&
+        (field.SubTaskDate.trim().length <= 0 ||
+          new Date(field.SubTaskDate.trim()) <=
+            new Date(
+              dayjs(receiverDateApprovals)
+                .subtract(1, "day")
+                .format("YYYY/MM/DD")
+            ))
+    );
+    subTaskSwitchApprovals && setDateApprovalsErr(newDateErrors);
+    const newBillAmountErrors = subTaskFieldsApprovals.map(
+      (field) =>
+        subTaskSwitchApprovals &&
+        (field.BillAmount.toString().trim().length <= 0 ||
+          parseFloat(field.BillAmount.toString().trim()) === 0)
+    );
+    subTaskSwitchApprovals && setBillAmountApprovalsErr(newBillAmountErrors);
     hasSubErrors =
       newTaskErrors.some((error) => error) ||
-      newSubTaskDescErrors.some((error) => error);
+      newVendorErrors.some((error) => error) ||
+      newInvoiceErrors.some((error) => error) ||
+      newDateErrors.some((error) => error) ||
+      newBillAmountErrors.some((error) => error);
 
     if (hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")) {
       if (!hasSubErrors) {
@@ -481,6 +727,14 @@ const EditDrawer = ({
                     SubtaskId: i.SubtaskId,
                     Title: i.Title.trim(),
                     Description: i.Description.trim(),
+                    CustomerName: !!i.CustomerName ? i.CustomerName.trim() : "",
+                    InvoiceNumber: !!i.InvoiceNumber
+                      ? i.InvoiceNumber.toString().trim()
+                      : "",
+                    SubTaskDate: !!i.SubTaskDate ? i.SubTaskDate.trim() : "",
+                    BillAmount: !!i.BillAmount
+                      ? i.BillAmount.toString().trim()
+                      : "",
                   })
               )
             : null,
@@ -500,15 +754,63 @@ const EditDrawer = ({
                 SubtaskId: 0,
                 Title: "",
                 Description: "",
+                CustomerName: "",
+                InvoiceNumber: "",
+                SubTaskDate: "",
+                BillAmount: "",
+                SubTaskErrorLogFlag: false,
               },
             ]);
             setIsLoadingApprovals(false);
+            getSubTaskDataOption();
             getSubTaskDataApprovals();
           }
           setIsLoadingApprovals(false);
         };
         callAPI(url, params, successCallback, "POST");
       }
+    } else {
+      toast.error("User don't have permission to Update Sub-Task.");
+      getSubTaskDataApprovals();
+    }
+  };
+  
+  const handleRemoveSubTaskApprovals = async (id: number) => {
+    if (hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")) {
+      setIsLoadingApprovals(true);
+      const params = {
+        workitemId: onEdit,
+        subtasks: null,
+        deletedWorkitemSubtaskIds: [...deletedSubTaskApprovals, id],
+      };
+      const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
+      const successCallback = (
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success(`Sub Task Updated successfully.`);
+          setDeletedSubTaskApprovals([]);
+          setSubTaskFieldsApprovals([
+            {
+              SubtaskId: 0,
+              Title: "",
+              Description: "",
+              CustomerName: "",
+              InvoiceNumber: "",
+              SubTaskDate: "",
+              BillAmount: "",
+              SubTaskErrorLogFlag: false,
+            },
+          ]);
+          setIsLoadingApprovals(false);
+          getSubTaskDataOption();
+          getSubTaskDataApprovals();
+        }
+        setIsLoadingApprovals(false);
+      };
+      callAPI(url, params, successCallback, "POST");
     } else {
       toast.error("User don't have permission to Update Sub-Task.");
       getSubTaskDataApprovals();
@@ -1122,6 +1424,7 @@ const EditDrawer = ({
       IdentifiedBy: "",
       isSolved: false,
       DisableErrorLog: false,
+      SubTaskId: 0,
     },
   ]);
   const [errorTypeErrApprovals, setErrorTypeErrApprovals] = useState([false]);
@@ -1156,13 +1459,19 @@ const EditDrawer = ({
   );
   const [natureOfErrorDropdown, setNatureOfErrorDropdown] = useState([]);
 
+  const getSubTaskDataOption = async () => {
+    const data = await getSubTaskDropdownData(onEdit);
+    data.length > 0 && setSubTaskOptions(data);
+  };
+
   useEffect(() => {
     const getData = async () => {
       const data = await getNatureOfErrorDropdownData();
       data.length > 0 && setNatureOfErrorDropdown(data);
+      getSubTaskDataOption();
     };
 
-    onOpen && getData();
+    onOpen && onEdit > 0 && getData();
   }, [onOpen]);
 
   const addErrorLogFieldApprovals = () => {
@@ -1200,6 +1509,7 @@ const EditDrawer = ({
         IdentifiedBy: "",
         isSolved: false,
         DisableErrorLog: false,
+        SubTaskId: 0,
       },
     ]);
     setErrorTypeErrApprovals([...errorTypeErrApprovals, false]);
@@ -1463,6 +1773,12 @@ const EditDrawer = ({
     setResolutionStatusErrApprovals(newErrors);
   };
 
+  const handleSubTaskIDChange = (e: number, index: number) => {
+    const newFields = [...errorLogFieldsApprovals];
+    newFields[index].SubTaskId = e;
+    setErrorLogFieldsApprovals(newFields);
+  };
+
   const handleIdentifiedByChange = (
     e: string,
     index: number,
@@ -1551,6 +1867,7 @@ const EditDrawer = ({
                 IdentifiedBy: "",
                 isSolved: false,
                 DisableErrorLog: false,
+                SubTaskId: 0,
               },
             ])
           : setErrorLogFieldsApprovals(
@@ -1599,6 +1916,7 @@ const EditDrawer = ({
                 IdentifiedBy: i.IdentifiedBy === null ? "" : i.IdentifiedBy,
                 isSolved: i.IsSolved,
                 DisableErrorLog: i.DisableErrorLog,
+                SubTaskId: !!i.SubTaskId && i.SubTaskId > 0 ? i.SubTaskId : 0,
               }))
             );
       }
@@ -1739,12 +2057,16 @@ const EditDrawer = ({
                   i.DateOfTransaction === ""
                     ? null
                     : dayjs(i.DateOfTransaction).format("YYYY/MM/DD"),
+                SubTaskId: i.SubTaskId > 0 ? i.SubTaskId : null,
               })
           ),
           IsClientWorklog: 0,
           SubmissionId: onHasId,
           DeletedErrorlogIds: deletedErrorLogApprovals,
         };
+
+        const isUsedSubTask =
+          errorLogFieldsApprovals.filter((i) => i.SubTaskId > 0).length > 0;
 
         const url = `${process.env.worklog_api_url}/workitem/errorlog/saveByworkitem`;
         const successCallback = (
@@ -1755,6 +2077,7 @@ const EditDrawer = ({
           if (ResponseStatus === "Success" && error === false) {
             toast.success(`Error logged successfully.`);
             setDeletedErrorLogApprovals([]);
+            isUsedSubTask && getSubTaskDataApprovals();
             getEditData();
             getErrorLogDataApprpvals();
             onDataFetch?.();
@@ -3036,10 +3359,19 @@ const EditDrawer = ({
         SubtaskId: 0,
         Title: "",
         Description: "",
+        CustomerName: "",
+        InvoiceNumber: "",
+        SubTaskDate: "",
+        BillAmount: "",
+        SubTaskErrorLogFlag: false,
       },
     ]);
     setTaskNameApprovalsErr([false]);
-    setSubTaskDescriptionApprovalsErr([false]);
+    setVendorNameApprovalsErr([false]);
+    setInvoiceNameApprovalsErr([false]);
+    setDateApprovalsErr([false]);
+    setBillAmountApprovalsErr([false]);
+    setSubTaskOptions([]);
     setDeletedSubTaskApprovals([]);
 
     // Recurring
@@ -3152,6 +3484,7 @@ const EditDrawer = ({
         IdentifiedBy: "",
         isSolved: false,
         DisableErrorLog: false,
+        SubTaskId: 0,
       },
     ]);
     setErrorTypeErrApprovals([false]);
@@ -4992,12 +5325,24 @@ const EditDrawer = ({
                     <span className="ml-[21px]">Sub-Task</span>
                   </span>
                   <span className="flex items-center">
+                    {subTaskSwitchApprovals && activeTab === 1 && (
+                      <ColorToolTip title="Import" placement="top" arrow>
+                        <span
+                          className="cursor-pointer"
+                          onClick={() => {
+                            setIsImportOpen(true);
+                          }}
+                        >
+                          <ImportIcon />
+                        </span>
+                      </ColorToolTip>
+                    )}
                     {onEdit > 0 &&
                       subTaskSwitchApprovals &&
                       activeTab === 1 && (
                         <Button
                           variant="contained"
-                          className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
+                          className="rounded-[4px] !h-[36px] mx-6 !bg-secondary"
                           onClick={handleSubmitSubTaskApprovals}
                         >
                           Update
@@ -5012,18 +5357,6 @@ const EditDrawer = ({
                         checked={subTaskSwitchApprovals}
                         onChange={(e) => {
                           setSubTaskSwitchApprovals(e.target.checked);
-                          onEdit === 0 &&
-                            setSubTaskFieldsApprovals([
-                              {
-                                SubtaskId: 0,
-                                Title: "",
-                                Description: "",
-                              },
-                            ]);
-                          onEdit === 0 && setTaskNameApprovalsErr([false]);
-                          onEdit === 0 &&
-                            setSubTaskDescriptionApprovalsErr([false]);
-                          onEdit === 0 && setDeletedSubTaskApprovals([]);
                         }}
                         disabled={activeTab === 2}
                       />
@@ -5043,139 +5376,352 @@ const EditDrawer = ({
                   </span>
                 </div>
                 {subTaskApprovalsDrawer && (
-                  <div className="mt-3 pl-6">
+                  <div className="mt-3 pl-6 flex flex-col gap-5">
                     {subTaskFieldsApprovals.map((field, index) => (
-                      <div className="w-[100%] flex" key={field.SubtaskId}>
+                      <div
+                        className="w-[100%] flex"
+                        key={`${field.SubtaskId}${index}`}
+                      >
                         <TextField
-                          label={
-                            <span>
-                              Task Name
-                              <span className="!text-defaultRed">&nbsp;*</span>
-                            </span>
-                          }
+                          label={<span>Id</span>}
                           fullWidth
-                          disabled={!subTaskSwitchApprovals || activeTab === 2}
-                          value={field.Title}
-                          onChange={(e) =>
-                            handleSubTaskChangeApprovals(e.target.value, index)
-                          }
-                          onBlur={(e) => {
-                            if (
-                              e.target.value.trim().length > 5 &&
-                              e.target.value.trim().length <= 50
-                            ) {
-                              const newTaskNameErrors = [
-                                ...taskNameApprovalsErr,
-                              ];
-                              newTaskNameErrors[index] = false;
-                              setTaskNameApprovalsErr(newTaskNameErrors);
-                            }
-                          }}
-                          error={taskNameApprovalsErr[index]}
-                          helperText={
-                            taskNameApprovalsErr[index] &&
-                            field.Title.length > 0 &&
-                            field.Title.length < 5
-                              ? "Minumum 5 characters required."
-                              : taskNameApprovalsErr[index] &&
-                                field.Title.length > 50
-                              ? "Maximum 50 characters allowed."
-                              : taskNameApprovalsErr[index]
-                              ? "This is a required field."
-                              : ""
-                          }
+                          value={field.SubtaskId > 0 ? field.SubtaskId : ""}
+                          disabled
                           margin="normal"
                           variant="standard"
-                          sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
+                          sx={{ mx: 0.75, maxWidth: 50, mt: 0 }}
                         />
-                        <TextField
-                          label={
-                            <span>
-                              Description
-                              <span className="!text-defaultRed">&nbsp;*</span>
-                            </span>
-                          }
-                          fullWidth
-                          disabled={!subTaskSwitchApprovals || activeTab === 2}
-                          value={field.Description}
-                          onChange={(e) =>
-                            handleSubTaskDescriptionChangeApprovals(
-                              e.target.value,
-                              index
-                            )
-                          }
-                          onBlur={(e) => {
-                            if (
-                              e.target.value.trim().length > 0 &&
-                              e.target.value.trim().length <= 500
-                            ) {
-                              const newSubTaskDescErrors = [
-                                ...subTaskDescriptionApprovalsErr,
-                              ];
-                              newSubTaskDescErrors[index] = false;
-                              setSubTaskDescriptionApprovalsErr(
-                                newSubTaskDescErrors
-                              );
-                            }
-                          }}
-                          error={subTaskDescriptionApprovalsErr[index]}
-                          helperText={
-                            subTaskDescriptionApprovalsErr[index] &&
-                            field.Description.length > 500
-                              ? "Maximum 500 characters allowed."
-                              : subTaskDescriptionApprovalsErr[index]
-                              ? "This is a required field."
-                              : ""
-                          }
-                          margin="normal"
-                          variant="standard"
-                          sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
-                        />
-                        {subTaskSwitchApprovals &&
-                          (index === 0 ? (
-                            <span
-                              className="cursor-pointer"
-                              onClick={addTaskFieldApprovals}
-                            >
-                              <svg
-                                className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                focusable="false"
-                                aria-hidden="true"
-                                viewBox="0 0 24 24"
-                                data-testid="AddIcon"
-                              >
-                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
-                              </svg>
-                            </span>
-                          ) : (
-                            <span
-                              className="cursor-pointer"
-                              onClick={
-                                hasPermissionWorklog(
-                                  "Task/SubTask",
-                                  "Delete",
-                                  "WorkLogs"
-                                ) &&
-                                hasPermissionWorklog(
-                                  "Task/SubTask",
-                                  "Save",
-                                  "WorkLogs"
-                                )
-                                  ? () => removeTaskFieldApprovals(index)
-                                  : undefined
+                        <div className="w-[90%] flex flex-col">
+                          <div>
+                            <TextField
+                              label={
+                                <span>
+                                  Task Name
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
                               }
+                              fullWidth
+                              disabled={
+                                !subTaskSwitchApprovals || activeTab === 2
+                              }
+                              value={field.Title}
+                              onChange={(e) =>
+                                handleSubTaskChangeApprovals(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                const isDuplicate = subTaskFieldsApprovals
+                                  .filter((_, idx) => idx !== index)
+                                  .some(
+                                    (task) =>
+                                      task.Title.trim().toLowerCase() ===
+                                      e.target.value.trim().toLowerCase()
+                                  );
+                                if (
+                                  e.target.value.trim().length > 2 &&
+                                  e.target.value.trim().length <= 50 &&
+                                  !isDuplicate
+                                ) {
+                                  const newTaskNameErrors = [
+                                    ...taskNameApprovalsErr,
+                                  ];
+                                  newTaskNameErrors[index] = false;
+                                  setTaskNameApprovalsErr(newTaskNameErrors);
+                                }
+                              }}
+                              error={taskNameApprovalsErr[index]}
+                              helperText={
+                                taskNameApprovalsErr[index] &&
+                                field.Title.length > 0 &&
+                                field.Title.length < 2
+                                  ? "Minumum 2 characters required."
+                                  : taskNameApprovalsErr[index] &&
+                                    field.Title.length > 50
+                                  ? "Maximum 50 characters allowed."
+                                  : subTaskFieldsApprovals.some(
+                                      (task, idx) =>
+                                        idx !== index &&
+                                        task.Title.trim().toLowerCase() ===
+                                          field.Title.trim().toLowerCase()
+                                    )
+                                  ? "Task name must be unique."
+                                  : taskNameApprovalsErr[index]
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
+                            />
+                            <TextField
+                              label={<span>Description</span>}
+                              fullWidth
+                              disabled={
+                                !subTaskSwitchApprovals || activeTab === 2
+                              }
+                              value={field.Description}
+                              onChange={(e) =>
+                                handleSubTaskDescriptionChangeApprovals(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
+                            />
+                            <TextField
+                              label={
+                                <span>
+                                  Vendor/Customer Name
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              fullWidth
+                              disabled={
+                                !subTaskSwitchApprovals || activeTab === 2
+                              }
+                              value={field.CustomerName}
+                              onChange={(e) =>
+                                handleSubTaskVendorChangeApprovals(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                if (
+                                  e.target.value.trim().length > 2 &&
+                                  e.target.value.trim().length <= 50
+                                ) {
+                                  const newVendorNameApprovalsErrors = [
+                                    ...vendorNameApprovalsErr,
+                                  ];
+                                  newVendorNameApprovalsErrors[index] = false;
+                                  setVendorNameApprovalsErr(
+                                    newVendorNameApprovalsErrors
+                                  );
+                                }
+                              }}
+                              error={vendorNameApprovalsErr[index]}
+                              helperText={
+                                vendorNameApprovalsErr[index] &&
+                                field.CustomerName.length > 0 &&
+                                field.CustomerName.length < 2
+                                  ? "Minumum 2 characters required."
+                                  : vendorNameApprovalsErr[index] &&
+                                    field.CustomerName.length > 50
+                                  ? "Maximum 50 characters allowed."
+                                  : vendorNameApprovalsErr[index]
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
+                            />
+                          </div>
+                          <div className="flex">
+                            <TextField
+                              label={
+                                <span>
+                                  Bill/Invoice Number
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              fullWidth
+                              disabled={
+                                !subTaskSwitchApprovals || activeTab === 2
+                              }
+                              value={field.InvoiceNumber}
+                              onChange={(e) =>
+                                handleSubTaskInvoiceChangeApprovals(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                if (
+                                  e.target.value.trim().length > 1 &&
+                                  e.target.value.trim().length <= 25
+                                ) {
+                                  const newInvoiceNameApprovalsErrors = [
+                                    ...invoiceNameApprovalsErr,
+                                  ];
+                                  newInvoiceNameApprovalsErrors[index] = false;
+                                  setInvoiceNameApprovalsErr(
+                                    newInvoiceNameApprovalsErrors
+                                  );
+                                }
+                              }}
+                              error={invoiceNameApprovalsErr[index]}
+                              helperText={
+                                invoiceNameApprovalsErr[index] &&
+                                field.InvoiceNumber.length > 25
+                                  ? "Maximum 25 characters allowed."
+                                  : invoiceNameApprovalsErr[index]
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
+                            />
+                            <div
+                              className={`inline-flex -mt-[4px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                                dateApprovalsErr[index] ? "datepickerError" : ""
+                              }`}
                             >
-                              <svg
-                                className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                focusable="false"
-                                aria-hidden="true"
-                                viewBox="0 0 24 24"
-                                data-testid="RemoveIcon"
-                              >
-                                <path d="M19 13H5v-2h14v2z"></path>
-                              </svg>
-                            </span>
-                          ))}
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                  label={
+                                    <span>
+                                      Date
+                                      <span className="!text-defaultRed">
+                                        &nbsp;*
+                                      </span>
+                                    </span>
+                                  }
+                                  onError={() => {
+                                    const newDateApprovalsErrors = [
+                                      ...dateApprovalsErr,
+                                    ];
+                                    newDateApprovalsErrors[index] = false;
+                                    setDateApprovalsErr(newDateApprovalsErrors);
+                                  }}
+                                  disabled={
+                                    !subTaskSwitchApprovals || activeTab === 2
+                                  }
+                                  value={
+                                    field.SubTaskDate === ""
+                                      ? null
+                                      : dayjs(field.SubTaskDate)
+                                  }
+                                  minDate={dayjs(receiverDateApprovals)}
+                                  onChange={(newDate: any) =>
+                                    handleSubTaskDateChangeApprovals(
+                                      dayjs(newDate.$d).format("YYYY/MM/DD"),
+                                      index
+                                    )
+                                  }
+                                  slotProps={{
+                                    textField: {
+                                      helperText:
+                                        dateApprovalsErr[index] &&
+                                        field.SubTaskDate.length <= 0
+                                          ? "This is a required field."
+                                          : dateApprovalsErr[index] &&
+                                            field.SubTaskDate.length > 1
+                                          ? "Enter a valid date."
+                                          : "",
+                                      readOnly: true,
+                                    } as Record<string, any>,
+                                  }}
+                                />
+                              </LocalizationProvider>
+                            </div>
+                            <TextField
+                              label={
+                                <span>
+                                  Bill Amount
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              fullWidth
+                              disabled={
+                                !subTaskSwitchApprovals || activeTab === 2
+                              }
+                              value={field.BillAmount}
+                              onChange={(e) =>
+                                handleSubTaskBillAmountChangeApprovals(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                if (
+                                  e.target.value.trim().length > 1 &&
+                                  parseFloat(e.target.value.trim()) > 0
+                                ) {
+                                  const newBillAmountApprovalsErrors = [
+                                    ...billAmountApprovalsErr,
+                                  ];
+                                  newBillAmountApprovalsErrors[index] = false;
+                                  setBillAmountApprovalsErr(
+                                    newBillAmountApprovalsErrors
+                                  );
+                                }
+                              }}
+                              error={billAmountApprovalsErr[index]}
+                              helperText={
+                                billAmountApprovalsErr[index]
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
+                            />
+                            {subTaskSwitchApprovals &&
+                              activeTab === 1 &&
+                              !field.SubTaskErrorLogFlag && (
+                                <span
+                                  className="cursor-pointer"
+                                  onClick={
+                                    hasPermissionWorklog(
+                                      "Task/SubTask",
+                                      "Delete",
+                                      "WorkLogs"
+                                    ) &&
+                                    hasPermissionWorklog(
+                                      "Task/SubTask",
+                                      "Save",
+                                      "WorkLogs"
+                                    )
+                                      ? () => removeTaskFieldApprovals(index)
+                                      : undefined
+                                  }
+                                >
+                                  <svg
+                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    focusable="false"
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    data-testid="RemoveIcon"
+                                  >
+                                    <path d="M19 13H5v-2h14v2z"></path>
+                                  </svg>
+                                </span>
+                              )}
+                            {subTaskSwitchApprovals &&
+                              activeTab === 1 &&
+                              index === 0 && (
+                                <span
+                                  className="cursor-pointer"
+                                  onClick={addTaskFieldApprovals}
+                                >
+                                  <svg
+                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    focusable="false"
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    data-testid="AddIcon"
+                                  >
+                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                                  </svg>
+                                </span>
+                              )}
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -5207,7 +5753,10 @@ const EditDrawer = ({
                     checkListDataApprovals.map((i: any, index: number) => (
                       <div className="mt-3" key={i.Category + index}>
                         <span className="flex items-center">
-                          <span onClick={() => toggleGeneralOpen(index)}>
+                          <span
+                            className="cursor-pointer"
+                            onClick={() => toggleGeneralOpen(index)}
+                          >
                             {itemStatesApprovals[index] ? (
                               <RemoveIcon />
                             ) : (
@@ -5222,28 +5771,29 @@ const EditDrawer = ({
                         {itemStatesApprovals[index] && (
                           <FormGroup className="ml-8 mt-2">
                             {i.Activities.map((j: any, index: number) => (
-                              <FormControlLabel
-                                key={j.IsCheck + index}
-                                control={
-                                  <Checkbox
-                                    checked={j.IsCheck}
-                                    onChange={(e) =>
-                                      hasPermissionWorklog(
-                                        "CheckList",
-                                        "save",
-                                        "WorkLogs"
-                                      ) &&
-                                      handleChangeChecklistApprovals(
-                                        i.Category,
-                                        e.target.checked,
-                                        j.Title
-                                      )
-                                    }
-                                    disabled={activeTab === 2}
-                                  />
-                                }
-                                label={j.Title}
-                              />
+                              <p key={j.IsCheck + index}>
+                                <FormControlLabel
+                                  control={
+                                    <Checkbox
+                                      checked={j.IsCheck}
+                                      onChange={(e) =>
+                                        hasPermissionWorklog(
+                                          "CheckList",
+                                          "save",
+                                          "WorkLogs"
+                                        ) &&
+                                        handleChangeChecklistApprovals(
+                                          i.Category,
+                                          e.target.checked,
+                                          j.Title
+                                        )
+                                      }
+                                      disabled={activeTab === 2}
+                                    />
+                                  }
+                                  label={j.Title}
+                                />
+                              </p>
                             ))}
                           </FormGroup>
                         )}
@@ -7608,8 +8158,63 @@ const EditDrawer = ({
                               }
                               margin="normal"
                               variant="standard"
-                              sx={{ mx: 0.75, maxWidth: 472, mt: 1 }}
+                              sx={{ mx: 0.75, maxWidth: 230, mt: 1 }}
                             />
+                            <FormControl
+                              variant="standard"
+                              sx={{ mx: 0.75, minWidth: 230, mt: -0.5 }}
+                              disabled={
+                                (!hasPermissionWorklog(
+                                  "ErrorLog",
+                                  "Save",
+                                  "WorkLogs"
+                                ) &&
+                                  hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Delete",
+                                    "WorkLogs"
+                                  )) ||
+                                field.isSolved ||
+                                activeTab === 2
+                              }
+                            >
+                              <InputLabel id="demo-simple-select-standard-label">
+                                Sub-Task ID
+                              </InputLabel>
+                              <Select
+                                labelId="demo-simple-select-standard-label"
+                                id="demo-simple-select-standard"
+                                disabled={
+                                  (!hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Save",
+                                    "WorkLogs"
+                                  ) &&
+                                    hasPermissionWorklog(
+                                      "ErrorLog",
+                                      "Delete",
+                                      "WorkLogs"
+                                    )) ||
+                                  field.isSolved ||
+                                  activeTab === 2
+                                }
+                                value={
+                                  field.SubTaskId === 0 ? "" : field.SubTaskId
+                                }
+                                onChange={(e) =>
+                                  handleSubTaskIDChange(
+                                    Number(e.target.value),
+                                    index
+                                  )
+                                }
+                              >
+                                {subTaskOptions.map((r: LabelValue) => (
+                                  <MenuItem value={r.value} key={r.value}>
+                                    {r.label}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </FormControl>
                             <Autocomplete
                               multiple
                               limitTags={2}
@@ -7966,6 +8571,17 @@ const EditDrawer = ({
               </div>
             </div>
           </form>
+          <ImportDialogSubTask
+            onOpen={isImportOpen}
+            onClose={() => setIsImportOpen(false)}
+            taskId={onEdit}
+            selectedFile={selectedFile}
+            setSelectedFile={setSelectedFile}
+            fileInputKey={fileInputKey}
+            setFileInputKey={setFileInputKey}
+            isUploading={isUploading}
+            handleApplyImportExcel={handleApplyImportExcel}
+          />
         </div>
       </div>
       {isLoadingApprovals ? <OverLay /> : ""}
