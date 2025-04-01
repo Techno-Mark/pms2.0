@@ -2987,70 +2987,83 @@ const EditDrawer = ({
 
     // Sub-Task
     let hasSubErrors = false;
-    const newTaskErrors = subTaskFieldsWorklogs.map(
-      (field, index) =>
-        (onEdit === 0 &&
-          subTaskSwitchWorklogs &&
-          field.Title.trim().length < 2) ||
-        (onEdit === 0 &&
-          subTaskSwitchWorklogs &&
-          field.Title.trim().length > 50) ||
-        (subTaskSwitchWorklogs &&
-          subTaskFieldsWorklogs.some(
-            (task, idx) =>
-              idx !== index &&
-              task.Title.trim().toLowerCase() ===
-                field.Title.trim().toLowerCase()
-          ))
-    );
-    subTaskSwitchWorklogs && setTaskNameWorklogsErr(newTaskErrors);
-    const newVendorErrors = subTaskFieldsWorklogs.map(
+
+    const areAllFieldsEmpty = subTaskFieldsWorklogs.every(
       (field) =>
-        (onEdit === 0 &&
-          subTaskSwitchWorklogs &&
-          field.CustomerName.trim().length < 2) ||
-        (onEdit === 0 &&
-          subTaskSwitchWorklogs &&
-          field.CustomerName.trim().length > 50)
+        field.Title.trim().length === 0 &&
+        field.CustomerName.trim().length === 0 &&
+        field.InvoiceNumber.toString().trim().length === 0 &&
+        field.SubTaskDate.trim().length === 0 &&
+        field.BillAmount.toString().trim().length === 0
     );
-    subTaskSwitchWorklogs && setVendorNameWorklogsErr(newVendorErrors);
-    const newInvoiceErrors = subTaskFieldsWorklogs.map(
-      (field) =>
-        (onEdit === 0 &&
-          subTaskSwitchWorklogs &&
-          field.InvoiceNumber.toString().trim().length < 1) ||
-        (onEdit === 0 &&
-          subTaskSwitchWorklogs &&
-          field.InvoiceNumber.toString().trim().length > 25)
-    );
-    subTaskSwitchWorklogs && setInvoiceNameWorklogsErr(newInvoiceErrors);
-    const newDateErrors = subTaskFieldsWorklogs.map(
-      (field) =>
-        onEdit === 0 &&
-        subTaskSwitchWorklogs &&
-        (field.SubTaskDate.trim().length <= 0 ||
-          new Date(field.SubTaskDate.trim()) <=
-            new Date(
-              dayjs(receiverDateWorklogs)
-                .subtract(1, "day")
-                .format("YYYY/MM/DD")
+
+    if (selectedFile && areAllFieldsEmpty) {
+      hasSubErrors = false;
+    } else {
+      const newTaskErrors = subTaskFieldsWorklogs.map(
+        (field, index) =>
+          (onEdit === 0 &&
+            subTaskSwitchWorklogs &&
+            (field.Title.trim().length < 2 ||
+              field.Title.trim().length > 50)) ||
+          (subTaskSwitchWorklogs &&
+            subTaskFieldsWorklogs.some(
+              (task, idx) =>
+                idx !== index &&
+                task.Title.trim().toLowerCase() ===
+                  field.Title.trim().toLowerCase()
             ))
-    );
-    subTaskSwitchWorklogs && setDateWorklogsErr(newDateErrors);
-    const newBillAmountErrors = subTaskFieldsWorklogs.map(
-      (field) =>
-        onEdit === 0 &&
-        subTaskSwitchWorklogs &&
-        (field.BillAmount.toString().trim().length <= 0 ||
-          parseFloat(field.BillAmount.toString().trim()) === 0)
-    );
-    subTaskSwitchWorklogs && setBillAmountWorklogsErr(newBillAmountErrors);
-    hasSubErrors =
-      newTaskErrors.some((error) => error) ||
-      newVendorErrors.some((error) => error) ||
-      newInvoiceErrors.some((error) => error) ||
-      newDateErrors.some((error) => error) ||
-      newBillAmountErrors.some((error) => error);
+      );
+      subTaskSwitchWorklogs && setTaskNameWorklogsErr(newTaskErrors);
+
+      const newVendorErrors = subTaskFieldsWorklogs.map(
+        (field) =>
+          onEdit === 0 &&
+          subTaskSwitchWorklogs &&
+          (field.CustomerName.trim().length < 2 ||
+            field.CustomerName.trim().length > 50)
+      );
+      subTaskSwitchWorklogs && setVendorNameWorklogsErr(newVendorErrors);
+
+      const newInvoiceErrors = subTaskFieldsWorklogs.map(
+        (field) =>
+          onEdit === 0 &&
+          subTaskSwitchWorklogs &&
+          (field.InvoiceNumber.toString().trim().length < 1 ||
+            field.InvoiceNumber.toString().trim().length > 25)
+      );
+      subTaskSwitchWorklogs && setInvoiceNameWorklogsErr(newInvoiceErrors);
+
+      const newDateErrors = subTaskFieldsWorklogs.map(
+        (field) =>
+          onEdit === 0 &&
+          subTaskSwitchWorklogs &&
+          (field.SubTaskDate.trim().length === 0 ||
+            new Date(field.SubTaskDate.trim()) <=
+              new Date(
+                dayjs(receiverDateWorklogs)
+                  .subtract(1, "day")
+                  .format("YYYY/MM/DD")
+              ))
+      );
+      subTaskSwitchWorklogs && setDateWorklogsErr(newDateErrors);
+
+      const newBillAmountErrors = subTaskFieldsWorklogs.map(
+        (field) =>
+          onEdit === 0 &&
+          subTaskSwitchWorklogs &&
+          (field.BillAmount.toString().trim().length === 0 ||
+            parseFloat(field.BillAmount.toString().trim()) === 0)
+      );
+      subTaskSwitchWorklogs && setBillAmountWorklogsErr(newBillAmountErrors);
+
+      hasSubErrors =
+        newTaskErrors.some((error) => error) ||
+        newVendorErrors.some((error) => error) ||
+        newInvoiceErrors.some((error) => error) ||
+        newDateErrors.some((error) => error) ||
+        newBillAmountErrors.some((error) => error);
+    }
 
     // Maual
     let hasManualErrors = false;
@@ -8682,7 +8695,7 @@ const EditDrawer = ({
                                     >
                                       {subTaskOptions.map((r: LabelValue) => (
                                         <MenuItem value={r.value} key={r.value}>
-                                          {r.label}
+                                          {r.value}
                                         </MenuItem>
                                       ))}
                                     </Select>
@@ -9681,7 +9694,7 @@ const EditDrawer = ({
                                 >
                                   {subTaskOptions.map((r: LabelValue) => (
                                     <MenuItem value={r.value} key={r.value}>
-                                      {r.label}
+                                      {r.value}
                                     </MenuItem>
                                   ))}
                                 </Select>

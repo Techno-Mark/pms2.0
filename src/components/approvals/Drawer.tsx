@@ -8210,7 +8210,7 @@ const EditDrawer = ({
                               >
                                 {subTaskOptions.map((r: LabelValue) => (
                                   <MenuItem value={r.value} key={r.value}>
-                                    {r.label}
+                                    {r.value}
                                   </MenuItem>
                                 ))}
                               </Select>
