@@ -3175,7 +3175,7 @@ const EditDrawer = ({
             )
           : null,
       SubTaskList:
-        onEdit > 0
+        onEdit > 0 || areAllFieldsEmpty
           ? null
           : subTaskSwitchWorklogs
           ? subTaskFieldsWorklogs.map(
