@@ -694,16 +694,19 @@ const EditDrawer = ({
           field.InvoiceNumber.toString().trim().length > 25)
     );
     subTaskSwitchWorklogs && setInvoiceNameWorklogsErr(newInvoiceErrors);
+    // const newDateErrors = subTaskFieldsWorklogs.map(
+    //   (field) =>
+    //     subTaskSwitchWorklogs &&
+    //     (field.SubTaskDate.trim().length <= 0 ||
+    //       new Date(field.SubTaskDate.trim()) <=
+    //         new Date(
+    //           dayjs(receiverDateWorklogs)
+    //             .subtract(1, "day")
+    //             .format("YYYY/MM/DD")
+    //         ))
+    // );
     const newDateErrors = subTaskFieldsWorklogs.map(
-      (field) =>
-        subTaskSwitchWorklogs &&
-        (field.SubTaskDate.trim().length <= 0 ||
-          new Date(field.SubTaskDate.trim()) <=
-            new Date(
-              dayjs(receiverDateWorklogs)
-                .subtract(1, "day")
-                .format("YYYY/MM/DD")
-            ))
+      (field) => subTaskSwitchWorklogs && field.SubTaskDate.trim().length <= 0
     );
     subTaskSwitchWorklogs && setDateWorklogsErr(newDateErrors);
     const newBillAmountErrors = subTaskFieldsWorklogs.map(
@@ -3038,13 +3041,7 @@ const EditDrawer = ({
         (field) =>
           onEdit === 0 &&
           subTaskSwitchWorklogs &&
-          (field.SubTaskDate.trim().length === 0 ||
-            new Date(field.SubTaskDate.trim()) <=
-              new Date(
-                dayjs(receiverDateWorklogs)
-                  .subtract(1, "day")
-                  .format("YYYY/MM/DD")
-              ))
+          field.SubTaskDate.trim().length === 0
       );
       subTaskSwitchWorklogs && setDateWorklogsErr(newDateErrors);
 
@@ -6007,7 +6004,8 @@ const EditDrawer = ({
                                       ? null
                                       : dayjs(field.SubTaskDate)
                                   }
-                                  minDate={dayjs(receiverDateWorklogs)}
+                                  // minDate={dayjs(receiverDateWorklogs)}
+                                  maxDate={dayjs(new Date())}
                                   onChange={(newDate: any) =>
                                     handleSubTaskDateChangeWorklogs(
                                       dayjs(newDate.$d).format("YYYY/MM/DD"),
@@ -6020,9 +6018,9 @@ const EditDrawer = ({
                                         dateWorklogsErr[index] &&
                                         field.SubTaskDate.length <= 0
                                           ? "This is a required field."
-                                          : dateWorklogsErr[index] &&
-                                            field.SubTaskDate.length > 1
-                                          ? "Enter a valid date."
+                                          // : dateWorklogsErr[index] &&
+                                          //   field.SubTaskDate.length > 1
+                                          // ? "Enter a valid date."
                                           : "",
                                       readOnly: true,
                                     } as Record<string, any>,
