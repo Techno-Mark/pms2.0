@@ -2348,9 +2348,66 @@ const TaskEditDrawer = ({
                     <Grid item xs={3} className="pt-4">
                       <Autocomplete
                         id="combo-box-demo"
-                        options={statusWorklogsDropdownData}
+                        options={
+                          departmentWorklogsTypeEdit === "SMB" &&
+                          !!statusWorklogsType &&
+                          [
+                            "InQA",
+                            "QACompleted",
+                            "QAInProgress",
+                            "QASubmitted",
+                          ].includes(statusWorklogsType?.toString())
+                            ? statusWorklogsDropdownData.filter(
+                                (i: LabelValueType) =>
+                                  ![
+                                    "InQA",
+                                    "QACompleted",
+                                    "QAInProgress",
+                                    "QASubmitted",
+                                  ].includes(i.Type.toString()) ||
+                                  i.Type.toString() ===
+                                    statusWorklogsType?.toString()
+                              )
+                            : statusWorklogsDropdownData.filter(
+                                (i: LabelValueType) =>
+                                  ![
+                                    "InQA",
+                                    "QACompleted",
+                                    "QAInProgress",
+                                    "QASubmitted",
+                                  ].includes(i.Type.toString())
+                              )
+                        }
                         value={
-                          statusWorklogsDropdownData.find(
+                          (departmentWorklogsTypeEdit === "SMB" &&
+                          !!statusWorklogsType &&
+                          [
+                            "InQA",
+                            "QACompleted",
+                            "QAInProgress",
+                            "QASubmitted",
+                          ].includes(statusWorklogsType?.toString())
+                            ? statusWorklogsDropdownData.filter(
+                                (i: LabelValueType) =>
+                                  ![
+                                    "InQA",
+                                    "QACompleted",
+                                    "QAInProgress",
+                                    "QASubmitted",
+                                  ].includes(i.Type.toString()) ||
+                                  i.Type.toString() ===
+                                    statusWorklogsType?.toString()
+                              )
+                            : statusWorklogsDropdownData.filter(
+                                (i: LabelValueType) =>
+                                  ![
+                                    "InQA",
+                                    "QACompleted",
+                                    "QAInProgress",
+                                    "QASubmitted",
+                                  ].includes(i.Type.toString())
+                              )
+                          ).find(
                             (i: LabelValueType) =>
                               i.value === statusWorklogsEdit
                           ) || null
@@ -2399,6 +2456,8 @@ const TaskEditDrawer = ({
                         }
                         onChange={(e, value: LabelValue | null) => {
                           value && setDepartmentWorklogsEdit(value.value);
+                          setStatusWorklogsEdit(0);
+                          setStatusWorklogsEditType("");
                           setProcessNameWorklogsEdit(0);
                           setSubProcessWorklogsEdit(0);
                           setValueMonthYearFromEdit(null);
