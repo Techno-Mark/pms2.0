@@ -5,7 +5,7 @@ const QaLensIcon = () => {
     <svg
       stroke="currentColor"
       fill="currentColor"
-      stroke-width="0"
+      strokeWidth="0"
       viewBox="0 0 19 19"
       height="29"
       width="21"
