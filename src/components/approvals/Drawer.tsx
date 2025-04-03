@@ -492,12 +492,7 @@ const EditDrawer = ({
     setSubTaskFieldsApprovals(newDateApprovalsFields);
 
     const newDateApprovalsErrors = [...dateApprovalsErr];
-    newDateApprovalsErrors[index] =
-      e.trim().length <= 0 ||
-      new Date(e) <=
-        new Date(
-          dayjs(receiverDateApprovals).subtract(1, "day").format("YYYY/MM/DD")
-        );
+    newDateApprovalsErrors[index] = e.trim().length <= 0;
     setDateApprovalsErr(newDateApprovalsErrors);
   };
 
@@ -690,15 +685,7 @@ const EditDrawer = ({
     );
     subTaskSwitchApprovals && setInvoiceNameApprovalsErr(newInvoiceErrors);
     const newDateErrors = subTaskFieldsApprovals.map(
-      (field) =>
-        subTaskSwitchApprovals &&
-        (field.SubTaskDate.trim().length <= 0 ||
-          new Date(field.SubTaskDate.trim()) <=
-            new Date(
-              dayjs(receiverDateApprovals)
-                .subtract(1, "day")
-                .format("YYYY/MM/DD")
-            ))
+      (field) => subTaskSwitchApprovals && field.SubTaskDate.trim().length <= 0
     );
     subTaskSwitchApprovals && setDateApprovalsErr(newDateErrors);
     const newBillAmountErrors = subTaskFieldsApprovals.map(
@@ -774,7 +761,7 @@ const EditDrawer = ({
       getSubTaskDataApprovals();
     }
   };
-  
+
   const handleRemoveSubTaskApprovals = async (id: number) => {
     if (hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")) {
       setIsLoadingApprovals(true);
@@ -5604,7 +5591,8 @@ const EditDrawer = ({
                                       ? null
                                       : dayjs(field.SubTaskDate)
                                   }
-                                  minDate={dayjs(receiverDateApprovals)}
+                                  // minDate={dayjs(receiverDateApprovals)}
+                                  maxDate={dayjs(new Date())}
                                   onChange={(newDate: any) =>
                                     handleSubTaskDateChangeApprovals(
                                       dayjs(newDate.$d).format("YYYY/MM/DD"),
@@ -5617,9 +5605,9 @@ const EditDrawer = ({
                                         dateApprovalsErr[index] &&
                                         field.SubTaskDate.length <= 0
                                           ? "This is a required field."
-                                          : dateApprovalsErr[index] &&
-                                            field.SubTaskDate.length > 1
-                                          ? "Enter a valid date."
+                                          // : dateApprovalsErr[index] &&
+                                          //   field.SubTaskDate.length > 1
+                                          // ? "Enter a valid date."
                                           : "",
                                       readOnly: true,
                                     } as Record<string, any>,
@@ -8210,7 +8198,7 @@ const EditDrawer = ({
                               >
                                 {subTaskOptions.map((r: LabelValue) => (
                                   <MenuItem value={r.value} key={r.value}>
-                                    {r.label}
+                                    {r.value}
                                   </MenuItem>
                                 ))}
                               </Select>

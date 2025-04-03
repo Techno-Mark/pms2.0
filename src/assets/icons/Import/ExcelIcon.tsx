@@ -65,7 +65,7 @@ const ExcelIcon = () => {
     <svg
       stroke="#1E6F43"
       fill="#1E6F43"
-      stroke-width="0"
+      strokeWidth="0"
       viewBox="0 0 24 24"
       height="28"
       width="28"

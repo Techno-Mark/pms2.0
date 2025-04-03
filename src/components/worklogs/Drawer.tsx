@@ -694,16 +694,19 @@ const EditDrawer = ({
           field.InvoiceNumber.toString().trim().length > 25)
     );
     subTaskSwitchWorklogs && setInvoiceNameWorklogsErr(newInvoiceErrors);
+    // const newDateErrors = subTaskFieldsWorklogs.map(
+    //   (field) =>
+    //     subTaskSwitchWorklogs &&
+    //     (field.SubTaskDate.trim().length <= 0 ||
+    //       new Date(field.SubTaskDate.trim()) <=
+    //         new Date(
+    //           dayjs(receiverDateWorklogs)
+    //             .subtract(1, "day")
+    //             .format("YYYY/MM/DD")
+    //         ))
+    // );
     const newDateErrors = subTaskFieldsWorklogs.map(
-      (field) =>
-        subTaskSwitchWorklogs &&
-        (field.SubTaskDate.trim().length <= 0 ||
-          new Date(field.SubTaskDate.trim()) <=
-            new Date(
-              dayjs(receiverDateWorklogs)
-                .subtract(1, "day")
-                .format("YYYY/MM/DD")
-            ))
+      (field) => subTaskSwitchWorklogs && field.SubTaskDate.trim().length <= 0
     );
     subTaskSwitchWorklogs && setDateWorklogsErr(newDateErrors);
     const newBillAmountErrors = subTaskFieldsWorklogs.map(
@@ -2987,70 +2990,77 @@ const EditDrawer = ({
 
     // Sub-Task
     let hasSubErrors = false;
-    const newTaskErrors = subTaskFieldsWorklogs.map(
-      (field, index) =>
-        (onEdit === 0 &&
-          subTaskSwitchWorklogs &&
-          field.Title.trim().length < 2) ||
-        (onEdit === 0 &&
-          subTaskSwitchWorklogs &&
-          field.Title.trim().length > 50) ||
-        (subTaskSwitchWorklogs &&
-          subTaskFieldsWorklogs.some(
-            (task, idx) =>
-              idx !== index &&
-              task.Title.trim().toLowerCase() ===
-                field.Title.trim().toLowerCase()
-          ))
-    );
-    subTaskSwitchWorklogs && setTaskNameWorklogsErr(newTaskErrors);
-    const newVendorErrors = subTaskFieldsWorklogs.map(
+
+    const areAllFieldsEmpty = subTaskFieldsWorklogs.every(
       (field) =>
-        (onEdit === 0 &&
-          subTaskSwitchWorklogs &&
-          field.CustomerName.trim().length < 2) ||
-        (onEdit === 0 &&
-          subTaskSwitchWorklogs &&
-          field.CustomerName.trim().length > 50)
+        field.Title.trim().length === 0 &&
+        field.CustomerName.trim().length === 0 &&
+        field.InvoiceNumber.toString().trim().length === 0 &&
+        field.SubTaskDate.trim().length === 0 &&
+        field.BillAmount.toString().trim().length === 0
     );
-    subTaskSwitchWorklogs && setVendorNameWorklogsErr(newVendorErrors);
-    const newInvoiceErrors = subTaskFieldsWorklogs.map(
-      (field) =>
-        (onEdit === 0 &&
-          subTaskSwitchWorklogs &&
-          field.InvoiceNumber.toString().trim().length < 1) ||
-        (onEdit === 0 &&
-          subTaskSwitchWorklogs &&
-          field.InvoiceNumber.toString().trim().length > 25)
-    );
-    subTaskSwitchWorklogs && setInvoiceNameWorklogsErr(newInvoiceErrors);
-    const newDateErrors = subTaskFieldsWorklogs.map(
-      (field) =>
-        onEdit === 0 &&
-        subTaskSwitchWorklogs &&
-        (field.SubTaskDate.trim().length <= 0 ||
-          new Date(field.SubTaskDate.trim()) <=
-            new Date(
-              dayjs(receiverDateWorklogs)
-                .subtract(1, "day")
-                .format("YYYY/MM/DD")
+
+    if (selectedFile && areAllFieldsEmpty) {
+      hasSubErrors = false;
+    } else {
+      const newTaskErrors = subTaskFieldsWorklogs.map(
+        (field, index) =>
+          (onEdit === 0 &&
+            subTaskSwitchWorklogs &&
+            (field.Title.trim().length < 2 ||
+              field.Title.trim().length > 50)) ||
+          (subTaskSwitchWorklogs &&
+            subTaskFieldsWorklogs.some(
+              (task, idx) =>
+                idx !== index &&
+                task.Title.trim().toLowerCase() ===
+                  field.Title.trim().toLowerCase()
             ))
-    );
-    subTaskSwitchWorklogs && setDateWorklogsErr(newDateErrors);
-    const newBillAmountErrors = subTaskFieldsWorklogs.map(
-      (field) =>
-        onEdit === 0 &&
-        subTaskSwitchWorklogs &&
-        (field.BillAmount.toString().trim().length <= 0 ||
-          parseFloat(field.BillAmount.toString().trim()) === 0)
-    );
-    subTaskSwitchWorklogs && setBillAmountWorklogsErr(newBillAmountErrors);
-    hasSubErrors =
-      newTaskErrors.some((error) => error) ||
-      newVendorErrors.some((error) => error) ||
-      newInvoiceErrors.some((error) => error) ||
-      newDateErrors.some((error) => error) ||
-      newBillAmountErrors.some((error) => error);
+      );
+      subTaskSwitchWorklogs && setTaskNameWorklogsErr(newTaskErrors);
+
+      const newVendorErrors = subTaskFieldsWorklogs.map(
+        (field) =>
+          onEdit === 0 &&
+          subTaskSwitchWorklogs &&
+          (field.CustomerName.trim().length < 2 ||
+            field.CustomerName.trim().length > 50)
+      );
+      subTaskSwitchWorklogs && setVendorNameWorklogsErr(newVendorErrors);
+
+      const newInvoiceErrors = subTaskFieldsWorklogs.map(
+        (field) =>
+          onEdit === 0 &&
+          subTaskSwitchWorklogs &&
+          (field.InvoiceNumber.toString().trim().length < 1 ||
+            field.InvoiceNumber.toString().trim().length > 25)
+      );
+      subTaskSwitchWorklogs && setInvoiceNameWorklogsErr(newInvoiceErrors);
+
+      const newDateErrors = subTaskFieldsWorklogs.map(
+        (field) =>
+          onEdit === 0 &&
+          subTaskSwitchWorklogs &&
+          field.SubTaskDate.trim().length === 0
+      );
+      subTaskSwitchWorklogs && setDateWorklogsErr(newDateErrors);
+
+      const newBillAmountErrors = subTaskFieldsWorklogs.map(
+        (field) =>
+          onEdit === 0 &&
+          subTaskSwitchWorklogs &&
+          (field.BillAmount.toString().trim().length === 0 ||
+            parseFloat(field.BillAmount.toString().trim()) === 0)
+      );
+      subTaskSwitchWorklogs && setBillAmountWorklogsErr(newBillAmountErrors);
+
+      hasSubErrors =
+        newTaskErrors.some((error) => error) ||
+        newVendorErrors.some((error) => error) ||
+        newInvoiceErrors.some((error) => error) ||
+        newDateErrors.some((error) => error) ||
+        newBillAmountErrors.some((error) => error);
+    }
 
     // Maual
     let hasManualErrors = false;
@@ -3165,7 +3175,7 @@ const EditDrawer = ({
             )
           : null,
       SubTaskList:
-        onEdit > 0
+        onEdit > 0 || areAllFieldsEmpty
           ? null
           : subTaskSwitchWorklogs
           ? subTaskFieldsWorklogs.map(
@@ -5679,8 +5689,10 @@ const EditDrawer = ({
               </div>
             )}
 
-            {(hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") ||
-              isDisabled) && (
+            {(hasPermissionWorklog("Task/SubTask", "View", "WorkLogs")
+            //  ||
+            //   isDisabled
+            ) && (
               <div className="mt-14" id="tabpanel-1">
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
@@ -5691,7 +5703,9 @@ const EditDrawer = ({
                     {!!selectedFile && onEdit === 0 && (
                       <span className="mr-4">{selectedFile.name}</span>
                     )}
-                    {subTaskSwitchWorklogs && !isIdDisabled && !isDisabled && (
+                    {subTaskSwitchWorklogs && !isIdDisabled && 
+                    // !isDisabled && 
+                    (
                       <ColorToolTip title="Import" placement="top" arrow>
                         <span
                           className="cursor-pointer"
@@ -5706,7 +5720,8 @@ const EditDrawer = ({
                     {onEdit > 0 &&
                       subTaskSwitchWorklogs &&
                       !isIdDisabled &&
-                      !isDisabled && (
+                      // !isDisabled &&
+                       (
                         <Button
                           variant="contained"
                           className="rounded-[4px] !h-[36px] mx-6 !bg-secondary"
@@ -5719,7 +5734,7 @@ const EditDrawer = ({
                     !!receiverDateWorklogs ? (
                       <Switch
                         checked={subTaskSwitchWorklogs}
-                        disabled={isDisabled}
+                        // disabled={isDisabled}
                         onChange={(e) => {
                           setSubTaskSwitchWorklogs(e.target.checked);
                           onEdit === 0 &&
@@ -5785,8 +5800,9 @@ const EditDrawer = ({
                               fullWidth
                               disabled={
                                 !subTaskSwitchWorklogs ||
-                                isIdDisabled ||
-                                isDisabled
+                                isIdDisabled
+                                //  ||
+                                // isDisabled
                               }
                               value={field.Title}
                               onChange={(e) =>
@@ -5844,8 +5860,9 @@ const EditDrawer = ({
                               fullWidth
                               disabled={
                                 !subTaskSwitchWorklogs ||
-                                isIdDisabled ||
-                                isDisabled
+                                isIdDisabled 
+                                // ||
+                                // isDisabled
                               }
                               value={field.Description}
                               onChange={(e) =>
@@ -5870,8 +5887,9 @@ const EditDrawer = ({
                               fullWidth
                               disabled={
                                 !subTaskSwitchWorklogs ||
-                                isIdDisabled ||
-                                isDisabled
+                                isIdDisabled 
+                                // ||
+                                // isDisabled
                               }
                               value={field.CustomerName}
                               onChange={(e) =>
@@ -5925,8 +5943,9 @@ const EditDrawer = ({
                               fullWidth
                               disabled={
                                 !subTaskSwitchWorklogs ||
-                                isIdDisabled ||
-                                isDisabled
+                                isIdDisabled 
+                                // ||
+                                // isDisabled
                               }
                               value={field.InvoiceNumber}
                               onChange={(e) =>
@@ -5986,15 +6005,17 @@ const EditDrawer = ({
                                   }}
                                   disabled={
                                     !subTaskSwitchWorklogs ||
-                                    isIdDisabled ||
-                                    isDisabled
+                                    isIdDisabled 
+                                    // ||
+                                    // isDisabled
                                   }
                                   value={
                                     field.SubTaskDate === ""
                                       ? null
                                       : dayjs(field.SubTaskDate)
                                   }
-                                  minDate={dayjs(receiverDateWorklogs)}
+                                  // minDate={dayjs(receiverDateWorklogs)}
+                                  maxDate={dayjs(new Date())}
                                   onChange={(newDate: any) =>
                                     handleSubTaskDateChangeWorklogs(
                                       dayjs(newDate.$d).format("YYYY/MM/DD"),
@@ -6007,10 +6028,10 @@ const EditDrawer = ({
                                         dateWorklogsErr[index] &&
                                         field.SubTaskDate.length <= 0
                                           ? "This is a required field."
-                                          : dateWorklogsErr[index] &&
-                                            field.SubTaskDate.length > 1
-                                          ? "Enter a valid date."
-                                          : "",
+                                          : // : dateWorklogsErr[index] &&
+                                            //   field.SubTaskDate.length > 1
+                                            // ? "Enter a valid date."
+                                            "",
                                       readOnly: true,
                                     } as Record<string, any>,
                                   }}
@@ -6029,8 +6050,9 @@ const EditDrawer = ({
                               fullWidth
                               disabled={
                                 !subTaskSwitchWorklogs ||
-                                isIdDisabled ||
-                                isDisabled
+                                isIdDisabled 
+                                // ||
+                                // isDisabled
                               }
                               value={field.BillAmount}
                               onChange={(e) =>
@@ -6064,7 +6086,7 @@ const EditDrawer = ({
                               sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
                             />
                             {!isIdDisabled &&
-                              !isDisabled &&
+                              // !isDisabled &&
                               subTaskSwitchWorklogs &&
                               !field.SubTaskErrorLogFlag && (
                                 <span
@@ -6097,7 +6119,7 @@ const EditDrawer = ({
                               )}
                             {index === 0 &&
                               !isIdDisabled &&
-                              !isDisabled &&
+                              // !isDisabled &&
                               subTaskSwitchWorklogs && (
                                 <span
                                   className="cursor-pointer"
@@ -8682,7 +8704,7 @@ const EditDrawer = ({
                                     >
                                       {subTaskOptions.map((r: LabelValue) => (
                                         <MenuItem value={r.value} key={r.value}>
-                                          {r.label}
+                                          {r.value}
                                         </MenuItem>
                                       ))}
                                     </Select>
@@ -9681,7 +9703,7 @@ const EditDrawer = ({
                                 >
                                   {subTaskOptions.map((r: LabelValue) => (
                                     <MenuItem value={r.value} key={r.value}>
-                                      {r.label}
+                                      {r.value}
                                     </MenuItem>
                                   ))}
                                 </Select>
