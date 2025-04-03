@@ -5689,8 +5689,10 @@ const EditDrawer = ({
               </div>
             )}
 
-            {(hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") ||
-              isDisabled) && (
+            {(hasPermissionWorklog("Task/SubTask", "View", "WorkLogs")
+            //  ||
+            //   isDisabled
+            ) && (
               <div className="mt-14" id="tabpanel-1">
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
@@ -5701,7 +5703,9 @@ const EditDrawer = ({
                     {!!selectedFile && onEdit === 0 && (
                       <span className="mr-4">{selectedFile.name}</span>
                     )}
-                    {subTaskSwitchWorklogs && !isIdDisabled && !isDisabled && (
+                    {subTaskSwitchWorklogs && !isIdDisabled && 
+                    // !isDisabled && 
+                    (
                       <ColorToolTip title="Import" placement="top" arrow>
                         <span
                           className="cursor-pointer"
@@ -5716,7 +5720,8 @@ const EditDrawer = ({
                     {onEdit > 0 &&
                       subTaskSwitchWorklogs &&
                       !isIdDisabled &&
-                      !isDisabled && (
+                      // !isDisabled &&
+                       (
                         <Button
                           variant="contained"
                           className="rounded-[4px] !h-[36px] mx-6 !bg-secondary"
@@ -5729,7 +5734,7 @@ const EditDrawer = ({
                     !!receiverDateWorklogs ? (
                       <Switch
                         checked={subTaskSwitchWorklogs}
-                        disabled={isDisabled}
+                        // disabled={isDisabled}
                         onChange={(e) => {
                           setSubTaskSwitchWorklogs(e.target.checked);
                           onEdit === 0 &&
@@ -5795,8 +5800,9 @@ const EditDrawer = ({
                               fullWidth
                               disabled={
                                 !subTaskSwitchWorklogs ||
-                                isIdDisabled ||
-                                isDisabled
+                                isIdDisabled
+                                //  ||
+                                // isDisabled
                               }
                               value={field.Title}
                               onChange={(e) =>
@@ -5854,8 +5860,9 @@ const EditDrawer = ({
                               fullWidth
                               disabled={
                                 !subTaskSwitchWorklogs ||
-                                isIdDisabled ||
-                                isDisabled
+                                isIdDisabled 
+                                // ||
+                                // isDisabled
                               }
                               value={field.Description}
                               onChange={(e) =>
@@ -5880,8 +5887,9 @@ const EditDrawer = ({
                               fullWidth
                               disabled={
                                 !subTaskSwitchWorklogs ||
-                                isIdDisabled ||
-                                isDisabled
+                                isIdDisabled 
+                                // ||
+                                // isDisabled
                               }
                               value={field.CustomerName}
                               onChange={(e) =>
@@ -5935,8 +5943,9 @@ const EditDrawer = ({
                               fullWidth
                               disabled={
                                 !subTaskSwitchWorklogs ||
-                                isIdDisabled ||
-                                isDisabled
+                                isIdDisabled 
+                                // ||
+                                // isDisabled
                               }
                               value={field.InvoiceNumber}
                               onChange={(e) =>
@@ -5996,8 +6005,9 @@ const EditDrawer = ({
                                   }}
                                   disabled={
                                     !subTaskSwitchWorklogs ||
-                                    isIdDisabled ||
-                                    isDisabled
+                                    isIdDisabled 
+                                    // ||
+                                    // isDisabled
                                   }
                                   value={
                                     field.SubTaskDate === ""
@@ -6018,10 +6028,10 @@ const EditDrawer = ({
                                         dateWorklogsErr[index] &&
                                         field.SubTaskDate.length <= 0
                                           ? "This is a required field."
-                                          // : dateWorklogsErr[index] &&
-                                          //   field.SubTaskDate.length > 1
-                                          // ? "Enter a valid date."
-                                          : "",
+                                          : // : dateWorklogsErr[index] &&
+                                            //   field.SubTaskDate.length > 1
+                                            // ? "Enter a valid date."
+                                            "",
                                       readOnly: true,
                                     } as Record<string, any>,
                                   }}
@@ -6040,8 +6050,9 @@ const EditDrawer = ({
                               fullWidth
                               disabled={
                                 !subTaskSwitchWorklogs ||
-                                isIdDisabled ||
-                                isDisabled
+                                isIdDisabled 
+                                // ||
+                                // isDisabled
                               }
                               value={field.BillAmount}
                               onChange={(e) =>
@@ -6075,7 +6086,7 @@ const EditDrawer = ({
                               sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
                             />
                             {!isIdDisabled &&
-                              !isDisabled &&
+                              // !isDisabled &&
                               subTaskSwitchWorklogs &&
                               !field.SubTaskErrorLogFlag && (
                                 <span
@@ -6108,7 +6119,7 @@ const EditDrawer = ({
                               )}
                             {index === 0 &&
                               !isIdDisabled &&
-                              !isDisabled &&
+                              // !isDisabled &&
                               subTaskSwitchWorklogs && (
                                 <span
                                   className="cursor-pointer"
