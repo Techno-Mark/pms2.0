@@ -5,7 +5,7 @@ const AcceptTask = () => {
     <svg
       stroke="currentColor"
       fill="currentColor"
-      stroke-width="0"
+      strokeWidth="0"
       viewBox="0 0 512 512"
       height="24"
       width="24"
@@ -15,7 +15,7 @@ const AcceptTask = () => {
         fill="none"
         stroke-linecap="round"
         stroke-linejoin="round"
-        stroke-width="32"
+        strokeWidth="32"
         d="M464 128 240 384l-96-96m0 96-96-96m320-160L232 284"
       ></path>
     </svg>

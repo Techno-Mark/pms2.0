@@ -55,6 +55,7 @@ const ApprovalsEmailTable = ({
   handleDrawerOpen,
   getId,
   getTabData,
+  hasFetched,
 }: EmailBoxProps) => {
   const [loading, setLoading] = useState(false);
   const [fileds, setFileds] = useState<FieldsType>({
@@ -224,14 +225,16 @@ const ApprovalsEmailTable = ({
       });
       setPage(0);
       setRowsPerPage(pageSize);
+      hasFetched.current = false;
     } else {
       setFilteredOject({
         ...filteredObject,
         ...filteredData,
         GlobalSearch: searchValue.trim(),
       });
+      hasFetched.current = false;
     }
-    getTabData?.();
+    // getTabData?.();
   }, [filteredData, searchValue]);
 
   useEffect(() => {

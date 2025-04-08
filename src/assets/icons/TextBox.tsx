@@ -12,7 +12,7 @@ const TextBox = () => {
       <path
         d="M75 196H141.271"
         stroke="black"
-        stroke-width="30"
+        strokeWidth="30"
         stroke-miterlimit="10"
         stroke-linecap="round"
         stroke-linejoin="round"
@@ -20,7 +20,7 @@ const TextBox = () => {
       <path
         d="M108.002 199.832V316"
         stroke="black"
-        stroke-width="30"
+        strokeWidth="30"
         stroke-miterlimit="10"
         stroke-linecap="round"
         stroke-linejoin="round"
@@ -28,7 +28,7 @@ const TextBox = () => {
       <path
         d="M176 456C198.109 456 216 438.109 216 416C216 438.109 233.891 456 256 456"
         stroke="black"
-        stroke-width="30"
+        strokeWidth="30"
         stroke-miterlimit="10"
         stroke-linecap="round"
         stroke-linejoin="round"
@@ -36,7 +36,7 @@ const TextBox = () => {
       <path
         d="M186 316H246"
         stroke="black"
-        stroke-width="30"
+        strokeWidth="30"
         stroke-miterlimit="10"
         stroke-linecap="round"
         stroke-linejoin="round"
@@ -44,7 +44,7 @@ const TextBox = () => {
       <path
         d="M216 96V416"
         stroke="black"
-        stroke-width="30"
+        strokeWidth="30"
         stroke-miterlimit="10"
         stroke-linecap="round"
         stroke-linejoin="round"
@@ -52,7 +52,7 @@ const TextBox = () => {
       <path
         d="M176 56C198.109 56 216 73.891 216 96C216 73.891 233.891 56 256 56"
         stroke="black"
-        stroke-width="30"
+        strokeWidth="30"
         stroke-miterlimit="10"
         stroke-linecap="round"
         stroke-linejoin="round"

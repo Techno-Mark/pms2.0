@@ -28,7 +28,6 @@ import {
   Select,
   Switch,
   TextField,
-  ThemeProvider,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -60,19 +59,17 @@ import {
   getReviewerDropdownData,
   getStatusDropdownData,
   getSubProcessDropdownData,
+  getSubTaskDropdownData,
   getTypeOfWorkDropdownData,
   hours,
   months,
 } from "@/utils/commonDropdownApiCall";
 import ImageUploader from "../common/ImageUploader";
 import { getFileFromBlob } from "@/utils/downloadFile";
-import { ColorToolTip, getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { callAPI } from "@/utils/API/callAPI";
-import MUIDataTable from "mui-datatables";
-import { generateCommonBodyRender } from "@/utils/datatable/CommonFunction";
 import OverLay from "../common/OverLay";
 import {
-  AuditlogGetByWorkitem,
   CommentAttachment,
   CommentGetByWorkitem,
   ErrorlogGetByWorkitem,
@@ -100,9 +97,11 @@ import {
   rootCauseOptions,
 } from "@/utils/staticDropdownData";
 import FileIcon from "../common/FileIcon";
-import EmailBox from "@/assets/icons/EmailBox";
 import DrawerLogs from "../common/workloags/DrawerLogs";
 import DrawerEmailbox from "../common/workloags/DrawerEmailbox";
+import ImportIcon from "@/assets/icons/ImportIcon";
+import ImportDialogSubTask from "./worklogs_Import/ImportDialogSubTask";
+import axios from "axios";
 
 interface EditDrawer {
   onOpen: boolean;
@@ -355,19 +354,33 @@ const EditDrawer = ({
 
   // Sub-Task
   const [subTaskWorklogsDrawer, setSubTaskWorklogsDrawer] = useState(true);
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<null | File>(null);
+  const [fileInputKey, setFileInputKey] = useState(0);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
   const [subTaskSwitchWorklogs, setSubTaskSwitchWorklogs] = useState(false);
   const [subTaskFieldsWorklogs, setSubTaskFieldsWorklogs] = useState([
     {
       SubtaskId: 0,
       Title: "",
       Description: "",
+      CustomerName: "",
+      InvoiceNumber: "",
+      SubTaskDate: "",
+      BillAmount: "",
+      SubTaskErrorLogFlag: false,
     },
   ]);
   const [taskNameWorklogsErr, setTaskNameWorklogsErr] = useState([false]);
-  const [subTaskDescriptionWorklogsErr, setSubTaskDescriptionWorklogsErr] =
-    useState([false]);
+  const [vendorNameWorklogsErr, setVendorNameWorklogsErr] = useState([false]);
+  const [invoiceNameWorklogsErr, setInvoiceNameWorklogsErr] = useState([false]);
+  const [dateWorklogsErr, setDateWorklogsErr] = useState([false]);
+  const [billAmountWorklogsErr, setBillAmountWorklogsErr] = useState([false]);
   const [deletedSubTaskWorklogs, setDeletedSubTaskWorklogs] = useState<
     number[] | []
+  >([]);
+  const [subTaskOptions, setSubTaskOptions] = useState<
+    { value: number; label: string }[]
   >([]);
 
   const addTaskFieldWorklogs = () => {
@@ -377,10 +390,18 @@ const EditDrawer = ({
         SubtaskId: 0,
         Title: "",
         Description: "",
+        CustomerName: "",
+        InvoiceNumber: "",
+        SubTaskDate: "",
+        BillAmount: "",
+        SubTaskErrorLogFlag: false,
       },
     ]);
     setTaskNameWorklogsErr([...taskNameWorklogsErr, false]);
-    setSubTaskDescriptionWorklogsErr([...subTaskDescriptionWorklogsErr, false]);
+    setVendorNameWorklogsErr([...vendorNameWorklogsErr, false]);
+    setInvoiceNameWorklogsErr([...invoiceNameWorklogsErr, false]);
+    setDateWorklogsErr([...dateWorklogsErr, false]);
+    setBillAmountWorklogsErr([...billAmountWorklogsErr, false]);
   };
 
   const removeTaskFieldWorklogs = (index: number) => {
@@ -397,12 +418,30 @@ const EditDrawer = ({
     newTaskWorklogsErrors.splice(index, 1);
     setTaskNameWorklogsErr(newTaskWorklogsErrors);
 
-    const newSubTaskDescriptionWorklogsErrors = [
-      ...subTaskDescriptionWorklogsErr,
-    ];
-    newSubTaskDescriptionWorklogsErrors.splice(index, 1);
-    setSubTaskDescriptionWorklogsErr(newSubTaskDescriptionWorklogsErrors);
+    const newVendorWorklogsErrors = [...vendorNameWorklogsErr];
+    newVendorWorklogsErrors.splice(index, 1);
+    setVendorNameWorklogsErr(newVendorWorklogsErrors);
+
+    const newInvoiceWorklogsErrors = [...invoiceNameWorklogsErr];
+    newInvoiceWorklogsErrors.splice(index, 1);
+    setInvoiceNameWorklogsErr(newInvoiceWorklogsErrors);
+
+    const newDateWorklogsErrors = [...dateWorklogsErr];
+    newDateWorklogsErrors.splice(index, 1);
+    setDateWorklogsErr(newDateWorklogsErrors);
+
+    const newBillWorklogsErrors = [...billAmountWorklogsErr];
+    newBillWorklogsErrors.splice(index, 1);
+    setBillAmountWorklogsErr(newBillWorklogsErrors);
+
+    subTaskFieldsWorklogs.length === 1 &&
+      subTaskFieldsWorklogs[0].SubtaskId > 0 &&
+      handleRemoveSubTaskWorklogs(subTaskFieldsWorklogs[0].SubtaskId);
   };
+
+  useEffect(() => {
+    subTaskFieldsWorklogs.length <= 0 && addTaskFieldWorklogs();
+  }, [subTaskFieldsWorklogs]);
 
   const handleSubTaskChangeWorklogs = (e: string, index: number) => {
     const newTaskWorklogsFields = [...subTaskFieldsWorklogs];
@@ -410,7 +449,16 @@ const EditDrawer = ({
     setSubTaskFieldsWorklogs(newTaskWorklogsFields);
 
     const newTaskWorklogsErrors = [...taskNameWorklogsErr];
-    newTaskWorklogsErrors[index] = e.trim().length < 5 || e.trim().length > 50;
+
+    const isDuplicate = newTaskWorklogsFields
+      .filter((_, idx) => idx !== index)
+      .some(
+        (task) => task.Title.trim().toLowerCase() === e.trim().toLowerCase()
+      );
+
+    newTaskWorklogsErrors[index] =
+      e.trim().length < 2 || e.trim().length > 50 || isDuplicate;
+
     setTaskNameWorklogsErr(newTaskWorklogsErrors);
   };
 
@@ -418,11 +466,148 @@ const EditDrawer = ({
     const newTaskWorklogsFields = [...subTaskFieldsWorklogs];
     newTaskWorklogsFields[index].Description = e;
     setSubTaskFieldsWorklogs(newTaskWorklogsFields);
+  };
 
-    const newSubTaskDescWorklogsErrors = [...subTaskDescriptionWorklogsErr];
-    newSubTaskDescWorklogsErrors[index] =
-      e.trim().length === 0 || e.trim().length > 500;
-    setSubTaskDescriptionWorklogsErr(newSubTaskDescWorklogsErrors);
+  const handleSubTaskVendorChangeWorklogs = (e: string, index: number) => {
+    const newVendorWorklogsFields = [...subTaskFieldsWorklogs];
+    newVendorWorklogsFields[index].CustomerName = e;
+    setSubTaskFieldsWorklogs(newVendorWorklogsFields);
+
+    const newVendorWorklogsErrors = [...vendorNameWorklogsErr];
+    newVendorWorklogsErrors[index] =
+      e.trim().length < 2 || e.trim().length > 50;
+    setVendorNameWorklogsErr(newVendorWorklogsErrors);
+  };
+
+  const handleSubTaskInvoiceChangeWorklogs = (e: string, index: number) => {
+    const sanitizedValue = e.replace(/[^a-zA-Z0-9]/g, "");
+
+    const newInvoiceWorklogsFields = [...subTaskFieldsWorklogs];
+    newInvoiceWorklogsFields[index].InvoiceNumber = sanitizedValue;
+    setSubTaskFieldsWorklogs(newInvoiceWorklogsFields);
+
+    const newInvoiceWorklogsErrors = [...invoiceNameWorklogsErr];
+    newInvoiceWorklogsErrors[index] =
+      e.trim().length < 1 || e.trim().length > 25;
+    setInvoiceNameWorklogsErr(newInvoiceWorklogsErrors);
+  };
+
+  const handleSubTaskDateChangeWorklogs = (e: string, index: number) => {
+    const newDateWorklogsFields = [...subTaskFieldsWorklogs];
+    newDateWorklogsFields[index].SubTaskDate = e;
+    setSubTaskFieldsWorklogs(newDateWorklogsFields);
+
+    const newDateWorklogsErrors = [...dateWorklogsErr];
+    newDateWorklogsErrors[index] = e.trim().length <= 0;
+    setDateWorklogsErr(newDateWorklogsErrors);
+  };
+
+  const handleSubTaskBillAmountChangeWorklogs = (e: string, index: number) => {
+    const regex = /^\d{0,8}(\.\d{0,2})?$/;
+
+    if (regex.test(e)) {
+      const newBillAmountWorklogsFields = [...subTaskFieldsWorklogs];
+      newBillAmountWorklogsFields[index].BillAmount = e;
+      setSubTaskFieldsWorklogs(newBillAmountWorklogsFields);
+
+      const newBillAmountWorklogsErrors = [...billAmountWorklogsErr];
+      newBillAmountWorklogsErrors[index] =
+        e.trim().length < 1 || parseFloat(e) === 0;
+      setBillAmountWorklogsErr(newBillAmountWorklogsErrors);
+    }
+  };
+
+  const handleApplyImportExcel = async (taskId: number) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    if (selectedFile) {
+      try {
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append("Files", selectedFile);
+        formData.append(
+          "WorkItemId",
+          onEdit > 0 ? onEdit.toString() : taskId.toString()
+        );
+
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/workitem/importWorkSubItemexcel`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          if (response.data.ResponseStatus === "Success") {
+            toast.success("Task has been imported successfully.");
+            getSubTaskDataOption();
+            getSubTaskDataWorklogs();
+            setIsUploading(false);
+            setIsImportOpen(false);
+            setSelectedFile(null);
+            setFileInputKey((prevKey: any) => prevKey + 1);
+            onEdit === 0 && handleClose();
+          } else if (response.data.ResponseStatus === "Warning") {
+            toast.warning(
+              `Valid Task has been imported and an Excel file ${response.data.ResponseData.FileDownloadName} has been downloaded for invalid tasks.`
+            );
+
+            const byteCharacters = atob(
+              response.data.ResponseData.FileContents
+            );
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+
+            const fileBlob = new Blob([byteArray], {
+              type: `${response.data.ResponseData.ContentType}`,
+            });
+
+            const fileURL = URL.createObjectURL(fileBlob);
+            const downloadLink = document.createElement("a");
+            downloadLink.href = fileURL;
+            downloadLink.setAttribute(
+              "download",
+              response.data.ResponseData.FileDownloadName
+            );
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            URL.revokeObjectURL(fileURL);
+
+            setIsUploading(false);
+            getSubTaskDataOption();
+            getSubTaskDataWorklogs();
+            setIsImportOpen(false);
+            setSelectedFile(null);
+            setFileInputKey((prevKey: any) => prevKey + 1);
+            onEdit === 0 && handleClose();
+          } else {
+            toast.error(
+              "The uploaded file is not in the format of the sample file."
+            );
+            setIsUploading(false);
+            setIsImportOpen(false);
+            setSelectedFile(null);
+            setFileInputKey((prevKey: any) => prevKey + 1);
+            onEdit === 0 && handleClose();
+          }
+        } else {
+          toast.error("Please try again later.");
+          setIsUploading(false);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
   };
 
   const getSubTaskDataWorklogs = async () => {
@@ -443,7 +628,20 @@ const EditDrawer = ({
         setSubTaskSwitchWorklogs(
           hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")
         );
-        setSubTaskFieldsWorklogs(ResponseData);
+        setSubTaskFieldsWorklogs(
+          ResponseData.map((i) => ({
+            SubtaskId: i.SubtaskId,
+            Title: i.Title,
+            Description: i.Description,
+            CustomerName: !!i.CustomerName ? i.CustomerName : "",
+            InvoiceNumber: !!i.InvoiceNumber ? i.InvoiceNumber : "",
+            SubTaskDate: !!i.SubTaskDate ? i.SubTaskDate : "",
+            BillAmount: i.BillAmount !== null ? i.BillAmount : "",
+            SubTaskErrorLogFlag: !!i.SubTaskErrorLogFlag
+              ? i.SubTaskErrorLogFlag
+              : false,
+          }))
+        );
       } else {
         setSubTaskSwitchWorklogs(false);
         setSubTaskFieldsWorklogs([
@@ -451,6 +649,11 @@ const EditDrawer = ({
             SubtaskId: 0,
             Title: "",
             Description: "",
+            CustomerName: "",
+            InvoiceNumber: "",
+            SubTaskDate: "",
+            BillAmount: "",
+            SubTaskErrorLogFlag: false,
           },
         ]);
       }
@@ -461,21 +664,49 @@ const EditDrawer = ({
   const handleSubmitSubTaskWorklogs = async () => {
     let hasSubErrors = false;
     const newTaskErrors = subTaskFieldsWorklogs.map(
-      (field) =>
-        (subTaskSwitchWorklogs && field.Title.trim().length < 5) ||
-        (subTaskSwitchWorklogs && field.Title.trim().length > 50)
+      (field, index) =>
+        (subTaskSwitchWorklogs && field.Title.trim().length < 2) ||
+        (subTaskSwitchWorklogs && field.Title.trim().length > 50) ||
+        (subTaskSwitchWorklogs &&
+          subTaskFieldsWorklogs.some(
+            (task, idx) =>
+              idx !== index &&
+              task.Title.trim().toLowerCase() ===
+                field.Title.trim().toLowerCase()
+          ))
     );
     subTaskSwitchWorklogs && setTaskNameWorklogsErr(newTaskErrors);
-    const newSubTaskDescErrors = subTaskFieldsWorklogs.map(
+    const newVendorErrors = subTaskFieldsWorklogs.map(
       (field) =>
-        (subTaskSwitchWorklogs && field.Description.trim().length <= 0) ||
-        (subTaskSwitchWorklogs && field.Description.trim().length > 500)
+        (subTaskSwitchWorklogs && field.CustomerName.trim().length < 2) ||
+        (subTaskSwitchWorklogs && field.CustomerName.trim().length > 50)
     );
-    subTaskSwitchWorklogs &&
-      setSubTaskDescriptionWorklogsErr(newSubTaskDescErrors);
+    subTaskSwitchWorklogs && setVendorNameWorklogsErr(newVendorErrors);
+    const newInvoiceErrors = subTaskFieldsWorklogs.map(
+      (field) =>
+        (subTaskSwitchWorklogs &&
+          field.InvoiceNumber.toString().trim().length < 1) ||
+        (subTaskSwitchWorklogs &&
+          field.InvoiceNumber.toString().trim().length > 25)
+    );
+    subTaskSwitchWorklogs && setInvoiceNameWorklogsErr(newInvoiceErrors);
+    const newDateErrors = subTaskFieldsWorklogs.map(
+      (field) => subTaskSwitchWorklogs && field.SubTaskDate.trim().length <= 0
+    );
+    subTaskSwitchWorklogs && setDateWorklogsErr(newDateErrors);
+    const newBillAmountErrors = subTaskFieldsWorklogs.map(
+      (field) =>
+        subTaskSwitchWorklogs &&
+        (field.BillAmount.toString().trim().length <= 0 ||
+          parseFloat(field.BillAmount.toString().trim()) === 0)
+    );
+    subTaskSwitchWorklogs && setBillAmountWorklogsErr(newBillAmountErrors);
     hasSubErrors =
       newTaskErrors.some((error) => error) ||
-      newSubTaskDescErrors.some((error) => error);
+      newVendorErrors.some((error) => error) ||
+      newInvoiceErrors.some((error) => error) ||
+      newDateErrors.some((error) => error) ||
+      newBillAmountErrors.some((error) => error);
 
     if (hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")) {
       if (!hasSubErrors) {
@@ -489,6 +720,14 @@ const EditDrawer = ({
                     SubtaskId: i.SubtaskId,
                     Title: i.Title.trim(),
                     Description: i.Description.trim(),
+                    CustomerName: !!i.CustomerName ? i.CustomerName.trim() : "",
+                    InvoiceNumber: !!i.InvoiceNumber
+                      ? i.InvoiceNumber.toString().trim()
+                      : "",
+                    SubTaskDate: !!i.SubTaskDate ? i.SubTaskDate.trim() : "",
+                    BillAmount: !!i.BillAmount
+                      ? i.BillAmount.toString().trim()
+                      : "",
                   })
               )
             : null,
@@ -508,15 +747,63 @@ const EditDrawer = ({
                 SubtaskId: 0,
                 Title: "",
                 Description: "",
+                CustomerName: "",
+                InvoiceNumber: "",
+                SubTaskDate: "",
+                BillAmount: "",
+                SubTaskErrorLogFlag: false,
               },
             ]);
             setIsLoadingWorklogs(false);
+            getSubTaskDataOption();
             getSubTaskDataWorklogs();
           }
           setIsLoadingWorklogs(false);
         };
         callAPI(url, params, successCallback, "POST");
       }
+    } else {
+      toast.error("User don't have permission to Update Sub-Task.");
+      getSubTaskDataWorklogs();
+    }
+  };
+
+  const handleRemoveSubTaskWorklogs = async (id: number) => {
+    if (hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")) {
+      setIsLoadingWorklogs(true);
+      const params = {
+        workitemId: onEdit,
+        subtasks: null,
+        deletedWorkitemSubtaskIds: [...deletedSubTaskWorklogs, id],
+      };
+      const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
+      const successCallback = (
+        ResponseData: null,
+        error: boolean,
+        ResponseStatus: string
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success(`Sub Task Updated successfully.`);
+          setDeletedSubTaskWorklogs([]);
+          setSubTaskFieldsWorklogs([
+            {
+              SubtaskId: 0,
+              Title: "",
+              Description: "",
+              CustomerName: "",
+              InvoiceNumber: "",
+              SubTaskDate: "",
+              BillAmount: "",
+              SubTaskErrorLogFlag: false,
+            },
+          ]);
+          setIsLoadingWorklogs(false);
+          getSubTaskDataOption();
+          getSubTaskDataWorklogs();
+        }
+        setIsLoadingWorklogs(false);
+      };
+      callAPI(url, params, successCallback, "POST");
     } else {
       toast.error("User don't have permission to Update Sub-Task.");
       getSubTaskDataWorklogs();
@@ -1554,6 +1841,7 @@ const EditDrawer = ({
       isSolved: false,
       DisableErrorLog: false,
       IsHasErrorlogAddedByClient: false,
+      SubTaskId: 0,
     },
   ]);
   const [errorTypeWorklogsErr, setErrorTypeWorklogsErr] = useState([false]);
@@ -1589,13 +1877,19 @@ const EditDrawer = ({
   );
   const [natureOfErrorDropdown, setNatureOfErrorDropdown] = useState([]);
 
+  const getSubTaskDataOption = async () => {
+    const data = await getSubTaskDropdownData(onEdit);
+    data.length > 0 && setSubTaskOptions(data);
+  };
+
   useEffect(() => {
     const getData = async () => {
       const data = await getNatureOfErrorDropdownData();
       data.length > 0 && setNatureOfErrorDropdown(data);
+      getSubTaskDataOption();
     };
 
-    onOpen && getData();
+    onOpen && onEdit > 0 && getData();
   }, [onOpen]);
 
   const addErrorLogFieldWorklogs = () => {
@@ -1633,6 +1927,7 @@ const EditDrawer = ({
         IdentifiedBy: "",
         isSolved: false,
         DisableErrorLog: false,
+        SubTaskId: 0,
       },
     ]);
     setErrorTypeWorklogsErr([...errorTypeWorklogsErr, false]);
@@ -1902,6 +2197,12 @@ const EditDrawer = ({
     setResolutionStatusErrWorklogs(newErrors);
   };
 
+  const handleSubTaskIDChange = (e: number, index: number) => {
+    const newFields = [...errorLogFieldsWorklogs];
+    newFields[index].SubTaskId = e;
+    setErrorLogFieldsWorklogs(newFields);
+  };
+
   const handleIdentifiedByChange = (
     e: string,
     index: number,
@@ -2006,6 +2307,7 @@ const EditDrawer = ({
             isSolved: i.IsSolved,
             DisableErrorLog: i.DisableErrorLog,
             IsHasErrorlogAddedByClient: i.IsHasErrorlogAddedByClient,
+            SubTaskId: !!i.SubTaskId && i.SubTaskId > 0 ? i.SubTaskId : 0,
           }))
         );
       } else {
@@ -2043,6 +2345,7 @@ const EditDrawer = ({
             isSolved: false,
             DisableErrorLog: false,
             IsHasErrorlogAddedByClient: false,
+            SubTaskId: 0,
           },
         ]);
       }
@@ -2194,12 +2497,17 @@ const EditDrawer = ({
                     i.ErrorType === 2
                       ? i.IdentifiedBy?.toString().trim()
                       : null,
+                  SubTaskId: i.SubTaskId > 0 ? i.SubTaskId : null,
                 })
             ),
             IsClientWorklog: 0,
             SubmissionId: null,
             DeletedErrorlogIds: [],
           };
+
+          const isUsedSubTask =
+            errorLogFieldsWorklogs.filter((i) => i.SubTaskId > 0).length > 0;
+
           const url = `${process.env.worklog_api_url}/workitem/errorlog/saveByworkitem`;
           const successCallback = (
             ResponseData: null,
@@ -2222,6 +2530,7 @@ const EditDrawer = ({
                   toast.success(
                     `${checked ? "Error log Resolved." : "Error log changed."}`
                   );
+                  isUsedSubTask && getSubTaskDataWorklogs();
                   getErrorLogDataWorklogs();
                   onDataFetch?.();
                   setIsLoadingWorklogs(false);
@@ -2380,12 +2689,16 @@ const EditDrawer = ({
                 ResolutionStatus: i.ResolutionStatus,
                 IdentifiedBy:
                   i.ErrorType === 2 ? i.IdentifiedBy?.toString().trim() : null,
+                SubTaskId: i.SubTaskId > 0 ? i.SubTaskId : null,
               })
           ),
           IsClientWorklog: 2,
           SubmissionId: submissionId,
           DeletedErrorlogIds: deletedErrorLogWorklogs,
         };
+
+        const isUsedSubTask =
+          errorLogFieldsWorklogs.filter((i) => i.SubTaskId > 0).length > 0;
 
         const url = `${process.env.worklog_api_url}/workitem/errorlog/saveByworkitem`;
         const successCallback = (
@@ -2396,6 +2709,7 @@ const EditDrawer = ({
           if (ResponseStatus === "Success" && error === false) {
             toast.success(`Error logged successfully.`);
             setDeletedErrorLogWorklogs([]);
+            isUsedSubTask && getSubTaskDataWorklogs();
             getEditDataWorklogs();
             getErrorLogDataWorklogs();
             onDataFetch?.();
@@ -2604,30 +2918,77 @@ const EditDrawer = ({
 
     // Sub-Task
     let hasSubErrors = false;
-    const newTaskErrors = subTaskFieldsWorklogs.map(
+
+    const areAllFieldsEmpty = subTaskFieldsWorklogs.every(
       (field) =>
-        (onEdit === 0 &&
-          subTaskSwitchWorklogs &&
-          field.Title.trim().length < 5) ||
-        (onEdit === 0 &&
-          subTaskSwitchWorklogs &&
-          field.Title.trim().length > 50)
+        field.Title.trim().length === 0 &&
+        field.CustomerName.trim().length === 0 &&
+        field.InvoiceNumber.toString().trim().length === 0 &&
+        field.SubTaskDate.trim().length === 0 &&
+        field.BillAmount.toString().trim().length === 0
     );
-    subTaskSwitchWorklogs && setTaskNameWorklogsErr(newTaskErrors);
-    const newSubTaskDescErrors = subTaskFieldsWorklogs.map(
-      (field) =>
-        (onEdit === 0 &&
+
+    if (selectedFile && areAllFieldsEmpty) {
+      hasSubErrors = false;
+    } else {
+      const newTaskErrors = subTaskFieldsWorklogs.map(
+        (field, index) =>
+          (onEdit === 0 &&
+            subTaskSwitchWorklogs &&
+            (field.Title.trim().length < 2 ||
+              field.Title.trim().length > 50)) ||
+          (subTaskSwitchWorklogs &&
+            subTaskFieldsWorklogs.some(
+              (task, idx) =>
+                idx !== index &&
+                task.Title.trim().toLowerCase() ===
+                  field.Title.trim().toLowerCase()
+            ))
+      );
+      subTaskSwitchWorklogs && setTaskNameWorklogsErr(newTaskErrors);
+
+      const newVendorErrors = subTaskFieldsWorklogs.map(
+        (field) =>
+          onEdit === 0 &&
           subTaskSwitchWorklogs &&
-          field.Description.trim().length <= 0) ||
-        (onEdit === 0 &&
+          (field.CustomerName.trim().length < 2 ||
+            field.CustomerName.trim().length > 50)
+      );
+      subTaskSwitchWorklogs && setVendorNameWorklogsErr(newVendorErrors);
+
+      const newInvoiceErrors = subTaskFieldsWorklogs.map(
+        (field) =>
+          onEdit === 0 &&
           subTaskSwitchWorklogs &&
-          field.Description.trim().length > 500)
-    );
-    subTaskSwitchWorklogs &&
-      setSubTaskDescriptionWorklogsErr(newSubTaskDescErrors);
-    hasSubErrors =
-      newTaskErrors.some((error) => error) ||
-      newSubTaskDescErrors.some((error) => error);
+          (field.InvoiceNumber.toString().trim().length < 1 ||
+            field.InvoiceNumber.toString().trim().length > 25)
+      );
+      subTaskSwitchWorklogs && setInvoiceNameWorklogsErr(newInvoiceErrors);
+
+      const newDateErrors = subTaskFieldsWorklogs.map(
+        (field) =>
+          onEdit === 0 &&
+          subTaskSwitchWorklogs &&
+          field.SubTaskDate.trim().length === 0
+      );
+      subTaskSwitchWorklogs && setDateWorklogsErr(newDateErrors);
+
+      const newBillAmountErrors = subTaskFieldsWorklogs.map(
+        (field) =>
+          onEdit === 0 &&
+          subTaskSwitchWorklogs &&
+          (field.BillAmount.toString().trim().length === 0 ||
+            parseFloat(field.BillAmount.toString().trim()) === 0)
+      );
+      subTaskSwitchWorklogs && setBillAmountWorklogsErr(newBillAmountErrors);
+
+      hasSubErrors =
+        newTaskErrors.some((error) => error) ||
+        newVendorErrors.some((error) => error) ||
+        newInvoiceErrors.some((error) => error) ||
+        newDateErrors.some((error) => error) ||
+        newBillAmountErrors.some((error) => error);
+    }
 
     // Maual
     let hasManualErrors = false;
@@ -2742,7 +3103,7 @@ const EditDrawer = ({
             )
           : null,
       SubTaskList:
-        onEdit > 0
+        onEdit > 0 || areAllFieldsEmpty
           ? null
           : subTaskSwitchWorklogs
           ? subTaskFieldsWorklogs.map(
@@ -2751,6 +3112,12 @@ const EditDrawer = ({
                   SubtaskId: i.SubtaskId,
                   Title: i.Title.trim(),
                   Description: i.Description.trim(),
+                  CustomerName: !!i.CustomerName ? i.CustomerName.trim() : "",
+                  InvoiceNumber: !!i.InvoiceNumber
+                    ? i.InvoiceNumber.trim()
+                    : "",
+                  SubTaskDate: !!i.SubTaskDate ? i.SubTaskDate.trim() : "",
+                  BillAmount: !!i.BillAmount ? i.BillAmount.trim() : "",
                 })
             )
           : null,
@@ -2792,7 +3159,7 @@ const EditDrawer = ({
       const params = data;
       const url = `${process.env.worklog_api_url}/workitem/saveworkitem`;
       const successCallback = (
-        ResponseData: number | string,
+        ResponseData: number,
         error: boolean,
         ResponseStatus: string
       ) => {
@@ -2800,6 +3167,9 @@ const EditDrawer = ({
           toast.success(
             `Worklog ${onEdit > 0 ? "Updated" : "created"} successfully.`
           );
+          onEdit === 0 &&
+            !!selectedFile &&
+            handleApplyImportExcel(ResponseData);
           onEdit > 0 && getEditDataWorklogs();
           onEdit > 0 && typeOfWorkWorklogs === 3 && getCheckListDataWorklogs();
           onEdit === 0 && onClose();
@@ -3485,10 +3855,20 @@ const EditDrawer = ({
         SubtaskId: 0,
         Title: "",
         Description: "",
+        CustomerName: "",
+        InvoiceNumber: "",
+        SubTaskDate: "",
+        BillAmount: "",
+        SubTaskErrorLogFlag: false,
       },
     ]);
     setTaskNameWorklogsErr([false]);
-    setSubTaskDescriptionWorklogsErr([false]);
+    setVendorNameWorklogsErr([false]);
+    setInvoiceNameWorklogsErr([false]);
+    setDateWorklogsErr([false]);
+    setBillAmountWorklogsErr([false]);
+    setSubTaskOptions([]);
+    setDeletedSubTaskWorklogs([]);
 
     // Recurring
     setRecurringSwitch(false);
@@ -3570,6 +3950,7 @@ const EditDrawer = ({
         isSolved: false,
         DisableErrorLog: false,
         IsHasErrorlogAddedByClient: false,
+        SubTaskId: 0,
       },
     ]);
     setErrorTypeWorklogsErr([false]);
@@ -5252,11 +5633,8 @@ const EditDrawer = ({
                           Update
                         </Button>
                       )}
-                    {hasPermissionWorklog(
-                      "Task/SubTask",
-                      "Save",
-                      "WorkLogs"
-                    ) ? (
+                    {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+                    !!receiverDateWorklogs ? (
                       <Switch
                         checked={subTaskSwitchWorklogs}
                         disabled={isDisabled}
@@ -5268,11 +5646,18 @@ const EditDrawer = ({
                                 SubtaskId: 0,
                                 Title: "",
                                 Description: "",
+                                CustomerName: "",
+                                InvoiceNumber: "",
+                                SubTaskDate: "",
+                                BillAmount: "",
+                                SubTaskErrorLogFlag: false,
                               },
                             ]);
                           onEdit === 0 && setTaskNameWorklogsErr([false]);
-                          onEdit === 0 &&
-                            setSubTaskDescriptionWorklogsErr([false]);
+                          onEdit === 0 && setVendorNameWorklogsErr([false]);
+                          onEdit === 0 && setInvoiceNameWorklogsErr([false]);
+                          onEdit === 0 && setDateWorklogsErr([false]);
+                          onEdit === 0 && setBillAmountWorklogsErr([false]);
                           onEdit === 0 && setDeletedSubTaskWorklogs([]);
                         }}
                       />
@@ -5292,156 +5677,375 @@ const EditDrawer = ({
                   </span>
                 </div>
                 {subTaskWorklogsDrawer && (
-                  <div className="mt-3 pl-6">
+                  <div className="mt-3 pl-6 flex flex-col gap-5">
                     {subTaskFieldsWorklogs.map((field, index) => (
                       <div className="w-[100%] flex" key={index}>
                         <TextField
-                          label={
-                            <span>
-                              Task Name
-                              <span className="!text-defaultRed">&nbsp;*</span>
-                            </span>
-                          }
+                          label={<span>Id</span>}
                           fullWidth
-                          disabled={
-                            !subTaskSwitchWorklogs || isIdDisabled || isDisabled
-                          }
-                          value={field.Title}
-                          onChange={(e) =>
-                            handleSubTaskChangeWorklogs(e.target.value, index)
-                          }
-                          onBlur={(e) => {
-                            if (
-                              e.target.value.trim().length > 5 &&
-                              e.target.value.trim().length <= 50
-                            ) {
-                              const newTaskNameWorklogsErrors = [
-                                ...taskNameWorklogsErr,
-                              ];
-                              newTaskNameWorklogsErrors[index] = false;
-                              setTaskNameWorklogsErr(newTaskNameWorklogsErrors);
-                            }
-                          }}
-                          error={taskNameWorklogsErr[index]}
-                          helperText={
-                            taskNameWorklogsErr[index] &&
-                            field.Title.length > 0 &&
-                            field.Title.length < 5
-                              ? "Minumum 5 characters required."
-                              : taskNameWorklogsErr[index] &&
-                                field.Title.length > 50
-                              ? "Maximum 50 characters allowed."
-                              : taskNameWorklogsErr[index]
-                              ? "This is a required field."
-                              : ""
-                          }
+                          value={field.SubtaskId > 0 ? field.SubtaskId : ""}
+                          disabled
                           margin="normal"
                           variant="standard"
-                          sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
+                          sx={{ mx: 0.75, maxWidth: 50, mt: 0 }}
                         />
-                        <TextField
-                          label={
-                            <span>
-                              Description
-                              <span className="!text-defaultRed">&nbsp;*</span>
-                            </span>
-                          }
-                          fullWidth
-                          disabled={
-                            !subTaskSwitchWorklogs || isIdDisabled || isDisabled
-                          }
-                          value={field.Description}
-                          onChange={(e) =>
-                            handleSubTaskDescriptionChangeWorklogs(
-                              e.target.value,
-                              index
-                            )
-                          }
-                          onBlur={(e) => {
-                            if (
-                              e.target.value.trim().length > 0 &&
-                              e.target.value.trim().length <= 500
-                            ) {
-                              const newSubTaskDescErrors = [
-                                ...subTaskDescriptionWorklogsErr,
-                              ];
-                              newSubTaskDescErrors[index] = false;
-                              setSubTaskDescriptionWorklogsErr(
-                                newSubTaskDescErrors
-                              );
-                            }
-                          }}
-                          error={subTaskDescriptionWorklogsErr[index]}
-                          helperText={
-                            subTaskDescriptionWorklogsErr[index] &&
-                            field.Description.length > 500
-                              ? "Maximum 500 characters allowed."
-                              : subTaskDescriptionWorklogsErr[index]
-                              ? "This is a required field."
-                              : ""
-                          }
-                          margin="normal"
-                          variant="standard"
-                          sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
-                        />
-                        {index === 0
-                          ? !isIdDisabled &&
-                            !isDisabled &&
-                            subTaskSwitchWorklogs && (
-                              <span
-                                className="cursor-pointer"
-                                onClick={
-                                  hasPermissionWorklog(
-                                    "Task/SubTask",
-                                    "Save",
-                                    "WorkLogs"
-                                  )
-                                    ? () => addTaskFieldWorklogs()
-                                    : undefined
+                        <div className="w-[90%] flex flex-col">
+                          <div>
+                            <TextField
+                              label={
+                                <span>
+                                  Task Name
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              fullWidth
+                              disabled={
+                                !subTaskSwitchWorklogs ||
+                                isIdDisabled ||
+                                isDisabled
+                              }
+                              value={field.Title}
+                              onChange={(e) =>
+                                handleSubTaskChangeWorklogs(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                const isDuplicate = subTaskFieldsWorklogs
+                                  .filter((_, idx) => idx !== index)
+                                  .some(
+                                    (task) =>
+                                      task.Title.trim().toLowerCase() ===
+                                      e.target.value.trim().toLowerCase()
+                                  );
+                                if (
+                                  e.target.value.trim().length > 2 &&
+                                  e.target.value.trim().length <= 50 &&
+                                  !isDuplicate
+                                ) {
+                                  const newTaskNameWorklogsErrors = [
+                                    ...taskNameWorklogsErr,
+                                  ];
+                                  newTaskNameWorklogsErrors[index] = false;
+                                  setTaskNameWorklogsErr(
+                                    newTaskNameWorklogsErrors
+                                  );
                                 }
-                              >
-                                <svg
-                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                  focusable="false"
-                                  aria-hidden="true"
-                                  viewBox="0 0 24 24"
-                                  data-testid="AddIcon"
-                                >
-                                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
-                                </svg>
-                              </span>
-                            )
-                          : !isIdDisabled &&
-                            !isDisabled &&
-                            subTaskSwitchWorklogs && (
-                              <span
-                                className="cursor-pointer"
-                                onClick={
-                                  hasPermissionWorklog(
-                                    "Task/SubTask",
-                                    "Delete",
-                                    "WorkLogs"
-                                  ) &&
-                                  hasPermissionWorklog(
-                                    "Task/SubTask",
-                                    "Save",
-                                    "WorkLogs"
-                                  )
-                                    ? () => removeTaskFieldWorklogs(index)
-                                    : undefined
+                              }}
+                              error={taskNameWorklogsErr[index]}
+                              helperText={
+                                taskNameWorklogsErr[index] &&
+                                field.Title.length > 0 &&
+                                field.Title.length < 2
+                                  ? "Minumum 2 characters required."
+                                  : taskNameWorklogsErr[index] &&
+                                    field.Title.length > 50
+                                  ? "Maximum 50 characters allowed."
+                                  : subTaskFieldsWorklogs.some(
+                                      (task, idx) =>
+                                        idx !== index &&
+                                        task.Title.trim().toLowerCase() ===
+                                          field.Title.trim().toLowerCase()
+                                    )
+                                  ? "Task name must be unique."
+                                  : taskNameWorklogsErr[index]
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
+                            />
+
+                            <TextField
+                              label={<span>Description</span>}
+                              fullWidth
+                              disabled={
+                                !subTaskSwitchWorklogs ||
+                                isIdDisabled ||
+                                isDisabled
+                              }
+                              value={field.Description}
+                              onChange={(e) =>
+                                handleSubTaskDescriptionChangeWorklogs(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
+                            />
+                            <TextField
+                              label={
+                                <span>
+                                  Vendor/Customer Name
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              fullWidth
+                              disabled={
+                                !subTaskSwitchWorklogs ||
+                                isIdDisabled ||
+                                isDisabled
+                              }
+                              value={field.CustomerName}
+                              onChange={(e) =>
+                                handleSubTaskVendorChangeWorklogs(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                if (
+                                  e.target.value.trim().length > 2 &&
+                                  e.target.value.trim().length <= 50
+                                ) {
+                                  const newVendorNameWorklogsErrors = [
+                                    ...vendorNameWorklogsErr,
+                                  ];
+                                  newVendorNameWorklogsErrors[index] = false;
+                                  setVendorNameWorklogsErr(
+                                    newVendorNameWorklogsErrors
+                                  );
                                 }
-                              >
-                                <svg
-                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                  focusable="false"
-                                  aria-hidden="true"
-                                  viewBox="0 0 24 24"
-                                  data-testid="RemoveIcon"
+                              }}
+                              error={vendorNameWorklogsErr[index]}
+                              helperText={
+                                vendorNameWorklogsErr[index] &&
+                                field.CustomerName.length > 0 &&
+                                field.CustomerName.length < 2
+                                  ? "Minumum 2 characters required."
+                                  : vendorNameWorklogsErr[index] &&
+                                    field.CustomerName.length > 50
+                                  ? "Maximum 50 characters allowed."
+                                  : vendorNameWorklogsErr[index]
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
+                            />
+                          </div>
+                          <div className="flex">
+                            <TextField
+                              label={
+                                <span>
+                                  Bill/Invoice Number
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              fullWidth
+                              disabled={
+                                !subTaskSwitchWorklogs ||
+                                isIdDisabled ||
+                                isDisabled
+                              }
+                              value={field.InvoiceNumber}
+                              onChange={(e) =>
+                                handleSubTaskInvoiceChangeWorklogs(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                if (
+                                  e.target.value.trim().length > 1 &&
+                                  e.target.value.trim().length <= 25
+                                ) {
+                                  const newInvoiceNameWorklogsErrors = [
+                                    ...invoiceNameWorklogsErr,
+                                  ];
+                                  newInvoiceNameWorklogsErrors[index] = false;
+                                  setInvoiceNameWorklogsErr(
+                                    newInvoiceNameWorklogsErrors
+                                  );
+                                }
+                              }}
+                              error={invoiceNameWorklogsErr[index]}
+                              helperText={
+                                invoiceNameWorklogsErr[index] &&
+                                field.InvoiceNumber.length > 25
+                                  ? "Maximum 25 characters allowed."
+                                  : invoiceNameWorklogsErr[index]
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
+                            />
+                            <div
+                              className={`inline-flex -mt-[4px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                                dateWorklogsErr[index] ? "datepickerError" : ""
+                              }`}
+                            >
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                  label={
+                                    <span>
+                                      Date
+                                      <span className="!text-defaultRed">
+                                        &nbsp;*
+                                      </span>
+                                    </span>
+                                  }
+                                  onError={() => {
+                                    const newDateWorklogsErrors = [
+                                      ...dateWorklogsErr,
+                                    ];
+                                    newDateWorklogsErrors[index] = false;
+                                    setDateWorklogsErr(newDateWorklogsErrors);
+                                  }}
+                                  disabled={
+                                    !subTaskSwitchWorklogs ||
+                                    isIdDisabled ||
+                                    isDisabled
+                                  }
+                                  value={
+                                    field.SubTaskDate === ""
+                                      ? null
+                                      : dayjs(field.SubTaskDate)
+                                  }
+                                  // minDate={dayjs(receiverDateWorklogs)}
+                                  maxDate={dayjs(new Date())}
+                                  onChange={(newDate: any) =>
+                                    handleSubTaskDateChangeWorklogs(
+                                      dayjs(newDate.$d).format("YYYY/MM/DD"),
+                                      index
+                                    )
+                                  }
+                                  slotProps={{
+                                    textField: {
+                                      helperText:
+                                        dateWorklogsErr[index] &&
+                                        field.SubTaskDate.length <= 0
+                                          ? "This is a required field."
+                                          // : dateWorklogsErr[index] &&
+                                          //   field.SubTaskDate.length > 1
+                                          // ? "Enter a valid date."
+                                          : "",
+                                      readOnly: true,
+                                    } as Record<string, any>,
+                                  }}
+                                />
+                              </LocalizationProvider>
+                            </div>
+                            <TextField
+                              label={
+                                <span>
+                                  Bill Amount
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              fullWidth
+                              disabled={
+                                !subTaskSwitchWorklogs ||
+                                isIdDisabled ||
+                                isDisabled
+                              }
+                              value={field.BillAmount}
+                              onChange={(e) =>
+                                handleSubTaskBillAmountChangeWorklogs(
+                                  e.target.value,
+                                  index
+                                )
+                              }
+                              onBlur={(e) => {
+                                if (
+                                  e.target.value.trim().length > 1 &&
+                                  parseFloat(e.target.value.trim()) > 0
+                                ) {
+                                  const newBillAmountWorklogsErrors = [
+                                    ...billAmountWorklogsErr,
+                                  ];
+                                  newBillAmountWorklogsErrors[index] = false;
+                                  setBillAmountWorklogsErr(
+                                    newBillAmountWorklogsErrors
+                                  );
+                                }
+                              }}
+                              error={billAmountWorklogsErr[index]}
+                              helperText={
+                                billAmountWorklogsErr[index]
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
+                            />
+                            {!isIdDisabled &&
+                              !isDisabled &&
+                              subTaskSwitchWorklogs &&
+                              !field.SubTaskErrorLogFlag && (
+                                <span
+                                  className="cursor-pointer"
+                                  onClick={
+                                    hasPermissionWorklog(
+                                      "Task/SubTask",
+                                      "Delete",
+                                      "WorkLogs"
+                                    ) &&
+                                    hasPermissionWorklog(
+                                      "Task/SubTask",
+                                      "Save",
+                                      "WorkLogs"
+                                    )
+                                      ? () => removeTaskFieldWorklogs(index)
+                                      : undefined
+                                  }
                                 >
-                                  <path d="M19 13H5v-2h14v2z"></path>
-                                </svg>
-                              </span>
-                            )}
+                                  <svg
+                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    focusable="false"
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    data-testid="RemoveIcon"
+                                  >
+                                    <path d="M19 13H5v-2h14v2z"></path>
+                                  </svg>
+                                </span>
+                              )}
+                            {index === 0 &&
+                              !isIdDisabled &&
+                              !isDisabled &&
+                              subTaskSwitchWorklogs && (
+                                <span
+                                  className="cursor-pointer"
+                                  onClick={
+                                    hasPermissionWorklog(
+                                      "Task/SubTask",
+                                      "Save",
+                                      "WorkLogs"
+                                    )
+                                      ? () => addTaskFieldWorklogs()
+                                      : undefined
+                                  }
+                                >
+                                  <svg
+                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    focusable="false"
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    data-testid="AddIcon"
+                                  >
+                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                                  </svg>
+                                </span>
+                              )}
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -5475,7 +6079,10 @@ const EditDrawer = ({
                       checkListDataWorklogs.map((i: any, index: number) => (
                         <div className="mt-3" key={i.Category + index}>
                           <span className="flex items-center">
-                            <span onClick={() => toggleGeneralOpen(index)}>
+                            <span
+                              className="cursor-pointer"
+                              onClick={() => toggleGeneralOpen(index)}
+                            >
                               {itemStatesWorklogs[index] ? (
                                 <RemoveIcon />
                               ) : (
@@ -5490,32 +6097,33 @@ const EditDrawer = ({
                           {itemStatesWorklogs[index] && (
                             <FormGroup className="ml-8 mt-2">
                               {i.Activities.map((j: any, index: number) => (
-                                <FormControlLabel
-                                  key={j.IsCheck + index}
-                                  disabled={
-                                    isIdDisabled ||
-                                    isUnassigneeClicked ||
-                                    isDisabled
-                                  }
-                                  control={
-                                    <Checkbox
-                                      checked={j.IsCheck}
-                                      onChange={(e) =>
-                                        hasPermissionWorklog(
-                                          "CheckList",
-                                          "save",
-                                          "WorkLogs"
-                                        ) &&
-                                        handleChangeChecklistWorklogs(
-                                          i.Category,
-                                          e.target.checked,
-                                          j.Title
-                                        )
-                                      }
-                                    />
-                                  }
-                                  label={j.Title}
-                                />
+                                <p key={j.IsCheck + index}>
+                                  <FormControlLabel
+                                    disabled={
+                                      isIdDisabled ||
+                                      isUnassigneeClicked ||
+                                      isDisabled
+                                    }
+                                    control={
+                                      <Checkbox
+                                        checked={j.IsCheck}
+                                        onChange={(e) =>
+                                          hasPermissionWorklog(
+                                            "CheckList",
+                                            "save",
+                                            "WorkLogs"
+                                          ) &&
+                                          handleChangeChecklistWorklogs(
+                                            i.Category,
+                                            e.target.checked,
+                                            j.Title
+                                          )
+                                        }
+                                      />
+                                    }
+                                    label={j.Title}
+                                  />
+                                </p>
                               ))}
                             </FormGroup>
                           )}
@@ -7969,13 +8577,53 @@ const EditDrawer = ({
                                     variant="standard"
                                     sx={{
                                       mx: 0.75,
-                                      maxWidth: 472,
+                                      maxWidth: 230,
                                       mt: 0.3,
                                       ml: 1.5,
                                     }}
                                     InputProps={{ readOnly: true }}
                                     inputProps={{ readOnly: true }}
                                   />
+                                  <FormControl
+                                    variant="standard"
+                                    sx={{ mx: 0.75, minWidth: 230 }}
+                                    disabled={
+                                      isIdDisabled || isUnassigneeClicked
+                                    }
+                                  >
+                                    <InputLabel id="demo-simple-select-standard-label">
+                                      Sub-Task ID
+                                    </InputLabel>
+                                    <Select
+                                      labelId="demo-simple-select-standard-label"
+                                      id="demo-simple-select-standard"
+                                      disabled={
+                                        isIdDisabled || isUnassigneeClicked
+                                      }
+                                      value={
+                                        i.SubTaskId === 0 ? "" : i.SubTaskId
+                                      }
+                                      onChange={(e) =>
+                                        handleSubTaskIDChange(
+                                          Number(e.target.value),
+                                          index
+                                        )
+                                      }
+                                      readOnly={
+                                        // (i.ResolutionStatus > 0 &&
+                                        //   i.ErrorType == 1) ||
+                                        !i.IsHasErrorlogAddedByClient ||
+                                        // i.Remark.trim().length <= 0 ||
+                                        i.DisableErrorLog
+                                      }
+                                    >
+                                      {subTaskOptions.map((r: LabelValue) => (
+                                        <MenuItem value={r.value} key={r.value}>
+                                          {r.value}
+                                        </MenuItem>
+                                      ))}
+                                    </Select>
+                                  </FormControl>
                                   <Autocomplete
                                     multiple
                                     limitTags={2}
@@ -8836,7 +9484,7 @@ const EditDrawer = ({
                                 <Select
                                   labelId="demo-simple-select-standard-label"
                                   id="demo-simple-select-standard"
-                                  disabled={isIdDisabled || isUnassigneeClicked}
+                                  disabled={field.isSolved}
                                   value={
                                     field.ResolutionStatus === 0
                                       ? ""
@@ -8892,9 +9540,7 @@ const EditDrawer = ({
                                   <Select
                                     labelId="demo-simple-select-standard-label"
                                     id="demo-simple-select-standard"
-                                    disabled={
-                                      isIdDisabled || isUnassigneeClicked
-                                    }
+                                    disabled={field.isSolved}
                                     value={
                                       field.ResolutionStatus === 0
                                         ? ""
@@ -8951,8 +9597,37 @@ const EditDrawer = ({
                                 }
                                 margin="normal"
                                 variant="standard"
-                                sx={{ mx: 0.75, maxWidth: 472, mt: 1.5 }}
+                                sx={{ mx: 0.75, maxWidth: 230, mt: 1.5 }}
                               />
+                              <FormControl
+                                variant="standard"
+                                sx={{ mx: 0.75, minWidth: 230, mt: 1.5 }}
+                                disabled={field.isSolved}
+                              >
+                                <InputLabel id="demo-simple-select-standard-label">
+                                  Sub-Task ID
+                                </InputLabel>
+                                <Select
+                                  labelId="demo-simple-select-standard-label"
+                                  id="demo-simple-select-standard"
+                                  disabled={field.isSolved}
+                                  value={
+                                    field.SubTaskId === 0 ? "" : field.SubTaskId
+                                  }
+                                  onChange={(e) =>
+                                    handleSubTaskIDChange(
+                                      Number(e.target.value),
+                                      index
+                                    )
+                                  }
+                                >
+                                  {subTaskOptions.map((r: LabelValue) => (
+                                    <MenuItem value={r.value} key={r.value}>
+                                      {r.value}
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                              </FormControl>
                               <Autocomplete
                                 multiple
                                 limitTags={2}
@@ -9231,6 +9906,17 @@ const EditDrawer = ({
               </div>
             </div>
           </form>
+          <ImportDialogSubTask
+            onOpen={isImportOpen}
+            onClose={() => setIsImportOpen(false)}
+            taskId={onEdit}
+            selectedFile={selectedFile}
+            setSelectedFile={setSelectedFile}
+            fileInputKey={fileInputKey}
+            setFileInputKey={setFileInputKey}
+            isUploading={isUploading}
+            handleApplyImportExcel={handleApplyImportExcel}
+          />
         </div>
       </div>
       {isLoadingWorklogs ? <OverLay /> : ""}

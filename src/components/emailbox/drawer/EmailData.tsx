@@ -14,6 +14,7 @@ import React, {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useRef,
   useState,
 } from "react";
 import { toast } from "react-toastify";
@@ -90,6 +91,7 @@ const EmailData = forwardRef<
     const [isSaveEnabled, setIsSaveEnabled] = useState<boolean>(false);
     const [statusOption, setStatusOption] = useState<LabelValue[]>([]);
     const [disableField, setDisableField] = useState(false);
+    const hasFetched = useRef(false);
 
     useEffect(() => {
       setDisableField(isDisabled);
@@ -100,7 +102,10 @@ const EmailData = forwardRef<
         const data = await getEmailTypeData();
         data.length > 0 ? setEmailTypeDropdown(data) : setEmailTypeDropdown([]);
       };
-      getDropdowns();
+      if (!hasFetched.current) {
+        getDropdowns();
+        hasFetched.current = true;
+      }
     }, []);
 
     useEffect(() => {

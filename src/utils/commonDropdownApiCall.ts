@@ -428,3 +428,13 @@ export const getNatureOfErrorDropdownData = async () => {
     `${process.env.pms_api_url}/natureOfError/getdropdown`
   );
 };
+
+// getSubTask
+export const getSubTaskDropdownData = async (workTypeId: number) => {
+  return await postApiFunction(
+    `${process.env.worklog_api_url}/workitem/subtask/getListbyworkitem`,
+    {
+      WorkItemId: workTypeId,
+    }
+  );
+};

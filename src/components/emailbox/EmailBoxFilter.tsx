@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Autocomplete,
   Button,
@@ -63,6 +63,7 @@ const EmailBoxFilter = ({
   activeTab,
   tagDropdown,
 }: EmailFilterType) => {
+  const hasFetched = useRef(false);
   const [client, setClient] = useState<LabelValue | null>(null);
   const [clientDropdown, setClientDropdown] = useState<LabelValue[]>([]);
   const [ticketStatus, setTicketStatus] = useState<LabelValue | null>(null);
@@ -252,7 +253,10 @@ const EmailBoxFilter = ({
       setEmailTypeDropdown(await getEmailTypeData());
       setAssigneeDropdown(await getCCDropdownData());
     };
-    userDropdowns();
+    if (!hasFetched.current) {
+      userDropdowns();
+      hasFetched.current = true;
+    }
   }, []);
 
   const getFilterList = async () => {

@@ -48,6 +48,7 @@ const FailedEmailTable = ({
   getTabData,
   handleDrawerOpen,
   getId,
+  hasFetched,
 }: EmailBoxProps) => {
   const [fileds, setFileds] = useState<FieldsType>({
     loaded: false,
@@ -108,14 +109,16 @@ const FailedEmailTable = ({
       });
       setPage(0);
       setRowsPerPage(pageSize);
+      hasFetched.current = false;
     } else {
       setFilteredOject({
         ...filteredObject,
         ...filteredData,
         GlobalSearch: searchValue.trim(),
       });
+      hasFetched.current = false;
     }
-    getTabData?.();
+    // getTabData?.();
   }, [filteredData, searchValue]);
 
   useEffect(() => {

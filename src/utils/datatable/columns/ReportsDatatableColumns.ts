@@ -837,6 +837,36 @@ const reportsErrorLogColConfig = [
     label: "Project Name",
     bodyRenderer: generateCommonBodyRender,
   },
+  {
+    header: "SubTaskName",
+    label: "Sub Task Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "SubTaskDescription",
+    label: "Sub Task Description",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "CustomerName",
+    label: "Vendor/Customer Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "InvoiceNumber",
+    label: "Bill/Invoice Number",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "SubTaskDate",
+    label: "Date",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "BillAmount",
+    label: "Bill Amount",
+    bodyRenderer: generateCommonBodyRender,
+  },
 ];
 
 const reportsEmailTypeColConfig = [

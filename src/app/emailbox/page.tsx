@@ -110,13 +110,18 @@ const page = () => {
   const [tagDropdown, setTagDropdown] = useState<
     { label: string; value: string }[]
   >([]);
+  const hasFetched = useRef(false);
+  const hasFetchedTag = useRef(false);
 
   const getTagDropdownData = async () => {
     setTagDropdown(await getTagData());
   };
 
   useEffect(() => {
-    getTagDropdownData();
+    if (!hasFetchedTag.current) {
+      getTagDropdownData();
+      hasFetchedTag.current = true;
+    }
   }, []);
 
   useEffect(() => {
@@ -182,13 +187,16 @@ const page = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await getTabData();
+      if (!hasFetched.current) {
+        await getTabData();
+        hasFetched.current = true;
+      }
     };
     const timer = setTimeout(() => {
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [filteredData, activeTab]);
+  }, [filteredData, activeTab, hasFetched.current]);
 
   const hasTabsPermission = () => {
     return (
@@ -271,6 +279,7 @@ const page = () => {
   }, [allTabs, searchValue, filteredData]);
 
   const handleTabChange = (tabId: number) => {
+    hasFetched.current = false;
     setActiveTab(tabId);
     setIsFiltering(false);
     setFilteredData(null);
@@ -418,6 +427,7 @@ const page = () => {
           tagDropdown={tagDropdown}
           getTagDropdownData={getTagDropdownData}
           getTabData={getTabData}
+          hasFetched={hasFetched}
         />
       )}
 
@@ -429,6 +439,7 @@ const page = () => {
           getTabData={getTabData}
           handleDrawerOpen={handleDrawerOpen}
           getId={getId}
+          hasFetched={hasFetched}
         />
       )}
 
@@ -442,6 +453,7 @@ const page = () => {
           handleDrawerOpen={handleDrawerOpen}
           getId={getId}
           getTabData={getTabData}
+          hasFetched={hasFetched}
         />
       )}
 
@@ -453,6 +465,7 @@ const page = () => {
           handleDrawerOpen={handleDrawerOpen}
           getId={getId}
           getTabData={getTabData}
+          hasFetched={hasFetched}
         />
       )}
 
@@ -464,6 +477,7 @@ const page = () => {
           handleDrawerOpen={handleDrawerOpen}
           getId={getId}
           getTabData={getTabData}
+          hasFetched={hasFetched}
         />
       )}
 
@@ -473,6 +487,7 @@ const page = () => {
           filteredData={filteredData}
           onDataFetch={handleDataFetch}
           getTabData={getTabData}
+          hasFetched={hasFetched}
         />
       )}
 
@@ -484,6 +499,7 @@ const page = () => {
           getTabData={getTabData}
           handleDrawerOpen={handleDrawerOpen}
           getId={getId}
+          hasFetched={hasFetched}
         />
       )}
 

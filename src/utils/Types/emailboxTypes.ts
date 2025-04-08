@@ -7,6 +7,7 @@ export interface EmailBoxProps {
   getTabData?: () => void;
   tagDropdown?: { label: string; value: string }[];
   getTagDropdownData?: () => void;
+  hasFetched?: any;
 }
 
 export interface EmailBoxFilterProps {

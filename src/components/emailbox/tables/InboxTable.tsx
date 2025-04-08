@@ -58,6 +58,7 @@ const InboxTable = ({
   getId,
   tagDropdown,
   getTagDropdownData,
+  hasFetched,
 }: EmailBoxProps) => {
   const [loading, setLoading] = useState(false);
   const [fileds, setFileds] = useState<FieldsType>({
@@ -260,14 +261,16 @@ const InboxTable = ({
       });
       setPage(0);
       setRowsPerPage(pageSize);
+      hasFetched.current = false;
     } else {
       setFilteredOject({
         ...filteredObject,
         ...filteredData,
         GlobalSearch: searchValue.trim(),
       });
+      hasFetched.current = false;
     }
-    getTabData?.();
+    // getTabData?.();
   }, [filteredData, searchValue]);
 
   useEffect(() => {
@@ -363,7 +366,7 @@ const InboxTable = ({
                 tableMeta.rowData[tableMeta.rowData.length - 2] === 5) &&
               !tableMeta.rowData[tableMeta.rowData.length - 6];
 
-              return (
+            return (
               <div className={`flex items-center justify-center`}>
                 {tableMeta.rowData[tableMeta.rowData.length - 6] ? (
                   <>-</>

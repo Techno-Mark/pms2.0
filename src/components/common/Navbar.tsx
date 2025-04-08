@@ -22,6 +22,7 @@ type NavbarPropsType = {
 };
 
 const Navbar = (props: NavbarPropsType) => {
+  const hasFetched = useRef(false);
   const routerNavbar = useRouter();
   const [orgDataNavbar, setOrgDataNavbar] = useState<Organization[] | []>([]);
   const [openLogoutNavbar, setOpenLogoutNavbar] = useState(false);
@@ -146,8 +147,11 @@ const Navbar = (props: NavbarPropsType) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await fetchDataUser();
-      await getUserDetails();
+      if (!hasFetched.current) {
+        await fetchDataUser();
+        // await getUserDetails();
+        hasFetched.current = true;
+      }
     };
     const timer = setTimeout(() => {
       fetchData();

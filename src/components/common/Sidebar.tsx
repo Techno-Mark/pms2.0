@@ -1,6 +1,6 @@
 "use client";
 import styles from "../../assets/scss/sidebar.module.scss";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import DashboardIcon from "../../assets/icons/DashboardIcon";
 import Worklogs from "../../assets/icons/WorklogsIcon";
@@ -69,6 +69,7 @@ const Sidebar = ({
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [windowSize, setWindowSize] = useState(0);
   const [sidebarItems, setSidebarItems] = useState<any>([]);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
     const getUserDetails = async () => {
@@ -236,7 +237,10 @@ const Sidebar = ({
       }
     };
 
-    getUserDetails();
+    if (!hasFetched.current) {
+      getUserDetails();
+      hasFetched.current = true;
+    }
   }, []);
 
   const handleResize = () => {

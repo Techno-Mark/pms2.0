@@ -194,6 +194,11 @@ export interface SubtaskGetByWorkitem {
   SubtaskId: number;
   Title: string;
   Description: string;
+  CustomerName: string | null;
+  InvoiceNumber: string | null;
+  SubTaskDate: string | null;
+  BillAmount: string | null;
+  SubTaskErrorLogFlag?: boolean;
 }
 
 export interface RecurringGetByWorkitem {
@@ -295,6 +300,7 @@ export interface ErrorlogGetByWorkitem {
   ErrorIdentificationDate: string;
   ResolutionStatus: number;
   IdentifiedBy: string | null;
+  SubTaskId: number;
 }
 
 export interface ReviewerNoteDetails {

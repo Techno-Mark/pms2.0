@@ -306,7 +306,7 @@ const errorlogColConfig = [
   {
     name: "DateOfTransaction",
     label: "Transaction Recorded Date",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "Remark",
@@ -341,7 +341,7 @@ const errorlogColConfig = [
   {
     name: "ErrorIdentificationDate",
     label: "Error Identification Date",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "ResolutionStatusVal",
@@ -361,11 +361,41 @@ const errorlogColConfig = [
   {
     name: "SolvedOn",
     label: "Resolved On",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "IsImported",
     label: "Is Imported",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "SubTaskName",
+    label: "Sub Task Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "SubTaskDescription",
+    label: "Sub Task Description",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "CustomerName",
+    label: "Vendor/Customer Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "InvoiceNumber",
+    label: "Bill/Invoice Number",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "SubTaskDate",
+    label: "Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "BillAmount",
+    label: "Bill Amount",
     bodyRenderer: generateCommonBodyRender,
   },
   // {
