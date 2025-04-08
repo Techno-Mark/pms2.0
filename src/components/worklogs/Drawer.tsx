@@ -5621,13 +5621,30 @@ const EditDrawer = ({
                     <span className="ml-[21px]">Sub-Task</span>
                   </span>
                   <span className="flex items-center">
+                    {!!selectedFile && onEdit === 0 && (
+                      <span className="mr-4">{selectedFile.name}</span>
+                    )}
+                    {subTaskSwitchWorklogs && !isIdDisabled && 
+                    // !isDisabled && 
+                    (
+                      <ColorToolTip title="Import" placement="top" arrow>
+                        <span
+                          className="cursor-pointer"
+                          onClick={() => {
+                            setIsImportOpen(true);
+                          }}
+                        >
+                          <ImportIcon />
+                        </span>
+                      </ColorToolTip>
+                    )}
                     {onEdit > 0 &&
                       subTaskSwitchWorklogs &&
                       !isIdDisabled &&
                       !isDisabled && (
                         <Button
                           variant="contained"
-                          className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
+                          className="rounded-[4px] !h-[36px] mx-6 !bg-secondary"
                           onClick={handleSubmitSubTaskWorklogs}
                         >
                           Update
