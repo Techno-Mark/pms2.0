@@ -28,6 +28,8 @@ import Loading from "@/assets/icons/reports/Loading";
 import { getFileFromBlob } from "@/utils/downloadFile";
 import EmailTemplateDrawer from "./EmailTemplateDrawer";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+import ChatBot from "@/assets/icons/emailBox/ChatBot";
+import ChatBotDrawer from "./ChatBotDrawer";
 
 interface conversationAttachment {
   AttachmentId: number;
@@ -141,6 +143,7 @@ const Conversations = forwardRef<
       []
     );
     const [openEmailTemplate, setOpenEmailTemplate] = useState(false);
+    const [openChatbot, setOpenChatbot] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [deleteId, setDeleteId] = useState(0);
 
@@ -631,6 +634,10 @@ const Conversations = forwardRef<
           setOverlayOpen(true);
           setOpenEmailTemplate(true);
         }
+        if (activeType === "Chatbot") {
+          setOverlayOpen(true);
+          setOpenChatbot(true);
+        }
         if (activeType === "Edit Draft" || activeType === "Edit Mail") {
           setText(data[active - 1].Body || "");
           setToMembers(
@@ -657,227 +664,232 @@ const Conversations = forwardRef<
         <div className="p-4 flex flex-col gap-4 h-full overflow-y-auto bg-gray-100 w-full overflow-x-hidden">
           {data.map((i: conversationData, index: number) => (
             <div key={index} className="bg-white">
-              {active > 0 && active - 1 === index && (
-                <div className="bg-white px-2 rounded-lg w-full break-all">
-                  <p className="py-2 px-4">Email Reply</p>
-                  <MemberInput
-                    label="To"
-                    members={toMembers}
-                    setMembers={setToMembers}
-                    inputValue={toInputValue}
-                    setInputValue={setToInputValue}
-                    error={toInputValueError}
-                    setError={setToInputValueError}
-                    validate={true}
-                  />
-                  <MemberInput
-                    label="Cc"
-                    members={ccMembers}
-                    setMembers={setCcMembers}
-                    inputValue={ccInputValue}
-                    setInputValue={setCcInputValue}
-                    error={ccInputValueError}
-                    setError={setCcInputValueError}
-                  />
-                  <MemberInput
-                    label="Bcc"
-                    members={bccMembers}
-                    setMembers={setBccMembers}
-                    inputValue={bccInputValue}
-                    setInputValue={setBccInputValue}
-                    error={bccInputValueError}
-                    setError={setBccInputValueError}
-                  />
-                  <RichTextEditor
-                    text={text}
-                    setText={setText}
-                    textError={textError}
-                    setTextError={setTextError}
-                    height="120px"
-                    addImage
-                    handleImageChange={handleImageChange}
-                    placeholders={[
-                      { label: "Ticket ID", value: "{{TicketID}}" },
-                      { label: "Ticket Subject", value: "{{TicketSubject}}" },
-                      { label: "Ticket Priority", value: "{{TicketPriority}}" },
-                      { label: "Ticket URL", value: "{{TicketURL}}" },
-                      { label: "Tag", value: "{{Tag}}" },
-                      { label: "Assignee Name", value: "{{AssigneeName}}" },
-                      { label: "Assignee Email", value: "{{AssigneeEmail}}" },
-                      { label: "Status", value: "{{Status}}" },
-                      { label: "Ticket Type", value: "{{TicketType}}" },
-                      { label: "Client Name", value: "{{ClientName}}" },
-                      { label: "Client Email", value: "{{ClientEmail}}" },
-                      { label: "Updated By", value: "{{UpdatedBy}}" },
-                      { label: "SLA Due Time", value: "{{SLADueTime}}" },
-                      {
-                        label: "OrganizationName",
-                        value: "{{OrganizationName}}",
-                      },
-                      { label: "Closed Date", value: "{{ClosedDate}}" },
-                    ]}
-                    ChangeValue={true}
-                    ticketId={ticketId}
-                  />
-                  {conversationAttachment.length > 0 && (
-                    <div className="flex flex-col items-start justify-center ml-5 gap-2 mt-4">
-                      {conversationAttachment.map(
-                        (attachment: any, index: number) => (
-                          <div
-                            className="flex items-center justify-center gap-2 border rounded-full py-1.5 px-4"
-                            key={index}
-                          >
-                            <FileIcon fileName={attachment?.UserFileName} />
-                            {attachment?.UserFileName}
-                            {attachment?.uploading ? (
-                              <div className="!w-fit m-0 p-0">
-                                <Loading />
-                              </div>
-                            ) : (
-                              <span
-                                className="cursor-pointer"
-                                onClick={() =>
-                                  setConversationAttachment(
-                                    conversationAttachment.filter(
-                                      (_: any, attachmentIndex: number) =>
-                                        attachmentIndex !== index
+              {active > 0 &&
+                active - 1 === index &&
+                activeType !== "Chatbot" && (
+                  <div className="bg-white px-2 rounded-lg w-full break-all">
+                    <p className="py-2 px-4">Email Reply</p>
+                    <MemberInput
+                      label="To"
+                      members={toMembers}
+                      setMembers={setToMembers}
+                      inputValue={toInputValue}
+                      setInputValue={setToInputValue}
+                      error={toInputValueError}
+                      setError={setToInputValueError}
+                      validate={true}
+                    />
+                    <MemberInput
+                      label="Cc"
+                      members={ccMembers}
+                      setMembers={setCcMembers}
+                      inputValue={ccInputValue}
+                      setInputValue={setCcInputValue}
+                      error={ccInputValueError}
+                      setError={setCcInputValueError}
+                    />
+                    <MemberInput
+                      label="Bcc"
+                      members={bccMembers}
+                      setMembers={setBccMembers}
+                      inputValue={bccInputValue}
+                      setInputValue={setBccInputValue}
+                      error={bccInputValueError}
+                      setError={setBccInputValueError}
+                    />
+                    <RichTextEditor
+                      text={text}
+                      setText={setText}
+                      textError={textError}
+                      setTextError={setTextError}
+                      height="120px"
+                      addImage
+                      handleImageChange={handleImageChange}
+                      placeholders={[
+                        { label: "Ticket ID", value: "{{TicketID}}" },
+                        { label: "Ticket Subject", value: "{{TicketSubject}}" },
+                        {
+                          label: "Ticket Priority",
+                          value: "{{TicketPriority}}",
+                        },
+                        { label: "Ticket URL", value: "{{TicketURL}}" },
+                        { label: "Tag", value: "{{Tag}}" },
+                        { label: "Assignee Name", value: "{{AssigneeName}}" },
+                        { label: "Assignee Email", value: "{{AssigneeEmail}}" },
+                        { label: "Status", value: "{{Status}}" },
+                        { label: "Ticket Type", value: "{{TicketType}}" },
+                        { label: "Client Name", value: "{{ClientName}}" },
+                        { label: "Client Email", value: "{{ClientEmail}}" },
+                        { label: "Updated By", value: "{{UpdatedBy}}" },
+                        { label: "SLA Due Time", value: "{{SLADueTime}}" },
+                        {
+                          label: "OrganizationName",
+                          value: "{{OrganizationName}}",
+                        },
+                        { label: "Closed Date", value: "{{ClosedDate}}" },
+                      ]}
+                      ChangeValue={true}
+                      ticketId={ticketId}
+                    />
+                    {conversationAttachment.length > 0 && (
+                      <div className="flex flex-col items-start justify-center ml-5 gap-2 mt-4">
+                        {conversationAttachment.map(
+                          (attachment: any, index: number) => (
+                            <div
+                              className="flex items-center justify-center gap-2 border rounded-full py-1.5 px-4"
+                              key={index}
+                            >
+                              <FileIcon fileName={attachment?.UserFileName} />
+                              {attachment?.UserFileName}
+                              {attachment?.uploading ? (
+                                <div className="!w-fit m-0 p-0">
+                                  <Loading />
+                                </div>
+                              ) : (
+                                <span
+                                  className="cursor-pointer"
+                                  onClick={() =>
+                                    setConversationAttachment(
+                                      conversationAttachment.filter(
+                                        (_: any, attachmentIndex: number) =>
+                                          attachmentIndex !== index
+                                      )
                                     )
-                                  )
-                                }
-                              >
-                                <Close />
-                              </span>
-                            )}
-                          </div>
-                        )
-                      )}
-                    </div>
-                  )}
-                  <div className="flex items-center justify-end gap-4 py-4 border-b">
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      className="rounded-[4px] !h-[36px]"
-                      onClick={() => handleClearMailData()}
-                    >
-                      <span className="flex items-center justify-center px-[5px]">
-                        Cancel
-                      </span>
-                    </Button>
-                    {(activeTabList === 1 || activeTabList === 4) && (
-                      <Button
-                        variant="contained"
-                        className={`rounded-[4px] !h-[36px] ${
-                          (conversationAttachment.length > 0 &&
-                            conversationAttachment.filter(
-                              (attachment: any) => attachment.uploading
-                            ).length > 0) ||
-                          sending
-                            ? "cursor-not-allowed !bg-gray-300 !text-white"
-                            : "cursor-pointer !bg-secondary"
-                        }`}
-                        onClick={() =>
-                          sending ||
-                          (conversationAttachment.length > 0 &&
-                            conversationAttachment.filter(
-                              (attachment: any) => attachment.uploading
-                            ).length > 0)
-                            ? undefined
-                            : handleDraftMail(true)
-                        }
-                        disabled={
-                          (conversationAttachment.length > 0 &&
-                            conversationAttachment.filter(
-                              (attachment: any) => attachment.uploading
-                            ).length > 0) ||
-                          sending
-                        }
-                      >
-                        <span className="flex items-center justify-center px-[5px]">
-                          Save as Draft
-                        </span>
-                      </Button>
+                                  }
+                                >
+                                  <Close />
+                                </span>
+                              )}
+                            </div>
+                          )
+                        )}
+                      </div>
                     )}
-                    {i.HasPermission && (
+                    <div className="flex items-center justify-end gap-4 py-4 border-b">
                       <Button
                         variant="outlined"
-                        className={`rounded-[4px] !h-[36px] ${
-                          (conversationAttachment.length > 0 &&
-                            conversationAttachment.filter(
-                              (attachment: any) => attachment.uploading
-                            ).length > 0) ||
-                          sending
-                            ? "cursor-not-allowed"
-                            : "cursor-pointer"
-                        }`}
-                        onClick={() => {
-                          if (
+                        color="error"
+                        className="rounded-[4px] !h-[36px]"
+                        onClick={() => handleClearMailData()}
+                      >
+                        <span className="flex items-center justify-center px-[5px]">
+                          Cancel
+                        </span>
+                      </Button>
+                      {(activeTabList === 1 || activeTabList === 4) && (
+                        <Button
+                          variant="contained"
+                          className={`rounded-[4px] !h-[36px] ${
+                            (conversationAttachment.length > 0 &&
+                              conversationAttachment.filter(
+                                (attachment: any) => attachment.uploading
+                              ).length > 0) ||
+                            sending
+                              ? "cursor-not-allowed !bg-gray-300 !text-white"
+                              : "cursor-pointer !bg-secondary"
+                          }`}
+                          onClick={() =>
                             sending ||
                             (conversationAttachment.length > 0 &&
                               conversationAttachment.filter(
                                 (attachment: any) => attachment.uploading
                               ).length > 0)
-                          ) {
-                            undefined;
-                          } else {
-                            if (activeTabList === 1) {
-                              handleSubmitMail();
-                            } else {
-                              handleSubmitDraftOrApproval();
-                            }
+                              ? undefined
+                              : handleDraftMail(true)
                           }
-                        }}
-                        disabled={
-                          (conversationAttachment.length > 0 &&
-                            conversationAttachment.filter(
-                              (attachment: any) => attachment.uploading
-                            ).length > 0) ||
-                          sending
-                        }
-                      >
-                        <span className="flex items-center justify-center px-[5px]">
-                          Sent Email
-                        </span>
-                      </Button>
-                    )}
-                    {!i.HasPermission && (
-                      <Button
-                        variant="outlined"
-                        color="warning"
-                        className={`rounded-[4px] !h-[36px] ${
-                          (conversationAttachment.length > 0 &&
-                            conversationAttachment.filter(
-                              (attachment: any) => attachment.uploading
-                            ).length > 0) ||
-                          sending
-                            ? "cursor-not-allowed"
-                            : "cursor-pointer"
-                        }`}
-                        onClick={() =>
-                          sending ||
-                          (conversationAttachment.length > 0 &&
-                            conversationAttachment.filter(
-                              (attachment: any) => attachment.uploading
-                            ).length > 0)
-                            ? undefined
-                            : handleDraftMail(false)
-                        }
-                        disabled={
-                          (conversationAttachment.length > 0 &&
-                            conversationAttachment.filter(
-                              (attachment: any) => attachment.uploading
-                            ).length > 0) ||
-                          sending
-                        }
-                      >
-                        <span className="flex items-center justify-center px-[5px]">
-                          Sent For Approval
-                        </span>
-                      </Button>
-                    )}
+                          disabled={
+                            (conversationAttachment.length > 0 &&
+                              conversationAttachment.filter(
+                                (attachment: any) => attachment.uploading
+                              ).length > 0) ||
+                            sending
+                          }
+                        >
+                          <span className="flex items-center justify-center px-[5px]">
+                            Save as Draft
+                          </span>
+                        </Button>
+                      )}
+                      {i.HasPermission && (
+                        <Button
+                          variant="outlined"
+                          className={`rounded-[4px] !h-[36px] ${
+                            (conversationAttachment.length > 0 &&
+                              conversationAttachment.filter(
+                                (attachment: any) => attachment.uploading
+                              ).length > 0) ||
+                            sending
+                              ? "cursor-not-allowed"
+                              : "cursor-pointer"
+                          }`}
+                          onClick={() => {
+                            if (
+                              sending ||
+                              (conversationAttachment.length > 0 &&
+                                conversationAttachment.filter(
+                                  (attachment: any) => attachment.uploading
+                                ).length > 0)
+                            ) {
+                              undefined;
+                            } else {
+                              if (activeTabList === 1) {
+                                handleSubmitMail();
+                              } else {
+                                handleSubmitDraftOrApproval();
+                              }
+                            }
+                          }}
+                          disabled={
+                            (conversationAttachment.length > 0 &&
+                              conversationAttachment.filter(
+                                (attachment: any) => attachment.uploading
+                              ).length > 0) ||
+                            sending
+                          }
+                        >
+                          <span className="flex items-center justify-center px-[5px]">
+                            Sent Email
+                          </span>
+                        </Button>
+                      )}
+                      {!i.HasPermission && (
+                        <Button
+                          variant="outlined"
+                          color="warning"
+                          className={`rounded-[4px] !h-[36px] ${
+                            (conversationAttachment.length > 0 &&
+                              conversationAttachment.filter(
+                                (attachment: any) => attachment.uploading
+                              ).length > 0) ||
+                            sending
+                              ? "cursor-not-allowed"
+                              : "cursor-pointer"
+                          }`}
+                          onClick={() =>
+                            sending ||
+                            (conversationAttachment.length > 0 &&
+                              conversationAttachment.filter(
+                                (attachment: any) => attachment.uploading
+                              ).length > 0)
+                              ? undefined
+                              : handleDraftMail(false)
+                          }
+                          disabled={
+                            (conversationAttachment.length > 0 &&
+                              conversationAttachment.filter(
+                                (attachment: any) => attachment.uploading
+                              ).length > 0) ||
+                            sending
+                          }
+                        >
+                          <span className="flex items-center justify-center px-[5px]">
+                            Sent For Approval
+                          </span>
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
               <div className="w-full rounded-lg flex items-start justify-start p-4 gap-4">
                 <Avatar
                   sx={{
@@ -941,6 +953,23 @@ const Conversations = forwardRef<
                                   }}
                                 >
                                   <EmailTemplate />
+                                </p>
+                              </ColorToolTip>
+                              <ColorToolTip
+                                title="Chat bot"
+                                placement="top"
+                                arrow
+                              >
+                                <p
+                                  className="cursor-pointer"
+                                  onClick={() => {
+                                    setActive(index + 1);
+                                    // setTrailId(i.TrailId);
+                                    setConversationAttachment([]);
+                                    setActiveType("Chatbot");
+                                  }}
+                                >
+                                  <ChatBot />
                                 </p>
                               </ColorToolTip>
                               <ColorToolTip
@@ -1161,6 +1190,24 @@ const Conversations = forwardRef<
           assigneeId={ticketDetails.Assignee}
           getConversationData={getConversationData}
           setText={setText}
+        />
+        <ChatBotDrawer
+          onOpen={openChatbot}
+          onClose={() => {
+            setOpenChatbot(false);
+            setOverlayOpen(false);
+          }}
+          onReset={() => {
+            setOpenChatbot(false);
+            setOverlayOpen(false);
+            setActive(0);
+            setTrailId(0);
+            setConversationAttachment([]);
+            setActiveType("");
+          }}
+          setText={setText}
+          ticketId={ticketId}
+          trailId={trailId}
         />
         <DeleteDialog
           isOpen={isDeleteOpen}
