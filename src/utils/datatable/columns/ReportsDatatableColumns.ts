@@ -867,6 +867,11 @@ const reportsErrorLogColConfig = [
     label: "Bill Amount",
     bodyRenderer: generateCommonBodyRender,
   },
+  {
+    header: "SubmittedByName",
+    label: "Error logged by",
+    bodyRenderer: generateCommonBodyRender,
+  },
 ];
 
 const reportsEmailTypeColConfig = [
