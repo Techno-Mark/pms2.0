@@ -136,7 +136,9 @@ const ChatBotDrawer: React.FC<chatBotDrawerProps> = ({
                     : "bg-gray-100 text-gray-800"
                 }`}
               >
-                <pre className="whitespace-pre-wrap select-text">{msg.content}</pre>
+                <pre className="whitespace-pre-wrap select-text">
+                  {msg.content}
+                </pre>
               </div>
             </div>
           ))}
@@ -144,7 +146,15 @@ const ChatBotDrawer: React.FC<chatBotDrawerProps> = ({
       </div>
 
       {/* Prompt Box */}
-      <div className="border-t border-lightSilver p-4 flex items-center gap-2">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (promptText.trim()) {
+            handleSend();
+          }
+        }}
+        className="border-t border-lightSilver p-4 flex items-center gap-2"
+      >
         <input
           type="text"
           className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -153,17 +163,17 @@ const ChatBotDrawer: React.FC<chatBotDrawerProps> = ({
           onChange={(e) => setPromptText(e.target.value)}
         />
         <button
+          type="submit"
           disabled={!promptText.trim()}
-          onClick={handleSend}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
             promptText.trim()
-              ? "bg-blue-500 text-white hover:bg-blue-600"
-              : "bg-gray-300 text-gray-600 cursor-not-allowed"
+              ? "!bg-blue-500 !text-white !hover:bg-blue-600"
+              : "!bg-gray-300 !text-gray-600 cursor-not-allowed"
           }`}
         >
           Send
         </button>
-      </div>
+      </form>
 
       {/* Optional overlay when loading */}
       {loading && <OverLay className="!-top-[1px] !-left-[1px]" />}
