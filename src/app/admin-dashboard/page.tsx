@@ -199,6 +199,7 @@ const Page = () => {
       StartDate: null,
       EndDate: null,
     });
+  const [emailboxLoading, setEmailboxLoading] = useState(true);
   const [dashboardEmailboxSummary, setDashboardEmailboxSummary] = useState<
     {
       TabName: string;
@@ -471,6 +472,7 @@ const Page = () => {
   };
 
   const getSummary = async () => {
+    setEmailboxLoading(true);
     const params = {
       ClientId: currentFilterData.Clients,
       DepartmentId: currentFilterData.DepartmentIds,
@@ -529,6 +531,9 @@ const Page = () => {
         setDashboardEmailboxSLACounts(ResponseData.SLACounts);
         setDashboardEmailboxStatus(ResponseData.TicketStatusCounts);
         setDashboardEmailboxPriority(ResponseData.PriorityCounts);
+        setEmailboxLoading(false);
+      } else {
+        setEmailboxLoading(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -704,6 +709,7 @@ const Page = () => {
             <label
               onClick={() => {
                 setDashboardActiveTab(1);
+                setEmailboxLoading(true);
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 dashboardActiveTab === 1
@@ -717,6 +723,7 @@ const Page = () => {
             <label
               onClick={() => {
                 setDashboardActiveTab(2);
+                setEmailboxLoading(true);
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 dashboardActiveTab === 2
@@ -920,12 +927,14 @@ const Page = () => {
                 currentFilterData={currentFilterData}
               />
             </Card>
-            <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]"></Card>
+            <div className="w-full h-[344px]"></div>
           </section>
         </div>
       )}
 
-      {activeTab === 1 && dashboardActiveTab === 2 && (
+      {activeTab === 1 && dashboardActiveTab === 2 && emailboxLoading && <ReportLoader />}
+
+      {activeTab === 1 && dashboardActiveTab === 2 && !emailboxLoading && (
         <div className="py-[10px]">
           <Grid
             container

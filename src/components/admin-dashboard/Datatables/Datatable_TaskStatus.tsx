@@ -15,6 +15,7 @@ import {
   ListDashboard,
   ResponseDashboardTask,
 } from "@/utils/Types/dashboardTypes";
+import OverLay from "@/components/common/OverLay";
 
 interface TaskStatusProps {
   currentFilterData: DashboardInitialFilter;
@@ -33,13 +34,16 @@ const Datatable_TaskStatus = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     isClose && setPage(0);
     isClose && setRowsPerPage(10);
+    isClose && setLoading(true);
   }, [isClose]);
 
   const getTaskStatusData = async (value: string) => {
+    setLoading(true);
     const workTypeIdFromLocalStorage =
       typeof localStorage !== "undefined"
         ? localStorage.getItem("workTypeId")
@@ -71,6 +75,9 @@ const Datatable_TaskStatus = ({
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setData(ResponseData.TaskStatusList);
         setTableDataCount(ResponseData.TotalCount);
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -104,6 +111,7 @@ const Datatable_TaskStatus = ({
 
   return (
     <div>
+      {loading && <OverLay />}
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}

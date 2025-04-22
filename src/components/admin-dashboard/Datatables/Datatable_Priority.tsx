@@ -49,12 +49,12 @@ const Datatable_Priority = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     isClose && setPage(0);
     isClose && setRowsPerPage(10);
-    isClose && setLoading(false);
+    isClose && setLoading(true);
   }, [isClose]);
 
   const getErrorlogPriorityData = async () => {

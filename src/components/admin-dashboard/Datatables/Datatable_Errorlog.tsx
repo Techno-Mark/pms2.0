@@ -15,6 +15,7 @@ import {
   ListDashboard,
   ResponseDashboardErrorlog,
 } from "@/utils/Types/dashboardTypes";
+import OverLay from "@/components/common/OverLay";
 
 interface ErrorlogProps {
   currentFilterData: DashboardInitialFilter;
@@ -38,13 +39,16 @@ const Datatable_Errorlog = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (isClose || onOpen) && setPage(0);
     (isClose || onOpen) && setRowsPerPage(10);
+    isClose && setLoading(true);
   }, [onOpen, isClose]);
 
   const getErrorlogStatusData = async () => {
+    setLoading(true);
     const workTypeIdFromLocalStorage =
       typeof localStorage !== "undefined"
         ? localStorage.getItem("workTypeId")
@@ -84,6 +88,9 @@ const Datatable_Errorlog = ({
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setData(ResponseData.ErrorlogList);
         setTableDataCount(ResponseData.TotalCount);
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -114,6 +121,7 @@ const Datatable_Errorlog = ({
 
   return (
     <div>
+      {loading && <OverLay />}
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
