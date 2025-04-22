@@ -64,7 +64,7 @@ const ChatBotDrawer: React.FC<chatBotDrawerProps> = ({
 
     const newUserMessage: chatBotData = {
       role: "user",
-      content: promptText.trim(),
+      content: promptText.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim(),
     };
 
     const url = `${process.env.emailbox_api_url}/emailbox/getimprovedemailresponse`;
@@ -155,12 +155,20 @@ const ChatBotDrawer: React.FC<chatBotDrawerProps> = ({
         }}
         className="border-t border-lightSilver p-4 flex items-center gap-2"
       >
-        <input
-          type="text"
-          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        <textarea
+          rows={3}
+          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none overflow-hidden"
           placeholder="Type your message..."
           value={promptText}
           onChange={(e) => setPromptText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              if (promptText.trim()) {
+                handleSend();
+              }
+            }
+          }}
         />
         <button
           type="submit"
