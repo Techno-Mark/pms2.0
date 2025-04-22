@@ -282,7 +282,7 @@ const page = () => {
     hasFetched.current = false;
     setActiveTab(tabId);
     setIsFiltering(false);
-    setFilteredData(null);
+    // setFilteredData(null);
     setSearchValue("");
     setSearch("");
   };

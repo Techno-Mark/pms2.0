@@ -119,7 +119,7 @@ const EmailBoxFilter = ({
       });
   };
 
-  useEffect(() => handleResetAll(true, true), [activeTab]);
+  // useEffect(() => handleResetAll(true, true), [activeTab]);
 
   const handleClose = () => {
     onDialogClose(false);
