@@ -331,6 +331,9 @@ const EditDrawer = ({
   const [missingInfoApprovalsErr, setMissingInfoApprovalsErr] =
     useState<boolean>(false);
 
+  let reviewerDate = new Date();
+  reviewerDate.setDate(reviewerDate.getDate() - 1);
+
   const previousYearStartDate = dayjs()
     .subtract(1, "year")
     .startOf("year")
@@ -685,9 +688,7 @@ const EditDrawer = ({
     );
     subTaskSwitchApprovals && setInvoiceNameApprovalsErr(newInvoiceErrors);
     const newDateErrors = subTaskFieldsApprovals.map(
-      (field) =>
-        subTaskSwitchApprovals &&
-        (field.SubTaskDate.trim().length <= 0)
+      (field) => subTaskSwitchApprovals && field.SubTaskDate.trim().length <= 0
     );
     subTaskSwitchApprovals && setDateApprovalsErr(newDateErrors);
     const newBillAmountErrors = subTaskFieldsApprovals.map(
@@ -2137,7 +2138,14 @@ const EditDrawer = ({
     if (reviewerApprovals === parseInt(local)) {
       let hasManualErrors = false;
       const newInputDateErrors = reviewermanualFields.map(
-        (field) => manualSwitch && field.inputDate === ""
+        (field) =>
+          manualSwitch &&
+          (field.inputDate === "" ||
+            checkDate(
+              field.inputDate,
+              field.IsCurrentReviewer,
+              field.IsApproved
+            ))
       );
       manualSwitch && setInputDateErrors(newInputDateErrors);
       const newStartTimeErrors = reviewermanualFields.map(
@@ -2266,9 +2274,7 @@ const EditDrawer = ({
         setManualSubmitDisable(
           ResponseData.map(
             (i: GetManualLogByWorkitemReviewer) =>
-              i.IsApproved === false &&
-              i.AssigneeId !== Number(userId) &&
-              i.IsCurrentReviewer === true
+              i.IsApproved === false && i.IsCurrentReviewer === true
           ).includes(true)
             ? false
             : true
@@ -2429,7 +2435,7 @@ const EditDrawer = ({
     setReviewerManualFields(newManualFields);
 
     const newInputDateErrors = [...inputDateErrors];
-    newInputDateErrors[index] = e.length === 0;
+    newInputDateErrors[index] = e.length === 0 || checkDate(e);
     setInputDateErrors(newInputDateErrors);
   };
 
@@ -3468,6 +3474,21 @@ const EditDrawer = ({
   //     setDueDateApprovals("");
   //   }
   // }, [typeOfWorkApprovals]);
+
+  const checkDate = (
+    date: string,
+    isCurrentReviewer: boolean = false,
+    isApproved: boolean = false
+  ) => {
+    if (isApproved || !isCurrentReviewer) {
+      return false;
+    } else {
+      const date1 = new Date(receiverDateApprovals);
+      const date2 = new Date(date);
+
+      return date1 > date2 ? true : false;
+    }
+  };
 
   return (
     <>
@@ -5547,10 +5568,10 @@ const EditDrawer = ({
                                         dateApprovalsErr[index] &&
                                         field.SubTaskDate.length <= 0
                                           ? "This is a required field."
-                                          // : dateApprovalsErr[index] &&
-                                          //   field.SubTaskDate.length > 1
-                                          // ? "Enter a valid date."
-                                          : "",
+                                          : // : dateApprovalsErr[index] &&
+                                            //   field.SubTaskDate.length > 1
+                                            // ? "Enter a valid date."
+                                            "",
                                       readOnly: true,
                                     } as Record<string, any>,
                                   }}
@@ -6398,7 +6419,7 @@ const EditDrawer = ({
                     {manualFieldsApprovals.map((field) => (
                       <div key={field.Id}>
                         <div
-                          className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]`}
+                          className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
                         >
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
@@ -6434,7 +6455,7 @@ const EditDrawer = ({
                           inputProps={{ readOnly: true }}
                           margin="normal"
                           variant="standard"
-                          sx={{ mx: 0.75, maxWidth: 230 }}
+                          sx={{ mx: 0.75, maxWidth: 300 }}
                           disabled={activeTab === 2}
                         />
                         <TextField
@@ -6451,7 +6472,7 @@ const EditDrawer = ({
                           inputProps={{ readOnly: true }}
                           margin="normal"
                           variant="standard"
-                          sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
+                          sx={{ mx: 0.75, maxWidth: 300, mt: 2 }}
                           disabled={activeTab === 2}
                         />
                       </div>
@@ -6533,8 +6554,15 @@ const EditDrawer = ({
                     {reviewermanualFields.map((field, index) => (
                       <div key={index} className="flex items-center">
                         <div
-                          className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
-                            inputDateErrors[index] ? "datepickerError" : ""
+                          className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                            inputDateErrors[index] ||
+                            checkDate(
+                              field.inputDate,
+                              field.IsCurrentReviewer,
+                              field.IsApproved
+                            )
+                              ? "datepickerError"
+                              : ""
                           }`}
                         >
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -6547,7 +6575,17 @@ const EditDrawer = ({
                                   </span>
                                 </span>
                               }
-                              minDate={dayjs(receiverDateApprovals)}
+                              minDate={
+                                !manualSwitch ||
+                                field.IsApproved ||
+                                (field.AssigneeId !== 0 &&
+                                  field.AssigneeId !== userId)
+                                  ? ""
+                                  : dayjs(receiverDateApprovals) >
+                                    dayjs(reviewerDate)
+                                  ? dayjs(new Date())
+                                  : dayjs(reviewerDate)
+                              }
                               maxDate={dayjs(new Date())}
                               disabled={
                                 !manualSwitch ||
@@ -6575,9 +6613,18 @@ const EditDrawer = ({
                               }}
                               slotProps={{
                                 textField: {
-                                  helperText: inputDateErrors[index]
-                                    ? "This is a required field."
-                                    : "",
+                                  helperText:
+                                    !!field.inputDate &&
+                                    (inputDateErrors[index] ||
+                                      checkDate(
+                                        field.inputDate,
+                                        field.IsCurrentReviewer,
+                                        field.IsApproved
+                                      ))
+                                      ? "Date Must be grater than Received Date"
+                                      : inputDateErrors[index]
+                                      ? "This is a required field."
+                                      : "",
                                   readOnly: true,
                                 } as Record<string, any>,
                               }}
@@ -6645,7 +6692,7 @@ const EditDrawer = ({
                           }
                           margin="normal"
                           variant="standard"
-                          sx={{ mx: 0.75, maxWidth: 225 }}
+                          sx={{ mx: 0.75, maxWidth: 300 }}
                         />
                         <TextField
                           label={
@@ -6688,7 +6735,7 @@ const EditDrawer = ({
                           }
                           margin="normal"
                           variant="standard"
-                          sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
+                          sx={{ mx: 0.75, maxWidth: 300, mt: 2 }}
                         />
                         {index === 0 &&
                           manualSwitch &&
