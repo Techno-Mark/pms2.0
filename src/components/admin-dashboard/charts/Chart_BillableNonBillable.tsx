@@ -36,21 +36,21 @@ const Chart_BillableNonBillable = ({
         (item: { DepartmentId: number }) => item.DepartmentId
       ),
       billableTime: data.map(
-        (item: { BillableTime: number }) => item.BillableTime
+        (item: { BillableTime: number }) => item.BillableTime || 0
       ),
       nonBillableTime: data.map(
-        (item: { NonBillableTime: number }) => item.NonBillableTime
+        (item: { NonBillableTime: number }) => item.NonBillableTime || 0
       ),
       productiveTime: data.map(
-        (item: { ProductiveTime: number }) => item.ProductiveTime
+        (item: { ProductiveTime: number }) => item.ProductiveTime || 0
       ),
       nonProductiveTime: data.map(
-        (item: { NonProductiveTime: number }) => item.NonProductiveTime
+        (item: { NonProductiveTime: number }) => item.NonProductiveTime || 0
       ),
     };
 
     setChartData(formattedData);
-  }, []);
+  }, [data]);
 
   const options = chartData
     ? {
@@ -68,6 +68,7 @@ const Chart_BillableNonBillable = ({
         },
         yAxis: [
           {
+            min: 0,
             title: { text: "" },
             labels: {
               format: "{value} hrs",
