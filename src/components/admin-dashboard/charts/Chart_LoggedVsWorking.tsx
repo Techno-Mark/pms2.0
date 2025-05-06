@@ -47,7 +47,7 @@ const Chart_LoggedVsWorking = ({ data }: any) => {
           },
           series: {
             cursor: "pointer",
-            pointWidth: 50,
+            maxPointWidth: 50,
             point: {
               events: {
                 click: function () {

@@ -82,13 +82,56 @@ const Chart_BillableNonBillable = ({
             opposite: true,
           },
         ],
+        // tooltip: {
+        //   shared: true,
+        // },
         tooltip: {
           shared: true,
+          useHTML: true,
+          outside: true,
+          backgroundColor: "#fff",
+          borderColor: "#ccc",
+          borderRadius: 8,
+          borderWidth: 1,
+          shadow: true,
+          formatter: function (): string {
+            const points = (this as any).points || [this as any];
+            const department = points[0].key;
+            let content = `<div style="padding: 10px; font-size: 14px; font-weight: 500;">
+              <strong>${department}</strong><br/>`;
+            points.forEach((p: any) => {
+              content += `<span style="color:${p.color}">\u25CF</span> ${
+                p.series.name
+              }: <b>${p.y}</b> ${
+                p.series.tooltipOptions.valueSuffix || ""
+              }<br/>`;
+            });
+            content += `</div>`;
+            return content;
+          },
+          positioner: function (
+            labelWidth: any,
+            labelHeight: any,
+            point: any
+          ): { x: number; y: number } {
+            const chart = (this as any).chart;
+            const hoveredPoint = chart.hoverPoints?.[0]; // use first point
+            if (hoveredPoint) {
+              const x =
+                hoveredPoint.plotX +
+                chart.plotLeft -
+                labelWidth / 2 +
+                hoveredPoint.shapeArgs.width / 2;
+              const y = hoveredPoint.plotY + chart.plotTop - labelHeight - 10; // 10px above
+              return { x, y };
+            }
+            return { x: 0, y: 0 };
+          },
         },
         plotOptions: {
           series: {
             cursor: "pointer",
-            pointWidth: 50,
+            maxPointWidth: 50,
             point: {
               events: {
                 click: function () {

@@ -46,7 +46,7 @@ const Chart_PeakProductivityHours = ({
         plotOptions: {
           column: {
             colorByPoint: false,
-            pointWidth: 50,
+            maxPointWidth: 50,
             point: {
               events: {
                 click: function () {

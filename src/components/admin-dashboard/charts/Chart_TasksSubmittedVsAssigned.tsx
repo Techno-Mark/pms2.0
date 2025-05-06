@@ -74,7 +74,7 @@ const Chart_TasksSubmittedVsAssigned = ({ data, sendData }: any) => {
               },
             },
             cursor: "pointer",
-            pointWidth: 50,
+            maxPointWidth: 50,
             point: {
               events: {
                 click: function () {

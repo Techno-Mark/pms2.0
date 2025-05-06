@@ -70,7 +70,7 @@ const Chart_ManualVsAuto = ({
           series: {
             stacking: "normal",
             cursor: "pointer",
-            pointWidth: 50,
+            maxPointWidth: 30,
             point: {
               events: {
                 click: function () {
