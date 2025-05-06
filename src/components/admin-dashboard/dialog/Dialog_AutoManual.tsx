@@ -172,8 +172,8 @@ const Dialog_AutoManual = ({
                   {[
                     { label: "Manual Logged Time", value: 1 },
                     { label: "Auto Logged Time", value: 2 },
-                    { label: "Break Time", value: 3 },
-                    { label: "Idle Time", value: 4 },
+                    { label: "Break Time", value: 4 },
+                    { label: "Idle Time", value: 3 },
                   ].map((i: LabelValue) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}

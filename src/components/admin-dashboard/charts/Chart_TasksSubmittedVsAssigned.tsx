@@ -20,11 +20,11 @@ const Chart_TasksSubmittedVsAssigned = ({ data, sendData }: any) => {
       departmentIds: data.map(
         (item: { DepartmentId: number }) => item.DepartmentId
       ),
-      submitted: data.map(
-        (item: { CompletedCount: number }) => item.CompletedCount
+      submitted: data.map((item: { CompletedCount: number }) =>
+        item.CompletedCount === 0 ? null : item.CompletedCount
       ),
-      assigned: data.map(
-        (item: { AssignedCount: number }) => item.AssignedCount
+      assigned: data.map((item: { AssignedCount: number }) =>
+        item.AssignedCount === 0 ? null : item.AssignedCount
       ),
     };
 
@@ -74,6 +74,7 @@ const Chart_TasksSubmittedVsAssigned = ({ data, sendData }: any) => {
               },
             },
             cursor: "pointer",
+            pointWidth: 50,
             point: {
               events: {
                 click: function () {

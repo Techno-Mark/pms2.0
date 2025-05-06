@@ -26,11 +26,11 @@ const Chart_SLATATAchivement = ({
       departmentIds: data.map(
         (item: { DepartmentId: number }) => item.DepartmentId
       ),
-      slaAchieved: data.map(
-        (item: { SLAAchieved: number }) => item.SLAAchieved
+      slaAchieved: data.map((item: { SLAAchieved: number }) =>
+        item.SLAAchieved === 0 ? null : item.SLAAchieved
       ),
-      slaNotAchieved: data.map(
-        (item: { SLANotAchieved: number }) => item.SLANotAchieved
+      slaNotAchieved: data.map((item: { SLANotAchieved: number }) =>
+        item.SLANotAchieved === 0 ? null : item.SLANotAchieved
       ),
     };
 
@@ -75,6 +75,7 @@ const Chart_SLATATAchivement = ({
               enabled: true,
             },
             cursor: "pointer",
+            pointWidth: 50,
             point: {
               events: {
                 click: function () {

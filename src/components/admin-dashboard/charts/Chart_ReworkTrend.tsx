@@ -70,7 +70,8 @@ const Chart_ReworkTrend = ({
                 click: function () {
                   const departmentId =
                     chartData.departmentIds[(this as any).index];
-                  sendData(departmentId);
+                  const taskCount = chartData.taskCounts[(this as any).index];
+                  taskCount > 0 && sendData(departmentId);
                 },
               },
             },
@@ -104,3 +105,110 @@ const Chart_ReworkTrend = ({
 };
 
 export default Chart_ReworkTrend;
+
+// import React, { useEffect, useState } from "react";
+// import Highcharts from "highcharts";
+// import HighchartsReact from "highcharts-react-official";
+
+// interface ReworkData {
+//   departments: string[];
+//   departmentIds: number[];
+//   taskCounts: number[];
+// }
+
+// const Chart_ReworkTrend = ({
+//   data,
+//   sendData,
+// }: {
+//   data: {
+//     DepartmentId: number;
+//     DepartmentName: string;
+//     TaskCount: number;
+//   }[];
+//   sendData: (department: number) => void;
+// }) => {
+//   const [chartData, setChartData] = useState<ReworkData | null>(null);
+
+//   useEffect(() => {
+//     const formattedData: ReworkData = {
+//       departments: data.map((item) => item.DepartmentName),
+//       departmentIds: data.map((item) => item.DepartmentId),
+//       taskCounts: data.map((item) => item.TaskCount || 0),
+//     };
+//     setChartData(formattedData);
+//   }, [data]);
+
+//   const options = chartData
+//     ? {
+//         chart: {
+//           type: "line",
+//         },
+//         title: {
+//           text: null,
+//         },
+//         subtitle: {
+//           text: null,
+//         },
+//         xAxis: {
+//           categories: chartData.departments,
+//           title: {
+//             text: "Departments",
+//           },
+//         },
+//         yAxis: {
+//           min: 0,
+//           title: {
+//             text: "Number Of Tasks Returned For Rework",
+//           },
+//         },
+//         tooltip: {
+//           pointFormat: "{series.name}: <b>{point.y}</b>",
+//         },
+//         plotOptions: {
+//           series: {
+//             point: {
+//               events: {
+//                 mouseOver: function () {
+//                   const point = this as any;
+//                   const chartEl = point.series.chart.container;
+//                   chartEl.style.cursor = point.y > 0 ? "pointer" : "default";
+//                 },
+//                 click: function () {
+//                   const point = this as any;
+//                   if (point.y > 0) {
+//                     const departmentId = chartData.departmentIds[point.index];
+//                     sendData(departmentId);
+//                   }
+//                 },
+//               },
+//             },
+//           },
+//         },
+//         series: [
+//           {
+//             name: "Rework Tasks",
+//             data: chartData.taskCounts,
+//             color: "#000000",
+//           },
+//         ],
+//         credits: {
+//           enabled: false,
+//         },
+//       }
+//     : {
+//         title: {
+//           text: null,
+//         },
+//       };
+
+//   return (
+//     <div className="flex flex-col w-full">
+//       <span className="flex items-start py-[15px] px-[10px] text-lg font-bold">
+//         Rework Trend
+//       </span>
+//       <HighchartsReact highcharts={Highcharts} options={options} />
+//     </div>
+//   );
+// };
+
+// export default Chart_ReworkTrend;
