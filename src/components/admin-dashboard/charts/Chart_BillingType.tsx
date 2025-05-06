@@ -11,74 +11,16 @@ if (typeof Highcharts === "object") {
 }
 
 interface ChartBillingTypeProps {
-  currentFilterData: DashboardInitialFilter;
-  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
-}
-
-interface List {
-  Percentage: number;
-  Key: string;
-  Value: number;
-}
-
-interface Response {
-  List: List[] | [];
-  TotalCount: number;
+  data: any;
+  totalCount: number;
+  sendData: (selectedPointData: string) => void;
 }
 
 const Chart_BillingType = ({
-  currentFilterData,
+  data,
+  totalCount,
   sendData,
 }: ChartBillingTypeProps) => {
-  const [data, setData] = useState<any | any[]>([]);
-  const [totalCount, setTotalCount] = useState<number>(0);
-
-  const getBillingTypeData = async () => {
-    const workTypeIdFromLocalStorage =
-      typeof localStorage !== "undefined"
-        ? localStorage.getItem("workTypeId")
-        : 3;
-    const params = {
-      Clients: currentFilterData.Clients,
-      WorkTypeId:
-        currentFilterData.WorkTypeId === null
-          ? Number(workTypeIdFromLocalStorage)
-          : currentFilterData.WorkTypeId,
-      DepartmentIds: currentFilterData.DepartmentIds,
-      AssigneeIds: currentFilterData.AssigneeIds,
-      ReviewerIds: currentFilterData.ReviewerIds,
-      StartDate: currentFilterData.StartDate,
-      EndDate: currentFilterData.EndDate,
-    };
-    const url = `${process.env.report_api_url}/dashboard/billingstatusgraph`;
-    const successCallback = (
-      ResponseData: Response,
-      error: boolean,
-      ResponseStatus: string
-    ) => {
-      if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        const chartData = ResponseData.List.map((item: List) => ({
-          name: item.Key,
-          y: item.Value,
-          percentage: item.Percentage,
-        }));
-
-        setData(chartData);
-        setTotalCount(ResponseData.TotalCount);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await getBillingTypeData();
-    };
-    const timer = setTimeout(() => {
-      fetchData();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [currentFilterData]);
 
   const chartOptions = {
     chart: {
@@ -124,7 +66,7 @@ const Chart_BillingType = ({
               const selectedPointData = {
                 name: (event.point && event.point.name) || "",
               };
-              sendData(true, selectedPointData.name);
+              sendData(selectedPointData.name);
             },
           },
         },
@@ -159,7 +101,7 @@ const Chart_BillingType = ({
 
   return (
     <div className="flex flex-col px-[20px]">
-      <span className="flex items-start pt-[30px] px-[10px] text-lg font-medium">
+      <span className="flex items-start pt-[30px] px-[10px] text-lg font-bold">
         Billing Type
       </span>
       <div className="flex justify-between relative">

@@ -55,15 +55,29 @@ const generateStatusColumn = (
         display: false,
       },
     };
-  } else if (column.name === "StatusName") {
+  } else if (column.name === "StatusName" || column.name === "TaskStatus") {
     return {
-      name: "StatusName",
+      name: column.name,
       options: {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Status"),
         customBodyRender: (value: any, tableMeta: { rowData: any[] }) =>
           generateStatusWithColor(value, tableMeta.rowData[rowDataIndex]),
+      },
+    };
+  } else if (column.name === "SLAStatus") {
+    return {
+      name: column.name,
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName(column.label),
+        customBodyRender: (value: string) =>
+          generateStatusWithColor(
+            value,
+            value === "SLA Not Achieved" ? "#FF005F" : "#19C969"
+          ),
       },
     };
   } else {

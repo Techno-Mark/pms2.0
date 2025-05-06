@@ -32,6 +32,7 @@ import { toast } from "react-toastify";
 
 interface FilterModalProps {
   activeTab: number;
+  dashboardActiveTab: number;
   onOpen: boolean;
   onClose: () => void;
   onActionClick?: () => void;
@@ -45,6 +46,7 @@ const ALLDepartment = -1;
 
 const FilterDialogDashboard = ({
   activeTab,
+  dashboardActiveTab,
   onOpen,
   onClose,
   currentFilterData,
@@ -150,7 +152,7 @@ const FilterDialogDashboard = ({
     ]);
   };
 
-  const getDropdowns = async (workType: any) => {
+  const getDropdowns = async (workType: number) => {
     setAssigneeDropdown(await getAssigneeDropdownDataByHierarchy(workType));
     setReviewerDropdown(await getReviewerDropdownDataByHierarchy(workType));
   };
@@ -158,7 +160,7 @@ const FilterDialogDashboard = ({
   useEffect(() => {
     const customDropdowns = async () => {
       setStatusDropdown(await getStatusDropdownData(workTypeActive?.value));
-      getDropdowns(workTypeActive?.value);
+      getDropdowns(Number(workTypeActive?.value));
     };
     workTypeActive !== null &&
       workTypeActive?.value > 0 &&
@@ -167,8 +169,11 @@ const FilterDialogDashboard = ({
   }, [workTypeActive]);
 
   useEffect(() => {
-    workTypeActive !== null && workType > 0 && getDropdowns(workType);
-  }, [workTypeActive, workType]);
+    workTypeActive !== null &&
+      workType > 0 &&
+      dashboardActiveTab !== 2 &&
+      getDropdowns(workType);
+  }, [workTypeActive, workType, dashboardActiveTab]);
 
   useEffect(() => {
     onOpen && getDropdownData();
@@ -271,7 +276,7 @@ const FilterDialogDashboard = ({
         filterId: onCurrentFilterId !== 0 ? onCurrentFilterId : null,
         name: filterName,
         AppliedFilter: currSelectedFields,
-        type: activeTab === 1 ? 23 : 24,
+        type: activeTab === 2 ? 24 : 23,
       };
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
@@ -298,7 +303,7 @@ const FilterDialogDashboard = ({
 
   const getFilterListById = async (filterId: number) => {
     const params = {
-      type: activeTab === 1 ? 23 : 24,
+      type: activeTab === 2 ? 24 : dashboardActiveTab !== 2 ? 23 : 29,
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = async (
@@ -319,6 +324,7 @@ const FilterDialogDashboard = ({
             { label: "Select All", value: ALL },
             ...(await getClientDropdownData()),
           ];
+
           setClients(
             data.Clients.length > 0
               ? clientDropdown.filter((client: LabelValue) =>
@@ -345,10 +351,9 @@ const FilterDialogDashboard = ({
                   : null
               )
             : setWorkTypeActive(null);
-          const departmentData = await getDepartmentDropdownData();
           setDepartments(
             data.DepartmentIds.length > 0
-              ? departmentData.filter((dep: LabelValue) =>
+              ? departmentDropdownData.filter((dep: LabelValue) =>
                   data.DepartmentIds.includes(dep.value)
                 )
               : []
@@ -464,7 +469,7 @@ const FilterDialogDashboard = ({
                 />
               </FormControl>
 
-              {activeTab === 1 && (
+              {activeTab === 1 && dashboardActiveTab !== 2 && (
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, mt: 0, width: 210 }}
@@ -568,37 +573,39 @@ const FilterDialogDashboard = ({
               </FormControl>
             </div>
             <div className="flex gap-[20px]">
-              <FormControl
-                variant="standard"
-                sx={{ mx: 0.75, mt: 0.5, width: 210 }}
-              >
-                <Autocomplete
-                  multiple
-                  id="tags-standard"
-                  options={assigneeDropdown.filter(
-                    (option) =>
-                      !assignees.find(
-                        (assignee) => assignee.value === option.value
-                      )
-                  )}
-                  getOptionLabel={(option: LabelValue) => option.label}
-                  onChange={(
-                    e: React.ChangeEvent<{}>,
-                    data: LabelValue[] | []
-                  ) => {
-                    setAssignees(data);
-                    setAssigneeName(data.map((d: LabelValue) => d.value));
-                  }}
-                  value={assignees}
-                  renderInput={(params: any) => (
-                    <TextField
-                      {...params}
-                      variant="standard"
-                      label="Preparer/Assignee"
-                    />
-                  )}
-                />
-              </FormControl>
+              {dashboardActiveTab !== 2 && (
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, mt: 0.5, width: 210 }}
+                >
+                  <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={assigneeDropdown.filter(
+                      (option) =>
+                        !assignees.find(
+                          (assignee) => assignee.value === option.value
+                        )
+                    )}
+                    getOptionLabel={(option: LabelValue) => option.label}
+                    onChange={(
+                      e: React.ChangeEvent<{}>,
+                      data: LabelValue[] | []
+                    ) => {
+                      setAssignees(data);
+                      setAssigneeName(data.map((d: LabelValue) => d.value));
+                    }}
+                    value={assignees}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Preparer/Assignee"
+                      />
+                    )}
+                  />
+                </FormControl>
+              )}
               <FormControl
                 variant="standard"
                 sx={{ mx: 0.75, mt: 0.5, width: 210 }}
@@ -689,7 +696,7 @@ const FilterDialogDashboard = ({
               )}
             </div>
             <div className="flex gap-[20px]">
-              {activeTab === 1 && (
+              {dashboardActiveTab !== 2 && (
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[210px] max-w-[300px]`}
                 >

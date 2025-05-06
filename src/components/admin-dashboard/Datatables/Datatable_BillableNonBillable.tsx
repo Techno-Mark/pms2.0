@@ -8,30 +8,35 @@ import {
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
-import { adminDashboardTaskStatusCols } from "@/utils/datatable/columns/AdminDatatableColumns";
+import { adminDashboardBillableNonBillableCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
 import {
   DashboardInitialFilter,
   ListDashboard,
-  ResponseDashboardTask,
 } from "@/utils/Types/dashboardTypes";
 import OverLay from "@/components/common/OverLay";
 
-interface TaskStatusProps {
+interface Props {
   currentFilterData: DashboardInitialFilter;
-  onCurrSelectedStatus: number | null;
+  onSelectedData: { department: number; type: string };
+  billableNonBillable: number | null;
+  productiveNonProductive: number | null;
   onSearchValue: string;
   isClose: boolean;
+  onOpen: boolean;
   onHandleExport: (canExport: boolean) => void;
 }
 
-const Datatable_TaskStatus = ({
+const Datatable_BillableNonBillable = ({
   currentFilterData,
-  onCurrSelectedStatus,
+  onSelectedData,
+  billableNonBillable,
+  productiveNonProductive,
   onSearchValue,
   isClose,
+  onOpen,
   onHandleExport,
-}: TaskStatusProps) => {
+}: Props) => {
   const [data, setData] = useState<ListDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -60,24 +65,32 @@ const Datatable_TaskStatus = ({
         currentFilterData.WorkTypeId === null
           ? Number(workTypeIdFromLocalStorage)
           : currentFilterData.WorkTypeId,
-      DepartmentIds: currentFilterData.DepartmentIds,
+      DepartmentIds: [onSelectedData.department],
       AssigneeIds: currentFilterData.AssigneeIds,
       ReviewerIds: currentFilterData.ReviewerIds,
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,
       GlobalSearch: value,
-      StatusId: onCurrSelectedStatus === 0 ? null : onCurrSelectedStatus,
+      IsDownload: false,
+      IsBillable: billableNonBillable === 1 ? true : false,
+      IsProductive: productiveNonProductive === 1 ? true : false,
     };
-    const url = `${process.env.report_api_url}/dashboard/taskstatuslist`;
+    const url = `${process.env.report_api_url}/dashboard/billableproductivelist`;
     const successCallback = (
-      ResponseData: ResponseDashboardTask,
+      ResponseData: {
+        TotalCount: number;
+        BillableProductiveListFilters: null;
+        BillableProductiveList: ListDashboard[] | [];
+      },
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setData(ResponseData.TaskStatusList);
+        setData(ResponseData.BillableProductiveList);
         setTableDataCount(ResponseData.TotalCount);
-        onHandleExport(ResponseData.TaskStatusList.length > 0 ? true : false);
+        onHandleExport(
+          ResponseData.BillableProductiveList.length > 0 ? true : false
+        );
         setLoading(false);
       } else {
         setLoading(false);
@@ -88,7 +101,7 @@ const Datatable_TaskStatus = ({
 
   useEffect(() => {
     setPage(0);
-  }, [onCurrSelectedStatus]);
+  }, [onSelectedData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -101,15 +114,18 @@ const Datatable_TaskStatus = ({
       }
     };
     const timer = setTimeout(() => {
-      onCurrSelectedStatus !== null && fetchData();
+      onOpen && fetchData();
     }, 500);
     return () => clearTimeout(timer);
   }, [
     onSearchValue,
-    onCurrSelectedStatus,
     currentFilterData,
+    onSelectedData,
+    billableNonBillable,
+    productiveNonProductive,
     page,
     rowsPerPage,
+    onOpen,
   ]);
 
   return (
@@ -118,10 +134,13 @@ const Datatable_TaskStatus = ({
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
-          columns={adminDashboardTaskStatusCols}
+          columns={adminDashboardBillableNonBillableCols}
           title={undefined}
-          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
-          data-tableid="taskStatusInfo_Datatable"
+          options={{
+            ...dashboard_Options,
+            tableBodyHeight: "55vh",
+          }}
+          data-tableid="tasksSubmittedAssignedInfo_Datatable"
         />
         <TablePagination
           component="div"
@@ -142,4 +161,4 @@ const Datatable_TaskStatus = ({
   );
 };
 
-export default Datatable_TaskStatus;
+export default Datatable_BillableNonBillable;

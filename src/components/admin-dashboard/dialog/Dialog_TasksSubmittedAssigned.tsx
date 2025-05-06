@@ -11,33 +11,30 @@ import {
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
-import Datatable_TaskStatus from "@/components/admin-dashboard/Datatables/Datatable_TaskStatus";
 import { DialogTransition } from "@/utils/style/DialogTransition";
-import { getStatusDropdownData } from "@/utils/commonDropdownApiCall";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import Loading from "@/assets/icons/reports/Loading";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { LabelValueType } from "@/utils/Types/types";
+import { LabelValue } from "@/utils/Types/types";
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
+import Datatable_TasksSubmittedAssigned from "../Datatables/Datatable_TasksSubmittedAssigned";
 
 interface TaskStatusInfoDialogProps {
   onOpen: boolean;
   onClose: () => void;
   currentFilterData: DashboardInitialFilter;
-  onSelectedStatusName: string;
+  onSelectedData: { department: number; type: string };
 }
 
-const Dialog_TaskStatus = ({
+const Dialog_TasksSubmittedAssigned = ({
   onOpen,
   onClose,
   currentFilterData,
-  onSelectedStatusName,
+  onSelectedData,
 }: TaskStatusInfoDialogProps) => {
-  const [allStatus, setAllStatus] = useState<LabelValueType[] | []>([]);
-  const [status, setStatus] = useState<number | null>(null);
-  const [clickedStatusName, setClickedStatusName] = useState<string>("");
+  const [clickedStatusName, setClickedStatusName] = useState<number>(0);
   const [searchValue, setSearchValue] = useState("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isClose, setIsClose] = useState<boolean>(false);
@@ -49,52 +46,20 @@ const Dialog_TaskStatus = ({
 
   const handleClose = () => {
     onClose();
-    setStatus(null);
-    setClickedStatusName("");
+    setClickedStatusName(0);
     setSearchValue("");
     setIsClose(false);
     setCanExport(false);
   };
 
-  function getValueByLabelOrType(labelOrType: string): number | null {
-    const status = allStatus.find(
-      (status: LabelValueType) =>
-        status.Type === labelOrType || status.label === labelOrType
-    );
-    if (status) {
-      return status.value;
-    } else {
-      return null;
-    }
-  }
-
   const handleChangeValue = (e: number) => {
-    setStatus(e);
+    setClickedStatusName(e);
     setSearchValue("");
   };
 
   useEffect(() => {
-    setClickedStatusName(onSelectedStatusName);
-    const statusValue: number | null = getValueByLabelOrType(clickedStatusName);
-    setStatus(statusValue);
-  }, [clickedStatusName, onSelectedStatusName]);
-
-  const getAllStatus = async () => {
-    const workTypeIdFromLocalStorage =
-      typeof localStorage !== "undefined"
-        ? localStorage.getItem("workTypeId")
-        : 3;
-    const statusData = await getStatusDropdownData(
-      currentFilterData.WorkTypeId === null
-        ? Number(workTypeIdFromLocalStorage)
-        : currentFilterData.WorkTypeId
-    );
-    setAllStatus(statusData);
-  };
-
-  useEffect(() => {
-    getAllStatus();
-  }, [currentFilterData.WorkTypeId]);
+    setClickedStatusName(onSelectedData.type === "Assigned" ? 1 : 2);
+  }, [onSelectedData]);
 
   const exportReport = async () => {
     try {
@@ -104,7 +69,7 @@ const Dialog_TaskStatus = ({
       const Org_Token = await localStorage.getItem("Org_Token");
 
       const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/taskstatuslist/export`,
+        `${process.env.report_api_url}/dashboard/`,
         {
           PageNo: 1,
           PageSize: 50000,
@@ -115,11 +80,11 @@ const Dialog_TaskStatus = ({
             currentFilterData.WorkTypeId === null
               ? 0
               : currentFilterData.WorkTypeId,
-          DepartmentIds: currentFilterData.DepartmentIds,
+          DepartmentIds: [onSelectedData.department],
           StartDate: currentFilterData.StartDate,
           EndDate: currentFilterData.EndDate,
           GlobalSearch: searchValue,
-          StatusId: status === 0 ? null : status,
+          StatusId: clickedStatusName,
           IsDownload: true,
         },
         {
@@ -147,7 +112,7 @@ const Dialog_TaskStatus = ({
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `Dashboard_TaskList_report.xlsx`;
+        a.download = `Dashboard_Assigned_Submitted_report.xlsx`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -171,7 +136,9 @@ const Dialog_TaskStatus = ({
         onClose={handleClose}
       >
         <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
-          <span className="font-semibold text-lg">Task Status</span>
+          <span className="font-semibold text-lg">
+            Tasks Submitted vs Assigned
+          </span>
           <IconButton onClick={handleClose}>
             <Close />
           </IconButton>
@@ -202,12 +169,15 @@ const Dialog_TaskStatus = ({
                 <Select
                   labelId="status"
                   id="status"
-                  value={status ? status : 0}
+                  value={clickedStatusName}
                   onChange={(e) => handleChangeValue(Number(e.target.value))}
                   sx={{ height: "36px" }}
                 >
                   <MenuItem value={0}>All</MenuItem>
-                  {allStatus.map((i: LabelValueType) => (
+                  {[
+                    { label: "Assigned", value: 1 },
+                    { label: "Submitted", value: 2 },
+                  ].map((i: LabelValue) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
@@ -228,15 +198,12 @@ const Dialog_TaskStatus = ({
               </ColorToolTip>
             </div>
           </div>
-          <Datatable_TaskStatus
+          <Datatable_TasksSubmittedAssigned
             currentFilterData={currentFilterData}
-            onCurrSelectedStatus={
-              status !== null
-                ? status
-                : getValueByLabelOrType(onSelectedStatusName)
-            }
+            onCurrSelectedStatus={clickedStatusName}
             onSearchValue={searchValue}
             isClose={isClose}
+            onOpen={onOpen}
             onHandleExport={(e) => setCanExport(e)}
           />
         </DialogContent>
@@ -245,4 +212,4 @@ const Dialog_TaskStatus = ({
   );
 };
 
-export default Dialog_TaskStatus;
+export default Dialog_TasksSubmittedAssigned;

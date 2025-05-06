@@ -39,6 +39,7 @@ const Dialog_DashboardSummaryList = ({
   const [summaryName, setSummaryName] = useState<number>(0);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isClose, setIsClose] = useState<boolean>(false);
+  const [canExport, setCanExport] = useState(false);
 
   useEffect(() => {
     onOpen && setIsClose(false);
@@ -48,6 +49,7 @@ const Dialog_DashboardSummaryList = ({
     onClose();
     setSummaryName(0);
     setIsClose(true);
+    setCanExport(false);
   };
 
   const getProjectSummary = async () => {
@@ -90,7 +92,7 @@ const Dialog_DashboardSummaryList = ({
     return () => clearTimeout(timer);
   }, [currentFilterData]);
 
-  const exportTaskStatusReport = async () => {
+  const exportReport = async () => {
     try {
       setIsExporting(true);
 
@@ -208,9 +210,11 @@ const Dialog_DashboardSummaryList = ({
             <ColorToolTip title="Export" placement="top" arrow>
               <span
                 className={`${
-                  isExporting ? "cursor-default" : "cursor-pointer"
-                } ml-5 mt-5`}
-                onClick={exportTaskStatusReport}
+                  canExport
+                    ? "cursor-pointer"
+                    : "pointer-events-none opacity-50"
+                } ${isExporting ? "cursor-default" : "cursor-pointer"} ml-5`}
+                onClick={canExport ? exportReport : undefined}
               >
                 {isExporting ? <Loading /> : <ExportIcon />}
               </span>
@@ -221,6 +225,7 @@ const Dialog_DashboardSummaryList = ({
             onClickedSummaryTitle={onClickedSummaryTitle}
             onCurrSelectedSummaryTitle={summaryName}
             isClose={isClose}
+            onHandleExport={(e) => setCanExport(e)}
           />
         </DialogContent>
       </Dialog>

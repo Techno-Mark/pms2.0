@@ -36,11 +36,12 @@ const Dialog_BillingType = ({
   onSelectedStatusName,
 }: BillingTypeDialogProps) => {
   const [allBillingType, setAllBillingType] = useState<LabelValue[]>([]);
-  const [billingType, setBillingType] = useState<number>(0);
+  const [billingType, setBillingType] = useState<number | null>(null);
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [searchValue, setSearchValue] = useState("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isClose, setIsClose] = useState<boolean>(false);
+  const [canExport, setCanExport] = useState(false);
 
   useEffect(() => {
     onOpen && setIsClose(false);
@@ -48,26 +49,28 @@ const Dialog_BillingType = ({
 
   const handleClose = () => {
     onClose();
-    setBillingType(0);
+    setBillingType(null);
     setClickedStatusName("");
     setSearchValue("");
     setIsClose(false);
+    setCanExport(false);
   };
 
-  function getValueByLabelOrType(labelOrType: string): number {
+  function getValueByLabelOrType(labelOrType: string): number | null {
     const billingType = allBillingType.find(
       (billingType: LabelValue) => billingType.label === labelOrType
     );
     if (billingType) {
       return billingType.value;
     } else {
-      return 0;
+      return null;
     }
   }
 
   useEffect(() => {
     setClickedStatusName(onSelectedStatusName);
-    const billingTypeValue: number = getValueByLabelOrType(clickedStatusName);
+    const billingTypeValue: number | null =
+      getValueByLabelOrType(clickedStatusName);
     setBillingType(billingTypeValue);
   }, [clickedStatusName, onSelectedStatusName]);
 
@@ -84,7 +87,7 @@ const Dialog_BillingType = ({
     getAllStatus();
   }, []);
 
-  const exportTaskStatusListReport = async () => {
+  const exportReport = async () => {
     try {
       setIsExporting(true);
 
@@ -204,9 +207,11 @@ const Dialog_BillingType = ({
               <ColorToolTip title="Export" placement="top" arrow>
                 <span
                   className={`${
-                    isExporting ? "cursor-default" : "cursor-pointer"
-                  } ml-5`}
-                  onClick={exportTaskStatusListReport}
+                    canExport
+                      ? "cursor-pointer"
+                      : "pointer-events-none opacity-50"
+                  } ${isExporting ? "cursor-default" : "cursor-pointer"} ml-5`}
+                  onClick={canExport ? exportReport : undefined}
                 >
                   {isExporting ? <Loading /> : <ExportIcon />}
                 </span>
@@ -215,10 +220,14 @@ const Dialog_BillingType = ({
           </div>
           <Datatable_BillingType
             currentFilterData={currentFilterData}
-            onSelectedStatusName={onSelectedStatusName}
-            onCurrentSelectedBillingType={billingType}
+            onCurrentSelectedBillingType={
+              billingType !== null
+                ? billingType
+                : getValueByLabelOrType(onSelectedStatusName)
+            }
             onSearchValue={searchValue}
             isClose={isClose}
+            onHandleExport={(e) => setCanExport(e)}
           />
         </DialogContent>
       </Dialog>

@@ -15,14 +15,15 @@ import {
   ListDashboard,
   ResponseDashboardProjectSummary,
 } from "@/utils/Types/dashboardTypes";
+import OverLay from "@/components/common/OverLay";
 
 interface ProjectStatusProps {
   currentFilterData: DashboardInitialFilter;
   onSelectedProjectStatus: number;
-  onSelectedProjectIds: number[];
   onCurrSelectedProjectStatus: number;
   onOpen: boolean;
   isClose: boolean;
+  onHandleExport: (canExport: boolean) => void;
 }
 
 const Datatable_ProjectStatus = ({
@@ -31,18 +32,22 @@ const Datatable_ProjectStatus = ({
   onCurrSelectedProjectStatus,
   onOpen,
   isClose,
+  onHandleExport,
 }: ProjectStatusProps) => {
   const [data, setData] = useState<ListDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (isClose || onOpen) && setPage(0);
     (isClose || onOpen) && setRowsPerPage(10);
+    isClose && setLoading(true);
   }, [onOpen, isClose]);
 
   const getProjectStatusData = async () => {
+    setLoading(true);
     const workTypeIdFromLocalStorage =
       typeof localStorage !== "undefined"
         ? localStorage.getItem("workTypeId")
@@ -76,6 +81,12 @@ const Datatable_ProjectStatus = ({
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setData(ResponseData.ProjectStatusList);
         setTableDataCount(ResponseData.TotalCount);
+        onHandleExport(
+          ResponseData.ProjectStatusList.length > 0 ? true : false
+        );
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -105,6 +116,7 @@ const Datatable_ProjectStatus = ({
 
   return (
     <div>
+      {loading && <OverLay />}
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
