@@ -13,13 +13,13 @@ import { callAPI } from "@/utils/API/callAPI";
 import {
   DashboardInitialFilter,
   ListDashboard,
-  ResponseDashboardTask,
 } from "@/utils/Types/dashboardTypes";
 import OverLay from "@/components/common/OverLay";
 
 interface Props {
   currentFilterData: DashboardInitialFilter;
-  onCurrSelectedStatus: number;
+  status: number;
+  onSelectedData: { department: number; type: string };
   onSearchValue: string;
   isClose: boolean;
   onOpen: boolean;
@@ -28,7 +28,8 @@ interface Props {
 
 const Datatable_TasksSubmittedAssigned = ({
   currentFilterData,
-  onCurrSelectedStatus,
+  status,
+  onSelectedData,
   onSearchValue,
   isClose,
   onOpen,
@@ -48,49 +49,56 @@ const Datatable_TasksSubmittedAssigned = ({
 
   const getTaskStatusData = async (value: string) => {
     setLoading(true);
-    // const workTypeIdFromLocalStorage =
-    //   typeof localStorage !== "undefined"
-    //     ? localStorage.getItem("workTypeId")
-    //     : 3;
-    // const params = {
-    //   PageNo: page + 1,
-    //   PageSize: rowsPerPage,
-    //   SortColumn: null,
-    //   IsDesc: true,
-    //   Clients: currentFilterData.Clients,
-    //   WorkTypeId:
-    //     currentFilterData.WorkTypeId === null
-    //       ? Number(workTypeIdFromLocalStorage)
-    //       : currentFilterData.WorkTypeId,
-    //   DepartmentIds: [onSelectedData.department],
-    //   AssigneeIds: currentFilterData.AssigneeIds,
-    //   ReviewerIds: currentFilterData.ReviewerIds,
-    //   StartDate: currentFilterData.StartDate,
-    //   EndDate: currentFilterData.EndDate,
-    //   GlobalSearch: value,
-    //   StatusId: onCurrSelectedStatus === 0 ? null : onCurrSelectedStatus,
-    // };
-    // const url = `${process.env.report_api_url}/dashboard`;
-    // const successCallback = (
-    //   ResponseData: ResponseDashboardTask,
-    //   error: boolean,
-    //   ResponseStatus: string
-    // ) => {
-    //   if (ResponseStatus.toLowerCase() === "success" && error === false) {
-    //     setData(ResponseData.TaskStatusList);
-    //     setTableDataCount(ResponseData.TotalCount);
-        // onHandleExport(ResponseData.ReworkTrendsList.length > 0 ? true : false);
-    //     setLoading(false);
-    //   } else {
-    setLoading(false);
-    //   }
-    // };
-    // callAPI(url, params, successCallback, "POST");
+    const workTypeIdFromLocalStorage =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("workTypeId")
+        : 3;
+    const params = {
+      PageNo: page + 1,
+      PageSize: rowsPerPage,
+      SortColumn: null,
+      IsDesc: true,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.WorkTypeId === null
+          ? Number(workTypeIdFromLocalStorage)
+          : currentFilterData.WorkTypeId,
+      DepartmentIds: [onSelectedData.department],
+      AssigneeIds: currentFilterData.AssigneeIds,
+      ReviewerIds: currentFilterData.ReviewerIds,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
+      GlobalSearch: value,
+      Key: status,
+      IsDownload: false,
+    };
+    const url = `${process.env.report_api_url}/dashboard/taskassignedvssubmitlist`;
+    const successCallback = (
+      ResponseData: {
+        TotalCount: number;
+        TaskSubmittedVsAssignedListFilters: null;
+        TaskSubmittedVsAssignedList: ListDashboard[] | [];
+      },
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus.toLowerCase() === "success" && error === false) {
+        setData(ResponseData.TaskSubmittedVsAssignedList);
+        setTableDataCount(ResponseData.TotalCount);
+        onHandleExport(
+          ResponseData.TaskSubmittedVsAssignedList.length > 0 ? true : false
+        );
+        setLoading(false);
+      } else {
+        setLoading(false);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
     setPage(0);
-  }, [onCurrSelectedStatus]);
+  }, [onSelectedData, status]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,12 +111,12 @@ const Datatable_TasksSubmittedAssigned = ({
       }
     };
     const timer = setTimeout(() => {
-      onCurrSelectedStatus !== null && onOpen && fetchData();
+      status !== null && onOpen && fetchData();
     }, 500);
     return () => clearTimeout(timer);
   }, [
     onSearchValue,
-    onCurrSelectedStatus,
+    status,
     currentFilterData,
     page,
     rowsPerPage,

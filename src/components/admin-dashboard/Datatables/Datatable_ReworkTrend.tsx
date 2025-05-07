@@ -96,7 +96,7 @@ const Datatable_ReworkTrend = ({
 
   useEffect(() => {
     setPage(0);
-  }, [onSelectedData]);
+  }, [onSelectedData, selectedStatus]);
 
   useEffect(() => {
     const fetchData = async () => {

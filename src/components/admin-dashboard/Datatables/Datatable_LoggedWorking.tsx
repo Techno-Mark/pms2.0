@@ -8,7 +8,7 @@ import {
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
-import { adminDashboardSLATATAchivementCols } from "@/utils/datatable/columns/AdminDatatableColumns";
+import { adminDashboardLoggedWorkingCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
 import {
   DashboardInitialFilter,
@@ -19,17 +19,17 @@ import OverLay from "@/components/common/OverLay";
 interface Props {
   currentFilterData: DashboardInitialFilter;
   onSelectedData: { department: number; type: number };
-  slaStatus: number | null;
+  status: number | null;
   onSearchValue: string;
   isClose: boolean;
   onOpen: boolean;
   onHandleExport: (canExport: boolean) => void;
 }
 
-const Datatable_SLATATAchivement = ({
+const Datatable_LoggedWorking = ({
   currentFilterData,
   onSelectedData,
-  slaStatus,
+  status,
   onSearchValue,
   isClose,
   onOpen,
@@ -70,7 +70,7 @@ const Datatable_SLATATAchivement = ({
       EndDate: currentFilterData.EndDate,
       GlobalSearch: value,
       IsDownload: false,
-      SLAType: slaStatus,
+      SLAType: status,
     };
     const url = `${process.env.report_api_url}/dashboard/slatatlist`;
     const successCallback = (
@@ -96,7 +96,7 @@ const Datatable_SLATATAchivement = ({
 
   useEffect(() => {
     setPage(0);
-  }, [onSelectedData, slaStatus]);
+  }, [onSelectedData, status]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -116,7 +116,7 @@ const Datatable_SLATATAchivement = ({
     onSearchValue,
     currentFilterData,
     onSelectedData,
-    slaStatus,
+    status,
     page,
     rowsPerPage,
     onOpen,
@@ -128,7 +128,7 @@ const Datatable_SLATATAchivement = ({
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
-          columns={adminDashboardSLATATAchivementCols}
+          columns={adminDashboardLoggedWorkingCols}
           title={undefined}
           options={{
             ...dashboard_Options,
@@ -155,4 +155,4 @@ const Datatable_SLATATAchivement = ({
   );
 };
 
-export default Datatable_SLATATAchivement;
+export default Datatable_LoggedWorking;

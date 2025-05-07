@@ -1,5 +1,6 @@
 import FilterIcon from "@/assets/icons/FilterIcon";
 import SearchIcon from "@/assets/icons/SearchIcon";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { Delete, Edit } from "@mui/icons-material";
 import { Button, InputBase, Popover, Tooltip } from "@mui/material";
 import React from "react";
@@ -35,13 +36,15 @@ const FilterModel = ({
 }) => {
   return (
     <div>
-      <span
-        aria-describedby={idFilter}
-        onClick={handleClickFilter}
-        className="cursor-pointer"
-      >
-        <FilterIcon />
-      </span>
+      <ColorToolTip title="Filter" placement="top" arrow>
+        <span
+          aria-describedby={idFilter}
+          onClick={handleClickFilter}
+          className="cursor-pointer"
+        >
+          <FilterIcon />
+        </span>
+      </ColorToolTip>
 
       <Popover
         id={idFilter}

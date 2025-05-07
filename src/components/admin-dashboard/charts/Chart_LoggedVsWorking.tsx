@@ -9,7 +9,18 @@ interface DepartmentData {
   WorklogTotalTime: number;
 }
 
-const Chart_LoggedVsWorking = ({ data }: any) => {
+const Chart_LoggedVsWorking = ({
+  data,
+  sendData,
+}: {
+  data: {
+    DepartmentId: number;
+    DepartmentName: string;
+    WorklogTotalTime: number;
+    ExeTotalLoggedTime: number;
+  }[];
+  sendData: (department: number, type: number) => void;
+}) => {
   const [chartData, setChartData] = useState<DepartmentData[]>([]);
 
   useEffect(() => {
@@ -47,6 +58,7 @@ const Chart_LoggedVsWorking = ({ data }: any) => {
           },
           series: {
             cursor: "pointer",
+            pointWidth: 30,
             maxPointWidth: 50,
             point: {
               events: {
@@ -56,9 +68,7 @@ const Chart_LoggedVsWorking = ({ data }: any) => {
                       .DepartmentId;
                   const label = (this as unknown as Highcharts.Point).series
                     .name;
-                  console.log(
-                    `Clicked on: ${label}, Department: ${department}`
-                  );
+                  sendData(department, label === "Logged Hours" ? 1 : 2);
                 },
               },
             },

@@ -70,6 +70,7 @@ const Chart_ManualVsAuto = ({
           series: {
             stacking: "normal",
             cursor: "pointer",
+            pointWidth: 20,
             maxPointWidth: 30,
             point: {
               events: {
@@ -100,7 +101,7 @@ const Chart_ManualVsAuto = ({
           {
             name: "Idle Time",
             data: chartData.map((d) => Number(d.TotalIdleTime)),
-            color: "#F01871",
+            color: "#FF005F",
             type: "column",
           },
           {

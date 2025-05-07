@@ -221,7 +221,7 @@ const errorlogColConfig = [
   },
   {
     name: "SubProcessName",
-    label: "SubProcess Name",
+    label: "Sub-Process",
     bodyRenderer: generateCommonBodyRender,
   },
   // {
@@ -435,8 +435,13 @@ const tasksSubmittedAssignedColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "Process",
+    name: "ProcessName",
     label: "Process Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ProcessName",
+    label: "Sub-Process",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -445,7 +450,7 @@ const tasksSubmittedAssignedColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "AssignedToName",
+    name: "AssigneeName",
     label: "Assigned To",
     bodyRenderer: generateCommonBodyRender,
   },
@@ -458,7 +463,7 @@ const tasksSubmittedAssignedColConfig = [
     name: "StatusName",
     label: "Status",
     bodyRenderer: (value: any, tableMeta: any) =>
-      generateStatusWithColor(value, tableMeta.rowData[15]),
+      generateStatusWithColor(value, tableMeta.rowData[14]),
   },
   {
     name: "PriorityName",
@@ -475,16 +480,16 @@ const tasksSubmittedAssignedColConfig = [
     label: "Due Date",
     bodyRenderer: generateCustomFormatDate,
   },
-  {
-    name: "AutoTime",
-    label: "Auto Time",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "ManualTime",
-    label: "Manual Time",
-    bodyRenderer: generateCommonBodyRender,
-  },
+  // {
+  //   name: "AutoTime",
+  //   label: "Auto Time",
+  //   bodyRenderer: generateCommonBodyRender,
+  // },
+  // {
+  //   name: "ManualTime",
+  //   label: "Manual Time",
+  //   bodyRenderer: generateCommonBodyRender,
+  // },
   {
     name: "StatusColorCode",
     options: {
@@ -528,7 +533,7 @@ const reworkTrendColConfig = [
   },
   {
     name: "SubProcessName",
-    label: "SubProcess Name",
+    label: "Sub-Process",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -656,7 +661,7 @@ const billableNonBillableColConfig = [
   },
   {
     name: "SubProcessName",
-    label: "SubProcess Name",
+    label: "Sub-Process",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -729,7 +734,7 @@ const slaTATAchivementColConfig = [
   },
   {
     name: "SubProcessName",
-    label: "SubProcess Name",
+    label: "Sub-Process",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -751,7 +756,7 @@ const slaTATAchivementColConfig = [
     name: "TaskStatus",
     label: "Status",
     bodyRenderer: (value: any, tableMeta: any) =>
-      generateStatusWithColor(value, tableMeta.rowData[18]),
+      generateStatusWithColor(value, tableMeta.rowData[17]),
   },
   {
     name: "Reviewer",
@@ -798,6 +803,88 @@ const slaTATAchivementColConfig = [
   },
 ];
 
+const loggedWorkingColConfig = [
+  {
+    name: "TaskId",
+    label: "Task Id",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TaskName",
+    label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ClientName",
+    label: "Client Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TypeOfWork",
+    label: "Type Of Work",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ProjectName",
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ProcessName",
+    label: "Process Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "SubProcessName",
+    label: "Sub-Process",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "DepartmentName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "Assignee",
+    label: "Assigned To",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "AssignedBy",
+    label: "Assigned By",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TaskStatus",
+    label: "Status",
+    bodyRenderer: (value: any, tableMeta: any) =>
+      generateStatusWithColor(value, tableMeta.rowData[18]),
+  },
+  {
+    name: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "StartDate",
+    label: "Start Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "DueDate",
+    label: "Due Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "StatusColorCode",
+    options: {
+      filter: false,
+      sort: false,
+      display: false,
+    },
+  },
+];
+
 const adminDashboardSummaryCols = SummaryColConfig.map((column: any) =>
   generateStatusColumn(column, 14)
 );
@@ -816,7 +903,7 @@ const adminDashboardErrorlogCols = errorlogColConfig.map((column: any) =>
 
 const adminDashboardTasksSubmittedAssignedCols =
   tasksSubmittedAssignedColConfig.map((column: any) =>
-    generateStatusColumn(column, 15)
+    generateStatusColumn(column, 14)
   );
 
 const adminDashboardReworkTrendCols = reworkTrendColConfig.map((column: any) =>
@@ -835,8 +922,12 @@ const adminDashboardBillableNonBillableCols = billableNonBillableColConfig.map(
   (column: any) => generateStatusColumn(column, 16)
 );
 
-const adminDashboardSLATATAchivementCols = slaTATAchivementColConfig.map(
+const adminDashboardLoggedWorkingCols = loggedWorkingColConfig.map(
   (column: any) => generateStatusColumn(column, 18)
+);
+
+const adminDashboardSLATATAchivementCols = slaTATAchivementColConfig.map(
+  (column: any) => generateStatusColumn(column, 17)
 );
 
 export {
@@ -852,5 +943,6 @@ export {
   adminDashboardAutoManualCols,
   adminDashboardPeakProductiveCols,
   adminDashboardBillableNonBillableCols,
+  adminDashboardLoggedWorkingCols,
   adminDashboardSLATATAchivementCols,
 };

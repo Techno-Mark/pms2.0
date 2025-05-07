@@ -115,14 +115,19 @@ const Chart_BillableNonBillable = ({
             point: any
           ): { x: number; y: number } {
             const chart = (this as any).chart;
-            const hoveredPoint = chart.hoverPoints?.[0]; // use first point
+            const hoveredPoint = chart.hoverPoints?.[0];
+            const hoveredPoint1 = chart.hoverPoints?.[1];
             if (hoveredPoint) {
               const x =
-                hoveredPoint.plotX +
+                Math.max(hoveredPoint.plotX, hoveredPoint1.plotX) +
                 chart.plotLeft -
                 labelWidth / 2 +
-                hoveredPoint.shapeArgs.width / 2;
-              const y = hoveredPoint.plotY + chart.plotTop - labelHeight - 10; // 10px above
+                Math.max(
+                  hoveredPoint.shapeArgs.width,
+                  hoveredPoint1.shapeArgs.width
+                ) /
+                  2;
+              const y = 300; // 10px above
               return { x, y };
             }
             return { x: 0, y: 0 };
@@ -131,6 +136,7 @@ const Chart_BillableNonBillable = ({
         plotOptions: {
           series: {
             cursor: "pointer",
+            pointWidth: 30,
             maxPointWidth: 50,
             point: {
               events: {

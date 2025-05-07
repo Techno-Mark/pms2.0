@@ -1,23 +1,7 @@
 import { callAPI } from "@/utils/API/callAPI";
-import {
-  DashboardInitialFilter,
-  ListProjectStatusSequence,
-} from "@/utils/Types/dashboardTypes";
+import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 import { Card } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import InPreparation from "@/assets/icons/dashboard_Admin/InPreparation";
-import InReview from "@/assets/icons/dashboard_Admin/InReview";
-import Withdraw_Outlined from "@/assets/icons/dashboard_Admin/Withdraw_Outlined";
-import TaskOutlinedIcon from "@mui/icons-material/TaskOutlined";
-import PendingActionsOutlinedIcon from "@mui/icons-material/PendingActionsOutlined";
-import PauseCircleOutlineOutlinedIcon from "@mui/icons-material/PauseCircleOutlineOutlined";
-import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
-import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
-import RestorePageOutlinedIcon from "@mui/icons-material/RestorePageOutlined";
-import PlaylistAddCheckOutlinedIcon from "@mui/icons-material/PlaylistAddCheckOutlined";
-import RunningWithErrorsOutlinedIcon from "@mui/icons-material/RunningWithErrorsOutlined";
-import Person4OutlinedIcon from "@mui/icons-material/Person4Outlined";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import Chart_TasksSubmittedVsAssigned from "./charts/Chart_TasksSubmittedVsAssigned";
 import Chart_BillableNonBillable from "./charts/Chart_BillableNonBillable";
 import Chart_PeakProductivityHours from "./charts/Chart_PeakProductivityHours";
@@ -32,43 +16,7 @@ import Dialog_AutoManual from "./dialog/Dialog_AutoManual";
 import Dialog_PeakPoductive from "./dialog/Dialog_PeakPoductive";
 import Dialog_BillableNonBillable from "./dialog/Dialog_BillableNonBillable";
 import Dialog_SLATATAchivement from "./dialog/Dialog_SLATATAchivement";
-
-const statusIconMapping: { [key: number | string]: JSX.Element } = {
-  2: <Person4OutlinedIcon />,
-  8: <CheckCircleOutlineOutlinedIcon />,
-  3: <InPreparation />,
-  5: <InReview />,
-  4: <ErrorOutlineIcon />,
-  1: <PendingActionsOutlinedIcon />,
-  11: <RunningWithErrorsOutlinedIcon />,
-  "total cancel": <CancelOutlinedIcon />,
-  10: <PauseCircleOutlineOutlinedIcon />,
-  9: <Withdraw_Outlined />,
-  7: <RestorePageOutlinedIcon />,
-  12: <PlaylistAddCheckOutlinedIcon />,
-  6: <TaskOutlinedIcon />,
-};
-
-interface ProjectResponse {
-  List: ListProjectStatusSequence[] | [];
-  TotalCount: number;
-}
-
-interface BillingList {
-  Percentage: number;
-  Key: string;
-  Value: number;
-}
-
-interface BillingResponse {
-  List: BillingList[] | [];
-  TotalCount: number;
-}
-
-interface ErrorlogResponse {
-  List: ListProjectStatusSequence[] | [];
-  TotalCount: number;
-}
+import Dialog_LoggedWorking from "./dialog/Dialog_LoggedWorking";
 
 const NewDashboard = ({
   activeTab,
@@ -104,6 +52,10 @@ const NewDashboard = ({
   }>({ department: 0, type: "" });
   const [totalLoggedWorkingTimeData, setTotalLoggedWorkingTimeData] =
     useState<any>([]);
+  const [loggedWorking, setLoggedWorking] = useState<{
+    department: number;
+    type: number;
+  }>({ department: 0, type: 0 });
   const [slaTATAchivementData, setSLATATAchivementData] = useState<any>([]);
   const [slaTATAchivement, setSLATATAchivement] = useState<{
     department: number;
@@ -176,7 +128,6 @@ const NewDashboard = ({
       Component: Chart_TasksSubmittedVsAssigned,
       data: taskSubmittedAssignedData,
       sendData: (department: number, type: string) => {
-        console.log("sendData called with department:", department);
         setIsDialogOpen("tasksSubmittedAssigned");
         setTaskSubmittedAssigned({ department, type });
       },
@@ -213,7 +164,14 @@ const NewDashboard = ({
         setBillableNonBillable({ department, type });
       },
     },
-    { Component: Chart_LoggedVsWorking, data: totalLoggedWorkingTimeData },
+    {
+      Component: Chart_LoggedVsWorking,
+      data: totalLoggedWorkingTimeData,
+      sendData: (department: number, type: number) => {
+        setIsDialogOpen("loggedWorking");
+        setLoggedWorking({ department, type });
+      },
+    },
     {
       Component: Chart_SLATATAchivement,
       data: slaTATAchivementData,
@@ -236,7 +194,7 @@ const NewDashboard = ({
               key={index}
             >
               <Card className="w-full h-full border border-lightSilver rounded-lg px-[10px]">
-                <Component data={data} {...(sendData ? { sendData } : {})} />
+                <Component data={data} sendData={sendData as any} />
               </Card>
             </section>
           ))}
@@ -276,6 +234,13 @@ const NewDashboard = ({
         onClose={() => setIsDialogOpen("")}
         currentFilterData={currentFilterData}
         onSelectedData={billableNonBillable}
+      />
+
+      <Dialog_LoggedWorking
+        onOpen={isDialogOpen === "loggedWorking"}
+        onClose={() => setIsDialogOpen("")}
+        currentFilterData={currentFilterData}
+        onSelectedData={loggedWorking}
       />
 
       <Dialog_SLATATAchivement

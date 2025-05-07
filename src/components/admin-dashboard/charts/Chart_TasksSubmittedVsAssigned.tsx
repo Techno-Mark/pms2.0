@@ -5,11 +5,22 @@ import HighchartsReact from "highcharts-react-official";
 interface TaskData {
   departments: string[];
   departmentIds: number[];
-  submitted: number[];
-  assigned: number[];
+  submitted: any[];
+  assigned: any[];
 }
 
-const Chart_TasksSubmittedVsAssigned = ({ data, sendData }: any) => {
+const Chart_TasksSubmittedVsAssigned = ({
+  data,
+  sendData,
+}: {
+  data: {
+    DepartmentId: number;
+    DepartmentName: string;
+    CompletedCount: number;
+    AssignedCount: number;
+  }[];
+  sendData: (department: number, type: string) => void;
+}) => {
   const [chartData, setChartData] = useState<TaskData | null>(null);
 
   useEffect(() => {
@@ -66,7 +77,7 @@ const Chart_TasksSubmittedVsAssigned = ({ data, sendData }: any) => {
           column: {
             stacking: "normal",
             dataLabels: {
-              enabled: true,
+              enabled: false,
               style: {
                 color: "white",
                 textOutline: "none",
@@ -74,12 +85,13 @@ const Chart_TasksSubmittedVsAssigned = ({ data, sendData }: any) => {
               },
             },
             cursor: "pointer",
+            pointWidth: 30,
             maxPointWidth: 50,
             point: {
               events: {
                 click: function () {
                   const point = this as unknown as Highcharts.Point;
-                  const department = chartData.departments[point.index];
+                  const department = chartData.departmentIds[point.index];
                   const type = point.series.name;
                   sendData(department, type);
                 },
@@ -114,7 +126,7 @@ const Chart_TasksSubmittedVsAssigned = ({ data, sendData }: any) => {
   return (
     <div className="flex flex-col w-full">
       <span className="flex items-start py-[15px] px-[10px] text-lg font-bold">
-        Tasks Submitted vs Assigned
+        Assigned vs Submitted Tasks
       </span>
       <HighchartsReact highcharts={Highcharts} options={options} />
     </div>

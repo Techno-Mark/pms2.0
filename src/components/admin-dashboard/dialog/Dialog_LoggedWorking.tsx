@@ -19,30 +19,30 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 import { LabelValue } from "@/utils/Types/types";
-import Datatable_SLATATAchivement from "../Datatables/Datatable_SLATATAchivement";
+import Datatable_LoggedWorking from "../Datatables/Datatable_LoggedWorking";
 
-interface SLATATAchivementDialogProps {
+interface LoggedWorkingDialogProps {
   onOpen: boolean;
   onClose: () => void;
   currentFilterData: DashboardInitialFilter;
   onSelectedData: { department: number; type: number };
 }
 
-const Dialog_SLATATAchivement = ({
+const Dialog_LoggedWorking = ({
   onOpen,
   onClose,
   currentFilterData,
   onSelectedData,
-}: SLATATAchivementDialogProps) => {
+}: LoggedWorkingDialogProps) => {
   const [searchValue, setSearchValue] = useState("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isClose, setIsClose] = useState<boolean>(false);
-  const [slaStatus, setSLAStatus] = useState<number | null>(null);
+  const [status, setStatus] = useState<number | null>(null);
   const [canExport, setCanExport] = useState(false);
 
   useEffect(() => {
     onOpen && setIsClose(false);
-    setSLAStatus(onSelectedData.type);
+    setStatus(onSelectedData.type);
   }, [onOpen]);
 
   const handleClose = () => {
@@ -53,7 +53,7 @@ const Dialog_SLATATAchivement = ({
   };
 
   const handleSLAChangeValue = (e: number) => {
-    setSLAStatus(e);
+    setStatus(e);
     setSearchValue("");
   };
 
@@ -83,7 +83,7 @@ const Dialog_SLATATAchivement = ({
           IsDownload: true,
           AssigneeIds: currentFilterData.AssigneeIds,
           ReviewerIds: currentFilterData.ReviewerIds,
-          SLAType: slaStatus,
+          SLAType: status,
         },
         {
           headers: { Authorization: `bearer ${token}`, org_token: Org_Token },
@@ -110,7 +110,7 @@ const Dialog_SLATATAchivement = ({
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `Dashboard_SLA_TAT_Achivement_report.xlsx`;
+        a.download = `Dashboard_Logged_Working_report.xlsx`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -167,13 +167,13 @@ const Dialog_SLATATAchivement = ({
                 <Select
                   labelId="status"
                   id="status"
-                  value={slaStatus ? slaStatus : 0}
+                  value={status ? status : 0}
                   onChange={(e) => handleSLAChangeValue(Number(e.target.value))}
                   sx={{ height: "36px" }}
                 >
                   {[
-                    { label: "SLA Achieved", value: 1 },
-                    { label: "SLA Not Achieved", value: 2 },
+                    { label: "Logged Hours", value: 1 },
+                    { label: "Working Hours", value: 2 },
                   ].map((i: LabelValue) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
@@ -195,10 +195,10 @@ const Dialog_SLATATAchivement = ({
               </ColorToolTip>
             </div>
           </div>
-          <Datatable_SLATATAchivement
+          <Datatable_LoggedWorking
             currentFilterData={currentFilterData}
             onSelectedData={onSelectedData}
-            slaStatus={slaStatus}
+            status={status}
             onSearchValue={searchValue}
             isClose={isClose}
             onOpen={onOpen}
@@ -210,4 +210,4 @@ const Dialog_SLATATAchivement = ({
   );
 };
 
-export default Dialog_SLATATAchivement;
+export default Dialog_LoggedWorking;

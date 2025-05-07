@@ -58,7 +58,7 @@ const Dialog_TasksSubmittedAssigned = ({
   };
 
   useEffect(() => {
-    setClickedStatusName(onSelectedData.type === "Assigned" ? 1 : 2);
+    setClickedStatusName(onSelectedData.type === "Assigned" ? 2 : 1);
   }, [onSelectedData]);
 
   const exportReport = async () => {
@@ -69,7 +69,7 @@ const Dialog_TasksSubmittedAssigned = ({
       const Org_Token = await localStorage.getItem("Org_Token");
 
       const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/`,
+        `${process.env.report_api_url}/dashboard/taskassignedvssubmitlist`,
         {
           PageNo: 1,
           PageSize: 50000,
@@ -112,7 +112,7 @@ const Dialog_TasksSubmittedAssigned = ({
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `Dashboard_Assigned_Submitted_report.xlsx`;
+        a.download = `Dashboard_Submitted_Assigned_Report.xlsx`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -137,7 +137,7 @@ const Dialog_TasksSubmittedAssigned = ({
       >
         <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">
-            Tasks Submitted vs Assigned
+            Assigned vs Submitted Tasks
           </span>
           <IconButton onClick={handleClose}>
             <Close />
@@ -175,8 +175,8 @@ const Dialog_TasksSubmittedAssigned = ({
                 >
                   <MenuItem value={0}>All</MenuItem>
                   {[
-                    { label: "Assigned", value: 1 },
-                    { label: "Submitted", value: 2 },
+                    { label: "Assigned", value: 2 },
+                    { label: "Submitted", value: 1 },
                   ].map((i: LabelValue) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
@@ -200,7 +200,8 @@ const Dialog_TasksSubmittedAssigned = ({
           </div>
           <Datatable_TasksSubmittedAssigned
             currentFilterData={currentFilterData}
-            onCurrSelectedStatus={clickedStatusName}
+            status={clickedStatusName}
+            onSelectedData={onSelectedData}
             onSearchValue={searchValue}
             isClose={isClose}
             onOpen={onOpen}

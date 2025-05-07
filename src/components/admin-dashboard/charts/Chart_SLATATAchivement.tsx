@@ -72,9 +72,10 @@ const Chart_SLATATAchivement = ({
           column: {
             stacking: "normal",
             dataLabels: {
-              enabled: true,
+              enabled: false,
             },
             cursor: "pointer",
+            pointWidth: 30,
             maxPointWidth: 50,
             point: {
               events: {

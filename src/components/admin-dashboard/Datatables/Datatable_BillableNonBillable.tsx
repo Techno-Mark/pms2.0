@@ -101,7 +101,7 @@ const Datatable_BillableNonBillable = ({
 
   useEffect(() => {
     setPage(0);
-  }, [onSelectedData]);
+  }, [onSelectedData, billableNonBillable, productiveNonProductive]);
 
   useEffect(() => {
     const fetchData = async () => {

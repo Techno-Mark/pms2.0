@@ -96,7 +96,7 @@ const Datatable_AutoManual = ({
 
   useEffect(() => {
     setPage(0);
-  }, [onSelectedData]);
+  }, [onSelectedData, selectedStatus]);
 
   useEffect(() => {
     const fetchData = async () => {
