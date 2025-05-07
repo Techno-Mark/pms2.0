@@ -72,8 +72,18 @@ const Datatable_BillableNonBillable = ({
       EndDate: currentFilterData.EndDate,
       GlobalSearch: value,
       IsDownload: false,
-      IsBillable: billableNonBillable === 1 ? true : false,
-      IsProductive: productiveNonProductive === 1 ? true : false,
+      IsBillable:
+        billableNonBillable === 2
+          ? false
+          : billableNonBillable === 1
+          ? true
+          : null,
+      IsProductive:
+        productiveNonProductive === 2
+          ? false
+          : productiveNonProductive === 1
+          ? true
+          : null,
     };
     const url = `${process.env.report_api_url}/dashboard/billableproductivelist`;
     const successCallback = (

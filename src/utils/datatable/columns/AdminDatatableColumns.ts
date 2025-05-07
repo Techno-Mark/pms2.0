@@ -575,7 +575,7 @@ const reworkTrendColConfig = [
   {
     name: "ReworkReceivedDate",
     label: "Rework Received Date",
-    bodyRenderer: generateCommonBodyRender,
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "Comments",
@@ -689,16 +689,98 @@ const billableNonBillableColConfig = [
     label: "Due Date",
     bodyRenderer: generateCustomFormatDate,
   },
-  // {
-  //   name: "IsBillable",
-  //   label: "Logged Hours (Billable / Non-Billable)",
-  //   bodyRenderer: generateCommonBodyRender,
-  // },
-  // {
-  //   name: "IsProductive",
-  //   label: "Productivity Tag (Productive / Non-Productive)",
-  //   bodyRenderer: generateCommonBodyRender,
-  // },
+  {
+    name: "IsBillable",
+    label: "Logged Hours (Billable / Non-Billable)",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "IsProductive",
+    label: "Productivity Tag (Productive / Non-Productive)",
+    bodyRenderer: generateCommonBodyRender,
+  },
+];
+
+const loggedWorkingColConfig = [
+  {
+    name: "TaskId",
+    label: "Task Id",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TaskName",
+    label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ClientName",
+    label: "Client Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TypeOfWork",
+    label: "Type Of Work",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ProjectName",
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ProcessName",
+    label: "Process Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "SubProcessName",
+    label: "Sub-Process",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "DepartmentName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "Assignee",
+    label: "Assigned To",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "AssignedBy",
+    label: "Assigned By",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TaskStatus",
+    label: "Status",
+    bodyRenderer: (value: any, tableMeta: any) =>
+      generateStatusWithColor(value, tableMeta.rowData[18]),
+  },
+  {
+    name: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "StartDate",
+    label: "Start Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "DueDate",
+    label: "Due Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "StatusColorCode",
+    options: {
+      filter: false,
+      sort: false,
+      display: false,
+    },
+  },
 ];
 
 const slaTATAchivementColConfig = [
@@ -783,88 +865,6 @@ const slaTATAchivementColConfig = [
   //   label: "SLA Status",
   //   bodyRenderer: generateCommonBodyRender,
   // },
-  {
-    name: "StartDate",
-    label: "Start Date",
-    bodyRenderer: generateCustomFormatDate,
-  },
-  {
-    name: "DueDate",
-    label: "Due Date",
-    bodyRenderer: generateCustomFormatDate,
-  },
-  {
-    name: "StatusColorCode",
-    options: {
-      filter: false,
-      sort: false,
-      display: false,
-    },
-  },
-];
-
-const loggedWorkingColConfig = [
-  {
-    name: "TaskId",
-    label: "Task Id",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "TaskName",
-    label: "Task Name",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "ClientName",
-    label: "Client Name",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "TypeOfWork",
-    label: "Type Of Work",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "ProjectName",
-    label: "Project Name",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "ProcessName",
-    label: "Process Name",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "SubProcessName",
-    label: "Sub-Process",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "DepartmentName",
-    label: "Department",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "Assignee",
-    label: "Assigned To",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "AssignedBy",
-    label: "Assigned By",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "TaskStatus",
-    label: "Status",
-    bodyRenderer: (value: any, tableMeta: any) =>
-      generateStatusWithColor(value, tableMeta.rowData[18]),
-  },
-  {
-    name: "TotalTime",
-    label: "Total Time",
-    bodyRenderer: generateCommonBodyRender,
-  },
   {
     name: "StartDate",
     label: "Start Date",

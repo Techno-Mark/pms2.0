@@ -37,30 +37,27 @@ const Dialog_BillableNonBillable = ({
   const [searchValue, setSearchValue] = useState("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isClose, setIsClose] = useState<boolean>(false);
-  const [billableNonBillable, setBillableNonBillable] = useState<number | null>(
-    null
-  );
-  const [productiveNonProductive, setProductiveNonProductive] = useState<
-    number | null
-  >(null);
+  const [billableNonBillable, setBillableNonBillable] = useState<number>(0);
+  const [productiveNonProductive, setProductiveNonProductive] =
+    useState<number>(0);
   const [canExport, setCanExport] = useState(false);
 
   useEffect(() => {
     onOpen && setIsClose(false);
     if (onSelectedData.type === "Billable") {
       setBillableNonBillable(1);
-      setProductiveNonProductive(1);
+      setProductiveNonProductive(0);
     }
     if (onSelectedData.type === "Non-Billable") {
       setBillableNonBillable(2);
-      setProductiveNonProductive(2);
+      setProductiveNonProductive(0);
     }
     if (onSelectedData.type === "Productive") {
-      setBillableNonBillable(1);
+      setBillableNonBillable(0);
       setProductiveNonProductive(1);
     }
     if (onSelectedData.type === "Non-Productive") {
-      setBillableNonBillable(2);
+      setBillableNonBillable(0);
       setProductiveNonProductive(2);
     }
   }, [onOpen]);
@@ -108,8 +105,18 @@ const Dialog_BillableNonBillable = ({
           IsDownload: true,
           AssigneeIds: currentFilterData.AssigneeIds,
           ReviewerIds: currentFilterData.ReviewerIds,
-          IsBillable: billableNonBillable === 1 ? true : false,
-          IsProductive: productiveNonProductive === 1 ? true : false,
+          IsBillable:
+            billableNonBillable === 2
+              ? false
+              : billableNonBillable === 1
+              ? true
+              : null,
+          IsProductive:
+            productiveNonProductive === 2
+              ? false
+              : productiveNonProductive === 1
+              ? true
+              : null,
         },
         {
           headers: { Authorization: `bearer ${token}`, org_token: Org_Token },
@@ -200,6 +207,7 @@ const Dialog_BillableNonBillable = ({
                   sx={{ height: "36px" }}
                 >
                   {[
+                    { label: "All", value: 0 },
                     { label: "Billable", value: 1 },
                     { label: "Non-Billable", value: 2 },
                   ].map((i: LabelValue) => (
@@ -222,6 +230,7 @@ const Dialog_BillableNonBillable = ({
                   sx={{ height: "36px" }}
                 >
                   {[
+                    { label: "All", value: 0 },
                     { label: "Productive", value: 1 },
                     { label: "Non-Productive", value: 2 },
                   ].map((i: LabelValue) => (

@@ -449,6 +449,18 @@ export const generateDaysBodyRender = (bodyValue: any) => {
   );
 };
 
+export const generateStringValue = (value: boolean, type: string) => {
+  return (
+    <>
+      {type === "IsBillable" ? (
+        <div>{value ? "Billable" : "Non-Billable"}</div>
+      ) : (
+        <div>{value ? "Productive" : "Non-Productive"}</div>
+      )}
+    </>
+  );
+};
+
 export const generateRatingsBodyRender = (bodyValue: any) => {
   return <Rating name="read-only" value={bodyValue} readOnly />;
 };

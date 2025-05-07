@@ -1,6 +1,7 @@
 import {
   generateCustomHeaderName,
   generateStatusWithColor,
+  generateStringValue,
 } from "./CommonFunction";
 
 const generateCustomColumn = (
@@ -78,6 +79,28 @@ const generateStatusColumn = (
             value,
             value === "SLA Not Achieved" ? "#FF005F" : "#19C969"
           ),
+      },
+    };
+  } else if (column.name === "IsBillable") {
+    return {
+      name: column.name,
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName(column.label),
+        customBodyRender: (value: boolean) =>
+          generateStringValue(value, "IsBillable"),
+      },
+    };
+  } else if (column.name === "IsProductive") {
+    return {
+      name: column.name,
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName(column.label),
+        customBodyRender: (value: boolean) =>
+          generateStringValue(value, "IsProductive"),
       },
     };
   } else {
