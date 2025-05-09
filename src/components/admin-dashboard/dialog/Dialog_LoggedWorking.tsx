@@ -135,7 +135,7 @@ const Dialog_LoggedWorking = ({
       >
         <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">
-            Billable vs Non-Billable Hours
+            Total Logged vs Working
           </span>
           <IconButton onClick={handleClose}>
             <Close />

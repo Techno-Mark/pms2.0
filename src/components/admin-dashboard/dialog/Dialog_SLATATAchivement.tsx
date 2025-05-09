@@ -134,9 +134,7 @@ const Dialog_SLATATAchivement = ({
         onClose={handleClose}
       >
         <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
-          <span className="font-semibold text-lg">
-            Billable vs Non-Billable Hours
-          </span>
+          <span className="font-semibold text-lg">SLA TAT Achivement</span>
           <IconButton onClick={handleClose}>
             <Close />
           </IconButton>

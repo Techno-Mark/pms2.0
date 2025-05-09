@@ -101,7 +101,7 @@ const Chart_LoggedVsWorking = ({
   return (
     <div className="flex flex-col w-full">
       <span className="flex items-start py-[15px] px-[10px] text-lg font-bold">
-        Total Logged Vs Working
+        Total Logged vs Working
       </span>
       <HighchartsReact highcharts={Highcharts} options={chartOptions} />
     </div>
