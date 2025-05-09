@@ -42,6 +42,7 @@ const Dialog_TasksSubmittedAssigned = ({
 
   useEffect(() => {
     onOpen && setIsClose(false);
+    setClickedStatusName(onSelectedData.type === "Assigned" ? 2 : 1);
   }, [onOpen]);
 
   const handleClose = () => {
@@ -56,10 +57,6 @@ const Dialog_TasksSubmittedAssigned = ({
     setClickedStatusName(e);
     setSearchValue("");
   };
-
-  useEffect(() => {
-    setClickedStatusName(onSelectedData.type === "Assigned" ? 2 : 1);
-  }, [onSelectedData]);
 
   const exportReport = async () => {
     try {
@@ -173,7 +170,6 @@ const Dialog_TasksSubmittedAssigned = ({
                   onChange={(e) => handleChangeValue(Number(e.target.value))}
                   sx={{ height: "36px" }}
                 >
-                  <MenuItem value={0}>All</MenuItem>
                   {[
                     { label: "Assigned", value: 2 },
                     { label: "Submitted", value: 1 },
