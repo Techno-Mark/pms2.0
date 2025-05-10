@@ -47,49 +47,49 @@ const Datatable_PeakPoductive = ({
 
   const getTaskStatusData = async (value: string) => {
     setLoading(true);
-    // const workTypeIdFromLocalStorage =
-    //   typeof localStorage !== "undefined"
-    //     ? localStorage.getItem("workTypeId")
-    //     : 3;
-    // const params = {
-    //   PageNo: page + 1,
-    //   PageSize: rowsPerPage,
-    //   SortColumn: null,
-    //   IsDesc: true,
-    //   Clients: currentFilterData.Clients,
-    //   WorkTypeId:
-    //     currentFilterData.WorkTypeId === null
-    //       ? Number(workTypeIdFromLocalStorage)
-    //       : currentFilterData.WorkTypeId,
-    //   DepartmentIds: [onSelectedData],
-    //   AssigneeIds: currentFilterData.AssigneeIds,
-    //   ReviewerIds: currentFilterData.ReviewerIds,
-    //   StartDate: currentFilterData.StartDate,
-    //   EndDate: currentFilterData.EndDate,
-    //   GlobalSearch: value,
-    //   IsDownload: false,
-    //   StatusIds: !!selectedStatus ? [selectedStatus] : [],
-    // };
-    // const url = `${process.env.report_api_url}/dashboard/reworklist`;
-    // const successCallback = (
-    //   ResponseData: {
-    //     TotalCount: number;
-    //     ReworkTrendsListFilters: null;
-    //     ReworkTrendsList: ListDashboard[] | [];
-    //   },
-    //   error: boolean,
-    //   ResponseStatus: string
-    // ) => {
-    //   if (ResponseStatus.toLowerCase() === "success" && error === false) {
-    //     setData(ResponseData.ReworkTrendsList);
-    //     setTableDataCount(ResponseData.TotalCount);
-        // onHandleExport(ResponseData.ReworkTrendsList.length > 0 ? true : false);
-    //     setLoading(false);
-    //   } else {
-    setLoading(false);
-    //   }
-    // };
-    // callAPI(url, params, successCallback, "POST");
+    const workTypeIdFromLocalStorage =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("workTypeId")
+        : 3;
+    const params = {
+      PageNo: page + 1,
+      PageSize: rowsPerPage,
+      SortColumn: null,
+      IsDesc: true,
+      Clients: currentFilterData.Clients,
+      WorkTypeId:
+        currentFilterData.WorkTypeId === null
+          ? Number(workTypeIdFromLocalStorage)
+          : currentFilterData.WorkTypeId,
+      DepartmentIds: currentFilterData.DepartmentIds,
+      AssigneeIds: currentFilterData.AssigneeIds,
+      ReviewerIds: currentFilterData.ReviewerIds,
+      StartDate: currentFilterData.StartDate,
+      EndDate: currentFilterData.EndDate,
+      GlobalSearch: value,
+      IsDownload: false,
+      HourSlot: onSelectedData,
+    };
+    const url = `${process.env.report_api_url}/dashboard/peakproductivelist`;
+    const successCallback = (
+      ResponseData: {
+        TotalCount: number;
+        PeakProductiveHoursListFilters: null;
+        PeakProductiveHoursList: ListDashboard[] | [];
+      },
+      error: boolean,
+      ResponseStatus: string
+    ) => {
+      if (ResponseStatus.toLowerCase() === "success" && error === false) {
+        setData(ResponseData.PeakProductiveHoursList);
+        setTableDataCount(ResponseData.TotalCount);
+        onHandleExport(ResponseData.PeakProductiveHoursList.length > 0 ? true : false);
+        setLoading(false);
+      } else {
+        setLoading(false);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {

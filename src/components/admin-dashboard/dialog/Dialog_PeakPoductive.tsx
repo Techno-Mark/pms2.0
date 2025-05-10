@@ -50,7 +50,7 @@ const Dialog_PeakPoductive = ({
       const Org_Token = await localStorage.getItem("Org_Token");
 
       const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/`,
+        `${process.env.report_api_url}/dashboard/peakproductivelist`,
         {
           PageNo: 1,
           PageSize: 50000,
@@ -61,13 +61,14 @@ const Dialog_PeakPoductive = ({
             currentFilterData.WorkTypeId === null
               ? 0
               : currentFilterData.WorkTypeId,
-          DepartmentIds: [onSelectedData],
+              DepartmentIds: currentFilterData.DepartmentIds,
           StartDate: currentFilterData.StartDate,
           EndDate: currentFilterData.EndDate,
           GlobalSearch: searchValue,
           IsDownload: true,
           AssigneeIds: currentFilterData.AssigneeIds,
           ReviewerIds: currentFilterData.ReviewerIds,
+          HourSlot: onSelectedData,
         },
         {
           headers: { Authorization: `bearer ${token}`, org_token: Org_Token },
@@ -94,7 +95,7 @@ const Dialog_PeakPoductive = ({
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `Dashboard_PeakProductive_report.xlsx`;
+        a.download = `Dashboard_Peak_Productive_report.xlsx`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

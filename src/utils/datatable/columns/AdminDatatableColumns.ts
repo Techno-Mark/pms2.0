@@ -627,13 +627,28 @@ const autoManualColConfig = [
 
 const peakProductiveColConfig = [
   {
+    name: "EmployeeCode",
+    label: "Employee Code",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     name: "UserName",
     label: "User Name",
     bodyRenderer: generateCommonBodyRender,
   },
   {
+    name: "ReportingManager",
+    label: "Reporting Manager",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
     name: "DepartmentName",
     label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "DepartmentName",
+    label: "Designation",
     bodyRenderer: generateCommonBodyRender,
   },
   {

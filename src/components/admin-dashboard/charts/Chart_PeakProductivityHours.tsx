@@ -41,7 +41,7 @@ const Chart_PeakProductivityHours = ({
           },
         },
         tooltip: {
-          pointFormat: "<b>{point.y} mins</b>",
+          pointFormat: "<b>{point.y} Hrs</b>",
         },
         plotOptions: {
           column: {
