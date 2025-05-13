@@ -9,7 +9,9 @@ import {
   generateEmailboxSLAStatusWithColor,
   generateEmailboxStatusWithColor,
   generatePriorityWithColor,
+  generateSecondsToHHMMSS,
   generateStatusWithColor,
+  generateTimeWithoutDate,
   getTagDataForDashboard,
 } from "../CommonFunction";
 import {
@@ -647,7 +649,7 @@ const peakProductiveColConfig = [
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "DepartmentName",
+    name: "Designation",
     label: "Designation",
     bodyRenderer: generateCommonBodyRender,
   },
@@ -716,85 +718,79 @@ const billableNonBillableColConfig = [
   },
 ];
 
-const loggedWorkingColConfig = [
+const loggedColConfig = [
   {
-    name: "TaskId",
-    label: "Task Id",
+    name: "UserName",
+    label: "User Name",
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "TaskName",
-    label: "Task Name",
+    name: "ReportingManager",
+    label: "Reporting Manager",
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "ClientName",
-    label: "Client Name",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "TypeOfWork",
-    label: "Type Of Work",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "ProjectName",
-    label: "Project Name",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "ProcessName",
-    label: "Process Name",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "SubProcessName",
-    label: "Sub-Process",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    name: "DepartmentName",
+    name: "Department",
     label: "Department",
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "Assignee",
-    label: "Assigned To",
+    name: "Designation",
+    label: "Designation",
     bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "AssignedBy",
-    label: "Assigned By",
-    bodyRenderer: generateCommonBodyRender,
+    name: "Date",
+    label: "Date",
+    bodyRenderer: generateCustomFormatDate,
   },
   {
-    name: "TaskStatus",
-    label: "Status",
-    bodyRenderer: (value: any, tableMeta: any) =>
-      generateStatusWithColor(value, tableMeta.rowData[18]),
+    name: "LoginTime",
+    label: "Login Time",
+    bodyRenderer: generateTimeWithoutDate,
+  },
+  {
+    name: "LogoutTime",
+    label: "Logout Time",
+    bodyRenderer: generateTimeWithoutDate,
   },
   {
     name: "TotalTime",
     label: "Total Time",
     bodyRenderer: generateCommonBodyRender,
   },
+];
+
+const workingColConfig = [
   {
-    name: "StartDate",
-    label: "Start Date",
-    bodyRenderer: generateCustomFormatDate,
+    name: "UserName",
+    label: "User Name",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "DueDate",
-    label: "Due Date",
-    bodyRenderer: generateCustomFormatDate,
+    name: "ReportingManager",
+    label: "Reporting Manager",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "StatusColorCode",
-    options: {
-      filter: false,
-      sort: false,
-      display: false,
-    },
+    name: "Department",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "Designation",
+    label: "Designation",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TotalAutoDuration",
+    label: "Auto Time",
+    bodyRenderer: generateSecondsToHHMMSS,
+  },
+  {
+    name: "TotalManualDuration",
+    label: "Manual Time",
+    bodyRenderer: generateSecondsToHHMMSS,
   },
 ];
 
@@ -937,8 +933,12 @@ const adminDashboardBillableNonBillableCols = billableNonBillableColConfig.map(
   (column: any) => generateStatusColumn(column, 16)
 );
 
-const adminDashboardLoggedWorkingCols = loggedWorkingColConfig.map(
-  (column: any) => generateStatusColumn(column, 18)
+const adminDashboardLoggedCols = loggedColConfig.map((column: any) =>
+  generateStatusColumn(column, 18)
+);
+
+const adminDashboardWorkingCols = workingColConfig.map((column: any) =>
+  generateStatusColumn(column, 18)
 );
 
 const adminDashboardSLATATAchivementCols = slaTATAchivementColConfig.map(
@@ -958,6 +958,7 @@ export {
   adminDashboardAutoManualCols,
   adminDashboardPeakProductiveCols,
   adminDashboardBillableNonBillableCols,
-  adminDashboardLoggedWorkingCols,
+  adminDashboardLoggedCols,
+  adminDashboardWorkingCols,
   adminDashboardSLATATAchivementCols,
 };

@@ -65,7 +65,7 @@ const Dialog_LoggedWorking = ({
       const Org_Token = await localStorage.getItem("Org_Token");
 
       const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/slatatlist`,
+        `${process.env.report_api_url}/dashboard/totalLoggedVSWorkingList`,
         {
           PageNo: 1,
           PageSize: 50000,
@@ -83,7 +83,7 @@ const Dialog_LoggedWorking = ({
           IsDownload: true,
           AssigneeIds: currentFilterData.AssigneeIds,
           ReviewerIds: currentFilterData.ReviewerIds,
-          SLAType: status,
+          Key: status,
         },
         {
           headers: { Authorization: `bearer ${token}`, org_token: Org_Token },

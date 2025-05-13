@@ -8,12 +8,12 @@ import {
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
-import { adminDashboardLoggedWorkingCols } from "@/utils/datatable/columns/AdminDatatableColumns";
-import { callAPI } from "@/utils/API/callAPI";
 import {
-  DashboardInitialFilter,
-  ListDashboard,
-} from "@/utils/Types/dashboardTypes";
+  adminDashboardLoggedCols,
+  adminDashboardWorkingCols,
+} from "@/utils/datatable/columns/AdminDatatableColumns";
+import { callAPI } from "@/utils/API/callAPI";
+import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 import OverLay from "@/components/common/OverLay";
 
 interface Props {
@@ -35,7 +35,7 @@ const Datatable_LoggedWorking = ({
   onOpen,
   onHandleExport,
 }: Props) => {
-  const [data, setData] = useState<ListDashboard[] | []>([]);
+  const [data, setData] = useState<any>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
@@ -70,23 +70,30 @@ const Datatable_LoggedWorking = ({
       EndDate: currentFilterData.EndDate,
       GlobalSearch: value,
       IsDownload: false,
-      SLAType: status,
+      Key: status,
     };
-    const url = `${process.env.report_api_url}/dashboard/slatatlist`;
+    const url = `${process.env.report_api_url}/dashboard/totalLoggedVSWorkingList`;
     const successCallback = (
-      ResponseData: {
-        TotalCount: number;
-        SLATatListFilters: null;
-        SLATatList: ListDashboard[] | [];
-      },
+      ResponseData: any,
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setData(ResponseData.SLATatList);
+        setData(
+          status === 1
+            ? ResponseData.TotalLoggedList
+            : ResponseData.UserWorkItemWithTasks
+        );
         setTableDataCount(ResponseData.TotalCount);
         setLoading(false);
-        onHandleExport(ResponseData.SLATatList.length > 0 ? true : false);
+        onHandleExport(
+          (status === 1
+            ? ResponseData.TotalLoggedList
+            : ResponseData.UserWorkItemWithTasks
+          ).length > 0
+            ? true
+            : false
+        );
       } else {
         setLoading(false);
       }
@@ -95,6 +102,7 @@ const Datatable_LoggedWorking = ({
   };
 
   useEffect(() => {
+    setData([]);
     setPage(0);
   }, [onSelectedData, status]);
 
@@ -128,7 +136,9 @@ const Datatable_LoggedWorking = ({
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
-          columns={adminDashboardLoggedWorkingCols}
+          columns={
+            status === 1 ? adminDashboardLoggedCols : adminDashboardWorkingCols
+          }
           title={undefined}
           options={{
             ...dashboard_Options,

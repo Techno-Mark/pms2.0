@@ -82,6 +82,8 @@ const Dialog_ReworkTrend = ({
     setSearchValue("");
     setIsClose(false);
     setCanExport(false);
+    setSelectedStatus(null);
+    setIsExporting(false);
   };
 
   const handleChangeValue = (e: number) => {
