@@ -135,7 +135,9 @@ const Dialog_LoggedWorking = ({
       >
         <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
           <span className="font-semibold text-lg">
-            Total Logged vs Working
+            {status === 1
+              ? "Total Logged Hours"
+              : status === 2 && "Total Working Hours"}
           </span>
           <IconButton onClick={handleClose}>
             <Close />
