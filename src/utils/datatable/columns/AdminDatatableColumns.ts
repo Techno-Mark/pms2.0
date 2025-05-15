@@ -547,7 +547,7 @@ const reworkTrendColConfig = [
     name: "StatusName",
     label: "Status",
     bodyRenderer: (value: any, tableMeta: any) =>
-      generateStatusWithColor(value, tableMeta.rowData[17]),
+      generateStatusWithColor(value, tableMeta.rowData[18]),
   },
   {
     name: "AssigneeName",
@@ -583,6 +583,11 @@ const reworkTrendColConfig = [
     name: "ReworkDueDate",
     label: "Rework Due Date",
     bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "Description",
+    label: "Description",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "Comments",
@@ -710,6 +715,11 @@ const billableNonBillableColConfig = [
     name: "DueDate",
     label: "Due Date",
     bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "IsBillable",
@@ -923,7 +933,7 @@ const adminDashboardTasksSubmittedAssignedCols =
   );
 
 const adminDashboardReworkTrendCols = reworkTrendColConfig.map((column: any) =>
-  generateStatusColumn(column, 17)
+  generateStatusColumn(column, 18)
 );
 
 const adminDashboardAutoManualCols = autoManualColConfig.map((column: any) =>
