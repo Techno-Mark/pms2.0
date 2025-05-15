@@ -83,7 +83,7 @@ const adminDashboardEmailTypeCols = [
   { header: "ReceivedOn", label: "Received On" },
   { header: "OpenDate", label: "Opened Time" },
   { header: "DueOn", label: "Due On" },
-  { header: "AssignTo", label: "Assigned To" },
+  { header: "AssignTo", label: "Assignee" },
   { header: "ReportingManager", label: "Reporting Manager" },
   { header: "Department", label: "Department" },
 ].map((i: { header: string; label: string }) =>
@@ -177,7 +177,7 @@ const SummaryColConfig = [
   },
   {
     name: "AssignedToName",
-    label: "Assigned To",
+    label: "Assignee",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -267,7 +267,7 @@ const errorlogColConfig = [
   },
   {
     name: "AssignedToName",
-    label: "Assigned To",
+    label: "Assignee",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -453,7 +453,7 @@ const tasksSubmittedAssignedColConfig = [
   },
   {
     name: "AssigneeName",
-    label: "Assigned To",
+    label: "Assignee",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -551,7 +551,7 @@ const reworkTrendColConfig = [
   },
   {
     name: "AssigneeName",
-    label: "Assigned To",
+    label: "Assignee",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -688,7 +688,7 @@ const billableNonBillableColConfig = [
   },
   {
     name: "AssigneeName",
-    label: "Assigned To",
+    label: "Assignee",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -837,7 +837,7 @@ const slaTATAchivementColConfig = [
   },
   {
     name: "Assignee",
-    label: "Assigned To",
+    label: "Assignee",
     bodyRenderer: generateCommonBodyRender,
   },
   {
