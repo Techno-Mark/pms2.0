@@ -61,6 +61,7 @@ import LineIcon from "@/assets/icons/reports/LineIcon";
 import SLA from "@/components/settings/tables/SLA";
 import EmailTemplate from "@/components/settings/tables/EmailTemplate";
 import EmailNotification from "@/components/settings/tables/EmailNotification";
+import BlackList from "@/components/settings/tables/BlackList";
 
 const filter = createFilterOptions<LabelValue>();
 
@@ -90,7 +91,8 @@ const allTabs = [
     value: 13,
     canView: false,
   },
-  { id: "Organization", label: "Organization", value: 14, canView: true },
+  { id: "Black List", label: "Black List", value: 14, canView: false },
+  { id: "Organization", label: "Organization", value: 15, canView: true },
 ];
 
 interface MoreTabs {
@@ -161,6 +163,7 @@ const Page = () => {
           !hasPermissionWorklog("SLA", "View", "Settings") ||
           !hasPermissionWorklog("Email template", "View", "Settings") ||
           !hasPermissionWorklog("Email Notification", "View", "Settings") ||
+          !hasPermissionWorklog("Black List", "View", "Settings") ||
           !hasPermissionWorklog("Status", "View", "Settings"))
       ) {
         router.push("/");
@@ -679,6 +682,7 @@ const Page = () => {
                     tab === "ErrorDetails" ||
                     tab === "Email Type" ||
                     tab === "Email template" ||
+                    tab === "Black List" ||
                     tab === "Organization") && (
                     <div className="relative">
                       <InputBase
@@ -726,7 +730,8 @@ const Page = () => {
                   {tab !== "Email Type" &&
                     tab !== "SLA" &&
                     tab !== "Email template" &&
-                    tab !== "Email Notification" && (
+                    tab !== "Email Notification" &&
+                    tab !== "Black List" && (
                       <ColorToolTip title="Export" placement="top" arrow>
                         <div
                           className={`${
@@ -1240,6 +1245,29 @@ const Page = () => {
               "save",
               "settings"
             )}
+          />
+        )}
+
+        {tab === "Black List" && (
+          <BlackList
+            onOpen={
+              hasPermissionWorklog(tab, "save", "settings")
+                ? handleDrawerOpen
+                : undefined
+            }
+            onEdit={handleEdit}
+            onDataFetch={handleDataFetch}
+            getOrgDetailsFunction={getOrgDetailsFunction}
+            canView={hasPermissionWorklog("Black List", "view", "settings")}
+            canEdit={hasPermissionWorklog("Black List", "save", "settings")}
+            canDelete={hasPermissionWorklog(
+              "Black List",
+              "delete",
+              "settings"
+            )}
+            onSearchData={searchValue}
+            onSearchClear={clearSearchValue}
+            onHandleExport={handleCanExport}
           />
         )}
 

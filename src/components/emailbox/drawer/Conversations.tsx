@@ -146,6 +146,7 @@ const Conversations = forwardRef<
     const [openChatbot, setOpenChatbot] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [deleteId, setDeleteId] = useState(0);
+    const [blockedMail, setBlockedMail] = useState<any[]>([]);
 
     const getConversationData = () => {
       const url = `${process.env.emailbox_api_url}/emailbox/GetTicketDetails`;
@@ -329,7 +330,12 @@ const Conversations = forwardRef<
       const successCallback = (
         ResponseData: any,
         error: boolean,
-        ResponseStatus: string
+        ResponseStatus: string,
+        ErrorData: {
+          ErrorCode: string;
+          Error: string;
+          ErrorDetail: any;
+        }
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           toast.success(
@@ -344,6 +350,10 @@ const Conversations = forwardRef<
           getTicketDetails();
           handleClearMailData();
         } else {
+          Array.isArray(ErrorData.ErrorDetail) &&
+          ErrorData.ErrorDetail.length > 0
+            ? setBlockedMail(ErrorData.ErrorDetail)
+            : setBlockedMail([]);
           setSending(false);
           setOverlayOpen(false);
         }
@@ -396,7 +406,12 @@ const Conversations = forwardRef<
       const successCallback = (
         ResponseData: any,
         error: boolean,
-        ResponseStatus: string
+        ResponseStatus: string,
+        ErrorData: {
+          ErrorCode: string;
+          Error: string;
+          ErrorDetail: any;
+        }
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           handleClearMailData();
@@ -407,6 +422,10 @@ const Conversations = forwardRef<
           onClose();
           onDataFetch?.();
         } else {
+          Array.isArray(ErrorData.ErrorDetail) &&
+          ErrorData.ErrorDetail.length > 0
+            ? setBlockedMail(ErrorData.ErrorDetail)
+            : setBlockedMail([]);
           setSending(false);
           setOverlayOpen(false);
         }
@@ -452,7 +471,12 @@ const Conversations = forwardRef<
       const successCallback = (
         ResponseData: any,
         error: boolean,
-        ResponseStatus: string
+        ResponseStatus: string,
+        ErrorData: {
+          ErrorCode: string;
+          Error: string;
+          ErrorDetail: any;
+        }
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           handleClearMailData();
@@ -463,6 +487,10 @@ const Conversations = forwardRef<
           onClose();
           onDataFetch?.();
         } else {
+          Array.isArray(ErrorData.ErrorDetail) &&
+          ErrorData.ErrorDetail.length > 0
+            ? setBlockedMail(ErrorData.ErrorDetail)
+            : setBlockedMail([]);
           setSending(false);
           setOverlayOpen(false);
         }
@@ -549,7 +577,12 @@ const Conversations = forwardRef<
       const successCallback = (
         ResponseData: any,
         error: boolean,
-        ResponseStatus: string
+        ResponseStatus: string,
+        ErrorData: {
+          ErrorCode: string;
+          Error: string;
+          ErrorDetail: any;
+        }
       ) => {
         if (ResponseStatus === "Success" && error === false) {
           activeType === "Send Draft" &&
@@ -564,6 +597,10 @@ const Conversations = forwardRef<
           onClose();
           onDataFetch?.();
         } else {
+          Array.isArray(ErrorData.ErrorDetail) &&
+          ErrorData.ErrorDetail.length > 0
+            ? setBlockedMail(ErrorData.ErrorDetail)
+            : setBlockedMail([]);
           setTrailId(0);
           setDeleteId(0);
           setIsDeleteOpen(false);
@@ -602,6 +639,7 @@ const Conversations = forwardRef<
       setSending(false);
       setOpenEmailTemplate(false);
       change && setConversationAttachment([]);
+      setBlockedMail([]);
     };
 
     const clearConversationData = async () => {
@@ -678,6 +716,7 @@ const Conversations = forwardRef<
                       error={toInputValueError}
                       setError={setToInputValueError}
                       validate={true}
+                      blockedMail={blockedMail}
                     />
                     <MemberInput
                       label="Cc"
@@ -687,6 +726,7 @@ const Conversations = forwardRef<
                       setInputValue={setCcInputValue}
                       error={ccInputValueError}
                       setError={setCcInputValueError}
+                      blockedMail={blockedMail}
                     />
                     <MemberInput
                       label="Bcc"
@@ -696,6 +736,7 @@ const Conversations = forwardRef<
                       setInputValue={setBccInputValue}
                       error={bccInputValueError}
                       setError={setBccInputValueError}
+                      blockedMail={blockedMail}
                     />
                     <RichTextEditor
                       text={text}

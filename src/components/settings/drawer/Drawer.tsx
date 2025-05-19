@@ -28,6 +28,7 @@ import EmailTypeContent, {
 import EmailTemplateContent, {
   EmailTemplateContentRef,
 } from "./content/EmailTemplateContent";
+import BlackListContent, { BlackListContentRef } from "./content/BlackListContent";
 
 const Drawer = ({
   onOpen,
@@ -47,6 +48,7 @@ const Drawer = ({
   const childRefNatureOfError = useRef<NatureOfErrorContentRef>(null);
   const childRefEmailType = useRef<EmailTypeContentRef>(null);
   const childRefEmailTemplate = useRef<EmailTemplateContentRef>(null);
+  const childRefBlackList = useRef<BlackListContentRef>(null);
   const projectRef = useRef<ProjectContentRef>(null);
   const clientRef = useRef<ClientContentRef>(null);
   const childRefStatus = useRef<StatusContenRef>(null);
@@ -99,6 +101,9 @@ const Drawer = ({
     }
     if (childRefEmailTemplate.current) {
       childRefEmailTemplate.current.EmailTemplateDataValue();
+    }
+    if (childRefBlackList.current) {
+      childRefBlackList.current.BlackListDataValue();
     }
   };
 
@@ -347,6 +352,16 @@ const Drawer = ({
             onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
             departmentDropdown={departmentDropdown}
             emailTypeDropdown={emailTypeDropdown}
+          />
+        )}
+        {tab === "Black List" && (
+          <BlackListContent
+            onOpen={onOpen}
+            onEdit={onEdit}
+            onClose={onClose}
+            ref={childRefBlackList}
+            onDataFetch={onDataFetch}
+            onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
           />
         )}
       </div>

@@ -51,7 +51,7 @@ export const callAPI = async (
         } else {
           toast.error(Message);
         }
-        successCallback(null, true, ResponseStatus);
+        successCallback(null, true, ResponseStatus, ErrorData);
       }
     } else {
       if (Message === null) {

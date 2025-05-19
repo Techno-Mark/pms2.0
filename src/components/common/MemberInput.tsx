@@ -9,6 +9,7 @@ const MemberInput = ({
   error,
   setError,
   validate = false,
+  blockedMail,
 }: any) => {
   const isValidEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -55,12 +56,16 @@ const MemberInput = ({
           {members.map((member: string, index: number) => (
             <div
               key={index}
-              className="flex items-center bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm"
+              className={`flex items-center ${
+                blockedMail.includes(member) ? "bg-defaultRed text-gray-200" : "bg-gray-200 text-gray-700"
+              } px-3 py-1 rounded-full text-sm`}
             >
               {member}
               <button
                 onClick={() => handleRemoveMember(index)}
-                className="ml-2 text-gray-500 hover:text-gray-800"
+                className={`ml-2 ${
+                  blockedMail.includes(member) ? "text-gray-300 hover:text-white" : "text-gray-500 hover:text-gray-800"
+                }`}
               >
                 &times;
               </button>

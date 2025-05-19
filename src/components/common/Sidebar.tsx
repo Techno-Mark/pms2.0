@@ -187,6 +187,7 @@ const Sidebar = ({
               hasPermissionWorklog("SLA", "View", "Settings") ||
               hasPermissionWorklog("Email template", "View", "Settings") ||
               hasPermissionWorklog("Email Notification", "View", "Settings") ||
+              hasPermissionWorklog("Black List", "View", "Settings") ||
               hasPermissionWorklog("Status", "View", "Settings")) &&
             !isClient && {
               name: "Settings",
