@@ -542,6 +542,11 @@ const User = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "RoleName",
+      label: "Role",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "UserType",
       label: "User Type",
       bodyRenderer: generateCommonBodyRender,
