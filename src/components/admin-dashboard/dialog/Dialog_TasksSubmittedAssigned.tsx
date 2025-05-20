@@ -80,8 +80,10 @@ const Dialog_TasksSubmittedAssigned = ({
           DepartmentIds: [onSelectedData.department],
           StartDate: currentFilterData.StartDate,
           EndDate: currentFilterData.EndDate,
+          AssigneeIds: currentFilterData.AssigneeIds,
+          ReviewerIds: currentFilterData.ReviewerIds,
           GlobalSearch: searchValue,
-          StatusId: clickedStatusName,
+          Key: clickedStatusName,
           IsDownload: true,
         },
         {
