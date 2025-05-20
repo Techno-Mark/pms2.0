@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { ThemeProvider } from "@mui/material";
@@ -132,6 +132,13 @@ const Page = () => {
       EndDate: null,
     });
   const [emailboxLoading, setEmailboxLoading] = useState(true);
+  const filterDialogRef = useRef<any>();
+
+  const filterDialogReset = () => {
+    if (filterDialogRef.current) {
+      filterDialogRef.current.callChildFunction();
+    }
+  };
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
@@ -368,6 +375,7 @@ const Page = () => {
                 currentFilter={currentFilter}
                 setCurrentFilterData={setCurrentFilterData}
                 setIsDeleteOpen={setIsDeleteOpen}
+                filterDialogReset={filterDialogReset}
               />
             ) : (
               <ColorToolTip title="Filter" placement="top" arrow>
@@ -440,6 +448,7 @@ const Page = () => {
                 currentFilter={currentFilter}
                 setCurrentFilterData={setCurrentFilterData}
                 setIsDeleteOpen={setIsDeleteOpen}
+                filterDialogReset={filterDialogReset}
               />
             ) : (
               <ColorToolTip title="Filter" placement="top" arrow>
@@ -546,6 +555,7 @@ const Page = () => {
         getFilterList={getFilterList}
         currentFilterData={getIdFromFilterDialog}
         onCurrentFilterId={currentFilterId}
+        ref={filterDialogRef}
       />
 
       {/* Delete Dialog Box */}

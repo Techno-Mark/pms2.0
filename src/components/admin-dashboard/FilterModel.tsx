@@ -19,6 +19,7 @@ const FilterModel = ({
   currentFilter,
   setCurrentFilterData,
   setIsDeleteOpen,
+  filterDialogReset,
 }: {
   idFilter: string | undefined;
   handleClickFilter: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -33,6 +34,7 @@ const FilterModel = ({
   currentFilter: any;
   setCurrentFilterData: (value: any) => void;
   setIsDeleteOpen: (value: boolean) => void;
+  filterDialogReset: () => void;
 }) => {
   return (
     <div>
@@ -133,6 +135,7 @@ const FilterModel = ({
           <Button
             onClick={() => {
               handleCloseFilter();
+              filterDialogReset();
               setCurrentFilterData(currentFilter);
             }}
             className="mt-2"
