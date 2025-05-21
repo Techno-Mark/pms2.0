@@ -415,7 +415,7 @@ const Page = () => {
                   : "text-slatyGrey"
               }`}
             >
-              1.0
+              V 1.0
             </label>
             <span className="text-lightSilver">|</span>
             <label
@@ -429,7 +429,7 @@ const Page = () => {
                   : "text-slatyGrey"
               }`}
             >
-              2.0
+              V 2.0
             </label>
           </div>
           <div>
