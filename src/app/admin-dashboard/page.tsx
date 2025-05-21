@@ -415,7 +415,7 @@ const Page = () => {
                   : "text-slatyGrey"
               }`}
             >
-              Task
+              1.0
             </label>
             <span className="text-lightSilver">|</span>
             <label
@@ -429,7 +429,7 @@ const Page = () => {
                   : "text-slatyGrey"
               }`}
             >
-              New Dashboard
+              2.0
             </label>
           </div>
           <div>
