@@ -15,15 +15,16 @@ import {
   ListDashboard,
   ResponseDashboardErrorlog,
 } from "@/utils/Types/dashboardTypes";
+import OverLay from "@/components/common/OverLay";
 
 interface ErrorlogProps {
   currentFilterData: DashboardInitialFilter;
   onSelectedErrorlog: number;
-  onSelectedProjectIds: number[];
   onCurrSelectedProjectStatus: number;
   errorlogImportStatus: number;
   onOpen: boolean;
   isClose: boolean;
+  onHandleExport: (canExport: boolean) => void;
 }
 
 const Datatable_Errorlog = ({
@@ -33,18 +34,22 @@ const Datatable_Errorlog = ({
   errorlogImportStatus,
   onOpen,
   isClose,
+  onHandleExport,
 }: ErrorlogProps) => {
   const [data, setData] = useState<ListDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (isClose || onOpen) && setPage(0);
     (isClose || onOpen) && setRowsPerPage(10);
+    isClose && setLoading(true);
   }, [onOpen, isClose]);
 
   const getErrorlogStatusData = async () => {
+    setLoading(true);
     const workTypeIdFromLocalStorage =
       typeof localStorage !== "undefined"
         ? localStorage.getItem("workTypeId")
@@ -84,6 +89,10 @@ const Datatable_Errorlog = ({
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setData(ResponseData.ErrorlogList);
         setTableDataCount(ResponseData.TotalCount);
+        onHandleExport(ResponseData.ErrorlogList.length > 0 ? true : false);
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -95,7 +104,7 @@ const Datatable_Errorlog = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      if (onCurrSelectedProjectStatus !== null || onSelectedErrorlog > 0) {
+      if (!!onCurrSelectedProjectStatus || !!onSelectedErrorlog) {
         await getErrorlogStatusData();
       }
     };
@@ -114,6 +123,7 @@ const Datatable_Errorlog = ({
 
   return (
     <div>
+      {loading && <OverLay />}
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}

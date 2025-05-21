@@ -902,7 +902,9 @@ const EditDrawer = ({
     };
 
     const fieldValidations = {
-      recurringStartDate: recurringSwitch && validateField(recurringStartDate),
+      recurringStartDate:
+        recurringSwitch &&
+        (validateField(recurringStartDate) || checkDate(recurringStartDate)),
       recurringEndDate: recurringSwitch && validateField(recurringEndDate),
       recurringMonth:
         recurringSwitch && recurringTime === 3 && validateField(recurringMonth),
@@ -911,7 +913,9 @@ const EditDrawer = ({
     };
 
     recurringSwitch &&
-      setRecurringStartDateErr(fieldValidations.recurringStartDate);
+      setRecurringStartDateErr(
+        fieldValidations.recurringStartDate || checkDate(recurringStartDate)
+      );
     recurringSwitch &&
       setRecurringEndDateErr(fieldValidations.recurringEndDate);
     recurringSwitch &&
@@ -1002,9 +1006,7 @@ const EditDrawer = ({
   const setManualDisableData = (manualField: ManualFieldsWorklogs[]) => {
     setManualSubmitWorklogsDisable(
       manualField
-        .map((i: ManualFieldsWorklogs) =>
-          i.IsApproved === false ? false : true
-        )
+        .map((i: ManualFieldsWorklogs) => i.IsApproved)
         .includes(false) || deletedManualTimeWorklogs.length > 0
         ? false
         : true
@@ -1104,7 +1106,7 @@ const EditDrawer = ({
     setManualFieldsWorklogs(newManualWorklogsFields);
 
     const newInputDateWorklogsErrors = [...inputDateWorklogsErrors];
-    newInputDateWorklogsErrors[index] = e.length === 0;
+    newInputDateWorklogsErrors[index] = e.length === 0 || checkDate(e);
     setInputDateWorklogsErrors(newInputDateWorklogsErrors);
   };
 
@@ -1210,7 +1212,10 @@ const EditDrawer = ({
     ) {
       let hasManualErrors = false;
       const newInputDateWorklogsErrors = manualFieldsWorklogs.map(
-        (field) => manualSwitchWorklogs && field.inputDate === ""
+        (field) =>
+          manualSwitchWorklogs &&
+          (field.inputDate === "" ||
+            checkDate(field.inputDate, field.IsApproved))
       );
       manualSwitchWorklogs &&
         setInputDateWorklogsErrors(newInputDateWorklogsErrors);
@@ -2908,7 +2913,9 @@ const EditDrawer = ({
       setChecklistWorkpaperWorklogsErr(fieldValidations.checklistWorkpaper);
     onEdit === 0 &&
       recurringSwitch &&
-      setRecurringStartDateErr(fieldValidations.recurringStartDate);
+      setRecurringStartDateErr(
+        fieldValidations.recurringStartDate || checkDate(recurringStartDate)
+      );
     onEdit === 0 &&
       recurringSwitch &&
       setRecurringEndDateErr(fieldValidations.recurringEndDate);
@@ -3065,7 +3072,10 @@ const EditDrawer = ({
     // Maual
     let hasManualErrors = false;
     const newInputDateWorklogsErrors = manualFieldsWorklogs.map(
-      (field) => onEdit === 0 && manualSwitchWorklogs && field.inputDate === ""
+      (field) =>
+        onEdit === 0 &&
+        manualSwitchWorklogs &&
+        (field.inputDate === "" || checkDate(field.inputDate))
     );
     manualSwitchWorklogs &&
       setInputDateWorklogsErrors(newInputDateWorklogsErrors);
@@ -4124,6 +4134,21 @@ const EditDrawer = ({
       }
     }
   }, [typeOfWorkWorklogs]);
+
+  const checkDate = (date: string, isApproved: boolean = false) => {
+    if (isApproved) {
+      return false;
+    } else {
+      const date1 = new Date(receiverDateWorklogs);
+      const date2 = new Date(date);
+
+      // Zero out the time portion
+      date1.setHours(0, 0, 0, 0);
+      date2.setHours(0, 0, 0, 0);
+
+      return date1 > date2 ? true : false;
+    }
+  };
 
   return (
     <>
@@ -5689,10 +5714,9 @@ const EditDrawer = ({
               </div>
             )}
 
-            {(hasPermissionWorklog("Task/SubTask", "View", "WorkLogs")
-            //  ||
-            //   isDisabled
-            ) && (
+            {hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && (
+              //  ||
+              //   isDisabled
               <div className="mt-14" id="tabpanel-1">
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
@@ -5703,9 +5727,8 @@ const EditDrawer = ({
                     {!!selectedFile && onEdit === 0 && (
                       <span className="mr-4">{selectedFile.name}</span>
                     )}
-                    {subTaskSwitchWorklogs && !isIdDisabled && 
-                    // !isDisabled && 
-                    (
+                    {subTaskSwitchWorklogs && !isIdDisabled && (
+                      // !isDisabled &&
                       <ColorToolTip title="Import" placement="top" arrow>
                         <span
                           className="cursor-pointer"
@@ -5717,19 +5740,16 @@ const EditDrawer = ({
                         </span>
                       </ColorToolTip>
                     )}
-                    {onEdit > 0 &&
-                      subTaskSwitchWorklogs &&
-                      !isIdDisabled &&
+                    {onEdit > 0 && subTaskSwitchWorklogs && !isIdDisabled && (
                       // !isDisabled &&
-                       (
-                        <Button
-                          variant="contained"
-                          className="rounded-[4px] !h-[36px] mx-6 !bg-secondary"
-                          onClick={handleSubmitSubTaskWorklogs}
-                        >
-                          Update
-                        </Button>
-                      )}
+                      <Button
+                        variant="contained"
+                        className="rounded-[4px] !h-[36px] mx-6 !bg-secondary"
+                        onClick={handleSubmitSubTaskWorklogs}
+                      >
+                        Update
+                      </Button>
+                    )}
                     {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
                     !!receiverDateWorklogs ? (
                       <Switch
@@ -5799,8 +5819,7 @@ const EditDrawer = ({
                               }
                               fullWidth
                               disabled={
-                                !subTaskSwitchWorklogs ||
-                                isIdDisabled
+                                !subTaskSwitchWorklogs || isIdDisabled
                                 //  ||
                                 // isDisabled
                               }
@@ -5859,8 +5878,7 @@ const EditDrawer = ({
                               label={<span>Description</span>}
                               fullWidth
                               disabled={
-                                !subTaskSwitchWorklogs ||
-                                isIdDisabled 
+                                !subTaskSwitchWorklogs || isIdDisabled
                                 // ||
                                 // isDisabled
                               }
@@ -5886,8 +5904,7 @@ const EditDrawer = ({
                               }
                               fullWidth
                               disabled={
-                                !subTaskSwitchWorklogs ||
-                                isIdDisabled 
+                                !subTaskSwitchWorklogs || isIdDisabled
                                 // ||
                                 // isDisabled
                               }
@@ -5942,8 +5959,7 @@ const EditDrawer = ({
                               }
                               fullWidth
                               disabled={
-                                !subTaskSwitchWorklogs ||
-                                isIdDisabled 
+                                !subTaskSwitchWorklogs || isIdDisabled
                                 // ||
                                 // isDisabled
                               }
@@ -6004,8 +6020,7 @@ const EditDrawer = ({
                                     setDateWorklogsErr(newDateWorklogsErrors);
                                   }}
                                   disabled={
-                                    !subTaskSwitchWorklogs ||
-                                    isIdDisabled 
+                                    !subTaskSwitchWorklogs || isIdDisabled
                                     // ||
                                     // isDisabled
                                   }
@@ -6049,8 +6064,7 @@ const EditDrawer = ({
                               }
                               fullWidth
                               disabled={
-                                !subTaskSwitchWorklogs ||
-                                isIdDisabled 
+                                !subTaskSwitchWorklogs || isIdDisabled
                                 // ||
                                 // isDisabled
                               }
@@ -6730,7 +6744,8 @@ const EditDrawer = ({
                           Update
                         </Button>
                       )}
-                    {hasPermissionWorklog("Reccuring", "Save", "WorkLogs") ? (
+                    {hasPermissionWorklog("Reccuring", "Save", "WorkLogs") &&
+                    !!receiverDateWorklogs ? (
                       <Switch
                         checked={recurringSwitch}
                         disabled={isDisabled}
@@ -6796,9 +6811,13 @@ const EditDrawer = ({
                             }}
                             slotProps={{
                               textField: {
-                                helperText: recurringStartDateErr
-                                  ? "This is a required field."
-                                  : "",
+                                helperText:
+                                  recurringStartDateErr ||
+                                  checkDate(recurringStartDate)
+                                    ? "Start Date Must be grater than Received Date"
+                                    : recurringStartDateErr
+                                    ? "This is a required field."
+                                    : "",
                                 readOnly: true,
                               } as Record<string, any>,
                             }}
@@ -7017,36 +7036,38 @@ const EditDrawer = ({
                           Update
                         </Button>
                       )}
-                    <Switch
-                      checked={manualSwitchWorklogs}
-                      onChange={(e) => {
-                        setManualSwitchWorklogs(e.target.checked);
-                        setManualFieldsWorklogs([
-                          {
-                            AssigneeId: 0,
-                            Id: 0,
-                            inputDate: "",
-                            startTime: 0,
-                            manualDesc: "",
-                            IsApproved: false,
-                          },
-                        ]);
-                        setInputDateWorklogsErrors([false]);
-                        setStartTimeWorklogsErrors([false]);
-                        setManualDescWorklogsErrors([false]);
-                        setInputTypeWorklogsDate(["text"]);
-                        setManualDisableData([
-                          {
-                            AssigneeId: 0,
-                            Id: 0,
-                            inputDate: "",
-                            startTime: 0,
-                            manualDesc: "",
-                            IsApproved: false,
-                          },
-                        ]);
-                      }}
-                    />
+                    {!!receiverDateWorklogs && (
+                      <Switch
+                        checked={manualSwitchWorklogs}
+                        onChange={(e) => {
+                          setManualSwitchWorklogs(e.target.checked);
+                          setManualFieldsWorklogs([
+                            {
+                              AssigneeId: 0,
+                              Id: 0,
+                              inputDate: "",
+                              startTime: 0,
+                              manualDesc: "",
+                              IsApproved: false,
+                            },
+                          ]);
+                          setInputDateWorklogsErrors([false]);
+                          setStartTimeWorklogsErrors([false]);
+                          setManualDescWorklogsErrors([false]);
+                          setInputTypeWorklogsDate(["text"]);
+                          setManualDisableData([
+                            {
+                              AssigneeId: 0,
+                              Id: 0,
+                              inputDate: "",
+                              startTime: 0,
+                              manualDesc: "",
+                              IsApproved: false,
+                            },
+                          ]);
+                        }}
+                      />
+                    )}
                     <span
                       className={`cursor-pointer ${
                         manualTimeWorklogsDrawer ? "rotate-180" : ""
@@ -7065,7 +7086,7 @@ const EditDrawer = ({
                       {manualFieldsWorklogs.map((field, index) => (
                         <div key={index} className="flex items-center">
                           <div
-                            className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
+                            className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
                               inputDateWorklogsErrors[index]
                                 ? "datepickerError"
                                 : ""
@@ -7129,9 +7150,17 @@ const EditDrawer = ({
                                 }}
                                 slotProps={{
                                   textField: {
-                                    helperText: inputDateWorklogsErrors[index]
-                                      ? "This is a required field."
-                                      : "",
+                                    helperText:
+                                      !!field.inputDate &&
+                                      (inputDateWorklogsErrors[index] ||
+                                        checkDate(
+                                          field.inputDate,
+                                          field.IsApproved
+                                        ))
+                                        ? "Date Must be grater than Received Date"
+                                        : inputDateWorklogsErrors[index]
+                                        ? "This is a required field."
+                                        : "",
                                     readOnly: true,
                                   } as Record<string, any>,
                                 }}
@@ -7210,7 +7239,7 @@ const EditDrawer = ({
                             }
                             margin="normal"
                             variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 225 }}
+                            sx={{ mx: 0.75, maxWidth: 300 }}
                           />
                           <TextField
                             label={
@@ -7271,7 +7300,7 @@ const EditDrawer = ({
                             }
                             margin="normal"
                             variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
+                            sx={{ mx: 0.75, maxWidth: 300, mt: 2 }}
                           />
                           <div className="flex items-center justify-center w-[50px]">
                             {index === 0 &&

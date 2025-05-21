@@ -32,7 +32,6 @@ interface ProjectStatusDialogProps {
   onClose: () => void;
   currentFilterData: DashboardInitialFilter;
   onSelectedProjectStatus: number;
-  onSelectedProjectIds: number[];
 }
 
 const Dialog_ProjectStatus = ({
@@ -40,12 +39,12 @@ const Dialog_ProjectStatus = ({
   onClose,
   currentFilterData,
   onSelectedProjectStatus,
-  onSelectedProjectIds,
 }: ProjectStatusDialogProps) => {
   const [allProjectStatus, setAllProjectStatus] = useState<Status[]>([]);
   const [projectStatus, setProjectStatus] = useState<number>(0);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isClose, setIsClose] = useState<boolean>(false);
+  const [canExport, setCanExport] = useState(false);
 
   useEffect(() => {
     onOpen && setIsClose(false);
@@ -55,6 +54,7 @@ const Dialog_ProjectStatus = ({
     onClose();
     setProjectStatus(0);
     setIsClose(false);
+    setCanExport(false);
   };
 
   const getProjectStatusList = async () => {
@@ -73,8 +73,7 @@ const Dialog_ProjectStatus = ({
       ReviewerIds: currentFilterData.ReviewerIds,
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,
-      ProjectId:
-        onSelectedProjectIds.length === 0 ? null : onSelectedProjectIds,
+      ProjectId: null,
     };
     const url = `${process.env.report_api_url}/dashboard/projectstatusgraph`;
     const successCallback = (
@@ -106,9 +105,9 @@ const Dialog_ProjectStatus = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [currentFilterData, onSelectedProjectIds, onOpen]);
+  }, [currentFilterData, onOpen]);
 
-  const exportTaskStatusListReport = async () => {
+  const exportReport = async () => {
     try {
       setIsExporting(true);
 
@@ -229,9 +228,11 @@ const Dialog_ProjectStatus = ({
             <ColorToolTip title="Export" placement="top" arrow>
               <span
                 className={`${
-                  isExporting ? "cursor-default" : "cursor-pointer"
-                } ml-5 mt-5`}
-                onClick={exportTaskStatusListReport}
+                  canExport
+                    ? "cursor-pointer"
+                    : "pointer-events-none opacity-50"
+                } ${isExporting ? "cursor-default" : "cursor-pointer"} ml-5`}
+                onClick={canExport ? exportReport : undefined}
               >
                 {isExporting ? <Loading /> : <ExportIcon />}
               </span>
@@ -240,10 +241,10 @@ const Dialog_ProjectStatus = ({
           <Datatable_ProjectStatus
             currentFilterData={currentFilterData}
             onSelectedProjectStatus={onSelectedProjectStatus}
-            onSelectedProjectIds={onSelectedProjectIds}
             onCurrSelectedProjectStatus={projectStatus}
             onOpen={onOpen}
             isClose={isClose}
+            onHandleExport={(e) => setCanExport(e)}
           />
         </DialogContent>
       </Dialog>

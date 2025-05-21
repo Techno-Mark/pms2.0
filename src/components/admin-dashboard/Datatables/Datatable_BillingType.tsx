@@ -11,13 +11,14 @@ import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardBillingTypeCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
+import OverLay from "@/components/common/OverLay";
 
 interface BillingTypeProps {
   currentFilterData: DashboardInitialFilter;
-  onSelectedStatusName: string;
   onCurrentSelectedBillingType: number | null;
   onSearchValue: string;
   isClose: boolean;
+  onHandleExport: (canExport: boolean) => void;
 }
 
 interface List {
@@ -40,22 +41,25 @@ interface Response {
 
 const Datatable_BillingType = ({
   currentFilterData,
-  onSelectedStatusName,
   onCurrentSelectedBillingType,
   onSearchValue,
   isClose,
+  onHandleExport,
 }: BillingTypeProps) => {
-  const [data, setData] = useState<any | any[]>([]);
+  const [data, setData] = useState<any[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     isClose && setPage(0);
     isClose && setRowsPerPage(10);
+    isClose && setLoading(true);
   }, [isClose]);
 
   const getBillingTypeData = async (value: string) => {
+    setLoading(true);
     const workTypeIdFromLocalStorage =
       typeof localStorage !== "undefined"
         ? localStorage.getItem("workTypeId")
@@ -90,6 +94,12 @@ const Datatable_BillingType = ({
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setData(ResponseData.BillingStatusList);
         setTableDataCount(ResponseData.TotalCount);
+        onHandleExport(
+          ResponseData.BillingStatusList.length > 0 ? true : false
+        );
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -110,12 +120,11 @@ const Datatable_BillingType = ({
       }
     };
     const timer = setTimeout(() => {
-      fetchData();
+      onCurrentSelectedBillingType !== null && fetchData();
     }, 500);
     return () => clearTimeout(timer);
   }, [
     currentFilterData,
-    onSelectedStatusName,
     onCurrentSelectedBillingType,
     onSearchValue,
     page,
@@ -124,6 +133,7 @@ const Datatable_BillingType = ({
 
   return (
     <div>
+      {loading && <OverLay />}
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}

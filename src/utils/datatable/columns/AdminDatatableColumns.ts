@@ -3,8 +3,16 @@ import {
   generateCommonBodyRender,
   generateCustomFormatDate,
   generateDashboardReportBodyRender,
+  generateDashboardReportBodyRenderSecondToTime,
+  generateDashboardReportBodyRenderShortName,
+  generateDateWithTime,
+  generateEmailboxSLAStatusWithColor,
+  generateEmailboxStatusWithColor,
   generatePriorityWithColor,
+  generateSecondsToHHMMSS,
   generateStatusWithColor,
+  generateTimeWithoutDate,
+  getTagDataForDashboard,
 } from "../CommonFunction";
 import {
   generateCustomColumn,
@@ -58,6 +66,45 @@ const adminDashboardBillingTypeCols = [
     i.header === "Status"
       ? generateBillingStatusBodyRender
       : generateDashboardReportBodyRender
+  )
+);
+
+const adminDashboardEmailTypeCols = [
+  { header: "TicketId", label: "Ticket ID" },
+  { header: "Subject", label: "Subject Name" },
+  { header: "ClientName", label: "Client Name" },
+  { header: "Type", label: "Email Type" },
+  { header: "StandardSLATime", label: "Standard SLA Time" },
+  { header: "ActualTimeTaken", label: "Actual Time Taken" },
+  { header: "SLAStatusType", label: "SLA Status" },
+  { header: "StatusName", label: "Ticket Status" },
+  { header: "PriorityName", label: "Priority" },
+  { header: "Tag", label: "Tags" },
+  { header: "ReceivedOn", label: "Received On" },
+  { header: "OpenDate", label: "Opened Time" },
+  { header: "DueOn", label: "Due On" },
+  { header: "AssignTo", label: "Assignee" },
+  { header: "ReportingManager", label: "Reporting Manager" },
+  { header: "Department", label: "Department" },
+].map((i: { header: string; label: string }) =>
+  generateCustomColumn(
+    i.header,
+    i.label,
+    i.header === "StatusName"
+      ? generateEmailboxStatusWithColor
+      : i.header === "SLAStatusType"
+      ? generateEmailboxSLAStatusWithColor
+      : i.header === "StandardSLATime" || i.header === "ActualTimeTaken"
+      ? generateDashboardReportBodyRenderSecondToTime
+      : i.header === "PriorityName"
+      ? generatePriorityWithColor
+      : i.header === "Tag"
+      ? getTagDataForDashboard
+      : i.header === "ReceivedOn" ||
+        i.header === "OpenDate" ||
+        i.header === "DueOn"
+      ? generateDateWithTime
+      : generateDashboardReportBodyRenderShortName
   )
 );
 
@@ -130,7 +177,7 @@ const SummaryColConfig = [
   },
   {
     name: "AssignedToName",
-    label: "Assigned To",
+    label: "Assignee",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -176,7 +223,7 @@ const errorlogColConfig = [
   },
   {
     name: "SubProcessName",
-    label: "SubProcess Name",
+    label: "Sub-Process",
     bodyRenderer: generateCommonBodyRender,
   },
   // {
@@ -220,7 +267,7 @@ const errorlogColConfig = [
   },
   {
     name: "AssignedToName",
-    label: "Assigned To",
+    label: "Assignee",
     bodyRenderer: generateCommonBodyRender,
   },
   {
@@ -363,6 +410,507 @@ const errorlogColConfig = [
   // },
 ];
 
+const tasksSubmittedAssignedColConfig = [
+  {
+    name: "TaskId",
+    label: "Task Id",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TaskName",
+    label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ClientName",
+    label: "Client Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TypeOfWork",
+    label: "Type Of Work",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ProjectName",
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ProcessName",
+    label: "Process Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ProcessName",
+    label: "Sub-Process",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "DepartmentName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "AssigneeName",
+    label: "Assignee",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "AssignedByName",
+    label: "Assigned By",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "StatusName",
+    label: "Status",
+    bodyRenderer: (value: any, tableMeta: any) =>
+      generateStatusWithColor(value, tableMeta.rowData[14]),
+  },
+  {
+    name: "PriorityName",
+    label: "Priority",
+    bodyRenderer: generatePriorityWithColor,
+  },
+  {
+    name: "StartDate",
+    label: "Start Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "EndDate",
+    label: "Due Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  // {
+  //   name: "AutoTime",
+  //   label: "Auto Time",
+  //   bodyRenderer: generateCommonBodyRender,
+  // },
+  // {
+  //   name: "ManualTime",
+  //   label: "Manual Time",
+  //   bodyRenderer: generateCommonBodyRender,
+  // },
+  {
+    name: "StatusColorCode",
+    options: {
+      filter: false,
+      sort: false,
+      display: false,
+    },
+  },
+];
+
+const reworkTrendColConfig = [
+  {
+    name: "TaskId",
+    label: "Task Id",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TaskName",
+    label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ClientName",
+    label: "Client Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "WorkTypeName",
+    label: "Type Of Work",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ProjectName",
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ProcessName",
+    label: "Process Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "SubProcessName",
+    label: "Sub-Process",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "DepartmentName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "StatusName",
+    label: "Status",
+    bodyRenderer: (value: any, tableMeta: any) =>
+      generateStatusWithColor(value, tableMeta.rowData[18]),
+  },
+  {
+    name: "AssigneeName",
+    label: "Assignee",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "AssignedByName",
+    label: "Assigned By",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ReviewerName",
+    label: "Reviewer",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "StartDate",
+    label: "Start Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "EndDate",
+    label: "Due Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "ReworkReceivedDate",
+    label: "Rework Received Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "ReworkDueDate",
+    label: "Rework Due Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "Description",
+    label: "Description",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "Comments",
+    label: "Comments/Remarks",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "StatusColorCode",
+    options: {
+      filter: false,
+      sort: false,
+      display: false,
+    },
+  },
+];
+
+const autoManualColConfig = [
+  {
+    name: "EmployeeCode",
+    label: "Employee Code",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "UserName",
+    label: "User Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ReportingManagerName",
+    label: "Reporting Manager",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "RoleName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "DepartmentName",
+    label: "Designation",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateCommonBodyRender,
+  },
+];
+
+const peakProductiveColConfig = [
+  {
+    name: "EmployeeCode",
+    label: "Employee Code",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "UserName",
+    label: "User Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ReportingManager",
+    label: "Reporting Manager",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "DepartmentName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "Designation",
+    label: "Designation",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateCommonBodyRender,
+  },
+];
+
+const billableNonBillableColConfig = [
+  {
+    name: "TaskId",
+    label: "Task Id",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TaskName",
+    label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ProcessName",
+    label: "Process Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "SubProcessName",
+    label: "Sub-Process",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "DepartmentName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "AssigneeName",
+    label: "Assignee",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "AssignedBy",
+    label: "Assigned By",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "StartDate",
+    label: "Start Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "DueDate",
+    label: "Due Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "IsBillable",
+    label: "Logged Hours (Billable / Non-Billable)",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "IsProductive",
+    label: "Productivity Tag (Productive / Non-Productive)",
+    bodyRenderer: generateCommonBodyRender,
+  },
+];
+
+const loggedColConfig = [
+  {
+    name: "UserName",
+    label: "User Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ReportingManager",
+    label: "Reporting Manager",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "Department",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "Designation",
+    label: "Designation",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "Date",
+    label: "Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "LoginTime",
+    label: "Login Time",
+    bodyRenderer: generateTimeWithoutDate,
+  },
+  {
+    name: "LogoutTime",
+    label: "Logout Time",
+    bodyRenderer: generateTimeWithoutDate,
+  },
+  {
+    name: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateCommonBodyRender,
+  },
+];
+
+const workingColConfig = [
+  {
+    name: "UserName",
+    label: "User Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ReportingManager",
+    label: "Reporting Manager",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "Department",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "Designation",
+    label: "Designation",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TotalAutoDuration",
+    label: "Auto Time",
+    bodyRenderer: generateSecondsToHHMMSS,
+  },
+  {
+    name: "TotalManualDuration",
+    label: "Manual Time",
+    bodyRenderer: generateSecondsToHHMMSS,
+  },
+];
+
+const slaTATAchivementColConfig = [
+  {
+    name: "TaskId",
+    label: "Task Id",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TaskName",
+    label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ClientName",
+    label: "Client Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TypeOfWork",
+    label: "Type Of Work",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ProjectName",
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "ProcessName",
+    label: "Process Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "SubProcessName",
+    label: "Sub-Process",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "DepartmentName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "Assignee",
+    label: "Assignee",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "AssignedBy",
+    label: "Assigned By",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TaskStatus",
+    label: "Status",
+    bodyRenderer: (value: any, tableMeta: any) =>
+      generateStatusWithColor(value, tableMeta.rowData[17]),
+  },
+  {
+    name: "Reviewer",
+    label: "Reviewer",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "EstimateTime",
+    label: "Est. Time",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "StdTime",
+    label: "Std. Time",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  // {
+  //   name: "SLAStatus",
+  //   label: "SLA Status",
+  //   bodyRenderer: generateCommonBodyRender,
+  // },
+  {
+    name: "StartDate",
+    label: "Start Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "DueDate",
+    label: "Due Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "StatusColorCode",
+    options: {
+      filter: false,
+      sort: false,
+      display: false,
+    },
+  },
+];
+
 const adminDashboardSummaryCols = SummaryColConfig.map((column: any) =>
   generateStatusColumn(column, 14)
 );
@@ -379,6 +927,39 @@ const adminDashboardErrorlogCols = errorlogColConfig.map((column: any) =>
   generateStatusColumn(column, 14)
 );
 
+const adminDashboardTasksSubmittedAssignedCols =
+  tasksSubmittedAssignedColConfig.map((column: any) =>
+    generateStatusColumn(column, 14)
+  );
+
+const adminDashboardReworkTrendCols = reworkTrendColConfig.map((column: any) =>
+  generateStatusColumn(column, 18)
+);
+
+const adminDashboardAutoManualCols = autoManualColConfig.map((column: any) =>
+  generateStatusColumn(column, 16)
+);
+
+const adminDashboardPeakProductiveCols = peakProductiveColConfig.map(
+  (column: any) => generateStatusColumn(column, 16)
+);
+
+const adminDashboardBillableNonBillableCols = billableNonBillableColConfig.map(
+  (column: any) => generateStatusColumn(column, 16)
+);
+
+const adminDashboardLoggedCols = loggedColConfig.map((column: any) =>
+  generateStatusColumn(column, 18)
+);
+
+const adminDashboardWorkingCols = workingColConfig.map((column: any) =>
+  generateStatusColumn(column, 18)
+);
+
+const adminDashboardSLATATAchivementCols = slaTATAchivementColConfig.map(
+  (column: any) => generateStatusColumn(column, 17)
+);
+
 export {
   adminDashboardReportCols,
   adminDashboardBillingTypeCols,
@@ -386,4 +967,13 @@ export {
   adminDashboardProjectStatusCols,
   adminDashboardTaskStatusCols,
   adminDashboardErrorlogCols,
+  adminDashboardEmailTypeCols,
+  adminDashboardTasksSubmittedAssignedCols,
+  adminDashboardReworkTrendCols,
+  adminDashboardAutoManualCols,
+  adminDashboardPeakProductiveCols,
+  adminDashboardBillableNonBillableCols,
+  adminDashboardLoggedCols,
+  adminDashboardWorkingCols,
+  adminDashboardSLATATAchivementCols,
 };

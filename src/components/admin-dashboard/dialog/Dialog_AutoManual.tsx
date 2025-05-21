@@ -11,90 +11,51 @@ import {
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
-import Datatable_TaskStatus from "@/components/admin-dashboard/Datatables/Datatable_TaskStatus";
 import { DialogTransition } from "@/utils/style/DialogTransition";
-import { getStatusDropdownData } from "@/utils/commonDropdownApiCall";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import Loading from "@/assets/icons/reports/Loading";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { LabelValueType } from "@/utils/Types/types";
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
+import { LabelValue } from "@/utils/Types/types";
+import Datatable_AutoManual from "../Datatables/Datatable_AutoManual";
 
-interface TaskStatusInfoDialogProps {
+interface AutoManualDialogProps {
   onOpen: boolean;
   onClose: () => void;
   currentFilterData: DashboardInitialFilter;
-  onSelectedStatusName: string;
+  onSelectedData: { department: number; type: number };
 }
 
-const Dialog_TaskStatus = ({
+const Dialog_AutoManual = ({
   onOpen,
   onClose,
   currentFilterData,
-  onSelectedStatusName,
-}: TaskStatusInfoDialogProps) => {
-  const [allStatus, setAllStatus] = useState<LabelValueType[] | []>([]);
-  const [status, setStatus] = useState<number | null>(null);
-  const [clickedStatusName, setClickedStatusName] = useState<string>("");
+  onSelectedData,
+}: AutoManualDialogProps) => {
   const [searchValue, setSearchValue] = useState("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isClose, setIsClose] = useState<boolean>(false);
+  const [selectedStatus, setSelectedStatus] = useState<number | null>(null);
   const [canExport, setCanExport] = useState(false);
 
   useEffect(() => {
     onOpen && setIsClose(false);
+    setSelectedStatus(onSelectedData.type);
   }, [onOpen]);
 
   const handleClose = () => {
     onClose();
-    setStatus(null);
-    setClickedStatusName("");
     setSearchValue("");
     setIsClose(false);
     setCanExport(false);
   };
 
-  function getValueByLabelOrType(labelOrType: string): number | null {
-    const status = allStatus.find(
-      (status: LabelValueType) =>
-        status.Type === labelOrType || status.label === labelOrType
-    );
-    if (status) {
-      return status.value;
-    } else {
-      return null;
-    }
-  }
-
   const handleChangeValue = (e: number) => {
-    setStatus(e);
+    setSelectedStatus(e);
     setSearchValue("");
   };
-
-  useEffect(() => {
-    setClickedStatusName(onSelectedStatusName);
-    const statusValue: number | null = getValueByLabelOrType(clickedStatusName);
-    setStatus(statusValue);
-  }, [clickedStatusName, onSelectedStatusName]);
-
-  const getAllStatus = async () => {
-    const workTypeIdFromLocalStorage =
-      typeof localStorage !== "undefined"
-        ? localStorage.getItem("workTypeId")
-        : 3;
-    const statusData = await getStatusDropdownData(
-      currentFilterData.WorkTypeId === null
-        ? Number(workTypeIdFromLocalStorage)
-        : currentFilterData.WorkTypeId
-    );
-    setAllStatus(statusData);
-  };
-
-  useEffect(() => {
-    getAllStatus();
-  }, [currentFilterData.WorkTypeId]);
 
   const exportReport = async () => {
     try {
@@ -104,7 +65,7 @@ const Dialog_TaskStatus = ({
       const Org_Token = await localStorage.getItem("Org_Token");
 
       const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/taskstatuslist/export`,
+        `${process.env.report_api_url}/dashboard/manualautobreakidlelist`,
         {
           PageNo: 1,
           PageSize: 50000,
@@ -115,12 +76,14 @@ const Dialog_TaskStatus = ({
             currentFilterData.WorkTypeId === null
               ? 0
               : currentFilterData.WorkTypeId,
-          DepartmentIds: currentFilterData.DepartmentIds,
+          DepartmentIds: [onSelectedData.department],
           StartDate: currentFilterData.StartDate,
           EndDate: currentFilterData.EndDate,
           GlobalSearch: searchValue,
-          StatusId: status === 0 ? null : status,
           IsDownload: true,
+          AssigneeIds: currentFilterData.AssigneeIds,
+          ReviewerIds: currentFilterData.ReviewerIds,
+          Type: selectedStatus,
         },
         {
           headers: { Authorization: `bearer ${token}`, org_token: Org_Token },
@@ -147,7 +110,7 @@ const Dialog_TaskStatus = ({
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `Dashboard_TaskList_report.xlsx`;
+        a.download = `Dashboard_Auto_Manual_report.xlsx`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -171,7 +134,7 @@ const Dialog_TaskStatus = ({
         onClose={handleClose}
       >
         <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
-          <span className="font-semibold text-lg">Task Status</span>
+          <span className="font-semibold text-lg">Time Insights</span>
           <IconButton onClick={handleClose}>
             <Close />
           </IconButton>
@@ -202,12 +165,16 @@ const Dialog_TaskStatus = ({
                 <Select
                   labelId="status"
                   id="status"
-                  value={status ? status : 0}
+                  value={selectedStatus ? selectedStatus : 0}
                   onChange={(e) => handleChangeValue(Number(e.target.value))}
                   sx={{ height: "36px" }}
                 >
-                  <MenuItem value={0}>All</MenuItem>
-                  {allStatus.map((i: LabelValueType) => (
+                  {[
+                    { label: "Manual Logged Time", value: 1 },
+                    { label: "Auto Logged Time", value: 2 },
+                    { label: "Break Time", value: 4 },
+                    { label: "Idle Time", value: 3 },
+                  ].map((i: LabelValue) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
@@ -228,15 +195,13 @@ const Dialog_TaskStatus = ({
               </ColorToolTip>
             </div>
           </div>
-          <Datatable_TaskStatus
+          <Datatable_AutoManual
             currentFilterData={currentFilterData}
-            onCurrSelectedStatus={
-              status !== null
-                ? status
-                : getValueByLabelOrType(onSelectedStatusName)
-            }
+            onSelectedData={onSelectedData}
+            selectedStatus={selectedStatus}
             onSearchValue={searchValue}
             isClose={isClose}
+            onOpen={onOpen}
             onHandleExport={(e) => setCanExport(e)}
           />
         </DialogContent>
@@ -245,4 +210,4 @@ const Dialog_TaskStatus = ({
   );
 };
 
-export default Dialog_TaskStatus;
+export default Dialog_AutoManual;

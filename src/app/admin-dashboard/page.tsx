@@ -1,39 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import {
-  Button,
-  Card,
-  Grid,
-  InputBase,
-  Popover,
-  ThemeProvider,
-  Tooltip,
-} from "@mui/material";
+import { ThemeProvider } from "@mui/material";
 import { toast } from "react-toastify";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
-import Chart_BillingType from "@/components/admin-dashboard/charts/Chart_BillingType";
-import Chart_TaskStatus from "@/components/admin-dashboard/charts/Chart_TaskStatus";
-import Chart_ProjectStatus from "@/components/admin-dashboard/charts/Chart_ProjectStatus";
-import InPreparation from "@/assets/icons/dashboard_Admin/InPreparation";
-import InReview from "@/assets/icons/dashboard_Admin/InReview";
-import Withdraw_Outlined from "@/assets/icons/dashboard_Admin/Withdraw_Outlined";
-import TaskOutlinedIcon from "@mui/icons-material/TaskOutlined";
-import PendingActionsOutlinedIcon from "@mui/icons-material/PendingActionsOutlined";
-import PauseCircleOutlineOutlinedIcon from "@mui/icons-material/PauseCircleOutlineOutlined";
-import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
-import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
-import RestorePageOutlinedIcon from "@mui/icons-material/RestorePageOutlined";
-import PlaylistAddCheckOutlinedIcon from "@mui/icons-material/PlaylistAddCheckOutlined";
-import RunningWithErrorsOutlinedIcon from "@mui/icons-material/RunningWithErrorsOutlined";
-import Person4OutlinedIcon from "@mui/icons-material/Person4Outlined";
-import Dialog_TaskStatus from "@/components/admin-dashboard/dialog/Dialog_TaskStatus";
-import Dialog_BillingType from "@/components/admin-dashboard/dialog/Dialog_BillingType";
-import Dialog_ProjectStatus from "@/components/admin-dashboard/dialog/Dialog_ProjectStatus";
-import Dialog_DashboardSummaryList from "@/components/admin-dashboard/dialog/Dialog_DashboardSummaryList";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import MUIDataTable from "mui-datatables";
 import TablePagination from "@mui/material/TablePagination";
 import {
@@ -46,18 +18,16 @@ import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
 import { dashboardReport_Options } from "@/utils/datatable/TableOptions";
 import { callAPI } from "@/utils/API/callAPI";
-import { KeyValueColorCodeSequence } from "@/utils/Types/types";
 import FilterIcon from "@/assets/icons/FilterIcon";
 import FilterDialogDashboard from "@/components/admin-dashboard/FilterDialogDashboard";
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
 import ReportLoader from "@/components/common/ReportLoader";
 import WrapperNavbar from "@/components/common/WrapperNavbar";
-import { Delete, Edit } from "@mui/icons-material";
-import SearchIcon from "@/assets/icons/SearchIcon";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
-import Chart_Errorlog from "@/components/admin-dashboard/charts/Chart_Errorlog";
-import Dialog_Errorlog from "@/components/admin-dashboard/dialog/Dialog_Errorlog";
+import FilterModel from "@/components/admin-dashboard/FilterModel";
+import TaskChart from "@/components/admin-dashboard/TaskChart";
+import NewDashboard from "@/components/admin-dashboard/NewDashboard";
 
 interface ClientSummaryStatus {
   ClientName: string;
@@ -131,26 +101,7 @@ const currentFilter = {
 const Page = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<number>(1);
-  const [isBillingTypeDialogOpen, setIsBillingTypeDialogOpen] =
-    useState<boolean>(false);
-  const [isTaskStatusDialogOpen, setIsTaskStatusDialogOpen] =
-    useState<boolean>(false);
-  const [isProjectStatusDialogOpen, setIsProjectStatusDialogOpen] =
-    useState<boolean>(false);
-  const [isErrorlogDialogOpen, setIsErrorlogDialogOpen] =
-    useState<boolean>(false);
-  const [isSummaryDialogOpen, setIsSummaryDialogOpen] =
-    useState<boolean>(false);
-  const [clickedProjectStatusName, setClickedProjectStatusName] =
-    useState<number>(0);
-  const [clickedErrorlog, setClickedErrorlog] = useState<number>(0);
-  const [clickedStatusName, setClickedStatusName] = useState<string>("");
-  const [clickedBillingTypeName, setClickedBillingTypeName] =
-    useState<string>("");
-  const [dashboardSummary, setDashboardSummary] = useState<
-    KeyValueColorCodeSequence[] | []
-  >([]);
-  const [clickedCardName, setClickedCardName] = useState<number>(0);
+  const [dashboardActiveTab, setDashboardActiveTab] = useState<number>(1);
   const [reportLoader, setReportLoader] = useState<boolean>(true);
   const [reportData, setReportData] = useState<ClientSummaryStatus[] | []>([]);
   const [reportDataHeader, setReportDataHeader] = useState<
@@ -180,6 +131,14 @@ const Page = () => {
       StartDate: null,
       EndDate: null,
     });
+  const [emailboxLoading, setEmailboxLoading] = useState(true);
+  const filterDialogRef = useRef<any>();
+
+  const filterDialogReset = () => {
+    if (filterDialogRef.current) {
+      filterDialogRef.current.callChildFunction();
+    }
+  };
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
@@ -225,38 +184,6 @@ const Page = () => {
     }
   }, [router]);
 
-  const handleValueFromBillingType = (
-    isDialogOpen: boolean,
-    selectedPointData: string
-  ) => {
-    setIsBillingTypeDialogOpen(isDialogOpen);
-    setClickedBillingTypeName(selectedPointData);
-  };
-
-  const handleValueFromTaskStatus = (
-    isDialogOpen: boolean,
-    selectedPointData: string
-  ) => {
-    setIsTaskStatusDialogOpen(isDialogOpen);
-    setClickedStatusName(selectedPointData);
-  };
-
-  const handleValueFromProjectStatus = (
-    isDialogOpen: boolean,
-    selectedPointData: number
-  ) => {
-    setIsProjectStatusDialogOpen(isDialogOpen);
-    setClickedProjectStatusName(selectedPointData);
-  };
-
-  const handleValueFromErrorlog = (
-    isDialogOpen: boolean,
-    selectedPointData: number
-  ) => {
-    setIsErrorlogDialogOpen(isDialogOpen);
-    setClickedErrorlog(selectedPointData);
-  };
-
   useEffect(() => {
     if (
       !hasPermissionWorklog("", "View", "Dashboard") &&
@@ -268,7 +195,7 @@ const Page = () => {
 
   const getFilterList = async () => {
     const params = {
-      type: activeTab === 1 ? 23 : 24,
+      type: activeTab === 2 ? 24 : 23,
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
@@ -305,7 +232,7 @@ const Page = () => {
 
   useEffect(() => {
     getFilterList();
-  }, [activeTab]);
+  }, [activeTab, dashboardActiveTab]);
 
   const getReportData = async () => {
     setReportLoader(true);
@@ -347,62 +274,6 @@ const Page = () => {
     }, 500);
     return () => clearTimeout(timer);
   }, [activeTab, filteredObject, currentFilterData]);
-
-  const getProjectSummary = async () => {
-    const workTypeIdFromLocalStorage =
-      typeof localStorage !== "undefined"
-        ? localStorage.getItem("workTypeId")
-        : 3;
-    const params = {
-      Clients: currentFilterData.Clients,
-      WorkTypeId:
-        currentFilterData.WorkTypeId === null
-          ? Number(workTypeIdFromLocalStorage)
-          : currentFilterData.WorkTypeId,
-      DepartmentIds: currentFilterData.DepartmentIds,
-      AssigneeIds: currentFilterData.AssigneeIds,
-      ReviewerIds: currentFilterData.ReviewerIds,
-      StartDate: currentFilterData.StartDate,
-      EndDate: currentFilterData.EndDate,
-    };
-    const url = `${process.env.report_api_url}/dashboard/summary`;
-    const successCallback = (
-      ResponseData: KeyValueColorCodeSequence[] | [],
-      error: boolean,
-      ResponseStatus: string
-    ) => {
-      if (ResponseStatus === "Success" && error === false) {
-        setDashboardSummary(ResponseData);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await getProjectSummary();
-    };
-    const timer = setTimeout(() => {
-      fetchData();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [currentFilterData]);
-
-  const statusIconMapping: any = {
-    2: <Person4OutlinedIcon />,
-    8: <CheckCircleOutlineOutlinedIcon />,
-    3: <InPreparation />,
-    5: <InReview />,
-    4: <ErrorOutlineIcon />,
-    1: <PendingActionsOutlinedIcon />,
-    11: <RunningWithErrorsOutlinedIcon />,
-    "total cancel": <CancelOutlinedIcon />,
-    10: <PauseCircleOutlineOutlinedIcon />,
-    9: <Withdraw_Outlined />,
-    7: <RestorePageOutlinedIcon />,
-    12: <PlaylistAddCheckOutlinedIcon />,
-    6: <TaskOutlinedIcon />,
-  };
 
   const exportSummaryReport = async () => {
     try {
@@ -458,7 +329,7 @@ const Page = () => {
 
   return (
     <WrapperNavbar className="min-h-screen overflow-y-auto">
-      <div className="flex items-center justify-between w-full px-6">
+      <div className="flex items-center justify-between w-full px-6 border-b border-gray-300">
         <div className="flex gap-[16px] items-center py-[6.5px]">
           <label
             onClick={() => {
@@ -487,127 +358,36 @@ const Page = () => {
           </label>
         </div>
 
-        <div className="flex items-center justify-center gap-2">
-          {filterList.length > 0 ? (
-            <div>
-              <span
-                aria-describedby={idFilter}
-                onClick={handleClickFilter}
-                className="cursor-pointer"
-              >
-                <FilterIcon />
-              </span>
+        {activeTab === 2 && (
+          <div className="flex items-center justify-center gap-2">
+            {filterList.length > 0 ? (
+              <FilterModel
+                idFilter={idFilter}
+                handleClickFilter={handleClickFilter}
+                openFilter={openFilter}
+                anchorElFilter={anchorElFilter}
+                handleCloseFilter={handleCloseFilter}
+                setIsFilterOpen={setIsFilterOpen}
+                setCurrentFilterId={setCurrentFilterId}
+                searchValue={searchValue}
+                handleSearchChangeWorklog={handleSearchChangeWorklog}
+                filteredFilters={filteredFilters}
+                currentFilter={currentFilter}
+                setCurrentFilterData={setCurrentFilterData}
+                setIsDeleteOpen={setIsDeleteOpen}
+                filterDialogReset={filterDialogReset}
+              />
+            ) : (
+              <ColorToolTip title="Filter" placement="top" arrow>
+                <span
+                  className="cursor-pointer"
+                  onClick={() => setIsFilterOpen(true)}
+                >
+                  <FilterIcon />
+                </span>
+              </ColorToolTip>
+            )}
 
-              <Popover
-                id={idFilter}
-                open={openFilter}
-                anchorEl={anchorElFilter}
-                onClose={handleCloseFilter}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "right",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-              >
-                <div className="flex flex-col py-2 w-[250px]">
-                  <span
-                    className="p-2 cursor-pointer hover:bg-lightGray"
-                    onClick={() => {
-                      setIsFilterOpen(true);
-                      setCurrentFilterId(0);
-                      handleCloseFilter();
-                    }}
-                  >
-                    Default Filter
-                  </span>
-                  <hr className="text-lightSilver mt-2" />
-
-                  <span className="py-3 px-2 relative">
-                    <InputBase
-                      className="pr-7 border-b border-b-slatyGrey w-full"
-                      placeholder="Search saved filters"
-                      inputProps={{ "aria-label": "search" }}
-                      value={searchValue}
-                      onChange={(e) =>
-                        handleSearchChangeWorklog(e.target.value)
-                      }
-                      sx={{ fontSize: 14 }}
-                    />
-                    <span className="absolute top-4 right-3 text-slatyGrey">
-                      <SearchIcon />
-                    </span>
-                  </span>
-
-                  {filteredFilters.map((i: any) => {
-                    return (
-                      <div
-                        key={i.FilterId}
-                        className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
-                      >
-                        <span
-                          className="pl-1"
-                          onClick={() => {
-                            setCurrentFilterData(i.AppliedFilter);
-                            handleCloseFilter();
-                          }}
-                        >
-                          {i.Name}
-                        </span>
-                        <span className="flex gap-[10px] pr-[10px]">
-                          <span
-                            onClick={() => {
-                              setCurrentFilterId(i.FilterId);
-                              setIsFilterOpen(true);
-                              handleCloseFilter();
-                            }}
-                          >
-                            <Tooltip title="Edit" placement="top" arrow>
-                              <Edit className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
-                            </Tooltip>
-                          </span>
-                          <span
-                            onClick={() => {
-                              setIsDeleteOpen(true);
-                              setCurrentFilterId(i.FilterId);
-                              handleCloseFilter();
-                            }}
-                          >
-                            <Tooltip title="Delete" placement="top" arrow>
-                              <Delete className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
-                            </Tooltip>
-                          </span>
-                        </span>
-                      </div>
-                    );
-                  })}
-                  <hr className="text-lightSilver mt-2" />
-                  <Button
-                    onClick={() => {
-                      handleCloseFilter();
-                      setCurrentFilterData(currentFilter);
-                    }}
-                    className="mt-2"
-                    color="error"
-                  >
-                    clear all
-                  </Button>
-                </div>
-              </Popover>
-            </div>
-          ) : (
-            <ColorToolTip title="Filter" placement="top" arrow>
-              <span
-                className="cursor-pointer"
-                onClick={() => setIsFilterOpen(true)}
-              >
-                <FilterIcon />
-              </span>
-            </ColorToolTip>
-          )}
-          {activeTab === 2 && (
             <ColorToolTip title="Export" placement="top" arrow>
               <span
                 className={`${
@@ -618,226 +398,85 @@ const Page = () => {
                 {isExporting ? <Loading /> : <ExportIcon />}
               </span>
             </ColorToolTip>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-
       {activeTab === 1 && (
-        <div className="py-[10px]">
-          <Grid
-            container
-            className="flex items-center px-[20px] py-[10px]"
-            gap={1}
-          >
-            {dashboardSummary &&
-              dashboardSummary
-                .slice(0, 4)
-                .map((item: KeyValueColorCodeSequence) => (
-                  <Grid xs={2.9} item key={item.Key}>
-                    <Card
-                      className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
-                      style={{ borderColor: item.ColorCode }}
-                    >
-                      <div
-                        className="flex p-[20px] items-center"
-                        onClick={() => {
-                          setClickedCardName(item.Sequence);
-                          setIsSummaryDialogOpen(true);
-                        }}
-                      >
-                        <span
-                          style={{ color: item.ColorCode }}
-                          className={`border-r border-lightSilver pr-[20px]`}
-                        >
-                          {statusIconMapping[item.Sequence]}
-                        </span>
-                        <div className="inline-flex flex-col items-start pl-[20px]">
-                          <span className="text-[14px] font-normal text-darkCharcoal">
-                            {item.Key}
-                          </span>
-                          <span className="text-[20px] text-slatyGrey font-semibold">
-                            {item.Value}
-                          </span>
-                        </div>
-                      </div>
-                    </Card>
-                  </Grid>
-                ))}
-          </Grid>
-
-          <Grid
-            container
-            className="flex items-center px-[20px] py-[10px]"
-            gap={1}
-          >
-            {dashboardSummary &&
-              dashboardSummary
-                .slice(4, 8)
-                .map((item: KeyValueColorCodeSequence) => (
-                  <Grid xs={2.9} item key={item.Key}>
-                    <Card
-                      className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
-                      style={{ borderColor: item.ColorCode }}
-                    >
-                      <div
-                        className="flex p-[20px] items-center"
-                        onClick={() => {
-                          setClickedCardName(item.Sequence);
-                          setIsSummaryDialogOpen(true);
-                        }}
-                      >
-                        <span
-                          style={{ color: item.ColorCode }}
-                          className={`border-r border-lightSilver pr-[20px]`}
-                        >
-                          {statusIconMapping[item.Sequence]}
-                        </span>
-                        <div className="inline-flex flex-col items-start pl-[20px]">
-                          <span className="text-[14px] font-normal text-darkCharcoal">
-                            {item.Key}
-                          </span>
-                          <span className="text-[20px] text-slatyGrey font-semibold">
-                            {item.Value}
-                          </span>
-                        </div>
-                      </div>
-                    </Card>
-                  </Grid>
-                ))}
-          </Grid>
-
-          <Grid
-            container
-            className="flex items-center px-[20px] py-[10px]"
-            gap={1}
-          >
-            {dashboardSummary &&
-              dashboardSummary
-                .slice(8, 12)
-                .map((item: KeyValueColorCodeSequence) => (
-                  <Grid xs={2.9} item key={item.Key}>
-                    <Card
-                      className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
-                      style={{ borderColor: item.ColorCode }}
-                    >
-                      <div
-                        className="flex p-[20px] items-center"
-                        onClick={() => {
-                          setClickedCardName(item.Sequence);
-                          setIsSummaryDialogOpen(true);
-                        }}
-                      >
-                        <span
-                          style={{ color: item.ColorCode }}
-                          className={`border-r border-lightSilver pr-[20px]`}
-                        >
-                          {statusIconMapping[item.Sequence]}
-                        </span>
-                        <div className="inline-flex flex-col items-start pl-[20px]">
-                          <span className="text-[14px] font-normal text-darkCharcoal">
-                            {item.Key}
-                          </span>
-                          <span className="text-[20px] text-slatyGrey font-semibold">
-                            {item.Value}
-                          </span>
-                        </div>
-                      </div>
-                    </Card>
-                  </Grid>
-                ))}
-          </Grid>
-
-          {/* Task Status Chart */}
-          <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
-            <Card className="w-full border border-lightSilver rounded-lg">
-              <Chart_TaskStatus
-                sendData={handleValueFromTaskStatus}
-                currentFilterData={currentFilterData}
+        <div className="flex items-center justify-between px-6">
+          <div className="flex gap-[16px] items-center py-[6.5px]">
+            <label
+              onClick={() => {
+                setDashboardActiveTab(1);
+                setEmailboxLoading(true);
+              }}
+              className={`py-[10px] text-[16px] cursor-pointer select-none ${
+                dashboardActiveTab === 1
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
+              }`}
+            >
+              V 1.0
+            </label>
+            <span className="text-lightSilver">|</span>
+            <label
+              onClick={() => {
+                setDashboardActiveTab(3);
+                setEmailboxLoading(true);
+              }}
+              className={`py-[10px] text-[16px] cursor-pointer select-none ${
+                dashboardActiveTab === 3
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
+              }`}
+            >
+              V 2.0
+            </label>
+          </div>
+          <div>
+            {filterList.length > 0 ? (
+              <FilterModel
+                idFilter={idFilter}
+                handleClickFilter={handleClickFilter}
+                openFilter={openFilter}
+                anchorElFilter={anchorElFilter}
+                handleCloseFilter={handleCloseFilter}
+                setIsFilterOpen={setIsFilterOpen}
+                setCurrentFilterId={setCurrentFilterId}
+                searchValue={searchValue}
+                handleSearchChangeWorklog={handleSearchChangeWorklog}
+                filteredFilters={filteredFilters}
+                currentFilter={currentFilter}
+                setCurrentFilterData={setCurrentFilterData}
+                setIsDeleteOpen={setIsDeleteOpen}
+                filterDialogReset={filterDialogReset}
               />
-            </Card>
-          </section>
-
-          {/* Project Status and Billing Type Charts */}
-          <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
-            <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
-              <Chart_ProjectStatus
-                sendData={handleValueFromProjectStatus}
-                onSelectedProjectIds={[]}
-                currentFilterData={currentFilterData}
-              />
-            </Card>
-
-            <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
-              <Chart_BillingType
-                sendData={handleValueFromBillingType}
-                currentFilterData={currentFilterData}
-              />
-            </Card>
-          </section>
-
-          {/* Errorlog Chart */}
-          <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
-            <Card className="w-full h-[344px] border border-lightSilver rounded-lg px-[10px]">
-              <Chart_Errorlog
-                sendData={handleValueFromErrorlog}
-                onSelectedProjectIds={[]}
-                currentFilterData={currentFilterData}
-              />
-            </Card>
-            <Card className="w-full"></Card>
-          </section>
+            ) : (
+              <ColorToolTip title="Filter" placement="top" arrow>
+                <span
+                  className="cursor-pointer"
+                  onClick={() => setIsFilterOpen(true)}
+                >
+                  <FilterIcon />
+                </span>
+              </ColorToolTip>
+            )}
+          </div>
         </div>
       )}
 
-      {/* Dashboard Summary Dialog & Datatable */}
-      {activeTab === 1 && (
-        <Dialog_DashboardSummaryList
-          onOpen={isSummaryDialogOpen}
-          onClose={() => setIsSummaryDialogOpen(false)}
+      {activeTab === 1 && dashboardActiveTab === 1 && (
+        <TaskChart
+          activeTab={activeTab}
+          dashboardActiveTab={dashboardActiveTab}
           currentFilterData={currentFilterData}
-          onClickedSummaryTitle={clickedCardName}
         />
       )}
 
-      {/* Task Status Dialog & Datatable */}
-      {activeTab === 1 && (
-        <Dialog_TaskStatus
-          onOpen={isTaskStatusDialogOpen}
-          onClose={() => setIsTaskStatusDialogOpen(false)}
+      {activeTab === 1 && dashboardActiveTab === 3 && (
+        <NewDashboard
+          activeTab={activeTab}
+          dashboardActiveTab={dashboardActiveTab}
           currentFilterData={currentFilterData}
-          onSelectedStatusName={clickedStatusName}
-        />
-      )}
-
-      {/* Billing Type Dialog & Datatable */}
-      {activeTab === 1 && (
-        <Dialog_BillingType
-          onOpen={isBillingTypeDialogOpen}
-          onClose={() => setIsBillingTypeDialogOpen(false)}
-          currentFilterData={currentFilterData}
-          onSelectedStatusName={clickedBillingTypeName}
-        />
-      )}
-
-      {/* Project Status Dialog & Datatable */}
-      {activeTab === 1 && (
-        <Dialog_ProjectStatus
-          onOpen={isProjectStatusDialogOpen}
-          onClose={() => setIsProjectStatusDialogOpen(false)}
-          currentFilterData={currentFilterData}
-          onSelectedProjectStatus={clickedProjectStatusName}
-          onSelectedProjectIds={[]}
-        />
-      )}
-
-      {/* Errorlog Dialog & Datatable */}
-      {activeTab === 1 && (
-        <Dialog_Errorlog
-          onOpen={isErrorlogDialogOpen}
-          onClose={() => setIsErrorlogDialogOpen(false)}
-          currentFilterData={currentFilterData}
-          onSelectedErrorlog={clickedErrorlog}
-          onSelectedProjectIds={[]}
         />
       )}
 
@@ -910,11 +549,13 @@ const Page = () => {
 
       <FilterDialogDashboard
         activeTab={activeTab}
+        dashboardActiveTab={dashboardActiveTab}
         onOpen={isFilterOpen}
         onClose={handleCloseFilterDialog}
         getFilterList={getFilterList}
         currentFilterData={getIdFromFilterDialog}
         onCurrentFilterId={currentFilterId}
+        ref={filterDialogRef}
       />
 
       {/* Delete Dialog Box */}

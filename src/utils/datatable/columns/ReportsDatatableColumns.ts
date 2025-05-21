@@ -108,7 +108,7 @@ const reportTaskColConfig = [
   },
   {
     name: "AssignedTo",
-    label: "Assigned To",
+    label: "Assignee",
     bodyRenderer: generateCommonBodyRender,
   },
   // {

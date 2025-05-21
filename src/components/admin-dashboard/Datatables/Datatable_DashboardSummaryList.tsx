@@ -15,12 +15,14 @@ import {
   ListDashboard,
   ResponseDashboardProjectSummary,
 } from "@/utils/Types/dashboardTypes";
+import OverLay from "@/components/common/OverLay";
 
 interface DashboardSummaryListProps {
   currentFilterData: DashboardInitialFilter;
   onClickedSummaryTitle: number;
   onCurrSelectedSummaryTitle: number;
   isClose: boolean;
+  onHandleExport: (canExport: boolean) => void;
 }
 
 const Datatable_DashboardSummaryList = ({
@@ -28,6 +30,7 @@ const Datatable_DashboardSummaryList = ({
   onClickedSummaryTitle,
   onCurrSelectedSummaryTitle,
   isClose,
+  onHandleExport,
 }: DashboardSummaryListProps) => {
   const [dashboardSummaryData, setDashboardSummaryData] = useState<
     ListDashboard[] | []
@@ -35,13 +38,16 @@ const Datatable_DashboardSummaryList = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     isClose && setPage(0);
     isClose && setRowsPerPage(10);
+    isClose && setLoading(true);
   }, [isClose]);
 
   const getProjectSummaryData = async () => {
+    setLoading(true);
     const workTypeIdFromLocalStorage =
       typeof localStorage !== "undefined"
         ? localStorage.getItem("workTypeId")
@@ -75,6 +81,12 @@ const Datatable_DashboardSummaryList = ({
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setDashboardSummaryData(ResponseData.ProjectStatusList);
         setTableDataCount(ResponseData.TotalCount);
+        onHandleExport(
+          ResponseData.ProjectStatusList.length > 0 ? true : false
+        );
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -104,6 +116,7 @@ const Datatable_DashboardSummaryList = ({
 
   return (
     <div>
+      {loading && <OverLay />}
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={dashboardSummaryData}

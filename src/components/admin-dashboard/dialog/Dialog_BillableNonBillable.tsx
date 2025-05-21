@@ -11,90 +11,73 @@ import {
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
-import Datatable_TaskStatus from "@/components/admin-dashboard/Datatables/Datatable_TaskStatus";
 import { DialogTransition } from "@/utils/style/DialogTransition";
-import { getStatusDropdownData } from "@/utils/commonDropdownApiCall";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import Loading from "@/assets/icons/reports/Loading";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { LabelValueType } from "@/utils/Types/types";
 import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
+import Datatable_BillableNonBillable from "../Datatables/Datatable_BillableNonBillable";
+import { LabelValue } from "@/utils/Types/types";
 
-interface TaskStatusInfoDialogProps {
+interface PeakProductiveDialogProps {
   onOpen: boolean;
   onClose: () => void;
   currentFilterData: DashboardInitialFilter;
-  onSelectedStatusName: string;
+  onSelectedData: { department: number; type: string };
 }
 
-const Dialog_TaskStatus = ({
+const Dialog_BillableNonBillable = ({
   onOpen,
   onClose,
   currentFilterData,
-  onSelectedStatusName,
-}: TaskStatusInfoDialogProps) => {
-  const [allStatus, setAllStatus] = useState<LabelValueType[] | []>([]);
-  const [status, setStatus] = useState<number | null>(null);
-  const [clickedStatusName, setClickedStatusName] = useState<string>("");
+  onSelectedData,
+}: PeakProductiveDialogProps) => {
   const [searchValue, setSearchValue] = useState("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isClose, setIsClose] = useState<boolean>(false);
+  const [billableNonBillable, setBillableNonBillable] = useState<number>(0);
+  const [productiveNonProductive, setProductiveNonProductive] =
+    useState<number>(0);
   const [canExport, setCanExport] = useState(false);
 
   useEffect(() => {
     onOpen && setIsClose(false);
+    if (onSelectedData.type === "Billable") {
+      setBillableNonBillable(1);
+      setProductiveNonProductive(0);
+    }
+    if (onSelectedData.type === "Non-Billable") {
+      setBillableNonBillable(2);
+      setProductiveNonProductive(0);
+    }
+    if (onSelectedData.type === "Productive") {
+      setBillableNonBillable(0);
+      setProductiveNonProductive(1);
+    }
+    if (onSelectedData.type === "Non-Productive") {
+      setBillableNonBillable(0);
+      setProductiveNonProductive(2);
+    }
   }, [onOpen]);
 
   const handleClose = () => {
     onClose();
-    setStatus(null);
-    setClickedStatusName("");
     setSearchValue("");
     setIsClose(false);
     setCanExport(false);
   };
 
-  function getValueByLabelOrType(labelOrType: string): number | null {
-    const status = allStatus.find(
-      (status: LabelValueType) =>
-        status.Type === labelOrType || status.label === labelOrType
-    );
-    if (status) {
-      return status.value;
-    } else {
-      return null;
-    }
-  }
-
-  const handleChangeValue = (e: number) => {
-    setStatus(e);
+  const handleBillableNonBillableChangeValue = (e: number) => {
+    setBillableNonBillable(e);
     setSearchValue("");
   };
 
-  useEffect(() => {
-    setClickedStatusName(onSelectedStatusName);
-    const statusValue: number | null = getValueByLabelOrType(clickedStatusName);
-    setStatus(statusValue);
-  }, [clickedStatusName, onSelectedStatusName]);
-
-  const getAllStatus = async () => {
-    const workTypeIdFromLocalStorage =
-      typeof localStorage !== "undefined"
-        ? localStorage.getItem("workTypeId")
-        : 3;
-    const statusData = await getStatusDropdownData(
-      currentFilterData.WorkTypeId === null
-        ? Number(workTypeIdFromLocalStorage)
-        : currentFilterData.WorkTypeId
-    );
-    setAllStatus(statusData);
+  const handleProductiveNonProductiveChangeValue = (e: number) => {
+    setProductiveNonProductive(e);
+    setSearchValue("");
   };
-
-  useEffect(() => {
-    getAllStatus();
-  }, [currentFilterData.WorkTypeId]);
 
   const exportReport = async () => {
     try {
@@ -104,7 +87,7 @@ const Dialog_TaskStatus = ({
       const Org_Token = await localStorage.getItem("Org_Token");
 
       const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/taskstatuslist/export`,
+        `${process.env.report_api_url}/dashboard/billableproductivelist`,
         {
           PageNo: 1,
           PageSize: 50000,
@@ -115,12 +98,25 @@ const Dialog_TaskStatus = ({
             currentFilterData.WorkTypeId === null
               ? 0
               : currentFilterData.WorkTypeId,
-          DepartmentIds: currentFilterData.DepartmentIds,
+          DepartmentIds: [onSelectedData.department],
           StartDate: currentFilterData.StartDate,
           EndDate: currentFilterData.EndDate,
           GlobalSearch: searchValue,
-          StatusId: status === 0 ? null : status,
           IsDownload: true,
+          AssigneeIds: currentFilterData.AssigneeIds,
+          ReviewerIds: currentFilterData.ReviewerIds,
+          IsBillable:
+            billableNonBillable === 2
+              ? false
+              : billableNonBillable === 1
+              ? true
+              : null,
+          IsProductive:
+            productiveNonProductive === 2
+              ? false
+              : productiveNonProductive === 1
+              ? true
+              : null,
         },
         {
           headers: { Authorization: `bearer ${token}`, org_token: Org_Token },
@@ -147,7 +143,7 @@ const Dialog_TaskStatus = ({
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `Dashboard_TaskList_report.xlsx`;
+        a.download = `Dashboard_Billable_NonBillable_report.xlsx`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -171,7 +167,9 @@ const Dialog_TaskStatus = ({
         onClose={handleClose}
       >
         <DialogTitle className="flex items-center justify-between p-2 bg-whiteSmoke">
-          <span className="font-semibold text-lg">Task Status</span>
+          <span className="font-semibold text-lg">
+            Billable vs Non-Billable Hours
+          </span>
           <IconButton onClick={handleClose}>
             <Close />
           </IconButton>
@@ -202,12 +200,40 @@ const Dialog_TaskStatus = ({
                 <Select
                   labelId="status"
                   id="status"
-                  value={status ? status : 0}
-                  onChange={(e) => handleChangeValue(Number(e.target.value))}
+                  value={billableNonBillable ? billableNonBillable : 0}
+                  onChange={(e) =>
+                    handleBillableNonBillableChangeValue(Number(e.target.value))
+                  }
                   sx={{ height: "36px" }}
                 >
-                  <MenuItem value={0}>All</MenuItem>
-                  {allStatus.map((i: LabelValueType) => (
+                  {[
+                    { label: "All", value: 0 },
+                    { label: "Billable", value: 1 },
+                    { label: "Non-Billable", value: 2 },
+                  ].map((i: LabelValue) => (
+                    <MenuItem value={i.value} key={i.value}>
+                      {i.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl sx={{ mx: 0.75, minWidth: 220 }}>
+                <Select
+                  labelId="status"
+                  id="status"
+                  value={productiveNonProductive ? productiveNonProductive : 0}
+                  onChange={(e) =>
+                    handleProductiveNonProductiveChangeValue(
+                      Number(e.target.value)
+                    )
+                  }
+                  sx={{ height: "36px" }}
+                >
+                  {[
+                    { label: "All", value: 0 },
+                    { label: "Productive", value: 1 },
+                    { label: "Non-Productive", value: 2 },
+                  ].map((i: LabelValue) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
@@ -228,15 +254,14 @@ const Dialog_TaskStatus = ({
               </ColorToolTip>
             </div>
           </div>
-          <Datatable_TaskStatus
+          <Datatable_BillableNonBillable
             currentFilterData={currentFilterData}
-            onCurrSelectedStatus={
-              status !== null
-                ? status
-                : getValueByLabelOrType(onSelectedStatusName)
-            }
+            onSelectedData={onSelectedData}
+            billableNonBillable={billableNonBillable}
+            productiveNonProductive={productiveNonProductive}
             onSearchValue={searchValue}
             isClose={isClose}
+            onOpen={onOpen}
             onHandleExport={(e) => setCanExport(e)}
           />
         </DialogContent>
@@ -245,4 +270,4 @@ const Dialog_TaskStatus = ({
   );
 };
 
-export default Dialog_TaskStatus;
+export default Dialog_BillableNonBillable;

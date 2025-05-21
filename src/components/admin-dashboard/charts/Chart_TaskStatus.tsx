@@ -7,7 +7,7 @@ import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 
 interface TaskStatusProps {
   currentFilterData: DashboardInitialFilter;
-  sendData: (isDialogOpen: boolean, selectedPointData: string) => void;
+  sendData: (selectedPointData: string) => void;
 }
 
 const Chart_TaskStatus = ({ sendData, currentFilterData }: TaskStatusProps) => {
@@ -97,7 +97,7 @@ const Chart_TaskStatus = ({ sendData, currentFilterData }: TaskStatusProps) => {
               const selectedPointData = {
                 name: (event.point && event.point.name) || "",
               };
-              sendData(true, selectedPointData.name);
+              sendData(selectedPointData.name);
             },
           },
         },
@@ -143,7 +143,7 @@ const Chart_TaskStatus = ({ sendData, currentFilterData }: TaskStatusProps) => {
 
   return (
     <div className="flex flex-col py-[20px] px-[30px]">
-      <span className="text-lg font-medium pb-[20px]">Task Status</span>
+      <span className="text-lg font-bold pb-[20px]">Task Status</span>
       <HighchartsReact highcharts={Highcharts} options={chartOptions} />
     </div>
   );
