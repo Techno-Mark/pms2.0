@@ -261,6 +261,12 @@ const TaskChart = ({
         3: true,
         4: true,
       });
+      setDashboardSummary([]);
+      setProjectData([]);
+      setProjectTotalCount(0);
+      setBillingData([]);
+      setBillingTotalCount(0);
+      setErrorlogData([]);
 
       const timer = setTimeout(() => {
         const fetchData = async () => {
