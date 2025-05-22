@@ -115,6 +115,13 @@ const NewDashboard = ({
         6: true,
         7: true,
       });
+      setTaskSubmittedAssignedData([]);
+      setReworkData([]);
+      setAutoManualTimeData([]);
+      setPeckProductiveData([]);
+      setBillableProductiveData([]);
+      setTotalLoggedWorkingTimeData([]);
+      setSLATATAchivementData([]);
 
       const timer = setTimeout(() => {
         const fetchData = async () => {
