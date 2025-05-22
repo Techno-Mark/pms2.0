@@ -18,9 +18,16 @@ const Chart_PeakProductivityHours = ({
   sendData: (time: number) => void;
 }) => {
   const [chartData, setChartData] = useState<HourlyData[]>([]);
+  const [chartLoaded, setChartLoaded] = useState(true);
 
   useEffect(() => {
-    setChartData(data);
+    if (data.length > 0 && !loading) {
+      setChartLoaded(false);
+      setChartData(data);
+    } else {
+      setChartLoaded(true);
+      setChartData([]);
+    }
   }, [data]);
 
   const maxVal = Math.max(...chartData.map((d) => d.Duration), 0);
@@ -93,7 +100,7 @@ const Chart_PeakProductivityHours = ({
       <span className="flex items-start py-[15px] px-[10px] text-lg font-bold">
         Peak Productivity Hours
       </span>
-      {loading ? (
+      {loading || chartLoaded ? (
         <div className="h-[400px] w-full flex justify-center items-center">
           <Spinner size="30px" />
         </div>

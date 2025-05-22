@@ -29,9 +29,16 @@ const Chart_ManualVsAuto = ({
   sendData: (department: number, type: number) => void;
 }) => {
   const [chartData, setChartData] = useState<DepartmentData[] | null>(null);
+  const [chartLoaded, setChartLoaded] = useState(true);
 
   useEffect(() => {
-    setChartData(data);
+    if (data.length > 0 && !loading) {
+      setChartLoaded(false);
+      setChartData(data);
+    } else {
+      setChartLoaded(true);
+      setChartData([]);
+    }
   }, [data]);
 
   const options = chartData
@@ -142,7 +149,7 @@ const Chart_ManualVsAuto = ({
       <span className="flex items-start py-[15px] px-[10px] text-lg font-bold">
         Time Insights
       </span>
-      {loading ? (
+      {loading || chartLoaded ? (
         <div className="h-[400px] w-full flex justify-center items-center">
           <Spinner size="30px" />
         </div>
