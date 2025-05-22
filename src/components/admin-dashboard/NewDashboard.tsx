@@ -46,19 +46,23 @@ const NewDashboard = ({
     department: number;
     type: number;
   }>({ department: 0, type: 0 });
+  const [peakProductiveLoading, setPeakProductiveLoading] = useState(true);
   const [peakProductiveData, setPeckProductiveData] = useState<any>([]);
   const [peakPoductive, setPeakPoductive] = useState<number>(0);
+  const [billableLoading, setBillableLoading] = useState(true);
   const [billableProductiveData, setBillableProductiveData] = useState<any>([]);
   const [billableNonBillable, setBillableNonBillable] = useState<{
     department: number;
     type: string;
   }>({ department: 0, type: "" });
+  const [loggedWorkingLoading, setLoggedWorkingLoading] = useState(true);
   const [totalLoggedWorkingTimeData, setTotalLoggedWorkingTimeData] =
     useState<any>([]);
   const [loggedWorking, setLoggedWorking] = useState<{
     department: number;
     type: number;
   }>({ department: 0, type: 0 });
+  const [slaLoading, setSlaLoading] = useState(true);
   const [slaTATAchivementData, setSLATATAchivementData] = useState<any>([]);
   const [slaTATAchivement, setSLATATAchivement] = useState<{
     department: number;
@@ -122,10 +126,14 @@ const NewDashboard = ({
               getCommonData(1, setTaskSubmittedAssignedData, setTaskLoading),
               getCommonData(2, setReworkData, setReworkLoading),
               getCommonData(3, setAutoManualTimeData, setAutoManualLoading),
-              getCommonData(4, setPeckProductiveData, setAutoManualLoading),
-              getCommonData(5, setBillableProductiveData, setAutoManualLoading),
-              getCommonData(6, setTotalLoggedWorkingTimeData, setAutoManualLoading),
-              getCommonData(7, setSLATATAchivementData, setAutoManualLoading),
+              getCommonData(4, setPeckProductiveData, setPeakProductiveLoading),
+              getCommonData(5, setBillableProductiveData, setBillableLoading),
+              getCommonData(
+                6,
+                setTotalLoggedWorkingTimeData,
+                setLoggedWorkingLoading
+              ),
+              getCommonData(7, setSLATATAchivementData, setSlaLoading),
             ]);
           } catch (error) {
             console.error("Error in one of the API calls:", error);
@@ -171,7 +179,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_PeakProductivityHours,
-      loading: true,
+      loading: peakProductiveLoading,
       data: peakProductiveData,
       sendData: (time: number) => {
         setIsDialogOpen("peakProductive");
@@ -180,7 +188,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_BillableNonBillable,
-      loading: true,
+      loading: billableLoading,
       data: billableProductiveData,
       sendData: (department: number, type: string) => {
         setIsDialogOpen("billableNonBillable");
@@ -189,7 +197,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_LoggedVsWorking,
-      loading: true,
+      loading: loggedWorkingLoading,
       data: totalLoggedWorkingTimeData,
       sendData: (department: number, type: number) => {
         setIsDialogOpen("loggedWorking");
@@ -198,7 +206,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_SLATATAchivement,
-      loading: true,
+      loading: slaLoading,
       data: slaTATAchivementData,
       sendData: (department: number, type: number) => {
         setIsDialogOpen("slaTATAchivement");
@@ -209,9 +217,9 @@ const NewDashboard = ({
 
   return (
     <>
-      {loading && taskLoading && reworkLoading && autoManualLoading ? (
+      {/* {loading ? (
         <ReportLoader />
-      ) : (
+      ) : ( */}
         <div className="py-[10px]">
           {charts.map(({ Component, data, sendData }, index) => (
             <section
@@ -228,7 +236,7 @@ const NewDashboard = ({
             </section>
           ))}
         </div>
-      )}
+      {/* )} */}
 
       <Dialog_TasksSubmittedAssigned
         onOpen={isDialogOpen === "tasksSubmittedAssigned"}
