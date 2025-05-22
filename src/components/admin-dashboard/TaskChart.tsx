@@ -93,6 +93,12 @@ const TaskChart = ({
   const [billingData, setBillingData] = useState<any[]>([]);
   const [billingTotalCount, setBillingTotalCount] = useState<number>(0);
   const [errorlogData, setErrorlogData] = useState<any[]>([]);
+  const [allDataLoaded, setAllDataLoaded] = useState({
+    1: true,
+    2: true,
+    3: true,
+    4: true,
+  });
 
   const getProjectSummary = async () => {
     const workTypeIdFromLocalStorage =
@@ -120,6 +126,7 @@ const TaskChart = ({
       if (ResponseStatus === "Success" && error === false) {
         setDashboardSummary(ResponseData);
       }
+      setAllDataLoaded((prev: any) => ({ ...prev, 1: false }));
     };
     callAPI(url, params, successCallback, "POST");
   };
@@ -161,6 +168,7 @@ const TaskChart = ({
         setProjectData(chartData);
         setProjectTotalCount(ResponseData.TotalCount);
       }
+      setAllDataLoaded((prev: any) => ({ ...prev, 2: false }));
     };
     callAPI(url, params, successCallback, "POST");
   };
@@ -198,6 +206,7 @@ const TaskChart = ({
         setBillingData(chartData);
         setBillingTotalCount(ResponseData.TotalCount);
       }
+      setAllDataLoaded((prev: any) => ({ ...prev, 3: false }));
     };
     callAPI(url, params, successCallback, "POST");
   };
@@ -238,6 +247,7 @@ const TaskChart = ({
 
         setErrorlogData(chartData);
       }
+      setAllDataLoaded((prev: any) => ({ ...prev, 4: false }));
     };
     callAPI(url, params, successCallback, "POST");
   };
@@ -245,6 +255,12 @@ const TaskChart = ({
   useEffect(() => {
     if (activeTab === 1 && dashboardActiveTab === 1) {
       setLoading(true);
+      setAllDataLoaded({
+        1: true,
+        2: true,
+        3: true,
+        4: true,
+      });
 
       const timer = setTimeout(() => {
         const fetchData = async () => {
@@ -271,7 +287,8 @@ const TaskChart = ({
 
   return (
     <>
-      {loading ? (
+      {loading &&
+      !Object.values(allDataLoaded).every((val) => val === false) ? (
         <ReportLoader />
       ) : (
         <div className="py-[10px]">

@@ -61,6 +61,15 @@ const NewDashboard = ({
     department: number;
     type: number;
   }>({ department: 0, type: 0 });
+  const [allDataLoaded, setAllDataLoaded] = useState({
+    1: true,
+    2: true,
+    3: true,
+    4: true,
+    5: true,
+    6: true,
+    7: true,
+  });
 
   const getCommonData = async (type: number, setState: (data: any) => void) => {
     const workTypeIdFromLocalStorage =
@@ -89,6 +98,7 @@ const NewDashboard = ({
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setState(ResponseData.data);
       }
+      setAllDataLoaded((prev: any) => ({ ...prev, [type]: false }));
     };
     callAPI(url, params, successCallback, "POST");
   };
@@ -96,6 +106,15 @@ const NewDashboard = ({
   useEffect(() => {
     if (activeTab === 1 && dashboardActiveTab === 3) {
       setLoading(true);
+      setAllDataLoaded({
+        1: true,
+        2: true,
+        3: true,
+        4: true,
+        5: true,
+        6: true,
+        7: true,
+      });
 
       const timer = setTimeout(() => {
         const fetchData = async () => {
@@ -184,7 +203,8 @@ const NewDashboard = ({
 
   return (
     <>
-      {loading ? (
+      {loading &&
+      !Object.values(allDataLoaded).every((val) => val === false) ? (
         <ReportLoader />
       ) : (
         <div className="py-[10px]">
