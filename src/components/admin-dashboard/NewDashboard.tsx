@@ -29,6 +29,7 @@ const NewDashboard = ({
 }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [isDialogOpen, setIsDialogOpen] = useState<string>("");
+  const [taskLoading, setTaskLoading] = useState<boolean>(true);
   const [taskSubmittedAssignedData, setTaskSubmittedAssignedData] = useState<
     any[]
   >([]);
@@ -36,8 +37,10 @@ const NewDashboard = ({
     department: number;
     type: string;
   }>({ department: 0, type: "" });
+  const [reworkLoading, setReworkLoading] = useState<boolean>(true);
   const [reworkData, setReworkData] = useState<any>([]);
   const [reworkTrend, setReworkTrend] = useState<number>(0);
+  const [autoManualLoading, setAutoManualLoading] = useState<boolean>(true);
   const [autoManualTimeData, setAutoManualTimeData] = useState<any[]>([]);
   const [autoManual, setAutoManual] = useState<{
     department: number;
@@ -61,17 +64,13 @@ const NewDashboard = ({
     department: number;
     type: number;
   }>({ department: 0, type: 0 });
-  const [allDataLoaded, setAllDataLoaded] = useState({
-    1: true,
-    2: true,
-    3: true,
-    4: true,
-    5: true,
-    6: true,
-    7: true,
-  });
 
-  const getCommonData = async (type: number, setState: (data: any) => void) => {
+  const getCommonData = async (
+    type: number,
+    setState: (data: any) => void,
+    setLoading: (data: any) => void
+  ) => {
+    setLoading(true);
     const workTypeIdFromLocalStorage =
       typeof localStorage !== "undefined"
         ? localStorage.getItem("workTypeId")
@@ -97,8 +96,10 @@ const NewDashboard = ({
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setState(ResponseData.data);
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
-      setAllDataLoaded((prev: any) => ({ ...prev, [type]: false }));
     };
     callAPI(url, params, successCallback, "POST");
   };
@@ -106,15 +107,6 @@ const NewDashboard = ({
   useEffect(() => {
     if (activeTab === 1 && dashboardActiveTab === 3) {
       setLoading(true);
-      setAllDataLoaded({
-        1: true,
-        2: true,
-        3: true,
-        4: true,
-        5: true,
-        6: true,
-        7: true,
-      });
       setTaskSubmittedAssignedData([]);
       setReworkData([]);
       setAutoManualTimeData([]);
@@ -127,13 +119,13 @@ const NewDashboard = ({
         const fetchData = async () => {
           try {
             await Promise.all([
-              getCommonData(1, setTaskSubmittedAssignedData),
-              getCommonData(2, setReworkData),
-              getCommonData(3, setAutoManualTimeData),
-              getCommonData(4, setPeckProductiveData),
-              getCommonData(5, setBillableProductiveData),
-              getCommonData(6, setTotalLoggedWorkingTimeData),
-              getCommonData(7, setSLATATAchivementData),
+              getCommonData(1, setTaskSubmittedAssignedData, setTaskLoading),
+              getCommonData(2, setReworkData, setReworkLoading),
+              getCommonData(3, setAutoManualTimeData, setAutoManualLoading),
+              getCommonData(4, setPeckProductiveData, setAutoManualLoading),
+              getCommonData(5, setBillableProductiveData, setAutoManualLoading),
+              getCommonData(6, setTotalLoggedWorkingTimeData, setAutoManualLoading),
+              getCommonData(7, setSLATATAchivementData, setAutoManualLoading),
             ]);
           } catch (error) {
             console.error("Error in one of the API calls:", error);
@@ -152,7 +144,7 @@ const NewDashboard = ({
   const charts = [
     {
       Component: Chart_TasksSubmittedVsAssigned,
-      loading: allDataLoaded[1],
+      loading: taskLoading,
       data: taskSubmittedAssignedData,
       sendData: (department: number, type: string) => {
         setIsDialogOpen("tasksSubmittedAssigned");
@@ -161,7 +153,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_ReworkTrend,
-      loading: allDataLoaded[2],
+      loading: reworkLoading,
       data: reworkData,
       sendData: (department: number) => {
         setIsDialogOpen("reworkTrend");
@@ -170,7 +162,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_ManualVsAuto,
-      loading: allDataLoaded[3],
+      loading: autoManualLoading,
       data: autoManualTimeData,
       sendData: (department: number, type: number) => {
         setIsDialogOpen("autoManual");
@@ -179,7 +171,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_PeakProductivityHours,
-      loading: allDataLoaded[4],
+      loading: true,
       data: peakProductiveData,
       sendData: (time: number) => {
         setIsDialogOpen("peakProductive");
@@ -188,7 +180,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_BillableNonBillable,
-      loading: allDataLoaded[5],
+      loading: true,
       data: billableProductiveData,
       sendData: (department: number, type: string) => {
         setIsDialogOpen("billableNonBillable");
@@ -197,7 +189,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_LoggedVsWorking,
-      loading: allDataLoaded[6],
+      loading: true,
       data: totalLoggedWorkingTimeData,
       sendData: (department: number, type: number) => {
         setIsDialogOpen("loggedWorking");
@@ -206,7 +198,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_SLATATAchivement,
-      loading: allDataLoaded[7],
+      loading: true,
       data: slaTATAchivementData,
       sendData: (department: number, type: number) => {
         setIsDialogOpen("slaTATAchivement");
@@ -217,7 +209,7 @@ const NewDashboard = ({
 
   return (
     <>
-      {loading ? (
+      {loading && taskLoading && reworkLoading && autoManualLoading ? (
         <ReportLoader />
       ) : (
         <div className="py-[10px]">
@@ -227,7 +219,11 @@ const NewDashboard = ({
               key={index}
             >
               <Card className="w-full h-full border border-lightSilver rounded-lg px-[10px]">
-                <Component loading={loading} data={data} sendData={sendData as any} />
+                <Component
+                  loading={loading}
+                  data={data}
+                  sendData={sendData as any}
+                />
               </Card>
             </section>
           ))}
