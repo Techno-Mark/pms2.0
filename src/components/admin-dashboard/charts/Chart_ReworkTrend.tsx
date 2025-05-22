@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import { Spinner } from "next-ts-lib";
 
 interface ReworkData {
   departments: string[];
@@ -9,9 +10,11 @@ interface ReworkData {
 }
 
 const Chart_ReworkTrend = ({
+  loading,
   data,
   sendData,
 }: {
+  loading: boolean;
   data: {
     DepartmentId: number;
     DepartmentName: string;
@@ -99,7 +102,13 @@ const Chart_ReworkTrend = ({
       <span className="flex items-start py-[15px] px-[10px] text-lg font-bold">
         Rework Trend
       </span>
-      <HighchartsReact highcharts={Highcharts} options={options} />
+      {loading ? (
+        <div className="h-[400px] w-full flex justify-center items-center">
+          <Spinner size="30px" />
+        </div>
+      ) : (
+        <HighchartsReact highcharts={Highcharts} options={options} />
+      )}
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import { Spinner } from "next-ts-lib";
 
 interface HourlyData {
   HourSlot: number;
@@ -8,9 +9,11 @@ interface HourlyData {
 }
 
 const Chart_PeakProductivityHours = ({
+  loading,
   data,
   sendData,
 }: {
+  loading: boolean;
   data: HourlyData[];
   sendData: (time: number) => void;
 }) => {
@@ -90,7 +93,13 @@ const Chart_PeakProductivityHours = ({
       <span className="flex items-start py-[15px] px-[10px] text-lg font-bold">
         Peak Productivity Hours
       </span>
-      <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+      {loading ? (
+        <div className="h-[400px] w-full flex justify-center items-center">
+          <Spinner size="30px" />
+        </div>
+      ) : (
+        <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+      )}
     </div>
   );
 };

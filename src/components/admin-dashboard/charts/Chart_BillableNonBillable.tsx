@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import { Spinner } from "next-ts-lib";
 
 interface ChartData {
   departments: string[];
@@ -12,9 +13,11 @@ interface ChartData {
 }
 
 const Chart_BillableNonBillable = ({
+  loading,
   data,
   sendData,
 }: {
+  loading: boolean;
   data: {
     DepartmentId: number;
     DepartmentName: string;
@@ -194,7 +197,13 @@ const Chart_BillableNonBillable = ({
       <span className="flex items-start py-[15px] px-[10px] text-lg font-bold">
         Billable vs Non-Billable Hours
       </span>
-      <HighchartsReact highcharts={Highcharts} options={options} />
+      {loading ? (
+        <div className="h-[400px] w-full flex justify-center items-center">
+          <Spinner size="30px" />
+        </div>
+      ) : (
+        <HighchartsReact highcharts={Highcharts} options={options} />
+      )}
     </div>
   );
 };

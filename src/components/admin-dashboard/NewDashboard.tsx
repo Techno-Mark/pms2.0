@@ -152,6 +152,7 @@ const NewDashboard = ({
   const charts = [
     {
       Component: Chart_TasksSubmittedVsAssigned,
+      loading: allDataLoaded[1],
       data: taskSubmittedAssignedData,
       sendData: (department: number, type: string) => {
         setIsDialogOpen("tasksSubmittedAssigned");
@@ -160,6 +161,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_ReworkTrend,
+      loading: allDataLoaded[2],
       data: reworkData,
       sendData: (department: number) => {
         setIsDialogOpen("reworkTrend");
@@ -168,6 +170,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_ManualVsAuto,
+      loading: allDataLoaded[3],
       data: autoManualTimeData,
       sendData: (department: number, type: number) => {
         setIsDialogOpen("autoManual");
@@ -176,6 +179,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_PeakProductivityHours,
+      loading: allDataLoaded[4],
       data: peakProductiveData,
       sendData: (time: number) => {
         setIsDialogOpen("peakProductive");
@@ -184,6 +188,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_BillableNonBillable,
+      loading: allDataLoaded[5],
       data: billableProductiveData,
       sendData: (department: number, type: string) => {
         setIsDialogOpen("billableNonBillable");
@@ -192,6 +197,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_LoggedVsWorking,
+      loading: allDataLoaded[6],
       data: totalLoggedWorkingTimeData,
       sendData: (department: number, type: number) => {
         setIsDialogOpen("loggedWorking");
@@ -200,6 +206,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_SLATATAchivement,
+      loading: allDataLoaded[7],
       data: slaTATAchivementData,
       sendData: (department: number, type: number) => {
         setIsDialogOpen("slaTATAchivement");
@@ -210,8 +217,7 @@ const NewDashboard = ({
 
   return (
     <>
-      {loading &&
-      !Object.values(allDataLoaded).every((val) => val === false) ? (
+      {loading ? (
         <ReportLoader />
       ) : (
         <div className="py-[10px]">
@@ -221,7 +227,7 @@ const NewDashboard = ({
               key={index}
             >
               <Card className="w-full h-full border border-lightSilver rounded-lg px-[10px]">
-                <Component data={data} sendData={sendData as any} />
+                <Component loading={loading} data={data} sendData={sendData as any} />
               </Card>
             </section>
           ))}
