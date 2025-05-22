@@ -25,19 +25,15 @@ const Chart_TasksSubmittedVsAssigned = ({
   sendData: (department: number, type: string) => void;
 }) => {
   const [chartData, setChartData] = useState<TaskData | null>(null);
-  const [chartLoaded, setChartLoaded] = useState(false);
+  const [chartLoaded, setChartLoaded] = useState(true);
 
   useEffect(() => {
     if (data.length) {
       const formattedData: TaskData = {
-        departments: data.map((item) => item.DepartmentName),
-        departmentIds: data.map((item) => item.DepartmentId),
-        submitted: data.map((item) =>
-          item.CompletedCount === 0 ? null : item.CompletedCount
-        ),
-        assigned: data.map((item) =>
-          item.AssignedCount === 0 ? null : item.AssignedCount
-        ),
+        departments: data.map(item => item.DepartmentName),
+        departmentIds: data.map(item => item.DepartmentId),
+        submitted: data.map(item => (item.CompletedCount === 0 ? null : item.CompletedCount)),
+        assigned: data.map(item => (item.AssignedCount === 0 ? null : item.AssignedCount)),
       };
       setChartLoaded(false);
       setChartData(formattedData);
