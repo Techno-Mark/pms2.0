@@ -100,6 +100,9 @@ const NewDashboard = ({
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setState(ResponseData.data);
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -150,7 +153,6 @@ const NewDashboard = ({
     {
       Component: Chart_TasksSubmittedVsAssigned,
       loading: taskLoading,
-      setLoading: setTaskLoading,
       data: taskSubmittedAssignedData,
       sendData: (department: number, type: string) => {
         setIsDialogOpen("tasksSubmittedAssigned");
@@ -160,7 +162,6 @@ const NewDashboard = ({
     {
       Component: Chart_ReworkTrend,
       loading: reworkLoading,
-      setLoading: setReworkLoading,
       data: reworkData,
       sendData: (department: number) => {
         setIsDialogOpen("reworkTrend");
@@ -170,7 +171,6 @@ const NewDashboard = ({
     {
       Component: Chart_ManualVsAuto,
       loading: autoManualLoading,
-      setLoading: setAutoManualLoading,
       data: autoManualTimeData,
       sendData: (department: number, type: number) => {
         setIsDialogOpen("autoManual");
@@ -180,7 +180,6 @@ const NewDashboard = ({
     {
       Component: Chart_PeakProductivityHours,
       loading: peakProductiveLoading,
-      setLoading: setPeakProductiveLoading,
       data: peakProductiveData,
       sendData: (time: number) => {
         setIsDialogOpen("peakProductive");
@@ -190,7 +189,6 @@ const NewDashboard = ({
     {
       Component: Chart_BillableNonBillable,
       loading: billableLoading,
-      setLoading: setBillableLoading,
       data: billableProductiveData,
       sendData: (department: number, type: string) => {
         setIsDialogOpen("billableNonBillable");
@@ -200,7 +198,6 @@ const NewDashboard = ({
     {
       Component: Chart_LoggedVsWorking,
       loading: loggedWorkingLoading,
-      setLoading: setLoggedWorkingLoading,
       data: totalLoggedWorkingTimeData,
       sendData: (department: number, type: number) => {
         setIsDialogOpen("loggedWorking");
@@ -210,7 +207,6 @@ const NewDashboard = ({
     {
       Component: Chart_SLATATAchivement,
       loading: slaLoading,
-      setLoading: setSlaLoading,
       data: slaTATAchivementData,
       sendData: (department: number, type: number) => {
         setIsDialogOpen("slaTATAchivement");
@@ -224,23 +220,22 @@ const NewDashboard = ({
       {/* {loading ? (
         <ReportLoader />
       ) : ( */}
-      <div className="py-[10px]">
-        {charts.map(({ Component, data, sendData }, index) => (
-          <section
-            className="flex gap-[20px] items-center px-[20px] py-[10px]"
-            key={index}
-          >
-            <Card className="w-full h-full border border-lightSilver rounded-lg px-[10px]">
-              <Component
-                loading={loading}
-                setLoading={setLoading}
-                data={data}
-                sendData={sendData as any}
-              />
-            </Card>
-          </section>
-        ))}
-      </div>
+        <div className="py-[10px]">
+          {charts.map(({ Component, data, sendData }, index) => (
+            <section
+              className="flex gap-[20px] items-center px-[20px] py-[10px]"
+              key={index}
+            >
+              <Card className="w-full h-full border border-lightSilver rounded-lg px-[10px]">
+                <Component
+                  loading={loading}
+                  data={data}
+                  sendData={sendData as any}
+                />
+              </Card>
+            </section>
+          ))}
+        </div>
       {/* )} */}
 
       <Dialog_TasksSubmittedAssigned

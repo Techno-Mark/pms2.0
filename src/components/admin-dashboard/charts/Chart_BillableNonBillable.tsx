@@ -29,30 +29,35 @@ const Chart_BillableNonBillable = ({
   sendData: (department: number, type: string) => void;
 }) => {
   const [chartData, setChartData] = useState<ChartData | null>(null);
+  const [chartLoaded, setChartLoaded] = useState(true);
 
   useEffect(() => {
-    const formattedData: ChartData = {
-      departments: data.map(
-        (item: { DepartmentName: string }) => item.DepartmentName
-      ),
-      departmentIds: data.map(
-        (item: { DepartmentId: number }) => item.DepartmentId
-      ),
-      billableTime: data.map(
-        (item: { BillableTime: number }) => item.BillableTime || 0
-      ),
-      nonBillableTime: data.map(
-        (item: { NonBillableTime: number }) => item.NonBillableTime || 0
-      ),
-      productiveTime: data.map(
-        (item: { ProductiveTime: number }) => item.ProductiveTime || 0
-      ),
-      nonProductiveTime: data.map(
-        (item: { NonProductiveTime: number }) => item.NonProductiveTime || 0
-      ),
-    };
-
-    setChartData(formattedData);
+    if (data.length > 0 && !loading) {
+      const formattedData: ChartData = {
+        departments: data.map(
+          (item: { DepartmentName: string }) => item.DepartmentName
+        ),
+        departmentIds: data.map(
+          (item: { DepartmentId: number }) => item.DepartmentId
+        ),
+        billableTime: data.map(
+          (item: { BillableTime: number }) => item.BillableTime || 0
+        ),
+        nonBillableTime: data.map(
+          (item: { NonBillableTime: number }) => item.NonBillableTime || 0
+        ),
+        productiveTime: data.map(
+          (item: { ProductiveTime: number }) => item.ProductiveTime || 0
+        ),
+        nonProductiveTime: data.map(
+          (item: { NonProductiveTime: number }) => item.NonProductiveTime || 0
+        ),
+      };
+      setChartLoaded(false);
+      setChartData(formattedData);
+    } else {
+      setChartLoaded(true);
+    }
   }, [data]);
 
   const options = chartData
@@ -197,7 +202,7 @@ const Chart_BillableNonBillable = ({
       <span className="flex items-start py-[15px] px-[10px] text-lg font-bold">
         Billable vs Non-Billable Hours
       </span>
-      {loading ? (
+      {loading || chartLoaded ? (
         <div className="h-[400px] w-full flex justify-center items-center">
           <Spinner size="30px" />
         </div>

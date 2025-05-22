@@ -12,12 +12,10 @@ interface TaskData {
 
 const Chart_TasksSubmittedVsAssigned = ({
   loading,
-  setLoading,
   data,
   sendData,
 }: {
   loading: boolean;
-  setLoading: any;
   data: {
     DepartmentId: number;
     DepartmentName: string;
@@ -27,9 +25,10 @@ const Chart_TasksSubmittedVsAssigned = ({
   sendData: (department: number, type: string) => void;
 }) => {
   const [chartData, setChartData] = useState<TaskData | null>(null);
+  const [chartLoaded, setChartLoaded] = useState(true);
 
   useEffect(() => {
-    if (data.length) {
+    if (data.length > 0 && !loading) {
       const formattedData: TaskData = {
         departments: data.map((item) => item.DepartmentName),
         departmentIds: data.map((item) => item.DepartmentId),
@@ -40,8 +39,10 @@ const Chart_TasksSubmittedVsAssigned = ({
           item.AssignedCount === 0 ? null : item.AssignedCount
         ),
       };
-      setLoading(false);
+      setChartLoaded(false);
       setChartData(formattedData);
+    } else {
+      setChartLoaded(true);
     }
   }, [data]);
 
@@ -121,7 +122,7 @@ const Chart_TasksSubmittedVsAssigned = ({
       <span className="flex items-start py-[15px] px-[10px] text-lg font-bold">
         Assigned vs Submitted Tasks
       </span>
-      {loading ? (
+      {loading || chartLoaded ? (
         <div className="h-[400px] w-full flex justify-center items-center">
           <Spinner size="30px" />
         </div>

@@ -23,20 +23,26 @@ const Chart_ReworkTrend = ({
   sendData: (department: number) => void;
 }) => {
   const [chartData, setChartData] = useState<ReworkData | null>(null);
+  const [chartLoaded, setChartLoaded] = useState(true);
 
   useEffect(() => {
-    const formattedData: ReworkData = {
-      departments: data.map(
-        (item: { DepartmentName: string }) => item.DepartmentName
-      ),
-      departmentIds: data.map(
-        (item: { DepartmentId: number }) => item.DepartmentId
-      ),
-      taskCounts: data.map(
-        (item: { TaskCount: number }) => item.TaskCount || 0
-      ),
-    };
-    setChartData(formattedData);
+    if (data.length > 0 && !loading) {
+      const formattedData: ReworkData = {
+        departments: data.map(
+          (item: { DepartmentName: string }) => item.DepartmentName
+        ),
+        departmentIds: data.map(
+          (item: { DepartmentId: number }) => item.DepartmentId
+        ),
+        taskCounts: data.map(
+          (item: { TaskCount: number }) => item.TaskCount || 0
+        ),
+      };
+      setChartLoaded(false);
+      setChartData(formattedData);
+    } else {
+      setChartLoaded(true);
+    }
   }, [data]);
 
   const options = chartData
@@ -102,7 +108,7 @@ const Chart_ReworkTrend = ({
       <span className="flex items-start py-[15px] px-[10px] text-lg font-bold">
         Rework Trend
       </span>
-      {loading ? (
+      {loading || chartLoaded ? (
         <div className="h-[400px] w-full flex justify-center items-center">
           <Spinner size="30px" />
         </div>
