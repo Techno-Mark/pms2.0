@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import { Spinner } from "next-ts-lib";
 
 interface DepartmentData {
   DepartmentId: number;
@@ -10,9 +11,11 @@ interface DepartmentData {
 }
 
 const Chart_LoggedVsWorking = ({
+  loading,
   data,
   sendData,
 }: {
+  loading: boolean;
   data: {
     DepartmentId: number;
     DepartmentName: string;
@@ -22,9 +25,16 @@ const Chart_LoggedVsWorking = ({
   sendData: (department: number, type: number) => void;
 }) => {
   const [chartData, setChartData] = useState<DepartmentData[]>([]);
+  const [chartLoaded, setChartLoaded] = useState(true);
 
   useEffect(() => {
-    setChartData(data);
+    if (data.length > 0 && !loading) {
+      setChartLoaded(false);
+      setChartData(data);
+    } else {
+      setChartLoaded(true);
+      setChartData([]);
+    }
   }, [data]);
 
   const chartOptions = chartData
@@ -146,7 +156,13 @@ const Chart_LoggedVsWorking = ({
       <span className="flex items-start py-[15px] px-[10px] text-lg font-bold">
         Total Logged vs Working
       </span>
-      <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+      {loading || chartLoaded ? (
+        <div className="h-[400px] w-full flex justify-center items-center">
+          <Spinner size="30px" />
+        </div>
+      ) : (
+        <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+      )}
     </div>
   );
 };

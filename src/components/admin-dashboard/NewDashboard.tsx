@@ -29,6 +29,7 @@ const NewDashboard = ({
 }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [isDialogOpen, setIsDialogOpen] = useState<string>("");
+  const [taskLoading, setTaskLoading] = useState<boolean>(true);
   const [taskSubmittedAssignedData, setTaskSubmittedAssignedData] = useState<
     any[]
   >([]);
@@ -36,42 +37,44 @@ const NewDashboard = ({
     department: number;
     type: string;
   }>({ department: 0, type: "" });
+  const [reworkLoading, setReworkLoading] = useState<boolean>(true);
   const [reworkData, setReworkData] = useState<any>([]);
   const [reworkTrend, setReworkTrend] = useState<number>(0);
+  const [autoManualLoading, setAutoManualLoading] = useState<boolean>(true);
   const [autoManualTimeData, setAutoManualTimeData] = useState<any[]>([]);
   const [autoManual, setAutoManual] = useState<{
     department: number;
     type: number;
   }>({ department: 0, type: 0 });
+  const [peakProductiveLoading, setPeakProductiveLoading] = useState(true);
   const [peakProductiveData, setPeckProductiveData] = useState<any>([]);
   const [peakPoductive, setPeakPoductive] = useState<number>(0);
+  const [billableLoading, setBillableLoading] = useState(true);
   const [billableProductiveData, setBillableProductiveData] = useState<any>([]);
   const [billableNonBillable, setBillableNonBillable] = useState<{
     department: number;
     type: string;
   }>({ department: 0, type: "" });
+  const [loggedWorkingLoading, setLoggedWorkingLoading] = useState(true);
   const [totalLoggedWorkingTimeData, setTotalLoggedWorkingTimeData] =
     useState<any>([]);
   const [loggedWorking, setLoggedWorking] = useState<{
     department: number;
     type: number;
   }>({ department: 0, type: 0 });
+  const [slaLoading, setSlaLoading] = useState(true);
   const [slaTATAchivementData, setSLATATAchivementData] = useState<any>([]);
   const [slaTATAchivement, setSLATATAchivement] = useState<{
     department: number;
     type: number;
   }>({ department: 0, type: 0 });
-  const [allDataLoaded, setAllDataLoaded] = useState({
-    1: true,
-    2: true,
-    3: true,
-    4: true,
-    5: true,
-    6: true,
-    7: true,
-  });
 
-  const getCommonData = async (type: number, setState: (data: any) => void) => {
+  const getCommonData = async (
+    type: number,
+    setState: (data: any) => void,
+    setLoading: (data: any) => void
+  ) => {
+    setLoading(true);
     const workTypeIdFromLocalStorage =
       typeof localStorage !== "undefined"
         ? localStorage.getItem("workTypeId")
@@ -97,8 +100,10 @@ const NewDashboard = ({
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setState(ResponseData.data);
+        setLoading(false);
+      } else {
+        setLoading(false);
       }
-      setAllDataLoaded((prev: any) => ({ ...prev, [type]: false }));
     };
     callAPI(url, params, successCallback, "POST");
   };
@@ -106,15 +111,6 @@ const NewDashboard = ({
   useEffect(() => {
     if (activeTab === 1 && dashboardActiveTab === 3) {
       setLoading(true);
-      setAllDataLoaded({
-        1: true,
-        2: true,
-        3: true,
-        4: true,
-        5: true,
-        6: true,
-        7: true,
-      });
       setTaskSubmittedAssignedData([]);
       setReworkData([]);
       setAutoManualTimeData([]);
@@ -127,13 +123,17 @@ const NewDashboard = ({
         const fetchData = async () => {
           try {
             await Promise.all([
-              getCommonData(1, setTaskSubmittedAssignedData),
-              getCommonData(2, setReworkData),
-              getCommonData(3, setAutoManualTimeData),
-              getCommonData(4, setPeckProductiveData),
-              getCommonData(5, setBillableProductiveData),
-              getCommonData(6, setTotalLoggedWorkingTimeData),
-              getCommonData(7, setSLATATAchivementData),
+              getCommonData(1, setTaskSubmittedAssignedData, setTaskLoading),
+              getCommonData(2, setReworkData, setReworkLoading),
+              getCommonData(3, setAutoManualTimeData, setAutoManualLoading),
+              getCommonData(4, setPeckProductiveData, setPeakProductiveLoading),
+              getCommonData(5, setBillableProductiveData, setBillableLoading),
+              getCommonData(
+                6,
+                setTotalLoggedWorkingTimeData,
+                setLoggedWorkingLoading
+              ),
+              getCommonData(7, setSLATATAchivementData, setSlaLoading),
             ]);
           } catch (error) {
             console.error("Error in one of the API calls:", error);
@@ -152,6 +152,7 @@ const NewDashboard = ({
   const charts = [
     {
       Component: Chart_TasksSubmittedVsAssigned,
+      loading: taskLoading,
       data: taskSubmittedAssignedData,
       sendData: (department: number, type: string) => {
         setIsDialogOpen("tasksSubmittedAssigned");
@@ -160,6 +161,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_ReworkTrend,
+      loading: reworkLoading,
       data: reworkData,
       sendData: (department: number) => {
         setIsDialogOpen("reworkTrend");
@@ -168,6 +170,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_ManualVsAuto,
+      loading: autoManualLoading,
       data: autoManualTimeData,
       sendData: (department: number, type: number) => {
         setIsDialogOpen("autoManual");
@@ -176,6 +179,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_PeakProductivityHours,
+      loading: peakProductiveLoading,
       data: peakProductiveData,
       sendData: (time: number) => {
         setIsDialogOpen("peakProductive");
@@ -184,6 +188,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_BillableNonBillable,
+      loading: billableLoading,
       data: billableProductiveData,
       sendData: (department: number, type: string) => {
         setIsDialogOpen("billableNonBillable");
@@ -192,6 +197,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_LoggedVsWorking,
+      loading: loggedWorkingLoading,
       data: totalLoggedWorkingTimeData,
       sendData: (department: number, type: number) => {
         setIsDialogOpen("loggedWorking");
@@ -200,6 +206,7 @@ const NewDashboard = ({
     },
     {
       Component: Chart_SLATATAchivement,
+      loading: slaLoading,
       data: slaTATAchivementData,
       sendData: (department: number, type: number) => {
         setIsDialogOpen("slaTATAchivement");
@@ -210,10 +217,9 @@ const NewDashboard = ({
 
   return (
     <>
-      {loading &&
-      !Object.values(allDataLoaded).every((val) => val === false) ? (
+      {/* {loading ? (
         <ReportLoader />
-      ) : (
+      ) : ( */}
         <div className="py-[10px]">
           {charts.map(({ Component, data, sendData }, index) => (
             <section
@@ -221,12 +227,16 @@ const NewDashboard = ({
               key={index}
             >
               <Card className="w-full h-full border border-lightSilver rounded-lg px-[10px]">
-                <Component data={data} sendData={sendData as any} />
+                <Component
+                  loading={loading}
+                  data={data}
+                  sendData={sendData as any}
+                />
               </Card>
             </section>
           ))}
         </div>
-      )}
+      {/* )} */}
 
       <Dialog_TasksSubmittedAssigned
         onOpen={isDialogOpen === "tasksSubmittedAssigned"}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import { Spinner } from "next-ts-lib";
 
 interface TaskData {
   departments: string[];
@@ -10,9 +11,11 @@ interface TaskData {
 }
 
 const Chart_TasksSubmittedVsAssigned = ({
+  loading,
   data,
   sendData,
 }: {
+  loading: boolean;
   data: {
     DepartmentId: number;
     DepartmentName: string;
@@ -22,24 +25,25 @@ const Chart_TasksSubmittedVsAssigned = ({
   sendData: (department: number, type: string) => void;
 }) => {
   const [chartData, setChartData] = useState<TaskData | null>(null);
+  const [chartLoaded, setChartLoaded] = useState(true);
 
   useEffect(() => {
-    const formattedData: TaskData = {
-      departments: data.map(
-        (item: { DepartmentName: string }) => item.DepartmentName
-      ),
-      departmentIds: data.map(
-        (item: { DepartmentId: number }) => item.DepartmentId
-      ),
-      submitted: data.map((item: { CompletedCount: number }) =>
-        item.CompletedCount === 0 ? null : item.CompletedCount
-      ),
-      assigned: data.map((item: { AssignedCount: number }) =>
-        item.AssignedCount === 0 ? null : item.AssignedCount
-      ),
-    };
-
-    setChartData(formattedData);
+    if (data.length > 0 && !loading) {
+      const formattedData: TaskData = {
+        departments: data.map((item) => item.DepartmentName),
+        departmentIds: data.map((item) => item.DepartmentId),
+        submitted: data.map((item) =>
+          item.CompletedCount === 0 ? null : item.CompletedCount
+        ),
+        assigned: data.map((item) =>
+          item.AssignedCount === 0 ? null : item.AssignedCount
+        ),
+      };
+      setChartLoaded(false);
+      setChartData(formattedData);
+    } else {
+      setChartLoaded(true);
+    }
   }, [data]);
 
   const options = chartData
@@ -47,20 +51,14 @@ const Chart_TasksSubmittedVsAssigned = ({
         chart: {
           type: "column",
         },
-        title: {
-          text: null,
-        },
+        title: { text: null },
         xAxis: {
           categories: chartData.departments,
-          title: {
-            text: "Departments",
-          },
+          title: { text: "Departments" },
         },
         yAxis: {
           min: 0,
-          title: {
-            text: "Number Of Tasks",
-          },
+          title: { text: "Number Of Tasks" },
           stackLabels: {
             enabled: true,
             style: {
@@ -113,14 +111,10 @@ const Chart_TasksSubmittedVsAssigned = ({
             color: "#5D8BDD",
           },
         ],
-        credits: {
-          enabled: false,
-        },
+        credits: { enabled: false },
       }
     : {
-        title: {
-          text: null,
-        },
+        title: { text: null },
       };
 
   return (
@@ -128,7 +122,13 @@ const Chart_TasksSubmittedVsAssigned = ({
       <span className="flex items-start py-[15px] px-[10px] text-lg font-bold">
         Assigned vs Submitted Tasks
       </span>
-      <HighchartsReact highcharts={Highcharts} options={options} />
+      {loading || chartLoaded ? (
+        <div className="h-[400px] w-full flex justify-center items-center">
+          <Spinner size="30px" />
+        </div>
+      ) : (
+        <HighchartsReact highcharts={Highcharts} options={options} />
+      )}
     </div>
   );
 };
