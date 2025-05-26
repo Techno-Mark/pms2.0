@@ -157,7 +157,7 @@ const EmailBoxNewMailDrawer: React.FC<EmailBoxNewMailDrawerProps> = ({
   const validateMailData = () => {
     let valid = false;
     if (subject.trim().length <= 0) {
-      setSubjectError("Please provide subject.");
+      setSubjectError("Subject must be required.");
       valid = true;
     }
     if (subject.trim().length > 250) {
@@ -299,26 +299,6 @@ const EmailBoxNewMailDrawer: React.FC<EmailBoxNewMailDrawerProps> = ({
             id="alert-dialog-description"
             className="border-y border-y-lightSilver w-full p-4"
           >
-            <div className="py-2 px-4">
-              <div className="flex items-start gap-3">
-                <p>Subject:</p>
-                <div className="flex items-center flex-wrap gap-2 flex-1">
-                  <input
-                    type="text"
-                    value={subject}
-                    onChange={(e) => {
-                      setSubject(e.target.value);
-                      setSubjectError("");
-                    }}
-                    placeholder="Enter Subject"
-                    className="flex-grow border-none focus:ring-0 outline-none text-sm py-[2px]"
-                  />
-                </div>
-              </div>
-              {subjectError && (
-                <p className="text-red-500 text-sm mt-2">{subjectError}</p>
-              )}
-            </div>
             <MemberInput
               label="To"
               members={toMembers}
@@ -350,6 +330,26 @@ const EmailBoxNewMailDrawer: React.FC<EmailBoxNewMailDrawerProps> = ({
               setError={setBccInputValueError}
               blockedMail={blockedMail}
             />
+            <div className="py-2 px-4">
+              <div className="flex items-start gap-3">
+                <p>Subject:</p>
+                <div className="flex items-center flex-wrap gap-2 flex-1">
+                  <input
+                    type="text"
+                    value={subject}
+                    onChange={(e) => {
+                      setSubject(e.target.value);
+                      setSubjectError("");
+                    }}
+                    placeholder="Enter Subject"
+                    className="flex-grow border-none focus:ring-0 outline-none text-sm py-[2px]"
+                  />
+                </div>
+              </div>
+              {subjectError && (
+                <p className="text-red-500 text-sm mt-2">{subjectError}</p>
+              )}
+            </div>
             <RichTextEditor
               text={text}
               setText={setText}
