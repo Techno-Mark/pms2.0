@@ -24,6 +24,9 @@ const Chart_PeakProductivityHours = ({
     if (data.length > 0 && !loading) {
       setChartLoaded(false);
       setChartData(data);
+    } else if (data.length <= 0 && !loading) {
+      setChartLoaded(false);
+      setChartData([]);
     } else {
       setChartLoaded(true);
       setChartData([]);
