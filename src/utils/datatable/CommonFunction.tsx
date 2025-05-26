@@ -219,6 +219,12 @@ export const generateEmailboxStatusWithColor = (value: any) => {
       ? "#C00000"
       : value.toLowerCase() === "reopen"
       ? "#833C0C"
+      : value.toLowerCase() === "waiting for response"
+      ? "#FFC000"
+      : value.toLowerCase() === "follow-up sent"
+      ? "#00B0F0"
+      : value.toLowerCase() === "client responded"
+      ? "#833C0C"
       : "#D8D8D8";
 
   return (

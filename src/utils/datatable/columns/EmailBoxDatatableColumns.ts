@@ -236,3 +236,26 @@ export const failedColsConfig = [
     },
   },
 ];
+
+export const createMailColsConfig = [
+  {
+    name: "Id",
+    label: "Id",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "Subject",
+    label: "Subject Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    name: "StatusName",
+    label: "Status",
+    bodyRenderer: generateEmailboxStatusWithColor,
+  },
+  {
+    name: "SentOn",
+    label: "Sent On",
+    bodyRenderer: generateDateWithTime,
+  },
+];

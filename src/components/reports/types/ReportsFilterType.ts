@@ -11,4 +11,5 @@ export type EmailFilterType = {
   onDialogClose: any;
   activeTab?: number;
   tagDropdown: { label: string; value: string }[];
+  prevActiveTab: any;
 };

@@ -181,6 +181,7 @@ const EmailNotificationContent = forwardRef<
             moduleDropdown.find((i: LabelValue) => i.value === moduleName) ||
             null
           }
+          disabled
           onChange={(e, value: LabelValue | null) => {
             value && setModuleName(value.value);
             value && setModuleNameError(false);
@@ -213,6 +214,7 @@ const EmailNotificationContent = forwardRef<
               <span className="!text-defaultRed">&nbsp;*</span>
             </span>
           }
+          disabled={tab === "Follow-Up "}
           fullWidth
           className="-mt-1"
           value={emailNotificationName}
@@ -270,66 +272,80 @@ const EmailNotificationContent = forwardRef<
           margin="normal"
           variant="standard"
         />
-        <TextField
-          label={
-            <span>
-              Subject
-              <span className="!text-defaultRed">&nbsp;*</span>
-            </span>
-          }
-          fullWidth
-          className="-mt-1"
-          value={subject}
-          onChange={(e) => {
-            setSubject(e.target.value);
-            setSubjectErr(false);
-          }}
-          onBlur={() => {
-            if (subject.trim().length <= 0 || subject.trim().length > 500) {
-              setSubjectErr(true);
+        {tab !== "Follow-Up " && (
+          <TextField
+            label={
+              <span>
+                Subject
+                <span className="!text-defaultRed">&nbsp;*</span>
+              </span>
             }
-          }}
-          error={subjectErr}
-          helperText={
-            subjectErr && subject.trim().length > 500
-              ? "Subject cannot exceed 500 characters."
-              : subjectErr
-              ? "Subject is required."
-              : ""
-          }
-          margin="normal"
-          variant="standard"
-        />
+            fullWidth
+            className="-mt-1"
+            value={subject}
+            onChange={(e) => {
+              setSubject(e.target.value);
+              setSubjectErr(false);
+            }}
+            onBlur={() => {
+              if (subject.trim().length <= 0 || subject.trim().length > 500) {
+                setSubjectErr(true);
+              }
+            }}
+            error={subjectErr}
+            helperText={
+              subjectErr && subject.trim().length > 500
+                ? "Subject cannot exceed 500 characters."
+                : subjectErr
+                ? "Subject is required."
+                : ""
+            }
+            margin="normal"
+            variant="standard"
+          />
+        )}
         <FormLabel
           id="demo-radio-buttons-group-label"
-          className="text-black my-2"
+          className={`${
+            textError ? "!text-defaultRed" : "text-black"
+          } mt-2 -mb-2`}
         >
           Notification (Email Body)
+          <span className="!text-defaultRed">&nbsp;*</span>
         </FormLabel>
         <RichTextEditor
           text={text}
           setText={setText}
           textError={textError}
           setTextError={setTextError}
-          placeholders={[
-            { label: "Ticket ID", value: "{{TicketID}}" },
-            { label: "Ticket Subject", value: "{{TicketSubject}}" },
-            { label: "Ticket Priority", value: "{{TicketPriority}}" },
-            { label: "Ticket URL", value: "{{TicketURL}}" },
-            { label: "Tag", value: "{{Tag}}" },
-            { label: "Assignee Name", value: "{{AssigneeName}}" },
-            { label: "Assignee Email", value: "{{AssigneeEmail}}" },
-            { label: "Status", value: "{{Status}}" },
-            { label: "Ticket Type", value: "{{TicketType}}" },
-            { label: "Client Name", value: "{{ClientName}}" },
-            { label: "Client Email", value: "{{ClientEmail}}" },
-            { label: "Updated By", value: "{{UpdatedBy}}" },
-            { label: "SLA Due Time", value: "{{SLADueTime}}" },
-            { label: "OrganizationName", value: "{{OrganizationName}}" },
-            { label: "Reopened By", value: "{{ReopenedBy}}" },
-            { label: "New Assignee Name", value: "{{NewAssigneeName}}" },
-            { label: "Closed Date", value: "{{ClosedDate}}" },
-          ]}
+          placeholders={
+            tab !== "Follow-Up "
+              ? [
+                  { label: "Ticket ID", value: "{{TicketID}}" },
+                  { label: "Ticket Subject", value: "{{TicketSubject}}" },
+                  { label: "Ticket Priority", value: "{{TicketPriority}}" },
+                  { label: "Ticket URL", value: "{{TicketURL}}" },
+                  { label: "Tag", value: "{{Tag}}" },
+                  { label: "Assignee Name", value: "{{AssigneeName}}" },
+                  { label: "Assignee Email", value: "{{AssigneeEmail}}" },
+                  { label: "Status", value: "{{Status}}" },
+                  { label: "Ticket Type", value: "{{TicketType}}" },
+                  { label: "Client Name", value: "{{ClientName}}" },
+                  { label: "Client Email", value: "{{ClientEmail}}" },
+                  { label: "Updated By", value: "{{UpdatedBy}}" },
+                  { label: "SLA Due Time", value: "{{SLADueTime}}" },
+                  { label: "OrganizationName", value: "{{OrganizationName}}" },
+                  { label: "Reopened By", value: "{{ReopenedBy}}" },
+                  { label: "New Assignee Name", value: "{{NewAssigneeName}}" },
+                  { label: "Closed Date", value: "{{ClosedDate}}" },
+                ]
+              : [
+                  { label: "Ticket ID", value: "{{TicketID}}" },
+                  { label: "Ticket Subject", value: "{{TicketSubject}}" },
+                  { label: "Sent On", value: "{{SentOn}}" },
+                  { label: "Sender Name", value: "{{SenderName}}" },
+                ]
+          }
         />
       </div>
 

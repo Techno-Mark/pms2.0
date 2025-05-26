@@ -38,6 +38,8 @@ const initialFilter = {
   EmailTypeId: null,
   ReceivedFrom: null,
   ReceivedTo: null,
+  SentFrom: null,
+  SentTo: null,
   Tags: null,
 };
 
@@ -52,9 +54,12 @@ interface SavedFilter {
     Tags: string[] | null;
     ReceivedFrom: string | null;
     ReceivedTo: string | null;
+    SentFrom: string | null;
+    SentTo: string | null;
   };
 }
 const emailBoxFilterType = 27;
+const emailBoxCreateNewMailFilterType = 30;
 
 const EmailBoxFilter = ({
   isFiltering,
@@ -62,6 +67,7 @@ const EmailBoxFilter = ({
   onDialogClose,
   activeTab,
   tagDropdown,
+  prevActiveTab,
 }: EmailFilterType) => {
   const hasFetched = useRef(false);
   const [client, setClient] = useState<LabelValue | null>(null);
@@ -75,6 +81,8 @@ const EmailBoxFilter = ({
   const [tags, setTags] = useState<{ label: string; value: string }[]>([]);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
+  const [sendFromDate, setSendFromDate] = useState<string | number>("");
+  const [sendToDate, setSendToDate] = useState<string | number>("");
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
@@ -106,6 +114,8 @@ const EmailBoxFilter = ({
     setTags([]);
     setStartDate("");
     setEndDate("");
+    setSendFromDate("");
+    setSendToDate("");
     setError("");
     setFilterName("");
     setAnyFieldSelected(false);
@@ -119,7 +129,11 @@ const EmailBoxFilter = ({
       });
   };
 
-  // useEffect(() => handleResetAll(true, true), [activeTab]);
+  useEffect(() => {
+    if (activeTab === 8 || prevActiveTab.current === 8) {
+      handleResetAll(true, false);
+    }
+  }, [activeTab]);
 
   const handleClose = () => {
     onDialogClose(false);
@@ -133,6 +147,8 @@ const EmailBoxFilter = ({
     setTags([]);
     setStartDate("");
     setEndDate("");
+    setSendFromDate("");
+    setSendToDate("");
     setError("");
   };
 
@@ -156,6 +172,18 @@ const EmailBoxFilter = ({
             ? null
             : getFormattedDate(startDate)
           : getFormattedDate(endDate),
+      SentFrom:
+        sendFromDate.toString().trim().length <= 0
+          ? sendToDate.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(sendToDate)
+          : getFormattedDate(sendFromDate),
+      SentTo:
+        sendToDate.toString().trim().length <= 0
+          ? sendFromDate.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(sendFromDate)
+          : getFormattedDate(sendToDate),
     });
 
     onDialogClose(false);
@@ -173,6 +201,8 @@ const EmailBoxFilter = ({
           Tags: filteredFilters[index].AppliedFilter.Tags,
           ReceivedFrom: filteredFilters[index].AppliedFilter.ReceivedFrom,
           ReceivedTo: filteredFilters[index].AppliedFilter.ReceivedTo,
+          SentFrom: filteredFilters[index].AppliedFilter.SentFrom,
+          SentTo: filteredFilters[index].AppliedFilter.SentTo,
         });
       }
     }
@@ -208,8 +238,23 @@ const EmailBoxFilter = ({
                 ? null
                 : getFormattedDate(startDate)
               : getFormattedDate(endDate),
+          SentFrom:
+            sendFromDate.toString().trim().length <= 0
+              ? sendToDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(sendToDate)
+              : getFormattedDate(sendFromDate),
+          SentTo:
+            sendToDate.toString().trim().length <= 0
+              ? sendFromDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(sendFromDate)
+              : getFormattedDate(sendToDate),
         },
-        type: emailBoxFilterType,
+        type:
+          activeTab === 8
+            ? emailBoxCreateNewMailFilterType
+            : emailBoxFilterType,
       };
       const url = `${process.env.worklog_api_url}/filter/savefilter`;
       const successCallback = (
@@ -230,8 +275,10 @@ const EmailBoxFilter = ({
   };
 
   useEffect(() => {
-    getFilterList();
-  }, []);
+    if (activeTab === 8 || prevActiveTab.current === 8) {
+      getFilterList();
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     const isAnyFieldSelected =
@@ -242,10 +289,22 @@ const EmailBoxFilter = ({
       tagNames.length > 0 ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0;
+    sendFromDate.toString().trim().length > 0 ||
+      sendToDate.toString().trim().length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-  }, [client, ticketStatus, assignee, emailType, tagNames, startDate, endDate]);
+  }, [
+    client,
+    ticketStatus,
+    assignee,
+    emailType,
+    tagNames,
+    startDate,
+    endDate,
+    sendFromDate,
+    sendToDate,
+  ]);
 
   useEffect(() => {
     const userDropdowns = async () => {
@@ -261,7 +320,8 @@ const EmailBoxFilter = ({
 
   const getFilterList = async () => {
     const params = {
-      type: emailBoxFilterType,
+      type:
+        activeTab === 8 ? emailBoxCreateNewMailFilterType : emailBoxFilterType,
     };
     const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
     const successCallback = (
@@ -328,6 +388,9 @@ const EmailBoxFilter = ({
 
     setStartDate(AppliedFilter?.ReceivedFrom || "");
     setEndDate(AppliedFilter?.ReceivedTo || "");
+
+    setSendFromDate(AppliedFilter?.SentFrom || "");
+    setSendToDate(AppliedFilter?.SentTo || "");
   };
 
   const handleSavedFilterDelete = async () => {
@@ -459,34 +522,45 @@ const EmailBoxFilter = ({
             <div className="flex flex-col gap-[20px] pt-[15px]">
               {activeTab !== 7 && (
                 <div className="flex gap-[20px]">
+                  {activeTab !== 8 && (
+                    <FormControl
+                      variant="standard"
+                      sx={{ mx: 0.75, minWidth: 210, pt: "3px" }}
+                    >
+                      <Autocomplete
+                        id="tags-standard"
+                        options={clientDropdown}
+                        getOptionLabel={(option: LabelValue) => option.label}
+                        onChange={(e, data: LabelValue | null) => {
+                          setClient(data);
+                        }}
+                        value={client}
+                        renderInput={(params: any) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label="Client Name"
+                          />
+                        )}
+                      />
+                    </FormControl>
+                  )}
                   <FormControl
                     variant="standard"
                     sx={{ mx: 0.75, minWidth: 210, pt: "3px" }}
                   >
                     <Autocomplete
                       id="tags-standard"
-                      options={clientDropdown}
-                      getOptionLabel={(option: LabelValue) => option.label}
-                      onChange={(e, data: LabelValue | null) => {
-                        setClient(data);
-                      }}
-                      value={client}
-                      renderInput={(params: any) => (
-                        <TextField
-                          {...params}
-                          variant="standard"
-                          label="Client Name"
-                        />
-                      )}
-                    />
-                  </FormControl>
-                  <FormControl
-                    variant="standard"
-                    sx={{ mx: 0.75, minWidth: 210, pt: "3px" }}
-                  >
-                    <Autocomplete
-                      id="tags-standard"
-                      options={emailBoxStatusOptions}
+                      options={
+                        activeTab === 8
+                          ? [
+                              { value: 8, label: "Waiting For Response" },
+                              { value: 9, label: "Follow-Up Sent" },
+                              { value: 10, label: "Closed" },
+                              { value: 11, label: "Client Responded" },
+                            ]
+                          : emailBoxStatusOptions
+                      }
                       getOptionLabel={(option: LabelValue) => option.label}
                       onChange={(e, data: LabelValue | null) => {
                         setTicketStatus(data);
@@ -501,112 +575,146 @@ const EmailBoxFilter = ({
                       )}
                     />
                   </FormControl>
+                  {activeTab !== 8 && (
+                    <FormControl
+                      variant="standard"
+                      sx={{ mx: 0.75, minWidth: 210, pt: "3px" }}
+                    >
+                      <Autocomplete
+                        id="tags-standard"
+                        options={assigneeDropdown}
+                        getOptionLabel={(option: LabelValue) => option.label}
+                        onChange={(e, data: LabelValue | null) => {
+                          setAssignee(data);
+                        }}
+                        value={assignee}
+                        renderInput={(params: any) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label="Assignee"
+                          />
+                        )}
+                      />
+                    </FormControl>
+                  )}
+                  {activeTab === 8 && (
+                    <>
+                      <div
+                        className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                      >
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            label="Send From"
+                            // shouldDisableDate={isWeekend}
+                            maxDate={dayjs(Date.now()) || dayjs(sendToDate)}
+                            value={
+                              sendFromDate === "" ? null : dayjs(sendFromDate)
+                            }
+                            onChange={(newValue: any) =>
+                              setSendFromDate(newValue)
+                            }
+                            slotProps={{
+                              textField: {
+                                readOnly: true,
+                              } as Record<string, any>,
+                            }}
+                          />
+                        </LocalizationProvider>
+                      </div>
+                      <div
+                        className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                      >
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            label="Send To"
+                            // shouldDisableDate={isWeekend}
+                            minDate={dayjs(sendFromDate)}
+                            maxDate={dayjs(Date.now())}
+                            value={sendToDate === "" ? null : dayjs(sendToDate)}
+                            onChange={(newValue: any) =>
+                              setSendToDate(newValue)
+                            }
+                            slotProps={{
+                              textField: {
+                                readOnly: true,
+                              } as Record<string, any>,
+                            }}
+                          />
+                        </LocalizationProvider>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+              {activeTab !== 8 && (
+                <div className="flex gap-[20px]">
                   <FormControl
                     variant="standard"
                     sx={{ mx: 0.75, minWidth: 210, pt: "3px" }}
                   >
                     <Autocomplete
                       id="tags-standard"
-                      options={assigneeDropdown}
+                      options={emailTypeDropdown}
                       getOptionLabel={(option: LabelValue) => option.label}
                       onChange={(e, data: LabelValue | null) => {
-                        setAssignee(data);
+                        setEmailType(data);
                       }}
-                      value={assignee}
+                      value={emailType}
                       renderInput={(params: any) => (
                         <TextField
                           {...params}
                           variant="standard"
-                          label="Assignee"
+                          label="Email Type"
                         />
                       )}
                     />
                   </FormControl>
-                </div>
-              )}
-              <div className="flex gap-[20px]">
-                <FormControl
-                  variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210, pt: "3px" }}
-                >
-                  <Autocomplete
-                    id="tags-standard"
-                    options={emailTypeDropdown}
-                    getOptionLabel={(option: LabelValue) => option.label}
-                    onChange={(e, data: LabelValue | null) => {
-                      setEmailType(data);
-                    }}
-                    value={emailType}
-                    renderInput={(params: any) => (
-                      <TextField
-                        {...params}
-                        variant="standard"
-                        label="Email Type"
+                  {activeTab !== 7 && (
+                    <FormControl
+                      variant="standard"
+                      sx={{ mx: 0.75, minWidth: 210, pt: "3px" }}
+                    >
+                      <Autocomplete
+                        multiple
+                        id="tags-standard"
+                        options={tagDropdown}
+                        getOptionLabel={(option: {
+                          label: string;
+                          value: string;
+                        }) => option.label}
+                        onChange={(
+                          e,
+                          data: { label: string; value: string }[]
+                        ) => {
+                          setTagNames(
+                            data.map(
+                              (d: { label: string; value: string }) => d.value
+                            )
+                          );
+                          setTags(data);
+                        }}
+                        value={tags}
+                        renderInput={(params: any) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label="Tag"
+                          />
+                        )}
                       />
-                    )}
-                  />
-                </FormControl>
-                {activeTab !== 7 && (
-                  <FormControl
-                    variant="standard"
-                    sx={{ mx: 0.75, minWidth: 210, pt: "3px" }}
-                  >
-                    <Autocomplete
-                      multiple
-                      id="tags-standard"
-                      options={tagDropdown}
-                      getOptionLabel={(option: {
-                        label: string;
-                        value: string;
-                      }) => option.label}
-                      onChange={(
-                        e,
-                        data: { label: string; value: string }[]
-                      ) => {
-                        setTagNames(
-                          data.map(
-                            (d: { label: string; value: string }) => d.value
-                          )
-                        );
-                        setTags(data);
-                      }}
-                      value={tags}
-                      renderInput={(params: any) => (
-                        <TextField {...params} variant="standard" label="Tag" />
-                      )}
-                    />
-                  </FormControl>
-                )}
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
-                >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="Received From"
-                      // shouldDisableDate={isWeekend}
-                      maxDate={dayjs(Date.now()) || dayjs(endDate)}
-                      value={startDate === "" ? null : dayjs(startDate)}
-                      onChange={(newValue: any) => setStartDate(newValue)}
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
-                {activeTab === 7 && (
+                    </FormControl>
+                  )}
                   <div
                     className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                   >
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
-                        label="Received To"
+                        label="Received From"
                         // shouldDisableDate={isWeekend}
-                        minDate={dayjs(startDate)}
-                        maxDate={dayjs(Date.now())}
-                        value={endDate === "" ? null : dayjs(endDate)}
-                        onChange={(newValue: any) => setEndDate(newValue)}
+                        maxDate={dayjs(Date.now()) || dayjs(endDate)}
+                        value={startDate === "" ? null : dayjs(startDate)}
+                        onChange={(newValue: any) => setStartDate(newValue)}
                         slotProps={{
                           textField: {
                             readOnly: true,
@@ -615,9 +723,30 @@ const EmailBoxFilter = ({
                       />
                     </LocalizationProvider>
                   </div>
-                )}
-              </div>
-              {activeTab !== 7 && (
+                  {activeTab === 7 && (
+                    <div
+                      className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                    >
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          label="Received To"
+                          // shouldDisableDate={isWeekend}
+                          minDate={dayjs(startDate)}
+                          maxDate={dayjs(Date.now())}
+                          value={endDate === "" ? null : dayjs(endDate)}
+                          onChange={(newValue: any) => setEndDate(newValue)}
+                          slotProps={{
+                            textField: {
+                              readOnly: true,
+                            } as Record<string, any>,
+                          }}
+                        />
+                      </LocalizationProvider>
+                    </div>
+                  )}
+                </div>
+              )}
+              {activeTab !== 7 && activeTab !== 8 && (
                 <div className="flex gap-[20px]">
                   <div
                     className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}

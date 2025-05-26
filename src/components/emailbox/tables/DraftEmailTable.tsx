@@ -94,7 +94,12 @@ const DraftEmailTable = ({
       }
     };
 
-    callAPI(url, filteredObject, successCallback, "post");
+    callAPI(
+      url,
+      { ...filteredObject, SentFrom: null, SentTo: null },
+      successCallback,
+      "post"
+    );
   };
 
   const getSyncTime = (ticketId: number) => {

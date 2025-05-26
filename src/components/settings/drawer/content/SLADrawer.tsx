@@ -40,6 +40,10 @@ const SLADrawer = ({
       emailNotificationRef.current.clearEmailNotificationData();
     }
   };
+  const normalizedTab = tab
+    .trim()
+    .replace(/\u00A0/g, "")
+    .replace(/[–—]/g, "-");
 
   return (
     <>
@@ -82,9 +86,10 @@ const SLADrawer = ({
             onChangeLoader={(e: boolean) => setDrawerOverlay(e)}
           />
         )}
-        {(tab === "Assignee Notification" ||
-          tab === "Customer Notification" ||
-          tab === "CC Notification") && (
+        {(normalizedTab === "Assignee Notification" ||
+          normalizedTab === "Customer Notification" ||
+          normalizedTab === "CC Notification" ||
+          normalizedTab === "Follow-Up") && (
           <EmailNotificationContent
             onEdit={onEdit}
             onOpen={onOpen}

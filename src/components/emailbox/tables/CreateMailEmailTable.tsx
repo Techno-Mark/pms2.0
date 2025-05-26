@@ -1,6 +1,7 @@
 import {
   EmailBoxFilterProps,
   EmailBoxListResponse,
+  EmailBoxListResponseList,
   EmailBoxProps,
 } from "@/utils/Types/emailboxTypes";
 import React from "react";
@@ -9,7 +10,7 @@ import { useEffect, useState } from "react";
 import { callAPI } from "@/utils/API/callAPI";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import ReportLoader from "@/components/common/ReportLoader";
-import { ColorToolTip, getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { TablePagination, ThemeProvider } from "@mui/material";
 import { FieldsType } from "@/components/reports/types/FieldsType";
 import { generateCustomColumn } from "@/utils/datatable/ColsGenerateFunctions";
@@ -18,12 +19,11 @@ import {
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
-import { unProcessedColsConfig } from "@/utils/datatable/columns/EmailBoxDatatableColumns";
-import OverLay from "@/components/common/OverLay";
-import InboxActionBar from "../actionBar/InboxActionBar";
-import UnProcessActionBar from "../actionBar/UnProcessActionBar";
-import { hasPermissionWorklog } from "@/utils/commonFunction";
+import { createMailColsConfig } from "@/utils/datatable/columns/EmailBoxDatatableColumns";
 import SubjectPopup from "../SubjectPopup";
+import { hasPermissionWorklog } from "@/utils/commonFunction";
+import UnProcessActionBar from "../actionBar/UnProcessActionBar";
+import OverLay from "@/components/common/OverLay";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -41,17 +41,16 @@ const initialFilter = {
   ReceivedFrom: null,
   ReceivedTo: null,
   Tags: null,
-  TabType: 2,
+  TabType: 8,
 };
 
-const UnprocessedTable = ({
+const CreateMailEmailTable = ({
   filteredData,
   searchValue,
   onDataFetch,
-  getTabData,
   handleDrawerOpen,
   getId,
-  hasFetched,
+  getTabData,
 }: EmailBoxProps) => {
   const [loading, setLoading] = useState(false);
   const [fileds, setFileds] = useState<FieldsType>({
@@ -69,16 +68,26 @@ const UnprocessedTable = ({
   >([]);
   const [selectedRows, setSelectedRows] = useState<number[] | []>([]);
   const [selectedRowIds, setSelectedRowIds] = useState<number[] | []>([]);
+  const [selectedRowStatus, setSelectedRowStatus] = useState<number[] | []>([]);
 
   const getData = async () => {
     setFileds({
       ...fileds,
       loaded: false,
     });
-    const url = `${process.env.emailbox_api_url}/emailbox/getticketlist`;
+    const url = `${process.env.emailbox_api_url}/emailbox/getNewTicketList`;
 
     const successCallback = (
-      ResponseData: EmailBoxListResponse,
+      ResponseData: {
+        List: {
+          Id: number;
+          Subject: string;
+          Status: number;
+          SentOn: string;
+          StatusName: string;
+        }[];
+        TotalCount: 1;
+      },
       error: boolean,
       ResponseStatus: string
     ) => {
@@ -96,7 +105,15 @@ const UnprocessedTable = ({
 
     callAPI(
       url,
-      { ...filteredObject, SentFrom: null, SentTo: null },
+      {
+        ...filteredObject,
+        ClientId: null,
+        AssigneeId: null,
+        Tags: null,
+        EmailTypeId: null,
+        ReceivedFrom: null,
+        ReceivedTo: null,
+      },
       successCallback,
       "post"
     );
@@ -115,10 +132,21 @@ const UnprocessedTable = ({
 
     const selectedWorkItemIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow?.Id)
+        ? selectedData.map(
+            (selectedRow: EmailBoxListResponseList) => selectedRow?.Id
+          )
         : [];
 
     setSelectedRowIds(selectedWorkItemIds);
+
+    const selectedWorkItemStatus =
+      selectedData.length > 0
+        ? selectedData.map(
+            (selectedRow: EmailBoxListResponseList) => selectedRow?.Status
+          )
+        : [];
+
+    setSelectedRowStatus(selectedWorkItemStatus);
 
     setIsPopupOpen(allRowsSelected);
   };
@@ -127,6 +155,7 @@ const UnprocessedTable = ({
     setSelectedRowsCount(0);
     setSelectedRows([]);
     setIsPopupOpen([]);
+    setSelectedRowStatus([]);
   };
 
   useEffect(() => {
@@ -140,16 +169,13 @@ const UnprocessedTable = ({
       });
       setPage(0);
       setRowsPerPage(pageSize);
-      hasFetched.current = false;
     } else {
       setFilteredOject({
         ...filteredObject,
         ...filteredData,
         GlobalSearch: searchValue.trim(),
       });
-      hasFetched.current = false;
     }
-    // getTabData?.();
   }, [filteredData, searchValue]);
 
   useEffect(() => {
@@ -168,71 +194,7 @@ const UnprocessedTable = ({
     label: string;
     bodyRenderer: (arg0: any) => any;
   }) => {
-    if (column.name === "TagList") {
-      return {
-        name: "TagList",
-        options: {
-          filter: true,
-          sort: false,
-          viewColumns: false,
-          customHeadLabelRender: () => generateCustomHeaderName("Tag"),
-          customBodyRender: (value: string[]) => {
-            return value.length <= 0 ? (
-              "-"
-            ) : (
-              <div className="flex items-center justify-start gap-2">
-                {value.map((item, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      backgroundColor: "#e0e0e0",
-                      borderRadius: "12px",
-                      padding: "4px 8px",
-                      fontSize: "14px",
-                      cursor: "default",
-                    }}
-                  >
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </div>
-            );
-          },
-        },
-      };
-    } else if (column.name === "Subject") {
-      return {
-        name: "Subject",
-        options: {
-          filter: true,
-          sort: true,
-          viewColumns: false,
-          customHeadLabelRender: () => generateCustomHeaderName("Subject"),
-          customBodyRender: (value: string, tableMeta: any) => {
-            const shortProcessName =
-              value !== null &&
-              value !== undefined &&
-              value !== "" &&
-              value !== "0" &&
-              value.length > 20
-                ? value.slice(0, 20)
-                : value;
-
-            return (
-              <SubjectPopup
-                value={value}
-                shortProcessName={shortProcessName}
-                tableMeta={tableMeta}
-                handleDrawerOpen={handleDrawerOpen}
-                getId={getId}
-              />
-            );
-          },
-        },
-      };
-    } else if (column.name === "Id") {
+    if (column.name === "Id") {
       return {
         name: "Id",
         options: {
@@ -262,12 +224,35 @@ const UnprocessedTable = ({
           },
         },
       };
-    } else if (column.name === "ClientId") {
+    } else if (column.name === "Subject") {
       return {
-        name: "ClientId",
+        name: "Subject",
         options: {
-          display: false,
+          filter: true,
+          sort: true,
           viewColumns: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Subject"),
+          customBodyRender: (value: string, tableMeta: any) => {
+            const shortProcessName =
+              value !== null &&
+              value !== undefined &&
+              value !== "" &&
+              value !== "0" &&
+              value.length > 20
+                ? value.slice(0, 20)
+                : value;
+
+            return (
+              <SubjectPopup
+                value={value}
+                shortProcessName={shortProcessName}
+                tableMeta={tableMeta}
+                handleDrawerOpen={handleDrawerOpen}
+                getId={getId}
+                isBold={true}
+              />
+            );
+          },
         },
       };
     } else {
@@ -279,7 +264,7 @@ const UnprocessedTable = ({
     }
   };
 
-  const inboxCols = unProcessedColsConfig.map((col: any) => {
+  const inboxCols = createMailColsConfig.map((col: any) => {
     return generateConditionalColumn(col);
   });
 
@@ -289,6 +274,7 @@ const UnprocessedTable = ({
     selectedRowIds,
     getData,
     handleClearSelection,
+    selectedRowStatus,
     getTabData,
   };
 
@@ -306,7 +292,7 @@ const UnprocessedTable = ({
               selectAllRows: isPopupOpen && selectedRowsCount === 0,
               rowsSelected: selectedRows,
               selectableRows: hasPermissionWorklog(
-                "Unprocessed",
+                "Create Mail",
                 "Save",
                 "EmailBox"
               )
@@ -316,7 +302,7 @@ const UnprocessedTable = ({
                 body: {
                   noMatch: (
                     <div className="flex items-start">
-                      <span>No emails available for your group.</span>
+                      <span>No emails available.</span>
                     </div>
                   ),
                   toolTip: "",
@@ -345,7 +331,6 @@ const UnprocessedTable = ({
               newPage: number
             ) => {
               handlePageChangeWithFilter(newPage, setPage, setFilteredOject);
-              handleClearSelection();
             }}
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={(
@@ -357,16 +342,16 @@ const UnprocessedTable = ({
                 setPage,
                 setFilteredOject
               );
-              handleClearSelection();
             }}
           />
         </ThemeProvider>
       ) : (
         <ReportLoader />
       )}
-      ;{/* Action Bar */}
+      {/* Action Bar */}
       <UnProcessActionBar
         {...propsForActionBar}
+        tab="Create Mail"
         getOverLay={(e: boolean) => setLoading(e)}
       />
       {loading ? <OverLay /> : ""}
@@ -374,4 +359,4 @@ const UnprocessedTable = ({
   );
 };
 
-export default UnprocessedTable;
+export default CreateMailEmailTable;

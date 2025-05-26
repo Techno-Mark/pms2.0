@@ -316,9 +316,39 @@ const EmailNotification = ({
     },
   ];
 
-  const columns = column.map((col: any) => {
-    return generateConditionalColumn(col, 10);
-  });
+  const followupColumn = [
+    {
+      name: "ModuleName",
+      label: "Module Name",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "TemplateName",
+      label: "Email Notification Name",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "Description",
+      label: "Description",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "Status",
+      label: "Status",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "actions",
+      label: "Actions",
+      bodyRenderer: generateCommonBodyRender,
+    },
+  ];
+
+  const columns = (selectedTab === 4 ? followupColumn : column).map(
+    (col: any) => {
+      return generateConditionalColumn(col, 10);
+    }
+  );
 
   const handleSearchChange = (e: string) => {
     setSearch(e);
@@ -390,6 +420,19 @@ const EmailNotification = ({
             >
               CC Notification
             </label>
+            <span className="text-lightSilver">|</span>
+            <label
+              onClick={() => {
+                setSelectedTab(4);
+              }}
+              className={`py-[10px] text-[16px] px-4 cursor-pointer select-none ${
+                selectedTab === 4
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
+              }`}
+            >
+              Follow-Up
+            </label>
           </div>
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -433,7 +476,9 @@ const EmailNotification = ({
                                 ? "Assignee Notification"
                                 : selectedTab === 2
                                 ? "Customer Notification"
-                                : "CC Notification"}
+                                : selectedTab === 3
+                                ? "CC Notification"
+                                : "Follow-Up "}
                               &nbsp;available.
                             </span>
                           </div>
@@ -485,7 +530,9 @@ const EmailNotification = ({
                   ? "Assignee Notification"
                   : selectedTab === 2
                   ? "Customer Notification"
-                  : "CC Notification"
+                  : selectedTab === 3
+                  ? "CC Notification"
+                  : "Follow-Up "
               }
               onEdit={selectedRowId}
               onDataFetch={getAll}
@@ -500,7 +547,9 @@ const EmailNotification = ({
                     ? "Assignee Notification"
                     : selectedTab === 2
                     ? "Customer Notification"
-                    : "CC Notification"
+                    : selectedTab === 3
+                    ? "CC Notification"
+                    : "Follow-Up "
                 }`}
                 actionText="Yes"
                 onActionClick={handleToggleEmailNotification}
@@ -511,7 +560,9 @@ const EmailNotification = ({
                     ? "Assignee Notification"
                     : selectedTab === 2
                     ? "Customer Notification"
-                    : "CC Notification"
+                    : selectedTab === 3
+                    ? "CC Notification"
+                    : "Follow-Up "
                 }?`}
               />
             )}

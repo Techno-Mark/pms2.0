@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { callAPI } from "@/utils/API/callAPI";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { Close } from "@mui/icons-material";
+import NewMailStatus from "./components/NewMailStatus";
 
 const UnProcessActionBar = ({
   selectedRowsCount,
@@ -25,6 +26,7 @@ const UnProcessActionBar = ({
   getOverLay,
   tab = "Unprocess",
   getTabData,
+  selectedRowStatus = [],
 }: {
   selectedRowsCount: number;
   selectedRows: number[];
@@ -34,6 +36,7 @@ const UnProcessActionBar = ({
   getOverLay?: (e: boolean) => void;
   tab?: string;
   getTabData?: () => void;
+  selectedRowStatus?: number[];
 }) => {
   const [isSentOpen, setIsSentOpen] = useState(false);
   const propsForActionBar = {
@@ -63,7 +66,9 @@ const UnProcessActionBar = ({
     const params = {
       TicketIds: selectedRowIds,
     };
-    const url = `${process.env.emailbox_api_url}/emailbox/mailmove`;
+    const url = `${process.env.emailbox_api_url}/emailbox/${
+      tab === "Create Mail" ? "newMailMoveToInboxOrUnprocess" : "mailmove"
+    }`;
     const successCallback = (
       ResponseData: boolean | string,
       error: boolean,
@@ -94,7 +99,7 @@ const UnProcessActionBar = ({
   };
 
   const MoveToInboxButton = () => (
-    <span className="pl-2 pr-2 border-t-0 cursor-pointer border-b-0 border-x-[1.5px] border-gray-300">
+    <span className="pl-2 pr-2 border-t-0 cursor-pointer border-b-0 border-x border-gray-300">
       <Button
         variant="outlined"
         className=" rounded-[4px] h-8 !text-[10px]"
@@ -122,7 +127,30 @@ const UnProcessActionBar = ({
             getOverLay={getOverLay}
           />
         )}
-        {tab === "Junk" && <MoveToInboxButton />}
+        {tab === "Create Mail" && (
+          <ConditionalComponentWithoutConditions
+            Component={NewMailStatus}
+            className={
+              Array.from(new Set(selectedRowStatus)).length === 1 &&
+              Array.from(new Set(selectedRowStatus)).includes(11)
+                ? ""
+                : "border-r"
+            }
+            propsForActionBar={{
+              selectedRowIds: selectedRowIds,
+              selectedRowsCount: selectedRowsCount,
+              getData: getData,
+              tab: tab,
+            }}
+            getOverLay={getOverLay}
+          />
+        )}
+        {(tab === "Junk" ||
+          (tab === "Create Mail" &&
+            Array.from(new Set(selectedRowStatus)).length === 1 &&
+            Array.from(new Set(selectedRowStatus)).includes(11))) && (
+          <MoveToInboxButton />
+        )}
       </CustomActionBar>
       <Dialog
         open={isSentOpen}

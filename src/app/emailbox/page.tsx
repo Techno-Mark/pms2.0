@@ -1,13 +1,17 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
+import AddPlusIcon from "@/assets/icons/AddPlusIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
 import LineIcon from "@/assets/icons/reports/LineIcon";
 import MoreIcon from "@/assets/icons/reports/MoreIcon";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import WrapperNavbar from "@/components/common/WrapperNavbar";
 import EmailBoxDrawer from "@/components/emailbox/drawer/EmailBoxDrawer";
+import EmailBoxNewMailDrawer from "@/components/emailbox/drawer/EmailBoxNewMailDrawer";
+import EmailBoxNewMailEditDrawer from "@/components/emailbox/drawer/EmailBoxNewMailEditDrawer";
 import EmailBoxFilter from "@/components/emailbox/EmailBoxFilter";
 import ApprovalsEmailTable from "@/components/emailbox/tables/ApprovalsEmailTable";
+import CreateMailEmailTable from "@/components/emailbox/tables/CreateMailEmailTable";
 import DraftEmailTable from "@/components/emailbox/tables/DraftEmailTable";
 import FailedEmailTable from "@/components/emailbox/tables/FailedEmailTable";
 import InboxTable from "@/components/emailbox/tables/InboxTable";
@@ -19,7 +23,7 @@ import { callAPI } from "@/utils/API/callAPI";
 import { getTagData } from "@/utils/commonDropdownApiCall";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
-import { InputBase } from "@mui/material";
+import { Button, InputBase } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 
@@ -35,6 +39,7 @@ interface MoreTabs {
 }
 
 const tabs = [
+  { label: "Create Mail", value: 8, name: "Create Mail" },
   { label: "Inbox", value: 1, name: "Inbox" },
   { label: "Unprocessed", value: 2, name: "Unprocessed" },
   { label: "Approvals", value: 3, name: "Approvals" },
@@ -86,6 +91,7 @@ const page = () => {
   const router = useRouter();
   const moreTabsRef = useRef<HTMLDivElement>(null);
   const [allTabs, setAllTabs] = useState([
+    { label: "Create Mail", value: 8, name: "Create Mail" },
     { label: "Inbox", value: 1, name: "Inbox" },
     { label: "Unprocessed", value: 2, name: "Unprocessed" },
     { label: "Approvals", value: 3, name: "Approvals" },
@@ -94,7 +100,6 @@ const page = () => {
     { label: "Junk Mails", value: 6, name: "Junk Mails" },
     { label: "Failed Mails", value: 7, name: "Failed Mails" },
   ]);
-  // { label: "project", value: 7, name: "Failed Emails" },
   const [activeTabs, setActiveTabs] = useState<any[]>([]);
   const [moreTabs, setMoreTabs] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<number>(1);
@@ -112,6 +117,7 @@ const page = () => {
   >([]);
   const hasFetched = useRef(false);
   const hasFetchedTag = useRef(false);
+  const prevActiveTab = useRef<number | null>(null);
 
   const getTagDropdownData = async () => {
     setTagDropdown(await getTagData());
@@ -162,7 +168,11 @@ const page = () => {
           if (matchingData) {
             return {
               ...tab,
-              name: `${tab.name}:${matchingData.TotalCount} (${matchingData.UnReadCount})`,
+              name: `${tab.name}:${matchingData.TotalCount} ${
+                matchingData.TabType === 1
+                  ? `(${matchingData.UnReadCount})`
+                  : ""
+              }`,
             };
           }
           return tab;
@@ -218,7 +228,17 @@ const page = () => {
       setTabs();
       setActiveTab(
         allTabs
-          .filter((tab) => hasPermissionWorklog(tab.label, "view", "EmailBox"))
+          .filter((tab) => {
+            if (tab.label === "Create Mail") {
+              return hasPermissionWorklog("Create Mail", "view", "EmailBox") &&
+                hasPermissionWorklog("Send Email", "Send Email", "EmailBox")
+                ? tab
+                : false;
+            }
+            return hasPermissionWorklog(tab.label, "view", "EmailBox")
+              ? tab
+              : false;
+          })
           .map((tab) => tab.value)[0]
       );
     }
@@ -236,38 +256,78 @@ const page = () => {
 
   const setTabs = () => {
     setActiveTabs(
-      activeTab > 4
+      activeTab > 3 && activeTab !== 8
         ? [
             ...allTabs
-              .map((tab) =>
-                hasPermissionWorklog(tab.label, "view", "EmailBox")
+              .map((tab) => {
+                if (tab.label === "Create Mail") {
+                  return hasPermissionWorklog(
+                    "Create Mail",
+                    "view",
+                    "EmailBox"
+                  ) &&
+                    hasPermissionWorklog("Send Email", "Send Email", "EmailBox")
+                    ? tab
+                    : false;
+                }
+                return hasPermissionWorklog(tab.label, "view", "EmailBox")
                   ? tab
-                  : false
-              )
+                  : false;
+              })
               .filter((tab) => tab !== false)
               .slice(0, 3),
             allTabs
-              .map((tab) =>
-                hasPermissionWorklog(tab.label, "view", "EmailBox")
+              .map((tab) => {
+                if (tab.label === "Create Mail") {
+                  return hasPermissionWorklog(
+                    "Create Mail",
+                    "view",
+                    "EmailBox"
+                  ) &&
+                    hasPermissionWorklog("Send Email", "Send Email", "EmailBox")
+                    ? tab
+                    : false;
+                }
+                return hasPermissionWorklog(tab.label, "view", "EmailBox")
                   ? tab
-                  : false
-              )
+                  : false;
+              })
               .filter((tab) => tab !== false)
               .find((tab: any) => tab.value === activeTab),
           ]
         : allTabs
-            .map((tab) =>
-              hasPermissionWorklog(tab.label, "view", "EmailBox") ? tab : false
-            )
+            .map((tab) => {
+              if (tab.label === "Create Mail") {
+                return hasPermissionWorklog(
+                  "Create Mail",
+                  "view",
+                  "EmailBox"
+                ) &&
+                  hasPermissionWorklog("Send Email", "Send Email", "EmailBox")
+                  ? tab
+                  : false;
+              }
+              return hasPermissionWorklog(tab.label, "view", "EmailBox")
+                ? tab
+                : false;
+            })
             .filter((tab) => tab !== false)
             .slice(0, 4)
     );
 
     setMoreTabs(
       allTabs
-        .map((tab) =>
-          hasPermissionWorklog(tab.label, "view", "EmailBox") ? tab : false
-        )
+        .map((tab) => {
+          if (tab.label === "Create Mail") {
+            return hasPermissionWorklog("Create Mail", "view", "EmailBox") &&
+              hasPermissionWorklog("Send Email", "Send Email", "EmailBox")
+              ? tab
+              : false;
+          }
+          return hasPermissionWorklog(tab.label, "view", "EmailBox")
+            ? tab
+            : false;
+        })
         .filter((tab) => tab !== false)
         .filter((tab: any) => tab.value !== activeTab)
         .slice(3)
@@ -279,6 +339,7 @@ const page = () => {
   }, [allTabs, searchValue, filteredData]);
 
   const handleTabChange = (tabId: number) => {
+    prevActiveTab.current = activeTab ?? null;
     hasFetched.current = false;
     setActiveTab(tabId);
     setIsFiltering(false);
@@ -414,6 +475,22 @@ const page = () => {
               <FilterIcon />
             </span>
           </ColorToolTip>
+          {activeTab === 8 &&
+            hasPermissionWorklog("Create Mail", "Save", "EmailBox") && (
+              <Button
+                type="submit"
+                variant="contained"
+                className="rounded-1 !h-[36px] !bg-secondary"
+                onClick={handleDrawerOpen}
+              >
+                <p className="flex items-center justify-center gap-2 px-1">
+                  <span>
+                    <AddPlusIcon />
+                  </span>
+                  <span className="pt-1">Create Mail</span>
+                </p>
+              </Button>
+            )}
         </div>
       </div>
 
@@ -503,29 +580,67 @@ const page = () => {
         />
       )}
 
+      {activeTab === 8 && (
+        <CreateMailEmailTable
+          searchValue={searchValue}
+          filteredData={filteredData}
+          onDataFetch={handleDataFetch}
+          getTabData={getTabData}
+          handleDrawerOpen={handleDrawerOpen}
+          getId={getId}
+        />
+      )}
+
       <EmailBoxFilter
         isFiltering={isFiltering}
         sendFilterToPage={handleFilterData}
         onDialogClose={handleFilter}
         activeTab={activeTab}
         tagDropdown={tagDropdown}
+        prevActiveTab={prevActiveTab}
       />
 
-      <EmailBoxDrawer
-        onDataFetch={dataFunction}
-        onOpen={openDrawer}
-        onClose={handleDrawerClose}
-        clientId={clientId}
-        ticketId={ticketId}
-        activeTabList={activeTab}
-        activeTabPermission={hasPermissionWorklog(
-          allTabs.filter((tab) => tab.value === activeTab)[0]?.label,
-          "Save",
-          "EmailBox"
-        )}
-        tagDropdown={tagDropdown}
-        getTagDropdownData={getTagDropdownData}
-      />
+      {activeTab === 8 && ticketId > 0 ? (
+        <EmailBoxNewMailEditDrawer
+          onDataFetch={dataFunction}
+          onOpen={openDrawer}
+          onClose={handleDrawerClose}
+          ticketId={ticketId}
+          activeTabPermission={hasPermissionWorklog(
+            allTabs.filter((tab) => tab.value === activeTab)[0]?.label,
+            "Save",
+            "EmailBox"
+          )}
+        />
+      ) : activeTab === 8 ? (
+        <EmailBoxNewMailDrawer
+          onDataFetch={dataFunction}
+          onOpen={openDrawer}
+          onClose={handleDrawerClose}
+          ticketId={ticketId}
+          activeTabPermission={hasPermissionWorklog(
+            allTabs.filter((tab) => tab.value === activeTab)[0]?.label,
+            "Save",
+            "EmailBox"
+          )}
+        />
+      ) : (
+        <EmailBoxDrawer
+          onDataFetch={dataFunction}
+          onOpen={openDrawer}
+          onClose={handleDrawerClose}
+          clientId={clientId}
+          ticketId={ticketId}
+          activeTabList={activeTab}
+          activeTabPermission={hasPermissionWorklog(
+            allTabs.filter((tab) => tab.value === activeTab)[0]?.label,
+            "Save",
+            "EmailBox"
+          )}
+          tagDropdown={tagDropdown}
+          getTagDropdownData={getTagDropdownData}
+        />
+      )}
 
       <DrawerOverlay isOpen={openDrawer} onClose={handleDrawerClose} />
     </WrapperNavbar>

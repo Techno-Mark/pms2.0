@@ -92,6 +92,8 @@ const FailedEmailTable = ({
         AssigneeId: null,
         Tags: null,
         TicketStatus: null,
+        SentFrom: null,
+        SentTo: null,
       },
       successCallback,
       "post"
