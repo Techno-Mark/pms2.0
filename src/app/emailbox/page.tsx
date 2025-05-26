@@ -206,7 +206,7 @@ const page = () => {
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [filteredData, activeTab, hasFetched.current]);
+  }, [filteredData, activeTab, hasFetched.current, searchValue]);
 
   const hasTabsPermission = () => {
     return (

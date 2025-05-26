@@ -288,8 +288,8 @@ const EmailBoxFilter = ({
       emailType !== null ||
       tagNames.length > 0 ||
       startDate.toString().trim().length > 0 ||
-      endDate.toString().trim().length > 0;
-    sendFromDate.toString().trim().length > 0 ||
+      endDate.toString().trim().length > 0 ||
+      sendFromDate.toString().trim().length > 0 ||
       sendToDate.toString().trim().length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
