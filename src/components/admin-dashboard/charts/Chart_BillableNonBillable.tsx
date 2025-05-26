@@ -55,6 +55,9 @@ const Chart_BillableNonBillable = ({
       };
       setChartLoaded(false);
       setChartData(formattedData);
+    } else if (data.length <= 0 && !loading) {
+      setChartLoaded(false);
+      setChartData(null);
     } else {
       setChartLoaded(true);
     }
