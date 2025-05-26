@@ -189,22 +189,16 @@ const EmailBoxNewMailDrawer: React.FC<EmailBoxNewMailDrawerProps> = ({
     setSending(true);
     setOverlayOpen(true);
 
-    const FollowUpDates = followUp1
-      ? JSON.stringify({
-          FollowUpDates: {
-            FollowUpDates: {
-              followUp1: dayjs(followUp1).format("YYYY-MM-DD"),
-              followUp2: followUp2
-                ? dayjs(followUp2).format("YYYY-MM-DD")
-                : null,
-              followUp3: followUp3
-                ? dayjs(followUp3).format("YYYY-MM-DD")
-                : null,
-            },
-            FollowUpCount: 0,
-          },
-        })
-      : null;
+    const FollowUpDates = JSON.stringify({
+      FollowUpDates: {
+        FollowUpDates: {
+          followUp1: followUp1 ? dayjs(followUp1).format("YYYY-MM-DD") : null,
+          followUp2: followUp2 ? dayjs(followUp2).format("YYYY-MM-DD") : null,
+          followUp3: followUp3 ? dayjs(followUp3).format("YYYY-MM-DD") : null,
+        },
+        FollowUpCount: 0,
+      },
+    });
 
     const url = `${process.env.emailbox_api_url}/emailbox/createInitialClientTicketFromUser`;
 
