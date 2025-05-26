@@ -354,7 +354,15 @@ const EmailBoxFilter = ({
 
     setTicketStatus(
       AppliedFilter.TicketStatus !== null
-        ? emailBoxStatusOptions.filter(
+        ? (activeTab === 8
+            ? [
+                { value: 8, label: "Waiting For Response" },
+                { value: 9, label: "Follow-Up Sent" },
+                { value: 10, label: "Closed" },
+                { value: 11, label: "Client Responded" },
+              ]
+            : emailBoxStatusOptions
+          ).filter(
             (item: LabelValue) => item.value === AppliedFilter.TicketStatus
           )[0]
         : null
