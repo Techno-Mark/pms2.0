@@ -309,6 +309,7 @@ const EmailBoxNewMailDrawer: React.FC<EmailBoxNewMailDrawerProps> = ({
               setError={setToInputValueError}
               validate={true}
               blockedMail={blockedMail}
+              border={false}
             />
             <MemberInput
               label="Cc"
@@ -330,8 +331,8 @@ const EmailBoxNewMailDrawer: React.FC<EmailBoxNewMailDrawerProps> = ({
               setError={setBccInputValueError}
               blockedMail={blockedMail}
             />
-            <div className="py-2 px-4">
-              <div className="flex items-start gap-3">
+            <div className="px-4 border-t border-gray-300">
+              <div className="flex items-start gap-3 py-2">
                 <p>Subject:</p>
                 <div className="flex items-center flex-wrap gap-2 flex-1">
                   <input

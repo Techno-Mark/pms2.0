@@ -10,6 +10,7 @@ const MemberInput = ({
   setError,
   validate = false,
   blockedMail,
+  border = true,
 }: any) => {
   const isValidEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -49,7 +50,7 @@ const MemberInput = ({
   };
 
   return (
-    <div className="border-t border-gray-300 py-2 px-4">
+    <div className={`${border && "border-t border-gray-300"} py-2 px-4`}>
       <div className="flex items-start gap-3">
         <p>{label}:</p>
         <div className="flex items-center flex-wrap gap-2 flex-1">
@@ -57,14 +58,18 @@ const MemberInput = ({
             <div
               key={index}
               className={`flex items-center ${
-                blockedMail.includes(member) ? "bg-defaultRed text-gray-200" : "bg-gray-200 text-gray-700"
+                blockedMail.includes(member)
+                  ? "bg-defaultRed text-gray-200"
+                  : "bg-gray-200 text-gray-700"
               } px-3 py-1 rounded-full text-sm`}
             >
               {member}
               <button
                 onClick={() => handleRemoveMember(index)}
                 className={`ml-2 ${
-                  blockedMail.includes(member) ? "text-gray-300 hover:text-white" : "text-gray-500 hover:text-gray-800"
+                  blockedMail.includes(member)
+                    ? "text-gray-300 hover:text-white"
+                    : "text-gray-500 hover:text-gray-800"
                 }`}
               >
                 &times;
