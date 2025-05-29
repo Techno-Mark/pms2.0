@@ -487,7 +487,7 @@ const page = () => {
                   <span>
                     <AddPlusIcon />
                   </span>
-                  <span className="pt-1">Create Mail</span>
+                  <span className="pt-1">Create Email</span>
                 </p>
               </Button>
             )}

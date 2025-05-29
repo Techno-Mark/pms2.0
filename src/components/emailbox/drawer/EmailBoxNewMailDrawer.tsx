@@ -263,6 +263,9 @@ const EmailBoxNewMailDrawer: React.FC<EmailBoxNewMailDrawerProps> = ({
     setSending(false);
     setConversationAttachment([]);
     setBlockedMail([]);
+    seFollowUp1("");
+    seFollowUp2("");
+    seFollowUp3("");
   };
 
   const handleDrawerClose = () => {
