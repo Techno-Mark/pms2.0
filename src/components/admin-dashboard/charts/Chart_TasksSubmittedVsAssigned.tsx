@@ -77,6 +77,7 @@ const Chart_TasksSubmittedVsAssigned = ({
         plotOptions: {
           column: {
             stacking: "normal",
+            minPointLength: 5,
             dataLabels: {
               enabled: false,
               style: {

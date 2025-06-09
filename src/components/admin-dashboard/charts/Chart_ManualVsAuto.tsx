@@ -18,14 +18,7 @@ const Chart_ManualVsAuto = ({
   sendData,
 }: {
   loading: boolean;
-  data: {
-    DepartmentId: number;
-    DepartmentName: string;
-    TotalManualTime: number;
-    TotalAutoTime: number;
-    TotalBreakTime: number;
-    TotalIdleTime: number;
-  }[];
+  data: DepartmentData[];
   sendData: (department: number, type: number) => void;
 }) => {
   const [chartData, setChartData] = useState<DepartmentData[] | null>(null);
@@ -43,6 +36,8 @@ const Chart_ManualVsAuto = ({
       setChartData([]);
     }
   }, [data]);
+
+  const filterZero = (value: number) => (value > 0 ? value : null);
 
   const options = chartData
     ? {
@@ -82,6 +77,7 @@ const Chart_ManualVsAuto = ({
         plotOptions: {
           series: {
             stacking: "normal",
+            minPointLength: 5,
             cursor: "pointer",
             pointWidth: 20,
             maxPointWidth: 30,
@@ -113,25 +109,25 @@ const Chart_ManualVsAuto = ({
         series: [
           {
             name: "Idle Time",
-            data: chartData.map((d) => Number(d.TotalIdleTime)),
+            data: chartData.map((d) => filterZero(d.TotalIdleTime)),
             color: "#FF005F",
             type: "column",
           },
           {
             name: "Break Time",
-            data: chartData.map((d) => Number(d.TotalBreakTime)),
+            data: chartData.map((d) => filterZero(d.TotalBreakTime)),
             color: "#FFC000",
             type: "column",
           },
           {
             name: "Manual Logged Time",
-            data: chartData.map((d) => Number(d.TotalManualTime)),
+            data: chartData.map((d) => filterZero(d.TotalManualTime)),
             color: "#5D8BDD",
             type: "column",
           },
           {
             name: "Auto Logged Time",
-            data: chartData.map((d) => Number(d.TotalAutoTime)),
+            data: chartData.map((d) => filterZero(d.TotalAutoTime)),
             color: "#19C969",
             type: "column",
           },

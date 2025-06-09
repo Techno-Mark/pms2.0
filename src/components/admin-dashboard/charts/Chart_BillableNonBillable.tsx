@@ -63,6 +63,8 @@ const Chart_BillableNonBillable = ({
     }
   }, [data]);
 
+  const filterZero = (value: number) => (value > 0 ? value : null);
+
   const options = chartData
     ? {
         chart: {
@@ -120,28 +122,63 @@ const Chart_BillableNonBillable = ({
             content += `</div>`;
             return content;
           },
+
           positioner: function (
-            labelWidth: any,
-            labelHeight: any,
+            labelWidth: number,
+            labelHeight: number,
             point: any
           ): { x: number; y: number } {
             const chart = (this as any).chart;
-            const hoveredPoint = chart.hoverPoints?.[0];
-            const hoveredPoint1 = chart.hoverPoints?.[1];
-            if (hoveredPoint) {
-              const x =
-                Math.max(hoveredPoint.plotX, hoveredPoint1.plotX) +
+            let x = 0;
+            let y = 0;
+            const realPoint = point?.point ?? chart.hoverPoint;
+
+            if (!realPoint) {
+              return {
+                x: chart.plotLeft + chart.plotWidth / 2 - labelWidth / 2,
+                y: chart.plotTop + chart.plotHeight / 2 - labelHeight / 2,
+              };
+            }
+
+            const currentCategoryIndex = realPoint.index;
+            const currentValue =
+              realPoint.color === "#2caffe" || realPoint.color === "#544fc5"
+                ? realPoint.y
+                : 0;
+
+            // Calculate sum of all series' values for the same category
+            const categorySum = chart.series.reduce(
+              (sum: number, series: any) => {
+                const pt = series.points[currentCategoryIndex];
+                return pt &&
+                  typeof pt.y === "number" &&
+                  (pt.color === "#2caffe" || pt.color === "#544fc5")
+                  ? sum + pt.y
+                  : sum;
+              },
+              0
+            );
+
+
+            if (point) {
+              const shapeWidth = point.shapeArgs?.width || 0;
+              x =
+                point.plotX -
+                (categorySum === 0
+                  ? 0
+                  : categorySum !== currentValue
+                  ? -25
+                  : 0) +
                 chart.plotLeft -
                 labelWidth / 2 +
-                Math.max(
-                  hoveredPoint.shapeArgs.width,
-                  hoveredPoint1.shapeArgs.width
-                ) /
-                  2;
-              const y = 300; // 10px above
-              return { x, y };
+                shapeWidth / 2;
+              y = 330;
+            } else {
+              x = chart.plotLeft + chart.plotWidth / 2 - labelWidth / 2;
+              y = chart.plotTop + chart.plotHeight / 2 - labelHeight / 2;
             }
-            return { x: 0, y: 0 };
+
+            return { x, y };
           },
         },
         plotOptions: {
@@ -149,6 +186,7 @@ const Chart_BillableNonBillable = ({
             cursor: "pointer",
             pointWidth: 30,
             maxPointWidth: 50,
+            minPointLength: 5,
             point: {
               events: {
                 click: function () {
@@ -166,13 +204,13 @@ const Chart_BillableNonBillable = ({
           {
             name: "Billable",
             type: "column",
-            data: chartData.billableTime,
+            data: chartData.billableTime.map((d) => filterZero(d)),
             tooltip: { valueSuffix: " hrs" },
           },
           {
             name: "Non-Billable",
             type: "column",
-            data: chartData.nonBillableTime,
+            data: chartData.nonBillableTime.map((d) => filterZero(d)),
             tooltip: { valueSuffix: " hrs" },
           },
           {

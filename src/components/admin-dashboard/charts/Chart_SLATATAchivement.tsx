@@ -88,6 +88,7 @@ const Chart_SLATATAchivement = ({
             cursor: "pointer",
             pointWidth: 30,
             maxPointWidth: 50,
+            minPointLength: 5,
             point: {
               events: {
                 click: function () {

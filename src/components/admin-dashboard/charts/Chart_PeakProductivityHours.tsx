@@ -59,6 +59,7 @@ const Chart_PeakProductivityHours = ({
         plotOptions: {
           column: {
             colorByPoint: false,
+            minPointLength: 5,
             pointWidth: 30,
             maxPointWidth: 50,
             point: {
@@ -80,7 +81,7 @@ const Chart_PeakProductivityHours = ({
             type: "column",
             color: "#FFD700",
             data: chartData.map((d) => ({
-              y: d.Duration,
+              y: d.Duration > 0 ? d.Duration : null,
               color: d.Duration === maxVal ? "#FFD700" : "#32E282",
             })),
           },
