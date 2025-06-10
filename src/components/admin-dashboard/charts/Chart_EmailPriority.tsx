@@ -56,7 +56,7 @@ const Chart_EmailPriority = ({
       text: "Ticket Created - By Priority",
       align: "left",
       style: {
-        fontWeight: "normal",
+        fontWeight: "bold",
         fontSize: "18px",
       },
     },

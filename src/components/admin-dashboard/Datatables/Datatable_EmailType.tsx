@@ -17,6 +17,7 @@ interface EmailTypeProps {
   currentFilterData: DashboardInitialFilter;
   onCurrentSelectedEmailType: number | null;
   isClose: boolean;
+  onHandleExport: (canExport: boolean) => void;
 }
 
 interface List {
@@ -44,6 +45,7 @@ const Datatable_EmailType = ({
   currentFilterData,
   onCurrentSelectedEmailType,
   isClose,
+  onHandleExport,
 }: EmailTypeProps) => {
   const [data, setData] = useState<any[]>([]);
   const [page, setPage] = useState(0);
@@ -95,6 +97,7 @@ const Datatable_EmailType = ({
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setData(ResponseData.List);
         setTableDataCount(ResponseData.TotalCount);
+        onHandleExport(ResponseData.List.length > 0 ? true : false);
         setLoading(false);
       } else {
         setLoading(false);

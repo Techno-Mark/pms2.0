@@ -23,7 +23,6 @@ interface ErrorlogDialogProps {
   onClose: () => void;
   currentFilterData: DashboardInitialFilter;
   onSelectedErrorlog: number;
-  onSelectedProjectIds: number[];
 }
 
 const Dialog_Errorlog = ({
@@ -31,7 +30,6 @@ const Dialog_Errorlog = ({
   onClose,
   currentFilterData,
   onSelectedErrorlog,
-  onSelectedProjectIds,
 }: ErrorlogDialogProps) => {
   const [errorlogImportStatus, setErrorlogImportStatus] = useState<number>(0);
   const [errorlogStatus, setErrorlogStatus] = useState<number>(0);
@@ -46,6 +44,7 @@ const Dialog_Errorlog = ({
     { label: "Imported", value: 1 },
     { label: "Not Imported", value: 2 },
   ];
+  const [canExport, setCanExport] = useState(false);
 
   useEffect(() => {
     onOpen && setIsClose(false);
@@ -58,9 +57,10 @@ const Dialog_Errorlog = ({
     onClose();
     setErrorlogStatus(0);
     setIsClose(false);
+    setCanExport(false);
   };
 
-  const exportTaskStatusListReport = async () => {
+  const exportReport = async () => {
     try {
       setIsExporting(true);
 
@@ -207,9 +207,11 @@ const Dialog_Errorlog = ({
             <ColorToolTip title="Export" placement="top" arrow>
               <span
                 className={`${
-                  isExporting ? "cursor-default" : "cursor-pointer"
-                } ml-5 mt-5`}
-                onClick={exportTaskStatusListReport}
+                  canExport
+                    ? "cursor-pointer"
+                    : "pointer-events-none opacity-50"
+                } ${isExporting ? "cursor-default" : "cursor-pointer"} ml-5`}
+                onClick={canExport ? exportReport : undefined}
               >
                 {isExporting ? <Loading /> : <ExportIcon />}
               </span>
@@ -218,11 +220,11 @@ const Dialog_Errorlog = ({
           <Datatable_Errorlog
             currentFilterData={currentFilterData}
             onSelectedErrorlog={onSelectedErrorlog}
-            onSelectedProjectIds={onSelectedProjectIds}
             onCurrSelectedProjectStatus={errorlogStatus}
             errorlogImportStatus={errorlogImportStatus}
             onOpen={onOpen}
             isClose={isClose}
+            onHandleExport={(e) => setCanExport(e)}
           />
         </DialogContent>
       </Dialog>

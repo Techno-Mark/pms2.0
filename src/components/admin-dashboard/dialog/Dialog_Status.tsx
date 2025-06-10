@@ -35,6 +35,7 @@ const Dialog_Status = ({
   const [status, setStatus] = useState<number | null>(null);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isClose, setIsClose] = useState<boolean>(false);
+  const [canExport, setCanExport] = useState(false);
 
   useEffect(() => {
     onOpen && onSelectedStatus > 0 && setStatus(onSelectedStatus);
@@ -45,9 +46,10 @@ const Dialog_Status = ({
     onClose();
     setStatus(null);
     setIsClose(true);
+    setCanExport(false);
   };
 
-  const exportTaskStatusListReport = async () => {
+  const exportReport = async () => {
     try {
       setIsExporting(true);
 
@@ -162,9 +164,11 @@ const Dialog_Status = ({
             <ColorToolTip title="Export" placement="top" arrow>
               <span
                 className={`${
-                  isExporting ? "cursor-default" : "cursor-pointer"
-                } ml-5 mt-5`}
-                onClick={exportTaskStatusListReport}
+                  canExport
+                    ? "cursor-pointer"
+                    : "pointer-events-none opacity-50"
+                } ${isExporting ? "cursor-default" : "cursor-pointer"} ml-5`}
+                onClick={canExport ? exportReport : undefined}
               >
                 {isExporting ? <Loading /> : <ExportIcon />}
               </span>
@@ -180,6 +184,7 @@ const Dialog_Status = ({
                 : null
             }
             isClose={isClose}
+            onHandleExport={(e) => setCanExport(e)}
           />
         </DialogContent>
       </Dialog>

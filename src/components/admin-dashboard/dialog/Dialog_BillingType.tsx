@@ -41,6 +41,7 @@ const Dialog_BillingType = ({
   const [searchValue, setSearchValue] = useState("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isClose, setIsClose] = useState<boolean>(false);
+  const [canExport, setCanExport] = useState(false);
 
   useEffect(() => {
     onOpen && setIsClose(false);
@@ -52,6 +53,7 @@ const Dialog_BillingType = ({
     setClickedStatusName("");
     setSearchValue("");
     setIsClose(false);
+    setCanExport(false);
   };
 
   function getValueByLabelOrType(labelOrType: string): number | null {
@@ -85,7 +87,7 @@ const Dialog_BillingType = ({
     getAllStatus();
   }, []);
 
-  const exportTaskStatusListReport = async () => {
+  const exportReport = async () => {
     try {
       setIsExporting(true);
 
@@ -205,9 +207,11 @@ const Dialog_BillingType = ({
               <ColorToolTip title="Export" placement="top" arrow>
                 <span
                   className={`${
-                    isExporting ? "cursor-default" : "cursor-pointer"
-                  } ml-5`}
-                  onClick={exportTaskStatusListReport}
+                    canExport
+                      ? "cursor-pointer"
+                      : "pointer-events-none opacity-50"
+                  } ${isExporting ? "cursor-default" : "cursor-pointer"} ml-5`}
+                  onClick={canExport ? exportReport : undefined}
                 >
                   {isExporting ? <Loading /> : <ExportIcon />}
                 </span>
@@ -223,6 +227,7 @@ const Dialog_BillingType = ({
             }
             onSearchValue={searchValue}
             isClose={isClose}
+            onHandleExport={(e) => setCanExport(e)}
           />
         </DialogContent>
       </Dialog>

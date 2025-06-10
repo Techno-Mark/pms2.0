@@ -17,6 +17,7 @@ interface ErrorlogProps {
   currentFilterData: DashboardInitialFilter;
   onSelectedSLA: number | null;
   isClose: boolean;
+  onHandleExport: (canExport: boolean) => void;
 }
 
 interface List {
@@ -44,6 +45,7 @@ const Datatable_SLA = ({
   currentFilterData,
   onSelectedSLA,
   isClose,
+  onHandleExport,
 }: ErrorlogProps) => {
   const [data, setData] = useState<List[] | []>([]);
   const [page, setPage] = useState(0);
@@ -95,6 +97,7 @@ const Datatable_SLA = ({
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setData(ResponseData.List);
         setTableDataCount(ResponseData.TotalCount);
+        onHandleExport(ResponseData.List.length > 0 ? true : false);
         setLoading(false);
       } else {
         setLoading(false);

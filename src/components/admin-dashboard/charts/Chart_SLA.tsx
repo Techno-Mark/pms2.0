@@ -138,7 +138,7 @@ const Chart_SLA = ({
 
   return (
     <div className="flex flex-col px-[20px]">
-      <span className="flex items-start pt-[30px] px-[10px] text-lg font-medium">
+      <span className="flex items-start pt-[30px] px-[10px] text-lg font-bold">
         SLA Tickets
       </span>
       <div className="flex justify-between relative">

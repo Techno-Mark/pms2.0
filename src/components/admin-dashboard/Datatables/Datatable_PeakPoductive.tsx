@@ -8,30 +8,31 @@ import {
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
-import { adminDashboardTaskStatusCols } from "@/utils/datatable/columns/AdminDatatableColumns";
+import { adminDashboardPeakProductiveCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
 import {
   DashboardInitialFilter,
   ListDashboard,
-  ResponseDashboardTask,
 } from "@/utils/Types/dashboardTypes";
 import OverLay from "@/components/common/OverLay";
 
-interface TaskStatusProps {
+interface Props {
   currentFilterData: DashboardInitialFilter;
-  onCurrSelectedStatus: number | null;
+  onSelectedData: number;
   onSearchValue: string;
   isClose: boolean;
+  onOpen: boolean;
   onHandleExport: (canExport: boolean) => void;
 }
 
-const Datatable_TaskStatus = ({
+const Datatable_PeakPoductive = ({
   currentFilterData,
-  onCurrSelectedStatus,
+  onSelectedData,
   onSearchValue,
   isClose,
+  onOpen,
   onHandleExport,
-}: TaskStatusProps) => {
+}: Props) => {
   const [data, setData] = useState<ListDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -66,18 +67,23 @@ const Datatable_TaskStatus = ({
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,
       GlobalSearch: value,
-      StatusId: onCurrSelectedStatus === 0 ? null : onCurrSelectedStatus,
+      IsDownload: false,
+      HourSlot: onSelectedData,
     };
-    const url = `${process.env.report_api_url}/dashboard/taskstatuslist`;
+    const url = `${process.env.report_api_url}/dashboard/peakproductivelist`;
     const successCallback = (
-      ResponseData: ResponseDashboardTask,
+      ResponseData: {
+        TotalCount: number;
+        PeakProductiveHoursListFilters: null;
+        PeakProductiveHoursList: ListDashboard[] | [];
+      },
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setData(ResponseData.TaskStatusList);
+        setData(ResponseData.PeakProductiveHoursList);
         setTableDataCount(ResponseData.TotalCount);
-        onHandleExport(ResponseData.TaskStatusList.length > 0 ? true : false);
+        onHandleExport(ResponseData.PeakProductiveHoursList.length > 0 ? true : false);
         setLoading(false);
       } else {
         setLoading(false);
@@ -88,7 +94,7 @@ const Datatable_TaskStatus = ({
 
   useEffect(() => {
     setPage(0);
-  }, [onCurrSelectedStatus]);
+  }, [onSelectedData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -101,15 +107,16 @@ const Datatable_TaskStatus = ({
       }
     };
     const timer = setTimeout(() => {
-      onCurrSelectedStatus !== null && fetchData();
+      onOpen && fetchData();
     }, 500);
     return () => clearTimeout(timer);
   }, [
     onSearchValue,
-    onCurrSelectedStatus,
     currentFilterData,
+    onSelectedData,
     page,
     rowsPerPage,
+    onOpen,
   ]);
 
   return (
@@ -118,10 +125,13 @@ const Datatable_TaskStatus = ({
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
-          columns={adminDashboardTaskStatusCols}
+          columns={adminDashboardPeakProductiveCols}
           title={undefined}
-          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
-          data-tableid="taskStatusInfo_Datatable"
+          options={{
+            ...dashboard_Options,
+            tableBodyHeight: "55vh",
+          }}
+          data-tableid="tasksSubmittedAssignedInfo_Datatable"
         />
         <TablePagination
           component="div"
@@ -142,4 +152,4 @@ const Datatable_TaskStatus = ({
   );
 };
 
-export default Datatable_TaskStatus;
+export default Datatable_PeakPoductive;

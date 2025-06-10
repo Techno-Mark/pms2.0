@@ -18,6 +18,7 @@ interface BillingTypeProps {
   onCurrentSelectedBillingType: number | null;
   onSearchValue: string;
   isClose: boolean;
+  onHandleExport: (canExport: boolean) => void;
 }
 
 interface List {
@@ -43,6 +44,7 @@ const Datatable_BillingType = ({
   onCurrentSelectedBillingType,
   onSearchValue,
   isClose,
+  onHandleExport,
 }: BillingTypeProps) => {
   const [data, setData] = useState<any[]>([]);
   const [page, setPage] = useState(0);
@@ -92,6 +94,9 @@ const Datatable_BillingType = ({
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setData(ResponseData.BillingStatusList);
         setTableDataCount(ResponseData.TotalCount);
+        onHandleExport(
+          ResponseData.BillingStatusList.length > 0 ? true : false
+        );
         setLoading(false);
       } else {
         setLoading(false);

@@ -20,11 +20,11 @@ import OverLay from "@/components/common/OverLay";
 interface ErrorlogProps {
   currentFilterData: DashboardInitialFilter;
   onSelectedErrorlog: number;
-  onSelectedProjectIds: number[];
   onCurrSelectedProjectStatus: number;
   errorlogImportStatus: number;
   onOpen: boolean;
   isClose: boolean;
+  onHandleExport: (canExport: boolean) => void;
 }
 
 const Datatable_Errorlog = ({
@@ -34,6 +34,7 @@ const Datatable_Errorlog = ({
   errorlogImportStatus,
   onOpen,
   isClose,
+  onHandleExport,
 }: ErrorlogProps) => {
   const [data, setData] = useState<ListDashboard[] | []>([]);
   const [page, setPage] = useState(0);
@@ -88,6 +89,7 @@ const Datatable_Errorlog = ({
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setData(ResponseData.ErrorlogList);
         setTableDataCount(ResponseData.TotalCount);
+        onHandleExport(ResponseData.ErrorlogList.length > 0 ? true : false);
         setLoading(false);
       } else {
         setLoading(false);

@@ -13,75 +13,14 @@ if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
 interface ChartProjectStatusProps {
-  onSelectedProjectIds: number[];
-  currentFilterData: DashboardInitialFilter;
-  sendData: (isDialogOpen: boolean, selectedPointData: number) => void;
-}
-
-interface Response {
-  List: ListProjectStatusSequence[] | [];
-  TotalCount: number;
+  data: any;
+  sendData: (selectedPointData: number) => void;
 }
 
 const Chart_Errorlog = ({
-  onSelectedProjectIds,
-  currentFilterData,
+  data,
   sendData,
 }: ChartProjectStatusProps) => {
-  const [data, setData] = useState<any[]>([]);
-
-  const getProjectStatusData = async () => {
-    const workTypeIdFromLocalStorage =
-      typeof localStorage !== "undefined"
-        ? localStorage.getItem("workTypeId")
-        : 3;
-    const params = {
-      Clients: currentFilterData.Clients,
-      WorkTypeId:
-        currentFilterData.WorkTypeId === null
-          ? Number(workTypeIdFromLocalStorage)
-          : currentFilterData.WorkTypeId,
-      DepartmentIds: currentFilterData.DepartmentIds,
-      AssigneeIds: currentFilterData.AssigneeIds,
-      ReviewerIds: currentFilterData.ReviewerIds,
-      StartDate: currentFilterData.StartDate,
-      EndDate: currentFilterData.EndDate,
-      ProjectId:
-        onSelectedProjectIds.length === 0 ? null : onSelectedProjectIds,
-    };
-    const url = `${process.env.report_api_url}/dashboard/errorloggraph`;
-    const successCallback = (
-      ResponseData: Response,
-      error: boolean,
-      ResponseStatus: string
-    ) => {
-      if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        const chartData = ResponseData.List.map(
-          (item: ListProjectStatusSequence) => ({
-            name: item.Key,
-            y: item.Value,
-            z: item.Percentage,
-            ColorCode: item.ColorCode,
-            // Sequence: item.Sequence,
-          })
-        );
-
-        setData(chartData);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await getProjectStatusData();
-    };
-    const timer = setTimeout(() => {
-      fetchData();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [currentFilterData]);
-
   const drilldownData = data;
 
   const chartOptions = {
@@ -108,7 +47,7 @@ const Chart_Errorlog = ({
               const selectedPointData = {
                 name: (event.point && event.point.name) || "",
               };
-              sendData(true, selectedPointData.name);
+              sendData(selectedPointData.name);
             },
           },
         },
@@ -166,7 +105,7 @@ const Chart_Errorlog = ({
 
   return (
     <div className="flex flex-col px-[20px]">
-      <span className="flex items-start pt-[30px] px-[10px] text-lg font-medium">
+      <span className="flex items-start pt-[30px] px-[10px] text-lg font-bold">
         Errorlog
       </span>
       <div className="flex justify-between relative">

@@ -2590,7 +2590,7 @@ const EditDrawer = ({
       ProcessId: processNameApprovals === 0 ? null : processNameApprovals,
       SubProcessId: subProcessApprovals === 0 ? null : subProcessApprovals,
       StatusId: statusApprovals,
-      Priority: priorityApprovals === 0 ? 0 : priorityApprovals,
+      Priority: priorityApprovals === 0 ? null : priorityApprovals,
       Quantity: quantityApprovals <= 0 ? null : quantityApprovals,
       Description:
         descriptionApprovals.toString().length <= 0

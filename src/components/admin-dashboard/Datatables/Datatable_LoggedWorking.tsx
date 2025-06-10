@@ -8,40 +8,44 @@ import {
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
-import { adminDashboardTaskStatusCols } from "@/utils/datatable/columns/AdminDatatableColumns";
-import { callAPI } from "@/utils/API/callAPI";
 import {
-  DashboardInitialFilter,
-  ListDashboard,
-  ResponseDashboardTask,
-} from "@/utils/Types/dashboardTypes";
+  adminDashboardLoggedCols,
+  adminDashboardWorkingCols,
+} from "@/utils/datatable/columns/AdminDatatableColumns";
+import { callAPI } from "@/utils/API/callAPI";
+import { DashboardInitialFilter } from "@/utils/Types/dashboardTypes";
 import OverLay from "@/components/common/OverLay";
 
-interface TaskStatusProps {
+interface Props {
   currentFilterData: DashboardInitialFilter;
-  onCurrSelectedStatus: number | null;
+  onSelectedData: { department: number; type: number };
+  status: number | null;
   onSearchValue: string;
   isClose: boolean;
+  onOpen: boolean;
   onHandleExport: (canExport: boolean) => void;
 }
 
-const Datatable_TaskStatus = ({
+const Datatable_LoggedWorking = ({
   currentFilterData,
-  onCurrSelectedStatus,
+  onSelectedData,
+  status,
   onSearchValue,
   isClose,
+  onOpen,
   onHandleExport,
-}: TaskStatusProps) => {
-  const [data, setData] = useState<ListDashboard[] | []>([]);
+}: Props) => {
+  const [fullData, setFullData] = useState<any[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [tableDataCount, setTableDataCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    isClose && setPage(0);
-    isClose && setRowsPerPage(10);
-    isClose && setLoading(true);
+    if (isClose) {
+      setPage(0);
+      setRowsPerPage(10);
+      setLoading(true);
+    }
   }, [isClose]);
 
   const getTaskStatusData = async (value: string) => {
@@ -50,9 +54,10 @@ const Datatable_TaskStatus = ({
       typeof localStorage !== "undefined"
         ? localStorage.getItem("workTypeId")
         : 3;
+
     const params = {
-      PageNo: page + 1,
-      PageSize: rowsPerPage,
+      PageNo: 1,
+      PageSize: 50000,
       SortColumn: null,
       IsDesc: true,
       Clients: currentFilterData.Clients,
@@ -60,35 +65,47 @@ const Datatable_TaskStatus = ({
         currentFilterData.WorkTypeId === null
           ? Number(workTypeIdFromLocalStorage)
           : currentFilterData.WorkTypeId,
-      DepartmentIds: currentFilterData.DepartmentIds,
+      DepartmentIds: [onSelectedData.department],
       AssigneeIds: currentFilterData.AssigneeIds,
       ReviewerIds: currentFilterData.ReviewerIds,
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,
       GlobalSearch: value,
-      StatusId: onCurrSelectedStatus === 0 ? null : onCurrSelectedStatus,
+      IsDownload: false,
+      Key: status,
     };
-    const url = `${process.env.report_api_url}/dashboard/taskstatuslist`;
+
+    const url = `${process.env.report_api_url}/dashboard/totalLoggedVSWorkingList`;
+
     const successCallback = (
-      ResponseData: ResponseDashboardTask,
+      ResponseData: any,
       error: boolean,
       ResponseStatus: string
     ) => {
-      if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setData(ResponseData.TaskStatusList);
-        setTableDataCount(ResponseData.TotalCount);
-        onHandleExport(ResponseData.TaskStatusList.length > 0 ? true : false);
+      if (ResponseStatus.toLowerCase() === "success" && !error) {
+        const fetchedData =
+          status === 1
+            ? ResponseData.TotalLoggedList
+            : ResponseData.UserWorkItemWithTasks;
+
+        setFullData(fetchedData);
         setLoading(false);
+
+        onHandleExport(fetchedData.length > 0);
       } else {
         setLoading(false);
+        setFullData([]);
+        onHandleExport(false);
       }
     };
+
     callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
+    setFullData([]);
     setPage(0);
-  }, [onCurrSelectedStatus]);
+  }, [onSelectedData, status]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -100,32 +117,41 @@ const Datatable_TaskStatus = ({
         await getTaskStatusData("");
       }
     };
+
     const timer = setTimeout(() => {
-      onCurrSelectedStatus !== null && fetchData();
+      onOpen && fetchData();
     }, 500);
+
     return () => clearTimeout(timer);
-  }, [
-    onSearchValue,
-    onCurrSelectedStatus,
-    currentFilterData,
-    page,
-    rowsPerPage,
-  ]);
+  }, [onSearchValue, currentFilterData, onSelectedData, status, onOpen]);
+
+  const paginatedData = fullData.slice(
+    page * rowsPerPage,
+    (page + 1) * rowsPerPage
+  );
 
   return (
     <div>
       {loading && <OverLay />}
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
-          data={data}
-          columns={adminDashboardTaskStatusCols}
+          data={paginatedData}
+          columns={
+            status === 1 ? adminDashboardLoggedCols : adminDashboardWorkingCols
+          }
           title={undefined}
-          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
-          data-tableid="taskStatusInfo_Datatable"
+          options={{
+            ...dashboard_Options,
+            tableBodyHeight: "55vh",
+            search: false,
+            filter: false,
+            pagination: false,
+          }}
+          data-tableid="tasksSubmittedAssignedInfo_Datatable"
         />
         <TablePagination
           component="div"
-          count={tableDataCount}
+          count={fullData.length}
           page={page}
           onPageChange={(event: any, newPage) => {
             handleChangePage(event, newPage, setPage);
@@ -142,4 +168,4 @@ const Datatable_TaskStatus = ({
   );
 };
 
-export default Datatable_TaskStatus;
+export default Datatable_LoggedWorking;

@@ -22,6 +22,7 @@ interface DashboardSummaryListProps {
   onClickedSummaryTitle: number;
   onCurrSelectedSummaryTitle: number;
   isClose: boolean;
+  onHandleExport: (canExport: boolean) => void;
 }
 
 const Datatable_DashboardSummaryList = ({
@@ -29,6 +30,7 @@ const Datatable_DashboardSummaryList = ({
   onClickedSummaryTitle,
   onCurrSelectedSummaryTitle,
   isClose,
+  onHandleExport,
 }: DashboardSummaryListProps) => {
   const [dashboardSummaryData, setDashboardSummaryData] = useState<
     ListDashboard[] | []
@@ -79,6 +81,9 @@ const Datatable_DashboardSummaryList = ({
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
         setDashboardSummaryData(ResponseData.ProjectStatusList);
         setTableDataCount(ResponseData.TotalCount);
+        onHandleExport(
+          ResponseData.ProjectStatusList.length > 0 ? true : false
+        );
         setLoading(false);
       } else {
         setLoading(false);

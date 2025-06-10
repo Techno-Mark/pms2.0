@@ -219,12 +219,6 @@ export const generateEmailboxStatusWithColor = (value: any) => {
       ? "#C00000"
       : value.toLowerCase() === "reopen"
       ? "#833C0C"
-      : value.toLowerCase() === "waiting for response"
-      ? "#FFC000"
-      : value.toLowerCase() === "follow-up sent"
-      ? "#00B0F0"
-      : value.toLowerCase() === "client responded"
-      ? "#833C0C"
       : "#D8D8D8";
 
   return (
@@ -375,6 +369,16 @@ export const generateDateWithoutTime = (value: any) => {
   );
 };
 
+export const generateTimeWithoutDate = (value: any) => {
+  if (!value || typeof value !== "string" || !value.includes("T")) {
+    return <div>-</div>;
+  }
+
+  const timePart = value.split("T")[1];
+
+  return <div>{timePart}</div>;
+};
+
 export const generateDateWithTime = (value: any) => {
   return (
     <div>
@@ -387,6 +391,31 @@ export const generateDateWithTime = (value: any) => {
           {value.split("T")[0].split("-")[0]}
           &nbsp;
           {value.split("T")[1]}
+        </>
+      )}
+    </div>
+  );
+};
+export const generateSecondsToHHMMSS = (value: number | null) => {
+  if (value === null) {
+    return <div>-</div>;
+  }
+  const hours = Math.floor(value / 3600);
+  const remainingSeconds = value % 3600;
+  const minutes = Math.floor(remainingSeconds / 60);
+  const remainingSecondsFinal = remainingSeconds % 60;
+
+  const hoursStr = hours.toString().padStart(2, "0");
+  const minsStr = minutes.toString().padStart(2, "0");
+  const secsStr = remainingSecondsFinal.toString().padStart(2, "0");
+
+  return (
+    <div>
+      {value === null ? (
+        "-"
+      ) : (
+        <>
+          {hoursStr}:{minsStr}:{secsStr}
         </>
       )}
     </div>
@@ -452,6 +481,18 @@ export const generateDaysBodyRender = (bodyValue: any) => {
       {bodyValue === null || bodyValue === "" ? "-" : bodyValue}&nbsp;
       {bodyValue > 1 ? "days" : "day"}
     </div>
+  );
+};
+
+export const generateStringValue = (value: boolean, type: string) => {
+  return (
+    <>
+      {type === "IsBillable" ? (
+        <div>{value ? "Billable" : "Non-Billable"}</div>
+      ) : (
+        <div>{value ? "Productive" : "Non-Productive"}</div>
+      )}
+    </>
   );
 };
 

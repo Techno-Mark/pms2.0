@@ -35,6 +35,7 @@ const Dialog_Priority = ({
   const [priority, setPriority] = useState<number | null>(null);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isClose, setIsClose] = useState<boolean>(false);
+  const [canExport, setCanExport] = useState(false);
 
   useEffect(() => {
     onOpen && onSelectedPriority > 0 && setPriority(onSelectedPriority);
@@ -45,9 +46,10 @@ const Dialog_Priority = ({
     onClose();
     setPriority(null);
     setIsClose(true);
+    setCanExport(false);
   };
 
-  const exportTaskPriorityListReport = async () => {
+  const exportReport = async () => {
     try {
       setIsExporting(true);
 
@@ -164,9 +166,11 @@ const Dialog_Priority = ({
             <ColorToolTip title="Export" placement="top" arrow>
               <span
                 className={`${
-                  isExporting ? "cursor-default" : "cursor-pointer"
-                } ml-5 mt-5`}
-                onClick={exportTaskPriorityListReport}
+                  canExport
+                    ? "cursor-pointer"
+                    : "pointer-events-none opacity-50"
+                } ${isExporting ? "cursor-default" : "cursor-pointer"} ml-5`}
+                onClick={canExport ? exportReport : undefined}
               >
                 {isExporting ? <Loading /> : <ExportIcon />}
               </span>
@@ -182,6 +186,7 @@ const Dialog_Priority = ({
                 : null
             }
             isClose={isClose}
+            onHandleExport={(e) => setCanExport(e)}
           />
         </DialogContent>
       </Dialog>

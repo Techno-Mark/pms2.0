@@ -38,6 +38,7 @@ const Dialog_EmailType = ({
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isClose, setIsClose] = useState<boolean>(false);
+  const [canExport, setCanExport] = useState(false);
 
   useEffect(() => {
     onOpen && setIsClose(false);
@@ -48,6 +49,7 @@ const Dialog_EmailType = ({
     setEmailType(null);
     setClickedStatusName("");
     setIsClose(true);
+    setCanExport(false);
   };
 
   function getValueByLabelOrType(labelOrType: string): number | null {
@@ -91,7 +93,7 @@ const Dialog_EmailType = ({
     getAllStatus();
   }, []);
 
-  const exportTaskStatusListReport = async () => {
+  const exportReport = async () => {
     try {
       setIsExporting(true);
 
@@ -206,9 +208,11 @@ const Dialog_EmailType = ({
               <ColorToolTip title="Export" placement="top" arrow>
                 <span
                   className={`${
-                    isExporting ? "cursor-default" : "cursor-pointer"
-                  } ml-5`}
-                  onClick={exportTaskStatusListReport}
+                    canExport
+                      ? "cursor-pointer"
+                      : "pointer-events-none opacity-50"
+                  } ${isExporting ? "cursor-default" : "cursor-pointer"} ml-5`}
+                  onClick={canExport ? exportReport : undefined}
                 >
                   {isExporting ? <Loading /> : <ExportIcon />}
                 </span>
@@ -223,6 +227,7 @@ const Dialog_EmailType = ({
                 : getValueByLabelOrType(onSelectedStatusName)
             }
             isClose={isClose}
+            onHandleExport={(e) => setCanExport(e)}
           />
         </DialogContent>
       </Dialog>

@@ -8,30 +8,33 @@ import {
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
-import { adminDashboardTaskStatusCols } from "@/utils/datatable/columns/AdminDatatableColumns";
+import { adminDashboardSLATATAchivementCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { callAPI } from "@/utils/API/callAPI";
 import {
   DashboardInitialFilter,
   ListDashboard,
-  ResponseDashboardTask,
 } from "@/utils/Types/dashboardTypes";
 import OverLay from "@/components/common/OverLay";
 
-interface TaskStatusProps {
+interface Props {
   currentFilterData: DashboardInitialFilter;
-  onCurrSelectedStatus: number | null;
+  onSelectedData: { department: number; type: number };
+  slaStatus: number | null;
   onSearchValue: string;
   isClose: boolean;
+  onOpen: boolean;
   onHandleExport: (canExport: boolean) => void;
 }
 
-const Datatable_TaskStatus = ({
+const Datatable_SLATATAchivement = ({
   currentFilterData,
-  onCurrSelectedStatus,
+  onSelectedData,
+  slaStatus,
   onSearchValue,
   isClose,
+  onOpen,
   onHandleExport,
-}: TaskStatusProps) => {
+}: Props) => {
   const [data, setData] = useState<ListDashboard[] | []>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -60,25 +63,30 @@ const Datatable_TaskStatus = ({
         currentFilterData.WorkTypeId === null
           ? Number(workTypeIdFromLocalStorage)
           : currentFilterData.WorkTypeId,
-      DepartmentIds: currentFilterData.DepartmentIds,
+      DepartmentIds: [onSelectedData.department],
       AssigneeIds: currentFilterData.AssigneeIds,
       ReviewerIds: currentFilterData.ReviewerIds,
       StartDate: currentFilterData.StartDate,
       EndDate: currentFilterData.EndDate,
       GlobalSearch: value,
-      StatusId: onCurrSelectedStatus === 0 ? null : onCurrSelectedStatus,
+      IsDownload: false,
+      SLAType: slaStatus,
     };
-    const url = `${process.env.report_api_url}/dashboard/taskstatuslist`;
+    const url = `${process.env.report_api_url}/dashboard/slatatlist`;
     const successCallback = (
-      ResponseData: ResponseDashboardTask,
+      ResponseData: {
+        TotalCount: number;
+        SLATatListFilters: null;
+        SLATatList: ListDashboard[] | [];
+      },
       error: boolean,
       ResponseStatus: string
     ) => {
       if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        setData(ResponseData.TaskStatusList);
+        setData(ResponseData.SLATatList);
         setTableDataCount(ResponseData.TotalCount);
-        onHandleExport(ResponseData.TaskStatusList.length > 0 ? true : false);
         setLoading(false);
+        onHandleExport(ResponseData.SLATatList.length > 0 ? true : false);
       } else {
         setLoading(false);
       }
@@ -88,7 +96,7 @@ const Datatable_TaskStatus = ({
 
   useEffect(() => {
     setPage(0);
-  }, [onCurrSelectedStatus]);
+  }, [onSelectedData, slaStatus]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -101,15 +109,17 @@ const Datatable_TaskStatus = ({
       }
     };
     const timer = setTimeout(() => {
-      onCurrSelectedStatus !== null && fetchData();
+      onOpen && fetchData();
     }, 500);
     return () => clearTimeout(timer);
   }, [
     onSearchValue,
-    onCurrSelectedStatus,
     currentFilterData,
+    onSelectedData,
+    slaStatus,
     page,
     rowsPerPage,
+    onOpen,
   ]);
 
   return (
@@ -118,10 +128,13 @@ const Datatable_TaskStatus = ({
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
-          columns={adminDashboardTaskStatusCols}
+          columns={adminDashboardSLATATAchivementCols}
           title={undefined}
-          options={{ ...dashboard_Options, tableBodyHeight: "55vh" }}
-          data-tableid="taskStatusInfo_Datatable"
+          options={{
+            ...dashboard_Options,
+            tableBodyHeight: "55vh",
+          }}
+          data-tableid="tasksSubmittedAssignedInfo_Datatable"
         />
         <TablePagination
           component="div"
@@ -142,4 +155,4 @@ const Datatable_TaskStatus = ({
   );
 };
 
-export default Datatable_TaskStatus;
+export default Datatable_SLATATAchivement;

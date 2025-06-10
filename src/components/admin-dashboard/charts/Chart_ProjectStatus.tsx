@@ -13,77 +13,16 @@ if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
 interface ChartProjectStatusProps {
-  onSelectedProjectIds: number[];
-  currentFilterData: DashboardInitialFilter;
-  sendData: (isDialogOpen: boolean, selectedPointData: number) => void;
-}
-
-interface Response {
-  List: ListProjectStatusSequence[] | [];
-  TotalCount: number;
+  data: ListProjectStatusSequence[];
+  totalCount: number;
+  sendData: (selectedPointData: number) => void;
 }
 
 const Chart_ProjectStatus = ({
-  onSelectedProjectIds,
-  currentFilterData,
+  data,
+  totalCount,
   sendData,
 }: ChartProjectStatusProps) => {
-  const [data, setData] = useState<any[]>([]);
-  const [totalCount, setTotalCount] = useState<number>(0);
-
-  const getProjectStatusData = async () => {
-    const workTypeIdFromLocalStorage =
-      typeof localStorage !== "undefined"
-        ? localStorage.getItem("workTypeId")
-        : 3;
-    const params = {
-      Clients: currentFilterData.Clients,
-      WorkTypeId:
-        currentFilterData.WorkTypeId === null
-          ? Number(workTypeIdFromLocalStorage)
-          : currentFilterData.WorkTypeId,
-      DepartmentIds: currentFilterData.DepartmentIds,
-      AssigneeIds: currentFilterData.AssigneeIds,
-      ReviewerIds: currentFilterData.ReviewerIds,
-      StartDate: currentFilterData.StartDate,
-      EndDate: currentFilterData.EndDate,
-      ProjectId:
-        onSelectedProjectIds.length === 0 ? null : onSelectedProjectIds,
-    };
-    const url = `${process.env.report_api_url}/dashboard/projectstatusgraph`;
-    const successCallback = (
-      ResponseData: Response,
-      error: boolean,
-      ResponseStatus: string
-    ) => {
-      if (ResponseStatus.toLowerCase() === "success" && error === false) {
-        const chartData = ResponseData.List.map(
-          (item: ListProjectStatusSequence) => ({
-            name: item.Key,
-            y: item.Value,
-            percentage: item.Percentage,
-            ColorCode: item.ColorCode,
-            Sequence: item.Sequence,
-          })
-        );
-
-        setData(chartData);
-        setTotalCount(ResponseData.TotalCount);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await getProjectStatusData();
-    };
-    const timer = setTimeout(() => {
-      fetchData();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [currentFilterData]);
-
   const chartOptions = {
     chart: {
       type: "variablepie",
@@ -128,7 +67,7 @@ const Chart_ProjectStatus = ({
               const selectedPointData = {
                 Sequence: (event.point && event.point.Sequence) || 0,
               };
-              sendData(true, selectedPointData.Sequence);
+              sendData(selectedPointData.Sequence);
             },
           },
         },
@@ -164,7 +103,7 @@ const Chart_ProjectStatus = ({
 
   return (
     <div className="flex flex-col px-[20px]">
-      <span className="flex items-start pt-[30px] px-[10px] text-lg font-medium">
+      <span className="flex items-start pt-[30px] px-[10px] text-lg font-bold">
         Project Status
       </span>
       <div className="flex justify-between relative">

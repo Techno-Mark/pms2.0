@@ -111,7 +111,7 @@ const reportTaskColConfig = [
   },
   {
     name: "AssignedTo",
-    label: "Assigned To",
+    label: "Assignee",
     bodyRenderer: generateCommonBodyRender,
   },
   // {
@@ -460,7 +460,7 @@ const reportsAPColConfig = [
   },
   {
     header: "AssignedTo",
-    label: "Assign To",
+    label: "Assignee",
     bodyRenderer: generateCommonBodyRender,
   },
   {
