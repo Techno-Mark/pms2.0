@@ -137,18 +137,24 @@ const Chart_LoggedVsWorking = ({
 
             if (point) {
               const shapeWidth = point.shapeArgs?.width || 0;
-              x =
-                point.plotX -
-                (categorySum === 0
-                  ? 50
-                  : categorySum !== currentValue
-                  ? -25
-                  : categorySum === currentValue && color === "#5D8BDD"
-                  ? -30
-                  : 0) +
-                chart.plotLeft -
-                labelWidth / 2 +
-                shapeWidth / 2;
+              // x =
+              //   point.plotX -
+              //   (categorySum === 0
+              //     ? 0
+              //     : categorySum === currentValue && color === "#5D8BDD"
+              //     ? -30
+              //     : categorySum !== currentValue && color === "transparent"
+              //     ? -30
+              //     : categorySum !== currentValue &&
+              //       (color === "#5D8BDD" || color === "#19C969")
+              //     ? -30
+              //     : categorySum === currentValue && color === "#19C969"
+              //     ? 10
+              //     : 0) +
+              //   chart.plotLeft -
+              //   labelWidth / 2 +
+              //   shapeWidth / 2;
+              x = point.plotX;
               y = 330;
             } else {
               x = chart.plotLeft + chart.plotWidth / 2 - labelWidth / 2;
@@ -191,6 +197,7 @@ const Chart_LoggedVsWorking = ({
             ),
             color: "#5D8BDD",
             type: "column",
+            grouping: true, // keep grouping enabled
           },
           {
             name: "Working Hours",
@@ -199,6 +206,7 @@ const Chart_LoggedVsWorking = ({
             ),
             color: "#19C969",
             type: "column",
+            grouping: true, // keep grouping enabled
           },
           {
             name: "Hover Area",
@@ -207,7 +215,8 @@ const Chart_LoggedVsWorking = ({
             color: "transparent",
             enableMouseTracking: true,
             showInLegend: false,
-            pointPadding: 0,
+            grouping: false, // disable grouping for this only
+            pointPadding: 0.3, // add a bit of padding
             groupPadding: 0,
             borderWidth: 0,
             states: {
