@@ -54,7 +54,7 @@ const ForgetPassword = () => {
     <div className="flex flex-col justify-center min-h-screen">
       <div className="flex items-center justify-between max-h-screen min-w-full relative">
         <Image
-          src="https://staging-tms.azurewebsites.net/assets/images/pages/forgot-password-v2.svg"
+          src="/forgot-password-v2.svg"
           alt="FP"
           className="w-[50%]"
           width={500}
