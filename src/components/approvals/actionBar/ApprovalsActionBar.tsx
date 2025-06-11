@@ -216,6 +216,7 @@ const ApprovalsActionBar = ({
             hasPermissionWorklog("", "Approve", "Approvals") &&
             isNotReviewer.length === 0 &&
             isReviewer.length > 0 &&
+            Number(localStorage.getItem("workTypeId")) !== 3 &&
             reviewList.filter(
               (i: List) =>
                 i.WorkitemId === workitemId &&

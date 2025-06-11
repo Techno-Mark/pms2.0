@@ -5011,7 +5011,10 @@ const EditDrawer = ({
                             variant="standard"
                             label={
                               <span>
-                                Assignee
+                                {Number(localStorage.getItem("workTypeId")) ===
+                                3
+                                  ? "Tax Preparer"
+                                  : "Assignee"}
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
@@ -5061,7 +5064,10 @@ const EditDrawer = ({
                             variant="standard"
                             label={
                               <span>
-                                Reviewer
+                                {Number(localStorage.getItem("workTypeId")) ===
+                                3
+                                  ? "Tax Reviewer"
+                                  : "Reviewer"}
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
