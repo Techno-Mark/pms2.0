@@ -76,16 +76,23 @@ const Chart_PeakProductivityHours = ({
         },
         series: [
           {
-            cursor: "pointer",
             name: "Peak Hours",
             type: "column",
             color: "#FFD700",
             data: chartData.map((d) => ({
-              y: d.Duration > 0 ? d.Duration : null,
-              color: d.Duration === maxVal ? "#FFD700" : "#32E282",
+              y: d.Duration === maxVal ? d.Duration : null,
+            })),
+          },
+          {
+            name: "Regular Hours",
+            type: "column",
+            color: "#32E282",
+            data: chartData.map((d) => ({
+              y: d.Duration > 0 && d.Duration !== maxVal ? d.Duration : null,
             })),
           },
         ],
+
         legend: {
           enabled: true,
         },
