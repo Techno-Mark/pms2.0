@@ -131,6 +131,7 @@ const EditDrawer = ({
 }: EditDrawer) => {
   const router = useRouter();
   const yearWorklogsDrawerDropdown = getYears();
+  const [workTypeId, setWorkTypeId] = useState(0);
   const [isLoadingWorklogs, setIsLoadingWorklogs] = useState(false);
   const [inputTypeReviewWorklogsDrawer, setInputTypeReviewWorklogsDrawer] =
     useState("text");
@@ -3641,6 +3642,7 @@ const EditDrawer = ({
         ? setTypeOfWorkWorklogsDropdownData(workTypeData)
         : setTypeOfWorkWorklogsDropdownData([]);
       const workTypeId = localStorage.getItem("workTypeId");
+      setWorkTypeId(Number(workTypeId));
       workTypeData.length > 0 &&
         onEdit === 0 &&
         setTypeOfWorkWorklogs(
@@ -4099,6 +4101,7 @@ const EditDrawer = ({
     // Others
     scrollToPanel(0);
     onDataFetch?.();
+    setWorkTypeId(0);
 
     if (typeof window !== "undefined") {
       const pathname = window.location.href.includes("id=");
@@ -5011,10 +5014,7 @@ const EditDrawer = ({
                             variant="standard"
                             label={
                               <span>
-                                {Number(localStorage.getItem("workTypeId")) ===
-                                3
-                                  ? "Tax Preparer"
-                                  : "Assignee"}
+                                {workTypeId === 3 ? "Tax Preparer" : "Assignee"}
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
@@ -5064,10 +5064,7 @@ const EditDrawer = ({
                             variant="standard"
                             label={
                               <span>
-                                {Number(localStorage.getItem("workTypeId")) ===
-                                3
-                                  ? "Tax Reviewer"
-                                  : "Reviewer"}
+                                {workTypeId === 3 ? "Tax Reviewer" : "Reviewer"}
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
