@@ -106,6 +106,10 @@ const TaskEditDrawer = ({
   >([]);
   const [statusWorklogsDropdownDataUse, setStatusWorklogsDropdownDataUse] =
     useState<LabelValueType[] | []>([]);
+  const [
+    statusWorklogsDropdownDataUseEdit,
+    setStatusWorklogsDropdownDataUseEdit,
+  ] = useState<LabelValueType[] | []>([]);
   const [statusWorklogs, setStatusWorklogs] = useState<number>(0);
   const [statusWorklogsType, setStatusWorklogsType] = useState<string | null>(
     null
@@ -752,6 +756,47 @@ const TaskEditDrawer = ({
               item.value === statusWorklogs
           )
         );
+      onOpen &&
+        onEdit > 0 &&
+        !errorlogSignedOffPending &&
+        setStatusWorklogsDropdownDataUseEdit(
+          statusData.filter(
+            (item: LabelValueType) =>
+              item.Type === "PendingFromAccounting" ||
+              item.Type === "PartialSubmitted" ||
+              item.Type === "Assigned" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient" ||
+              item.Type === "NotStarted" ||
+              item.Type === "InProgress" ||
+              item.Type === "InReview" ||
+              item.Type === "Stop" ||
+              item.Type === "Accept" ||
+              item.Type === "Submitted" ||
+              item.value === statusWorklogs
+          )
+        );
+      onOpen &&
+        onEdit > 0 &&
+        errorlogSignedOffPending &&
+        setStatusWorklogsDropdownDataUseEdit(
+          statusData.filter(
+            (item: LabelValueType) =>
+              item.Type === "PendingFromAccounting" ||
+              item.Type === "Assigned" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient" ||
+              item.Type === "Rework" ||
+              item.Type === "ReworkInProgress" ||
+              item.Type === "ReworkInReview" ||
+              item.Type === "ReworkPrepCompleted" ||
+              item.Type === "ReworkAccept" ||
+              item.Type === "ReworkSubmitted" ||
+              item.value === statusWorklogs
+          )
+        );
     };
     getData();
   }, [onOpen, typeOfWorkWorklogs]);
@@ -1115,6 +1160,7 @@ const TaskEditDrawer = ({
     setSubProcessWorklogsDropdownData([]);
     setStatusWorklogsDropdownData([]);
     setStatusWorklogsDropdownDataUse([]);
+    setStatusWorklogsDropdownDataUseEdit([]);
     setAssigneeWorklogsDropdownData([]);
     setReviewerWorklogsDropdownData([]);
     setManagerWorklogsDropdownData([]);
@@ -2361,7 +2407,7 @@ const TaskEditDrawer = ({
                             "QAInProgress",
                             "QASubmitted",
                           ].includes(statusWorklogsType?.toString())
-                            ? statusWorklogsDropdownData.filter(
+                            ? statusWorklogsDropdownDataUseEdit.filter(
                                 (i: LabelValueType) =>
                                   ![
                                     "InQA",
@@ -2372,7 +2418,7 @@ const TaskEditDrawer = ({
                                   i.Type.toString() ===
                                     statusWorklogsType?.toString()
                               )
-                            : statusWorklogsDropdownData.filter(
+                            : statusWorklogsDropdownDataUseEdit.filter(
                                 (i: LabelValueType) =>
                                   ![
                                     "InQA",
@@ -2391,7 +2437,7 @@ const TaskEditDrawer = ({
                             "QAInProgress",
                             "QASubmitted",
                           ].includes(statusWorklogsType?.toString())
-                            ? statusWorklogsDropdownData.filter(
+                            ? statusWorklogsDropdownDataUseEdit.filter(
                                 (i: LabelValueType) =>
                                   ![
                                     "InQA",
@@ -2402,7 +2448,7 @@ const TaskEditDrawer = ({
                                   i.Type.toString() ===
                                     statusWorklogsType?.toString()
                               )
-                            : statusWorklogsDropdownData.filter(
+                            : statusWorklogsDropdownDataUseEdit.filter(
                                 (i: LabelValueType) =>
                                   ![
                                     "InQA",

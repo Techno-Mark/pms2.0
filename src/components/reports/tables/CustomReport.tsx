@@ -922,6 +922,54 @@ const CustomReport = ({
       },
     },
     {
+      name: "PreparationAutoTimeRework",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Preparer Rework Auto Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "PreparationManualTimeRework",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Preparer Rework Manual Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "PreparationTotalTimeRework",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Preparer Rework Time Tracked"),
+        customBodyRender: (value: string | null) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "PreparationTimeIncludingRework",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Preparer Total Time"),
+        customBodyRender: (value: string | null) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
       name: "QAAutoTime",
       options: {
         filter: true,
@@ -950,6 +998,54 @@ const CustomReport = ({
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("QA Time Tracked"),
+        customBodyRender: (value: string | null) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "QAAutoTimeRework",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("QA Rework Auto Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "QAManualTimeRework",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("QA Rework Manual Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "QATotalTimeRework",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("QA Rework Time Tracked"),
+        customBodyRender: (value: string | null) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "QATimeIncludingRework",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("QA Total Time"),
         customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },
@@ -986,6 +1082,54 @@ const CustomReport = ({
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Reviewer Time Tracked"),
+        customBodyRender: (value: string | null) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "ReviewerAutoTimeRework",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Reviewer Rework Auto Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "ReviewerManualTimeRework",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Reviewer Rework Manual Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "ReviewerTotalTimeRework",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Reviewer Rework Time Tracked"),
+        customBodyRender: (value: string | null) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "ReviewerTimeIncludingRework",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Reviewer Total Time"),
         customBodyRender: (value: string | null) => {
           return generateInitialTimer(value);
         },
